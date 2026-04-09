@@ -2,6 +2,7 @@ import { isNumber } from 'lodash';
 import uPlot from 'uplot';
 
 import {
+  colorManipulator,
   type DataFrame,
   type FieldConfig,
   FieldType,
@@ -548,6 +549,12 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
       dynamicSeriesColor = (seriesIdx) => getFieldSeriesColor(alignedFrame.fields[seriesIdx], theme).color;
     }
 
+    const ghostOpacity: number | undefined = field.state?.ghostOverlayOpacity;
+    let resolvedLineColor = customConfig.lineColor ?? seriesColor;
+    if (ghostOpacity != null && typeof resolvedLineColor === 'string') {
+      resolvedLineColor = colorManipulator.alpha(resolvedLineColor, ghostOpacity);
+    }
+
     builder.addSeries({
       pathBuilder,
       pointsBuilder,
@@ -555,11 +562,11 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
       showPoints,
       pointsFilter,
       colorMode,
-      fillOpacity,
+      fillOpacity: ghostOpacity != null ? Math.round(ghostOpacity * 100 * 0.3) : fillOpacity,
       theme,
       dynamicSeriesColor,
       drawStyle: customConfig.drawStyle!,
-      lineColor: customConfig.lineColor ?? seriesColor,
+      lineColor: resolvedLineColor,
       lineWidth: customConfig.lineWidth,
       lineInterpolation: customConfig.lineInterpolation,
       lineStyle: customConfig.lineStyle,
@@ -575,7 +582,6 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
       hardMax: field.config.max,
       softMin: customConfig.axisSoftMin,
       softMax: customConfig.axisSoftMax,
-      // The following properties are not used in the uPlot config, but are utilized as transport for legend config
       dataFrameFieldIndex: field.state?.origin,
       showValues: customConfig.showValues,
     });
