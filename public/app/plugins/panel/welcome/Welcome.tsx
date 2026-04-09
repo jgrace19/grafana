@@ -63,6 +63,7 @@ const getStyles = (theme: GrafanaTheme2) => {
     }),
     title: css({
       marginBottom: 0,
+      color: '#ff69b4',
 
       [theme.breakpoints.down('lg')]: {
         marginBottom: theme.spacing(1),

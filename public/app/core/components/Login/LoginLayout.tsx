@@ -50,7 +50,7 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
                 </h1>
               ) : (
                 <>
-                  <h1 className={loginStyles.mainTitle}>{loginTitle}</h1>
+                  <h1 className={cx(loginStyles.mainTitle, loginStyles.welcomeTitle)}>{loginTitle}</h1>
                   {subTitle && <h3 className={loginStyles.subTitle}>{subTitle}</h3>}
                 </>
               )}
@@ -135,6 +135,9 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       [theme.breakpoints.up('sm')]: {
         fontSize: 32,
       },
+    }),
+    welcomeTitle: css({
+      color: '#ff69b4',
     }),
     subTitle: css({
       fontSize: theme.typography.size.md,
