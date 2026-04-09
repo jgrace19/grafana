@@ -549,7 +549,7 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
       dynamicSeriesColor = (seriesIdx) => getFieldSeriesColor(alignedFrame.fields[seriesIdx], theme).color;
     }
 
-    const ghostOpacity: number | undefined = field.state?.ghostOverlayOpacity;
+    const ghostOpacity: number | undefined = (customConfig as Record<string, unknown>).ghostOverlayOpacity as number | undefined;
     let resolvedLineColor = customConfig.lineColor ?? seriesColor;
     if (ghostOpacity != null && typeof resolvedLineColor === 'string') {
       resolvedLineColor = colorManipulator.alpha(resolvedLineColor, ghostOpacity);

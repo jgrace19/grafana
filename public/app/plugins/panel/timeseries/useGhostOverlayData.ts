@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { type Subscription } from 'rxjs';
+import { from, type Observable, type Subscription } from 'rxjs';
 
-import { type DataFrame, dateTime, type Field, FieldType, type PanelData, rangeUtil, type TimeRange } from '@grafana/data';
+import {
+  type DataFrame,
+  type DataQueryResponse,
+  dateTime,
+  type Field,
+  FieldType,
+  type PanelData,
+  rangeUtil,
+  type TimeRange,
+} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { type GhostOverlayOptions } from './panelcfg.gen';
@@ -43,11 +52,8 @@ function processGhostFrames(
             ...(field.config?.custom ?? {}),
             lineStyle: { fill: 'dash', dash: [5, 5] },
             fillOpacity: Math.round(opacity * 0.3),
+            ghostOverlayOpacity: opacity / 100,
           },
-        },
-        state: {
-          ...field.state,
-          ghostOverlayOpacity: opacity / 100,
         },
       };
     }),
@@ -124,13 +130,15 @@ export function useGhostOverlayData(
         const dsRef = data.request!.targets[0].datasource;
         const ds = await getDataSourceSrv().get(dsRef);
 
-        subscriptionRef.current = ds.query(request).subscribe({
-          next: (response) => {
+        const result = ds.query(request);
+        const obs: Observable<DataQueryResponse> = 'then' in result ? from(result) : result;
+        subscriptionRef.current = obs.subscribe({
+          next: (response: DataQueryResponse) => {
             if (!cancelled) {
               setGhostFrames(processGhostFrames(response.data as DataFrame[], offsetMs, ghostOverlay?.opacity ?? 30, offset));
             }
           },
-          error: (err) => {
+          error: (err: unknown) => {
             if (!cancelled) {
               console.error('Ghost overlay query failed:', err);
               setGhostFrames([]);

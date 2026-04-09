@@ -32,7 +32,7 @@ export const GhostDeltaBandPlugin = ({ config, frame }: GhostDeltaBandPluginProp
 
       for (let i = 1; i < seriesCount; i++) {
         const field = frame.fields[i];
-        if (field?.state?.ghostOverlayOpacity != null) {
+        if (field?.config?.custom?.ghostOverlayOpacity != null) {
           const currentIdx = i - Math.floor((seriesCount - 1) / 2);
           if (currentIdx >= 1 && currentIdx < i) {
             ghostPairs.push({ currentIdx, ghostIdx: i });
