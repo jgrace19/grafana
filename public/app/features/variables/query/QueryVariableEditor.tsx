@@ -69,8 +69,11 @@ export function QueryVariableEditorUnConnected({ variable, onPropChange }: OwnPr
     if (variable.query !== query) {
       let definition = '';
 
-      if (query && typeof query === 'object' && 'query' in query && typeof (query as Record<string, unknown>).query === 'string') {
-        definition = (query as Record<string, unknown>).query as string;
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const queryRecord = query as Record<string, unknown>;
+      if (query && typeof query === 'object' && 'query' in query && typeof queryRecord.query === 'string') {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        definition = queryRecord.query as string;
       }
 
       dispatch(changeQueryVariableQuery(toKeyedVariableIdentifier(variable), query, definition));

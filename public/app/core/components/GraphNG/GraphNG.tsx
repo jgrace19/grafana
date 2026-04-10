@@ -216,6 +216,7 @@ export function GraphNG(props: GraphNGProps) {
   const initialState = useMemo(() => {
     const state = prepareState(props, undefined, getTimeRange, true);
     if (state) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       state.alignedData = state.config!.prepData!([state.alignedFrame]) as AlignedData;
     }
     return state;
@@ -230,11 +231,11 @@ export function GraphNG(props: GraphNGProps) {
   const prevProps = prevPropsRef.current;
   prevPropsRef.current = props;
 
-  const propsChanged = !sameProps(
-    prevProps as unknown as Record<string, unknown>,
-    props as unknown as Record<string, unknown>,
-    propsToDiff
-  );
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const prevPropsRecord = prevProps as unknown as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const propsRecord = props as unknown as Record<string, unknown>;
+  const propsChanged = !sameProps(prevPropsRecord, propsRecord, propsToDiff);
 
   if (
     frames !== prevProps.frames ||
@@ -263,6 +264,7 @@ export function GraphNG(props: GraphNGProps) {
         pluginLog('GraphNG', false, 'config recreated', newState.config);
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       newState.alignedData = newState.config!.prepData!([newState.alignedFrame]) as AlignedData;
 
       if (

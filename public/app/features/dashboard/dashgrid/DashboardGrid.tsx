@@ -56,6 +56,7 @@ export function DashboardGrid({ dashboard, isEditable, editPanel, viewPanel, hid
       for (const variable of dashboard.getVariables()) {
         if (variable.id === PANEL_FILTER_VARIABLE) {
           if ('query' in variable) {
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             setPanelFilter(variable.query as string);
           }
           break;

@@ -31,6 +31,7 @@ export function QueryInspector({ instanceId, data, onRefreshQuery }: Props) {
   const formattedJsonRef = useRef<object | undefined>(undefined);
 
   const onDataSourceResponse = (resp: Record<string, unknown>) => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     if ((resp.config as Record<string, unknown>)?.hideFromInspector) {
       return;
     }
@@ -44,6 +45,7 @@ export function QueryInspector({ instanceId, data, onRefreshQuery }: Props) {
     if (cloned.config) {
       cloned.request = cloned.config;
       delete cloned.config;
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const request = cloned.request as Record<string, unknown>;
       delete request.transformRequest;
       delete request.transformResponse;

@@ -295,7 +295,8 @@ export function PanelStateWrapper({
     instanceState,
   });
 
-  // Update context when app changes
+  // Update context when app changes - runs on every render to check if app changed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const app = getPanelContextApp();
     if (panelContextRef.current.app !== app) {

@@ -59,7 +59,8 @@ function SharedPreferences({ resourceUri, onConfirm, preferenceType, disabled }:
   const [regionalFormat, setRegionalFormat] = useState('');
   const [homeDashboardUID, setHomeDashboardUID] = useState<string | undefined>(undefined);
   const [queryHistory, setQueryHistory] = useState<{ homeTab: string }>({ homeTab: '' });
-  const [navbar, setNavbar] = useState({ bookmarkUrls: [] as string[] });
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const [navbar, setNavbar] = useState<{ bookmarkUrls: string[] }>({ bookmarkUrls: [] as string[] });
 
   useEffect(() => {
     setIsLoading(true);

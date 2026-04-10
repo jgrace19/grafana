@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { AppEvents, LoadingState, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -11,7 +10,7 @@ import { Page } from 'app/core/components/Page/Page';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
 import { isRecord } from 'app/core/utils/isRecord';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
-import { type StoreState, useDispatch } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { cleanUpAction } from '../../../../core/actions/cleanUp';
 import { ExportFormat } from '../../../dashboard/api/types';
@@ -133,15 +132,14 @@ type DashboardImportPageRouteSearchParams = {
 
 type OwnProps = GrafanaRouteComponentProps<{}, DashboardImportPageRouteSearchParams>;
 
-const pageNav: NavModelItem = {
-  text: t('manage-dashboards.unthemed-dashboard-import.text.import-dashboard', 'Import dashboard'),
-  subTitle: t(
-    'manage-dashboards.unthemed-dashboard-import.subTitle.import-dashboard-from-file-or-grafanacom',
-    'Import dashboard from file or Grafana.com'
-  ),
-};
-
 function DashboardImportLegacyComponent({ queryParams }: OwnProps) {
+  const pageNav: NavModelItem = {
+    text: t('manage-dashboards.unthemed-dashboard-import.text.import-dashboard', 'Import dashboard'),
+    subTitle: t(
+      'manage-dashboards.unthemed-dashboard-import.subTitle.import-dashboard-from-file-or-grafanacom',
+      'Import dashboard from file or Grafana.com'
+    ),
+  };
   const dispatch = useDispatch();
 
   const loadingState = useSelector((state: StoreState) => state.importDashboard.state);
