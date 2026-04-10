@@ -274,4 +274,3 @@ function DashboardImportLegacyComponent({ queryParams }: OwnProps) {
 }
 
 export const DashboardImportLegacy = DashboardImportLegacyComponent;
-DashboardImportLegacy.displayName = 'DashboardImportLegacy';

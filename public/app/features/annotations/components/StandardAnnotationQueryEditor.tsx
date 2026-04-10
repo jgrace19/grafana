@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useRef, useState } from 'react';
+import { type ReactElement, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { lastValueFrom } from 'rxjs';
 
 import {
@@ -87,13 +87,20 @@ function renderStatusText(response: AnnotationQueryResponse, running: boolean | 
   );
 }
 
-export default function StandardAnnotationQueryEditor({
-  datasource,
-  datasourceInstanceSettings,
-  annotation,
-  onChange,
-  disableSavedQueries,
-}: Props) {
+export interface StandardAnnotationQueryEditorRef {
+  onQueryReplace: (query: DataQuery) => Promise<void>;
+}
+
+const StandardAnnotationQueryEditor = forwardRef<StandardAnnotationQueryEditorRef, Props>(function StandardAnnotationQueryEditor(
+  {
+    datasource,
+    datasourceInstanceSettings,
+    annotation,
+    onChange,
+    disableSavedQueries,
+  }: Props,
+  ref
+) {
   const [running, setRunning] = useState<boolean | undefined>(false);
   const [response, setResponse] = useState<AnnotationQueryResponse | undefined>(undefined);
   const [skipNextVerification, setSkipNextVerification] = useState(false);
@@ -144,6 +151,10 @@ export default function StandardAnnotationQueryEditor({
       onRunQuery();
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    onQueryReplace,
+  }));
 
   // On mount
   useEffect(() => {
@@ -300,4 +311,6 @@ export default function StandardAnnotationQueryEditor({
       )}
     </>
   );
-}
+});
+
+export default StandardAnnotationQueryEditor;
