@@ -26,7 +26,7 @@ describe('DashboardRow', () => {
       meta: {
         canEdit: true,
       },
-      events: { subscribe: jest.fn() },
+      events: { subscribe: jest.fn().mockReturnValue({ unsubscribe: jest.fn() }) },
       getRowPanels: () => [],
     };
 

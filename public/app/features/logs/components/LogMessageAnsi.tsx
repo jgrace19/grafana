@@ -10,7 +10,7 @@ interface Style {
 }
 
 interface ParsedChunk {
-  style: Style;
+  style?: Style;
   text: string;
 }
 
@@ -48,12 +48,13 @@ export function LogMessageAnsi({ value, highlight }: Props) {
   const chunks = useMemo<ParsedChunk[]>(() => {
     const parsed = ansicolor.parse(value);
     return parsed.spans.map((span): ParsedChunk => {
-      return span.css
-        ? {
-            style: convertCSSToStyle(theme, span.css),
-            text: span.text,
-          }
-        : { style: {}, text: span.text };
+      if (span.css) {
+        return {
+          style: convertCSSToStyle(theme, span.css),
+          text: span.text,
+        };
+      }
+      return { text: span.text };
     });
   }, [value, theme]);
 
