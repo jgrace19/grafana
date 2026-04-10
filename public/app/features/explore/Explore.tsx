@@ -2,7 +2,6 @@ import { css, cx } from '@emotion/css';
 import { get, groupBy } from 'lodash';
 import { useRef, useState } from 'react';
 import AutoSizer, { type HorizontalSize } from 'react-virtualized-auto-sizer';
-import { useDispatch, useSelector } from 'react-redux';
 
 import {
   type AbsoluteTimeRange,
@@ -32,7 +31,7 @@ import {
 import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR } from '@grafana/ui/internal';
 import { supportedFeatures } from 'app/core/history/richHistoryStorageProvider';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { getTimeZone } from '../profile/state/selectors';
 
@@ -63,11 +62,9 @@ import {
   modifyQueries,
   scanStart,
   scanStopAction,
-  selectIsWaitingForData,
   setQueries,
   setSupplementaryQueryEnabled,
 } from './state/query';
-import { isSplit, selectExploreDSMaps } from './state/selectors';
 import { updateTimeRange } from './state/time';
 
 const getStyles = (theme: GrafanaTheme2) => {
@@ -155,7 +152,6 @@ export function Explore({
   const { syncedTimes, correlationEditorDetails } = exploreState;
   const item = exploreState.panes[exploreId]!;
 
-  const theme = useSelector((state: StoreState) => state.user);
   const timeZone = useSelector((state: StoreState) => getTimeZone(state.user));
 
   const {
@@ -182,16 +178,11 @@ export function Explore({
     queriesChangedIndexAtRun,
   } = item;
 
-  const loading = useSelector(selectIsWaitingForData(exploreId));
   const logsSample = supplementaryQueries[SupplementaryQueryType.LogsSample];
   const showLogsSample = !!(logsSample.dataProvider !== undefined && !logsResult && (graphResult || tableResult));
 
   const onChangeTime = (rawRange: RawTimeRange) => {
     dispatch(updateTimeRange({ exploreId, rawRange }));
-  };
-
-  const onClickExample = (query: DataQuery) => {
-    dispatch(setQueries(exploreId, [query]));
   };
 
   const onCellFilterAdded = (filter: AdHocFilterItem) => {

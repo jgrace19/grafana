@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import {
   type AbsoluteTimeRange,
@@ -27,7 +26,7 @@ import { type DataQuery } from '@grafana/schema';
 import { PanelChrome } from '@grafana/ui';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { getTimeZone } from '../../profile/state/selectors';
 import { loadSupplementaryQueryData, selectIsWaitingForData, setSupplementaryQueryEnabled } from '../state/query';

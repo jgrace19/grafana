@@ -440,4 +440,3 @@ const AsyncIconButton = ({ isActive, tooltipSuffix, ...rest }: AsyncIconButtonPr
 };
 
 export const LogDetailsRow = UnThemedLogDetailsRow;
-LogDetailsRow.displayName = 'LogDetailsRow';

@@ -140,7 +140,7 @@ function setup(propOverrides?: Partial<Props>, dashboardModel?: DashboardModel |
   const wrappedRerender = (newProps: Partial<Props>, newDashboard?: DashboardModel | null) => {
     // Update store state for dashboard changes
     if (newDashboard !== undefined) {
-      (store as any).dispatch({
+      store.dispatch({
         type: 'dashboard/dashboardInitCompleted',
         payload: newDashboard,
       });

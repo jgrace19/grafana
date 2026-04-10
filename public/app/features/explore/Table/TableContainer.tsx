@@ -1,6 +1,5 @@
 import { css } from '@emotion/css';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import {
   applyFieldOverrides,
@@ -21,7 +20,7 @@ import {
   migrateFromParentRowIndexToNestedFrames,
 } from 'app/plugins/panel/table/migrations';
 import { type ExploreItemState } from 'app/types/explore';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useSelector } from 'app/types/store';
 
 import { LimitedDataDisclaimer } from '../LimitedDataDisclaimer';
 import { MetaInfoText } from '../MetaInfoText';

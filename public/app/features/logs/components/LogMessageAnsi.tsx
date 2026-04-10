@@ -47,13 +47,13 @@ export function LogMessageAnsi({ value, highlight }: Props) {
 
   const chunks = useMemo<ParsedChunk[]>(() => {
     const parsed = ansicolor.parse(value);
-    return parsed.spans.map((span) => {
+    return parsed.spans.map((span): ParsedChunk => {
       return span.css
         ? {
             style: convertCSSToStyle(theme, span.css),
             text: span.text,
           }
-        : { text: span.text };
+        : { style: {}, text: span.text };
     });
   }, [value, theme]);
 

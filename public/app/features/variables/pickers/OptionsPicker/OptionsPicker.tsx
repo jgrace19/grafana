@@ -1,7 +1,5 @@
 import { css } from '@emotion/css';
 import { type ComponentType } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 import {
   LoadingState,
@@ -11,7 +9,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { ClickOutsideWrapper } from '@grafana/ui';
-import { type StoreState, type ThunkDispatch } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { VARIABLE_PREFIX } from '../../constants';
 import { isMulti } from '../../guard';
@@ -19,7 +17,6 @@ import { getVariableQueryRunner } from '../../query/VariableQueryRunner';
 import { formatVariableLabel } from '../../shared/formatVariable';
 import { toKeyedAction } from '../../state/keyedVariablesReducer';
 import { getVariablesState } from '../../state/selectors';
-import { type KeyedVariableIdentifier } from '../../state/types';
 import { toKeyedVariableIdentifier } from '../../utils';
 import { VariableInput } from '../shared/VariableInput';
 import { VariableLink } from '../shared/VariableLink';
@@ -33,7 +30,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   VariablePickerProps<Model>
 > => {
   function OptionsPicker({ variable, onVariableChange, readOnly }: VariablePickerProps<Model>) {
-    const dispatch = useDispatch() as ThunkDispatch;
+    const dispatch = useDispatch();
 
     const { rootStateKey } = variable;
 

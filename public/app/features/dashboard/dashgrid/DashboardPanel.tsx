@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { initPanelState } from '../../panel/state/actions';
 import { setPanelInstanceState } from '../../panel/state/reducers';
@@ -10,6 +9,8 @@ import { type PanelModel } from '../state/PanelModel';
 
 import { LazyLoader } from './LazyLoader';
 import { PanelStateWrapper } from './PanelStateWrapper';
+
+export type Props = OwnProps;
 
 export interface OwnProps {
   panel: PanelModel;
@@ -41,7 +42,6 @@ export function DashboardPanel({
   const dispatch = useDispatch();
   const panelState = useSelector((state: StoreState) => state.panels[stateKey]);
   const plugin = panelState?.plugin;
-  const instanceState = panelState?.instanceState;
 
   useEffect(() => {
     panel.isInView = !lazy;

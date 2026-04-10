@@ -186,7 +186,7 @@ export default function TimelineViewingLayer({
   updateViewRangeTime,
   viewRangeTime,
 }: TimelineViewingLayerProps) {
-  const rootRef = useRef<Element | TNil>(undefined);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const getDraggingBounds = (): DraggableBounds => {
     if (!rootRef.current) {
@@ -241,8 +241,9 @@ export default function TimelineViewingLayer({
   }, [boundsInvalidator]);
 
   useEffect(() => {
+    const dragger = draggerReframeRef.current;
     return () => {
-      draggerReframeRef.current.dispose();
+      dragger.dispose();
     };
   }, []);
 
@@ -258,7 +259,7 @@ export default function TimelineViewingLayer({
     <div
       aria-hidden
       className={styles.TimelineViewingLayer}
-      ref={rootRef as React.RefCallback<Element>}
+      ref={rootRef}
       onMouseDown={draggerReframeRef.current.handleMouseDown}
       onMouseLeave={draggerReframeRef.current.handleMouseLeave}
       onMouseMove={draggerReframeRef.current.handleMouseMove}

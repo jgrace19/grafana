@@ -1,6 +1,5 @@
 import { css, cx } from '@emotion/css';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import {
   type NavModel,
@@ -26,9 +25,9 @@ import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardWatcher } from 'app/features/live/dashboard/dashboardWatcher';
 import { KioskMode } from 'app/types/dashboard';
 import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
-import { cancelVariables, templateVarsChangedInUrl } from '../../variables/state/actions';
+import { templateVarsChangedInUrl } from '../../variables/state/actions';
 import { findTemplateVarChanges } from '../../variables/utils';
 import DashNav from '../components/DashNav/DashNav';
 import { DashboardLoading } from '../components/DashboardLoading/DashboardLoading';
@@ -109,8 +108,6 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
 
   const [editPanel, setEditPanel] = useState<PanelModel | null>(null);
   const [viewPanel, setViewPanel] = useState<PanelModel | null>(null);
-  const [editView, setEditView] = useState<string | null>(null);
-  const [showLoadingState] = useState(false);
   const [panelNotFound, setPanelNotFound] = useState(false);
   const [editPanelAccessDenied, setEditPanelAccessDenied] = useState(false);
   const [scrollElement, setScrollElement] = useState<ScrollRefElement | undefined>(undefined);
@@ -136,7 +133,7 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
         routeName: route.routeName,
         fixUrl: true,
         accessToken: params.accessToken,
-        keybindingSrv: grafanaContext?.keybindings,
+        keybindingSrv: grafanaContext!.keybindings,
       })
     );
 
@@ -146,7 +143,8 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
   // On mount
   useEffect(() => {
     initDashboardFn();
-    forceRouteReloadCounterRef.current = (location.state as any)?.routeReloadCounter || 0;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    forceRouteReloadCounterRef.current = (location.state as { routeReloadCounter?: number })?.routeReloadCounter || 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -169,7 +167,8 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
   // Handle route param changes (uid change or forced reload)
   const prevParamsUidRef = useRef(params.uid);
   useEffect(() => {
-    const routeReloadCounter = (location.state as any)?.routeReloadCounter;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const routeReloadCounter = (location.state as { routeReloadCounter?: number })?.routeReloadCounter;
 
     if (!dashboard) {
       return;
@@ -195,6 +194,7 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
     }
     prevSearchRef.current = location.search;
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const prevUrlParams = {} as typeof queryParams;
     if (queryParams?.from !== undefined || queryParams?.to !== undefined) {
       getTimeSrv().updateTimeRangeFromUrl();
@@ -266,14 +266,12 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
 
     // Entering settings view
     if (!prevUrlEditViewRef.current && urlEditView) {
-      setEditView(urlEditView);
       rememberScrollTopRef.current = scrollElement?.scrollTop;
       setUpdateScrollTop(0);
     }
     // Leaving settings view
     else if (prevUrlEditViewRef.current && !urlEditView) {
       setUpdateScrollTop(rememberScrollTopRef.current);
-      setEditView(null);
     }
 
     prevUrlEditViewRef.current = urlEditView;
@@ -494,5 +492,4 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
 }
 
 export const DashboardPage = UnthemedDashboardPage;
-DashboardPage.displayName = 'DashboardPage';
 export default DashboardPage;

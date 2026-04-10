@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 
 import { type DataFrame, FieldType, getDefaultTimeRange, InternalTimeZones, toDataFrame } from '@grafana/data';
 import { configureStore } from 'app/store/configureStore';
+import { type StoreState } from 'app/types/store';
 
 import { TableContainer } from './TableContainer';
 
@@ -42,7 +43,7 @@ const dataFrame = toDataFrame({
 });
 
 function renderWithStore(tableResult: DataFrame[] | null = null) {
-  const store = configureStore({
+  const preloadedState: Partial<StoreState> = {
     explore: {
       panes: {
         left: {
@@ -51,8 +52,9 @@ function renderWithStore(tableResult: DataFrame[] | null = null) {
           queryResponse: { series: [], state: 'Done' },
         },
       },
-    } as any,
-  });
+    } as StoreState['explore'],
+  };
+  const store = configureStore(preloadedState);
 
   return render(
     <Provider store={store}>
