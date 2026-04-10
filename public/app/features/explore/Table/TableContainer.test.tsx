@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
 import { type DataFrame, FieldType, getDefaultTimeRange, InternalTimeZones, toDataFrame } from '@grafana/data';
+import { configureStore } from 'app/store/configureStore';
 
-import { TableContainerWithTheme } from './TableContainer';
+import { TableContainer } from './TableContainer';
+
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  PanelRenderer: ({ title }: { title: string }) => <div>PanelRenderer</div>,
+}));
 
 function getPanels(): HTMLElement[] {
   return screen.getAllByText(/PanelRenderer/);
@@ -34,21 +41,36 @@ const dataFrame = toDataFrame({
   ],
 });
 
-const defaultProps = {
-  exploreId: 'left',
-  loading: false,
-  width: 800,
-  onCellFilterAdded: jest.fn(),
-  tableResult: [dataFrame],
-  splitOpenFn: () => {},
-  range: getDefaultTimeRange(),
-  timeZone: InternalTimeZones.utc,
-};
+function renderWithStore(tableResult: DataFrame[] | null = null) {
+  const store = configureStore({
+    explore: {
+      panes: {
+        left: {
+          tableResult,
+          range: getDefaultTimeRange(),
+          queryResponse: { series: [], state: 'Done' },
+        },
+      },
+    } as any,
+  });
 
-describe('TableContainerWithTheme', () => {
+  return render(
+    <Provider store={store}>
+      <TableContainer
+        exploreId="left"
+        width={800}
+        onCellFilterAdded={jest.fn()}
+        splitOpenFn={() => {}}
+        timeZone={InternalTimeZones.utc}
+      />
+    </Provider>
+  );
+}
+
+describe('TableContainer', () => {
   describe('With one main frame', () => {
     it('should render component', () => {
-      render(<TableContainerWithTheme {...defaultProps} />);
+      renderWithStore([dataFrame]);
       const tables = getPanels();
       expect(tables.length).toBe(1);
       expect(tables[0]).toBeInTheDocument();
@@ -62,14 +84,13 @@ describe('TableContainerWithTheme', () => {
           length: 0,
         },
       ];
-      render(<TableContainerWithTheme {...defaultProps} tableResult={emptyFrames} />);
+      renderWithStore(emptyFrames);
       expect(screen.getByText('0 series returned')).toBeInTheDocument();
     });
 
     it('should render table title with Prometheus query', () => {
       const dataFrames = [{ ...dataFrame, name: 'metric{label="value"}' }];
-      const tableProps = { ...defaultProps, tableResult: dataFrames };
-      render(<TableContainerWithTheme {...tableProps} />);
+      renderWithStore(dataFrames);
       expect(screen.getByText('Table - metric{label="value"}')).toBeInTheDocument();
     });
 
@@ -97,7 +118,7 @@ describe('TableContainerWithTheme', () => {
         ],
       });
 
-      render(<TableContainerWithTheme {...defaultProps} tableResult={[df]} />);
+      renderWithStore([df]);
       expect(df.fields[0].config.custom?.hideFrom?.viz).toBe(true);
       expect(df.fields[1].config.custom?.hideFrom?.viz).toBe(false);
     });
@@ -106,8 +127,7 @@ describe('TableContainerWithTheme', () => {
   describe('With multiple main frames', () => {
     it('should render multiple tables for multiple frames', () => {
       const dataFrames = [dataFrame, dataFrame];
-      const multiDefaultProps = { ...defaultProps, tableResult: dataFrames };
-      render(<TableContainerWithTheme {...multiDefaultProps} />);
+      renderWithStore(dataFrames);
       const tables = getPanels();
       expect(tables.length).toBe(2);
       expect(tables[0]).toBeInTheDocument();

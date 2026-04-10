@@ -1,6 +1,6 @@
-import { PureComponent } from 'react';
+import { useEffect, useState } from 'react';
 import * as React from 'react';
-import { connect, type ConnectedProps } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   type AbsoluteTimeRange,
@@ -27,7 +27,6 @@ import { type DataQuery } from '@grafana/schema';
 import { PanelChrome } from '@grafana/ui';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
-import { type ExploreItemState } from 'app/types/explore';
 import { type StoreState } from 'app/types/store';
 
 import { getTimeZone } from '../../profile/state/selectors';
@@ -40,7 +39,7 @@ import { LiveLogsWithTheme } from './LiveLogs';
 import { Logs } from './Logs';
 import { LogsCrossFadeTransition } from './utils/LogsCrossFadeTransition';
 
-interface LogsContainerProps extends PropsFromRedux {
+interface LogsContainerProps {
   width: number;
   exploreId: string;
   scanRange?: RawTimeRange;
@@ -63,49 +62,87 @@ type DataSourceInstance =
   | (DataSourceApi<DataQuery> & DataSourceWithLogsContextSupport<DataQuery>)
   | (DataSourceApi<DataQuery> & DataSourceWithQueryModificationSupport<DataQuery>);
 
-interface LogsContainerState {
-  dsInstances: Record<string, DataSourceInstance>;
+function getQuery(
+  logsQueries: DataQuery[] | undefined,
+  row: LogRowModel,
+  datasourceInstance: DataSourceApi<DataQuery> & DataSourceWithLogsContextSupport<DataQuery>
+) {
+  return (logsQueries ?? []).find(
+    (q) => q.refId === row.dataFrame.refId && q.datasource != null && q.datasource.type === datasourceInstance.type
+  );
 }
 
-class LogsContainer extends PureComponent<LogsContainerProps, LogsContainerState> {
-  state: LogsContainerState = {
-    dsInstances: {},
-  };
+export default function LogsContainer({
+  width,
+  exploreId,
+  syncedTimes,
+  loadingState,
+  onClickFilterLabel,
+  onClickFilterOutLabel,
+  onStartScanning,
+  onStopScanning,
+  eventBus,
+  splitOpenFn,
+  isFilterLabelActive,
+  onClickFilterString,
+  onClickFilterOutString,
+  onPinLineCallback,
+}: LogsContainerProps) {
+  const dispatch = useDispatch();
 
-  componentDidMount() {
-    this.updateDataSourceInstances();
-  }
+  const explore = useSelector((state: StoreState) => state.explore);
+  const item = explore.panes[exploreId]!;
+  const {
+    logsResult,
+    scanning,
+    datasourceInstance,
+    isLive,
+    isPaused,
+    clearedAtIndex,
+    range,
+    absoluteRange,
+    supplementaryQueries,
+  } = item;
+  const loading = useSelector(selectIsWaitingForData(exploreId));
+  const panelState = item.panelsState;
+  const timeZone = useSelector((state: StoreState) => getTimeZone(state.user));
+  const logsVolume = supplementaryQueries[SupplementaryQueryType.LogsVolume];
 
-  componentDidUpdate(prevProps: LogsContainerProps) {
-    if (prevProps.logsQueries !== this.props.logsQueries) {
-      this.updateDataSourceInstances();
-    }
-  }
+  const logRows = logsResult?.rows;
+  const logsMeta = logsResult?.meta;
+  const logsSeries = logsResult?.series;
+  const logsQueries = logsResult?.queries;
+  const visibleRange = logsResult?.visibleRange;
+  const logsFrames = item.queryResponse.logsFrames;
 
-  private updateDataSourceInstances() {
-    const { logsQueries, datasourceInstance } = this.props;
+  const [dsInstances, setDsInstances] = useState<Record<string, DataSourceInstance>>({});
+
+  useEffect(() => {
+    updateDataSourceInstances();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logsQueries]);
+
+  function updateDataSourceInstances() {
     if (!logsQueries || !datasourceInstance) {
       return;
     }
 
-    const dsInstances: Record<string, DataSourceInstance> = {};
+    const instances: Record<string, DataSourceInstance> = {};
 
-    // Not in mixed mode.
     if (datasourceInstance.uid !== MIXED_DATASOURCE_NAME) {
       logsQueries.forEach(({ refId }) => {
-        dsInstances[refId] = datasourceInstance;
+        instances[refId] = datasourceInstance;
       });
-      this.setState({ dsInstances });
+      setDsInstances(instances);
       return;
     }
 
-    // Mixed mode.
     const dsPromises: Array<Promise<{ ds: DataSourceApi; refId: string }>> = [];
     for (const query of logsQueries) {
       if (!query.datasource) {
         continue;
       }
-      const mustCheck = !dsInstances[query.refId] || dsInstances[query.refId].uid !== query.datasource.uid;
+      const mustCheck = !instances[query.refId] || instances[query.refId].uid !== query.datasource.uid;
       if (mustCheck) {
         dsPromises.push(
           new Promise((resolve) => {
@@ -123,99 +160,73 @@ class LogsContainer extends PureComponent<LogsContainerProps, LogsContainerState
       return;
     }
 
-    Promise.all(dsPromises).then((instances) => {
-      instances.forEach(({ ds, refId }) => {
-        dsInstances[refId] = ds;
+    Promise.all(dsPromises).then((resolved) => {
+      resolved.forEach(({ ds, refId }) => {
+        instances[refId] = ds;
       });
-      this.setState({ dsInstances });
+      setDsInstances(instances);
     });
   }
 
-  onChangeTime = (absoluteRange: AbsoluteTimeRange) => {
-    const { exploreId, updateTimeRange } = this.props;
-    updateTimeRange({ exploreId, absoluteRange });
+  const onChangeTime = (absoluteRange: AbsoluteTimeRange) => {
+    dispatch(updateTimeRange({ exploreId, absoluteRange }));
   };
 
-  loadMoreLogs = (absoluteRange: AbsoluteTimeRange) => {
-    const { exploreId, loadMoreLogs } = this.props;
-    loadMoreLogs({ exploreId, absoluteRange });
+  const onLoadMoreLogs = (absoluteRange: AbsoluteTimeRange) => {
+    dispatch(loadMoreLogs({ exploreId, absoluteRange }));
   };
 
-  private getQuery(
-    logsQueries: DataQuery[] | undefined,
-    row: LogRowModel,
-    datasourceInstance: DataSourceApi<DataQuery> & DataSourceWithLogsContextSupport<DataQuery>
-  ) {
-    // we need to find the query, and we need to be very sure that it's a query
-    // from this datasource
-    return (logsQueries ?? []).find(
-      (q) => q.refId === row.dataFrame.refId && q.datasource != null && q.datasource.type === datasourceInstance.type
-    );
-  }
-
-  getLogRowContext = async (
+  const getLogRowContext = async (
     row: LogRowModel,
     origRow: LogRowModel,
     options: LogRowContextOptions
   ): Promise<DataQueryResponse> => {
-    const { logsQueries } = this.props;
-
-    if (!origRow.dataFrame.refId || !this.state.dsInstances[origRow.dataFrame.refId]) {
-      return Promise.resolve({
-        data: [],
-      });
+    if (!origRow.dataFrame.refId || !dsInstances[origRow.dataFrame.refId]) {
+      return Promise.resolve({ data: [] });
     }
 
-    const ds = this.state.dsInstances[origRow.dataFrame.refId];
+    const ds = dsInstances[origRow.dataFrame.refId];
     if (!hasLogsContextSupport(ds)) {
-      return Promise.resolve({
-        data: [],
-      });
+      return Promise.resolve({ data: [] });
     }
 
-    const query = this.getQuery(logsQueries, origRow, ds);
+    const query = getQuery(logsQueries, origRow, ds);
     return query
       ? ds.getLogRowContext(row, options, query)
-      : Promise.resolve({
-          data: [],
-        });
+      : Promise.resolve({ data: [] });
   };
 
-  getLogRowContextQuery = async (
+  const getLogRowContextQuery = async (
     row: LogRowModel,
     options?: LogRowContextOptions,
     cacheFilters = true
   ): Promise<DataQuery | null> => {
-    const { logsQueries } = this.props;
-
-    if (!row.dataFrame.refId || !this.state.dsInstances[row.dataFrame.refId]) {
+    if (!row.dataFrame.refId || !dsInstances[row.dataFrame.refId]) {
       return Promise.resolve(null);
     }
 
-    const ds = this.state.dsInstances[row.dataFrame.refId];
+    const ds = dsInstances[row.dataFrame.refId];
     if (!hasLogsContextSupport(ds)) {
       return Promise.resolve(null);
     }
 
-    const query = this.getQuery(logsQueries, row, ds);
+    const query = getQuery(logsQueries, row, ds);
     return query && ds.getLogRowContextQuery
       ? ds.getLogRowContextQuery(row, options, query, cacheFilters)
       : Promise.resolve(null);
   };
 
-  getLogRowContextUi = (row: LogRowModel, runContextQuery?: () => void): React.ReactNode => {
-    const { logsQueries } = this.props;
-
-    if (!row.dataFrame.refId || !this.state.dsInstances[row.dataFrame.refId]) {
+  const getLogRowContextUi = (row: LogRowModel, runContextQuery?: () => void): React.ReactNode => {
+    if (!row.dataFrame.refId || !dsInstances[row.dataFrame.refId]) {
       return <></>;
     }
 
-    const ds = this.state.dsInstances[row.dataFrame.refId];
+    const ds = dsInstances[row.dataFrame.refId];
     if (!hasLogsContextSupport(ds)) {
       return <></>;
     }
 
-    const query = this.getQuery(logsQueries, row, ds);
+    const query = getQuery(logsQueries, row, ds);
     return query && hasLogsContextUiSupport(ds) && ds.getLogRowContextUi ? (
       ds.getLogRowContextUi(row, runContextQuery, query)
     ) : (
@@ -223,188 +234,109 @@ class LogsContainer extends PureComponent<LogsContainerProps, LogsContainerState
     );
   };
 
-  showContextToggle = (row?: LogRowModel): boolean => {
-    if (!row?.dataFrame.refId || !this.state.dsInstances[row.dataFrame.refId]) {
+  const showContextToggle = (row?: LogRowModel): boolean => {
+    if (!row?.dataFrame.refId || !dsInstances[row.dataFrame.refId]) {
       return false;
     }
-    return hasLogsContextSupport(this.state.dsInstances[row.dataFrame.refId]);
+    return hasLogsContextSupport(dsInstances[row.dataFrame.refId]);
   };
 
-  getFieldLinks: GetFieldLinksFn = (field, rowIndex, dataFrame, vars) => {
-    const { splitOpenFn, range } = this.props;
+  const getFieldLinks: GetFieldLinksFn = (field, rowIndex, dataFrame, vars) => {
     return getFieldLinksForExplore({ field, rowIndex, splitOpenFn, range, dataFrame, vars });
   };
 
-  logDetailsFilterAvailable = () => {
-    return Object.values(this.state.dsInstances).some(
+  const logDetailsFilterAvailable = () => {
+    return Object.values(dsInstances).some(
       (ds) => ds?.modifyQuery || hasQueryModificationSupport(ds) || hasToggleableQueryFiltersSupport(ds)
     );
   };
 
-  filterValueAvailable = () => {
-    return Object.values(this.state.dsInstances).some(
+  const filterValueAvailable = () => {
+    return Object.values(dsInstances).some(
       (ds) => hasQueryModificationSupport(ds) && ds?.getSupportedQueryModifications().includes('ADD_STRING_FILTER')
     );
   };
 
-  filterOutValueAvailable = () => {
-    return Object.values(this.state.dsInstances).some(
+  const filterOutValueAvailable = () => {
+    return Object.values(dsInstances).some(
       (ds) => hasQueryModificationSupport(ds) && ds?.getSupportedQueryModifications().includes('ADD_STRING_FILTER_OUT')
     );
   };
 
-  loadLogsVolumeData = () => {
-    this.props.loadSupplementaryQueryData(this.props.exploreId, SupplementaryQueryType.LogsVolume);
+  const loadLogsVolumeData = () => {
+    dispatch(loadSupplementaryQueryData(exploreId, SupplementaryQueryType.LogsVolume));
   };
 
-  onSetLogsVolumeEnabled = (enabled: boolean) => {
-    this.props.setSupplementaryQueryEnabled(this.props.exploreId, enabled, SupplementaryQueryType.LogsVolume);
+  const onSetLogsVolumeEnabled = (enabled: boolean) => {
+    dispatch(setSupplementaryQueryEnabled(exploreId, enabled, SupplementaryQueryType.LogsVolume));
   };
 
-  render() {
-    const {
-      loading,
-      loadingState,
-      logRows,
-      logsMeta,
-      logsSeries,
-      logsQueries,
-      onClickFilterLabel,
-      onClickFilterOutLabel,
-      onStartScanning,
-      onStopScanning,
-      absoluteRange,
-      timeZone,
-      visibleRange,
-      scanning,
-      range,
-      width,
-      splitOpenFn,
-      isLive,
-      exploreId,
-      logsVolume,
-      onPinLineCallback,
-    } = this.props;
-
-    if (!logRows) {
-      return null;
-    }
-
-    return (
-      <>
-        <LogsCrossFadeTransition visible={isLive}>
-          <PanelChrome title={t('explore.logs-container.label-logs', 'Logs')}>
-            <LiveTailControls exploreId={exploreId}>
-              {(controls) => (
-                <LiveLogsWithTheme
-                  logRows={logRows}
-                  timeZone={timeZone}
-                  stopLive={controls.stop}
-                  isPaused={this.props.isPaused}
-                  onPause={controls.pause}
-                  onResume={controls.resume}
-                  onClear={controls.clear}
-                  clearedAtIndex={this.props.clearedAtIndex}
-                />
-              )}
-            </LiveTailControls>
-          </PanelChrome>
-        </LogsCrossFadeTransition>
-        <LogsCrossFadeTransition visible={!isLive}>
-          <Logs
-            exploreId={exploreId}
-            datasourceType={this.props.datasourceInstance?.type}
-            logRows={logRows}
-            logsMeta={logsMeta}
-            logsSeries={logsSeries}
-            logsVolumeEnabled={logsVolume.enabled}
-            onSetLogsVolumeEnabled={this.onSetLogsVolumeEnabled}
-            logsVolumeData={logsVolume.data}
-            logsQueries={logsQueries}
-            width={width}
-            splitOpen={splitOpenFn}
-            loading={loading}
-            loadingState={loadingState}
-            loadLogsVolumeData={this.loadLogsVolumeData}
-            onChangeTime={this.onChangeTime}
-            loadMoreLogs={this.loadMoreLogs}
-            onClickFilterLabel={this.logDetailsFilterAvailable() ? onClickFilterLabel : undefined}
-            onClickFilterOutLabel={this.logDetailsFilterAvailable() ? onClickFilterOutLabel : undefined}
-            onStartScanning={onStartScanning}
-            onStopScanning={onStopScanning}
-            absoluteRange={absoluteRange}
-            visibleRange={visibleRange}
-            timeZone={timeZone}
-            scanning={scanning}
-            scanRange={range.raw}
-            showContextToggle={this.showContextToggle}
-            getRowContext={this.getLogRowContext}
-            getRowContextQuery={this.getLogRowContextQuery}
-            getLogRowContextUi={this.getLogRowContextUi}
-            getFieldLinks={this.getFieldLinks}
-            eventBus={this.props.eventBus}
-            panelState={this.props.panelState}
-            logsFrames={this.props.logsFrames}
-            isFilterLabelActive={this.logDetailsFilterAvailable() ? this.props.isFilterLabelActive : undefined}
-            range={range}
-            onPinLineCallback={onPinLineCallback}
-            onClickFilterString={this.filterValueAvailable() ? this.props.onClickFilterString : undefined}
-            onClickFilterOutString={this.filterOutValueAvailable() ? this.props.onClickFilterOutString : undefined}
-          />
-        </LogsCrossFadeTransition>
-      </>
-    );
+  if (!logRows) {
+    return null;
   }
+
+  return (
+    <>
+      <LogsCrossFadeTransition visible={isLive}>
+        <PanelChrome title={t('explore.logs-container.label-logs', 'Logs')}>
+          <LiveTailControls exploreId={exploreId}>
+            {(controls) => (
+              <LiveLogsWithTheme
+                logRows={logRows}
+                timeZone={timeZone}
+                stopLive={controls.stop}
+                isPaused={isPaused}
+                onPause={controls.pause}
+                onResume={controls.resume}
+                onClear={controls.clear}
+                clearedAtIndex={clearedAtIndex}
+              />
+            )}
+          </LiveTailControls>
+        </PanelChrome>
+      </LogsCrossFadeTransition>
+      <LogsCrossFadeTransition visible={!isLive}>
+        <Logs
+          exploreId={exploreId}
+          datasourceType={datasourceInstance?.type}
+          logRows={logRows}
+          logsMeta={logsMeta}
+          logsSeries={logsSeries}
+          logsVolumeEnabled={logsVolume.enabled}
+          onSetLogsVolumeEnabled={onSetLogsVolumeEnabled}
+          logsVolumeData={logsVolume.data}
+          logsQueries={logsQueries}
+          width={width}
+          splitOpen={splitOpenFn}
+          loading={loading}
+          loadingState={loadingState}
+          loadLogsVolumeData={loadLogsVolumeData}
+          onChangeTime={onChangeTime}
+          loadMoreLogs={onLoadMoreLogs}
+          onClickFilterLabel={logDetailsFilterAvailable() ? onClickFilterLabel : undefined}
+          onClickFilterOutLabel={logDetailsFilterAvailable() ? onClickFilterOutLabel : undefined}
+          onStartScanning={onStartScanning}
+          onStopScanning={onStopScanning}
+          absoluteRange={absoluteRange}
+          visibleRange={visibleRange}
+          timeZone={timeZone}
+          scanning={scanning}
+          scanRange={range.raw}
+          showContextToggle={showContextToggle}
+          getRowContext={getLogRowContext}
+          getRowContextQuery={getLogRowContextQuery}
+          getLogRowContextUi={getLogRowContextUi}
+          getFieldLinks={getFieldLinks}
+          eventBus={eventBus}
+          panelState={panelState}
+          logsFrames={logsFrames}
+          isFilterLabelActive={logDetailsFilterAvailable() ? isFilterLabelActive : undefined}
+          range={range}
+          onPinLineCallback={onPinLineCallback}
+          onClickFilterString={filterValueAvailable() ? onClickFilterString : undefined}
+          onClickFilterOutString={filterOutValueAvailable() ? onClickFilterOutString : undefined}
+        />
+      </LogsCrossFadeTransition>
+    </>
+  );
 }
-
-function mapStateToProps(state: StoreState, { exploreId }: { exploreId: string }) {
-  const explore = state.explore;
-  const item: ExploreItemState = explore.panes[exploreId]!;
-  const {
-    logsResult,
-    scanning,
-    datasourceInstance,
-    isLive,
-    isPaused,
-    clearedAtIndex,
-    range,
-    absoluteRange,
-    supplementaryQueries,
-  } = item;
-  const loading = selectIsWaitingForData(exploreId)(state);
-  const panelState = item.panelsState;
-  const timeZone = getTimeZone(state.user);
-  const logsVolume = supplementaryQueries[SupplementaryQueryType.LogsVolume];
-
-  return {
-    loading,
-    logRows: logsResult?.rows,
-    logsMeta: logsResult?.meta,
-    logsSeries: logsResult?.series,
-    logsQueries: logsResult?.queries,
-    visibleRange: logsResult?.visibleRange,
-    scanning,
-    timeZone,
-    datasourceInstance,
-    isLive,
-    isPaused,
-    clearedAtIndex,
-    range,
-    absoluteRange,
-    logsVolume,
-    panelState,
-    logsFrames: item.queryResponse.logsFrames,
-  };
-}
-
-const mapDispatchToProps = {
-  updateTimeRange,
-  loadMoreLogs,
-  loadSupplementaryQueryData,
-  setSupplementaryQueryEnabled,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-export default connector(LogsContainer);

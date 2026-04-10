@@ -1,5 +1,5 @@
-import { PureComponent } from 'react';
-import { connect, type ConnectedProps } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { type StoreState } from 'app/types/store';
 
@@ -25,67 +25,49 @@ export interface OwnProps {
   hideMenu?: boolean;
 }
 
-const mapStateToProps = (state: StoreState, props: OwnProps) => {
-  const panelState = state.panels[props.stateKey];
-  if (!panelState) {
-    return { plugin: undefined };
-  }
+export function DashboardPanel({
+  panel,
+  stateKey,
+  dashboard,
+  isEditing,
+  isViewing,
+  isDraggable = true,
+  width,
+  height,
+  lazy = true,
+  timezone,
+  hideMenu,
+}: OwnProps) {
+  const dispatch = useDispatch();
+  const panelState = useSelector((state: StoreState) => state.panels[stateKey]);
+  const plugin = panelState?.plugin;
+  const instanceState = panelState?.instanceState;
 
-  return {
-    plugin: panelState.plugin,
-    instanceState: panelState.instanceState,
-  };
-};
-
-const mapDispatchToProps = {
-  initPanelState,
-  setPanelInstanceState,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
-export type Props = OwnProps & ConnectedProps<typeof connector>;
-
-export class DashboardPanelUnconnected extends PureComponent<Props> {
-  static defaultProps: Partial<Props> = {
-    lazy: true,
-  };
-
-  componentDidMount() {
-    this.props.panel.isInView = !this.props.lazy;
-    if (!this.props.lazy) {
-      this.onPanelLoad();
+  useEffect(() => {
+    panel.isInView = !lazy;
+    if (!lazy) {
+      if (!plugin) {
+        dispatch(initPanelState(panel));
+      }
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  onInstanceStateChange = (value: unknown) => {
-    this.props.setPanelInstanceState({ key: this.props.stateKey, value });
+  const onInstanceStateChange = (value: unknown) => {
+    dispatch(setPanelInstanceState({ key: stateKey, value }));
   };
 
-  onVisibilityChange = (v: boolean) => {
-    this.props.panel.isInView = v;
+  const onVisibilityChange = (v: boolean) => {
+    panel.isInView = v;
   };
 
-  onPanelLoad = () => {
-    if (!this.props.plugin) {
-      this.props.initPanelState(this.props.panel);
+  const onPanelLoad = () => {
+    if (!plugin) {
+      dispatch(initPanelState(panel));
     }
   };
 
-  renderPanel = ({ isInView }: { isInView: boolean }) => {
-    const {
-      dashboard,
-      panel,
-      isViewing,
-      isEditing,
-      width,
-      height,
-      plugin,
-      timezone,
-      hideMenu,
-      isDraggable = true,
-    } = this.props;
-
+  const renderPanel = ({ isInView }: { isInView: boolean }) => {
     if (!plugin) {
       return null;
     }
@@ -101,24 +83,20 @@ export class DashboardPanelUnconnected extends PureComponent<Props> {
         isDraggable={isDraggable}
         width={width}
         height={height}
-        onInstanceStateChange={this.onInstanceStateChange}
+        onInstanceStateChange={onInstanceStateChange}
         timezone={timezone}
         hideMenu={hideMenu}
       />
     );
   };
 
-  render() {
-    const { width, height, lazy } = this.props;
-
-    return lazy ? (
-      <LazyLoader width={width} height={height} onChange={this.onVisibilityChange} onLoad={this.onPanelLoad}>
-        {this.renderPanel}
-      </LazyLoader>
-    ) : (
-      this.renderPanel({ isInView: true })
-    );
-  }
+  return lazy ? (
+    <LazyLoader width={width} height={height} onChange={onVisibilityChange} onLoad={onPanelLoad}>
+      {renderPanel}
+    </LazyLoader>
+  ) : (
+    renderPanel({ isInView: true })
+  );
 }
 
-export const DashboardPanel = connector(DashboardPanelUnconnected);
+export const DashboardPanelUnconnected = DashboardPanel;

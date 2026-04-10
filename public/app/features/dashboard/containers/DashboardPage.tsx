@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
-import { PureComponent } from 'react';
-import { connect, type ConnectedProps } from 'react-redux';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   type NavModel,
@@ -12,10 +12,10 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { locationService } from '@grafana/runtime';
-import { type Themeable2, withTheme2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 import { type ScrollRefElement } from 'app/core/components/NativeScrollbar';
 import { Page } from 'app/core/components/Page/Page';
-import { GrafanaContext, type GrafanaContextType } from 'app/core/context/GrafanaContext';
+import { GrafanaContext } from 'app/core/context/GrafanaContext';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { getKioskMode } from 'app/core/navigation/kiosk';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -57,35 +57,9 @@ export const mapStateToProps = (state: StoreState) => ({
   navIndex: state.navIndex,
 });
 
-const mapDispatchToProps = {
-  initDashboard,
-  cleanUpDashboardAndVariables,
-  notifyApp,
-  cancelVariables,
-  templateVarsChangedInUrl,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
 export type DashboardPageParams = { slug: string; uid: string; type: string; accessToken: string };
-export type Props = Themeable2 &
-  Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> &
-  // The params returned from useParams are all optional, so we need to match that type here
-  ConnectedProps<typeof connector> & { params: Partial<DashboardPageParams> };
-
-export interface State {
-  editPanel: PanelModel | null;
-  viewPanel: PanelModel | null;
-  editView: string | null;
-  updateScrollTop?: number;
-  rememberScrollTop?: number;
-  showLoadingState: boolean;
-  panelNotFound: boolean;
-  editPanelAccessDenied: boolean;
-  scrollElement?: ScrollRefElement;
-  pageNav?: NavModelItem;
-  sectionNav?: NavModel;
-}
+export type Props = Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> &
+  { params: Partial<DashboardPageParams> };
 
 const getStyles = (theme: GrafanaTheme2) => ({
   fullScreenPanel: css({
@@ -123,223 +97,306 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-export class UnthemedDashboardPage extends PureComponent<Props, State> {
-  declare context: GrafanaContextType;
-  static contextType = GrafanaContext;
+export function UnthemedDashboardPage({ location, queryParams, route, params }: Props) {
+  const dispatch = useDispatch();
+  const grafanaContext = useContext(GrafanaContext);
+  const styles = useStyles2(getStyles);
 
-  private forceRouteReloadCounter = 0;
-  state: State = this.getCleanState();
+  const initPhase = useSelector((state: StoreState) => state.dashboard.initPhase);
+  const initError = useSelector((state: StoreState) => state.dashboard.initError);
+  const dashboard = useSelector((state: StoreState) => state.dashboard.getModel());
+  const navIndex = useSelector((state: StoreState) => state.navIndex);
 
-  getCleanState(): State {
-    return {
-      editView: null,
-      editPanel: null,
-      viewPanel: null,
-      showLoadingState: false,
-      panelNotFound: false,
-      editPanelAccessDenied: false,
-    };
-  }
+  const [editPanel, setEditPanel] = useState<PanelModel | null>(null);
+  const [viewPanel, setViewPanel] = useState<PanelModel | null>(null);
+  const [editView, setEditView] = useState<string | null>(null);
+  const [showLoadingState] = useState(false);
+  const [panelNotFound, setPanelNotFound] = useState(false);
+  const [editPanelAccessDenied, setEditPanelAccessDenied] = useState(false);
+  const [scrollElement, setScrollElement] = useState<ScrollRefElement | undefined>(undefined);
+  const [pageNav, setPageNav] = useState<NavModelItem | undefined>(undefined);
+  const [sectionNav, setSectionNav] = useState<NavModel | undefined>(undefined);
+  const [updateScrollTop, setUpdateScrollTop] = useState<number | undefined>(undefined);
+  const rememberScrollTopRef = useRef<number | undefined>(undefined);
 
-  componentDidMount() {
-    this.initDashboard();
-    this.forceRouteReloadCounter = (this.props.location.state as any)?.routeReloadCounter || 0;
-  }
+  const forceRouteReloadCounterRef = useRef(0);
 
-  componentWillUnmount() {
-    this.closeDashboard();
-  }
-
-  closeDashboard() {
-    this.props.cleanUpDashboardAndVariables();
-    this.setState(this.getCleanState());
-  }
-
-  initDashboard() {
-    const { dashboard, params, queryParams } = this.props;
-
+  const initDashboardFn = () => {
     if (dashboard) {
-      this.closeDashboard();
+      dispatch(cleanUpDashboardAndVariables());
     }
 
-    this.props.initDashboard({
-      urlSlug: params.slug,
-      urlUid: params.uid,
-      urlType: params.type,
-      urlFolderUid: queryParams.folderUid,
-      panelType: queryParams.panelType,
-      routeName: this.props.route.routeName,
-      fixUrl: true,
-      accessToken: params.accessToken,
-      keybindingSrv: this.context.keybindings,
-    });
+    dispatch(
+      initDashboard({
+        urlSlug: params.slug,
+        urlUid: params.uid,
+        urlType: params.type,
+        urlFolderUid: queryParams.folderUid,
+        panelType: queryParams.panelType,
+        routeName: route.routeName,
+        fixUrl: true,
+        accessToken: params.accessToken,
+        keybindingSrv: grafanaContext?.keybindings,
+      })
+    );
 
-    // small delay to start live updates
-    setTimeout(this.updateLiveTimer, 250);
-  }
+    setTimeout(updateLiveTimer, 250);
+  };
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const { dashboard, params, templateVarsChangedInUrl } = this.props;
-    const routeReloadCounter = (this.props.location.state as any)?.routeReloadCounter;
+  // On mount
+  useEffect(() => {
+    initDashboardFn();
+    forceRouteReloadCounterRef.current = (location.state as any)?.routeReloadCounter || 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(cleanUpDashboardAndVariables());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateLiveTimer = () => {
+    let tr: TimeRange | undefined = undefined;
+    if (dashboard?.liveNow) {
+      tr = getTimeSrv().timeRange();
+    }
+    liveTimer.setLiveTimeRange(tr);
+  };
+
+  // Handle route param changes (uid change or forced reload)
+  const prevParamsUidRef = useRef(params.uid);
+  useEffect(() => {
+    const routeReloadCounter = (location.state as any)?.routeReloadCounter;
 
     if (!dashboard) {
       return;
     }
 
     if (
-      prevProps.params.uid !== params.uid ||
-      (routeReloadCounter !== undefined && this.forceRouteReloadCounter !== routeReloadCounter)
+      prevParamsUidRef.current !== params.uid ||
+      (routeReloadCounter !== undefined && forceRouteReloadCounterRef.current !== routeReloadCounter)
     ) {
-      this.initDashboard();
-      this.forceRouteReloadCounter = routeReloadCounter;
+      initDashboardFn();
+      forceRouteReloadCounterRef.current = routeReloadCounter;
+      prevParamsUidRef.current = params.uid;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.uid, location.state]);
+
+  // Handle location search changes
+  const prevSearchRef = useRef(location.search);
+  useEffect(() => {
+    if (!dashboard || prevSearchRef.current === location.search) {
+      prevSearchRef.current = location.search;
+      return;
+    }
+    prevSearchRef.current = location.search;
+
+    const prevUrlParams = {} as typeof queryParams;
+    if (queryParams?.from !== undefined || queryParams?.to !== undefined) {
+      getTimeSrv().updateTimeRangeFromUrl();
+      updateLiveTimer();
+    }
+
+    if (queryParams?.refresh) {
+      getTimeSrv().setAutoRefresh(queryParams.refresh);
+    }
+
+    const templateVarChanges = findTemplateVarChanges(queryParams, prevUrlParams);
+    if (templateVarChanges) {
+      dispatch(templateVarsChangedInUrl(dashboard.uid, templateVarChanges));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  // Handle edit panel entered/exited
+  const prevEditPanelRef = useRef<PanelModel | null>(null);
+  useEffect(() => {
+    if (editPanel && !prevEditPanelRef.current) {
+      dashboardWatcher.setEditingState(true);
+      dashboard?.events.publish(new PanelEditEnteredEvent(editPanel.id));
+    }
+    if (!editPanel && prevEditPanelRef.current) {
+      dashboardWatcher.setEditingState(false);
+      dashboard?.events.publish(new PanelEditExitedEvent(prevEditPanelRef.current.id));
+    }
+    prevEditPanelRef.current = editPanel;
+  }, [editPanel, dashboard]);
+
+  // Handle notifications for panel errors
+  useEffect(() => {
+    if (editPanelAccessDenied) {
+      dispatch(notifyApp(createErrorNotification('Permission to edit panel denied')));
+      locationService.partial({ editPanel: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editPanelAccessDenied]);
+
+  useEffect(() => {
+    if (panelNotFound) {
+      dispatch(notifyApp(createErrorNotification(`Panel not found`)));
+      locationService.partial({ editPanel: null, viewPanel: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panelNotFound]);
+
+  // Handle scroll top update
+  useEffect(() => {
+    if (updateScrollTop !== undefined) {
+      scrollElement?.scrollTo(0, updateScrollTop);
+    }
+  }, [updateScrollTop, scrollElement]);
+
+  // Sync derived state from props (getDerivedStateFromProps equivalent)
+  const urlEditPanelId = queryParams.editPanel;
+  const urlViewPanelId = queryParams.viewPanel;
+  const urlEditView = queryParams.editview;
+
+  const prevUrlEditViewRef = useRef(urlEditView);
+  const prevUrlEditPanelIdRef = useRef(urlEditPanelId);
+  const prevUrlViewPanelIdRef = useRef(urlViewPanelId);
+
+  useEffect(() => {
+    if (!dashboard) {
       return;
     }
 
-    if (prevProps.location.search !== this.props.location.search) {
-      const prevUrlParams = prevProps.queryParams;
-      const urlParams = this.props.queryParams;
-
-      if (urlParams?.from !== prevUrlParams?.from || urlParams?.to !== prevUrlParams?.to) {
-        getTimeSrv().updateTimeRangeFromUrl();
-        this.updateLiveTimer();
-      }
-
-      if (!prevUrlParams?.refresh && urlParams?.refresh) {
-        getTimeSrv().setAutoRefresh(urlParams.refresh);
-      }
-
-      const templateVarChanges = findTemplateVarChanges(this.props.queryParams, prevProps.queryParams);
-
-      if (templateVarChanges) {
-        templateVarsChangedInUrl(dashboard.uid, templateVarChanges);
-      }
-    }
-
-    // entering edit mode
-    if (this.state.editPanel && !prevState.editPanel) {
-      dashboardWatcher.setEditingState(true);
-
-      // Some panels need to be notified when entering edit mode
-      this.props.dashboard?.events.publish(new PanelEditEnteredEvent(this.state.editPanel.id));
-    }
-
-    // leaving edit mode
-    if (!this.state.editPanel && prevState.editPanel) {
-      dashboardWatcher.setEditingState(false);
-
-      // Some panels need kicked when leaving edit mode
-      this.props.dashboard?.events.publish(new PanelEditExitedEvent(prevState.editPanel.id));
-    }
-
-    if (this.state.editPanelAccessDenied) {
-      this.props.notifyApp(createErrorNotification('Permission to edit panel denied'));
-      locationService.partial({ editPanel: null });
-    }
-
-    if (this.state.panelNotFound) {
-      this.props.notifyApp(createErrorNotification(`Panel not found`));
-      locationService.partial({ editPanel: null, viewPanel: null });
-    }
-
-    // Update window scroll position
-    if (this.state.updateScrollTop !== undefined && this.state.updateScrollTop !== prevState.updateScrollTop) {
-      this.state.scrollElement?.scrollTo(0, this.state.updateScrollTop);
-    }
-  }
-
-  updateLiveTimer = () => {
-    let tr: TimeRange | undefined = undefined;
-    if (this.props.dashboard?.liveNow) {
-      tr = getTimeSrv().timeRange();
-    }
-    liveTimer.setLiveTimeRange(tr);
-  };
-
-  static getDerivedStateFromProps(props: Props, state: State) {
-    const { dashboard, queryParams } = props;
-
-    const urlEditPanelId = queryParams.editPanel;
-    const urlViewPanelId = queryParams.viewPanel;
-    const urlEditView = queryParams.editview;
-
-    if (!dashboard) {
-      return state;
-    }
-
-    const updatedState = { ...state };
-
     // Entering settings view
-    if (!state.editView && urlEditView) {
-      updatedState.editView = urlEditView;
-      updatedState.rememberScrollTop = state.scrollElement?.scrollTop;
-      updatedState.updateScrollTop = 0;
+    if (!prevUrlEditViewRef.current && urlEditView) {
+      setEditView(urlEditView);
+      rememberScrollTopRef.current = scrollElement?.scrollTop;
+      setUpdateScrollTop(0);
+    }
+    // Leaving settings view
+    else if (prevUrlEditViewRef.current && !urlEditView) {
+      setUpdateScrollTop(rememberScrollTopRef.current);
+      setEditView(null);
     }
 
-    // Leaving settings view
-    else if (state.editView && !urlEditView) {
-      updatedState.updateScrollTop = state.rememberScrollTop;
-      updatedState.editView = null;
+    prevUrlEditViewRef.current = urlEditView;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlEditView, dashboard]);
+
+  useEffect(() => {
+    if (!dashboard) {
+      return;
     }
 
     // Entering edit mode
-    if (!state.editPanel && urlEditPanelId) {
+    if (!prevUrlEditPanelIdRef.current && urlEditPanelId) {
       const panel = dashboard.getPanelByUrlId(urlEditPanelId);
       if (panel) {
         if (dashboard.canEditPanel(panel)) {
-          updatedState.editPanel = panel;
-          updatedState.rememberScrollTop = state.scrollElement?.scrollTop;
+          setEditPanel(panel);
+          rememberScrollTopRef.current = scrollElement?.scrollTop;
         } else {
-          updatedState.editPanelAccessDenied = true;
+          setEditPanelAccessDenied(true);
         }
       } else {
-        updatedState.panelNotFound = true;
+        setPanelNotFound(true);
       }
     }
     // Leaving edit mode
-    else if (state.editPanel && !urlEditPanelId) {
-      updatedState.editPanel = null;
-      updatedState.updateScrollTop = state.rememberScrollTop;
+    else if (prevUrlEditPanelIdRef.current && !urlEditPanelId) {
+      setEditPanel(null);
+      setUpdateScrollTop(rememberScrollTopRef.current);
+    }
+
+    // Clear error states on valid url
+    if (panelNotFound || (editPanelAccessDenied && !urlEditPanelId)) {
+      setPanelNotFound(false);
+      setEditPanelAccessDenied(false);
+    }
+
+    prevUrlEditPanelIdRef.current = urlEditPanelId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlEditPanelId, dashboard]);
+
+  useEffect(() => {
+    if (!dashboard) {
+      return;
     }
 
     // Entering view mode
-    if (!state.viewPanel && urlViewPanelId) {
+    if (!prevUrlViewPanelIdRef.current && urlViewPanelId) {
       const panel = dashboard.getPanelByUrlId(urlViewPanelId);
       if (panel) {
-        // This mutable state feels wrong to have in getDerivedStateFromProps
-        // Should move this state out of dashboard in the future
         dashboard.initViewPanel(panel);
-        updatedState.viewPanel = panel;
-        updatedState.rememberScrollTop = state.scrollElement?.scrollTop;
-        updatedState.updateScrollTop = 0;
+        setViewPanel(panel);
+        rememberScrollTopRef.current = scrollElement?.scrollTop;
+        setUpdateScrollTop(0);
       } else {
-        updatedState.panelNotFound = true;
+        setPanelNotFound(true);
       }
     }
     // Leaving view mode
-    else if (state.viewPanel && !urlViewPanelId) {
-      // This mutable state feels wrong to have in getDerivedStateFromProps
-      // Should move this state out of dashboard in the future
-      dashboard.exitViewPanel(state.viewPanel);
-      updatedState.viewPanel = null;
-      updatedState.updateScrollTop = state.rememberScrollTop;
+    else if (prevUrlViewPanelIdRef.current && !urlViewPanelId) {
+      if (viewPanel) {
+        dashboard.exitViewPanel(viewPanel);
+      }
+      setViewPanel(null);
+      setUpdateScrollTop(rememberScrollTopRef.current);
     }
 
-    // if we removed url edit state, clear any panel not found state
-    if (state.panelNotFound || (state.editPanelAccessDenied && !urlEditPanelId)) {
-      updatedState.panelNotFound = false;
-      updatedState.editPanelAccessDenied = false;
+    prevUrlViewPanelIdRef.current = urlViewPanelId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlViewPanelId, dashboard]);
+
+  // Update pageNav and sectionNav from dashboard state
+  useEffect(() => {
+    if (!dashboard) {
+      return;
     }
 
-    return updateStatePageNavFromProps(props, updatedState);
-  }
+    let newPageNav = pageNav;
+    let newSectionNav = sectionNav;
 
-  setScrollRef = (scrollElement: ScrollRefElement): void => {
-    this.setState({ scrollElement });
+    if (!newPageNav || dashboard.title !== newPageNav.text || dashboard.meta.folderUrl !== newPageNav.parentItem?.url) {
+      newPageNav = {
+        text: dashboard.title,
+        url: locationUtil.getUrlForPartial(location, {
+          editview: null,
+          editPanel: null,
+          viewPanel: null,
+        }),
+      };
+    }
+
+    newSectionNav = getNavModel(navIndex, ID_PREFIX + dashboard.uid, getNavModel(navIndex, 'dashboards/browse'));
+
+    const { folderUid } = dashboard.meta;
+    if (folderUid && newPageNav && newSectionNav.main.id !== 'starred') {
+      const folderNavModel = getNavModel(navIndex, `folder-dashboards-${folderUid}`).main;
+      if (folderNavModel.id !== 'not-found') {
+        newPageNav = {
+          ...newPageNav,
+          parentItem: folderNavModel,
+        };
+      }
+    }
+
+    if (editPanel || viewPanel) {
+      newPageNav = {
+        ...newPageNav,
+        text: `${editPanel ? 'Edit' : 'View'} panel`,
+        parentItem: newPageNav,
+        url: undefined,
+      };
+    }
+
+    setPageNav(newPageNav);
+    setSectionNav(newSectionNav);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboard, navIndex, editPanel, viewPanel]);
+
+  const setScrollRef = (scrollEl: ScrollRefElement): void => {
+    setScrollElement(scrollEl);
   };
 
-  getInspectPanel() {
-    const { dashboard, queryParams } = this.props;
-
+  const getInspectPanel = () => {
     const inspectPanelId = queryParams.inspect;
 
     if (!dashboard || !inspectPanelId) {
@@ -348,159 +405,94 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
 
     const inspectPanel = dashboard.getPanelById(parseInt(inspectPanelId, 10));
 
-    // cannot inspect panels plugin is not already loaded
     if (!inspectPanel) {
       return null;
     }
 
     return inspectPanel;
-  }
+  };
 
-  onCloseShareModal = () => {
+  const onCloseShareModal = () => {
     locationService.partial({ shareView: null });
   };
 
-  render() {
-    const { dashboard, initError, queryParams, theme, params } = this.props;
+  if (!dashboard || !pageNav || !sectionNav) {
+    return <DashboardLoading initPhase={initPhase} />;
+  }
 
-    const { editPanel, viewPanel, pageNav, sectionNav } = this.state;
-    const kioskMode = getKioskMode(this.props.queryParams);
-    const styles = getStyles(theme);
+  const inspectPanel = getInspectPanel();
+  const kioskMode = getKioskMode(queryParams);
+  const showSubMenu = !editPanel && !kioskMode && !queryParams.editview && dashboard.isSubMenuVisible();
+  const showToolbar = kioskMode !== KioskMode.Full && !queryParams.editview && !initError;
 
-    if (!dashboard || !pageNav || !sectionNav) {
-      return <DashboardLoading initPhase={this.props.initPhase} />;
-    }
+  const pageClassName = cx({
+    [styles.fullScreenPanel]: Boolean(viewPanel),
+    'page-hidden': Boolean(queryParams.editview || editPanel),
+  });
 
-    const inspectPanel = this.getInspectPanel();
-    const showSubMenu = !editPanel && !kioskMode && !this.props.queryParams.editview && dashboard.isSubMenuVisible();
-
-    const showToolbar = kioskMode !== KioskMode.Full && !queryParams.editview && !initError;
-
-    const pageClassName = cx({
-      [styles.fullScreenPanel]: Boolean(viewPanel),
-      'page-hidden': Boolean(queryParams.editview || editPanel),
-    });
-
-    return (
-      <>
-        <Page
-          navModel={sectionNav}
-          pageNav={pageNav}
-          layout={PageLayoutType.Canvas}
-          className={pageClassName}
-          onSetScrollRef={this.setScrollRef}
-        >
-          {showToolbar && (
-            <header data-testid={selectors.pages.Dashboard.DashNav.navV2}>
-              <DashNav
-                dashboard={dashboard}
-                title={dashboard.title}
-                folderTitle={dashboard.meta.folderTitle}
-                isFullscreen={!!viewPanel}
-                kioskMode={kioskMode}
-                hideTimePicker={dashboard.timepicker.hidden}
-              />
-            </header>
-          )}
-          <DashboardPrompt dashboard={dashboard} />
-          {initError && <DashboardPageError error={initError.error} type={params.type} />}
-          {showSubMenu && (
-            <section data-testid={selectors.pages.Dashboard.SubMenu.submenu}>
-              <SubMenu dashboard={dashboard} annotations={dashboard.annotations.list} links={dashboard.links} />
-            </section>
-          )}
-          {!initError && (
-            <DashboardGrid
+  return (
+    <>
+      <Page
+        navModel={sectionNav}
+        pageNav={pageNav}
+        layout={PageLayoutType.Canvas}
+        className={pageClassName}
+        onSetScrollRef={setScrollRef}
+      >
+        {showToolbar && (
+          <header data-testid={selectors.pages.Dashboard.DashNav.navV2}>
+            <DashNav
               dashboard={dashboard}
-              isEditable={!!dashboard.meta.canEdit}
-              viewPanel={viewPanel}
-              editPanel={editPanel}
+              title={dashboard.title}
+              folderTitle={dashboard.meta.folderTitle}
+              isFullscreen={!!viewPanel}
+              kioskMode={kioskMode}
+              hideTimePicker={dashboard.timepicker.hidden}
             />
-          )}
-
-          {inspectPanel && <PanelInspector dashboard={dashboard} panel={inspectPanel} />}
-          {queryParams.shareView && (
-            <ShareModal dashboard={dashboard} onDismiss={this.onCloseShareModal} activeTab={queryParams.shareView} />
-          )}
-        </Page>
-        {editPanel && (
-          <PanelEditor
+          </header>
+        )}
+        <DashboardPrompt dashboard={dashboard} />
+        {initError && <DashboardPageError error={initError.error} type={params.type} />}
+        {showSubMenu && (
+          <section data-testid={selectors.pages.Dashboard.SubMenu.submenu}>
+            <SubMenu dashboard={dashboard} annotations={dashboard.annotations.list} links={dashboard.links} />
+          </section>
+        )}
+        {!initError && (
+          <DashboardGrid
             dashboard={dashboard}
-            sourcePanel={editPanel}
-            tab={this.props.queryParams.tab}
-            sectionNav={sectionNav}
-            pageNav={pageNav}
+            isEditable={!!dashboard.meta.canEdit}
+            viewPanel={viewPanel}
+            editPanel={editPanel}
           />
         )}
-        {queryParams.editview && (
-          <DashboardSettings
-            dashboard={dashboard}
-            editview={queryParams.editview}
-            pageNav={pageNav}
-            sectionNav={sectionNav}
-          />
+
+        {inspectPanel && <PanelInspector dashboard={dashboard} panel={inspectPanel} />}
+        {queryParams.shareView && (
+          <ShareModal dashboard={dashboard} onDismiss={onCloseShareModal} activeTab={queryParams.shareView} />
         )}
-      </>
-    );
-  }
+      </Page>
+      {editPanel && (
+        <PanelEditor
+          dashboard={dashboard}
+          sourcePanel={editPanel}
+          tab={queryParams.tab}
+          sectionNav={sectionNav}
+          pageNav={pageNav}
+        />
+      )}
+      {queryParams.editview && (
+        <DashboardSettings
+          dashboard={dashboard}
+          editview={queryParams.editview}
+          pageNav={pageNav}
+          sectionNav={sectionNav}
+        />
+      )}
+    </>
+  );
 }
 
-function updateStatePageNavFromProps(props: Props, state: State): State {
-  const { dashboard, navIndex } = props;
-
-  if (!dashboard) {
-    return state;
-  }
-
-  let pageNav = state.pageNav;
-  let sectionNav = state.sectionNav;
-
-  if (!pageNav || dashboard.title !== pageNav.text || dashboard.meta.folderUrl !== pageNav.parentItem?.url) {
-    pageNav = {
-      text: dashboard.title,
-      url: locationUtil.getUrlForPartial(props.location, {
-        editview: null,
-        editPanel: null,
-        viewPanel: null,
-      }),
-    };
-  }
-
-  sectionNav = getNavModel(props.navIndex, ID_PREFIX + dashboard.uid, getNavModel(props.navIndex, 'dashboards/browse'));
-
-  const { folderUid } = dashboard.meta;
-  if (folderUid && pageNav && sectionNav.main.id !== 'starred') {
-    const folderNavModel = getNavModel(navIndex, `folder-dashboards-${folderUid}`).main;
-    // If the folder hasn't loaded (maybe user doesn't have permission on it?) then
-    // don't show the "page not found" breadcrumb
-    if (folderNavModel.id !== 'not-found') {
-      pageNav = {
-        ...pageNav,
-        parentItem: folderNavModel,
-      };
-    }
-  }
-
-  if (state.editPanel || state.viewPanel) {
-    pageNav = {
-      ...pageNav,
-      text: `${state.editPanel ? 'Edit' : 'View'} panel`,
-      parentItem: pageNav,
-      url: undefined,
-    };
-  }
-
-  if (state.pageNav === pageNav && state.sectionNav === sectionNav) {
-    return state;
-  }
-
-  return {
-    ...state,
-    pageNav,
-    sectionNav,
-  };
-}
-
-export const DashboardPage = withTheme2(UnthemedDashboardPage);
+export const DashboardPage = UnthemedDashboardPage;
 DashboardPage.displayName = 'DashboardPage';
-export default connector(DashboardPage);
+export default DashboardPage;
