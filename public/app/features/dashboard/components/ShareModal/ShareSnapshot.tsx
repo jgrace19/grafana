@@ -1,4 +1,4 @@
-import { PureComponent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
 import { isEmptyObject, type SelectableValue, VariableRefresh } from '@grafana/data';
@@ -18,159 +18,60 @@ import { getTrackingSource } from './utils';
 
 interface Props extends ShareModalTabProps {}
 
-interface State {
-  isLoading: boolean;
-  step: number;
-  snapshotName: string;
-  selectedExpireOption: SelectableValue<number>;
-  snapshotExpires?: number;
-  snapshotUrl: string;
-  deleteUrl: string;
-  timeoutSeconds: number;
-  externalEnabled: boolean;
-  sharingButtonText: string;
-}
-
 const selectors = e2eSelectors.pages.ShareDashboardModal.SnapshotScene;
 
-export class ShareSnapshot extends PureComponent<Props, State> {
-  private dashboard: DashboardModel;
-  private expireOptions: Array<SelectableValue<number>>;
+const expireOptions: Array<SelectableValue<number>> = [
+  { label: t('share-modal.snapshot.expire-hour', '1 Hour'), value: 60 * 60 },
+  { label: t('share-modal.snapshot.expire-day', '1 Day'), value: 60 * 60 * 24 },
+  { label: t('share-modal.snapshot.expire-week', '1 Week'), value: 60 * 60 * 24 * 7 },
+  { label: t('share-modal.snapshot.expire-never', 'Never'), value: 0 },
+];
 
-  constructor(props: Props) {
-    super(props);
-    this.dashboard = props.dashboard;
-    this.expireOptions = [
-      {
-        label: t('share-modal.snapshot.expire-hour', `1 Hour`),
-        value: 60 * 60,
-      },
-      {
-        label: t('share-modal.snapshot.expire-day', `1 Day`),
-        value: 60 * 60 * 24,
-      },
-      {
-        label: t('share-modal.snapshot.expire-week', `1 Week`),
-        value: 60 * 60 * 24 * 7,
-      },
-      {
-        label: t('share-modal.snapshot.expire-never', `Never`),
-        value: 0,
-      },
-    ];
-    this.state = {
-      isLoading: false,
-      step: 1,
-      selectedExpireOption: this.expireOptions[2],
-      snapshotExpires: this.expireOptions[2].value,
-      snapshotName: props.dashboard.title,
-      timeoutSeconds: 4,
-      snapshotUrl: '',
-      deleteUrl: '',
-      externalEnabled: false,
-      sharingButtonText: '',
-    };
-  }
+export function ShareSnapshot({ dashboard, panel, onDismiss }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [snapshotName, setSnapshotName] = useState(dashboard.title);
+  const [selectedExpireOption, setSelectedExpireOption] = useState<SelectableValue<number>>(expireOptions[2]);
+  const [snapshotExpires, setSnapshotExpires] = useState<number | undefined>(expireOptions[2].value);
+  const [snapshotUrl, setSnapshotUrl] = useState('');
+  const [deleteUrl, setDeleteUrl] = useState('');
+  const [timeoutSeconds, setTimeoutSeconds] = useState(4);
+  const [externalEnabled, setExternalEnabled] = useState(false);
+  const [sharingButtonText, setSharingButtonText] = useState('');
+  const snapshotUrlRef = useRef(snapshotUrl);
+  snapshotUrlRef.current = snapshotUrl;
 
-  componentDidMount() {
-    this.getSnaphotShareOptions();
-  }
-
-  async getSnaphotShareOptions() {
-    const shareOptions = await getDashboardSnapshotSrv().getSharingOptions();
-    this.setState({
-      sharingButtonText: shareOptions.externalSnapshotName,
-      externalEnabled: shareOptions.externalEnabled,
-    });
-  }
-
-  createSnapshot = (external?: boolean) => () => {
-    const { timeoutSeconds } = this.state;
-    this.dashboard.snapshot = {
-      timestamp: new Date(),
-    };
-
-    this.setState({ isLoading: true });
-    this.dashboard.startRefresh();
-
-    setTimeout(() => {
-      this.saveSnapshot(this.dashboard, external);
-    }, timeoutSeconds * 1000);
-  };
-
-  saveSnapshot = async (dashboard: DashboardModel, external?: boolean) => {
-    const { snapshotExpires, timeoutSeconds } = this.state;
-    const dash = this.dashboard.getSaveModelCloneOld();
-
-    this.scrubDashboard(dash);
-
-    const cmdData = {
-      dashboard: dash,
-      name: dash.title,
-      expires: snapshotExpires,
-      external: external,
-    };
-
-    try {
-      const results = await getDashboardSnapshotSrv().create(cmdData);
-      this.setState({
-        deleteUrl: results.deleteUrl,
-        snapshotUrl: results.url,
-        step: 2,
+  useEffect(() => {
+    getDashboardSnapshotSrv()
+      .getSharingOptions()
+      .then((shareOptions) => {
+        setSharingButtonText(shareOptions.externalSnapshotName);
+        setExternalEnabled(shareOptions.externalEnabled);
       });
-    } finally {
-      if (external) {
-        DashboardInteractions.publishSnapshotClicked({
-          expires: snapshotExpires,
-          timeout: timeoutSeconds,
-          shareResource: getTrackingSource(this.props.panel),
-        });
-      } else {
-        DashboardInteractions.publishSnapshotLocalClicked({
-          expires: snapshotExpires,
-          timeout: timeoutSeconds,
-          shareResource: getTrackingSource(this.props.panel),
-        });
-      }
-      this.setState({ isLoading: false });
-    }
-  };
+  }, []);
 
-  scrubDashboard = (dash: DashboardModel) => {
-    const { panel } = this.props;
-    const { snapshotName } = this.state;
-    // change title
+  const scrubDashboard = (dash: DashboardModel) => {
     dash.title = snapshotName;
-
-    // make relative times absolute
     dash.time = getTimeSrv().timeRange();
-
-    // Remove links
     dash.links = [];
 
-    // remove panel queries & links
-    dash.panels.forEach((panel) => {
-      panel.targets = [];
-      panel.links = [];
-      panel.datasource = null;
+    dash.panels.forEach((p) => {
+      p.targets = [];
+      p.links = [];
+      p.datasource = null;
     });
 
-    // remove annotation queries
     const annotations = dash.annotations.list.filter((annotation) => annotation.enable);
+    dash.annotations.list = annotations.map((annotation) => ({
+      name: annotation.name,
+      enable: annotation.enable,
+      iconColor: annotation.iconColor,
+      snapshotData: annotation.snapshotData,
+      type: annotation.type,
+      builtIn: annotation.builtIn,
+      hide: annotation.hide,
+    }));
 
-    dash.annotations.list = annotations.map((annotation) => {
-      return {
-        name: annotation.name,
-        enable: annotation.enable,
-        iconColor: annotation.iconColor,
-        snapshotData: annotation.snapshotData,
-        type: annotation.type,
-        builtIn: annotation.builtIn,
-        hide: annotation.hide,
-      };
-    });
-
-    // remove template queries
     dash.getVariables().forEach((variable) => {
       if ('query' in variable) {
         variable.query = '';
@@ -183,7 +84,6 @@ export class ShareSnapshot extends PureComponent<Props, State> {
       }
     });
 
-    // snapshot single panel
     if (panel) {
       const singlePanel = panel.getSaveModel();
       singlePanel.gridPos.w = 24;
@@ -193,52 +93,76 @@ export class ShareSnapshot extends PureComponent<Props, State> {
       dash.panels = [singlePanel];
     }
 
-    // cleanup snapshotData
-    delete this.dashboard.snapshot;
-    this.dashboard.forEachPanel((panel: PanelModel) => {
-      delete panel.snapshotData;
+    delete dashboard.snapshot;
+    dashboard.forEachPanel((p: PanelModel) => {
+      delete p.snapshotData;
     });
-    this.dashboard.annotations.list.forEach((annotation) => {
+    dashboard.annotations.list.forEach((annotation) => {
       delete annotation.snapshotData;
     });
   };
 
-  deleteSnapshot = async () => {
-    const { deleteUrl } = this.state;
+  const saveSnapshot = async (dash: DashboardModel, external?: boolean) => {
+    const dashModel = dashboard.getSaveModelCloneOld();
+    scrubDashboard(dashModel);
+
+    const cmdData = {
+      dashboard: dashModel,
+      name: dashModel.title,
+      expires: snapshotExpires,
+      external,
+    };
+
+    try {
+      const results = await getDashboardSnapshotSrv().create(cmdData);
+      setDeleteUrl(results.deleteUrl);
+      setSnapshotUrl(results.url);
+      setStep(2);
+    } finally {
+      if (external) {
+        DashboardInteractions.publishSnapshotClicked({
+          expires: snapshotExpires,
+          timeout: timeoutSeconds,
+          shareResource: getTrackingSource(panel),
+        });
+      } else {
+        DashboardInteractions.publishSnapshotLocalClicked({
+          expires: snapshotExpires,
+          timeout: timeoutSeconds,
+          shareResource: getTrackingSource(panel),
+        });
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const createSnapshot = (external?: boolean) => () => {
+    dashboard.snapshot = {
+      timestamp: new Date(),
+    };
+
+    setIsLoading(true);
+    dashboard.startRefresh();
+
+    setTimeout(() => {
+      saveSnapshot(dashboard, external);
+    }, timeoutSeconds * 1000);
+  };
+
+  const deleteSnapshot = async () => {
     await getBackendSrv().get(deleteUrl);
-    this.setState({ step: 3 });
+    setStep(3);
   };
 
-  getSnapshotUrl = () => {
-    return this.state.snapshotUrl;
-  };
+  const getSnapshotUrl = () => snapshotUrlRef.current;
 
-  onSnapshotNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ snapshotName: event.target.value });
-  };
-
-  onTimeoutChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ timeoutSeconds: Number(event.target.value) });
-  };
-
-  onExpireChange = (option: SelectableValue<number>) => {
-    this.setState({
-      selectedExpireOption: option,
-      snapshotExpires: option.value,
-    });
-  };
-
-  renderStep1() {
-    const { onDismiss } = this.props;
-    const { snapshotName, selectedExpireOption, timeoutSeconds, isLoading, sharingButtonText, externalEnabled } =
-      this.state;
-
-    const snapshotNameTranslation = t('share-modal.snapshot.name', `Snapshot name`);
-    const expireTranslation = t('share-modal.snapshot.expire', `Expire`);
-    const timeoutTranslation = t('share-modal.snapshot.timeout', `Timeout (seconds)`);
+  const renderStep1 = () => {
+    const snapshotNameTranslation = t('share-modal.snapshot.name', 'Snapshot name');
+    const expireTranslation = t('share-modal.snapshot.expire', 'Expire');
+    const timeoutTranslation = t('share-modal.snapshot.timeout', 'Timeout (seconds)');
     const timeoutDescriptionTranslation = t(
       'share-modal.snapshot.timeout-description',
-      `You might need to configure the timeout value if it takes a long time to collect your dashboard metrics.`
+      'You might need to configure the timeout value if it takes a long time to collect your dashboard metrics.'
     );
 
     return (
@@ -259,19 +183,33 @@ export class ShareSnapshot extends PureComponent<Props, State> {
           </p>
         </div>
         <Field label={snapshotNameTranslation}>
-          <Input id="snapshot-name-input" width={30} value={snapshotName} onChange={this.onSnapshotNameChange} />
+          <Input
+            id="snapshot-name-input"
+            width={30}
+            value={snapshotName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSnapshotName(e.target.value)}
+          />
         </Field>
         <Field label={expireTranslation}>
           <Select
             inputId="expire-select-input"
             width={30}
-            options={this.expireOptions}
+            options={expireOptions}
             value={selectedExpireOption}
-            onChange={this.onExpireChange}
+            onChange={(option: SelectableValue<number>) => {
+              setSelectedExpireOption(option);
+              setSnapshotExpires(option.value);
+            }}
           />
         </Field>
         <Field label={timeoutTranslation} description={timeoutDescriptionTranslation}>
-          <Input id="timeout-input" type="number" width={21} value={timeoutSeconds} onChange={this.onTimeoutChange} />
+          <Input
+            id="timeout-input"
+            type="number"
+            width={21}
+            value={timeoutSeconds}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTimeoutSeconds(Number(e.target.value))}
+          />
         </Field>
 
         <Modal.ButtonRow>
@@ -279,14 +217,14 @@ export class ShareSnapshot extends PureComponent<Props, State> {
             <Trans i18nKey="share-modal.snapshot.cancel-button">Cancel</Trans>
           </Button>
           {externalEnabled && (
-            <Button variant="secondary" disabled={isLoading} onClick={this.createSnapshot(true)}>
+            <Button variant="secondary" disabled={isLoading} onClick={createSnapshot(true)}>
               {sharingButtonText}
             </Button>
           )}
           <Button
             variant="primary"
             disabled={isLoading}
-            onClick={this.createSnapshot()}
+            onClick={createSnapshot()}
             data-testid={selectors.PublishSnapshot}
           >
             <Trans i18nKey="share-modal.snapshot.local-button">Publish Snapshot</Trans>
@@ -294,63 +232,53 @@ export class ShareSnapshot extends PureComponent<Props, State> {
         </Modal.ButtonRow>
       </>
     );
-  }
+  };
 
-  renderStep2() {
-    const { snapshotUrl } = this.state;
+  const renderStep2 = () => (
+    <Stack direction="column" gap={0}>
+      <Field label={t('share-modal.snapshot.url-label', 'Snapshot URL')}>
+        <Input
+          id="snapshot-url-input"
+          value={snapshotUrl}
+          data-testid={selectors.CopyUrlInput}
+          readOnly
+          addonAfter={
+            <ClipboardButton
+              icon="copy"
+              variant="primary"
+              getText={getSnapshotUrl}
+              data-testid={selectors.CopyUrlButton}
+            >
+              <Trans i18nKey="share-modal.snapshot.copy-link-button">Copy</Trans>
+            </ClipboardButton>
+          }
+        />
+      </Field>
 
-    return (
-      <Stack direction="column" gap={0}>
-        <Field label={t('share-modal.snapshot.url-label', 'Snapshot URL')}>
-          <Input
-            id="snapshot-url-input"
-            value={snapshotUrl}
-            data-testid={selectors.CopyUrlInput}
-            readOnly
-            addonAfter={
-              <ClipboardButton
-                icon="copy"
-                variant="primary"
-                getText={this.getSnapshotUrl}
-                data-testid={selectors.CopyUrlButton}
-              >
-                <Trans i18nKey="share-modal.snapshot.copy-link-button">Copy</Trans>
-              </ClipboardButton>
-            }
-          />
-        </Field>
+      <div style={{ alignSelf: 'flex-end', padding: '5px' }}>
+        <Trans i18nKey="share-modal.snapshot.mistake-message">Did you make a mistake? </Trans>&nbsp;
+        <LinkButton fill="text" target="_blank" onClick={deleteSnapshot}>
+          <Trans i18nKey="share-modal.snapshot.delete-button">Delete snapshot.</Trans>
+        </LinkButton>
+      </div>
+    </Stack>
+  );
 
-        <div style={{ alignSelf: 'flex-end', padding: '5px' }}>
-          <Trans i18nKey="share-modal.snapshot.mistake-message">Did you make a mistake? </Trans>&nbsp;
-          <LinkButton fill="text" target="_blank" onClick={this.deleteSnapshot}>
-            <Trans i18nKey="share-modal.snapshot.delete-button">Delete snapshot.</Trans>
-          </LinkButton>
-        </div>
-      </Stack>
-    );
-  }
+  const renderStep3 = () => (
+    <p>
+      <Trans i18nKey="share-modal.snapshot.deleted-message">
+        The snapshot has been deleted. If you have already accessed it once, then it might take up to an hour before
+        before it is removed from browser caches or CDN caches.
+      </Trans>
+    </p>
+  );
 
-  renderStep3() {
-    return (
-      <p>
-        <Trans i18nKey="share-modal.snapshot.deleted-message">
-          The snapshot has been deleted. If you have already accessed it once, then it might take up to an hour before
-          before it is removed from browser caches or CDN caches.
-        </Trans>
-      </p>
-    );
-  }
-
-  render() {
-    const { isLoading, step } = this.state;
-
-    return (
-      <>
-        {step === 1 && this.renderStep1()}
-        {step === 2 && this.renderStep2()}
-        {step === 3 && this.renderStep3()}
-        {isLoading && <Spinner inline={true} />}
-      </>
-    );
-  }
+  return (
+    <>
+      {step === 1 && renderStep1()}
+      {step === 2 && renderStep2()}
+      {step === 3 && renderStep3()}
+      {isLoading && <Spinner inline={true} />}
+    </>
+  );
 }

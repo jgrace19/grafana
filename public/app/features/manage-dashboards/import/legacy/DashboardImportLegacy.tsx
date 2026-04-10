@@ -1,5 +1,5 @@
-import { PureComponent } from 'react';
-import { connect, type ConnectedProps } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { AppEvents, LoadingState, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -11,8 +11,7 @@ import { Page } from 'app/core/components/Page/Page';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
 import { isRecord } from 'app/core/utils/isRecord';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
-import { dispatch } from 'app/store/store';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch } from 'app/types/store';
 
 import { cleanUpAction } from '../../../../core/actions/cleanUp';
 import { ExportFormat } from '../../../dashboard/api/types';
@@ -71,79 +70,62 @@ function ImportResourceFormatError({ format, onCancel }: { format: ExportFormat;
   );
 }
 
-const overviewMapStateToProps = (state: StoreState) => {
-  const searchObj = locationService.getSearchObject();
-  return {
-    dashboard: state.importDashboard.dashboard,
-    meta: state.importDashboard.meta,
-    source: state.importDashboard.source,
-    inputs: state.importDashboard.inputs,
-    folder: searchObj.folderUid ? { uid: String(searchObj.folderUid) } : { uid: '' },
-  };
-};
+function ImportOverview() {
+  const dispatch = useDispatch();
+  const [uidReset, setUidReset] = useState(false);
 
-const overviewMapDispatchToProps = {
-  clearLoadedDashboard,
-  importDashboard,
-};
+  const overviewDashboard = useSelector((state: StoreState) => state.importDashboard.dashboard);
+  const meta = useSelector((state: StoreState) => state.importDashboard.meta);
+  const source = useSelector((state: StoreState) => state.importDashboard.source);
+  const inputs = useSelector((state: StoreState) => state.importDashboard.inputs);
+  const folder = useSelector((state: StoreState) => {
+    const searchObj = locationService.getSearchObject();
+    return searchObj.folderUid ? { uid: String(searchObj.folderUid) } : { uid: '' };
+  });
 
-const overviewConnector = connect(overviewMapStateToProps, overviewMapDispatchToProps);
-type OverviewProps = ConnectedProps<typeof overviewConnector>;
-
-// eslint-disable-next-line react-prefer-function-component/react-prefer-function-component
-class ImportOverviewUnConnected extends PureComponent<OverviewProps, { uidReset: boolean }> {
-  state = { uidReset: false };
-
-  onSubmit = (form: ImportDashboardDTO) => {
+  const onSubmit = (form: ImportDashboardDTO) => {
     reportInteraction(IMPORT_FINISHED_EVENT_NAME);
-    this.props.importDashboard(form);
+    dispatch(importDashboard(form));
   };
 
-  onCancel = () => {
-    this.props.clearLoadedDashboard();
+  const onCancel = () => {
+    dispatch(clearLoadedDashboard());
   };
 
-  onUidReset = () => {
-    this.setState({ uidReset: true });
+  const onUidReset = () => {
+    setUidReset(true);
   };
 
-  render() {
-    const { dashboard, inputs, meta, source, folder } = this.props;
-    const { uidReset } = this.state;
-
-    return (
-      <>
-        {source === DashboardSource.Gcom && (
-          <GcomDashboardInfo gnetId={dashboard.gnetId} orgName={meta.orgName} updatedAt={meta.updatedAt} />
+  return (
+    <>
+      {source === DashboardSource.Gcom && (
+        <GcomDashboardInfo gnetId={overviewDashboard.gnetId} orgName={meta.orgName} updatedAt={meta.updatedAt} />
+      )}
+      <Form
+        onSubmit={onSubmit}
+        defaultValues={{ ...overviewDashboard, constants: [], dataSources: [], elements: [], folder: folder }}
+        validateOnMount
+        validateFieldsOnMount={['title', 'uid']}
+        validateOn="onChange"
+      >
+        {({ register, errors, control, watch, getValues }) => (
+          <ImportForm
+            register={register}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            uidReset={uidReset}
+            inputs={inputs}
+            onCancel={onCancel}
+            onUidReset={onUidReset}
+            onSubmit={onSubmit}
+            watch={watch}
+          />
         )}
-        <Form
-          onSubmit={this.onSubmit}
-          defaultValues={{ ...dashboard, constants: [], dataSources: [], elements: [], folder: folder }}
-          validateOnMount
-          validateFieldsOnMount={['title', 'uid']}
-          validateOn="onChange"
-        >
-          {({ register, errors, control, watch, getValues }) => (
-            <ImportForm
-              register={register}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              uidReset={uidReset}
-              inputs={inputs}
-              onCancel={this.onCancel}
-              onUidReset={this.onUidReset}
-              onSubmit={this.onSubmit}
-              watch={watch}
-            />
-          )}
-        </Form>
-      </>
-    );
-  }
+      </Form>
+    </>
+  );
 }
-
-const ImportOverview = overviewConnector(ImportOverviewUnConnected);
 
 type DashboardImportPageRouteSearchParams = {
   gcomDashboardId?: string;
@@ -151,38 +133,33 @@ type DashboardImportPageRouteSearchParams = {
 
 type OwnProps = GrafanaRouteComponentProps<{}, DashboardImportPageRouteSearchParams>;
 
-const mapStateToProps = (state: StoreState) => ({
-  loadingState: state.importDashboard.state,
-  dashboard: state.importDashboard.dashboard,
-});
-
-const mapDispatchToProps = {
-  fetchGcomDashboard,
-  importDashboardJson,
-  clearLoadedDashboard,
-  cleanUpAction,
+const pageNav: NavModelItem = {
+  text: t('manage-dashboards.unthemed-dashboard-import.text.import-dashboard', 'Import dashboard'),
+  subTitle: t(
+    'manage-dashboards.unthemed-dashboard-import.subTitle.import-dashboard-from-file-or-grafanacom',
+    'Import dashboard from file or Grafana.com'
+  ),
 };
 
-const connector = connect(mapStateToProps, mapDispatchToProps);
+function DashboardImportLegacyComponent({ queryParams }: OwnProps) {
+  const dispatch = useDispatch();
 
-type Props = OwnProps & ConnectedProps<typeof connector>;
+  const loadingState = useSelector((state: StoreState) => state.importDashboard.state);
+  const dashboard = useSelector((state: StoreState) => state.importDashboard.dashboard);
 
-// eslint-disable-next-line react-prefer-function-component/react-prefer-function-component
-class UnthemedDashboardImportLegacy extends PureComponent<Props> {
-  constructor(props: Props) {
-    super(props);
-    const { gcomDashboardId } = this.props.queryParams;
+  useEffect(() => {
+    const { gcomDashboardId } = queryParams;
     if (gcomDashboardId) {
-      this.handleGcomSubmit({ gcomDashboard: gcomDashboardId });
-      return;
+      handleGcomSubmit({ gcomDashboard: gcomDashboardId });
     }
-  }
 
-  componentWillUnmount() {
-    this.props.cleanUpAction({ cleanupAction: (state) => (state.importDashboard = initialImportDashboardState) });
-  }
+    return () => {
+      dispatch(cleanUpAction({ cleanupAction: (state) => (state.importDashboard = initialImportDashboardState) }));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  handleFileUpload = (result: string | ArrayBuffer | null) => {
+  const handleFileUpload = (result: string | ArrayBuffer | null) => {
     reportInteraction(IMPORT_STARTED_EVENT_NAME, {
       import_source: 'json_uploaded',
     });
@@ -198,10 +175,10 @@ class UnthemedDashboardImportLegacy extends PureComponent<Props> {
 
       const v1ResourceSpec = getV1ResourceSpec(json);
       if (v1ResourceSpec) {
-        return this.props.importDashboardJson(v1ResourceSpec);
+        return dispatch(importDashboardJson(v1ResourceSpec));
       }
 
-      this.props.importDashboardJson(json);
+      dispatch(importDashboardJson(json));
     } catch (error) {
       if (error instanceof Error) {
         appEvents.emit(AppEvents.alertError, ['Import failed', 'JSON -> JS Serialization failed: ' + error.message]);
@@ -210,38 +187,38 @@ class UnthemedDashboardImportLegacy extends PureComponent<Props> {
     }
   };
 
-  handleJsonSubmit = (formData: { dashboardJson: string }) => {
+  const handleJsonSubmit = (formData: { dashboardJson: string }) => {
     reportInteraction(IMPORT_STARTED_EVENT_NAME, {
       import_source: 'json_pasted',
     });
 
-    const dashboard = JSON.parse(formData.dashboardJson);
+    const dash = JSON.parse(formData.dashboardJson);
 
-    if ((dashboard.spec?.elements || dashboard.elements) && !config.featureToggles.dashboardNewLayouts) {
+    if ((dash.spec?.elements || dash.elements) && !config.featureToggles.dashboardNewLayouts) {
       return appEvents.emit(AppEvents.alertError, [
         'Import failed',
         'Dashboard using new layout cannot be imported because the feature is not enabled',
       ]);
     }
 
-    const format = detectExportFormat(dashboard);
-    if (format === ExportFormat.V2Resource && dashboard.spec?.elements) {
-      return dispatch(importDashboardV2Json(dashboard.spec));
+    const format = detectExportFormat(dash);
+    if (format === ExportFormat.V2Resource && dash.spec?.elements) {
+      return dispatch(importDashboardV2Json(dash.spec));
     }
 
-    if (format === ExportFormat.V2Resource && dashboard.elements) {
-      return dispatch(importDashboardV2Json(dashboard));
+    if (format === ExportFormat.V2Resource && dash.elements) {
+      return dispatch(importDashboardV2Json(dash));
     }
 
-    const v1ResourceSpec = getV1ResourceSpec(dashboard);
+    const v1ResourceSpec = getV1ResourceSpec(dash);
     if (v1ResourceSpec) {
-      return this.props.importDashboardJson(v1ResourceSpec);
+      return dispatch(importDashboardJson(v1ResourceSpec));
     }
 
-    this.props.importDashboardJson(dashboard);
+    dispatch(importDashboardJson(dash));
   };
 
-  handleGcomSubmit = (formData: { gcomDashboard: string }) => {
+  const handleGcomSubmit = (formData: { gcomDashboard: string }) => {
     reportInteraction(IMPORT_STARTED_EVENT_NAME, {
       import_source: 'gcom',
     });
@@ -255,62 +232,46 @@ class UnthemedDashboardImportLegacy extends PureComponent<Props> {
     }
 
     if (dashboardId) {
-      this.props.fetchGcomDashboard(dashboardId);
+      dispatch(fetchGcomDashboard(dashboardId));
     }
   };
 
-  pageNav: NavModelItem = {
-    text: t('manage-dashboards.unthemed-dashboard-import.text.import-dashboard', 'Import dashboard'),
-    subTitle: t(
-      'manage-dashboards.unthemed-dashboard-import.subTitle.import-dashboard-from-file-or-grafanacom',
-      'Import dashboard from file or Grafana.com'
-    ),
-  };
-
-  getDashboardOverview() {
-    const { loadingState, dashboard } = this.props;
-
+  const getDashboardOverview = () => {
     if (loadingState === LoadingState.Done) {
       const format = detectExportFormat(dashboard);
 
-      // k8s disabled but resource format -> show error
       if (format === ExportFormat.V1Resource || format === ExportFormat.V2Resource) {
-        return <ImportResourceFormatError format={format} onCancel={this.props.clearLoadedDashboard} />;
+        return <ImportResourceFormatError format={format} onCancel={() => dispatch(clearLoadedDashboard())} />;
       }
 
-      // k8s disabled + classic -> legacy redux path
       return <ImportOverview />;
     }
 
     return null;
-  }
+  };
 
-  render() {
-    const { loadingState } = this.props;
-
-    return (
-      <Page navId="dashboards/browse" pageNav={this.pageNav}>
-        <Page.Contents>
-          {loadingState === LoadingState.Loading && (
-            <Stack direction={'column'} justifyContent="center">
-              <Stack justifyContent="center">
-                <Spinner size="xxl" />
-              </Stack>
+  return (
+    <Page navId="dashboards/browse" pageNav={pageNav}>
+      <Page.Contents>
+        {loadingState === LoadingState.Loading && (
+          <Stack direction={'column'} justifyContent="center">
+            <Stack justifyContent="center">
+              <Spinner size="xxl" />
             </Stack>
-          )}
-          {[LoadingState.Error, LoadingState.NotStarted].includes(loadingState) && (
-            <ImportSourceForm
-              onFileUpload={this.handleFileUpload}
-              onGcomSubmit={this.handleGcomSubmit}
-              onJsonSubmit={this.handleJsonSubmit}
-            />
-          )}
-          {this.getDashboardOverview()}
-        </Page.Contents>
-      </Page>
-    );
-  }
+          </Stack>
+        )}
+        {[LoadingState.Error, LoadingState.NotStarted].includes(loadingState) && (
+          <ImportSourceForm
+            onFileUpload={handleFileUpload}
+            onGcomSubmit={handleGcomSubmit}
+            onJsonSubmit={handleJsonSubmit}
+          />
+        )}
+        {getDashboardOverview()}
+      </Page.Contents>
+    </Page>
+  );
 }
 
-export const DashboardImportLegacy = connector(UnthemedDashboardImportLegacy);
+export const DashboardImportLegacy = DashboardImportLegacyComponent;
 DashboardImportLegacy.displayName = 'DashboardImportLegacy';
