@@ -1,5 +1,4 @@
-import { type FormEvent, PureComponent } from 'react';
-import { connect, type ConnectedProps } from 'react-redux';
+import { type FormEvent, useEffect } from 'react';
 
 import {
   type DataSourceInstanceSettings,
@@ -10,161 +9,134 @@ import {
   type VariableSort,
 } from '@grafana/data';
 import { QueryVariableEditorForm } from 'app/features/dashboard-scene/settings/variables/components/QueryVariableForm';
-import { type StoreState } from 'app/types/store';
+import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
 import { getTimeSrv } from '../../dashboard/services/TimeSrv';
 import { initialVariableEditorState } from '../editor/reducer';
 import { getQueryVariableEditorState } from '../editor/selectors';
 import { type VariableEditorProps } from '../editor/types';
-import { changeVariableMultiValue } from '../state/actions';
 import { getVariablesState } from '../state/selectors';
 import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
 
-const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
-  const { rootStateKey } = ownProps.variable;
-  if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
-    return {
-      extended: getQueryVariableEditorState(initialVariableEditorState),
-    };
-  }
-
-  const { editor } = getVariablesState(rootStateKey, state);
-
-  return {
-    extended: getQueryVariableEditorState(editor),
-  };
-};
-
-const mapDispatchToProps = {
-  initQueryVariableEditor,
-  changeQueryVariableDataSource,
-  changeQueryVariableQuery,
-  changeVariableMultiValue,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
 export interface OwnProps extends VariableEditorProps<QueryVariableModel> {}
 
-export type Props = OwnProps & ConnectedProps<typeof connector>;
+export type Props = OwnProps;
 
-export interface State {
-  regex: string | null;
-  tagsQuery: string | null;
-  tagValuesQuery: string | null;
-}
+export function QueryVariableEditorUnConnected({ variable, onPropChange }: OwnProps) {
+  const dispatch = useDispatch();
 
-export class QueryVariableEditorUnConnected extends PureComponent<Props, State> {
-  state: State = {
-    regex: null,
-    tagsQuery: null,
-    tagValuesQuery: null,
-  };
-
-  async componentDidMount() {
-    await this.props.initQueryVariableEditor(toKeyedVariableIdentifier(this.props.variable));
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (prevProps.variable.datasource !== this.props.variable.datasource) {
-      this.props.changeQueryVariableDataSource(
-        toKeyedVariableIdentifier(this.props.variable),
-        this.props.variable.datasource
-      );
+  const extended = useSelector((state: StoreState) => {
+    const { rootStateKey } = variable;
+    if (!rootStateKey) {
+      console.error('QueryVariableEditor: variable has no rootStateKey');
+      return getQueryVariableEditorState(initialVariableEditorState);
     }
-  }
 
-  onDataSourceChange = (dsSettings: DataSourceInstanceSettings) => {
-    this.props.onPropChange({
+    const { editor } = getVariablesState(rootStateKey, state);
+    return getQueryVariableEditorState(editor);
+  });
+
+  useEffect(() => {
+    dispatch(initQueryVariableEditor(toKeyedVariableIdentifier(variable)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const prevDatasourceRef = { current: variable.datasource };
+  useEffect(() => {
+    if (prevDatasourceRef.current !== variable.datasource) {
+      dispatch(changeQueryVariableDataSource(toKeyedVariableIdentifier(variable), variable.datasource));
+    }
+    prevDatasourceRef.current = variable.datasource;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variable.datasource]);
+
+  const onDataSourceChange = (dsSettings: DataSourceInstanceSettings) => {
+    onPropChange({
       propName: 'datasource',
       propValue: dsSettings.isDefault ? null : getDataSourceRef(dsSettings),
     });
   };
 
-  onLegacyQueryChange = async (query: any, definition: string) => {
-    if (this.props.variable.query !== query) {
-      this.props.changeQueryVariableQuery(toKeyedVariableIdentifier(this.props.variable), query, definition);
+  const onLegacyQueryChange = async (query: unknown, definition: string) => {
+    if (variable.query !== query) {
+      dispatch(changeQueryVariableQuery(toKeyedVariableIdentifier(variable), query, definition));
     }
   };
 
-  onQueryChange = async (query: any) => {
-    if (this.props.variable.query !== query) {
+  const onQueryChange = async (query: unknown) => {
+    if (variable.query !== query) {
       let definition = '';
 
-      if (query && query.hasOwnProperty('query') && typeof query.query === 'string') {
-        definition = query.query;
+      if (query && typeof query === 'object' && 'query' in query && typeof (query as Record<string, unknown>).query === 'string') {
+        definition = (query as Record<string, unknown>).query as string;
       }
 
-      this.props.changeQueryVariableQuery(toKeyedVariableIdentifier(this.props.variable), query, definition);
+      dispatch(changeQueryVariableQuery(toKeyedVariableIdentifier(variable), query, definition));
     }
   };
 
-  onRegExBlur = async (event: FormEvent<HTMLTextAreaElement>) => {
+  const onRegExBlur = async (event: FormEvent<HTMLTextAreaElement>) => {
     const regex = event.currentTarget.value;
-    if (this.props.variable.regex !== regex) {
-      this.props.onPropChange({ propName: 'regex', propValue: regex, updateOptions: true });
+    if (variable.regex !== regex) {
+      onPropChange({ propName: 'regex', propValue: regex, updateOptions: true });
     }
   };
 
-  onRefreshChange = (option: VariableRefresh) => {
-    this.props.onPropChange({ propName: 'refresh', propValue: option });
+  const onRefreshChange = (option: VariableRefresh) => {
+    onPropChange({ propName: 'refresh', propValue: option });
   };
 
-  onSortChange = async (option: SelectableValue<VariableSort>) => {
-    this.props.onPropChange({ propName: 'sort', propValue: option.value, updateOptions: true });
+  const onSortChange = async (option: SelectableValue<VariableSort>) => {
+    onPropChange({ propName: 'sort', propValue: option.value, updateOptions: true });
   };
 
-  onMultiChange = (event: FormEvent<HTMLInputElement>) => {
-    this.props.onPropChange({ propName: 'multi', propValue: event.currentTarget.checked });
+  const onMultiChange = (event: FormEvent<HTMLInputElement>) => {
+    onPropChange({ propName: 'multi', propValue: event.currentTarget.checked });
   };
 
-  onIncludeAllChange = (event: FormEvent<HTMLInputElement>) => {
-    this.props.onPropChange({ propName: 'includeAll', propValue: event.currentTarget.checked });
+  const onIncludeAllChange = (event: FormEvent<HTMLInputElement>) => {
+    onPropChange({ propName: 'includeAll', propValue: event.currentTarget.checked });
   };
 
-  onAllValueChange = (event: FormEvent<HTMLInputElement>) => {
-    this.props.onPropChange({ propName: 'allValue', propValue: event.currentTarget.value });
+  const onAllValueChange = (event: FormEvent<HTMLInputElement>) => {
+    onPropChange({ propName: 'allValue', propValue: event.currentTarget.value });
   };
 
-  render() {
-    const { extended, variable } = this.props;
-    if (!extended || !extended.dataSource) {
-      return null;
-    }
-
-    const timeRange = getTimeSrv().timeRange();
-
-    return (
-      <QueryVariableEditorForm
-        datasource={variable.datasource ?? undefined}
-        onDataSourceChange={this.onDataSourceChange}
-        query={variable.query}
-        onQueryChange={this.onQueryChange}
-        onLegacyQueryChange={this.onLegacyQueryChange}
-        timeRange={timeRange}
-        regex={variable.regex}
-        onRegExChange={this.onRegExBlur}
-        sort={variable.sort}
-        onSortChange={this.onSortChange}
-        refresh={variable.refresh}
-        onRefreshChange={this.onRefreshChange}
-        isMulti={variable.multi}
-        includeAll={variable.includeAll}
-        allValue={variable.allValue ?? ''}
-        onMultiChange={this.onMultiChange}
-        onIncludeAllChange={this.onIncludeAllChange}
-        onAllValueChange={this.onAllValueChange}
-        options={variable.options.map((o) => ({
-          label: String(o.text),
-          value: String(o.value),
-          properties: o.properties,
-        }))}
-      />
-    );
+  if (!extended || !extended.dataSource) {
+    return null;
   }
+
+  const timeRange = getTimeSrv().timeRange();
+
+  return (
+    <QueryVariableEditorForm
+      datasource={variable.datasource ?? undefined}
+      onDataSourceChange={onDataSourceChange}
+      query={variable.query}
+      onQueryChange={onQueryChange}
+      onLegacyQueryChange={onLegacyQueryChange}
+      timeRange={timeRange}
+      regex={variable.regex}
+      onRegExChange={onRegExBlur}
+      sort={variable.sort}
+      onSortChange={onSortChange}
+      refresh={variable.refresh}
+      onRefreshChange={onRefreshChange}
+      isMulti={variable.multi}
+      includeAll={variable.includeAll}
+      allValue={variable.allValue ?? ''}
+      onMultiChange={onMultiChange}
+      onIncludeAllChange={onIncludeAllChange}
+      onAllValueChange={onAllValueChange}
+      options={variable.options.map((o) => ({
+        label: String(o.text),
+        value: String(o.value),
+        properties: o.properties,
+      }))}
+    />
+  );
 }
 
-export const QueryVariableEditor = connector(QueryVariableEditorUnConnected);
+export const QueryVariableEditor = QueryVariableEditorUnConnected;

@@ -179,7 +179,7 @@ export function UnthemedDashboardPage({ location, queryParams, route, params }: 
       (routeReloadCounter !== undefined && forceRouteReloadCounterRef.current !== routeReloadCounter)
     ) {
       initDashboardFn();
-      forceRouteReloadCounterRef.current = routeReloadCounter;
+      forceRouteReloadCounterRef.current = routeReloadCounter ?? 0;
       prevParamsUidRef.current = params.uid;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

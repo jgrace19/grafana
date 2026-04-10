@@ -43,6 +43,7 @@ const dataFrame = toDataFrame({
 });
 
 function renderWithStore(tableResult: DataFrame[] | null = null) {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const preloadedState: Partial<StoreState> = {
     explore: {
       panes: {
@@ -52,7 +53,7 @@ function renderWithStore(tableResult: DataFrame[] | null = null) {
           queryResponse: { series: [], state: 'Done' },
         },
       },
-    } as StoreState['explore'],
+    } as unknown as StoreState['explore'],
   };
   const store = configureStore(preloadedState);
 
