@@ -49,6 +49,71 @@ export interface Props {
   panelRef?: SceneObjectRef<VizPanel>;
 }
 
+export async function changeDataSourceInQueries(
+  queries: DataQuery[],
+  newDataSource: DataSourceInstanceSettings,
+  index: number,
+  onQueriesChange: (queries: DataQuery[]) => void
+) {
+  const newQueries = await Promise.all(
+    queries.map(async (item, itemIndex) => {
+      if (itemIndex !== index) {
+        return item;
+      }
+
+      const dataSourceRef = getDataSourceRef(newDataSource);
+
+      if (item.datasource) {
+        const previous = getDataSourceSrv().getInstanceSettings(item.datasource);
+
+        if (previous?.type === newDataSource.type) {
+          return {
+            ...item,
+            datasource: dataSourceRef,
+          };
+        }
+      }
+
+      const ds = await getDataSourceSrv().get(dataSourceRef);
+
+      return { ...ds.getDefaultQuery?.(CoreApp.PanelEditor), ...item, datasource: dataSourceRef };
+    })
+  );
+  onQueriesChange(newQueries);
+}
+
+export function replaceQueryInQueries(
+  queries: DataQuery[],
+  query: DataQuery,
+  index: number,
+  currentDsUid: string,
+  onQueriesChange: (queries: DataQuery[], options?: { skipAutoImport?: boolean }) => void,
+  onUpdateDatasources: ((datasource: DataSourceRef) => void) | undefined,
+  onRunQueries: () => void
+) {
+  const newQueries = queries.map((item, itemIndex) => {
+    if (itemIndex === index) {
+      return { ...query, refId: item.refId };
+    }
+    return item;
+  });
+  onQueriesChange(newQueries, { skipAutoImport: true });
+
+  if (query.datasource?.uid) {
+    const uniqueDatasources = new Set(newQueries.map((q) => q.datasource?.uid));
+    const isMixed = uniqueDatasources.size > 1;
+    const newDatasourceRef = {
+      uid: isMixed ? MIXED_DATASOURCE_NAME : query.datasource.uid,
+    };
+    const shouldChangeDatasource = currentDsUid !== newDatasourceRef.uid;
+    if (shouldChangeDatasource) {
+      onUpdateDatasources?.(newDatasourceRef);
+    }
+  }
+
+  onRunQueries();
+}
+
 export function QueryEditorRows({
   queries,
   dsSettings,
@@ -101,59 +166,13 @@ export function QueryEditorRows({
   };
 
   const onReplaceQuery = (query: DataQuery, index: number) => {
-    const newQueries = queries.map((item, itemIndex) => {
-      if (itemIndex === index) {
-        return { ...query, refId: item.refId };
-      }
-      return item;
-    });
-    onQueriesChange(newQueries, { skipAutoImport: true });
-
-    if (query.datasource?.uid) {
-      const uniqueDatasources = new Set(newQueries.map((q) => q.datasource?.uid));
-      const isMixed = uniqueDatasources.size > 1;
-      const newDatasourceRef = {
-        uid: isMixed ? MIXED_DATASOURCE_NAME : query.datasource.uid,
-      };
-      const shouldChangeDatasource = dsSettings.uid !== newDatasourceRef.uid;
-      if (shouldChangeDatasource) {
-        onUpdateDatasources?.(newDatasourceRef);
-      }
-    }
-
-    onRunQueries();
+    replaceQueryInQueries(queries, query, index, dsSettings.uid, onQueriesChange, onUpdateDatasources, onRunQueries);
   };
 
   const onDataSourceChange = (dataSource: DataSourceInstanceSettings, index: number) => {
-    Promise.all(
-      queries.map(async (item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        const dataSourceRef = getDataSourceRef(dataSource);
-
-        if (item.datasource) {
-          const previous = getDataSourceSrv().getInstanceSettings(item.datasource);
-
-          if (previous?.type === dataSource.type) {
-            return {
-              ...item,
-              datasource: dataSourceRef,
-            };
-          }
-        }
-
-        const ds = await getDataSourceSrv().get(dataSourceRef);
-
-        return { ...ds.getDefaultQuery?.(CoreApp.PanelEditor), ...item, datasource: dataSourceRef };
-      })
-    ).then(
-      (values) => onQueriesChange(values),
-      () => {
-        throw new Error(`Failed to get datasource ${dataSource.name ?? dataSource.uid}`);
-      }
-    );
+    changeDataSourceInQueries(queries, dataSource, index, onQueriesChange).catch(() => {
+      throw new Error(`Failed to get datasource ${dataSource.name ?? dataSource.uid}`);
+    });
   };
 
   const onDragStart = (result: DragStart) => {

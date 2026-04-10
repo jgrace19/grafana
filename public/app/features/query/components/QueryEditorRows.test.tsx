@@ -10,7 +10,7 @@ import { DataSourceType } from 'app/features/alerting/unified/utils/datasource';
 import createMockPanelData from 'app/plugins/datasource/azuremonitor/mocks/panelData';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 
-import { QueryEditorRows, type Props } from './QueryEditorRows';
+import { QueryEditorRows, replaceQueryInQueries, changeDataSourceInQueries, type Props } from './QueryEditorRows';
 
 const mockDS = mockDataSource({
   name: 'CloudManager',
@@ -66,21 +66,21 @@ describe('QueryEditorRows', () => {
     const onUpdateDatasourcesMock = jest.fn();
     const onRunQueriesMock = jest.fn();
 
-    const testProps = {
-      ...props,
-      onQueriesChange: onQueriesChangeMock,
-      onUpdateDatasources: onUpdateDatasourcesMock,
-      onRunQueries: onRunQueriesMock,
-    };
-
-    const component = new QueryEditorRows(testProps);
     const replacementQuery = {
       refId: 'A',
       datasource: { uid: 'new-datasource', type: 'prometheus' },
       expr: 'new query content',
     };
 
-    component.onReplaceQuery(replacementQuery, 0);
+    replaceQueryInQueries(
+      props.queries,
+      replacementQuery,
+      0,
+      props.dsSettings.uid,
+      onQueriesChangeMock,
+      onUpdateDatasourcesMock,
+      onRunQueriesMock
+    );
 
     expect(onQueriesChangeMock).toHaveBeenCalledWith(
       [
@@ -96,26 +96,25 @@ describe('QueryEditorRows', () => {
     const onUpdateDatasourcesMock = jest.fn();
     const onRunQueriesMock = jest.fn();
 
-    const testProps = {
-      ...props,
-      onQueriesChange: onQueriesChangeMock,
-      onUpdateDatasources: onUpdateDatasourcesMock,
-      dsSettings: { ...props.dsSettings, uid: 'current-datasource' },
-      queries: [
-        { datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'A' },
-        { datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'B' },
-      ],
-      onRunQueries: onRunQueriesMock,
-    };
-
-    const component = new QueryEditorRows(testProps);
+    const testQueries = [
+      { datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'A' },
+      { datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'B' },
+    ];
     const replacementQuery = {
       refId: 'A',
       datasource: { uid: 'different-datasource', type: 'prometheus' },
       expr: 'new query content',
     };
 
-    component.onReplaceQuery(replacementQuery, 0);
+    replaceQueryInQueries(
+      testQueries,
+      replacementQuery,
+      0,
+      'current-datasource',
+      onQueriesChangeMock,
+      onUpdateDatasourcesMock,
+      onRunQueriesMock
+    );
 
     expect(onUpdateDatasourcesMock).toHaveBeenCalledWith({
       uid: MIXED_DATASOURCE_NAME,
@@ -127,23 +126,22 @@ describe('QueryEditorRows', () => {
     const onUpdateDatasourcesMock = jest.fn();
     const onRunQueriesMock = jest.fn();
 
-    const testProps = {
-      ...props,
-      onQueriesChange: onQueriesChangeMock,
-      onUpdateDatasources: onUpdateDatasourcesMock,
-      onRunQueries: onRunQueriesMock,
-      dsSettings: { ...props.dsSettings, uid: 'current-datasource' },
-      queries: [{ datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'A' }],
-    };
-
-    const component = new QueryEditorRows(testProps);
+    const testQueries = [{ datasource: { uid: 'current-datasource', type: 'alertmanager' }, refId: 'A' }];
     const replacementQuery = {
       refId: 'A',
       datasource: { uid: 'different-datasource', type: 'prometheus' },
       expr: 'new query content',
     };
 
-    component.onReplaceQuery(replacementQuery, 0);
+    replaceQueryInQueries(
+      testQueries,
+      replacementQuery,
+      0,
+      'current-datasource',
+      onQueriesChangeMock,
+      onUpdateDatasourcesMock,
+      onRunQueriesMock
+    );
 
     expect(onUpdateDatasourcesMock).toHaveBeenCalledWith({
       uid: 'different-datasource',
@@ -155,26 +153,25 @@ describe('QueryEditorRows', () => {
     const onUpdateDatasourcesMock = jest.fn();
     const onRunQueriesMock = jest.fn();
 
-    const testProps = {
-      ...props,
-      onQueriesChange: onQueriesChangeMock,
-      onUpdateDatasources: onUpdateDatasourcesMock,
-      onRunQueries: onRunQueriesMock,
-      dsSettings: { ...props.dsSettings, uid: 'same-datasource' },
-      queries: [
-        { datasource: { uid: 'same-datasource', type: 'prometheus' }, refId: 'A' },
-        { datasource: { uid: 'same-datasource', type: 'prometheus' }, refId: 'B' },
-      ],
-    };
-
-    const component = new QueryEditorRows(testProps);
+    const testQueries = [
+      { datasource: { uid: 'same-datasource', type: 'prometheus' }, refId: 'A' },
+      { datasource: { uid: 'same-datasource', type: 'prometheus' }, refId: 'B' },
+    ];
     const replacementQuery = {
       refId: 'A',
       datasource: { uid: 'same-datasource', type: 'prometheus' },
       expr: 'new query content',
     };
 
-    component.onReplaceQuery(replacementQuery, 0);
+    replaceQueryInQueries(
+      testQueries,
+      replacementQuery,
+      0,
+      'same-datasource',
+      onQueriesChangeMock,
+      onUpdateDatasourcesMock,
+      onRunQueriesMock
+    );
 
     expect(onUpdateDatasourcesMock).not.toHaveBeenCalled();
   });
@@ -184,26 +181,25 @@ describe('QueryEditorRows', () => {
     const onUpdateDatasourcesMock = jest.fn();
     const onRunQueriesMock = jest.fn();
 
-    const testProps = {
-      ...props,
-      onQueriesChange: onQueriesChangeMock,
-      onUpdateDatasources: onUpdateDatasourcesMock,
-      onRunQueries: onRunQueriesMock,
-      dsSettings: { ...props.dsSettings, uid: 'current-datasource' },
-      queries: [
-        { datasource: { uid: 'datasource-1', type: 'loki' }, refId: 'A' },
-        { datasource: { uid: 'datasource-2', type: 'test-data' }, refId: 'B' },
-      ],
-    };
-
-    const component = new QueryEditorRows(testProps);
+    const testQueries = [
+      { datasource: { uid: 'datasource-1', type: 'loki' }, refId: 'A' },
+      { datasource: { uid: 'datasource-2', type: 'test-data' }, refId: 'B' },
+    ];
     const replacementQuery = {
       refId: 'A',
       datasource: { uid: 'datasource-3', type: 'prometheus' },
       expr: 'new query content',
     };
 
-    component.onReplaceQuery(replacementQuery, 0);
+    replaceQueryInQueries(
+      testQueries,
+      replacementQuery,
+      0,
+      'current-datasource',
+      onQueriesChangeMock,
+      onUpdateDatasourcesMock,
+      onRunQueriesMock
+    );
 
     expect(onUpdateDatasourcesMock).toHaveBeenCalledWith({
       uid: MIXED_DATASOURCE_NAME,
@@ -306,17 +302,6 @@ describe('QueryEditorRows', () => {
   it('Should call getDefaultQuery when changing datasource with mixed datasource enabled', async () => {
     const onQueriesChangeMock = jest.fn();
 
-    const mixedDsSettings = mockDataSource(
-      { name: MIXED_DATASOURCE_NAME, uid: MIXED_DATASOURCE_NAME },
-      { mixed: true }
-    );
-
-    const component = new QueryEditorRows({
-      ...props,
-      dsSettings: mixedDsSettings,
-      onQueriesChange: onQueriesChangeMock,
-    });
-
     const getDefaultQuery = jest.fn(() => ({ defaultFromDS: 'yes' }));
     // Mutate singleton dsSrvMock to return a datasource that has getDefaultQuery
     dsSrvMock.get = jest.fn(() => Promise.resolve({ getDefaultQuery } as unknown as DataSourceApi));
@@ -324,7 +309,7 @@ describe('QueryEditorRows', () => {
 
     // Change to a different type than existing to trigger default query path
     const newDS = mockDataSource({ uid: 'prom', name: 'Prometheus', type: 'prometheus' });
-    component.onDataSourceChange(newDS, 0);
+    await changeDataSourceInQueries(props.queries, newDS, 0, onQueriesChangeMock);
 
     await waitFor(() => expect(onQueriesChangeMock).toHaveBeenCalled());
 
