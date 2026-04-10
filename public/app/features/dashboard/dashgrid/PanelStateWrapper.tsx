@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { PureComponent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Subscription } from 'rxjs';
 
 import {
@@ -45,7 +45,7 @@ import { dispatch } from 'app/store/store';
 import { RenderEvent } from 'app/types/events';
 
 import { getDashboardQueryRunner } from '../../query/state/DashboardQueryRunner/DashboardQueryRunner';
-import { getTimeSrv, type TimeSrv } from '../services/TimeSrv';
+import { getTimeSrv } from '../services/TimeSrv';
 import { type DashboardModel } from '../state/DashboardModel';
 import { type PanelModel } from '../state/PanelModel';
 import { getPanelChromeProps } from '../utils/getPanelChromeProps';
@@ -74,290 +74,300 @@ export interface Props {
   hideMenu?: boolean;
 }
 
-export interface State {
-  isFirstLoad: boolean;
-  renderCounter: number;
-  errorMessage?: string;
-  context: PanelContext;
-  data: PanelData;
-  liveTime?: TimeRange;
+function getInitialPanelDataState(): PanelData {
+  return {
+    state: LoadingState.NotStarted,
+    series: [],
+    timeRange: getDefaultTimeRange(),
+  };
 }
 
-export class PanelStateWrapper extends PureComponent<Props, State> {
-  private readonly timeSrv: TimeSrv = getTimeSrv();
-  private subs = new Subscription();
-  private eventFilter: EventFilterOptions = { onlyLocal: true };
-  private panelOptionsLogger: PanelOptionsLogger | undefined = undefined;
+export function PanelStateWrapper({
+  panel,
+  dashboard,
+  plugin,
+  isViewing,
+  isEditing,
+  isInView,
+  isDraggable,
+  width,
+  height,
+  onInstanceStateChange,
+  timezone,
+  hideMenu,
+}: Props) {
+  const timeSrv = getTimeSrv();
+  const eventFilterRef = useRef<EventFilterOptions>({ onlyLocal: true });
 
-  constructor(props: Props) {
-    super(props);
-
-    // Can this eventBus be on PanelModel?  when we have more complex event filtering, that may be a better option
-    const eventBus = props.dashboard.events.newScopedBus(`panel:${props.panel.id}`, this.eventFilter);
-    this.debouncedSetPanelAttention = debounce(this.setPanelAttention.bind(this), 100);
-
-    this.state = {
-      isFirstLoad: true,
-      renderCounter: 0,
-      context: {
-        eventsScope: '__global_',
-        eventBus,
-        app: this.getPanelContextApp(),
-        sync: this.getSync,
-        onSeriesColorChange: this.onSeriesColorChange,
-        onToggleSeriesVisibility: this.onSeriesVisibilityChange,
-        onAnnotationCreate: this.onAnnotationCreate,
-        onAnnotationUpdate: this.onAnnotationUpdate,
-        onAnnotationDelete: this.onAnnotationDelete,
-        onInstanceStateChange: this.onInstanceStateChange,
-        onToggleLegendSort: this.onToggleLegendSort,
-        canAddAnnotations: props.dashboard.canAddAnnotations.bind(props.dashboard),
-        canEditAnnotations: props.dashboard.canEditAnnotations.bind(props.dashboard),
-        canDeleteAnnotations: props.dashboard.canDeleteAnnotations.bind(props.dashboard),
-        canExecuteActions: props.dashboard.canExecuteActions.bind(props.dashboard),
-        onAddAdHocFilter: this.onAddAdHocFilter,
-        onUpdateData: this.onUpdateData,
-      },
-      data: this.getInitialPanelDataState(),
-    };
-
-    if (this.getPanelContextApp() === CoreApp.PanelEditor) {
-      const panelInfo = {
-        panelId: String(props.panel.id),
-        panelType: props.panel.type,
-        panelTitle: props.panel.title,
-      };
-
-      this.panelOptionsLogger = new PanelOptionsLogger(props.panel.getOptions(), props.panel.fieldConfig, panelInfo);
-    }
-  }
-
-  // Due to a mutable panel model we get the sync settings via function that proactively reads from the model
-  getSync = () => (this.props.isEditing ? DashboardCursorSync.Off : this.props.dashboard.graphTooltip);
-
-  onInstanceStateChange = (value: unknown) => {
-    this.props.onInstanceStateChange(value);
-
-    this.setState({
-      context: {
-        ...this.state.context,
-        instanceState: value,
-      },
-    });
-  };
-
-  getPanelContextApp() {
-    if (this.props.isEditing) {
+  const getPanelContextApp = useCallback(() => {
+    if (isEditing) {
       return CoreApp.PanelEditor;
     }
-    if (this.props.isViewing) {
+    if (isViewing) {
       return CoreApp.PanelViewer;
     }
-
     return CoreApp.Dashboard;
-  }
+  }, [isEditing, isViewing]);
 
-  onUpdateData = (frames: DataFrame[]): Promise<boolean> => {
-    return onUpdatePanelSnapshotData(this.props.panel, frames);
-  };
+  const eventBus = useMemo(
+    () => dashboard.events.newScopedBus(`panel:${panel.id}`, eventFilterRef.current),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [panel.id, dashboard]
+  );
 
-  onSeriesColorChange = (label: string, color: string) => {
-    this.onFieldConfigChange(changeSeriesColorConfigFactory(label, color, this.props.panel.fieldConfig));
-  };
-
-  onSeriesVisibilityChange = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
-    if (typeof label !== 'string') {
-      return;
-    }
-    this.onFieldConfigChange(
-      seriesVisibilityConfigFactory(label, mode, this.props.panel.fieldConfig, this.state.data.series)
-    );
-  };
-
-  onToggleLegendSort = (sortKey: string) => {
-    const legendOptions: VizLegendOptions = this.props.panel.options.legend;
-
-    // We don't want to do anything when legend options are not available
-    if (!legendOptions) {
-      return;
-    }
-
-    let sortDesc = legendOptions.sortDesc;
-    let sortBy = legendOptions.sortBy;
-    if (sortKey !== sortBy) {
-      sortDesc = undefined;
-    }
-
-    // if already sort ascending, disable sorting
-    if (sortDesc === false) {
-      sortBy = undefined;
-      sortDesc = undefined;
-    } else {
-      sortDesc = !sortDesc;
-      sortBy = sortKey;
-    }
-
-    this.onOptionsChange({
-      ...this.props.panel.options,
-      legend: { ...legendOptions, sortBy, sortDesc },
-    });
-  };
-
-  getInitialPanelDataState(): PanelData {
-    return {
-      state: LoadingState.NotStarted,
-      series: [],
-      timeRange: getDefaultTimeRange(),
+  const panelOptionsLoggerRef = useRef<PanelOptionsLogger | undefined>(undefined);
+  if (!panelOptionsLoggerRef.current && getPanelContextApp() === CoreApp.PanelEditor) {
+    const panelInfo = {
+      panelId: String(panel.id),
+      panelType: panel.type,
+      panelTitle: panel.title,
     };
+    panelOptionsLoggerRef.current = new PanelOptionsLogger(panel.getOptions(), panel.fieldConfig, panelInfo);
   }
 
-  componentDidMount() {
-    const { panel, dashboard } = this.props;
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [renderCounter, setRenderCounter] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [data, setData] = useState<PanelData>(getInitialPanelDataState);
+  const [liveTime, setLiveTime] = useState<TimeRange | undefined>(undefined);
+  const [contextApp, setContextApp] = useState<CoreApp>(getPanelContextApp());
+  const [instanceState, setInstanceState] = useState<unknown>(undefined);
 
-    // Subscribe to panel events
-    this.subs.add(panel.events.subscribe(RefreshEvent, this.onRefresh));
-    this.subs.add(panel.events.subscribe(RenderEvent, this.onRender));
+  const getSync = useCallback(
+    () => (isEditing ? DashboardCursorSync.Off : dashboard.graphTooltip),
+    [isEditing, dashboard]
+  );
 
-    dashboard.panelInitialized(this.props.panel);
+  const onOptionsChange = useCallback(
+    (options: object) => {
+      panel.updateOptions(options);
+    },
+    [panel]
+  );
 
-    // Move snapshot data into the query response
-    if (this.hasPanelSnapshot) {
-      this.setState({
-        data: loadSnapshotData(panel, dashboard),
-        isFirstLoad: false,
-      });
-      return;
-    }
+  const onFieldConfigChange = useCallback(
+    (config: FieldConfigSource) => {
+      panel.updateFieldConfig(config);
+    },
+    [panel]
+  );
 
-    if (!this.wantsQueryExecution) {
-      this.setState({ isFirstLoad: false });
-    }
+  const onAnnotationCreate = useCallback(
+    async (event: AnnotationEventUIModel) => {
+      const isRegion = event.from !== event.to;
+      const anno = {
+        dashboardUID: dashboard.uid,
+        panelId: panel.id,
+        isRegion,
+        time: event.from,
+        timeEnd: isRegion ? event.to : 0,
+        tags: event.tags,
+        text: event.description,
+      };
+      await annotationServer().save(anno);
+      getDashboardQueryRunner().run({ dashboard, range: timeSrv.timeRange() });
+      eventBus.publish(new AnnotationChangeEvent(anno));
+    },
+    [dashboard, panel, timeSrv, eventBus]
+  );
 
-    this.subs.add(
-      panel
-        .getQueryRunner()
-        .getData({ withTransforms: true, withFieldConfig: true })
-        .subscribe({
-          next: (data) => this.onDataUpdate(data),
-        })
-    );
+  const onAnnotationDelete = useCallback(
+    async (id: string) => {
+      await annotationServer().delete({ id });
+      getDashboardQueryRunner().run({ dashboard, range: timeSrv.timeRange() });
+      eventBus.publish(new AnnotationChangeEvent({ id }));
+    },
+    [dashboard, timeSrv, eventBus]
+  );
 
-    // Listen for live timer events
-    liveTimer.listen(this);
-  }
+  const onAnnotationUpdate = useCallback(
+    async (event: AnnotationEventUIModel) => {
+      const isRegion = event.from !== event.to;
+      const anno = {
+        id: event.id,
+        dashboardUID: dashboard.uid,
+        panelId: panel.id,
+        isRegion,
+        time: event.from,
+        timeEnd: isRegion ? event.to : 0,
+        tags: event.tags,
+        text: event.description,
+      };
+      await annotationServer().update(anno);
+      getDashboardQueryRunner().run({ dashboard, range: timeSrv.timeRange() });
+      eventBus.publish(new AnnotationChangeEvent(anno));
+    },
+    [dashboard, panel, timeSrv, eventBus]
+  );
 
-  componentWillUnmount() {
-    this.subs.unsubscribe();
-    liveTimer.remove(this);
-  }
+  const onInstanceStateChangeCallback = useCallback(
+    (value: unknown) => {
+      onInstanceStateChange(value);
+      setInstanceState(value);
+    },
+    [onInstanceStateChange]
+  );
 
-  liveTimeChanged(liveTime: TimeRange) {
-    const { data } = this.state;
-    if (data.timeRange) {
-      const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
-      if (delta < 100) {
-        // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+  const onToggleLegendSort = useCallback(
+    (sortKey: string) => {
+      const legendOptions: VizLegendOptions = panel.options.legend;
+      if (!legendOptions) {
         return;
       }
-    }
-    this.setState({ liveTime });
-  }
 
-  componentDidUpdate(prevProps: Props) {
-    const { isInView, width, panel } = this.props;
-    const { context } = this.state;
-
-    const app = this.getPanelContextApp();
-
-    if (context.app !== app) {
-      this.setState({
-        context: {
-          ...context,
-          app,
-        },
-      });
-    }
-
-    // View state has changed
-    if (isInView !== prevProps.isInView) {
-      if (isInView) {
-        // Check if we need a delayed refresh
-        if (panel.refreshWhenInView) {
-          this.onRefresh();
-        }
+      let sortDesc = legendOptions.sortDesc;
+      let sortBy = legendOptions.sortBy;
+      if (sortKey !== sortBy) {
+        sortDesc = undefined;
       }
+
+      if (sortDesc === false) {
+        sortBy = undefined;
+        sortDesc = undefined;
+      } else {
+        sortDesc = !sortDesc;
+        sortBy = sortKey;
+      }
+
+      onOptionsChange({
+        ...panel.options,
+        legend: { ...legendOptions, sortBy, sortDesc },
+      });
+    },
+    [panel, onOptionsChange]
+  );
+
+  const onSeriesColorChange = useCallback(
+    (label: string, color: string) => {
+      onFieldConfigChange(changeSeriesColorConfigFactory(label, color, panel.fieldConfig));
+    },
+    [panel, onFieldConfigChange]
+  );
+
+  const onSeriesVisibilityChange = useCallback(
+    (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (typeof label !== 'string') {
+        return;
+      }
+      onFieldConfigChange(seriesVisibilityConfigFactory(label, mode, panel.fieldConfig, data.series));
+    },
+    [panel, onFieldConfigChange, data.series]
+  );
+
+  const onUpdateData = useCallback(
+    (frames: DataFrame[]): Promise<boolean> => {
+      return onUpdatePanelSnapshotData(panel, frames);
+    },
+    [panel]
+  );
+
+  const onAddAdHocFilter = useCallback(
+    (filterItem: AdHocFilterItem) => {
+      const { key, value, operator } = filterItem;
+      const datasourceInstance = getDatasourceSrv().getInstanceSettings(panel.datasource);
+      const datasourceRef = datasourceInstance && getDataSourceRef(datasourceInstance);
+      if (!datasourceRef) {
+        return;
+      }
+      dispatch(applyFilterFromTable({ datasource: datasourceRef, key, operator, value }));
+    },
+    [panel]
+  );
+
+  const panelContextRef = useRef<PanelContext>({
+    eventsScope: '__global_',
+    eventBus,
+    app: contextApp,
+    sync: getSync,
+    onSeriesColorChange,
+    onToggleSeriesVisibility: onSeriesVisibilityChange,
+    onAnnotationCreate,
+    onAnnotationUpdate,
+    onAnnotationDelete,
+    onInstanceStateChange: onInstanceStateChangeCallback,
+    onToggleLegendSort,
+    canAddAnnotations: dashboard.canAddAnnotations.bind(dashboard),
+    canEditAnnotations: dashboard.canEditAnnotations.bind(dashboard),
+    canDeleteAnnotations: dashboard.canDeleteAnnotations.bind(dashboard),
+    canExecuteActions: dashboard.canExecuteActions.bind(dashboard),
+    onAddAdHocFilter,
+    onUpdateData,
+    instanceState,
+  });
+
+  // Update context when app changes
+  useEffect(() => {
+    const app = getPanelContextApp();
+    if (panelContextRef.current.app !== app) {
+      setContextApp(app);
+      panelContextRef.current = { ...panelContextRef.current, app };
     }
+  });
 
-    // The timer depends on panel width
-    if (width !== prevProps.width) {
-      liveTimer.updateInterval(this);
-    }
-  }
+  panelContextRef.current.instanceState = instanceState;
 
-  // Updates the response with information from the stream
-  // The next is outside a react synthetic event so setState is not batched
-  // So in this context we can only do a single call to setState
-  onDataUpdate(data: PanelData) {
-    const { dashboard, panel, plugin } = this.props;
+  const hasPanelSnapshot = panel.snapshotData && panel.snapshotData.length;
+  const wantsQueryExecution = !(plugin.meta.skipDataQuery || hasPanelSnapshot);
 
-    // Ignore this data update if we are now a non data panel
-    if (plugin.meta.skipDataQuery) {
-      this.setState({ data: this.getInitialPanelDataState() });
-      return;
-    }
+  const onDataUpdate = useCallback(
+    (newData: PanelData) => {
+      if (plugin.meta.skipDataQuery) {
+        setData(getInitialPanelDataState());
+        return;
+      }
 
-    let { isFirstLoad } = this.state;
-    let errorMessage: string | undefined;
+      let newIsFirstLoad = isFirstLoad;
+      let newErrorMessage: string | undefined;
 
-    switch (data.state) {
-      case LoadingState.Loading:
-        // Skip updating state data if it is already in loading state
-        // This is to avoid rendering partial loading responses
-        if (this.state.data.state === LoadingState.Loading) {
-          return;
-        }
-        break;
-      case LoadingState.Error:
-        const { error, errors } = data;
-        if (errors?.length) {
-          if (errors.length === 1) {
-            errorMessage = errors[0].message;
-          } else {
-            errorMessage = 'Multiple errors found. Click for more details';
+      switch (newData.state) {
+        case LoadingState.Loading:
+          if (data.state === LoadingState.Loading) {
+            return;
           }
-        } else if (error) {
-          if (errorMessage !== error.message) {
-            errorMessage = error.message;
+          break;
+        case LoadingState.Error: {
+          const { error, errors } = newData;
+          if (errors?.length) {
+            if (errors.length === 1) {
+              newErrorMessage = errors[0].message;
+            } else {
+              newErrorMessage = 'Multiple errors found. Click for more details';
+            }
+          } else if (error) {
+            if (newErrorMessage !== error.message) {
+              newErrorMessage = error.message;
+            }
           }
+          break;
         }
-        break;
-      case LoadingState.Done:
-        // If we are doing a snapshot save data in panel model
-        if (dashboard.snapshot) {
-          panel.snapshotData = data.series.map((frame) => toDataFrameDTO(frame));
-        }
-        if (isFirstLoad) {
-          isFirstLoad = false;
-        }
-        break;
-    }
+        case LoadingState.Done:
+          if (dashboard.snapshot) {
+            panel.snapshotData = newData.series.map((frame) => toDataFrameDTO(frame));
+          }
+          if (newIsFirstLoad) {
+            newIsFirstLoad = false;
+          }
+          break;
+      }
 
-    this.setState({ isFirstLoad, errorMessage, data, liveTime: undefined });
-  }
+      setIsFirstLoad(newIsFirstLoad);
+      setErrorMessage(newErrorMessage);
+      setData(newData);
+      setLiveTime(undefined);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [plugin.meta.skipDataQuery, dashboard.snapshot, panel, isFirstLoad, data.state]
+  );
 
-  onRefresh = () => {
-    const { dashboard, panel, isInView, width } = this.props;
-
+  const onRefresh = useCallback(() => {
     if (!dashboard.snapshot && !isInView) {
       panel.refreshWhenInView = true;
       return;
     }
 
-    const timeData = applyPanelTimeOverrides(panel, this.timeSrv.timeRange());
+    const timeData = applyPanelTimeOverrides(panel, timeSrv.timeRange());
 
-    // Issue Query
-    if (this.wantsQueryExecution) {
+    if (wantsQueryExecution) {
       if (width < 0) {
         return;
       }
@@ -371,170 +381,159 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
         width,
       });
     } else {
-      // The panel should render on refresh as well if it doesn't have a query, like clock panel
-      this.setState({
-        data: { ...this.state.data, timeRange: this.timeSrv.timeRange() },
-        renderCounter: this.state.renderCounter + 1,
-        liveTime: undefined,
+      setData((prev) => ({ ...prev, timeRange: timeSrv.timeRange() }));
+      setRenderCounter((c) => c + 1);
+      setLiveTime(undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboard, panel, isInView, wantsQueryExecution, width, timeSrv]);
+
+  const onRender = useCallback(() => {
+    setRenderCounter((c) => c + 1);
+  }, []);
+
+  // Mount: setup subscriptions
+  useEffect(() => {
+    const subs = new Subscription();
+
+    subs.add(panel.events.subscribe(RefreshEvent, onRefresh));
+    subs.add(panel.events.subscribe(RenderEvent, onRender));
+
+    dashboard.panelInitialized(panel);
+
+    if (hasPanelSnapshot) {
+      setData(loadSnapshotData(panel, dashboard));
+      setIsFirstLoad(false);
+    } else {
+      if (!wantsQueryExecution) {
+        setIsFirstLoad(false);
+      }
+
+      subs.add(
+        panel
+          .getQueryRunner()
+          .getData({ withTransforms: true, withFieldConfig: true })
+          .subscribe({
+            next: (newData) => onDataUpdate(newData),
+          })
+      );
+    }
+
+    liveTimer.listen({ liveTimeChanged: (t) => handleLiveTimeChanged(t) });
+
+    return () => {
+      subs.unsubscribe();
+      liveTimer.remove({ liveTimeChanged: (t) => handleLiveTimeChanged(t) });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleLiveTimeChanged = (newLiveTime: TimeRange) => {
+    if (data.timeRange) {
+      const delta = newLiveTime.to.valueOf() - data.timeRange.to.valueOf();
+      if (delta < 100) {
+        return;
+      }
+    }
+    setLiveTime(newLiveTime);
+  };
+
+  // Handle isInView change
+  const prevIsInViewRef = useRef(isInView);
+  useEffect(() => {
+    if (isInView !== prevIsInViewRef.current) {
+      prevIsInViewRef.current = isInView;
+      if (isInView && panel.refreshWhenInView) {
+        onRefresh();
+      }
+    }
+  }, [isInView, panel, onRefresh]);
+
+  // Handle width change for live timer
+  const prevWidthRef = useRef(width);
+  useEffect(() => {
+    if (width !== prevWidthRef.current) {
+      prevWidthRef.current = width;
+      liveTimer.updateInterval({ liveTimeChanged: handleLiveTimeChanged });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width]);
+
+  const setPanelAttention = useCallback(() => {
+    appEvents.publish(new SetPanelAttentionEvent({ panelId: panel.id }));
+  }, [panel.id]);
+
+  const debouncedSetPanelAttention = useMemo(
+    () => debounce(setPanelAttention, 100),
+    [setPanelAttention]
+  );
+
+  const onPanelError = useCallback(
+    (error: Error) => {
+      if (getPanelContextApp() === CoreApp.PanelEditor && panelOptionsLoggerRef.current) {
+        panelOptionsLoggerRef.current.logChanges(panel.getOptions(), panel.fieldConfig);
+      }
+
+      const msg = error.message || DEFAULT_PLUGIN_ERROR;
+      if (errorMessage !== msg) {
+        setErrorMessage(msg);
+      }
+    },
+    [panel, errorMessage, getPanelContextApp]
+  );
+
+  const onPanelErrorRecover = useCallback(() => {
+    setErrorMessage(undefined);
+  }, []);
+
+  const onChangeTimeRange = useCallback(
+    (timeRange: AbsoluteTimeRange) => {
+      timeSrv.setTime({
+        from: toUtc(timeRange.from),
+        to: toUtc(timeRange.to),
       });
-    }
-  };
+    },
+    [timeSrv]
+  );
 
-  onRender = () => {
-    const stateUpdate = { renderCounter: this.state.renderCounter + 1 };
-    this.setState(stateUpdate);
-  };
+  const shouldSignalRenderingCompleted = (loadingState: LoadingState, pluginMeta: PanelPluginMeta) =>
+    loadingState === LoadingState.Done ||
+    loadingState === LoadingState.Streaming ||
+    loadingState === LoadingState.Error ||
+    pluginMeta.skipDataQuery;
 
-  onOptionsChange = (options: object) => {
-    this.props.panel.updateOptions(options);
-  };
+  const skipFirstRender = (loadingState: LoadingState) =>
+    wantsQueryExecution &&
+    isFirstLoad &&
+    (loadingState === LoadingState.Loading || loadingState === LoadingState.NotStarted);
 
-  onFieldConfigChange = (config: FieldConfigSource) => {
-    this.props.panel.updateFieldConfig(config);
-  };
-
-  logPanelChangesOnError() {
-    this.panelOptionsLogger!.logChanges(this.props.panel.getOptions(), this.props.panel.fieldConfig);
-  }
-
-  onPanelError = (error: Error) => {
-    if (this.getPanelContextApp() === CoreApp.PanelEditor) {
-      this.logPanelChangesOnError();
-    }
-
-    const errorMessage = error.message || DEFAULT_PLUGIN_ERROR;
-
-    if (this.state.errorMessage !== errorMessage) {
-      this.setState({ errorMessage });
-    }
-  };
-
-  onPanelErrorRecover = () => {
-    this.setState({ errorMessage: undefined });
-  };
-
-  onAnnotationCreate = async (event: AnnotationEventUIModel) => {
-    const isRegion = event.from !== event.to;
-    const anno = {
-      dashboardUID: this.props.dashboard.uid,
-      panelId: this.props.panel.id,
-      isRegion,
-      time: event.from,
-      timeEnd: isRegion ? event.to : 0,
-      tags: event.tags,
-      text: event.description,
-    };
-    await annotationServer().save(anno);
-    getDashboardQueryRunner().run({ dashboard: this.props.dashboard, range: this.timeSrv.timeRange() });
-    this.state.context.eventBus.publish(new AnnotationChangeEvent(anno));
-  };
-
-  onAnnotationDelete = async (id: string) => {
-    await annotationServer().delete({ id });
-    getDashboardQueryRunner().run({ dashboard: this.props.dashboard, range: this.timeSrv.timeRange() });
-    this.state.context.eventBus.publish(new AnnotationChangeEvent({ id }));
-  };
-
-  onAnnotationUpdate = async (event: AnnotationEventUIModel) => {
-    const isRegion = event.from !== event.to;
-    const anno = {
-      id: event.id,
-      dashboardUID: this.props.dashboard.uid,
-      panelId: this.props.panel.id,
-      isRegion,
-      time: event.from,
-      timeEnd: isRegion ? event.to : 0,
-      tags: event.tags,
-      text: event.description,
-    };
-    await annotationServer().update(anno);
-
-    getDashboardQueryRunner().run({ dashboard: this.props.dashboard, range: this.timeSrv.timeRange() });
-    this.state.context.eventBus.publish(new AnnotationChangeEvent(anno));
-  };
-
-  get hasPanelSnapshot() {
-    const { panel } = this.props;
-    return panel.snapshotData && panel.snapshotData.length;
-  }
-
-  get wantsQueryExecution() {
-    return !(this.props.plugin.meta.skipDataQuery || this.hasPanelSnapshot);
-  }
-
-  onChangeTimeRange = (timeRange: AbsoluteTimeRange) => {
-    this.timeSrv.setTime({
-      from: toUtc(timeRange.from),
-      to: toUtc(timeRange.to),
-    });
-  };
-
-  shouldSignalRenderingCompleted(loadingState: LoadingState, pluginMeta: PanelPluginMeta) {
-    return (
-      loadingState === LoadingState.Done ||
-      loadingState === LoadingState.Streaming ||
-      loadingState === LoadingState.Error ||
-      pluginMeta.skipDataQuery
-    );
-  }
-
-  skipFirstRender(loadingState: LoadingState) {
-    const { isFirstLoad } = this.state;
-    return (
-      this.wantsQueryExecution &&
-      isFirstLoad &&
-      (loadingState === LoadingState.Loading || loadingState === LoadingState.NotStarted)
-    );
-  }
-
-  onAddAdHocFilter = (filter: AdHocFilterItem) => {
-    const { key, value, operator } = filter;
-
-    // When the datasource is null/undefined (for a default datasource), we use getInstanceSettings
-    // to find the real datasource ref for the default datasource.
-    const datasourceInstance = getDatasourceSrv().getInstanceSettings(this.props.panel.datasource);
-    const datasourceRef = datasourceInstance && getDataSourceRef(datasourceInstance);
-    if (!datasourceRef) {
-      return;
-    }
-
-    dispatch(applyFilterFromTable({ datasource: datasourceRef, key, operator, value }));
-  };
-
-  renderPanelContent(innerWidth: number, innerHeight: number) {
-    const { panel, plugin, dashboard } = this.props;
-    const { renderCounter, data } = this.state;
+  const renderPanelContent = (innerWidth: number, innerHeight: number) => {
     const { state: loadingState } = data;
 
-    // do not render component until we have first data
-    if (this.skipFirstRender(loadingState)) {
+    if (skipFirstRender(loadingState)) {
       return null;
     }
 
-    // This is only done to increase a counter that is used by backend
-    // image rendering to know when to capture image
-    if (this.shouldSignalRenderingCompleted(loadingState, plugin.meta)) {
+    if (shouldSignalRenderingCompleted(loadingState, plugin.meta)) {
       profiler.renderingCompleted();
     }
 
     const PanelComponent = plugin.panel!;
-    const timeRange = this.state.liveTime ?? data.timeRange ?? this.timeSrv.timeRange();
+    const panelTimeRange = liveTime ?? data.timeRange ?? timeSrv.timeRange();
     const panelOptions = panel.getOptions();
 
-    // Update the event filter (dashboard settings may have changed)
-    // Yes this is called ever render for a function that is triggered on every mouse move
-    this.eventFilter.onlyLocal = dashboard.graphTooltip === 0;
+    eventFilterRef.current.onlyLocal = dashboard.graphTooltip === 0;
 
     return (
       <>
-        <PanelContextProvider value={this.state.context}>
+        <PanelContextProvider value={panelContextRef.current}>
           <PluginContextProvider meta={plugin.meta}>
             <PanelComponent
               id={panel.id}
               data={data}
               title={panel.title}
-              timeRange={timeRange}
-              timeZone={this.props.dashboard.getTimezone()}
+              timeRange={panelTimeRange}
+              timeZone={dashboard.getTimezone()}
               options={panelOptions}
               fieldConfig={panel.fieldConfig}
               transparent={panel.transparent}
@@ -542,81 +541,69 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
               height={innerHeight}
               renderCounter={renderCounter}
               replaceVariables={panel.replaceVariables}
-              onOptionsChange={this.onOptionsChange}
-              onFieldConfigChange={this.onFieldConfigChange}
-              onChangeTimeRange={this.onChangeTimeRange}
+              onOptionsChange={onOptionsChange}
+              onFieldConfigChange={onFieldConfigChange}
+              onChangeTimeRange={onChangeTimeRange}
               eventBus={dashboard.events}
             />
-            {this.state.errorMessage === undefined && (
+            {errorMessage === undefined && (
               <PanelLoadTimeMonitor panelType={plugin.meta.id} panelId={panel.id} panelTitle={panel.title} />
             )}
           </PluginContextProvider>
         </PanelContextProvider>
       </>
     );
-  }
+  };
 
-  setPanelAttention() {
-    appEvents.publish(new SetPanelAttentionEvent({ panelId: this.props.panel.id }));
-  }
+  const panelChromeProps = getPanelChromeProps({ panel, dashboard, plugin, isViewing, isEditing, isInView, isDraggable, width, height, onInstanceStateChange, data });
 
-  debouncedSetPanelAttention() {}
+  const hoverHeaderOffset = (panel.gridPos?.y ?? 0) === 0 ? -16 : undefined;
 
-  render() {
-    const { dashboard, panel, width, height, plugin } = this.props;
-    const { errorMessage, data } = this.state;
-    const { transparent } = panel;
-    const panelChromeProps = getPanelChromeProps({ ...this.props, data });
+  const menu = (
+    <div data-testid="panel-dropdown">
+      <PanelHeaderMenuWrapper panel={panel} dashboard={dashboard} loadingState={data.state} />
+    </div>
+  );
 
-    // Shift the hover menu down if it's on the top row so it doesn't get clipped by topnav
-    const hoverHeaderOffset = (panel.gridPos?.y ?? 0) === 0 ? -16 : undefined;
-
-    const menu = (
-      <div data-testid="panel-dropdown">
-        <PanelHeaderMenuWrapper panel={panel} dashboard={dashboard} loadingState={data.state} />
-      </div>
-    );
-
-    return (
-      <PanelChrome
-        width={width}
-        height={height}
-        title={panelChromeProps.title}
-        loadingState={data.state}
-        statusMessage={errorMessage}
-        statusMessageOnClick={panelChromeProps.onOpenErrorInspect}
-        description={panelChromeProps.description}
-        titleItems={panelChromeProps.titleItems}
-        menu={this.props.hideMenu ? undefined : menu}
-        dragClass={panelChromeProps.dragClass}
-        dragClassCancel="grid-drag-cancel"
-        padding={panelChromeProps.padding}
-        hoverHeaderOffset={hoverHeaderOffset}
-        hoverHeader={panelChromeProps.hasOverlayHeader()}
-        displayMode={transparent ? 'transparent' : 'default'}
-        onCancelQuery={panelChromeProps.onCancelQuery}
-        onFocus={() => this.setPanelAttention()}
-        onMouseEnter={() => this.setPanelAttention()}
-        onMouseMove={() => this.debouncedSetPanelAttention()}
-      >
-        {(innerWidth, innerHeight) => (
-          <>
-            <ErrorBoundary
-              boundaryName="panel-state-wrapper"
-              dependencies={[data, plugin, panel.getOptions()]}
-              onError={this.onPanelError}
-              onRecover={this.onPanelErrorRecover}
-            >
-              {({ error }) => {
-                if (error) {
-                  return null;
-                }
-                return this.renderPanelContent(innerWidth, innerHeight);
-              }}
-            </ErrorBoundary>
-          </>
-        )}
-      </PanelChrome>
-    );
-  }
+  return (
+    <PanelChrome
+      width={width}
+      height={height}
+      title={panelChromeProps.title}
+      loadingState={data.state}
+      statusMessage={errorMessage}
+      statusMessageOnClick={panelChromeProps.onOpenErrorInspect}
+      description={panelChromeProps.description}
+      titleItems={panelChromeProps.titleItems}
+      menu={hideMenu ? undefined : menu}
+      dragClass={panelChromeProps.dragClass}
+      dragClassCancel="grid-drag-cancel"
+      padding={panelChromeProps.padding}
+      hoverHeaderOffset={hoverHeaderOffset}
+      hoverHeader={panelChromeProps.hasOverlayHeader()}
+      displayMode={panel.transparent ? 'transparent' : 'default'}
+      onCancelQuery={panelChromeProps.onCancelQuery}
+      onFocus={setPanelAttention}
+      onMouseEnter={setPanelAttention}
+      onMouseMove={debouncedSetPanelAttention}
+    >
+      {(innerWidth, innerHeight) => (
+        <>
+          <ErrorBoundary
+            boundaryName="panel-state-wrapper"
+            dependencies={[data, plugin, panel.getOptions()]}
+            onError={onPanelError}
+            onRecover={onPanelErrorRecover}
+          >
+            {({ error }) => {
+              if (error) {
+                return null;
+              }
+              return renderPanelContent(innerWidth, innerHeight);
+            }}
+          </ErrorBoundary>
+        </>
+      )}
+    </PanelChrome>
+  );
 }
