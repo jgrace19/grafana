@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useEffect, useRef, useState } from 'react';
-import * as React from 'react';
+
 import { type Unsubscribable } from 'rxjs';
 
 import {
@@ -20,7 +20,6 @@ import { type DataQuery } from '@grafana/schema';
 import { Button, InlineFormLabel, Modal, ScrollContainer, Stack, stylesFactory } from '@grafana/ui';
 import { PluginHelp } from 'app/core/components/PluginHelp/PluginHelp';
 import config from 'app/core/config';
-import { backendSrv } from 'app/core/services/backend_srv';
 import { addQuery, queryIsEmpty } from 'app/core/utils/query';
 import { DataSourceModal } from 'app/features/datasources/components/picker/DataSourceModal';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -48,7 +47,6 @@ export function QueryGroup({ queryRunner, options, onOpenQueryInspector, onRunQu
   const dataSourceSrv = getDataSourceSrv();
   const querySubscriptionRef = useRef<Unsubscribable | null>(null);
 
-  const [isDataSourceModalOpen] = useState(!!locationService.getSearchObject().firstPanel);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [queries, setQueries] = useState<DataQuery[]>([]);
   const [dataSource, setDataSource] = useState<DataSourceApi | undefined>(undefined);
@@ -316,8 +314,6 @@ const getStyles = stylesFactory(() => {
     }),
   };
 });
-
-type QueriesTabStyles = ReturnType<typeof getStyles>;
 
 interface QueryGroupTopSectionProps {
   data: PanelData;

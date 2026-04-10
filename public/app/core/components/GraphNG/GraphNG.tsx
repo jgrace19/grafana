@@ -34,6 +34,8 @@ import { preparePlotFrame as defaultPreparePlotFrame } from './utils';
 export type PropDiffFn<T extends Record<string, unknown> = {}> = (prev: T, next: T) => boolean;
 
 export interface GraphNGProps {
+  /** @deprecated Pass theme to graphNG is no longer required - component uses useTheme2() internally */
+  theme?: unknown;
   frames: DataFrame[];
   structureRev?: number; // a number that will change when the frames[] structure changes
   width: number;

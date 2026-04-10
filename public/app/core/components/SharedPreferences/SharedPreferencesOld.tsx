@@ -58,7 +58,7 @@ function SharedPreferences({ resourceUri, onConfirm, preferenceType, disabled }:
   const [language, setLanguage] = useState('');
   const [regionalFormat, setRegionalFormat] = useState('');
   const [homeDashboardUID, setHomeDashboardUID] = useState<string | undefined>(undefined);
-  const [queryHistory, setQueryHistory] = useState({ homeTab: '' });
+  const [queryHistory, setQueryHistory] = useState<{ homeTab: string }>({ homeTab: '' });
   const [navbar, setNavbar] = useState({ bookmarkUrls: [] as string[] });
 
   useEffect(() => {
@@ -66,13 +66,15 @@ function SharedPreferences({ resourceUri, onConfirm, preferenceType, disabled }:
     service.load().then((prefs) => {
       setIsLoading(false);
       setHomeDashboardUID(prefs.homeDashboardUID);
-      setTheme(prefs.theme);
-      setTimezone(prefs.timezone);
-      setWeekStart(prefs.weekStart);
-      setLanguage(prefs.language);
-      setRegionalFormat(prefs.regionalFormat);
-      setQueryHistory(prefs.queryHistory);
-      setNavbar(prefs.navbar);
+      setTheme(prefs.theme ?? '');
+      setTimezone(prefs.timezone ?? '');
+      setWeekStart(prefs.weekStart ?? '');
+      setLanguage(prefs.language ?? '');
+      setRegionalFormat(prefs.regionalFormat ?? '');
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      setQueryHistory((prefs.queryHistory as { homeTab: string }) ?? { homeTab: '' });
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      setNavbar((prefs.navbar as { bookmarkUrls: string[] }) ?? { bookmarkUrls: [] });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

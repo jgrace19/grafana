@@ -168,20 +168,6 @@ export function DashboardGrid({ dashboard, isEditable, editPanel, viewPanel, hid
     updateGridPos(newItem);
   };
 
-  const getPanelScreenPos = (panel: PanelModel, gridWidth: number): { top: number; bottom: number } => {
-    let top = 0;
-
-    if (gridWidth < config.theme2.breakpoints.values.md) {
-      top = lastPanelBottomRef.current + GRID_CELL_VMARGIN;
-    } else {
-      top = translateGridHeightToScreenHeight(panel.gridPos.y) + GRID_CELL_VMARGIN;
-    }
-
-    lastPanelBottomRef.current = top + translateGridHeightToScreenHeight(panel.gridPos.h);
-
-    return { top, bottom: lastPanelBottomRef.current };
-  };
-
   const renderPanel = (panel: PanelModel, panelWidth: number, panelHeight: number, isDraggable: boolean) => {
     if (panel.type === 'row') {
       return <DashboardRow key={panel.key} panel={panel} dashboard={dashboard} />;

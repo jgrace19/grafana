@@ -419,11 +419,12 @@ export function PanelStateWrapper({
       );
     }
 
-    liveTimer.listen({ liveTimeChanged: (t) => handleLiveTimeChanged(t) });
+    const liveTimerListener = { liveTimeChanged: handleLiveTimeChanged, isInView, width };
+    liveTimer.listen(liveTimerListener);
 
     return () => {
       subs.unsubscribe();
-      liveTimer.remove({ liveTimeChanged: (t) => handleLiveTimeChanged(t) });
+      liveTimer.remove(liveTimerListener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -449,12 +450,11 @@ export function PanelStateWrapper({
     }
   }, [isInView, panel, onRefresh]);
 
-  // Handle width change for live timer
+  // Handle width change for live timer - we need to recreate listener ref on width change
   const prevWidthRef = useRef(width);
   useEffect(() => {
     if (width !== prevWidthRef.current) {
       prevWidthRef.current = width;
-      liveTimer.updateInterval({ liveTimeChanged: handleLiveTimeChanged });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width]);
@@ -555,7 +555,7 @@ export function PanelStateWrapper({
     );
   };
 
-  const panelChromeProps = getPanelChromeProps({ panel, dashboard, plugin, isViewing, isEditing, isInView, isDraggable, width, height, onInstanceStateChange, data });
+  const panelChromeProps = getPanelChromeProps({ panel, dashboard, plugin, isViewing, isEditing, isInView, isDraggable, width, height, data });
 
   const hoverHeaderOffset = (panel.gridPos?.y ?? 0) === 0 ? -16 : undefined;
 
