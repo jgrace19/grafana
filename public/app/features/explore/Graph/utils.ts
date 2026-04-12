@@ -1,7 +1,9 @@
 import { store } from '@grafana/data';
-import { type ExploreGraphStyle, EXPLORE_GRAPH_STYLES } from 'app/types/explore';
+import { type ExploreGraphScale, type ExploreGraphStyle, EXPLORE_GRAPH_SCALES, EXPLORE_GRAPH_STYLES } from 'app/types/explore';
 
 const GRAPH_STYLE_KEY = 'grafana.explore.style.graph';
+const GRAPH_SCALE_KEY = 'grafana.explore.scale.graph';
+
 export const storeGraphStyle = (graphStyle: string): void => {
   store.set(GRAPH_STYLE_KEY, graphStyle);
 };
@@ -11,6 +13,7 @@ export const loadGraphStyle = (): ExploreGraphStyle => {
 };
 
 const DEFAULT_GRAPH_STYLE: ExploreGraphStyle = 'lines';
+const DEFAULT_GRAPH_SCALE: ExploreGraphScale = 'linear';
 // we use this function to take any kind of data we loaded
 // from an external source (URL, localStorage, whatever),
 // and extract the graph-style from it, or return the default
@@ -23,4 +26,17 @@ const DEFAULT_GRAPH_STYLE: ExploreGraphStyle = 'lines';
 export const toGraphStyle = (data: unknown): ExploreGraphStyle => {
   const found = EXPLORE_GRAPH_STYLES.find((v) => v === data);
   return found ?? DEFAULT_GRAPH_STYLE;
+};
+
+export const storeGraphScale = (graphScale: string): void => {
+  store.set(GRAPH_SCALE_KEY, graphScale);
+};
+
+export const loadGraphScale = (): ExploreGraphScale => {
+  return toGraphScale(store.get(GRAPH_SCALE_KEY));
+};
+
+export const toGraphScale = (data: unknown): ExploreGraphScale => {
+  const found = EXPLORE_GRAPH_SCALES.find((v) => v === data);
+  return found ?? DEFAULT_GRAPH_SCALE;
 };

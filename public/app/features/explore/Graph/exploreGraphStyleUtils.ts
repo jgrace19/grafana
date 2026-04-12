@@ -1,12 +1,23 @@
 import { produce } from 'immer';
 
 import { type FieldConfigSource, type ThresholdsConfig } from '@grafana/data';
-import { GraphDrawStyle, type GraphFieldConfig, type GraphThresholdsStyleConfig, StackingMode } from '@grafana/schema';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import {
+  GraphDrawStyle,
+  type GraphFieldConfig,
+  type GraphThresholdsStyleConfig,
+  ScaleDistribution,
+  StackingMode,
+} from '@grafana/schema';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 export type FieldConfig = FieldConfigSource<GraphFieldConfig>;
 
-export function applyGraphStyle(config: FieldConfig, style: ExploreGraphStyle, maximum?: number): FieldConfig {
+export function applyGraphStyle(
+  config: FieldConfig,
+  style: ExploreGraphStyle,
+  scale: ExploreGraphScale,
+  maximum?: number
+): FieldConfig {
   return produce(config, (draft) => {
     if (draft.defaults.custom === undefined) {
       draft.defaults.custom = {};
@@ -15,6 +26,10 @@ export function applyGraphStyle(config: FieldConfig, style: ExploreGraphStyle, m
     draft.defaults.max = maximum;
 
     const { custom } = draft.defaults;
+    custom.scaleDistribution = {
+      type: scale === 'log' ? ScaleDistribution.Log : ScaleDistribution.Linear,
+      ...(scale === 'log' ? { log: 10 } : {}),
+    };
 
     if (custom.stacking === undefined) {
       custom.stacking = { group: 'A' };
