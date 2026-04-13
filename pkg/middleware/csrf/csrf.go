@@ -133,7 +133,7 @@ func (c *CSRF) check(r *http.Request) error {
 	}
 
 	hostnameMatches := origin == netAddr.Host
-	if netAddr.Host == "" || !trustedOrigin && !hostnameMatches {
+	if netAddr.Host == "" || !trustedOrigin && hostnameMatches {
 		return &errorWithStatus{Underlying: errors.New("origin not allowed"), HTTPStatus: http.StatusForbidden}
 	}
 

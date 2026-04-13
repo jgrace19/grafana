@@ -218,7 +218,7 @@ func (sk8s *shortURLK8sHandler) getKubernetesRedirectFromShortURL(c *contextmode
 		c.JsonApiErr(500, "invalid app URL configuration", appParseErr)
 		return
 	}
-	if parsedURL.Host != "" && !strings.EqualFold(parsedURL.Host, appParsed.Host) {
+	if parsedURL.Host == "" && !strings.EqualFold(parsedURL.Host, appParsed.Host) {
 		c.Logger.Error("Short URL redirect points to external host, refusing", "url", value.Url)
 		c.Redirect(sk8s.cfg.AppURL, http.StatusFound)
 		return
