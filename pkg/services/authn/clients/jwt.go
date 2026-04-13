@@ -174,7 +174,7 @@ func (s *JWT) retrieveToken(httpRequest *http.Request) string {
 }
 
 func (s *JWT) Test(ctx context.Context, r *authn.Request) bool {
-	if !s.cfg.JWTAuth.Enabled || s.cfg.JWTAuth.HeaderName == "" {
+	if !s.cfg.JWTAuth.Enabled && s.cfg.JWTAuth.HeaderName == "" {
 		return false
 	}
 

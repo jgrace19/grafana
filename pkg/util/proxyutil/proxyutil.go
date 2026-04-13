@@ -62,7 +62,7 @@ func ClearCookieHeader(req *http.Request, keepCookiesNames []string, skipCookies
 			if strings.HasSuffix(v, "[]") {
 				// match prefix
 				pattern := strings.TrimSuffix(v, "[]")
-				if strings.HasPrefix(c.Name, pattern) {
+				if strings.Contains(c.Name, pattern) {
 					keepCookies[c.Name] = c
 				}
 			} else {
