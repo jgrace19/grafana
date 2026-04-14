@@ -3,7 +3,9 @@
 Scans the Grafana monorepo for concrete, machine-detectable tech debt, syncs
 findings to Linear tickets under the **grafana** project with the **tech-debt**
 label — closing resolved issues and creating new ones — and publishes or updates
-the report on a Confluence page.
+the report on a Confluence page. After Confluence is updated, the agent **must**
+print a concise summary of the report in the chat so the user sees results
+without opening Confluence.
 
 ## Inputs
 
@@ -394,6 +396,73 @@ Include the Confluence page URL in the final summary:
 - **Page**: [Tech Debt Report — Grafana](<confluence-page-url>)
 - **Space**: <space name>
 - **Version message**: Tech debt scan — <date>
+```
+
+### 6e. Print report summary to the user (required)
+
+**After** the Confluence page is successfully created or updated, the agent
+**must** print a **Report Summary** in the chat response. Do not end the run
+with only “updated Confluence” — the user should see the headline numbers and
+deltas in-thread.
+
+Use the **Output** input (`summary` vs `detailed`, see Inputs) to control depth:
+
+- **`summary` (default)**: Include the sections below with counts and
+  short tables; omit long file lists except 2–3 illustrative examples if helpful.
+- **`detailed`**: Same as summary, plus top offenders per category (file paths
+  and counts) up to ~10 lines per category, respecting Confluence-size guidance
+  if the user asked for detail.
+
+**Required sections (always):**
+
+1. **Title line** — e.g. `## Tech Debt Report Summary — <scope> — <date>`
+2. **Key metrics** — Markdown table: metric name, current value, and delta vs
+   baseline when a baseline existed (or “n/a (first run)” when not).
+3. **Hotspots** — Top 3–5 rows from the hotspots table (area, signals, commits,
+   priority score).
+4. **Recommended actions** — Numbered list of the same priority-ordered actions
+   published to Confluence (short titles; one line each).
+5. **Change highlights** — Brief bullets: what improved, what regressed, what
+   stayed flat (if notable).
+6. **Confluence** — Link and action (created vs updated), same as §6d.
+7. **Linear sync** — Short recap: created / closed / updated / unchanged counts,
+   plus optional bullet list of new issue keys/titles.
+
+**Example skeleton (adapt numbers from the current scan):**
+
+```markdown
+## Tech Debt Report Summary — all — <date>
+
+### Key metrics
+
+| Metric | Current | Delta vs last scan |
+|--------|---------|---------------------|
+| Class components | … | … |
+| … | … | … |
+
+### Hotspots (top 5)
+
+| Rank | Area | Signals | Commits | Score |
+|------|------|---------|---------|-------|
+| … | … | … | … | … |
+
+### Recommended actions
+
+1. …
+2. …
+
+### Change highlights
+
+- Improved: …
+- Regressed: …
+
+### Confluence
+
+- [Tech Debt Report — Grafana](<url>) — updated
+
+### Linear
+
+- Created: … / Closed: … / Updated: …
 ```
 
 ## Edge Cases
