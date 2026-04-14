@@ -1,22 +1,20 @@
 ---
 name: identify-tech-debt
 description: >-
-  Scan the Grafana monorepo for tech debt: legacy React patterns, type safety
-  gaps, TODO/FIXME density, Go quality signals, stale feature toggles, and
-  oversized files. Updates tech-debt-report.md with a diff against the previous
-  scan, syncs Linear tickets under the grafana project with the tech-debt
-  label — closing resolved issues and creating new ones — and publishes or
-  updates the report on Confluence. Use when the user asks to find tech debt,
-  audit code quality, identify modernization candidates, or generate a tech
-  debt report.
+  Scans the Grafana monorepo for concrete, machine-detectable tech debt,
+  prioritizes hotspots with git churn, syncs follow-up Linear issues, and
+  publishes a Confluence report. Use when the user asks to find tech debt,
+  identify tech debt hotspots, or generate a tech debt report.
 ---
 
 # Identify Tech Debt
 
-Scans the Grafana monorepo for concrete, machine-detectable tech debt, updates
-the persistent report at `tech-debt-report.md`, syncs findings to Linear
-tickets under the **grafana** project with the **tech-debt** label, and
-publishes or updates the report on a Confluence page.
+Scans the Grafana monorepo for concrete, machine-detectable tech debt, syncs
+findings to Linear tickets under the **grafana** project with the **tech-debt**
+label — closing resolved issues and creating new ones — and publishes or updates
+the report on a Confluence page. After Confluence is updated, the agent **must**
+print a concise summary of the report in the chat so the user sees results
+without opening Confluence.
 
 ## Inputs
 
@@ -37,10 +35,18 @@ Always exclude these from every search:
 
 Use `-g '!<pattern>'` flags with `rg` to enforce.
 
-## Step 1: Read Previous Report
+## Step 1: Fetch Previous Report from Confluence
 
-Check if `tech-debt-report.md` exists at the repo root. If it does, read it and
-extract the key metrics for later comparison:
+Search Confluence for an existing tech-debt report page to get baseline metrics:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="searchConfluenceUsingCql", arguments={
+  "cloudId": "<cloudId>",
+  "cql": "title = 'Tech Debt Report — Grafana' AND type = page AND space = '<spaceKey>'"
+})
+```
+
+If a page is found, fetch its content and extract the key metrics for comparison:
 
 - Class components count
 - connect() HOC count
@@ -56,9 +62,9 @@ extract the key metrics for later comparison:
 - Old IsEnabled API file count
 - The hotspot ranking table
 
-Store these as the **baseline** for delta computation in Step 5.
+Store these as the **baseline** for delta computation in Step 4.
 
-If the file does not exist, there is no baseline — all findings are "new."
+If no page exists, there is no baseline — all findings are "new."
 
 ## Step 2: Run Scans
 
@@ -159,49 +165,191 @@ Compute a **priority score**: `debt_signals × log2(commits + 1)`. High debt +
 high churn = highest priority. High debt + zero churn = lower priority (dormant
 code).
 
-## Step 5: Update Report
+## Step 5: Sync Linear Tickets
 
-### If `tech-debt-report.md` exists
+This step syncs the report findings with Linear. Each "Recommended Action" from
+the report maps to one Linear issue.
 
-1. Compare each metric from Step 2 against the baseline from Step 1.
-2. Compute deltas: `new_value - baseline_value` for each metric.
-3. Identify:
-   - **Resolved items** — files that appeared in the previous scan but no longer
-     match (e.g., a class component was converted). Track these at the file level
-     for ticket-closing in Step 6.
-   - **New items** — files that now match but did not appear before.
-4. Rewrite the full report body with current numbers. Add a
-   `## Change Log` section at the bottom:
+### 5a. Ensure the `tech-debt` label exists
 
-```markdown
-## Change Log
+```
+CallMcpTool(server="plugin-linear-linear", toolName="list_issue_labels", arguments={
+  "name": "tech-debt"
+})
+```
 
-### <date> (current scan)
+If no label is returned, create it:
 
-| Metric | Previous | Current | Delta |
-|--------|----------|---------|-------|
-| Class components | 61 | 58 | -3 |
-| connect() HOC | 41 | 41 | 0 |
-| ... | ... | ... | ... |
+```
+CallMcpTool(server="plugin-linear-linear", toolName="create_issue_label", arguments={
+  "name": "tech-debt",
+  "description": "Automated tech debt findings from codebase scans",
+  "color": "#e57a00"
+})
+```
 
-**Resolved since last scan:**
-- Converted `DashboardPage.tsx` from class to function component
+### 5b. Fetch existing tech-debt tickets
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="list_issues", arguments={
+  "project": "grafana",
+  "label": "tech-debt",
+  "limit": 250
+})
+```
+
+Build a map of existing tickets keyed by their title. The agent uses a
+consistent title convention (see 5d) so matching is by exact title.
+
+### 5c. Close resolved issues
+
+For each existing tech-debt ticket whose corresponding debt signal is **no
+longer present** in the current scan (i.e., it appeared in "Resolved since last
+scan"):
+
+1. **Add a closing comment** explaining the resolution:
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="save_comment", arguments={
+  "issueId": "<ISSUE-ID>",
+  "body": "This tech debt item has been resolved as of the <date> scan.\n\n<brief explanation of what changed — e.g., 'DashboardPage.tsx was converted from class to function component'>"
+})
+```
+
+2. **Transition the issue to Done**:
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
+  "id": "<ISSUE-ID>",
+  "state": "Done"
+})
+```
+
+### 5d. Create new tickets
+
+For each **Recommended Action** in the report that does **not** already have a
+matching Linear ticket, create one.
+
+**Title convention**: `[Tech Debt] <short action title>`
+
+Examples:
+- `[Tech Debt] Migrate dashboard/ class components to function components`
+- `[Tech Debt] Modernize Explore TraceView (stylesFactory + unsafe lifecycle)`
+- `[Tech Debt] Split oversized Go files (setting.go, dashboard_service.go)`
+- `[Tech Debt] Clean up deprecated feature toggles`
+- `[Tech Debt] Reduce explicit any in top 10 files`
+- `[Tech Debt] Migrate IsEnabled API to OpenFeature`
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
+  "title": "[Tech Debt] <action title>",
+  "team": "<team name>",
+  "project": "grafana",
+  "labels": ["tech-debt"],
+  "priority": <2 for Priority 1-2 actions, 3 for Priority 3-4, 4 for Priority 5-6>,
+  "description": "<Markdown body with:\n- What: specific files/areas affected\n- Why: debt signal counts, churn data, priority score\n- How: recommended remediation approach or link to skill\n- Scope: estimated number of files>"
+})
+```
+
+### 5e. Update existing open tickets
+
+For existing tech-debt tickets that are still open and the debt **still exists**
+but the numbers have changed, add a comment with the updated metrics:
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="save_comment", arguments={
+  "issueId": "<ISSUE-ID>",
+  "body": "Updated metrics from <date> scan:\n\n| Metric | Previous | Current | Delta |\n|--------|----------|---------|-------|\n| ... | ... | ... | ... |"
+})
+```
+
+Only post update comments if at least one metric in the ticket's scope changed.
+Do not spam tickets with identical numbers.
+
+### 5f. Report ticket actions to user
+
+After syncing, summarize what was done:
+
+```
+## Linear Sync Summary
+
+- **Created**: N new tickets
+- **Closed**: N resolved tickets
+- **Updated**: N tickets with new metrics
+- **Unchanged**: N tickets (no action needed)
+
+### New tickets
+- [TEAM-123] [Tech Debt] Migrate dashboard/ class components
 - ...
 
-**New since last scan:**
-- New `any` usage in `features/foo/bar.ts`
+### Closed tickets
+- [TEAM-456] [Tech Debt] Fix unsafe lifecycle in TimelineViewingLayer (resolved)
 - ...
 ```
 
-5. Preserve prior Change Log entries — append the new entry, do not delete old
-   ones. This creates a running history.
+## Step 6: Publish Report to Confluence
 
-### If `tech-debt-report.md` does not exist
+After Linear tickets are synced, publish or update the Confluence page with the
+full report content.
 
-Write the full report as described in the report template below. No Change Log
-section on the first run.
+### 6a. Resolve the Confluence space
+
+If the user provided a space name or key, use it directly. Otherwise, list
+available spaces and ask:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="getConfluenceSpaces", arguments={
+  "cloudId": "<cloudId>"
+})
+```
+
+Pick the space that matches the project (e.g., an "Engineering" or "Grafana"
+space). If ambiguous, ask the user to confirm.
+
+### 6b. Search for an existing report page
+
+Search Confluence for an existing tech-debt report page so you can update it
+in-place rather than creating duplicates:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="searchConfluenceUsingCql", arguments={
+  "cloudId": "<cloudId>",
+  "cql": "title = 'Tech Debt Report — Grafana' AND type = page AND space = '<spaceKey>'"
+})
+```
+
+If a page is found, record its `pageId` for the update step.
+
+### 6c. Create or update the page
+
+**If no existing page was found** — create a new one:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="createConfluencePage", arguments={
+  "cloudId": "<cloudId>",
+  "spaceId": "<spaceId>",
+  "title": "Tech Debt Report — Grafana",
+  "body": "<full report markdown>",
+  "contentFormat": "markdown",
+  "parentId": "<optional — parent page ID if nesting under a section>"
+})
+```
+
+**If the page already exists** — update it:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="updateConfluencePage", arguments={
+  "cloudId": "<cloudId>",
+  "pageId": "<pageId>",
+  "body": "<full report markdown>",
+  "contentFormat": "markdown",
+  "versionMessage": "Tech debt scan — <date>"
+})
+```
 
 ### Report Template
+
+The Confluence page should follow this structure:
 
 ```
 # Tech Debt Report — <scope> — <date>
@@ -237,198 +385,16 @@ section on the first run.
 1. ...
 
 ## Change Log
-(appended each scan)
+(appended each scan — include delta table and resolved/new items)
 ```
 
 ### Linking Remediation Skills
 
-If a remediation skill exists, reference it:
+If a remediation skill exists, reference it in the Recommended Actions:
 - Class components / connect() → `migrate-class-components` skill
 - Feature toggle migration → link to `pkg/services/featuremgmt/` docs
 
-## Step 6: Sync Linear Tickets
-
-This step syncs the report findings with Linear. Each "Recommended Action" from
-the report maps to one Linear issue.
-
-### 6a. Ensure the `tech-debt` label exists
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="list_issue_labels", arguments={
-  "name": "tech-debt"
-})
-```
-
-If no label is returned, create it:
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="create_issue_label", arguments={
-  "name": "tech-debt",
-  "description": "Automated tech debt findings from codebase scans",
-  "color": "#e57a00"
-})
-```
-
-### 6b. Fetch existing tech-debt tickets
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="list_issues", arguments={
-  "project": "grafana",
-  "label": "tech-debt",
-  "limit": 250
-})
-```
-
-Build a map of existing tickets keyed by their title. The agent uses a
-consistent title convention (see 6d) so matching is by exact title.
-
-### 6c. Close resolved issues
-
-For each existing tech-debt ticket whose corresponding debt signal is **no
-longer present** in the current scan (i.e., it appeared in "Resolved since last
-scan" from Step 5):
-
-1. **Add a closing comment** explaining the resolution:
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="save_comment", arguments={
-  "issueId": "<ISSUE-ID>",
-  "body": "This tech debt item has been resolved as of the <date> scan.\n\n<brief explanation of what changed — e.g., 'DashboardPage.tsx was converted from class to function component'>"
-})
-```
-
-2. **Transition the issue to Done**:
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
-  "id": "<ISSUE-ID>",
-  "state": "Done"
-})
-```
-
-### 6d. Create new tickets
-
-For each **Recommended Action** in the report that does **not** already have a
-matching Linear ticket, create one.
-
-**Title convention**: `[Tech Debt] <short action title>`
-
-Examples:
-- `[Tech Debt] Migrate dashboard/ class components to function components`
-- `[Tech Debt] Modernize Explore TraceView (stylesFactory + unsafe lifecycle)`
-- `[Tech Debt] Split oversized Go files (setting.go, dashboard_service.go)`
-- `[Tech Debt] Clean up deprecated feature toggles`
-- `[Tech Debt] Reduce explicit any in top 10 files`
-- `[Tech Debt] Migrate IsEnabled API to OpenFeature`
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
-  "title": "[Tech Debt] <action title>",
-  "team": "<team name>",
-  "project": "grafana",
-  "labels": ["tech-debt"],
-  "priority": <2 for Priority 1-2 actions, 3 for Priority 3-4, 4 for Priority 5-6>,
-  "description": "<Markdown body with:\n- What: specific files/areas affected\n- Why: debt signal counts, churn data, priority score\n- How: recommended remediation approach or link to skill\n- Scope: estimated number of files>"
-})
-```
-
-### 6e. Update existing open tickets
-
-For existing tech-debt tickets that are still open and the debt **still exists**
-but the numbers have changed, add a comment with the updated metrics:
-
-```
-CallMcpTool(server="plugin-linear-linear", toolName="save_comment", arguments={
-  "issueId": "<ISSUE-ID>",
-  "body": "Updated metrics from <date> scan:\n\n| Metric | Previous | Current | Delta |\n|--------|----------|---------|-------|\n| ... | ... | ... | ... |"
-})
-```
-
-Only post update comments if at least one metric in the ticket's scope changed.
-Do not spam tickets with identical numbers.
-
-### 6f. Report ticket actions to user
-
-After syncing, summarize what was done:
-
-```
-## Linear Sync Summary
-
-- **Created**: N new tickets
-- **Closed**: N resolved tickets
-- **Updated**: N tickets with new metrics
-- **Unchanged**: N tickets (no action needed)
-
-### New tickets
-- [TEAM-123] [Tech Debt] Migrate dashboard/ class components
-- ...
-
-### Closed tickets
-- [TEAM-456] [Tech Debt] Fix unsafe lifecycle in TimelineViewingLayer (resolved)
-- ...
-```
-
-## Step 7: Publish Report to Confluence
-
-After the local report and Linear tickets are up to date, publish or update a
-Confluence page with the same report content.
-
-### 7a. Resolve the Confluence space
-
-If the user provided a space name or key, use it directly. Otherwise, list
-available spaces and ask:
-
-```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="getConfluenceSpaces", arguments={
-  "cloudId": "<cloudId>"
-})
-```
-
-Pick the space that matches the project (e.g., an "Engineering" or "Grafana"
-space). If ambiguous, ask the user to confirm.
-
-### 7b. Search for an existing report page
-
-Search Confluence for an existing tech-debt report page so you can update it
-in-place rather than creating duplicates:
-
-```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="searchConfluenceUsingCql", arguments={
-  "cloudId": "<cloudId>",
-  "cql": "title = 'Tech Debt Report — Grafana' AND type = page AND space = '<spaceKey>'"
-})
-```
-
-If a page is found, record its `pageId` for the update step.
-
-### 7c. Create or update the page
-
-**If no existing page was found** — create a new one:
-
-```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="createConfluencePage", arguments={
-  "cloudId": "<cloudId>",
-  "spaceId": "<spaceId>",
-  "title": "Tech Debt Report — Grafana",
-  "body": "<full report markdown from Step 5>",
-  "contentFormat": "markdown",
-  "parentId": "<optional — parent page ID if nesting under a section>"
-})
-```
-
-**If the page already exists** — update it:
-
-```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="updateConfluencePage", arguments={
-  "cloudId": "<cloudId>",
-  "pageId": "<pageId>",
-  "body": "<full report markdown from Step 5>",
-  "contentFormat": "markdown",
-  "versionMessage": "Tech debt scan — <date>"
-})
-```
-
-### 7d. Report Confluence action to user
+### 6d. Report Confluence action to user
 
 Include the Confluence page URL in the final summary:
 
@@ -439,6 +405,73 @@ Include the Confluence page URL in the final summary:
 - **Page**: [Tech Debt Report — Grafana](<confluence-page-url>)
 - **Space**: <space name>
 - **Version message**: Tech debt scan — <date>
+```
+
+### 6e. Print report summary to the user (required)
+
+**After** the Confluence page is successfully created or updated, the agent
+**must** print a **Report Summary** in the chat response. Do not end the run
+with only “updated Confluence” — the user should see the headline numbers and
+deltas in-thread.
+
+Use the **Output** input (`summary` vs `detailed`, see Inputs) to control depth:
+
+- **`summary` (default)**: Include the sections below with counts and
+  short tables; omit long file lists except 2–3 illustrative examples if helpful.
+- **`detailed`**: Same as summary, plus top offenders per category (file paths
+  and counts) up to ~10 lines per category, respecting Confluence-size guidance
+  if the user asked for detail.
+
+**Required sections (always):**
+
+1. **Title line** — e.g. `## Tech Debt Report Summary — <scope> — <date>`
+2. **Key metrics** — Markdown table: metric name, current value, and delta vs
+   baseline when a baseline existed (or “n/a (first run)” when not).
+3. **Hotspots** — Top 3–5 rows from the hotspots table (area, signals, commits,
+   priority score).
+4. **Recommended actions** — Numbered list of the same priority-ordered actions
+   published to Confluence (short titles; one line each).
+5. **Change highlights** — Brief bullets: what improved, what regressed, what
+   stayed flat (if notable).
+6. **Confluence** — Link and action (created vs updated), same as §6d.
+7. **Linear sync** — Short recap: created / closed / updated / unchanged counts,
+   plus optional bullet list of new issue keys/titles.
+
+**Example skeleton (adapt numbers from the current scan):**
+
+```markdown
+## Tech Debt Report Summary — all — <date>
+
+### Key metrics
+
+| Metric | Current | Delta vs last scan |
+|--------|---------|---------------------|
+| Class components | … | … |
+| … | … | … |
+
+### Hotspots (top 5)
+
+| Rank | Area | Signals | Commits | Score |
+|------|------|---------|---------|-------|
+| … | … | … | … | … |
+
+### Recommended actions
+
+1. …
+2. …
+
+### Change highlights
+
+- Improved: …
+- Regressed: …
+
+### Confluence
+
+- [Tech Debt Report — Grafana](<url>) — updated
+
+### Linear
+
+- Created: … / Closed: … / Updated: …
 ```
 
 ## Edge Cases
@@ -472,5 +505,4 @@ Include the Confluence page URL in the final summary:
   than guessing. Do not skip the Confluence step silently.
 - **Large report exceeds Confluence limits**: Confluence pages have a ~1 MB
   body limit. If the detailed report is very large, truncate example file
-  lists to 5 per check and note that the full list is in
-  `tech-debt-report.md` in the repo.
+  lists to 5 per category.
