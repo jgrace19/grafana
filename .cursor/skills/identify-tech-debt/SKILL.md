@@ -6,9 +6,9 @@ description: >-
   oversized files. Updates tech-debt-report.md with a diff against the previous
   scan, syncs Linear tickets under the grafana project with the tech-debt
   label — closing resolved issues and creating new ones — and publishes or
-  updates the report on Confluence. Use when the user asks to find tech debt,
-  audit code quality, identify modernization candidates, or generate a tech
-  debt report.
+  updates the report on a Notion page in Julia's Space. Use when the user asks
+  to find tech debt, audit code quality, identify modernization candidates, or
+  generate a tech debt report.
 ---
 
 # Identify Tech Debt
@@ -16,7 +16,7 @@ description: >-
 Scans the Grafana monorepo for concrete, machine-detectable tech debt, updates
 the persistent report at `tech-debt-report.md`, syncs findings to Linear
 tickets under the **grafana** project with the **tech-debt** label, and
-publishes or updates the report on a Confluence page.
+publishes or updates the report on a Notion page in **Julia's Space**.
 
 ## Inputs
 
@@ -25,7 +25,7 @@ Collect before starting (use defaults if the user doesn't specify):
 1. **Scope** — `all` | `frontend` | `backend` | a specific directory path (default: `all`)
 2. **Output** — `summary` (counts + hotspots) | `detailed` (file-level lists) (default: `summary`)
 3. **Lookback** — git churn window (default: `6 months`)
-4. **Confluence space** — name or key of the Confluence space for the report page (ask on first run, then reuse the page ID from the existing report)
+4. **Notion page** — the report is always published to **Julia's Space** in Notion (no configuration needed)
 
 ## Noise Exclusions
 
@@ -368,77 +368,81 @@ After syncing, summarize what was done:
 - ...
 ```
 
-## Step 7: Publish Report to Confluence
+## Step 7: Publish Report to Notion
 
 After the local report and Linear tickets are up to date, publish or update a
-Confluence page with the same report content.
+Notion page in **Julia's Space** with the same report content.
 
-### 7a. Resolve the Confluence space
+### 7a. Locate Julia's Space
 
-If the user provided a space name or key, use it directly. Otherwise, list
-available spaces and ask:
+Search for Julia's Space in Notion:
 
 ```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="getConfluenceSpaces", arguments={
-  "cloudId": "<cloudId>"
+Notion-notion-search(arguments={
+  "query": "Julia's Space",
+  "query_type": "internal",
+  "filters": {}
 })
 ```
 
-Pick the space that matches the project (e.g., an "Engineering" or "Grafana"
-space). If ambiguous, ask the user to confirm.
+Identify the page or workspace that represents Julia's Space. Record its
+`page_id` for use as the parent when creating or locating the report page.
 
 ### 7b. Search for an existing report page
 
-Search Confluence for an existing tech-debt report page so you can update it
+Search Notion for an existing tech-debt report page so you can update it
 in-place rather than creating duplicates:
 
 ```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="searchConfluenceUsingCql", arguments={
-  "cloudId": "<cloudId>",
-  "cql": "title = 'Tech Debt Report — Grafana' AND type = page AND space = '<spaceKey>'"
+Notion-notion-search(arguments={
+  "query": "Tech Debt Report — Grafana",
+  "query_type": "internal",
+  "page_url": "<julia-space-page-id>",
+  "filters": {}
 })
 ```
 
-If a page is found, record its `pageId` for the update step.
+If a page titled "Tech Debt Report — Grafana" is found, record its `page_id`
+for the update step.
 
 ### 7c. Create or update the page
 
-**If no existing page was found** — create a new one:
+**If no existing page was found** — create a new one under Julia's Space:
 
 ```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="createConfluencePage", arguments={
-  "cloudId": "<cloudId>",
-  "spaceId": "<spaceId>",
-  "title": "Tech Debt Report — Grafana",
-  "body": "<full report markdown from Step 5>",
-  "contentFormat": "markdown",
-  "parentId": "<optional — parent page ID if nesting under a section>"
+Notion-notion-create-pages(arguments={
+  "parent": {"page_id": "<julia-space-page-id>"},
+  "pages": [
+    {
+      "properties": {"title": "Tech Debt Report — Grafana"},
+      "content": "<full report markdown from Step 5>",
+      "icon": "📊"
+    }
+  ]
 })
 ```
 
-**If the page already exists** — update it:
+**If the page already exists** — update it using `replace_content`:
 
 ```
-CallMcpTool(server="plugin-atlassian-atlassian", toolName="updateConfluencePage", arguments={
-  "cloudId": "<cloudId>",
-  "pageId": "<pageId>",
-  "body": "<full report markdown from Step 5>",
-  "contentFormat": "markdown",
-  "versionMessage": "Tech debt scan — <date>"
+Notion-notion-update-page(arguments={
+  "page_id": "<existing-report-page-id>",
+  "command": "replace_content",
+  "new_str": "<full report markdown from Step 5>"
 })
 ```
 
-### 7d. Report Confluence action to user
+### 7d. Report Notion action to user
 
-Include the Confluence page URL in the final summary:
+Include the Notion page URL in the final summary:
 
 ```
-## Confluence Report
+## Notion Report
 
 - **Action**: Created new page / Updated existing page
-- **Page**: [Tech Debt Report — Grafana](<confluence-page-url>)
-- **Space**: <space name>
-- **Version message**: Tech debt scan — <date>
+- **Page**: [Tech Debt Report — Grafana](<notion-page-url>)
+- **Space**: Julia's Space
+- **Last updated**: <date>
 ```
 
 ## Edge Cases
@@ -462,15 +466,17 @@ Include the Confluence page URL in the final summary:
   before creating a duplicate.
 - **First run (no baseline)**: All recommended actions become new tickets. No
   tickets are closed. No Change Log section in the report.
-- **Confluence auth failure**: If the Atlassian MCP server returns an auth
-  error, call the `mcp_auth` tool for `plugin-atlassian-atlassian` and retry.
-- **Confluence page title conflict**: If `createConfluencePage` fails because
-  the title already exists, fall back to the update path using a CQL search
-  to locate the existing page.
-- **No Confluence space configured**: If the user hasn't specified a space and
-  no obvious match is found in `getConfluenceSpaces`, ask the user rather
-  than guessing. Do not skip the Confluence step silently.
-- **Large report exceeds Confluence limits**: Confluence pages have a ~1 MB
-  body limit. If the detailed report is very large, truncate example file
-  lists to 5 per check and note that the full list is in
-  `tech-debt-report.md` in the repo.
+- **Julia's Space not found**: If the search for "Julia's Space" returns no
+  results, ask the user for the correct Notion page name or ID. Do not skip
+  the Notion step silently.
+- **Notion page title conflict**: If `notion-create-pages` fails because a page
+  with the same title already exists, use `notion-search` to locate the
+  existing page and update it instead.
+- **Notion auth failure**: If the Notion MCP server returns an auth error,
+  inform the user that Notion authentication needs to be configured.
+- **Large report content**: Notion has block limits per page. If the detailed
+  report is very large, truncate example file lists to 5 per category and
+  note that the full list is in `tech-debt-report.md` in the repo.
+- **Notion markdown conversion**: Notion uses its own enhanced markdown format.
+  When updating pages, fetch the `notion://docs/enhanced-markdown-spec`
+  resource if formatting issues occur.
