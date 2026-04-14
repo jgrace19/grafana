@@ -1426,6 +1426,20 @@
     },
     {
       "metadata": {
+        "name": "dashboardComments",
+        "resourceVersion": "1776182810216",
+        "creationTimestamp": "2022-02-22T07:47:42Z",
+        "deletionTimestamp": "2023-03-11T12:28:12Z"
+      },
+      "spec": {
+        "description": "Enable collaborative threaded comments on dashboard panels and annotations",
+        "stage": "experimental",
+        "codeowner": "@grafana/dashboards-squad",
+        "expression": "false"
+      }
+    },
+    {
+      "metadata": {
         "name": "dashboardDefaultLayoutSelector",
         "resourceVersion": "1775132912690",
         "creationTimestamp": "2026-03-19T12:33:56Z",
