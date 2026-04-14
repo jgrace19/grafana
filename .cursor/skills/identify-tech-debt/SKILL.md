@@ -4,17 +4,19 @@ description: >-
   Scan the Grafana monorepo for tech debt: legacy React patterns, type safety
   gaps, TODO/FIXME density, Go quality signals, stale feature toggles, and
   oversized files. Updates tech-debt-report.md with a diff against the previous
-  scan, then syncs Linear tickets under the grafana project with the tech-debt
-  label — closing resolved issues and creating new ones. Use when the user asks
-  to find tech debt, audit code quality, identify modernization candidates, or
-  generate a debt report.
+  scan, syncs Linear tickets under the grafana project with the tech-debt
+  label — closing resolved issues and creating new ones — and publishes or
+  updates the report on Confluence. Use when the user asks to find tech debt,
+  audit code quality, identify modernization candidates, or generate a tech
+  debt report.
 ---
 
 # Identify Tech Debt
 
 Scans the Grafana monorepo for concrete, machine-detectable tech debt, updates
-the persistent report at `tech-debt-report.md`, and syncs findings to Linear
-tickets under the **grafana** project with the **tech-debt** label.
+the persistent report at `tech-debt-report.md`, syncs findings to Linear
+tickets under the **grafana** project with the **tech-debt** label, and
+publishes or updates the report on a Confluence page.
 
 ## Inputs
 
@@ -23,6 +25,7 @@ Collect before starting (use defaults if the user doesn't specify):
 1. **Scope** — `all` | `frontend` | `backend` | a specific directory path (default: `all`)
 2. **Output** — `summary` (counts + hotspots) | `detailed` (file-level lists) (default: `summary`)
 3. **Lookback** — git churn window (default: `6 months`)
+4. **Confluence space** — name or key of the Confluence space for the report page (ask on first run, then reuse the page ID from the existing report)
 
 ## Noise Exclusions
 
@@ -365,6 +368,79 @@ After syncing, summarize what was done:
 - ...
 ```
 
+## Step 7: Publish Report to Confluence
+
+After the local report and Linear tickets are up to date, publish or update a
+Confluence page with the same report content.
+
+### 7a. Resolve the Confluence space
+
+If the user provided a space name or key, use it directly. Otherwise, list
+available spaces and ask:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="getConfluenceSpaces", arguments={
+  "cloudId": "<cloudId>"
+})
+```
+
+Pick the space that matches the project (e.g., an "Engineering" or "Grafana"
+space). If ambiguous, ask the user to confirm.
+
+### 7b. Search for an existing report page
+
+Search Confluence for an existing tech-debt report page so you can update it
+in-place rather than creating duplicates:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="searchConfluenceUsingCql", arguments={
+  "cloudId": "<cloudId>",
+  "cql": "title = 'Tech Debt Report — Grafana' AND type = page AND space = '<spaceKey>'"
+})
+```
+
+If a page is found, record its `pageId` for the update step.
+
+### 7c. Create or update the page
+
+**If no existing page was found** — create a new one:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="createConfluencePage", arguments={
+  "cloudId": "<cloudId>",
+  "spaceId": "<spaceId>",
+  "title": "Tech Debt Report — Grafana",
+  "body": "<full report markdown from Step 5>",
+  "contentFormat": "markdown",
+  "parentId": "<optional — parent page ID if nesting under a section>"
+})
+```
+
+**If the page already exists** — update it:
+
+```
+CallMcpTool(server="plugin-atlassian-atlassian", toolName="updateConfluencePage", arguments={
+  "cloudId": "<cloudId>",
+  "pageId": "<pageId>",
+  "body": "<full report markdown from Step 5>",
+  "contentFormat": "markdown",
+  "versionMessage": "Tech debt scan — <date>"
+})
+```
+
+### 7d. Report Confluence action to user
+
+Include the Confluence page URL in the final summary:
+
+```
+## Confluence Report
+
+- **Action**: Created new page / Updated existing page
+- **Page**: [Tech Debt Report — Grafana](<confluence-page-url>)
+- **Space**: <space name>
+- **Version message**: Tech debt scan — <date>
+```
+
 ## Edge Cases
 
 - **Monorepo plugins**: Some plugins under `public/app/plugins/` are Yarn
@@ -386,3 +462,15 @@ After syncing, summarize what was done:
   before creating a duplicate.
 - **First run (no baseline)**: All recommended actions become new tickets. No
   tickets are closed. No Change Log section in the report.
+- **Confluence auth failure**: If the Atlassian MCP server returns an auth
+  error, call the `mcp_auth` tool for `plugin-atlassian-atlassian` and retry.
+- **Confluence page title conflict**: If `createConfluencePage` fails because
+  the title already exists, fall back to the update path using a CQL search
+  to locate the existing page.
+- **No Confluence space configured**: If the user hasn't specified a space and
+  no obvious match is found in `getConfluenceSpaces`, ask the user rather
+  than guessing. Do not skip the Confluence step silently.
+- **Large report exceeds Confluence limits**: Confluence pages have a ~1 MB
+  body limit. If the detailed report is very large, truncate example file
+  lists to 5 per check and note that the full list is in
+  `tech-debt-report.md` in the repo.
