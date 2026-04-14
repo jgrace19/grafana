@@ -1,3 +1,12 @@
+---
+name: identify-tech-debt
+description: >-
+  Scans the Grafana monorepo for concrete, machine-detectable tech debt,
+  prioritizes hotspots with git churn, syncs follow-up Linear issues, and
+  publishes a Confluence report. Use when the user asks to find tech debt,
+  identify tech debt hotspots, or generate a tech debt report.
+---
+
 # Identify Tech Debt
 
 Scans the Grafana monorepo for concrete, machine-detectable tech debt, syncs
