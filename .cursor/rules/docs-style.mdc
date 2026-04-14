@@ -1,0 +1,19 @@
+---
+description: Documentation style and structure rules for docs content
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Docs style conventions
+
+- Match frontmatter `title` to the page H1 exactly.
+- Include intro content after headings; avoid heading-only sections.
+- Start with goal-oriented introduction and prerequisite list.
+- End with next steps or related resources.
+- Use sentence case headings and inline markdown links.
+- Use active voice and address the reader as "you".
+- Follow Grafana naming conventions (for example `Grafana Cloud`, `OpenTelemetry`, `Kubernetes`).
+- Prefer concise, direct wording and complete list-item sentences.
+
+Primary reference:
+- `docs/AGENTS.md`

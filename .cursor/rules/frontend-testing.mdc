@@ -1,0 +1,19 @@
+---
+description: Frontend testing conventions for React and TypeScript code
+globs: public/app/**/*.{test,spec}.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend testing conventions
+
+- Prefer Testing Library `*ByRole` queries first (`*ByLabelText` when appropriate).
+- Use `userEvent.setup()` and `await` user interactions.
+- Test loading and error states for async/data-driven UI.
+- Keep tests colocated with implementation files.
+- For reducers/thunks, use project helpers (`reducerTester`, `thunkTester`) where applicable.
+- For one-shot local runs, prefer non-watch commands (for example `yarn jest --no-watch`).
+
+Primary references:
+- `contribute/style-guides/testing.md`
+- `contribute/style-guides/redux.md`
+- `AGENTS.md`

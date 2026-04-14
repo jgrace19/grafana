@@ -1,0 +1,17 @@
+---
+description: Ensures pull requests target the correct fork (jgrace19/grafana)
+globs: 
+alwaysApply: true
+---
+
+# Pull request target repository
+
+When creating pull requests with `gh pr create` in this repo, always target
+the fork — not the upstream `grafana/grafana`:
+
+```
+gh pr create --repo jgrace19/grafana ...
+```
+
+This repo is a fork of `grafana/grafana`. Without `--repo`, `gh` defaults to
+opening the PR against the upstream, which is not what we want.

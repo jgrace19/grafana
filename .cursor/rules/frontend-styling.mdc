@@ -1,0 +1,19 @@
+---
+description: Frontend styling conventions for Grafana React code
+globs: public/app/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend styling conventions
+
+- Use Emotion for styling React components.
+- Use `useStyles2(getStyles)` for theme-aware style memoization.
+- Keep `getStyles` at the end of the file.
+- Prefer `@grafana/ui` layout primitives before adding custom wrapper styles.
+- Compose conditional classes with Emotion `cx` instead of branching style builders.
+- Keep Emotion class keys `camelCase`.
+- Avoid SASS for new/edited frontend code; migrate touched SASS areas toward Emotion.
+
+Primary references:
+- `contribute/style-guides/styling.md`
+- `contribute/style-guides/frontend.md`
