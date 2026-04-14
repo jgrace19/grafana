@@ -1,0 +1,18 @@
+---
+description: Backend Go architecture and generation workflow conventions
+globs: pkg/**/*.go
+alwaysApply: false
+---
+
+# Backend Go architecture conventions
+
+- Keep business logic in `pkg/services/<domain>/`; keep API handlers thin.
+- Follow existing service interfaces and package boundaries in the touched area.
+- If dependency wiring changes, run `make gen-go` (Wire).
+- If feature toggles change, run `make gen-feature-toggles`.
+- If schema generation inputs change, run the matching generators (`make gen-cue`, `make swagger-gen`, etc.).
+- Add or update focused Go tests for behavior changes.
+- Prefer targeted test runs during iteration (`go test -run TestName ./path/...`).
+
+Primary references:
+- `AGENTS.md`

@@ -1,0 +1,20 @@
+---
+description: TypeScript and React conventions for public/app frontend code
+globs: public/app/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend TS + React conventions
+
+- Follow existing patterns in nearby files before introducing new abstractions.
+- Use named declaration exports; avoid default exports.
+- For new React components, prefer function declarations over arrow component definitions.
+- Name callback props/handlers with an `on` prefix.
+- Keep naming consistent with Grafana style guides (`PascalCase` types/components, `camelCase` variables/functions).
+- Add explicit return types for new functions.
+- Keep files focused; split large components into smaller pieces.
+- Put tests next to the implementation (`*.test.ts` / `*.test.tsx`).
+
+Primary references:
+- `contribute/style-guides/frontend.md`
+- `AGENTS.md`
