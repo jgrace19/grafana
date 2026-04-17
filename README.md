@@ -3,8 +3,6 @@
 
 The open-source platform for monitoring and observability
 
-Test for Julia
-
 [![License](https://img.shields.io/github/license/grafana/grafana)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana)](https://goreportcard.com/report/github.com/grafana/grafana)
 
