@@ -1,4 +1,5 @@
 import { createTheme, FieldType, toDataFrame } from '@grafana/data';
+import { GraphDrawStyle } from '@grafana/schema';
 
 import { TrendOverlayMode } from './panelcfg.gen';
 import { applyTrendOverlay, computeLinearRegression, computeMovingAverage } from './trendOverlay';
@@ -95,6 +96,30 @@ describe('applyTrendOverlay', () => {
     expect(overlayA.config.custom?.lineStyle?.fill).toBe('dash');
     expect(overlayA.values).toEqual(computeMovingAverage([1, 3, 5, 7, 9], 3));
     expect(overlayB.values).toEqual(computeMovingAverage([2, 4, 6, 8, 10], 3));
+  });
+
+  it('forces overlay drawStyle to line when parent series uses bars or points', () => {
+    const frame = toDataFrame({
+      name: 'series',
+      fields: [
+        { name: 'time', type: FieldType.time, values: [0, 1000, 2000] },
+        {
+          name: 'a',
+          type: FieldType.number,
+          values: [1, 2, 3],
+          config: { custom: { drawStyle: GraphDrawStyle.Bars } },
+        },
+        {
+          name: 'b',
+          type: FieldType.number,
+          values: [1, 2, 3],
+          config: { custom: { drawStyle: GraphDrawStyle.Points } },
+        },
+      ],
+    });
+    const [out] = applyTrendOverlay([frame], { mode: TrendOverlayMode.MovingAverage, windowSize: 2 }, theme);
+    expect(out.fields[3].config.custom?.drawStyle).toBe(GraphDrawStyle.Line);
+    expect(out.fields[4].config.custom?.drawStyle).toBe(GraphDrawStyle.Line);
   });
 
   it('appends regression overlay fields matching computeLinearRegression output', () => {

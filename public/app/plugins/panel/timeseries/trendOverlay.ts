@@ -7,7 +7,7 @@ import {
   type GrafanaTheme2,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { type GraphFieldConfig, VisibilityMode } from '@grafana/schema';
+import { GraphDrawStyle, type GraphFieldConfig, VisibilityMode } from '@grafana/schema';
 
 import { TrendOverlayMode, type TrendOverlayOptions } from './panelcfg.gen';
 
@@ -145,6 +145,7 @@ function buildOverlayField(
 
   const overlayCustom: GraphFieldConfig = {
     ...baseCustom,
+    drawStyle: GraphDrawStyle.Line,
     lineWidth: options.lineWidth,
     fillOpacity: 0,
     lineStyle: { fill: 'dash', dash: [8, 4] },
