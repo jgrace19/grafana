@@ -15461,6 +15461,19 @@
     "timezones-editor": {
       "tooltip-add-timezone": "Add timezone",
       "tooltip-remove-timezone": "Remove timezone"
+    },
+    "trend-overlay": {
+      "category": "Trend overlay",
+      "description-mode": "Overlay a moving average or linear regression trendline on each numeric series. Does not modify the source data.",
+      "description-window-size": "Number of data points included in the trailing moving average window.",
+      "ma-suffix": "trend",
+      "name-line-width": "Line width",
+      "name-mode": "Mode",
+      "name-window-size": "Window size",
+      "option-linear-regression": "Linear regression",
+      "option-moving-average": "Moving average",
+      "option-off": "Off",
+      "regression-suffix": "trend"
     }
   },
   "traces": {
