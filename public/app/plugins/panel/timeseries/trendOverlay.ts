@@ -140,7 +140,7 @@ function buildOverlayField(
   const suffix =
     options.mode === TrendOverlayMode.LinearRegression
       ? t('timeseries.trend-overlay.regression-suffix', 'trend')
-      : t('timeseries.trend-overlay.ma-suffix', 'trend');
+      : t('timeseries.trend-overlay.ma-suffix', 'MA');
   const name = `${parentName} (${suffix})`;
 
   const overlayCustom: GraphFieldConfig = {

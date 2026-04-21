@@ -15466,7 +15466,7 @@
       "category": "Trend overlay",
       "description-mode": "Overlay a moving average or linear regression trendline on each numeric series. Does not modify the source data.",
       "description-window-size": "Number of data points included in the trailing moving average window.",
-      "ma-suffix": "trend",
+      "ma-suffix": "MA",
       "name-line-width": "Line width",
       "name-mode": "Mode",
       "name-window-size": "Window size",
