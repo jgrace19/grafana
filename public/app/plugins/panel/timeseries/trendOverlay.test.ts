@@ -91,7 +91,7 @@ describe('applyTrendOverlay', () => {
     const overlayB = out.fields[4];
     expect(overlayA.type).toBe(FieldType.number);
     expect(overlayB.type).toBe(FieldType.number);
-    expect(overlayA.name).toMatch(/trend/i);
+    expect(overlayA.name).toMatch(/MA/);
     expect(overlayA.config.custom?.lineStyle?.fill).toBe('dash');
     expect(overlayA.values).toEqual(computeMovingAverage([1, 3, 5, 7, 9], 3));
     expect(overlayB.values).toEqual(computeMovingAverage([2, 4, 6, 8, 10], 3));
@@ -103,9 +103,7 @@ describe('applyTrendOverlay', () => {
 
     expect(out.fields).toHaveLength(5);
     const overlayA = out.fields[3];
-    expect(overlayA.values).toEqual(
-      computeLinearRegression([0, 1000, 2000, 3000, 4000], [1, 3, 5, 7, 9])
-    );
+    expect(overlayA.values).toEqual(computeLinearRegression([0, 1000, 2000, 3000, 4000], [1, 3, 5, 7, 9]));
   });
 
   it('does not mutate source frames or fields', () => {
