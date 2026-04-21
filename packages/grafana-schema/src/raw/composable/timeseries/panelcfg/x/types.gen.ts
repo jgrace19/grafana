@@ -22,12 +22,34 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   enableFacetedFilter: true,
 };
 
+export enum TrendOverlayMode {
+  MovingAverage = 'movingAverage',
+  LinearRegression = 'linearRegression',
+}
+
+export interface TrendOverlayOptions {
+  enabled: boolean;
+  lineWidth: number;
+  mode: TrendOverlayMode;
+  opacity: number;
+  windowSize: number;
+}
+
+export const defaultTrendOverlayOptions: Partial<TrendOverlayOptions> = {
+  enabled: false,
+  lineWidth: 2,
+  mode: TrendOverlayMode.MovingAverage,
+  opacity: 0.7,
+  windowSize: 10,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
+  trendOverlay?: TrendOverlayOptions;
 }
 
 export interface FieldConfig extends common.GraphFieldConfig {}
