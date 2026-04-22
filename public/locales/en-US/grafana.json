@@ -15461,6 +15461,16 @@
     "timezones-editor": {
       "tooltip-add-timezone": "Add timezone",
       "tooltip-remove-timezone": "Remove timezone"
+    },
+    "trend-overlay": {
+      "category": "Trend overlay",
+      "description-mode": "Draw a trend overlay on top of every numeric series in the panel.",
+      "description-window-size": "Number of points in the trailing moving-average window. Zooming the time range changes what this represents.",
+      "name-mode": "Overlay type",
+      "name-window-size": "Window size (points)",
+      "option-linear-regression": "Linear regression",
+      "option-moving-average": "Moving average",
+      "option-none": "None"
     }
   },
   "traces": {

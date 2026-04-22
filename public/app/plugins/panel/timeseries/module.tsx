@@ -9,7 +9,7 @@ import { TimeSeriesPanel } from './TimeSeriesPanel';
 import { TimezonesEditor } from './TimezonesEditor';
 import { defaultGraphConfig, getGraphFieldConfig } from './config';
 import { graphPanelChangedHandler } from './migrations';
-import { type FieldConfig, type Options } from './panelcfg.gen';
+import { type FieldConfig, type Options, TrendOverlayMode } from './panelcfg.gen';
 import { timeseriesPresetsSupplier } from './presets';
 import { timeseriesSuggestionsSupplier } from './suggestions';
 
@@ -41,6 +41,46 @@ export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
       editor: TimezonesEditor,
       defaultValue: undefined,
     });
+
+    const trendOverlayCategory = [t('timeseries.trend-overlay.category', 'Trend overlay')];
+
+    builder
+      .addRadio({
+        path: 'trendOverlay.mode',
+        name: t('timeseries.trend-overlay.name-mode', 'Overlay type'),
+        description: t(
+          'timeseries.trend-overlay.description-mode',
+          'Draw a trend overlay on top of every numeric series in the panel.'
+        ),
+        category: trendOverlayCategory,
+        defaultValue: TrendOverlayMode.None,
+        settings: {
+          options: [
+            { value: TrendOverlayMode.None, label: t('timeseries.trend-overlay.option-none', 'None') },
+            {
+              value: TrendOverlayMode.MovingAverage,
+              label: t('timeseries.trend-overlay.option-moving-average', 'Moving average'),
+            },
+            {
+              value: TrendOverlayMode.LinearRegression,
+              label: t('timeseries.trend-overlay.option-linear-regression', 'Linear regression'),
+            },
+          ],
+        },
+      })
+      .addNumberInput({
+        path: 'trendOverlay.windowSize',
+        name: t('timeseries.trend-overlay.name-window-size', 'Window size (points)'),
+        description: t(
+          'timeseries.trend-overlay.description-window-size',
+          'Number of points in the trailing moving-average window. Zooming the time range changes what this represents.'
+        ),
+        category: trendOverlayCategory,
+        defaultValue: 10,
+        settings: { min: 2, integer: true },
+        showIf: (o) => o.trendOverlay?.mode === TrendOverlayMode.MovingAverage,
+      });
+
     addAnnotationOptions(builder);
   })
   .setSuggestionsSupplier(timeseriesSuggestionsSupplier)
