@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
 import { t } from '@grafana/i18n';
-import { config, reportInteraction } from '@grafana/runtime';
+import { reportInteraction } from '@grafana/runtime';
 import { ToolbarButton, useTheme2 } from '@grafana/ui';
 import { toggleTheme } from 'app/core/services/theme';
 
@@ -14,9 +14,7 @@ const normalizePath = (path: string): string => {
 
 const isHomePath = (pathname: string): boolean => {
   const normalizedPathname = normalizePath(pathname);
-  const normalizedHomePath = normalizePath(`${config.appSubUrl}/`);
-
-  return normalizedPathname === normalizedHomePath;
+  return normalizedPathname === '/';
 };
 
 export const HomePageThemeToggle = memo(function HomePageThemeToggle() {

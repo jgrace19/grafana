@@ -43,10 +43,10 @@ describe('HomePageThemeToggle', () => {
     expect(screen.queryByRole('button', { name: /switch to (light|dark) mode/i })).not.toBeInTheDocument();
   });
 
-  it('renders when Grafana runs from appSubUrl with a trailing slash', () => {
+  it('renders on home path when Grafana runs from appSubUrl', () => {
     config.appSubUrl = '/grafana';
 
-    render(<HomePageThemeToggle />, { historyOptions: { initialEntries: ['/grafana/'] } });
+    render(<HomePageThemeToggle />, { historyOptions: { initialEntries: ['/'] } });
 
     expect(screen.getByRole('button', { name: /switch to (light|dark) mode/i })).toBeInTheDocument();
   });
