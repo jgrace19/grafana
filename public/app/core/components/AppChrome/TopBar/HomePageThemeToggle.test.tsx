@@ -1,7 +1,6 @@
 import { render, screen } from 'test/test-utils';
 
 import { config, reportInteraction } from '@grafana/runtime';
-
 import { toggleTheme } from 'app/core/services/theme';
 
 import { HomePageThemeToggle } from './HomePageThemeToggle';
