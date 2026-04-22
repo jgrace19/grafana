@@ -20,12 +20,39 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   enableFacetedFilter: true,
 };
 
+export enum TrendOverlayType {
+  LinearRegression = 'linearRegression',
+  MovingAverage = 'movingAverage',
+}
+
+export interface TrendOverlayOptions {
+  /**
+   * Enable a client-side trend overlay (moving average or linear regression) rendered on top of the original series.
+   */
+  enabled: boolean;
+  /**
+   * Which overlay to compute.
+   */
+  type: (TrendOverlayType | 'movingAverage');
+  /**
+   * Window size (number of points) used for the trailing simple moving average. Ignored for linear regression.
+   */
+  windowSize: number;
+}
+
+export const defaultTrendOverlayOptions: Partial<TrendOverlayOptions> = {
+  enabled: false,
+  type: 'movingAverage',
+  windowSize: 10,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
+  trendOverlay?: TrendOverlayOptions;
 }
 
 export interface FieldConfig extends common.GraphFieldConfig {}
