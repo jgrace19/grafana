@@ -69,6 +69,20 @@ export const TimeSeriesPanel = ({
   const { frames, compareDiffMs } = useMemo((): { frames: DataFrame[] | null; compareDiffMs?: number[] } => {
     let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
     if (frames != null) {
+      frames.forEach((frame: DataFrame) => {
+        const diffMs = frame.meta?.timeCompare?.diffMs ?? 0;
+
+        if (diffMs !== 0) {
+          // Check if the compared frame needs time alignment
+          // Apply alignment when time ranges match (no shift applied yet)
+          const needsAlignment = shouldAlignTimeCompare(frame, frames!, timeRange);
+
+          if (needsAlignment) {
+            alignTimeRangeCompareData(frame, diffMs, config.theme2);
+          }
+        }
+      });
+
       frames = applyTrendOverlay(frames, data.series, options.trendOverlay, config.theme2);
       let compareDiffMs: number[] = [0];
 
@@ -80,16 +94,6 @@ export const TimeSeriesPanel = ({
             compareDiffMs.push(diffMs);
           }
         });
-
-        if (diffMs !== 0) {
-          // Check if the compared frame needs time alignment
-          // Apply alignment when time ranges match (no shift applied yet)
-          const needsAlignment = shouldAlignTimeCompare(frame, frames!, timeRange);
-
-          if (needsAlignment) {
-            alignTimeRangeCompareData(frame, diffMs, config.theme2);
-          }
-        }
       });
 
       return { frames, compareDiffMs };

@@ -142,6 +142,71 @@ describe('applyTrendOverlay', () => {
     expect(out).toBe(prepped);
   });
 
+  it('skips boolean-coerced fields when non-graphable source frames were dropped', () => {
+    const sourceNumeric = createDataFrame({
+      refId: 'A',
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+        { name: 'value', type: FieldType.number, values: [10, 11, 12] },
+      ],
+    });
+    const droppedSource = createDataFrame({
+      refId: 'X',
+      fields: [{ name: 'text', type: FieldType.string, values: ['a', 'b', 'c'] }],
+    });
+    const sourceBoolean = createDataFrame({
+      refId: 'B',
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+        { name: 'flag', type: FieldType.boolean, values: [true, false, true] },
+      ],
+    });
+
+    const prepped = [
+      sourceNumeric,
+      createDataFrame({
+        refId: 'B',
+        fields: [
+          { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+          { name: 'flag', type: FieldType.number, values: [1, 0, 1] },
+        ],
+      }),
+    ];
+
+    const out = applyTrendOverlay(
+      prepped,
+      [sourceNumeric, droppedSource, sourceBoolean],
+      { mode: TrendOverlayMode.MovingAverage, windowSize: 2 },
+      theme
+    );
+
+    expect(out).toHaveLength(3);
+    expect(out[2].refId).toBe('A-trend');
+  });
+
+  it('skips boolean-coerced fields when non-graphable source fields were dropped', () => {
+    const sourceFrame = createDataFrame({
+      refId: 'A',
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+        { name: 'tags', type: FieldType.other, values: [{ a: 1 }, { a: 2 }, { a: 3 }] },
+        { name: 'flag', type: FieldType.boolean, values: [true, false, true] },
+      ],
+    });
+    const prepped = [
+      createDataFrame({
+        refId: 'A',
+        fields: [
+          { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+          { name: 'flag', type: FieldType.number, values: [1, 0, 1] },
+        ],
+      }),
+    ];
+
+    const out = applyTrendOverlay(prepped, [sourceFrame], { mode: TrendOverlayMode.MovingAverage, windowSize: 2 }, theme);
+    expect(out).toBe(prepped);
+  });
+
   it('propagates meta.timeCompare from source to overlay frame', () => {
     const frame = makeFrame('a', [1, 2, 3], [1, 2, 3], 'A', {
       timeCompare: { diffMs: 123, isTimeShiftQuery: false },

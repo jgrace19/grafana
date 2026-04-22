@@ -14,6 +14,40 @@ import { type TrendOverlayOptions, TrendOverlayMode } from './panelcfg.gen';
 
 const DEFAULT_WINDOW_SIZE = 10;
 
+function isSourceGraphableFieldType(field: Field): boolean {
+  return (
+    field.type === FieldType.time ||
+    field.type === FieldType.number ||
+    field.type === FieldType.string ||
+    field.type === FieldType.enum ||
+    field.type === FieldType.boolean
+  );
+}
+
+function isSourceGraphableFrame(frame: DataFrame): boolean {
+  let hasTimeField = false;
+  let hasValueField = false;
+
+  for (const field of frame.fields) {
+    if (field.type === FieldType.time) {
+      hasTimeField = true;
+    } else if (
+      field.type === FieldType.number ||
+      field.type === FieldType.string ||
+      field.type === FieldType.enum ||
+      field.type === FieldType.boolean
+    ) {
+      hasValueField = true;
+    }
+
+    if (hasTimeField && hasValueField) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Add trend-overlay frames (moving average or linear regression) to a set of
  * graphable frames.
@@ -38,12 +72,14 @@ export function applyTrendOverlay(
 
   const mode = options.mode;
   const windowSize = Math.max(2, Math.floor(options.windowSize ?? DEFAULT_WINDOW_SIZE));
+  const graphableSourceSeries = sourceSeries.filter(isSourceGraphableFrame);
 
   const overlayFrames: DataFrame[] = [];
 
   for (let frameIdx = 0; frameIdx < frames.length; frameIdx++) {
     const frame = frames[frameIdx];
-    const sourceFrame = sourceSeries[frameIdx];
+    const sourceFrame = graphableSourceSeries[frameIdx];
+    const sourceFields = sourceFrame?.fields.filter(isSourceGraphableFieldType);
 
     const timeField = frame.fields.find((f) => f.type === FieldType.time);
     if (!timeField) {
@@ -67,7 +103,7 @@ export function applyTrendOverlay(
 
       // Skip fields that were coerced from boolean/enum by prepareGraphableFields.
       // We check the pre-prep source to tell apart "real numeric" from "coerced".
-      const sourceField = sourceFrame?.fields?.[fieldIdx];
+      const sourceField = sourceFields?.[fieldIdx];
       if (
         sourceField != null &&
         (sourceField.type === FieldType.boolean || sourceField.type === FieldType.enum)
