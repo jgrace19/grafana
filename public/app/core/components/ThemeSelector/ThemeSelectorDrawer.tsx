@@ -17,6 +17,7 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
   const styles = useStyles2(getStyles);
   const themes = getSelectableThemes();
   const currentTheme = useTheme2();
+  const hasExperimentalThemes = themes.some((themeOption) => themeOption.isExtra);
 
   const onChange = (theme: ThemeRegistryItem) => {
     reportInteraction('grafana_preferences_theme_changed', {
@@ -44,7 +45,7 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
       title={t('profile.change-theme', 'Change theme')}
       onClose={onClose}
       size="md"
-      subtitle={config.feedbackLinksEnabled ? subTitle : undefined}
+      subtitle={config.feedbackLinksEnabled && hasExperimentalThemes ? subTitle : undefined}
     >
       <div className={styles.grid} role="radiogroup">
         {themes.map((themeOption) => (

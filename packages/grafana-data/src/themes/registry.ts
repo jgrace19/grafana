@@ -63,7 +63,7 @@ export function getBuiltInThemes(allowedExtras: string[]) {
     }
     return true;
   });
-  // sort themes alphabetically, but put built-in themes (default, dark, light, system) first
+  // sort themes alphabetically, but put built-in themes (dark, light, purple, system) first
   const sortedThemes = themes.sort((a, b) => {
     if (a.isExtra && !b.isExtra) {
       return 1;
@@ -81,6 +81,30 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
     { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
     { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    {
+      id: 'purple',
+      name: 'Purple',
+      build: () =>
+        createTheme({
+          name: 'Purple',
+          colors: {
+            mode: 'dark',
+            primary: { main: '#B877D9' },
+            secondary: { main: '#8F3BB8' },
+            background: {
+              canvas: '#1B1327',
+              primary: '#261935',
+              secondary: '#322044',
+              elevated: '#322044',
+            },
+            text: {
+              primary: '#F2E8FA',
+              secondary: '#DCC4EE',
+              link: '#CA95E5',
+            },
+          },
+        }),
+    },
   ];
 });
 
