@@ -59,6 +59,17 @@ describe('linearRegression', () => {
     }
   });
 
+  it('handles real-world epoch millisecond timestamps without precision loss', () => {
+    const base = 1_700_000_000_000;
+    const times = Array.from({ length: 10 }, (_, i) => base + i * 1000);
+    const values = times.map((t) => 10 + (t - base) * 0.002);
+    const result = linearRegression(times, values);
+
+    expect(result).toHaveLength(10);
+    expect(result[0]).toBeCloseTo(values[0], 5);
+    expect(result[result.length - 1]).toBeCloseTo(values[values.length - 1], 5);
+  });
+
   it('ignores nulls', () => {
     const times = [0, 1, 2, 3, 4];
     const values = [1, null, 5, null, 9];

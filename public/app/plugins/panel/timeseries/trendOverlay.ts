@@ -54,8 +54,6 @@ export function linearRegression(times: unknown[], values: unknown[]): Array<num
 
   let sumX = 0;
   let sumY = 0;
-  let sumXX = 0;
-  let sumXY = 0;
   let count = 0;
 
   for (let i = 0; i < n; i++) {
@@ -66,8 +64,6 @@ export function linearRegression(times: unknown[], values: unknown[]): Array<num
     }
     sumX += x;
     sumY += y;
-    sumXX += x * x;
-    sumXY += x * y;
     count++;
   }
 
@@ -75,16 +71,32 @@ export function linearRegression(times: unknown[], values: unknown[]): Array<num
     return out;
   }
 
-  const denom = count * sumXX - sumX * sumX;
+  const meanX = sumX / count;
+  const meanY = sumY / count;
+  let sumDXDX = 0;
+  let sumDXDY = 0;
+
+  for (let i = 0; i < n; i++) {
+    const x = toFiniteNumber(times[i]);
+    const y = toFiniteNumber(values[i]);
+    if (x === null || y === null) {
+      continue;
+    }
+
+    const dx = x - meanX;
+    sumDXDX += dx * dx;
+    sumDXDY += dx * (y - meanY);
+  }
+
   let slope: number;
   let intercept: number;
 
-  if (denom === 0) {
+  if (sumDXDX === 0) {
     slope = 0;
-    intercept = sumY / count;
+    intercept = meanY;
   } else {
-    slope = (count * sumXY - sumX * sumY) / denom;
-    intercept = (sumY - slope * sumX) / count;
+    slope = sumDXDY / sumDXDX;
+    intercept = meanY - slope * meanX;
   }
 
   for (let i = 0; i < n; i++) {
