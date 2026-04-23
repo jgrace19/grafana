@@ -1,14 +1,17 @@
+import { css } from '@emotion/css';
 import { useEffect, useRef } from 'react';
 import { type Params, useParams } from 'react-router-dom-v5-compat';
 import { usePrevious } from 'react-use';
 
-import { PageLayoutType } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
+import { t } from '@grafana/i18n';
+import { locationService, useChromeHeaderHeight } from '@grafana/runtime';
 import { UrlSyncContextProvider } from '@grafana/scenes';
-import { Box } from '@grafana/ui';
+import { Box, Button, useStyles2, useTheme2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { changeTheme } from 'app/core/services/theme';
 import {
   DashboardBrandingFooter,
   DashboardBrandingFooterVariant,
@@ -36,6 +39,9 @@ export interface Props
 
 export function DashboardScenePage({ route, queryParams, location }: Props) {
   const params = useParams();
+  const chromeHeaderHeight = useChromeHeaderHeight() ?? 80;
+  const styles = useStyles2(getStyles, chromeHeaderHeight);
+  const theme = useTheme2();
   const { type, slug, uid } = params;
   // Used by /dashboard/provisioning/:slug/preview/* to load dashboards based on their file path in a remote repository
   // Also used by /dashboard/assistant-preview/* to load the assistant preview dashboard
@@ -43,8 +49,10 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   const prevMatch = usePrevious({ params });
   const stateManager = getDashboardScenePageStateManager();
   const { dashboard, isLoading, loadError } = stateManager.useState();
+  const routeName = route.routeName ?? DashboardRoutes.Normal;
+  const dashboardRoute = isDashboardRoute(routeName) ? routeName : DashboardRoutes.Normal;
   // After scene migration is complete and we get rid of old dashboard we should refactor dashboardWatcher so this route reload is not need
-  const routeReloadCounter = (location.state as any)?.routeReloadCounter;
+  const routeReloadCounter = getRouteReloadCounter(location.state);
   const prevParams = useRef<Params<string>>(params);
 
   useEffect(() => {
@@ -58,7 +66,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
             : uid) ?? '',
         type,
         slug,
-        route: route.routeName as DashboardRoutes,
+        route: dashboardRoute,
         urlFolderUid: queryParams.folderUid,
       });
     }
@@ -133,6 +141,11 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // `locationSearchToObject()` parses `?kiosk` as `true` (boolean param). Some clients can emit `?kiosk=`, which parses as ''.
   const isKioskMode = queryParams.kiosk === '1' || queryParams.kiosk === true || queryParams.kiosk === '';
   const hideFooter = shouldHideDashboardKioskFooter(queryParams.hideLogo);
+  const showHomeThemeToggle = dashboardRoute === DashboardRoutes.Home;
+
+  const onToggleTheme = () => {
+    changeTheme(theme.isDark ? 'light' : 'dark', false);
+  };
 
   return (
     <UrlSyncContextProvider scene={dashboard} updateUrlOnInit={true} createBrowserHistorySteps={true}>
@@ -140,6 +153,20 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       <DashboardConversionWarningBanner dashboard={dashboard} />
       <OrphanedDashboardBanner dashboard={dashboard} />
       <SuggestedDashboardsBanner route={route.routeName} dashboard={dashboard} />
+      {showHomeThemeToggle && (
+        <div className={styles.homeThemeToggle}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={onToggleTheme}
+            data-testid="home-theme-toggle"
+          >
+            {theme.isDark
+              ? t('dashboard.home.switch-to-light-mode', 'Light mode')
+              : t('dashboard.home.switch-to-dark-mode', 'Dark mode')}
+          </Button>
+        </div>
+      )}
       <dashboard.Component model={dashboard} key={dashboard.state.key} />
       <DashboardPrompt dashboard={dashboard} />
       <DashboardBrandingFooter
@@ -150,6 +177,44 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       />
     </UrlSyncContextProvider>
   );
+}
+
+const getStyles = (theme: GrafanaTheme2, chromeHeaderHeight: number) => {
+  return {
+    homeThemeToggle: css({
+      position: 'fixed',
+      top: `calc(${chromeHeaderHeight}px + ${theme.spacing(10)})`,
+      right: theme.spacing(2),
+      zIndex: theme.zIndex.navbarFixed + 1,
+    }),
+  };
+};
+
+function isDashboardRoute(routeName: string): routeName is DashboardRoutes {
+  switch (routeName) {
+    case DashboardRoutes.Home:
+    case DashboardRoutes.New:
+    case DashboardRoutes.Template:
+    case DashboardRoutes.Normal:
+    case DashboardRoutes.Provisioning:
+    case DashboardRoutes.Scripted:
+    case DashboardRoutes.Public:
+    case DashboardRoutes.Embedded:
+    case DashboardRoutes.Report:
+    case DashboardRoutes.AssistantPreview:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function getRouteReloadCounter(state: unknown): number | undefined {
+  if (typeof state !== 'object' || state === null || !('routeReloadCounter' in state)) {
+    return undefined;
+  }
+
+  const routeReloadCounter = Reflect.get(state, 'routeReloadCounter');
+  return typeof routeReloadCounter === 'number' ? routeReloadCounter : undefined;
 }
 
 export default DashboardScenePage;

@@ -20,6 +20,7 @@ import { VizPanel } from '@grafana/scenes';
 import { type Dashboard } from '@grafana/schema';
 import { getRouteComponentProps } from 'app/core/navigation/mocks/routeProps';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { changeTheme } from 'app/core/services/theme';
 import { type DashboardLoaderSrv, setDashboardLoaderSrv } from 'app/features/dashboard/services/DashboardLoaderSrv';
 import { DASHBOARD_FROM_LS_KEY, DashboardRoutes } from 'app/types/dashboard';
 
@@ -57,6 +58,10 @@ jest.mock('@grafana/runtime', () => ({
 jest.mock('react-router-dom-v5-compat', () => ({
   ...jest.requireActual('react-router-dom-v5-compat'),
   useParams: jest.fn().mockReturnValue({ uid: 'my-dash-uid' }),
+}));
+
+jest.mock('app/core/services/theme', () => ({
+  changeTheme: jest.fn(),
 }));
 
 const getObservablePluginLinks = jest.fn().mockReturnValue(of([]));
@@ -381,6 +386,10 @@ describe('DashboardScenePage', () => {
   });
 
   describe('home page', () => {
+    beforeEach(() => {
+      (changeTheme as jest.Mock).mockClear();
+    });
+
     it('should render the dashboard when the route is home', async () => {
       (useParams as jest.Mock).mockReturnValue({});
       setup({
@@ -399,6 +408,41 @@ describe('DashboardScenePage', () => {
 
       expect(await screen.findByTitle('Panel B')).toBeInTheDocument();
       expect(await screen.findByText('Content B')).toBeInTheDocument();
+    });
+
+    it('shows theme toggle on home route', async () => {
+      (useParams as jest.Mock).mockReturnValue({});
+      setup({
+        routeProps: {
+          route: {
+            ...getRouteComponentProps().route,
+            routeName: DashboardRoutes.Home,
+          },
+        },
+      });
+
+      await waitForDashboardToRender();
+
+      expect(screen.getByTestId('home-theme-toggle')).toBeInTheDocument();
+    });
+
+    it('changes theme when home toggle is clicked', async () => {
+      (useParams as jest.Mock).mockReturnValue({});
+      setup({
+        routeProps: {
+          route: {
+            ...getRouteComponentProps().route,
+            routeName: DashboardRoutes.Home,
+          },
+        },
+      });
+
+      await waitForDashboardToRender();
+      await userEvent.click(screen.getByTestId('home-theme-toggle'));
+
+      expect(changeTheme).toHaveBeenCalledTimes(1);
+      expect((changeTheme as jest.Mock).mock.calls[0][1]).toBe(false);
+      expect(['light', 'dark']).toContain((changeTheme as jest.Mock).mock.calls[0][0]);
     });
 
     it('should show controls', async () => {
