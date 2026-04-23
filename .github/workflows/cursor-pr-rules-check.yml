@@ -59,6 +59,10 @@ jobs:
           prompt="$(cat .github/workflows/cursor-agent/rules-enforcement-prompt.md)"
           agent -p --output-format json "$prompt" > /tmp/cursor-rules-output.json
 
+      - name: Setup Node.js
+        if: steps.config.outputs.configured == 'true'
+        uses: ./.github/actions/setup-node
+
       - name: Post sticky PR comment
         if: always() && steps.config.outputs.configured == 'true'
         env:

@@ -137,7 +137,6 @@ jobs:
           esac
 
       - name: Setup Node.js
-        if: needs.prepare.outputs.needs_node == 'true'
         uses: ./.github/actions/setup-node
 
       - name: Install yarn dependencies
