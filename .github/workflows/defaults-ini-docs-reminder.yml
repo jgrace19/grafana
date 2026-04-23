@@ -1,9 +1,6 @@
 name: Remind about config documentation updates
 on:
-  pull_request:
-    types: [opened]
-    paths:
-      - 'conf/defaults.ini'
+  workflow_dispatch:
 
 jobs:
   add-comment:

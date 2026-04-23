@@ -1,0 +1,70 @@
+name: Cursor PR Rules Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: cursor-pr-rules-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  rules-check:
+    if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check Cursor API key
+        id: config
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          if [ -z "${CURSOR_API_KEY:-}" ]; then
+            echo "::warning::CURSOR_API_KEY is not configured; skipping Cursor rules check."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Cursor CLI
+        if: steps.config.outputs.configured == 'true'
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Capture PR diff
+        if: steps.config.outputs.configured == 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --no-ext-diff --unified=3 "${BASE_SHA}...${HEAD_SHA}" > /tmp/cursor-pr.diff
+
+      - name: Run Cursor rules check
+        id: agent
+        if: steps.config.outputs.configured == 'true'
+        continue-on-error: true
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          prompt="$(cat .github/workflows/cursor-agent/rules-enforcement-prompt.md)"
+          agent -p --output-format json "$prompt" > /tmp/cursor-rules-output.json
+
+      - name: Post sticky PR comment
+        if: always() && steps.config.outputs.configured == 'true'
+        env:
+          AGENT_OUTPUT_PATH: /tmp/cursor-rules-output.json
+          COMMENT_MODE: rules
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: node --experimental-strip-types .github/workflows/scripts/cursor-pr-comment.mts
