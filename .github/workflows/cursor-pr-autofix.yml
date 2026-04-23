@@ -11,7 +11,7 @@ on:
     types: [completed]
 
 concurrency:
-  group: cursor-pr-autofix-${{ github.event.workflow_run.id }}
+  group: cursor-pr-autofix-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_branch || github.event.workflow_run.id }}
   cancel-in-progress: true
 
 permissions: {}
@@ -187,6 +187,10 @@ jobs:
           prompt="$(cat .github/workflows/cursor-agent/auto-fix-prompt.md)"
           agent -p --force --output-format json "$prompt" > /tmp/cursor-autofix-output.json
 
+      - name: Stage Cursor changes
+        if: steps.agent.outcome == 'success'
+        run: git add -A
+
       - name: Guard Cursor diff
         id: guard
         if: steps.agent.outcome == 'success'
@@ -197,7 +201,7 @@ jobs:
         id: diff
         if: steps.agent.outcome == 'success' && steps.guard.outcome == 'success'
         run: |
-          files="$(git diff --name-only)"
+          files="$(git diff --cached --name-only)"
           if [ -n "${files}" ]; then
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           else
@@ -212,7 +216,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
           git commit -m "chore(ci): auto-fix failed PR workflow"
           git push origin "HEAD:${BRANCH_NAME}"
           echo "committed=true" >> "$GITHUB_OUTPUT"

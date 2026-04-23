@@ -6,12 +6,22 @@ function git(args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf-8', timeout: 30_000 }).trim();
 }
 
-const changedFiles = git(['diff', '--name-only']).split('\n').filter(Boolean);
+const changedFiles = git(['diff', '--cached', '--name-only']).split('\n').filter(Boolean);
 
 if (changedFiles.length === 0) {
   console.log('No file changes detected after Cursor auto-fix.');
   process.exit(0);
 }
+
+const forbiddenManifestAndLockfiles = new Set([
+  'go.mod',
+  'go.sum',
+  'go.work',
+  'go.work.sum',
+  'lerna.json',
+  'package.json',
+  'yarn.lock',
+]);
 
 const forbiddenMatchers: Array<{ test: (path: string) => boolean; reason: string }> = [
   {
@@ -19,8 +29,8 @@ const forbiddenMatchers: Array<{ test: (path: string) => boolean; reason: string
     reason: 'workflow and repository automation changes are out of scope',
   },
   {
-    test: (path) => path === 'package.json' || path === 'yarn.lock',
-    reason: 'package manifest changes are out of scope',
+    test: (path) => forbiddenManifestAndLockfiles.has(path.split('/').pop() ?? ''),
+    reason: 'package manifest and lockfile changes are out of scope',
   },
   {
     test: (path) => path.startsWith('pkg/services/'),
@@ -40,7 +50,7 @@ for (const file of changedFiles) {
   }
 }
 
-const numstat = git(['diff', '--numstat']).split('\n').filter(Boolean);
+const numstat = git(['diff', '--cached', '--numstat']).split('\n').filter(Boolean);
 let changedLines = 0;
 
 for (const line of numstat) {
