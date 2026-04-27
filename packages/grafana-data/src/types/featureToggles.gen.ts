@@ -124,6 +124,11 @@ export interface FeatureToggles {
   */
   refactorVariablesTimeRange?: boolean;
   /**
+  * Enable threaded comments on dashboard panels
+  * @default false
+  */
+  dashboardComments?: boolean;
+  /**
   * Enable the data source selector within the Frontend Apps section of the Frontend Observability
   * @default false
   */
