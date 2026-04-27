@@ -93,22 +93,7 @@ Top oversized files:
 | Deprecated feature toggles | 3 | 3 | +0 |
 | Old IsEnabled API files | 162 | 162 | +0 |
 
-**Resolved since last scan:**
-- `pkg/api/dashboard.go`
-- `pkg/registry/`
-- `pkg/registry/apis/provisioning/register.go`
-- `pkg/services/dashboards/service/dashboard_service.go`
-- `pkg/services/featuremgmt/models.go`
-- `pkg/services/featuremgmt/registry.go`
-- `pkg/services/libraryelements/libraryelements_get_all_test.go`
-- `pkg/services/libraryelements/libraryelements_patch_test.go`
-- `pkg/services/live/live.go`
-- `pkg/services/ngalert/`
-- `pkg/services/ngalert/api/prometheus/api_prometheus.go`
-- `pkg/services/ngalert/models/alert_rule.go`
-- `pkg/services/ngalert/store/alert_rule.go`
-- `pkg/services/org/orgimpl/org.go`
-- `pkg/services/preference/prefimpl/pref_test.go`
+**Resolved since last scan:** None (previous file-level resolved list was incorrect after switching to summary output)
 
 **New since last scan:**
 - `public/app/AppWrapper.tsx`
@@ -121,6 +106,34 @@ Top oversized files:
 - `public/app/features/auth-config/AuthDrawer.tsx`
 - `public/app/features/auth-config/AuthProvidersListPage.tsx`
 - `public/app/features/auth-config/ErrorContainer.tsx`
+
+### 2026-04-14 (current scan)
+
+| Metric | Previous | Current | Delta |
+|--------|----------|---------|-------|
+| Class components | 61 | 61 | 0 |
+| connect() HOC | 41 | 41 | 0 |
+| Unsafe lifecycles | 1 | 1 | 0 |
+| stylesFactory | 16 | 16 | 0 |
+| Explicit `any` | ~371 | ~393 | +22 |
+| `any` files | ~128 | ~137 | +9 |
+| @deprecated APIs | ~58 | ~51 | -7 ✓ |
+| Frontend TODO/FIXME/HACK | ~515 | ~618 | +103 |
+| Backend TODO/FIXME/HACK | ~913 | ~894 | -19 ✓ |
+| nolint directives | ~1,275 | ~1,275 | 0 |
+| Oversized Go files (>800 loc) | 20 | 67 | +47 |
+| Deprecated feature toggles | 3 | 3 | 0 |
+| Old IsEnabled API files | ~160 | ~162 | +2 |
+
+**Resolved since last scan:**
+- 7 files with `@deprecated` APIs were cleaned up
+- 19 backend TODO/FIXME/HACK comments were resolved
+
+**New since last scan:**
+- 22 new explicit `any` type annotations added across 9 new files
+- 103 new frontend TODO/FIXME/HACK comments added
+- 47 additional Go files now exceed 800 lines (note: previous scan may have used different exclusion criteria)
+- 2 new files using old IsEnabled API
 
 ### 2026-04-13 (rescan)
 
