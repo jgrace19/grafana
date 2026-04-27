@@ -1,0 +1,273 @@
+name: Cursor PR Auto-Fix
+
+on:
+  workflow_run:
+    workflows:
+      - Lint Frontend
+      - golangci-lint
+      - Backend Code Checks
+      - Frontend tests
+      - Backend Unit Tests
+    types: [completed]
+
+concurrency:
+  group: cursor-pr-autofix-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_branch || github.event.workflow_run.id }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  prepare:
+    if: github.repository == 'jgrace19/grafana' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      configured: ${{ steps.config.outputs.configured }}
+      eligible: ${{ steps.context.outputs.eligible }}
+      pr_number: ${{ steps.context.outputs.pr_number }}
+      head_branch: ${{ steps.context.outputs.head_branch }}
+      head_sha: ${{ steps.context.outputs.head_sha }}
+      source_workflow: ${{ steps.context.outputs.source_workflow }}
+      needs_node: ${{ steps.context.outputs.needs_node }}
+      needs_go: ${{ steps.context.outputs.needs_go }}
+      status: ${{ steps.context.outputs.status }}
+    steps:
+      - name: Check Cursor API key
+        id: config
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          if [ -z "${CURSOR_API_KEY:-}" ]; then
+            echo "::warning::CURSOR_API_KEY is not configured; skipping Cursor auto-fix workflow."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare workflow context
+        id: context
+        if: steps.config.outputs.configured == 'true'
+        env:
+          ACTOR: ${{ github.event.workflow_run.actor.login }}
+          GITHUB_REPOSITORY_NAME: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          SOURCE_WORKFLOW: ${{ github.event.workflow_run.name }}
+        run: |
+          status="eligible"
+          eligible="true"
+          needs_node="false"
+          needs_go="false"
+
+          if [ -z "${PR_NUMBER}" ]; then
+            status="missing-pr"
+            eligible="false"
+          elif [ "${HEAD_REPO}" != "${GITHUB_REPOSITORY_NAME}" ]; then
+            status="fork-pr"
+            eligible="false"
+          elif [ "${ACTOR}" = "github-actions[bot]" ]; then
+            status="skipped-bot-run"
+            eligible="false"
+          fi
+
+          case "${SOURCE_WORKFLOW}" in
+            "Lint Frontend"|"Frontend tests")
+              needs_node="true"
+              ;;
+          esac
+
+          case "${SOURCE_WORKFLOW}" in
+            "golangci-lint"|"Backend Code Checks"|"Backend Unit Tests")
+              needs_go="true"
+              ;;
+          esac
+
+          echo "eligible=${eligible}" >> "$GITHUB_OUTPUT"
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "head_branch=${HEAD_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "head_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+          echo "source_workflow=${SOURCE_WORKFLOW}" >> "$GITHUB_OUTPUT"
+          echo "needs_node=${needs_node}" >> "$GITHUB_OUTPUT"
+          echo "needs_go=${needs_go}" >> "$GITHUB_OUTPUT"
+
+      - name: Log skip reason
+        if: steps.config.outputs.configured == 'true' && steps.context.outputs.eligible != 'true'
+        run: |
+          echo "Skipping Cursor auto-fix: ${{ steps.context.outputs.status }}"
+
+  auto-fix:
+    needs: prepare
+    if: needs.prepare.outputs.configured == 'true' && needs.prepare.outputs.eligible == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      fixed: ${{ steps.status.outputs.fixed }}
+      status: ${{ steps.status.outputs.status }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          repository: jgrace19/grafana
+          ref: ${{ needs.prepare.outputs.head_branch }}
+
+      - name: Verify repository push target
+        run: |
+          remote_url="$(git remote get-url origin)"
+          case "${remote_url}" in
+            *github.com/jgrace19/grafana.git|*github.com/jgrace19/grafana|*github.com:jgrace19/grafana.git|*github.com:jgrace19/grafana)
+              ;;
+            *)
+              echo "Unexpected origin remote: ${remote_url}"
+              exit 1
+              ;;
+          esac
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+
+      - name: Install yarn dependencies
+        if: needs.prepare.outputs.needs_node == 'true'
+        uses: ./.github/actions/yarn-install
+
+      - name: Setup Go
+        if: needs.prepare.outputs.needs_go == 'true'
+        uses: ./.github/actions/setup-go
+        with:
+          cache-build: 'false'
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Capture failed workflow log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh run view "$RUN_ID" --repo "${{ github.repository }}" --log-failed > /tmp/cursor-failed-workflow.log
+
+      - name: Capture PR diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+        run: gh pr diff "$PR_NUMBER" --repo "${{ github.repository }}" --patch > /tmp/cursor-pr.diff
+
+      - name: Write Cursor auto-fix context
+        run: |
+          cat <<EOF > /tmp/cursor-autofix-context.txt
+          Repository: ${{ github.repository }}
+          Pull request: #${{ needs.prepare.outputs.pr_number }}
+          Branch: ${{ needs.prepare.outputs.head_branch }}
+          Head SHA: ${{ needs.prepare.outputs.head_sha }}
+          Failed workflow: ${{ needs.prepare.outputs.source_workflow }}
+          Trigger run id: ${{ github.event.workflow_run.id }}
+          EOF
+
+      - name: Run Cursor auto-fix
+        id: agent
+        continue-on-error: true
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          prompt="$(cat .github/workflows/cursor-agent/auto-fix-prompt.md)"
+          agent -p --force --output-format json "$prompt" > /tmp/cursor-autofix-output.json
+
+      - name: Stage Cursor changes
+        if: steps.agent.outcome == 'success'
+        run: git add -A
+
+      - name: Guard Cursor diff
+        id: guard
+        if: steps.agent.outcome == 'success'
+        continue-on-error: true
+        run: node --experimental-strip-types .github/workflows/scripts/cursor-pr-guard.mts
+
+      - name: Capture changed files
+        id: diff
+        if: steps.agent.outcome == 'success' && steps.guard.outcome == 'success'
+        run: |
+          files="$(git diff --cached --name-only)"
+          if [ -n "${files}" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push auto-fix
+        id: commit
+        if: steps.agent.outcome == 'success' && steps.guard.outcome == 'success' && steps.diff.outputs.has_changes == 'true'
+        env:
+          BRANCH_NAME: ${{ needs.prepare.outputs.head_branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(ci): auto-fix failed PR workflow"
+          git push origin "HEAD:${BRANCH_NAME}"
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Record auto-fix status
+        id: status
+        if: always()
+        env:
+          AGENT_OUTCOME: ${{ steps.agent.outcome }}
+          COMMITTED: ${{ steps.commit.outputs.committed }}
+          DIFF_HAS_CHANGES: ${{ steps.diff.outputs.has_changes }}
+          GUARD_OUTCOME: ${{ steps.guard.outcome }}
+        run: |
+          status="agent-failed"
+          fixed="false"
+
+          if [ "${AGENT_OUTCOME}" != "success" ]; then
+            status="agent-failed"
+          elif [ "${GUARD_OUTCOME}" != "success" ]; then
+            status="guard-rejected"
+          elif [ "${COMMITTED}" = "true" ]; then
+            status="fixed"
+            fixed="true"
+          elif [ "${DIFF_HAS_CHANGES}" = "true" ]; then
+            status="commit-failed"
+          else
+            status="no-safe-fix"
+          fi
+
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          echo "fixed=${fixed}" >> "$GITHUB_OUTPUT"
+
+      - name: Post sticky PR comment
+        if: always()
+        env:
+          AGENT_OUTPUT_PATH: /tmp/cursor-autofix-output.json
+          AUTOFIX_STATUS: ${{ steps.status.outputs.status }}
+          COMMENT_MODE: autofix
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+          REPO: ${{ github.repository }}
+        run: node --experimental-strip-types .github/workflows/scripts/cursor-pr-comment.mts
+
+  finish:
+    needs: [prepare, auto-fix]
+    if: needs.prepare.outputs.configured == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finalize workflow result
+        run: |
+          if [ "${{ needs.prepare.outputs.eligible }}" != "true" ]; then
+            exit 0
+          fi
+
+          if [ "${{ needs.auto-fix.outputs.fixed }}" = "true" ]; then
+            exit 0
+          fi
+
+          echo "Cursor auto-fix did not resolve the deterministic PR checks."
+          exit 1
