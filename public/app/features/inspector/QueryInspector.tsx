@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { PureComponent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Subscription } from 'rxjs';
 
 import { LoadingState, type PanelData } from '@grafana/data';
@@ -19,68 +19,89 @@ interface ExecutedQueryInfo {
 }
 
 interface Props {
-  instanceId?: string; // Must match the prefix of the requestId of the query being inspected. For updating only one instance of the inspector in case of multiple instances, ie Explore split view
+  instanceId?: string;
   data: PanelData;
   onRefreshQuery: () => void;
 }
 
-interface State {
-  allNodesExpanded: boolean | null;
-  isMocking: boolean;
-  mockedResponse: string;
-  response: {};
-  executedQueries: ExecutedQueryInfo[];
-}
+export function QueryInspector({ instanceId, data, onRefreshQuery }: Props) {
+  const [allNodesExpanded, setAllNodesExpanded] = useState<boolean | null>(null);
+  const [executedQueries, setExecutedQueries] = useState<ExecutedQueryInfo[]>([]);
+  const [response, setResponse] = useState<object>({});
+  const formattedJsonRef = useRef<object | undefined>(undefined);
 
-export class QueryInspector extends PureComponent<Props, State> {
-  private formattedJson?: {};
-  private subs = new Subscription();
+  const onDataSourceResponse = (resp: Record<string, unknown>) => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    if ((resp.config as Record<string, unknown>)?.hideFromInspector) {
+      return;
+    }
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      executedQueries: [],
-      allNodesExpanded: null,
-      isMocking: false,
-      mockedResponse: '',
-      response: {},
-    };
-  }
+    const cloned: Record<string, unknown> = { ...resp };
 
-  componentDidMount() {
-    this.subs.add(
+    if (cloned.headers) {
+      delete cloned.headers;
+    }
+
+    if (cloned.config) {
+      cloned.request = cloned.config;
+      delete cloned.config;
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const request = cloned.request as Record<string, unknown>;
+      delete request.transformRequest;
+      delete request.transformResponse;
+      delete request.paramSerializer;
+      delete request.jsonpCallbackParam;
+      delete request.headers;
+      delete request.requestId;
+      delete request.inspect;
+      delete request.retry;
+      delete request.timeout;
+    }
+
+    if (cloned.data) {
+      cloned.response = cloned.data;
+      delete cloned.config;
+      delete cloned.data;
+      delete cloned.status;
+      delete cloned.statusText;
+      delete cloned.ok;
+      delete cloned.url;
+      delete cloned.redirected;
+      delete cloned.type;
+      delete cloned.$$config;
+    }
+
+    setResponse(cloned);
+  };
+
+  useEffect(() => {
+    const subs = new Subscription();
+    subs.add(
       backendSrv.getInspectorStream().subscribe({
-        next: (response) => {
+        next: (resp) => {
           let update = true;
-          if (this.props.instanceId && response?.requestId) {
-            update = response.requestId.startsWith(this.props.instanceId);
+          if (instanceId && resp?.requestId) {
+            update = resp.requestId.startsWith(instanceId);
           }
           if (update) {
-            return this.onDataSourceResponse(response.response);
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+            onDataSourceResponse(resp.response as unknown as Record<string, unknown>);
           }
         },
       })
     );
-  }
+    return () => subs.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instanceId]);
 
-  componentDidUpdate(oldProps: Props) {
-    if (this.props.data !== oldProps.data) {
-      this.updateQueryList();
-    }
-  }
-
-  /**
-   * Find the list of executed queries
-   */
-  updateQueryList() {
-    const { data } = this.props;
+  useEffect(() => {
     const frames = data.series;
-    const executedQueries: ExecutedQueryInfo[] = [];
+    const queries: ExecutedQueryInfo[] = [];
 
     if (frames?.length) {
       let last: ExecutedQueryInfo | undefined = undefined;
 
-      frames.forEach((frame, idx) => {
+      frames.forEach((frame) => {
         const query = frame.meta?.executedQueryString;
 
         if (query) {
@@ -96,98 +117,38 @@ export class QueryInspector extends PureComponent<Props, State> {
               rows: frame.length,
               query,
             };
-            executedQueries.push(last);
+            queries.push(last);
           }
         }
       });
     }
 
-    this.setState({ executedQueries });
-  }
+    setExecutedQueries(queries);
+  }, [data]);
 
-  componentWillUnmount() {
-    this.subs.unsubscribe();
-  }
-
-  onDataSourceResponse(response: any) {
-    // ignore silent requests
-    if (response.config?.hideFromInspector) {
-      return;
-    }
-
-    response = { ...response }; // clone - dont modify the response
-
-    if (response.headers) {
-      delete response.headers;
-    }
-
-    if (response.config) {
-      response.request = response.config;
-
-      delete response.config;
-      delete response.request.transformRequest;
-      delete response.request.transformResponse;
-      delete response.request.paramSerializer;
-      delete response.request.jsonpCallbackParam;
-      delete response.request.headers;
-      delete response.request.requestId;
-      delete response.request.inspect;
-      delete response.request.retry;
-      delete response.request.timeout;
-    }
-
-    if (response.data) {
-      response.response = response.data;
-
-      delete response.config;
-      delete response.data;
-      delete response.status;
-      delete response.statusText;
-      delete response.ok;
-      delete response.url;
-      delete response.redirected;
-      delete response.type;
-      delete response.$$config;
-    }
-
-    this.setState({
-      response: response,
-    });
-  }
-
-  setFormattedJson = (formattedJson: {}) => {
-    this.formattedJson = formattedJson;
+  const setFormattedJson = (formattedJson: object) => {
+    formattedJsonRef.current = formattedJson;
   };
 
-  getTextForClipboard = () => {
-    return JSON.stringify(this.formattedJson, null, 2);
+  const getTextForClipboard = () => {
+    return JSON.stringify(formattedJsonRef.current, null, 2);
   };
 
-  onToggleExpand = () => {
-    this.setState((prevState) => ({
-      ...prevState,
-      allNodesExpanded: !this.state.allNodesExpanded,
-    }));
+  const onToggleExpand = () => {
+    setAllNodesExpanded((prev) => !prev);
   };
 
-  onToggleMocking = () => {
-    this.setState((prevState) => ({
-      ...prevState,
-      isMocking: !this.state.isMocking,
-    }));
-  };
-
-  getNrOfOpenNodes = () => {
-    if (this.state.allNodesExpanded === null) {
-      return 3; // 3 is default, ie when state is null
-    } else if (this.state.allNodesExpanded) {
+  const getNrOfOpenNodes = () => {
+    if (allNodesExpanded === null) {
+      return 3;
+    } else if (allNodesExpanded) {
       return 20;
     }
     return 1;
   };
 
-  renderExecutedQueries(executedQueries: ExecutedQueryInfo[]) {
-    if (!executedQueries.length) {
+  const renderExecutedQueries = (queries: ExecutedQueryInfo[]) => {
+    if (!queries.length) {
       return null;
     }
 
@@ -201,7 +162,7 @@ export class QueryInspector extends PureComponent<Props, State> {
 
     return (
       <div>
-        {executedQueries.map((info) => {
+        {queries.map((info) => {
           return (
             <Stack key={info.refId} gap={1} direction="column">
               <div>
@@ -225,72 +186,68 @@ export class QueryInspector extends PureComponent<Props, State> {
         })}
       </div>
     );
-  }
+  };
 
-  render() {
-    const { allNodesExpanded, executedQueries, response } = this.state;
-    const { onRefreshQuery, data } = this.props;
-    const openNodes = this.getNrOfOpenNodes();
-    const styles = getPanelInspectorStyles2(config.theme2);
-    const haveData = Object.keys(response).length > 0;
-    const isLoading = data.state === LoadingState.Loading;
+  const openNodes = getNrOfOpenNodes();
+  const styles = getPanelInspectorStyles2(config.theme2);
+  const haveData = Object.keys(response).length > 0;
+  const isLoading = data.state === LoadingState.Loading;
 
-    return (
-      <div className={styles.wrap}>
-        <div data-testid={selectors.components.PanelInspector.Query.content}>
-          <h3 className={styles.heading}>
-            <Trans i18nKey="inspector.query-inspector.query-inspector">Query inspector</Trans>
-          </h3>
-          <p className="small muted">
-            <Trans i18nKey="inspector.query.description">
-              Query inspector allows you to view raw request and response. To collect this data Grafana needs to issue a
-              new query. Click refresh button below to trigger a new query.
-            </Trans>
-          </p>
-        </div>
-        {this.renderExecutedQueries(executedQueries)}
-        <Stack direction={'row'} gap={2} justifyContent={'flex-start'} wrap>
-          <Button
-            icon="sync"
-            onClick={onRefreshQuery}
-            data-testid={selectors.components.PanelInspector.Query.refreshButton}
-          >
-            <Trans i18nKey="inspector.query.refresh">Refresh</Trans>
-          </Button>
-
-          {haveData && (
-            <Button icon={allNodesExpanded ? 'minus' : 'plus'} variant="secondary" onClick={this.onToggleExpand}>
-              {allNodesExpanded ? (
-                <Trans i18nKey="inspector.query.collapse-all">Collapse all</Trans>
-              ) : (
-                <Trans i18nKey="inspector.query.expand-all">Expand all</Trans>
-              )}
-            </Button>
-          )}
-
-          {haveData && (
-            <ClipboardButton getText={this.getTextForClipboard} icon="copy" variant="secondary">
-              <Trans i18nKey="inspector.query.copy-to-clipboard">Copy to clipboard</Trans>
-            </ClipboardButton>
-          )}
-        </Stack>
-        <Space v={2} />
-        <div className={styles.content}>
-          {isLoading && (
-            <LoadingPlaceholder
-              text={t('inspector.query-inspector.text-loading-query-inspector', 'Loading query inspector...')}
-            />
-          )}
-          {!isLoading && haveData && (
-            <JSONFormatter json={response} open={openNodes} onDidRender={this.setFormattedJson} />
-          )}
-          {!isLoading && !haveData && (
-            <p className="muted">
-              <Trans i18nKey="inspector.query.no-data">No request and response collected yet. Hit refresh button</Trans>
-            </p>
-          )}
-        </div>
+  return (
+    <div className={styles.wrap}>
+      <div data-testid={selectors.components.PanelInspector.Query.content}>
+        <h3 className={styles.heading}>
+          <Trans i18nKey="inspector.query-inspector.query-inspector">Query inspector</Trans>
+        </h3>
+        <p className="small muted">
+          <Trans i18nKey="inspector.query.description">
+            Query inspector allows you to view raw request and response. To collect this data Grafana needs to issue a
+            new query. Click refresh button below to trigger a new query.
+          </Trans>
+        </p>
       </div>
-    );
-  }
+      {renderExecutedQueries(executedQueries)}
+      <Stack direction={'row'} gap={2} justifyContent={'flex-start'} wrap>
+        <Button
+          icon="sync"
+          onClick={onRefreshQuery}
+          data-testid={selectors.components.PanelInspector.Query.refreshButton}
+        >
+          <Trans i18nKey="inspector.query.refresh">Refresh</Trans>
+        </Button>
+
+        {haveData && (
+          <Button icon={allNodesExpanded ? 'minus' : 'plus'} variant="secondary" onClick={onToggleExpand}>
+            {allNodesExpanded ? (
+              <Trans i18nKey="inspector.query.collapse-all">Collapse all</Trans>
+            ) : (
+              <Trans i18nKey="inspector.query.expand-all">Expand all</Trans>
+            )}
+          </Button>
+        )}
+
+        {haveData && (
+          <ClipboardButton getText={getTextForClipboard} icon="copy" variant="secondary">
+            <Trans i18nKey="inspector.query.copy-to-clipboard">Copy to clipboard</Trans>
+          </ClipboardButton>
+        )}
+      </Stack>
+      <Space v={2} />
+      <div className={styles.content}>
+        {isLoading && (
+          <LoadingPlaceholder
+            text={t('inspector.query-inspector.text-loading-query-inspector', 'Loading query inspector...')}
+          />
+        )}
+        {!isLoading && haveData && (
+          <JSONFormatter json={response} open={openNodes} onDidRender={setFormattedJson} />
+        )}
+        {!isLoading && !haveData && (
+          <p className="muted">
+            <Trans i18nKey="inspector.query.no-data">No request and response collected yet. Hit refresh button</Trans>
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }

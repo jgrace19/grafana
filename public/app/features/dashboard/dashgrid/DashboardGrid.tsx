@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { PureComponent, type CSSProperties } from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import ReactGridLayout, { type ItemCallback } from 'react-grid-layout';
 import { Subscription } from 'rxjs';
@@ -29,51 +29,47 @@ export interface Props {
   hidePanelMenus?: boolean;
 }
 
-interface State {
-  panelFilter?: RegExp;
-  width: number;
-}
+export function DashboardGrid({ dashboard, isEditable, editPanel, viewPanel, hidePanelMenus }: Props) {
+  const [panelFilter, setPanelFilterState] = useState<RegExp | undefined>(undefined);
+  const [width, setWidth] = useState(document.body.clientWidth);
+  const [, forceUpdate] = useState(0);
 
-export class DashboardGrid extends PureComponent<Props, State> {
-  private panelMap: { [key: string]: PanelModel } = {};
-  private eventSubs = new Subscription();
-  private windowHeight = 1200;
-  private windowWidth = 1920;
-  private gridWidth = 0;
-  /** Used to keep track of mobile panel layout position */
-  private lastPanelBottom = 0;
-  private isLayoutInitialized = false;
+  const panelMapRef = useRef<{ [key: string]: PanelModel }>({});
+  const windowHeightRef = useRef(1200);
+  const windowWidthRef = useRef(1920);
+  const gridWidthRef = useRef(0);
+  const lastPanelBottomRef = useRef(0);
+  const isLayoutInitializedRef = useRef(false);
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      panelFilter: undefined,
-      width: document.body.clientWidth, // initial very rough estimate
-    };
-  }
+  const setPanelFilter = (regex: string) => {
+    let filter = undefined;
+    if (regex.length > 0) {
+      filter = new RegExp(regex, 'i');
+    }
+    setPanelFilterState(filter);
+  };
 
-  componentDidMount() {
-    const { dashboard } = this.props;
+  useEffect(() => {
+    const eventSubs = new Subscription();
 
     if (config.featureToggles.panelFilterVariable) {
-      // If panel filter variable is set on load then
-      // update state to filter panels
       for (const variable of dashboard.getVariables()) {
         if (variable.id === PANEL_FILTER_VARIABLE) {
           if ('query' in variable) {
-            this.setPanelFilter(variable.query);
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+            setPanelFilter(variable.query as string);
           }
           break;
         }
       }
 
-      this.eventSubs.add(
+      eventSubs.add(
         appEvents.subscribe(VariablesChanged, (e) => {
           if (e.payload.variable?.id === PANEL_FILTER_VARIABLE) {
             if ('current' in e.payload.variable) {
-              let variable = e.payload.variable.current;
+              const variable = e.payload.variable.current;
               if ('value' in variable && typeof variable.value === 'string') {
-                this.setPanelFilter(variable.value);
+                setPanelFilter(variable.value);
               }
             }
           }
@@ -81,38 +77,27 @@ export class DashboardGrid extends PureComponent<Props, State> {
       );
     }
 
-    this.eventSubs.add(dashboard.events.subscribe(DashboardPanelsChangedEvent, this.triggerForceUpdate));
-  }
+    eventSubs.add(
+      dashboard.events.subscribe(DashboardPanelsChangedEvent, () => {
+        forceUpdate((c) => c + 1);
+      })
+    );
 
-  componentWillUnmount() {
-    this.eventSubs.unsubscribe();
-  }
+    return () => eventSubs.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboard]);
 
-  setPanelFilter(regex: string) {
-    // Only set the panels filter if the systemPanelFilterVar variable
-    // is a non-empty string
-    let panelFilter = undefined;
-    if (regex.length > 0) {
-      panelFilter = new RegExp(regex, 'i');
-    }
-
-    this.setState({
-      panelFilter: panelFilter,
-    });
-  }
-
-  buildLayout() {
+  const buildLayout = () => {
     const layout: ReactGridLayout.Layout[] = [];
-    this.panelMap = {};
-    const { panelFilter } = this.state;
+    panelMapRef.current = {};
 
     let count = 0;
-    for (const panel of this.props.dashboard.panels) {
+    for (const panel of dashboard.panels) {
       if (!panel.key) {
         panel.key = `panel-${panel.id}-${Date.now()}`;
       }
       panel.title = panel.title?.substring(0, 5000);
-      this.panelMap[panel.key] = panel;
+      panelMapRef.current[panel.key] = panel;
 
       if (!panel.gridPos) {
         console.log('panel without gridpos');
@@ -149,78 +134,79 @@ export class DashboardGrid extends PureComponent<Props, State> {
     }
 
     return layout;
-  }
+  };
 
-  onLayoutChange = (newLayout: ReactGridLayout.Layout[]) => {
-    if (this.state.panelFilter) {
+  const onLayoutChange = (newLayout: ReactGridLayout.Layout[]) => {
+    if (panelFilter) {
       return;
     }
     for (const newPos of newLayout) {
-      this.panelMap[newPos.i!].updateGridPos(newPos, this.isLayoutInitialized);
+      panelMapRef.current[newPos.i!].updateGridPos(newPos, isLayoutInitializedRef.current);
     }
 
-    if (this.isLayoutInitialized) {
-      this.isLayoutInitialized = true;
+    if (isLayoutInitializedRef.current) {
+      isLayoutInitializedRef.current = true;
     }
 
-    this.props.dashboard.sortPanelsByGridPos();
-    this.forceUpdate();
+    dashboard.sortPanelsByGridPos();
+    forceUpdate((c) => c + 1);
   };
 
-  triggerForceUpdate = () => {
-    this.forceUpdate();
+  const updateGridPos = (item: ReactGridLayout.Layout) => {
+    panelMapRef.current[item.i!].updateGridPos(item);
   };
 
-  updateGridPos = (item: ReactGridLayout.Layout, layout: ReactGridLayout.Layout[]) => {
-    this.panelMap[item.i!].updateGridPos(item);
-  };
-
-  onResize: ItemCallback = (layout, oldItem, newItem) => {
-    const panel = this.panelMap[newItem.i!];
+  const onResize: ItemCallback = (layout, oldItem, newItem) => {
+    const panel = panelMapRef.current[newItem.i!];
     panel.updateGridPos(newItem);
   };
 
-  onResizeStop: ItemCallback = (layout, oldItem, newItem) => {
-    this.updateGridPos(newItem, layout);
+  const onResizeStop: ItemCallback = (layout, oldItem, newItem) => {
+    updateGridPos(newItem);
   };
 
-  onDragStop: ItemCallback = (layout, oldItem, newItem) => {
-    this.updateGridPos(newItem, layout);
+  const onDragStop: ItemCallback = (layout, oldItem, newItem) => {
+    updateGridPos(newItem);
   };
 
-  getPanelScreenPos(panel: PanelModel, gridWidth: number): { top: number; bottom: number } {
-    let top = 0;
-
-    // mobile layout
-    if (gridWidth < config.theme2.breakpoints.values.md) {
-      // In mobile layout panels are stacked so we just add the panel vertical margin to the last panel bottom position
-      top = this.lastPanelBottom + GRID_CELL_VMARGIN;
-    } else {
-      // For top position we need to add back the vertical margin removed by translateGridHeightToScreenHeight
-      top = translateGridHeightToScreenHeight(panel.gridPos.y) + GRID_CELL_VMARGIN;
+  const renderPanel = (panel: PanelModel, panelWidth: number, panelHeight: number, isDraggable: boolean) => {
+    if (panel.type === 'row') {
+      return <DashboardRow key={panel.key} panel={panel} dashboard={dashboard} />;
     }
 
-    this.lastPanelBottom = top + translateGridHeightToScreenHeight(panel.gridPos.h);
+    if (panel.type === 'add-library-panel') {
+      return <AddLibraryPanelWidget key={panel.key} panel={panel} dashboard={dashboard} />;
+    }
 
-    return { top, bottom: this.lastPanelBottom };
-  }
+    return (
+      <DashboardPanel
+        key={panel.key}
+        stateKey={panel.key}
+        panel={panel}
+        dashboard={dashboard}
+        isEditing={panel.isEditing}
+        isViewing={panel.isViewing}
+        isDraggable={isDraggable}
+        width={panelWidth}
+        height={panelHeight}
+        hideMenu={hidePanelMenus}
+      />
+    );
+  };
 
-  renderPanels(gridWidth: number, isDashboardDraggable: boolean) {
-    const { panelFilter } = this.state;
+  const renderPanels = (gridWidth: number, isDashboardDraggable: boolean) => {
     const panelElements = [];
 
     // Reset last panel bottom
-    this.lastPanelBottom = 0;
+    lastPanelBottomRef.current = 0;
 
-    // This is to avoid layout re-flows, accessing window.innerHeight can trigger re-flow
-    // We assume here that if width change height might have changed as well
-    if (this.gridWidth !== gridWidth) {
-      this.windowHeight = window.innerHeight ?? 1000;
-      this.windowWidth = window.innerWidth;
-      this.gridWidth = gridWidth;
+    if (gridWidthRef.current !== gridWidth) {
+      windowHeightRef.current = window.innerHeight ?? 1000;
+      windowWidthRef.current = window.innerWidth;
+      gridWidthRef.current = gridWidth;
     }
 
-    for (const panel of this.props.dashboard.panels) {
+    for (const panel of dashboard.panels) {
       const panelClasses = classNames({ 'react-grid-item--fullscreen': panel.isViewing });
 
       const p = (
@@ -230,12 +216,12 @@ export class DashboardGrid extends PureComponent<Props, State> {
           data-panelid={panel.id}
           gridPos={panel.gridPos}
           gridWidth={gridWidth}
-          windowHeight={this.windowHeight}
-          windowWidth={this.windowWidth}
+          windowHeight={windowHeightRef.current}
+          windowWidth={windowWidthRef.current}
           isViewing={panel.isViewing}
         >
-          {(width: number, height: number) => {
-            return this.renderPanel(panel, width, height, isDashboardDraggable);
+          {(panelWidth: number, panelHeight: number) => {
+            return renderPanel(panel, panelWidth, panelHeight, isDashboardDraggable);
           }}
         </GrafanaGridItem>
       );
@@ -250,111 +236,67 @@ export class DashboardGrid extends PureComponent<Props, State> {
     }
 
     return panelElements;
-  }
-
-  renderPanel(panel: PanelModel, width: number, height: number, isDraggable: boolean) {
-    if (panel.type === 'row') {
-      return <DashboardRow key={panel.key} panel={panel} dashboard={this.props.dashboard} />;
-    }
-
-    if (panel.type === 'add-library-panel') {
-      return <AddLibraryPanelWidget key={panel.key} panel={panel} dashboard={this.props.dashboard} />;
-    }
-
-    return (
-      <DashboardPanel
-        key={panel.key}
-        stateKey={panel.key}
-        panel={panel}
-        dashboard={this.props.dashboard}
-        isEditing={panel.isEditing}
-        isViewing={panel.isViewing}
-        isDraggable={isDraggable}
-        width={width}
-        height={height}
-        hideMenu={this.props.hidePanelMenus}
-      />
-    );
-  }
-
-  /**
-   * Without this hack the move animations are triggered on initial load and all panels fly into position.
-   * This can be quite distracting and make the dashboard appear to less snappy.
-   */
-  onGetWrapperDivRef = (ref: HTMLDivElement | null) => {
-    if (ref && contextSrv.user.authenticatedBy !== 'render') {
-      setTimeout(() => {
-        ref.classList.add('react-grid-layout--enable-move-animations');
-      }, 50);
-    }
   };
 
-  private resizeObserver?: ResizeObserver;
-  private rootEl: HTMLDivElement | null = null;
-  onMeasureRef = (rootEl: HTMLDivElement | null) => {
-    if (!rootEl) {
-      if (this.rootEl && this.resizeObserver) {
-        this.resizeObserver.unobserve(this.rootEl);
-      }
-      return;
-    }
+  if (dashboard.panels.length === 0) {
+    return <DashboardEmpty dashboard={dashboard} canCreate={isEditable} />;
+  }
 
-    this.rootEl = rootEl;
-    this.resizeObserver = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        this.setState({ width: entry.contentRect.width });
-      });
-    });
+  const draggable = width <= config.theme2.breakpoints.values.md ? false : isEditable;
 
-    this.resizeObserver.observe(rootEl);
-  };
+  return (
+    <div
+      ref={(rootEl) => {
+        if (!rootEl) {
+          return;
+        }
 
-  render() {
-    const { isEditable, dashboard } = this.props;
-    const { width } = this.state;
-
-    if (dashboard.panels.length === 0) {
-      return <DashboardEmpty dashboard={dashboard} canCreate={isEditable} />;
-    }
-
-    const draggable = width <= config.theme2.breakpoints.values.md ? false : isEditable;
-
-    // pos: rel + z-index is required to create a new stacking context to contain
-    // the escalating z-indexes of the panels
-    return (
+        const observer = new ResizeObserver((entries) => {
+          entries.forEach((entry) => {
+            setWidth(entry.contentRect.width);
+          });
+        });
+        observer.observe(rootEl);
+      }}
+      style={{
+        flex: '1 1 auto',
+        position: 'relative',
+        zIndex: 1,
+        display: editPanel ? 'none' : undefined,
+      }}
+    >
       <div
-        ref={this.onMeasureRef}
-        style={{
-          flex: '1 1 auto',
-          position: 'relative',
-          zIndex: 1,
-          display: this.props.editPanel ? 'none' : undefined,
+        style={{ width: width, height: '100%' }}
+        ref={(ref) => {
+          if (ref && contextSrv.user.authenticatedBy !== 'render') {
+            setTimeout(() => {
+              ref.classList.add('react-grid-layout--enable-move-animations');
+            }, 50);
+          }
         }}
       >
-        <div style={{ width: width, height: '100%' }} ref={this.onGetWrapperDivRef}>
-          <ReactGridLayout
-            width={width}
-            isDraggable={draggable}
-            isResizable={isEditable}
-            containerPadding={[0, 0]}
-            useCSSTransforms={true}
-            margin={[GRID_CELL_VMARGIN, GRID_CELL_VMARGIN]}
-            cols={GRID_COLUMN_COUNT}
-            rowHeight={GRID_CELL_HEIGHT}
-            draggableHandle=".grid-drag-handle"
-            draggableCancel=".grid-drag-cancel"
-            layout={this.buildLayout()}
-            onDragStop={this.onDragStop}
-            onResize={this.onResize}
-            onResizeStop={this.onResizeStop}
-            onLayoutChange={this.onLayoutChange}
-          >
-            {this.renderPanels(width, draggable)}
-          </ReactGridLayout>
-        </div>
+        <ReactGridLayout
+          width={width}
+          isDraggable={draggable}
+          isResizable={isEditable}
+          containerPadding={[0, 0]}
+          useCSSTransforms={true}
+          margin={[GRID_CELL_VMARGIN, GRID_CELL_VMARGIN]}
+          cols={GRID_COLUMN_COUNT}
+          rowHeight={GRID_CELL_HEIGHT}
+          draggableHandle=".grid-drag-handle"
+          draggableCancel=".grid-drag-cancel"
+          layout={buildLayout()}
+          onDragStop={onDragStop}
+          onResize={onResize}
+          onResizeStop={onResizeStop}
+          onLayoutChange={onLayoutChange}
+        >
+          {renderPanels(width, draggable)}
+        </ReactGridLayout>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 interface GrafanaGridItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -363,7 +305,8 @@ interface GrafanaGridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   isViewing: boolean;
   windowHeight: number;
   windowWidth: number;
-  children: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children: any;
 }
 
 /**
@@ -378,19 +321,16 @@ const GrafanaGridItem = React.forwardRef<HTMLDivElement, GrafanaGridItemProps>((
   const style: CSSProperties = props.style ?? {};
 
   if (isViewing) {
-    // In fullscreen view mode a single panel take up full width & 85% height
     width = gridWidth!;
     height = windowHeight * 0.85;
     style.height = height;
     style.width = '100%';
   } else if (windowWidth < theme.breakpoints.values.md) {
-    // Mobile layout is a bit different, every panel take up full width
     width = props.gridWidth!;
     height = translateGridHeightToScreenHeight(gridPos!.h);
     style.height = height;
     style.width = '100%';
   } else {
-    // Normal grid layout. The grid framework passes width and height directly to children as style props.
     if (props.style) {
       const { width: styleWidth, height: styleHeight } = props.style;
       if (styleWidth != null) {
@@ -402,10 +342,8 @@ const GrafanaGridItem = React.forwardRef<HTMLDivElement, GrafanaGridItemProps>((
     }
   }
 
-  // props.children[0] is our main children. RGL adds the drag handle at props.children[1]
   return (
     <div {...divProps} style={{ ...divProps.style }} ref={ref}>
-      {/* Pass width and height to children as render props */}
       {[props.children[0](width, height), props.children.slice(1)]}
     </div>
   );

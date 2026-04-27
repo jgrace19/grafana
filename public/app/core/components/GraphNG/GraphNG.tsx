@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { type default as uPlot, type AlignedData } from 'uplot';
 
 import {
@@ -15,7 +15,7 @@ import {
   type TimeZone,
 } from '@grafana/data';
 import { type DashboardCursorSync, type VizLegendOptions } from '@grafana/schema';
-import { type Themeable2, VizLayout, type VizLayoutLegendProps } from '@grafana/ui';
+import { useTheme2, VizLayout, type VizLayoutLegendProps } from '@grafana/ui';
 import {
   type AxisProps,
   pluginLog,
@@ -33,7 +33,9 @@ import { preparePlotFrame as defaultPreparePlotFrame } from './utils';
  */
 export type PropDiffFn<T extends Record<string, unknown> = {}> = (prev: T, next: T) => boolean;
 
-export interface GraphNGProps extends Themeable2 {
+export interface GraphNGProps {
+  /** @deprecated Pass theme to graphNG is no longer required - component uses useTheme2() internally */
+  theme?: unknown;
   frames: DataFrame[];
   structureRev?: number; // a number that will change when the frames[] structure changes
   width: number;
@@ -61,19 +63,12 @@ export interface GraphNGProps extends Themeable2 {
   cursorSync?: DashboardCursorSync;
 
   // Remove fields that are hidden from the visualization before rendering
-  // The fields will still be available for other things like data links
-  // this is a temporary hack that only works when:
-  // 1. renderLegend (above) does not render <PlotLegend>
-  // 2. does not have legend series toggle
-  // 3. passes through all fields required for link/action gen (including those with hideFrom.viz)
   omitHideFromViz?: boolean;
 
   /**
    * needed for propsToDiff to re-init the plot & config
-   * this is a generic approach to plot re-init, without having to specify which panel-level options
-   * should cause invalidation. we can drop this in favor of something like panelOptionsRev that gets passed in
-   * similar to structureRev. then we can drop propsToDiff entirely.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: Record<string, any>;
 
   // Annotation lanes count
@@ -112,176 +107,197 @@ const defaultMatchers = {
   y: fieldMatchers.get(FieldMatcherID.byTypes).get(new Set([FieldType.number, FieldType.enum])),
 };
 
+function prepareState(
+  props: GraphNGProps,
+  currentConfig: UPlotConfigBuilder | undefined,
+  getTimeRange: () => TimeRange,
+  withConfig = true
+): GraphNGState | null {
+  const { frames, fields = defaultMatchers, preparePlotFrame, replaceVariables, dataLinkPostProcessor, timeZone } =
+    props;
+
+  const preparePlotFrameFn = preparePlotFrame ?? defaultPreparePlotFrame;
+
+  const withLinks = frames.some((frame) => frame.fields.some((field) => (field.config.links?.length ?? 0) > 0));
+
+  const alignedFrame = preparePlotFrameFn(
+    frames,
+    {
+      ...fields,
+      y: withLinks ? () => true : fields.y,
+    },
+    props.timeRange
+  );
+
+  pluginLog('GraphNG', false, 'data aligned', alignedFrame);
+
+  if (alignedFrame) {
+    let alignedFrameFinal = alignedFrame;
+
+    if (withLinks) {
+      const tz = Array.isArray(timeZone) ? timeZone[0] : timeZone;
+
+      let linkFrames = frames.map((frame, frameIdx) => ({
+        ...frame,
+        fields: alignedFrame.fields.filter(
+          (field, fieldIdx) => fieldIdx === 0 || field.state?.origin?.frameIndex === frameIdx
+        ),
+        length: alignedFrame.length,
+      }));
+
+      linkFrames.forEach((linkFrame, frameIndex) => {
+        linkFrame.fields.forEach((field) => {
+          field.getLinks = getLinksSupplier(
+            linkFrame,
+            field,
+            {
+              ...field.state?.scopedVars,
+              __dataContext: {
+                value: {
+                  data: linkFrames,
+                  field: field,
+                  frame: linkFrame,
+                  frameIndex,
+                },
+              },
+            },
+            replaceVariables,
+            tz,
+            dataLinkPostProcessor
+          );
+        });
+      });
+
+      alignedFrameFinal = {
+        ...alignedFrame,
+        fields: alignedFrame.fields.filter((field, i) => i === 0 || fields.y(field, alignedFrame, [alignedFrame])),
+      };
+    }
+
+    if (props.omitHideFromViz) {
+      const nonHiddenFields = alignedFrameFinal.fields.filter((field) => field.config.custom?.hideFrom?.viz !== true);
+      alignedFrameFinal = {
+        ...alignedFrameFinal,
+        fields: nonHiddenFields,
+        length: nonHiddenFields.length,
+      };
+    }
+
+    let config = currentConfig;
+
+    if (withConfig) {
+      config = props.prepConfig(alignedFrameFinal, props.frames, getTimeRange, props.annotationLanes);
+      pluginLog('GraphNG', false, 'config prepared', config);
+    }
+
+    return {
+      alignedFrame: alignedFrameFinal,
+      config,
+    };
+  }
+
+  return null;
+}
+
 /**
  * "Time as X" core component, expects ascending x
  */
-export class GraphNG extends Component<GraphNGProps, GraphNGState> {
-  private plotInstance: React.RefObject<uPlot | null>;
+export function GraphNG(props: GraphNGProps) {
+  const { width, height, children, renderLegend, frames, structureRev, timeZone, cursorSync, propsToDiff } = props;
 
-  constructor(props: GraphNGProps) {
-    super(props);
-    let state = this.prepState(props);
-    state.alignedData = state.config!.prepData!([state.alignedFrame]) as AlignedData;
-    this.state = state;
-    this.plotInstance = React.createRef();
-  }
+  useTheme2(); // ensure theme is available
 
-  getTimeRange = () => this.props.timeRange;
+  const plotInstance = useRef<uPlot | null>(null);
+  const timeRangeRef = useRef(props.timeRange);
+  timeRangeRef.current = props.timeRange;
 
-  prepState(props: GraphNGProps, withConfig = true) {
-    let state: GraphNGState = null as any;
+  const getTimeRange = useCallback(() => timeRangeRef.current, []);
 
-    const { frames, fields = defaultMatchers, preparePlotFrame, replaceVariables, dataLinkPostProcessor } = props;
-
-    const preparePlotFrameFn = preparePlotFrame ?? defaultPreparePlotFrame;
-
-    const withLinks = frames.some((frame) => frame.fields.some((field) => (field.config.links?.length ?? 0) > 0));
-
-    const alignedFrame = preparePlotFrameFn(
-      frames,
-      {
-        ...fields,
-        // if there are data links, keep all fields during join so they're index-matched
-        y: withLinks ? () => true : fields.y,
-      },
-      props.timeRange
-    );
-
-    pluginLog('GraphNG', false, 'data aligned', alignedFrame);
-
-    if (alignedFrame) {
-      let alignedFrameFinal = alignedFrame;
-
-      if (withLinks) {
-        const timeZone = Array.isArray(this.props.timeZone) ? this.props.timeZone[0] : this.props.timeZone;
-
-        // for links gen we need to use original frames but with the aligned/joined data values
-        let linkFrames = frames.map((frame, frameIdx) => ({
-          ...frame,
-          fields: alignedFrame.fields.filter(
-            (field, fieldIdx) => fieldIdx === 0 || field.state?.origin?.frameIndex === frameIdx
-          ),
-          length: alignedFrame.length,
-        }));
-
-        linkFrames.forEach((linkFrame, frameIndex) => {
-          linkFrame.fields.forEach((field) => {
-            field.getLinks = getLinksSupplier(
-              linkFrame,
-              field,
-              {
-                ...field.state?.scopedVars,
-                __dataContext: {
-                  value: {
-                    data: linkFrames,
-                    field: field,
-                    frame: linkFrame,
-                    frameIndex,
-                  },
-                },
-              },
-              replaceVariables,
-              timeZone,
-              dataLinkPostProcessor
-            );
-          });
-        });
-
-        // filter join field and fields.y
-        alignedFrameFinal = {
-          ...alignedFrame,
-          fields: alignedFrame.fields.filter((field, i) => i === 0 || fields.y(field, alignedFrame, [alignedFrame])),
-        };
-      }
-
-      if (props.omitHideFromViz) {
-        const nonHiddenFields = alignedFrameFinal.fields.filter((field) => field.config.custom?.hideFrom?.viz !== true);
-        alignedFrameFinal = {
-          ...alignedFrameFinal,
-          fields: nonHiddenFields,
-          length: nonHiddenFields.length,
-        };
-      }
-
-      let config = this.state?.config;
-
-      if (withConfig) {
-        config = props.prepConfig(alignedFrameFinal, this.props.frames, this.getTimeRange, this.props.annotationLanes);
-        pluginLog('GraphNG', false, 'config prepared', config);
-      }
-
-      state = {
-        alignedFrame: alignedFrameFinal,
-        config,
-      };
-
-      pluginLog('GraphNG', false, 'data prepared', state.alignedData);
+  const initialState = useMemo(() => {
+    const state = prepareState(props, undefined, getTimeRange, true);
+    if (state) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      state.alignedData = state.config!.prepData!([state.alignedFrame]) as AlignedData;
     }
-
     return state;
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  componentDidUpdate(prevProps: GraphNGProps) {
-    const { frames, structureRev, timeZone, cursorSync, propsToDiff } = this.props;
+  const [graphState, setGraphState] = useState<GraphNGState | null>(initialState);
 
-    const propsChanged = !sameProps(prevProps, this.props, propsToDiff);
+  const prevPropsRef = useRef<GraphNGProps>(props);
 
-    if (
-      frames !== prevProps.frames ||
-      propsChanged ||
-      timeZone !== prevProps.timeZone ||
-      cursorSync !== prevProps.cursorSync
-    ) {
-      let newState = this.prepState(this.props, false);
+  // Update state when props change (componentDidUpdate equivalent)
+  const prevProps = prevPropsRef.current;
+  prevPropsRef.current = props;
 
-      if (newState) {
-        const shouldReconfig =
-          this.state.config === undefined ||
-          timeZone !== prevProps.timeZone ||
-          cursorSync !== prevProps.cursorSync ||
-          structureRev !== prevProps.structureRev ||
-          !structureRev ||
-          propsChanged;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const prevPropsRecord = prevProps as unknown as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const propsRecord = props as unknown as Record<string, unknown>;
+  const propsChanged = !sameProps(prevPropsRecord, propsRecord, propsToDiff);
 
-        if (shouldReconfig) {
-          newState.config = this.props.prepConfig(
-            newState.alignedFrame,
-            this.props.frames,
-            this.getTimeRange,
-            this.props.annotationLanes
-          );
-          pluginLog('GraphNG', false, 'config recreated', newState.config);
-        }
+  if (
+    frames !== prevProps.frames ||
+    propsChanged ||
+    timeZone !== prevProps.timeZone ||
+    cursorSync !== prevProps.cursorSync
+  ) {
+    const newState = prepareState(props, graphState?.config, getTimeRange, false);
 
-        newState.alignedData = newState.config!.prepData!([newState.alignedFrame]) as AlignedData;
+    if (newState) {
+      const shouldReconfig =
+        graphState?.config === undefined ||
+        timeZone !== prevProps.timeZone ||
+        cursorSync !== prevProps.cursorSync ||
+        structureRev !== prevProps.structureRev ||
+        !structureRev ||
+        propsChanged;
 
-        this.setState(newState);
+      if (shouldReconfig) {
+        newState.config = props.prepConfig(
+          newState.alignedFrame,
+          frames,
+          getTimeRange,
+          props.annotationLanes
+        );
+        pluginLog('GraphNG', false, 'config recreated', newState.config);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      newState.alignedData = newState.config!.prepData!([newState.alignedFrame]) as AlignedData;
+
+      if (
+        newState.alignedFrame !== graphState?.alignedFrame ||
+        newState.config !== graphState?.config ||
+        newState.alignedData !== graphState?.alignedData
+      ) {
+        setGraphState(newState);
       }
     }
   }
 
-  render() {
-    const { width, height, children, renderLegend } = this.props;
-    const { config, alignedFrame, alignedData } = this.state;
-
-    if (!config) {
-      return null;
-    }
-
-    return (
-      <VizLayout width={width} height={height} legend={renderLegend(config)}>
-        {(vizWidth: number, vizHeight: number) => (
-          <UPlotChart
-            config={config}
-            data={alignedData!}
-            width={vizWidth}
-            height={vizHeight}
-            plotRef={(u) => ((this.plotInstance as React.MutableRefObject<uPlot>).current = u)}
-          >
-            {children ? children(config, alignedFrame) : null}
-          </UPlotChart>
-        )}
-      </VizLayout>
-    );
+  if (!graphState?.config) {
+    return null;
   }
+
+  const { config, alignedFrame, alignedData } = graphState;
+
+  return (
+    <VizLayout width={width} height={height} legend={renderLegend(config)}>
+      {(vizWidth: number, vizHeight: number) => (
+        <UPlotChart
+          config={config}
+          data={alignedData!}
+          width={vizWidth}
+          height={vizHeight}
+          plotRef={(u) => {
+            plotInstance.current = u;
+          }}
+        >
+          {children ? children(config, alignedFrame) : null}
+        </UPlotChart>
+      )}
+    </VizLayout>
+  );
 }
