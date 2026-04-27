@@ -321,6 +321,28 @@ Examples:
 - `[Tech Debt] Reduce explicit any in top 10 files`
 - `[Tech Debt] Migrate IsEnabled API to OpenFeature`
 
+#### Estimating effort
+
+Every ticket must include an `estimate` value (Fibonacci point scale used by the
+grafana team). Pick the bucket whose description best matches the scope of work
+implied by the recommended action:
+
+| Points | Effort | Typical scope |
+|--------|--------|---------------|
+| 1 | < ½ day | Mechanical fix in 1–3 files (e.g., remove a single deprecated toggle, drop a few `nolint` directives). |
+| 2 | ½–1 day | Localized cleanup in 4–10 files with no behavior change (e.g., replace `stylesFactory` in one feature folder). |
+| 3 | 1–2 days | Single-feature refactor touching 10–25 files (e.g., migrate one feature's class components, split one oversized Go file). |
+| 5 | 3–5 days | Cross-cutting change across one subsystem (e.g., migrate `IsEnabled` call sites in a single package tree, reduce `any` in top 10 files). |
+| 8 | 1–2 weeks | Multi-feature migration, 50+ files, or coordination across teams (e.g., migrate all remaining `connect()` HOCs in `features/dashboard/`). |
+| 13 | 2+ weeks | Repo-wide effort or one requiring design (e.g., complete OpenFeature migration, eliminate all class components). Prefer to split into smaller tickets when possible. |
+
+Rules of thumb when sizing:
+- Use the **file count** from the scan as the primary input, then adjust up if
+  the area has high churn (Step 4 priority score) or touches multiple teams.
+- If a recommended action would naturally be 13+, split it into multiple
+  tickets sized 5 or 8 instead of filing a single oversized issue.
+- Test-only or comment-only changes drop one bucket from the table above.
+
 ```
 CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
   "title": "[Tech Debt] <action title>",
@@ -328,7 +350,8 @@ CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
   "project": "grafana",
   "labels": ["tech-debt"],
   "priority": <2 for Priority 1-2 actions, 3 for Priority 3-4, 4 for Priority 5-6>,
-  "description": "<Markdown body with:\n- What: specific files/areas affected\n- Why: debt signal counts, churn data, priority score\n- How: recommended remediation approach or link to skill\n- Scope: estimated number of files>"
+  "estimate": <1 | 2 | 3 | 5 | 8 | 13 — see table above>,
+  "description": "<Markdown body with:\n- What: specific files/areas affected\n- Why: debt signal counts, churn data, priority score\n- How: recommended remediation approach or link to skill\n- Scope: estimated number of files\n- Estimate rationale: one line explaining why this point value was chosen>"
 })
 ```
 
@@ -347,6 +370,20 @@ CallMcpTool(server="plugin-linear-linear", toolName="save_comment", arguments={
 Only post update comments if at least one metric in the ticket's scope changed.
 Do not spam tickets with identical numbers.
 
+If the new metrics push the ticket into a different estimate bucket per the
+table in Step 6d (e.g., file count grew from 8 to 30, moving from 2 → 5
+points), also re-estimate the ticket and note the change in the comment:
+
+```
+CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
+  "id": "<ISSUE-ID>",
+  "estimate": <new value>
+})
+```
+
+Only re-estimate when the bucket genuinely changes — do not churn estimates on
+small fluctuations.
+
 ### 6f. Report ticket actions to user
 
 After syncing, summarize what was done:
@@ -360,11 +397,15 @@ After syncing, summarize what was done:
 - **Unchanged**: N tickets (no action needed)
 
 ### New tickets
-- [TEAM-123] [Tech Debt] Migrate dashboard/ class components
+- [TEAM-123] [Tech Debt] Migrate dashboard/ class components — **5 pts**
 - ...
 
 ### Closed tickets
 - [TEAM-456] [Tech Debt] Fix unsafe lifecycle in TimelineViewingLayer (resolved)
+- ...
+
+### Re-estimated tickets
+- [TEAM-789] [Tech Debt] Reduce explicit any in top 10 files — 3 → 5 pts
 - ...
 ```
 
@@ -474,3 +515,7 @@ Include the Confluence page URL in the final summary:
   body limit. If the detailed report is very large, truncate example file
   lists to 5 per check and note that the full list is in
   `tech-debt-report.md` in the repo.
+- **Team does not use estimates**: If `save_issue` returns an error indicating
+  the team has estimation disabled, retry the call without the `estimate`
+  field and include the chosen point value in the description's "Estimate
+  rationale" line so the information is still captured.
