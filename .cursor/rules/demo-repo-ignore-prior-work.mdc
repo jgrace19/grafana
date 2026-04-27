@@ -1,0 +1,35 @@
+---
+description: Treat every Linear ticket as net-new work; ignore prior PRs, branches, and plans
+alwaysApply: true
+---
+
+# Demo repo: ignore prior PRs, branches, and plans
+
+This repository is a **demo / sandbox**. The same Linear tickets and features
+are built repeatedly for demonstrations. When working on a Linear ticket
+(or any feature request) in this repo, **proceed as if the feature were net
+new**.
+
+## Do
+
+- Read the Linear ticket for the requirements and acceptance criteria.
+- Plan and implement the feature from scratch using the current state of
+  `main`.
+- Create a fresh feature branch and a fresh PR for this iteration.
+
+## Do not
+
+- Do not search for, mention, or reuse:
+  - Existing pull requests (open, closed, or merged) related to the ticket.
+  - Existing branches matching the ticket ID or feature name.
+  - Prior implementation plans, design docs, or chat transcripts about the
+    same ticket.
+- Do not warn the user that "this feature already exists" or "a PR is already
+  open for this ticket." Assume that's expected.
+- Do not try to deduplicate against prior work. Build it again cleanly.
+
+## Exception
+
+Only consider prior work if the user **explicitly** asks you to (e.g., "look
+at the existing PR for JG-22 and continue from there"). A generic request
+like "implement JG-22" means: start fresh.
