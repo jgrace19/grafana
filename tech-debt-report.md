@@ -6,9 +6,9 @@
 | 1 | `pkg/registry/apis/` | 271 | 505 | 2434.39 |
 | 2 | `pkg/storage/unified/` | 205 | 324 | 1710.58 |
 | 3 | `pkg/tests/api/` | 187 | 62 | 1117.75 |
-| 4 | `public/app/features/dashboard/` | 151 | 160 | 1106.97 |
-| 5 | `public/app/features/alerting/` | 132 | 259 | 1058.95 |
-| 6 | `pkg/tests/apis/` | 126 | 442 | 1107.69 |
+| 4 | `pkg/tests/apis/` | 126 | 442 | 1107.69 |
+| 5 | `public/app/features/dashboard/` | 151 | 160 | 1106.97 |
+| 6 | `public/app/features/alerting/` | 132 | 259 | 1058.95 |
 | 7 | `pkg/api/` | 113 | 142 | 809.07 |
 | 8 | `public/app/core/` | 82 | 171 | 608.95 |
 | 9 | `pkg/services/ngalert/api/` | 64 | 87 | 413.4 |
@@ -42,7 +42,7 @@ Top explicit `any` files:
 
 ## Go Quality
 - **nolint directives**: 1274 occurrences
-- **Oversized files (>800 loc)**: 78 files
+- **Oversized files (>800 loc, includes test/generated in this scan)**: 78 files
 - **Deprecated Go APIs**: 65 files
 
 Top oversized files:
@@ -89,7 +89,7 @@ Top oversized files:
 | Frontend TODO/FIXME/HACK | 618 | 602 | -16 |
 | Backend TODO/FIXME/HACK | 894 | 894 | +0 |
 | nolint directives | 1275 | 1274 | -1 |
-| Oversized Go files (>800 loc) | 67 | 78 | +11 |
+| Oversized Go files (>800 loc) | 67 | 78 (scope changed) | n/a |
 | Deprecated feature toggles | 3 | 3 | +0 |
 | Old IsEnabled API files | 162 | 162 | +0 |
 
@@ -116,11 +116,6 @@ Top oversized files:
 - `public/app/core/components/OptionsUI/multiSelect.tsx`
 - `public/app/core/components/OptionsUI/select.tsx`
 - `public/app/core/components/SharedPreferences/SharedPreferencesOld.tsx`
-- `public/app/features/admin/UpgradePage.tsx`
-- `public/app/features/admin/UserAdminPage.tsx`
-- `public/app/features/admin/UserListAdminPage.tsx`
-- `public/app/features/admin/UserListAnonymousPage.tsx`
-- `public/app/features/admin/ldap/LdapSettingsPage.tsx`
 - `public/app/features/alerting/unified/components/rule-editor/QueryRows.tsx`
 - `public/app/features/annotations/components/StandardAnnotationQueryEditor.tsx`
 - `public/app/features/auth-config/AuthDrawer.tsx`
