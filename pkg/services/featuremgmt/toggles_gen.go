@@ -933,4 +933,8 @@ const (
 	// FlagCompiledBootScript
 	// Boots the frontend using the boot.js script built from TS instead of the embedded boot script
 	FlagCompiledBootScript = "compiledBootScript"
+
+	// FlagDashboardComments
+	// Enable collaborative threaded comments on dashboard panels and annotations
+	FlagDashboardComments = "dashboardComments"
 )
