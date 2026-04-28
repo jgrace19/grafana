@@ -1069,6 +1069,9 @@ export const versionedComponents = {
     container: {
       '9.4.0': 'data-testid Nav toolbar',
     },
+    themeModeToggle: {
+      '12.1.0': 'data-testid Theme mode toggle',
+    },
     commandPaletteTrigger: {
       '11.5.0': 'data-testid Command palette trigger',
     },
