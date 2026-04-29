@@ -9,10 +9,6 @@ function isOverlayField(field: Field): boolean {
   return Boolean(field.config.custom && field.config.custom[OVERLAY_MARKER]);
 }
 
-export function isOverlayFrame(frame: DataFrame): boolean {
-  return frame.fields.some(isOverlayField);
-}
-
 function toFiniteNumber(v: unknown): number | null {
   if (typeof v === 'number' && Number.isFinite(v)) {
     return v;
