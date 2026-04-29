@@ -30,6 +30,7 @@ import { OutsideRangePlugin } from './plugins/OutsideRangePlugin';
 import { ThresholdControlsPlugin } from './plugins/ThresholdControlsPlugin';
 import { getXAnnotationFrames } from './plugins/utils';
 import { getPrepareTimeseriesSuggestion } from './suggestions';
+import { applyTrendOverlay } from './trendOverlay';
 import { getGroupedFilters, getTimezones, prepareGraphableFields } from './utils';
 
 interface TimeSeriesPanelProps extends PanelProps<Options> {}
@@ -66,7 +67,10 @@ export const TimeSeriesPanel = ({
   // It is simplified version of horizontal time series panel and it does not support all plugins.
   const isVerticallyOriented = options.orientation === VizOrientation.Vertical;
   const { frames, compareDiffMs } = useMemo(() => {
-    let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
+    const seriesWithOverlay = options.trendOverlay?.enabled
+      ? applyTrendOverlay(data.series, options.trendOverlay)
+      : data.series;
+    let frames = prepareGraphableFields(seriesWithOverlay, config.theme2, timeRange);
     if (frames != null) {
       let compareDiffMs: number[] = [0];
 
@@ -94,7 +98,7 @@ export const TimeSeriesPanel = ({
     }
 
     return { frames };
-  }, [data.series, timeRange]);
+  }, [data.series, timeRange, options.trendOverlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
