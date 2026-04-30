@@ -8,6 +8,7 @@ import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { dynamicDashNavActions } from '../../utils/registerDynamicDashNavAction';
 import { isLibraryPanel } from '../../utils/utils';
 import { type DashboardScene } from '../DashboardScene';
+import { HomeThemeToggleButton, isHomeDashboardScene } from '../HomeThemeToggleButton';
 
 import { BackToDashboardButton } from './actions/BackToDashboardButton';
 import { DiscardLibraryPanelButton } from './actions/DiscardLibraryPanelButton';
@@ -36,6 +37,7 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   const isShowingDashboard = !hasEditView && !isViewingPanel && !isEditingPanel;
   const canSaveInFolder = contextSrv.hasEditPermissionInFolders;
   const canEditDashboard = dashboard.canEditDashboard();
+  const isHomeDashboard = isHomeDashboardScene(dashboard);
 
   const showPanelButtons = isEditingPanel && !hasEditView && !isViewingPanel;
   const showPlayButtons = isPlaying && isShowingDashboard && !isEditingDashboard;
@@ -106,6 +108,12 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
             component: MakeDashboardEditableButton,
             group: 'save-edit',
             condition: !isEditing && canEditDashboard && !isViewingPanel && !isEditable && !isPlaying,
+          },
+          {
+            key: 'home-theme-toggle-button',
+            component: HomeThemeToggleButton,
+            group: 'theme',
+            condition: isHomeDashboard && isShowingDashboard && !isEditingDashboard && !isPlaying,
           },
         ],
         dashboard

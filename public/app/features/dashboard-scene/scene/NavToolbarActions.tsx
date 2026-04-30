@@ -38,6 +38,7 @@ import { isLibraryPanel } from '../utils/utils';
 
 import { type DashboardScene } from './DashboardScene';
 import { GoToSnapshotOriginButton } from './GoToSnapshotOriginButton';
+import { HomeThemeToggleButton, isHomeDashboardScene } from './HomeThemeToggleButton';
 import { ManagedDashboardNavBarBadge } from './ManagedDashboardNavBarBadge';
 import { LeftActions } from './new-toolbar/LeftActions';
 import { RightActions } from './new-toolbar/RightActions';
@@ -170,6 +171,12 @@ export function ToolbarActions({ dashboard }: Props) {
     // This adds the alert rules button and the dashboard insights button
     addDynamicActions(toolbarActions, dynamicDashNavActions.right, 'icon-actions');
   }
+
+  toolbarActions.push({
+    group: 'icon-actions',
+    condition: isHomeDashboardScene(dashboard) && isShowingDashboard && !isEditing && !isPlaying,
+    render: () => <HomeThemeToggleButton key="home-theme-toggle" />,
+  });
 
   toolbarActions.push({
     group: 'add-panel',

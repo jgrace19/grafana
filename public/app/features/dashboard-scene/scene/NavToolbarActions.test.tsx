@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { TestProvider } from 'test/helpers/TestProvider';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
+import { createTheme } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { LocationServiceProvider, locationService } from '@grafana/runtime';
+import { mockThemeContext } from '@grafana/ui';
 import { SceneQueryRunner, SceneTimeRange, UrlSyncContextProvider, VizPanel } from '@grafana/scenes';
 import { mockLocalStorage } from 'app/features/alerting/unified/mocks';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
@@ -16,6 +18,9 @@ import { DashboardInteractions } from '../utils/interactions';
 import { DashboardScene } from './DashboardScene';
 import { ToolbarActions } from './NavToolbarActions';
 import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
+
+const mockChangeTheme = jest.fn();
+const mockReportInteraction = jest.fn();
 
 jest.mock('../utils/interactions', () => ({
   DashboardInteractions: {
@@ -43,6 +48,7 @@ jest.mock('app/features/playlist/PlaylistSrv', () => ({
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
+  reportInteraction: (...args: Parameters<typeof mockReportInteraction>) => mockReportInteraction(...args),
   getDataSourceSrv: () => ({
     get: jest.fn(),
     getInstanceSettings: jest.fn().mockReturnValue({
@@ -52,7 +58,23 @@ jest.mock('@grafana/runtime', () => ({
   }),
 }));
 
+jest.mock('app/core/services/theme', () => ({
+  changeTheme: (...args: Parameters<typeof mockChangeTheme>) => mockChangeTheme(...args),
+}));
+
 describe('NavToolbarActions', () => {
+  let restoreThemeContext: () => void;
+
+  beforeEach(() => {
+    restoreThemeContext = mockThemeContext(createTheme({ colors: { mode: 'dark' } }));
+    mockChangeTheme.mockClear();
+    mockReportInteraction.mockClear();
+  });
+
+  afterEach(() => {
+    restoreThemeContext();
+  });
+
   describe('Given an already saved dashboard', () => {
     it('Should show correct buttons when not in editing', async () => {
       setup();
@@ -199,6 +221,27 @@ describe('NavToolbarActions', () => {
     });
   });
 
+  describe('home dashboard theme toggle', () => {
+    it('should show on the home dashboard and persist the next theme', async () => {
+      setup({ url: '', slug: undefined });
+
+      const toggle = await screen.findByRole('button', { name: 'Switch to light mode' });
+      await userEvent.click(toggle);
+
+      expect(mockChangeTheme).toHaveBeenCalledWith('light', false);
+      expect(mockReportInteraction).toHaveBeenCalledWith('grafana_preferences_theme_changed', {
+        toTheme: 'light',
+        preferenceType: 'home_page_toggle',
+      });
+    });
+
+    it('should hide the theme toggle on regular dashboards', () => {
+      setup();
+
+      expect(screen.queryByRole('button', { name: 'Switch to light mode' })).not.toBeInTheDocument();
+    });
+  });
+
   describe('Given new sharing button', () => {
     it('Should show new share button', async () => {
       setup();
@@ -231,6 +274,8 @@ function setup(meta?: DashboardMeta, editable?: boolean) {
     meta: {
       canEdit: true,
       isNew: false,
+      url: '/d/dash-1/hello',
+      slug: 'hello',
       canMakeEditable: true,
       canSave: true,
       canShare: true,
