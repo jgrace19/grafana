@@ -22,6 +22,11 @@ import { createDashboardModelFixture } from '../state/__fixtures__/dashboardFixt
 
 import { type Props, UnthemedDashboardPage } from './DashboardPage';
 
+jest.mock('app/features/dashboard/components/DashNav/HomeThemeToggle', () => {
+  const HomeThemeToggle = () => <button>Theme toggle</button>;
+  return { HomeThemeToggle };
+});
+
 jest.mock('app/features/dashboard/dashgrid/LazyLoader', () => {
   const LazyLoader = ({ children, onLoad }: Pick<LazyLoaderProps, 'children' | 'onLoad'>) => {
     useEffectOnce(() => {
@@ -155,6 +160,22 @@ describe('DashboardPage', () => {
       await waitFor(() => {
         expect(document.title).toBe('My dashboard - Dashboards - Grafana');
       });
+    });
+
+    it('renders the theme toggle on the home dashboard', async () => {
+      setup({
+        dashboard: getTestDashboard(),
+        route: { routeName: DashboardRoutes.Home } as RouteDescriptor,
+      });
+
+      expect(await screen.findByRole('button', { name: 'Theme toggle' })).toBeInTheDocument();
+    });
+
+    it('does not render the theme toggle on regular dashboards', async () => {
+      setup({ dashboard: getTestDashboard() });
+
+      await screen.findByText('My panel title');
+      expect(screen.queryByRole('button', { name: 'Theme toggle' })).not.toBeInTheDocument();
     });
 
     it('only calls initDashboard once when wrapped in AppChrome', async () => {

@@ -24,7 +24,7 @@ import { ID_PREFIX } from 'app/core/reducers/navBarTree';
 import { getNavModel } from 'app/core/selectors/navModel';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardWatcher } from 'app/features/live/dashboard/dashboardWatcher';
-import { KioskMode } from 'app/types/dashboard';
+import { DashboardRoutes, KioskMode } from 'app/types/dashboard';
 import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
 import { type StoreState } from 'app/types/store';
 
@@ -397,6 +397,7 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
                 title={dashboard.title}
                 folderTitle={dashboard.meta.folderTitle}
                 isFullscreen={!!viewPanel}
+                isHomeDashboard={this.props.route.routeName === DashboardRoutes.Home}
                 kioskMode={kioskMode}
                 hideTimePicker={dashboard.timepicker.hidden}
               />
