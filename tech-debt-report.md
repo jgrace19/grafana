@@ -4,7 +4,7 @@
 
 Priority score = debt signals × log₂(commits + 1)
 
-Per-area **signals** sum distinct-file hits across the Step 2 scans for that subtree (frontend: class + `connect()` + unsafe lifecycle + `stylesFactory` + files with `: any` + `@deprecated`; backend: TODO/FIXME/HACK + `nolint` + `Deprecated:` + `IsEnabled`/`IsEnabledGlobally` + non-test `.go` files &gt;800 LOC). **Commits** = `git log --since="6 months ago"` on the directory.
+Per-area **signals** sum distinct-file hits across the Step 2 scans for that subtree (frontend: class + `connect()` + unsafe lifecycle + `stylesFactory` + files with `: any` + `@deprecated`; backend: TODO/FIXME/HACK + `nolint` + `Deprecated:` + `IsEnabled`/`IsEnabledGlobally` + non-test `.go` files >800 LOC). **Commits** = `git log --since="6 months ago"` on the directory.
 
 | Rank | Area | Debt signals | Commits (6mo) | Priority score |
 |------|------|--------------|----------------|----------------|
@@ -97,7 +97,7 @@ Sample files (non-exhaustive):
 
 ### `nolint` directives: 1275 occurrences (aggregate across matched lines in `pkg/`)
 
-### Oversized non-test Go files (&gt;800 loc): 78 files
+### Oversized non-test Go files (>800 loc): 78 files
 
 Counted with `find pkg/ … ! -name '*_test.go' ! -name '*.gen.go' ! -name '*.pb.go'` and `awk 'END { if (NR > 800) print … }'` per file.
 
@@ -159,7 +159,7 @@ Second-highest frontend priority score (~635): many class components, `stylesFac
 
 ### Priority 5: Oversized Go files
 
-Split or modularize `setting.go`, `dashboard_service.go`, `storage_backend.go`, and other &gt;800 LOC hotspots (JG-110).
+Split or modularize `setting.go`, `dashboard_service.go`, `storage_backend.go`, and other >800 LOC hotspots (JG-110).
 
 ### Priority 6: Feature toggles
 
@@ -191,7 +191,7 @@ Tighten types in `DashboardModel.ts`, `time_series2.ts`, datasource giants (`ope
 | Frontend TODO/FIXME/HACK | ~618 | 618 | 0 |
 | Backend TODO/FIXME/HACK | ~894 | 894 | 0 |
 | nolint occurrences | ~1275 | 1275 | 0 |
-| Oversized Go files (&gt;800 loc) | 67 | 78 | +11 |
+| Oversized Go files (>800 loc) | 67 | 78 | +11 |
 | Deprecated Go API files | ~77 | 65 | -12 |
 | Deprecated feature toggles | 3 | 3 | 0 |
 | Old IsEnabled API files | ~162 | 162 | 0 |
