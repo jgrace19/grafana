@@ -38,6 +38,7 @@ import {
 } from '../../../dashboard-scene/utils/registerDynamicDashNavAction';
 
 import { DashNavTimeControls } from './DashNavTimeControls';
+import { HomeThemeToggle } from './HomeThemeToggle';
 import { ShareButton } from './ShareButton';
 
 const mapDispatchToProps = {
@@ -52,6 +53,7 @@ export interface OwnProps {
   kioskMode?: KioskMode | null;
   hideTimePicker: boolean;
   folderTitle?: string;
+  isHomeDashboard?: boolean;
   title: string;
 }
 
@@ -210,7 +212,7 @@ export const DashNav = memo<Props>((props) => {
   };
 
   const renderRightActions = () => {
-    const { dashboard, isFullscreen, hideTimePicker } = props;
+    const { dashboard, isFullscreen, hideTimePicker, isHomeDashboard } = props;
     const { canSave, canEdit, showSettings, canShare, isEmbedded } = dashboard.meta;
     const { snapshot } = dashboard;
     const snapshotUrl = snapshot && snapshot.originalUrl;
@@ -251,6 +253,10 @@ export const DashNav = memo<Props>((props) => {
     }
 
     addCustomContent(dynamicDashNavActions.right, buttons);
+
+    if (isHomeDashboard && !isFullscreen) {
+      buttons.push(<HomeThemeToggle key="button-home-theme-toggle" />);
+    }
 
     if (showSettings) {
       buttons.push(
