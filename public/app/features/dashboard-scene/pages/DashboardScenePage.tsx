@@ -24,6 +24,7 @@ import { OrphanedDashboardBanner } from 'app/features/provisioning/components/Da
 import { DashboardRoutes } from 'app/types/dashboard';
 
 import { DashboardConversionWarningBanner } from '../components/DashboardConversionWarningBanner';
+import { HomeThemeToggle } from '../components/HomeThemeToggle';
 import { SuggestedDashboardsBanner } from '../components/SuggestedDashboardsBanner';
 import { DashboardPrompt } from '../saving/DashboardPrompt';
 import { preserveDashboardSceneStateInLocalStorage } from '../utils/dashboardSessionState';
@@ -111,14 +112,19 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       errorElement = <DashboardPageError error={loadError} type={type} />;
     }
 
+    const homeToggle = route.routeName === DashboardRoutes.Home ? <HomeThemeToggle /> : null;
+
     return (
-      errorElement || (
-        <Page navId="dashboards/browse" layout={PageLayoutType.Canvas} data-testid={'dashboard-scene-page'}>
-          <Box paddingY={4} display="flex" direction="column" alignItems="center">
-            {isLoading && <PageLoader />}
-          </Box>
-        </Page>
-      )
+      <>
+        {errorElement || (
+          <Page navId="dashboards/browse" layout={PageLayoutType.Canvas} data-testid={'dashboard-scene-page'}>
+            <Box paddingY={4} display="flex" direction="column" alignItems="center">
+              {isLoading && <PageLoader />}
+            </Box>
+          </Page>
+        )}
+        {homeToggle}
+      </>
     );
   }
 
@@ -142,6 +148,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       <SuggestedDashboardsBanner route={route.routeName} dashboard={dashboard} />
       <dashboard.Component model={dashboard} key={dashboard.state.key} />
       <DashboardPrompt dashboard={dashboard} />
+      {route.routeName === DashboardRoutes.Home && <HomeThemeToggle />}
       <DashboardBrandingFooter
         variant={DashboardBrandingFooterVariant.Kiosk}
         paddingX={2}
