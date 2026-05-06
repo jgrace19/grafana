@@ -1,4 +1,5 @@
 import { css } from '@emotion/css';
+import { createPortal } from 'react-dom';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -16,7 +17,10 @@ export function HomeThemeToggle() {
     : t('home.theme-toggle.switch-to-dark', 'Switch to dark theme');
   const label = t('home.theme-toggle.dark-mode', 'Dark mode');
 
-  return (
+  // Portals keep `position: fixed` relative to the viewport. Without this, ancestors
+  // (e.g. #floating-boundary / transformed layout) create a containing block so `top`
+  // aligns to page panes instead of the visible header — the control can sit under chrome.
+  return createPortal(
     <div
       className={styles.wrap}
       data-testid="home-theme-toggle"
@@ -36,7 +40,8 @@ export function HomeThemeToggle() {
           }}
         />
       </Tooltip>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -44,7 +49,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   wrap: css({
     position: 'fixed',
     right: theme.spacing(3),
-    zIndex: theme.zIndex.navbarFixed + 1,
+    zIndex: theme.zIndex.tooltip,
     boxShadow: theme.shadows.z2,
     borderRadius: theme.shape.radius.default,
     background: theme.colors.background.primary,
