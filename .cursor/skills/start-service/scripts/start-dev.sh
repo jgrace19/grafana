@@ -60,7 +60,7 @@ use_repo_node_version() {
   if [[ -n "${nvm_sh}" && -f "${REPO_ROOT}/.nvmrc" ]]; then
     # shellcheck source=/dev/null
     source "${nvm_sh}"
-    (cd "${REPO_ROOT}" && nvm use) 2>/dev/null || true
+    nvm use 2>/dev/null || true
   fi
   if [[ -f "${REPO_ROOT}/.nvmrc" ]]; then
     local want got
