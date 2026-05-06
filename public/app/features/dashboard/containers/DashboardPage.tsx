@@ -24,7 +24,7 @@ import { ID_PREFIX } from 'app/core/reducers/navBarTree';
 import { getNavModel } from 'app/core/selectors/navModel';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardWatcher } from 'app/features/live/dashboard/dashboardWatcher';
-import { KioskMode } from 'app/types/dashboard';
+import { DashboardRoutes, KioskMode } from 'app/types/dashboard';
 import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
 import { type StoreState } from 'app/types/store';
 
@@ -44,6 +44,7 @@ import { getTimeSrv } from '../services/TimeSrv';
 import { cleanUpDashboardAndVariables } from '../state/actions';
 import { initDashboard } from '../state/initDashboard';
 
+import { HomeThemeToggle } from '../components/HomeThemeToggle/HomeThemeToggle';
 import { DashboardPageError } from './DashboardPageError';
 import { type DashboardPageRouteParams, type DashboardPageRouteSearchParams } from './types';
 
@@ -368,7 +369,12 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
     const styles = getStyles(theme);
 
     if (!dashboard || !pageNav || !sectionNav) {
-      return <DashboardLoading initPhase={this.props.initPhase} />;
+      return (
+        <>
+          {this.props.route.routeName === DashboardRoutes.Home && <HomeThemeToggle />}
+          <DashboardLoading initPhase={this.props.initPhase} />
+        </>
+      );
     }
 
     const inspectPanel = this.getInspectPanel();
@@ -381,8 +387,11 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
       'page-hidden': Boolean(queryParams.editview || editPanel),
     });
 
+    const isHomeRoute = this.props.route.routeName === DashboardRoutes.Home;
+
     return (
       <>
+        {isHomeRoute && <HomeThemeToggle />}
         <Page
           navModel={sectionNav}
           pageNav={pageNav}

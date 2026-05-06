@@ -37,7 +37,7 @@ function getStyles(theme: GrafanaTheme2) {
       position: 'fixed',
       bottom: theme.spacing(2),
       right: theme.spacing(2),
-      zIndex: theme.zIndex.navbarFixed,
+      zIndex: theme.zIndex.portal,
       padding: theme.spacing(0.25, 0.5),
       borderRadius: theme.shape.radius.default,
       backgroundColor: theme.colors.background.primary,
