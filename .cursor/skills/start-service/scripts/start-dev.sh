@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# Start the full Grafana dev stack: backend (Go, hot reload) + frontend (webpack
-# watch) + optional seeded dashboard. Picks a free HTTP port starting at 3000,
-# disables pprof to avoid port 6000 conflicts, and waits for the first frontend
-# webpack compile to finish writing public/build before exiting so the UI is
-# actually loadable.
+# Start the full Grafana dev stack: backend (Go, hot reload) + frontend
+# (yarn start:liveReload = webpack --watch + LiveReload) + optional seeded
+# dashboard. Picks a free HTTP port starting at 3000, disables pprof to avoid
+# port 6000 conflicts, and waits for the first frontend webpack compile to
+# finish writing public/build before exiting so the UI is actually loadable.
 #
 # Usage:
 #   bash .cursor/skills/start-service/scripts/start-dev.sh            # start backend + frontend + seed
@@ -48,6 +48,31 @@ done
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "${REPO_ROOT}"
+
+# Align Node with .nvmrc when nvm is installed (avoids wrong webpack/toolchain).
+use_repo_node_version() {
+  local nvm_sh=""
+  if [[ -n "${NVM_DIR:-}" && -f "${NVM_DIR}/nvm.sh" ]]; then
+    nvm_sh="${NVM_DIR}/nvm.sh"
+  elif [[ -f "${HOME}/.nvm/nvm.sh" ]]; then
+    nvm_sh="${HOME}/.nvm/nvm.sh"
+  fi
+  if [[ -n "${nvm_sh}" && -f "${REPO_ROOT}/.nvmrc" ]]; then
+    # shellcheck source=/dev/null
+    source "${nvm_sh}"
+    nvm use 2>/dev/null || true
+  fi
+  if [[ -f "${REPO_ROOT}/.nvmrc" ]]; then
+    local want got
+    want="$(sed 's/^v//' "${REPO_ROOT}/.nvmrc")"
+    got="$(node --version 2>/dev/null | sed 's/^v//')"
+    if [[ -n "${got}" && "${got}" != "${want}" ]]; then
+      echo "Warning: Node.js v${got} is active; this repo targets v${want} (.nvmrc). Run: cd ${REPO_ROOT} && nvm use" >&2
+    fi
+  fi
+}
+
+use_repo_node_version
 
 LOG_DIR="/tmp/grafana-dev"
 mkdir -p "${LOG_DIR}"
@@ -120,9 +145,12 @@ cleanup() {
 }
 trap cleanup INT TERM EXIT
 
-echo "Starting frontend (yarn start) — logs: ${FRONTEND_LOG}"
+echo "Starting frontend (yarn start:liveReload — webpack watch + LiveReload) — logs: ${FRONTEND_LOG}"
 : > "${FRONTEND_LOG}"
-( yarn start ) >>"${FRONTEND_LOG}" 2>&1 &
+# start:liveReload runs the same dev webpack as yarn start but passes
+# --env liveReload=1 so webpack-livereload-plugin injects the client; the
+# browser reloads after each successful compile (localhost:35750).
+( yarn start:liveReload ) >>"${FRONTEND_LOG}" 2>&1 &
 FRONTEND_PID=$!
 
 echo "Starting backend (make run, hot reload) on ${BASE_URL} — logs: ${BACKEND_LOG}"
