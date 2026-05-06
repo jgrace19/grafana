@@ -24,7 +24,7 @@ export function HomeThemeToggle() {
     <div
       className={styles.wrap}
       data-testid="home-theme-toggle"
-      style={{ top: chromeTop + theme.spacing(2) }}
+      style={{ top: `calc(${chromeTop}px + ${theme.spacing(2)})` }}
     >
       <Tooltip content={tooltip}>
         <InlineSwitch
