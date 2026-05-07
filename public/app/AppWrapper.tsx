@@ -1,3 +1,4 @@
+import { Global } from '@emotion/react';
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { UNSAFE_PortalProvider } from '@react-aria/overlays';
 import { type Action, KBarProvider } from 'kbar';
@@ -13,6 +14,7 @@ import { getAppRoutes } from 'app/routes/routes';
 import { store } from 'app/store/store';
 
 import { ExtensionSidebarContextProvider } from './core/components/AppChrome/ExtensionSidebar/ExtensionSidebarProvider';
+import { getPreloaderGlobalStyles } from './core/components/Preloader/preloader.styles';
 import { GrafanaContext, type GrafanaContextType } from './core/context/GrafanaContext';
 import { GrafanaRouteWrapper } from './core/navigation/GrafanaRoute';
 import { type RouteDescriptor } from './core/navigation/types';
@@ -134,6 +136,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
                         <ExtensionRegistriesProvider registries={registries}>
                           <ExtensionSidebarContextProvider>
                             <UNSAFE_PortalProvider getContainer={getPortalContainer}>
+                              <Global styles={getPreloaderGlobalStyles(config.theme2)} />
                               <GlobalStyles />
                               <div className="grafana-app">
                                 <RouterWrapper {...routerWrapperProps} />
