@@ -10,13 +10,23 @@ import {
   cacheFieldDisplayNames,
   applyNullInsertThreshold,
   nullToValue,
+  getFieldDisplayName,
 } from '@grafana/data';
 import { convertFieldType } from '@grafana/data/internal';
-import { type GraphFieldConfig, LineInterpolation, TooltipDisplayMode, type VizTooltipOptions } from '@grafana/schema';
+import {
+  type GraphFieldConfig,
+  GraphDrawStyle,
+  GraphGradientMode,
+  LineInterpolation,
+  TooltipDisplayMode,
+  type VizTooltipOptions,
+} from '@grafana/schema';
 import { type AdHocFilterItem } from '@grafana/ui';
 import { buildScaleKey, FILTER_FOR_OPERATOR } from '@grafana/ui/internal';
 
 import { type HeatmapTooltip } from '../heatmap/panelcfg.gen';
+
+import { type TrendOverlayOptions, TrendOverlayType } from './panelcfg.gen';
 
 type ScaleKey = string;
 
@@ -451,4 +461,275 @@ export function lttbPreviewData(data: PanelData, threshold = LTTB_THRESHOLD): Pa
       };
     }),
   };
+}
+
+// Minimum trailing window for the moving-average overlay
+const MIN_MOVING_AVERAGE_WINDOW = 2;
+// Minimum number of valid samples required to fit a regression line
+const MIN_REGRESSION_SAMPLES = 2;
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+// Trailing point-count moving average that includes the current point.
+// Skips null/non-finite values inside the window; emits null when the window
+// has zero valid samples.
+export function computeTrailingMovingAverage(values: ReadonlyArray<number | null>, window: number): Array<number | null> {
+  if (window < MIN_MOVING_AVERAGE_WINDOW) {
+    window = MIN_MOVING_AVERAGE_WINDOW;
+  }
+
+  const out: Array<number | null> = new Array(values.length);
+  let sum = 0;
+  let count = 0;
+
+  for (let i = 0; i < values.length; i++) {
+    const current = values[i];
+    if (isFiniteNumber(current)) {
+      sum += current;
+      count++;
+    }
+    if (i >= window) {
+      const dropped = values[i - window];
+      if (isFiniteNumber(dropped)) {
+        sum -= dropped;
+        count--;
+      }
+    }
+    out[i] = count > 0 ? sum / count : null;
+  }
+
+  return out;
+}
+
+// Simple linear regression y = m*x + b over paired (x, y) points, ignoring
+// pairs where either side is non-finite. Time x values are normalized to the
+// first valid x to avoid floating-point precision loss with epoch ms.
+// Returns predicted y values aligned to the input xs (null where the
+// corresponding x is non-finite or when fitting is not possible).
+export function computeLinearRegression(
+  xs: ReadonlyArray<number | null>,
+  ys: ReadonlyArray<number | null>
+): Array<number | null> | null {
+  if (xs.length !== ys.length || xs.length < MIN_REGRESSION_SAMPLES) {
+    return null;
+  }
+
+  let xOrigin: number | null = null;
+  for (let i = 0; i < xs.length; i++) {
+    const x = xs[i];
+    const y = ys[i];
+    if (isFiniteNumber(x) && isFiniteNumber(y)) {
+      xOrigin = x;
+      break;
+    }
+  }
+  if (xOrigin === null) {
+    return null;
+  }
+
+  let n = 0;
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
+
+  for (let i = 0; i < xs.length; i++) {
+    const rawX = xs[i];
+    const y = ys[i];
+    if (!isFiniteNumber(rawX) || !isFiniteNumber(y)) {
+      continue;
+    }
+    const x = rawX - xOrigin;
+    n++;
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+
+  if (n < MIN_REGRESSION_SAMPLES) {
+    return null;
+  }
+
+  const denom = n * sumXX - sumX * sumX;
+  if (denom === 0) {
+    // All x values are equal — slope is undefined; fall back to a flat line at
+    // the mean y so the overlay still renders something useful.
+    const meanY = sumY / n;
+    return xs.map((x) => (isFiniteNumber(x) ? meanY : null));
+  }
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  return xs.map((x) => (isFiniteNumber(x) ? slope * (x - xOrigin!) + intercept : null));
+}
+
+function buildOverlayField(
+  source: Field,
+  values: Array<number | null>,
+  overlayName: string,
+  type: TrendOverlayType,
+  theme: GrafanaTheme2
+): Field {
+  const sourceCustom: GraphFieldConfig = source.config?.custom ?? {};
+
+  // Keep numeric formatting (unit, decimals, axis placement, scale) consistent
+  // with the source series, but force a plain line with no fill or points so
+  // the overlay reads as a derived trendline instead of another data series.
+  const custom: GraphFieldConfig = {
+    ...sourceCustom,
+    drawStyle: GraphDrawStyle.Line,
+    lineInterpolation: LineInterpolation.Linear,
+    lineWidth: sourceCustom.lineWidth ?? 1,
+    fillOpacity: 0,
+    gradientMode: GraphGradientMode.None,
+    showPoints: undefined,
+    stacking: undefined,
+    thresholdsStyle: undefined,
+    pointSize: undefined,
+    spanNulls: type === TrendOverlayType.LinearRegression ? true : sourceCustom.spanNulls,
+  };
+
+  if (type === TrendOverlayType.LinearRegression) {
+    custom.lineStyle = { ...(sourceCustom.lineStyle ?? {}), fill: 'dash', dash: [10, 6] };
+  } else {
+    custom.lineStyle = { ...(sourceCustom.lineStyle ?? {}), fill: 'dash', dash: [4, 4] };
+  }
+
+  const overlay: Field = {
+    name: overlayName,
+    type: FieldType.number,
+    config: {
+      ...source.config,
+      displayName: overlayName,
+      displayNameFromDS: undefined,
+      links: undefined,
+      custom,
+    },
+    values,
+    labels: source.labels,
+    // Share palette color with the source by reusing its seriesIndex so users
+    // can visually pair an overlay with its data series.
+    state: {
+      seriesIndex: source.state?.seriesIndex,
+      displayName: overlayName,
+    },
+  };
+
+  overlay.display = getDisplayProcessor({ field: overlay, theme });
+
+  return overlay;
+}
+
+function buildOverlayFrame(
+  source: DataFrame,
+  timeField: Field,
+  overlayFields: Field[],
+  type: TrendOverlayType
+): DataFrame {
+  const suffix = type === TrendOverlayType.MovingAverage ? 'trend-overlay-mavg' : 'trend-overlay-linreg';
+  return {
+    name: source.name ? `${source.name} ${suffix}` : suffix,
+    refId: source.refId ? `${source.refId}-${suffix}` : suffix,
+    length: source.length,
+    fields: [timeField, ...overlayFields],
+    meta: {
+      ...source.meta,
+      // Mark the frame as a UI-derived overlay so it cannot be confused with
+      // datasource results during inspection or downstream transforms.
+      custom: {
+        ...source.meta?.custom,
+        trendOverlay: { sourceRefId: source.refId, type },
+      },
+    },
+  };
+}
+
+/**
+ * Returns the input frames plus one derived overlay frame per source frame,
+ * containing one trend series for each numeric field in the source. When
+ * disabled or when no overlays can be produced, the original frames are
+ * returned untouched (same array reference).
+ */
+export function appendTrendOverlayFrames(
+  frames: DataFrame[],
+  options: TrendOverlayOptions | undefined,
+  theme: GrafanaTheme2,
+  allFrames?: DataFrame[]
+): DataFrame[] {
+  if (!options?.enabled || !frames.length) {
+    return frames;
+  }
+
+  // The generated TrendOverlayType union still includes the literal default
+  // value, so normalize to the enum so downstream comparisons line up.
+  const type: TrendOverlayType =
+    options.type === TrendOverlayType.LinearRegression
+      ? TrendOverlayType.LinearRegression
+      : TrendOverlayType.MovingAverage;
+  const window = Math.max(MIN_MOVING_AVERAGE_WINDOW, Math.floor(options.windowSize ?? 0));
+  const namingFrames = allFrames ?? frames;
+
+  const out: DataFrame[] = [];
+  let added = false;
+
+  for (const frame of frames) {
+    out.push(frame);
+
+    // Skip time-compare frames so each compare frame doesn't double up the
+    // overlay; the base frame's overlay already covers the period.
+    if (frame.meta?.timeCompare?.isTimeShiftQuery) {
+      continue;
+    }
+
+    const timeField = frame.fields.find((f) => f.type === FieldType.time);
+    if (!timeField) {
+      continue;
+    }
+
+    const overlayFields: Field[] = [];
+
+    for (const field of frame.fields) {
+      if (field.type !== FieldType.number) {
+        continue;
+      }
+
+      const baseName = getFieldDisplayName(field, frame, namingFrames);
+
+      let values: Array<number | null> | null = null;
+      let overlayName: string;
+
+      if (type === TrendOverlayType.MovingAverage) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        values = computeTrailingMovingAverage(field.values as Array<number | null>, window);
+        overlayName = `${baseName} (moving avg, ${window}pt)`;
+      } else {
+        values = computeLinearRegression(
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          timeField.values as Array<number | null>,
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          field.values as Array<number | null>
+        );
+        overlayName = `${baseName} (trend)`;
+      }
+
+      if (!values) {
+        continue;
+      }
+
+      overlayFields.push(buildOverlayField(field, values, overlayName, type, theme));
+    }
+
+    if (overlayFields.length === 0) {
+      continue;
+    }
+
+    out.push(buildOverlayFrame(frame, timeField, overlayFields, type));
+    added = true;
+  }
+
+  return added ? out : frames;
 }
