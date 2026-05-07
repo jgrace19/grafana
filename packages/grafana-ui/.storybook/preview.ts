@@ -19,9 +19,13 @@ import { withTimeZone } from '../src/utils/storybook/withTimeZone';
 import { ThemedDocsContainer } from '../src/utils/storybook/ThemedDocsContainer';
 
 // @ts-ignore
+import fontAwesome from '../../../public/sass/base/_font_awesome.scss';
+// @ts-ignore
 import lightTheme from '../../../public/sass/grafana.light.scss';
 // @ts-ignore
 import darkTheme from '../../../public/sass/grafana.dark.scss';
+
+fontAwesome.use();
 
 const handleThemeChange = (theme: GrafanaTheme2) => {
   if (theme.colors.mode !== 'light') {
