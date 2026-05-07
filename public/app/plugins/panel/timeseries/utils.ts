@@ -19,6 +19,7 @@ import {
   GraphGradientMode,
   LineInterpolation,
   TooltipDisplayMode,
+  VisibilityMode,
   type VizTooltipOptions,
 } from '@grafana/schema';
 import { type AdHocFilterItem } from '@grafana/ui';
@@ -586,7 +587,7 @@ function buildOverlayField(
     lineWidth: sourceCustom.lineWidth ?? 1,
     fillOpacity: 0,
     gradientMode: GraphGradientMode.None,
-    showPoints: undefined,
+    showPoints: VisibilityMode.Never,
     stacking: undefined,
     thresholdsStyle: undefined,
     pointSize: undefined,
