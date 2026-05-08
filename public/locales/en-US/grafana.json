@@ -15461,6 +15461,18 @@
     "timezones-editor": {
       "tooltip-add-timezone": "Add timezone",
       "tooltip-remove-timezone": "Remove timezone"
+    },
+    "trend-overlay": {
+      "category": "Trend overlay",
+      "description-enabled": "Render an additional derived series (moving average or linear regression) on top of the original data",
+      "description-window-size": "Number of points used to compute the trailing moving average",
+      "name-enabled": "Show trend overlay",
+      "name-type": "Overlay type",
+      "name-window-size": "Window size",
+      "type-options": {
+        "label-linear-regression": "Linear regression",
+        "label-moving-average": "Moving average"
+      }
     }
   },
   "traces": {
