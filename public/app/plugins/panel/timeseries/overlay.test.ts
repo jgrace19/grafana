@@ -46,6 +46,14 @@ describe('linearRegression', () => {
     out.forEach((v, i) => expect(v).toBeCloseTo(2 * xs[i] + 1));
   });
 
+  it('stays numerically stable with epoch-millisecond timestamps', () => {
+    const start = 1_715_000_000_000;
+    const xs = Array.from({ length: 30 }, (_, i) => start + i * 1000);
+    const ys = Array.from({ length: 30 }, (_, i) => 10 + i * 3);
+    const out = linearRegression(xs, ys);
+    out.forEach((v, i) => expect(v).toBeCloseTo(ys[i], 8));
+  });
+
   it('predicts a value at every x even when ys contain nulls', () => {
     const xs = [1000, 2000, 3000, 4000, 5000];
     const ys = [null, 4, null, 8, null];
