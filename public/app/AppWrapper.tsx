@@ -1,3 +1,4 @@
+import { Global } from '@emotion/react';
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { UNSAFE_PortalProvider } from '@react-aria/overlays';
 import { type Action, KBarProvider } from 'kbar';
@@ -13,6 +14,7 @@ import { getAppRoutes } from 'app/routes/routes';
 import { store } from 'app/store/store';
 
 import { ExtensionSidebarContextProvider } from './core/components/AppChrome/ExtensionSidebar/ExtensionSidebarProvider';
+import { getPreloaderGlobalStyles } from './core/components/Preloader/preloader.styles';
 import { GrafanaContext, type GrafanaContextType } from './core/context/GrafanaContext';
 import { GrafanaRouteWrapper } from './core/navigation/GrafanaRoute';
 import { type RouteDescriptor } from './core/navigation/types';
@@ -124,6 +126,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
           <OpenFeatureProvider client={getFeatureFlagClient()}>
             <GrafanaContext.Provider value={context}>
               <ThemeProvider value={config.theme2}>
+                <Global styles={getPreloaderGlobalStyles(config.theme2)} />
                 <CacheProvider name={this.iconCacheID}>
                   <KBarProvider
                     actions={[]}
