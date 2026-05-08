@@ -4,8 +4,8 @@ import { locationUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { ToolbarButton, useTheme2 } from '@grafana/ui';
-import { changeTheme } from 'app/core/services/theme';
 import { contextSrv } from 'app/core/services/context_srv';
+import { changeTheme } from 'app/core/services/theme';
 
 export function HomeThemeToggleButton() {
   const location = useLocation();
