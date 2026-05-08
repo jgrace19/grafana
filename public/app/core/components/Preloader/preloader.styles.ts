@@ -24,7 +24,6 @@ export function getPreloaderGlobalStyles(theme: GrafanaTheme2) {
       height: '100%',
       width: '100%',
       margin: 0,
-      position: 'absolute',
     },
   });
 }
