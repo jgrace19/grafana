@@ -20,6 +20,7 @@ export function HomeThemeToggleButton() {
 export function ThemeToggleButton() {
   const theme = useTheme2();
   const nextTheme = theme.isDark ? 'light' : 'dark';
+  const ariaLabel = t('navigation.theme-toggle.label', 'Dark mode');
   const label = theme.isDark
     ? t('navigation.theme-toggle.switch-to-light', 'Switch to light mode')
     : t('navigation.theme-toggle.switch-to-dark', 'Switch to dark mode');
@@ -28,7 +29,7 @@ export function ThemeToggleButton() {
     <ToolbarButton
       iconOnly
       icon={theme.isDark ? 'toggle-on' : 'toggle-off'}
-      aria-label={label}
+      aria-label={ariaLabel}
       aria-pressed={theme.isDark}
       tooltip={label}
       onClick={() => {

@@ -38,7 +38,7 @@ describe('ThemeToggleButton', () => {
   it('switches to light mode from a dark active theme', async () => {
     const { user } = setup('dark');
 
-    const button = screen.getByRole('button', { name: 'Switch to light mode' });
+    const button = screen.getByRole('button', { name: 'Dark mode' });
     expect(button).toHaveAttribute('aria-pressed', 'true');
 
     await user.click(button);
@@ -50,7 +50,7 @@ describe('ThemeToggleButton', () => {
   it('switches to dark mode from a light active theme', async () => {
     const { user } = setup('light');
 
-    const button = screen.getByRole('button', { name: 'Switch to dark mode' });
+    const button = screen.getByRole('button', { name: 'Dark mode' });
     expect(button).toHaveAttribute('aria-pressed', 'false');
 
     await user.click(button);
