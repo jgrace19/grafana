@@ -1,8 +1,14 @@
 import { produce } from 'immer';
 
 import { type FieldConfigSource, type ThresholdsConfig } from '@grafana/data';
-import { GraphDrawStyle, type GraphFieldConfig, type GraphThresholdsStyleConfig, StackingMode } from '@grafana/schema';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import {
+  GraphDrawStyle,
+  type GraphFieldConfig,
+  type GraphThresholdsStyleConfig,
+  ScaleDistribution,
+  StackingMode,
+} from '@grafana/schema';
+import { type ExploreGraphStyle, type ExploreGraphYAxisScale } from 'app/types/explore';
 
 export type FieldConfig = FieldConfigSource<GraphFieldConfig>;
 
@@ -55,6 +61,34 @@ export function applyGraphStyle(config: FieldConfig, style: ExploreGraphStyle, m
         // enum-value
         const invalidValue: never = style;
         throw new Error(`Invalid graph-style: ${invalidValue}`);
+      }
+    }
+  });
+}
+
+export function applyGraphYAxisScale(config: FieldConfig, scale: ExploreGraphYAxisScale): FieldConfig {
+  return produce(config, (draft) => {
+    if (draft.defaults.custom === undefined) {
+      draft.defaults.custom = {};
+    }
+
+    switch (scale) {
+      case 'linear':
+        draft.defaults.custom.scaleDistribution = { type: ScaleDistribution.Linear };
+        break;
+      case 'log':
+        draft.defaults.custom.scaleDistribution = { type: ScaleDistribution.Log, log: 10 };
+        break;
+      case 'symlog':
+        draft.defaults.custom.scaleDistribution = {
+          type: ScaleDistribution.Symlog,
+          log: 10,
+          linearThreshold: 1,
+        };
+        break;
+      default: {
+        const invalidValue: never = scale;
+        throw new Error(`Invalid graph y-axis scale: ${invalidValue}`);
       }
     }
   });

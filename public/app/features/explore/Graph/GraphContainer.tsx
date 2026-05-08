@@ -12,15 +12,15 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { type GraphThresholdsStyleConfig, PanelChrome, type PanelChromeProps } from '@grafana/ui';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type GraphThresholdsStyleConfig, PanelChrome, type PanelChromeProps, Stack } from '@grafana/ui';
+import { type ExploreGraphStyle, type ExploreGraphYAxisScale as ExploreGraphYAxisScaleType } from 'app/types/explore';
 
 import { LimitedDataDisclaimer } from '../LimitedDataDisclaimer';
-import { storeGraphStyle } from '../state/utils';
 
 import { ExploreGraph } from './ExploreGraph';
 import { ExploreGraphLabel } from './ExploreGraphLabel';
-import { loadGraphStyle } from './utils';
+import { ExploreGraphYAxisScale } from './ExploreGraphYAxisScale';
+import { loadGraphStyle, loadGraphYAxisScale, storeGraphStyle, storeGraphYAxisScale } from './utils';
 
 const MAX_NUMBER_OF_TIME_SERIES = 20;
 
@@ -58,10 +58,16 @@ export const GraphContainer = ({
 }: Props) => {
   const [showAllSeries, toggleShowAllSeries] = useToggle(false);
   const [graphStyle, setGraphStyle] = useState(loadGraphStyle);
+  const [yAxisScale, setYAxisScale] = useState(loadGraphYAxisScale);
 
   const onGraphStyleChange = useCallback((graphStyle: ExploreGraphStyle) => {
     storeGraphStyle(graphStyle);
     setGraphStyle(graphStyle);
+  }, []);
+
+  const onYAxisScaleChange = useCallback((scale: ExploreGraphYAxisScaleType) => {
+    storeGraphYAxisScale(scale);
+    setYAxisScale(scale);
   }, []);
 
   const slicedData = useMemo(() => {
@@ -93,11 +99,17 @@ export const GraphContainer = ({
       height={height}
       loadingState={loadingState}
       statusMessage={statusMessage}
-      actions={<ExploreGraphLabel graphStyle={graphStyle} onChangeGraphStyle={onGraphStyleChange} />}
+      actions={
+        <Stack direction="row" gap={1} alignItems="center">
+          <ExploreGraphYAxisScale yAxisScale={yAxisScale} onChangeYAxisScale={onYAxisScaleChange} />
+          <ExploreGraphLabel graphStyle={graphStyle} onChangeGraphStyle={onGraphStyleChange} />
+        </Stack>
+      }
     >
       {(innerWidth, innerHeight) => (
         <ExploreGraph
           graphStyle={graphStyle}
+          yAxisScale={yAxisScale}
           data={slicedData}
           height={innerHeight}
           width={innerWidth}
