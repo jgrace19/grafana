@@ -109,7 +109,25 @@ export function linearRegressionTrend(
   return { xs: outX, ys: outY };
 }
 
-const MAX_FIELD_VALUE = (field: Field): Array<number | null> => field.values as Array<number | null>;
+// uPlot/Grafana represent numeric series values as (number | null)[] but the
+// DataFrame type-erases them to unknown[]; treat them as such for math.
+function readNumericValues(field: Field): Array<number | null> {
+  const out: Array<number | null> = new Array(field.values.length);
+  for (let i = 0; i < field.values.length; i++) {
+    const v = field.values[i];
+    out[i] = typeof v === 'number' && Number.isFinite(v) ? v : null;
+  }
+  return out;
+}
+
+function readTimeValues(field: Field): number[] {
+  const out: number[] = new Array(field.values.length);
+  for (let i = 0; i < field.values.length; i++) {
+    const v = field.values[i];
+    out[i] = typeof v === 'number' ? v : Number(v);
+  }
+  return out;
+}
 
 /**
  * Append trend-overlay derived series to a list of prepared frames.
@@ -150,7 +168,7 @@ export function appendTrendOverlayFrames(
 
       for (const numericField of numericFields) {
         const sourceName = getFieldDisplayName(numericField, frame, frames);
-        const movingAvg = trailingMovingAverage(MAX_FIELD_VALUE(numericField), windowSize);
+        const movingAvg = trailingMovingAverage(readNumericValues(numericField), windowSize);
         overlayFields.push({
           name: `${sourceName} (MA${windowSize})`,
           type: FieldType.number,
@@ -170,14 +188,15 @@ export function appendTrendOverlayFrames(
       }
     } else if (options.type === TrendOverlayType.LinearRegression) {
       const predictionCount = Math.max(2, Math.floor(options.predictionCount ?? 100));
-      const xs = timeField.values as number[];
+      const xs = readTimeValues(timeField);
 
-      const trendsByField = numericFields
-        .map((numericField) => ({
-          numericField,
-          trend: linearRegressionTrend(xs, MAX_FIELD_VALUE(numericField), predictionCount),
-        }))
-        .filter((t) => t.trend != null) as Array<{ numericField: Field; trend: { xs: number[]; ys: number[] } }>;
+      const trendsByField: Array<{ numericField: Field; trend: { xs: number[]; ys: number[] } }> = [];
+      for (const numericField of numericFields) {
+        const trend = linearRegressionTrend(xs, readNumericValues(numericField), predictionCount);
+        if (trend != null) {
+          trendsByField.push({ numericField, trend });
+        }
+      }
 
       if (trendsByField.length === 0) {
         continue;

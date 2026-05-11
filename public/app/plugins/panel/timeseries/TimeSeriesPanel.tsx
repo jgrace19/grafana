@@ -24,13 +24,13 @@ import { TimeSeries } from 'app/core/components/TimeSeries/TimeSeries';
 
 import { TimeSeriesTooltip } from './TimeSeriesTooltip';
 import { type Options } from './panelcfg.gen';
-import { appendTrendOverlayFrames } from './trendOverlay';
 import { AnnotationsPlugin } from './plugins/AnnotationPlugin';
 import { ExemplarsPlugin, getVisibleLabels } from './plugins/ExemplarsPlugin';
 import { OutsideRangePlugin } from './plugins/OutsideRangePlugin';
 import { ThresholdControlsPlugin } from './plugins/ThresholdControlsPlugin';
 import { getXAnnotationFrames } from './plugins/utils';
 import { getPrepareTimeseriesSuggestion } from './suggestions';
+import { appendTrendOverlayFrames } from './trendOverlay';
 import { getGroupedFilters, getTimezones, prepareGraphableFields } from './utils';
 
 interface TimeSeriesPanelProps extends PanelProps<Options> {}
@@ -67,9 +67,9 @@ export const TimeSeriesPanel = ({
   // It is simplified version of horizontal time series panel and it does not support all plugins.
   const isVerticallyOriented = options.orientation === VizOrientation.Vertical;
   const { frames, compareDiffMs } = useMemo(() => {
-    let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
-    if (frames != null) {
-      frames = appendTrendOverlayFrames(frames, options.trendOverlay);
+    const prepared = prepareGraphableFields(data.series, config.theme2, timeRange);
+    if (prepared != null) {
+      const frames: DataFrame[] = appendTrendOverlayFrames(prepared, options.trendOverlay);
 
       let compareDiffMs: number[] = [0];
 
@@ -96,7 +96,7 @@ export const TimeSeriesPanel = ({
       return { frames, compareDiffMs };
     }
 
-    return { frames };
+    return { frames: prepared };
   }, [data.series, timeRange, options.trendOverlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
