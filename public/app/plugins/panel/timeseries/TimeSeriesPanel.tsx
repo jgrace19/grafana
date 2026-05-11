@@ -24,6 +24,7 @@ import { TimeSeries } from 'app/core/components/TimeSeries/TimeSeries';
 
 import { TimeSeriesTooltip } from './TimeSeriesTooltip';
 import { type Options } from './panelcfg.gen';
+import { appendTrendOverlayFrames } from './trendOverlay';
 import { AnnotationsPlugin } from './plugins/AnnotationPlugin';
 import { ExemplarsPlugin, getVisibleLabels } from './plugins/ExemplarsPlugin';
 import { OutsideRangePlugin } from './plugins/OutsideRangePlugin';
@@ -68,6 +69,8 @@ export const TimeSeriesPanel = ({
   const { frames, compareDiffMs } = useMemo(() => {
     let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
     if (frames != null) {
+      frames = appendTrendOverlayFrames(frames, options.trendOverlay);
+
       let compareDiffMs: number[] = [0];
 
       frames.forEach((frame: DataFrame) => {
@@ -94,7 +97,7 @@ export const TimeSeriesPanel = ({
     }
 
     return { frames };
-  }, [data.series, timeRange]);
+  }, [data.series, timeRange, options.trendOverlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
