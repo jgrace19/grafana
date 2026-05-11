@@ -85,15 +85,24 @@ export function linearRegressionTrend(
 
   const validX: number[] = [];
   const validY: number[] = [];
+  let validXMin = Infinity;
+  let validXMax = -Infinity;
   for (let i = 0; i < xs.length; i++) {
     const x = xs[i];
     const y = ys[i];
     if (Number.isFinite(x) && y != null && Number.isFinite(y)) {
-      validX.push(x - xMin);
+      const normalizedX = x - xMin;
+      validX.push(normalizedX);
       validY.push(y);
+      if (normalizedX < validXMin) {
+        validXMin = normalizedX;
+      }
+      if (normalizedX > validXMax) {
+        validXMax = normalizedX;
+      }
     }
   }
-  if (validX.length < 2) {
+  if (validX.length < 2 || validXMin === validXMax) {
     return null;
   }
 

@@ -66,6 +66,10 @@ describe('linearRegressionTrend', () => {
     expect(linearRegressionTrend([5, 5, 5], [1, 2, 3], 5)).toBeNull();
   });
 
+  it('returns null when valid X values become degenerate after filtering nulls', () => {
+    expect(linearRegressionTrend([0, 1, 1, 2], [null, 5, 6, null], 5)).toBeNull();
+  });
+
   it('honors predictionCount and spans full X domain', () => {
     const result = linearRegressionTrend([0, 10], [0, 10], 11);
     expect(result).not.toBeNull();
