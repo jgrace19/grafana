@@ -480,8 +480,6 @@ export function computeLinearRegression(
   let n = 0;
   let sumX = 0;
   let sumY = 0;
-  let sumXX = 0;
-  let sumXY = 0;
 
   for (let i = 0; i < ys.length; i++) {
     const x = xs[i];
@@ -490,8 +488,6 @@ export function computeLinearRegression(
       n++;
       sumX += x;
       sumY += y;
-      sumXX += x * x;
-      sumXY += x * y;
     }
   }
 
@@ -499,13 +495,28 @@ export function computeLinearRegression(
     return out;
   }
 
-  const denom = n * sumXX - sumX * sumX;
-  if (denom === 0) {
+  const meanX = sumX / n;
+  const meanY = sumY / n;
+
+  let sumXX = 0;
+  let sumXY = 0;
+
+  for (let i = 0; i < ys.length; i++) {
+    const x = xs[i];
+    const y = ys[i];
+    if (isFiniteNumber(x) && isFiniteNumber(y)) {
+      const centeredX = x - meanX;
+      sumXX += centeredX * centeredX;
+      sumXY += centeredX * (y - meanY);
+    }
+  }
+
+  if (sumXX === 0) {
     return out;
   }
 
-  const slope = (n * sumXY - sumX * sumY) / denom;
-  const intercept = (sumY - slope * sumX) / n;
+  const slope = sumXY / sumXX;
+  const intercept = meanY - slope * meanX;
 
   for (let i = 0; i < ys.length; i++) {
     const x = xs[i];

@@ -475,6 +475,16 @@ describe('computeLinearRegression', () => {
     expect(out[3]).toBeCloseTo(7, 5);
     expect(out[4]).toBeCloseTo(9, 5);
   });
+
+  it('remains stable for epoch-millisecond timestamps', () => {
+    const base = 1700000000000;
+    const xs = Array.from({ length: 60 }, (_, i) => base + i * 1000);
+    const ys = Array.from({ length: 60 }, (_, i) => i);
+
+    const out = computeLinearRegression(xs, ys) as number[];
+    expect(out[0]).toBeCloseTo(0, 5);
+    expect(out[59]).toBeCloseTo(59, 5);
+  });
 });
 
 describe('applyOverlay', () => {
