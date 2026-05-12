@@ -18,6 +18,8 @@ import { buildScaleKey, FILTER_FOR_OPERATOR } from '@grafana/ui/internal';
 
 import { type HeatmapTooltip } from '../heatmap/panelcfg.gen';
 
+import { type TimeSeriesOverlayOptions, TimeSeriesOverlayType } from './panelcfg.gen';
+
 type ScaleKey = string;
 
 // this will re-enumerate all enum fields on the same scale to create one ordinal progression
@@ -419,6 +421,203 @@ function lttbIndices(xs: number[], ys: number[], threshold: number): number[] {
   }
 
   return indices;
+}
+
+const MIN_OVERLAY_WINDOW = 2;
+
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v);
+}
+
+/**
+ * Computes a centered-trailing moving average over `values` with window size `window`.
+ * Treats null/NaN/Infinity as missing; produces null until enough valid samples are available.
+ * Pure function — does not mutate the input array.
+ */
+export function computeMovingAverage(values: Array<number | null>, window: number): Array<number | null> {
+  const w = Math.max(MIN_OVERLAY_WINDOW, Math.floor(window));
+  const out: Array<number | null> = new Array(values.length).fill(null);
+
+  if (values.length === 0) {
+    return out;
+  }
+
+  // Sliding sum over the last `w` valid samples.
+  const buffer: number[] = [];
+  let sum = 0;
+
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i];
+
+    if (isFiniteNumber(v)) {
+      buffer.push(v);
+      sum += v;
+
+      if (buffer.length > w) {
+        sum -= buffer.shift()!;
+      }
+
+      if (buffer.length === w) {
+        out[i] = sum / w;
+      }
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Computes a simple linear regression (least squares) trendline over `(x, y)`.
+ * Skips entries where either x or y is non-finite. Returns null values when
+ * fewer than 2 valid points exist or x has no variance.
+ */
+export function computeLinearRegression(
+  xs: Array<number | null>,
+  ys: Array<number | null>
+): Array<number | null> {
+  const out: Array<number | null> = new Array(ys.length).fill(null);
+
+  let n = 0;
+  let sumX = 0;
+  let sumY = 0;
+  let sumXX = 0;
+  let sumXY = 0;
+
+  for (let i = 0; i < ys.length; i++) {
+    const x = xs[i];
+    const y = ys[i];
+    if (isFiniteNumber(x) && isFiniteNumber(y)) {
+      n++;
+      sumX += x;
+      sumY += y;
+      sumXX += x * x;
+      sumXY += x * y;
+    }
+  }
+
+  if (n < 2) {
+    return out;
+  }
+
+  const denom = n * sumXX - sumX * sumX;
+  if (denom === 0) {
+    return out;
+  }
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  for (let i = 0; i < ys.length; i++) {
+    const x = xs[i];
+    if (isFiniteNumber(x)) {
+      out[i] = slope * x + intercept;
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Builds an overlay field that mirrors the source field's visual identity
+ * (palette index + display processor) but renders as a dashed, thinner line.
+ */
+function buildOverlayField(source: Field, name: string, values: Array<number | null>): Field {
+  const sourceCustom: GraphFieldConfig = source.config?.custom ?? {};
+
+  const custom: GraphFieldConfig = {
+    ...sourceCustom,
+    lineWidth: 1,
+    lineStyle: { fill: 'dash', dash: [10, 10] },
+    // Overlay is purely derived — don't let it participate in stacking or fills.
+    stacking: undefined,
+    fillOpacity: 0,
+    showPoints: undefined,
+    // Don't surface overlay points as data links from the source field.
+    hideFrom: { ...(sourceCustom.hideFrom ?? {}), tooltip: false, legend: false, viz: false },
+  };
+
+  const overlay: Field = {
+    ...source,
+    name,
+    state: { ...source.state, displayName: name },
+    config: {
+      ...source.config,
+      displayName: undefined,
+      displayNameFromDS: undefined,
+      custom,
+      links: undefined,
+    },
+    values,
+    labels: undefined,
+    getLinks: undefined,
+  };
+
+  return overlay;
+}
+
+/**
+ * Given a set of graphable frames (output of `prepareGraphableFields`), returns a new
+ * set of frames with overlay fields appended per numeric series. The original frames
+ * and fields are not mutated.
+ *
+ * Returns the input list unchanged when overlay is disabled or no eligible series exist.
+ */
+export function applyOverlay(frames: DataFrame[], overlay: TimeSeriesOverlayOptions | undefined): DataFrame[] {
+  if (!overlay?.enabled || !frames.length) {
+    return frames;
+  }
+
+  const type = overlay.type ?? TimeSeriesOverlayType.MovingAverage;
+  const window = Math.max(MIN_OVERLAY_WINDOW, Math.floor(overlay.movingAverageWindow ?? MIN_OVERLAY_WINDOW));
+  const suffix =
+    type === TimeSeriesOverlayType.LinearRegression ? '(trend)' : `(MA ${window})`;
+
+  let mutated = false;
+
+  const out = frames.map((frame) => {
+    const timeField = frame.fields.find((f) => f.type === FieldType.time);
+    if (!timeField) {
+      return frame;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const xs = timeField.values as Array<number | null>;
+    const overlayFields: Field[] = [];
+
+    for (const field of frame.fields) {
+      if (field.type !== FieldType.number) {
+        continue;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const ys = field.values as Array<number | null>;
+      const overlayValues =
+        type === TimeSeriesOverlayType.LinearRegression
+          ? computeLinearRegression(xs, ys)
+          : computeMovingAverage(ys, window);
+
+      // Skip series with no resolvable overlay (e.g. too few valid points).
+      if (overlayValues.every((v) => v == null)) {
+        continue;
+      }
+
+      overlayFields.push(
+        buildOverlayField(field, `${field.name} ${suffix}`, overlayValues)
+      );
+    }
+
+    if (!overlayFields.length) {
+      return frame;
+    }
+
+    mutated = true;
+    return {
+      ...frame,
+      fields: [...frame.fields, ...overlayFields],
+    };
+  });
+
+  return mutated ? out : frames;
 }
 
 // Downsamples each frame using the first numeric field to compute LTTB indices,
