@@ -30,7 +30,7 @@ import { OutsideRangePlugin } from './plugins/OutsideRangePlugin';
 import { ThresholdControlsPlugin } from './plugins/ThresholdControlsPlugin';
 import { getXAnnotationFrames } from './plugins/utils';
 import { getPrepareTimeseriesSuggestion } from './suggestions';
-import { getGroupedFilters, getTimezones, prepareGraphableFields } from './utils';
+import { applyOverlay, getGroupedFilters, getTimezones, prepareGraphableFields } from './utils';
 
 interface TimeSeriesPanelProps extends PanelProps<Options> {}
 
@@ -65,12 +65,15 @@ export const TimeSeriesPanel = ({
   // Vertical orientation is not available for users through config.
   // It is simplified version of horizontal time series panel and it does not support all plugins.
   const isVerticallyOriented = options.orientation === VizOrientation.Vertical;
-  const { frames, compareDiffMs } = useMemo(() => {
-    let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
+  const { frames, compareDiffMs } = useMemo<{ frames: DataFrame[] | null; compareDiffMs?: number[] }>(() => {
+    let frames: DataFrame[] | null = prepareGraphableFields(data.series, config.theme2, timeRange);
     if (frames != null) {
+      frames = applyOverlay(frames, options.overlay);
+      const aligned: DataFrame[] = frames;
+
       let compareDiffMs: number[] = [0];
 
-      frames.forEach((frame: DataFrame) => {
+      aligned.forEach((frame: DataFrame) => {
         const diffMs = frame.meta?.timeCompare?.diffMs ?? 0;
 
         frame.fields.forEach((field) => {
@@ -82,7 +85,7 @@ export const TimeSeriesPanel = ({
         if (diffMs !== 0) {
           // Check if the compared frame needs time alignment
           // Apply alignment when time ranges match (no shift applied yet)
-          const needsAlignment = shouldAlignTimeCompare(frame, frames, timeRange);
+          const needsAlignment = shouldAlignTimeCompare(frame, aligned, timeRange);
 
           if (needsAlignment) {
             alignTimeRangeCompareData(frame, diffMs, config.theme2);
@@ -90,11 +93,11 @@ export const TimeSeriesPanel = ({
         }
       });
 
-      return { frames, compareDiffMs };
+      return { frames: aligned, compareDiffMs };
     }
 
     return { frames };
-  }, [data.series, timeRange]);
+  }, [data.series, timeRange, options.overlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
