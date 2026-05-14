@@ -25,7 +25,6 @@ export function ThemeToggleButton() {
       iconOnly
       icon={icon}
       aria-label={label}
-      aria-pressed={theme.isDark}
       tooltip={label}
       onClick={onToggleTheme}
     />
