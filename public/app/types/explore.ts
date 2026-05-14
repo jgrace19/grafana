@@ -109,6 +109,14 @@ export interface ExploreState {
 export const EXPLORE_GRAPH_STYLES = ['lines', 'bars', 'points', 'stacked_lines', 'stacked_bars'] as const;
 export type ExploreGraphStyle = (typeof EXPLORE_GRAPH_STYLES)[number];
 
+export const EXPLORE_GRAPH_SCALES = ['linear', 'log'] as const;
+export type ExploreGraphScale = (typeof EXPLORE_GRAPH_SCALES)[number];
+
+// Stacked styles compose additively, log scales compose multiplicatively;
+// the combination renders nonsense, so the UI disables Log when stacked.
+export const STACKED_GRAPH_STYLES: readonly ExploreGraphStyle[] = ['stacked_lines', 'stacked_bars'];
+export const isStackedGraphStyle = (style: ExploreGraphStyle): boolean => STACKED_GRAPH_STYLES.includes(style);
+
 export interface ExploreItemState {
   /**
    * Width used for calculating the graph interval (can't have more datapoints than pixels)
