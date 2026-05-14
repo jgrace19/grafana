@@ -39,7 +39,7 @@ export function ExploreGraphLabel(props: Props) {
   ];
 
   return (
-    <Stack direction="row" gap={1} wrap="wrap" alignItems="center">
+    <Stack direction="row" gap={2} wrap="wrap" alignItems="center">
       <RadioButtonGroup
         size="sm"
         options={ALL_GRAPH_STYLE_OPTIONS}
