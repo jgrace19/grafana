@@ -87,9 +87,11 @@ func TestDashboardServiceValidation(t *testing.T) {
 			dto.Dashboard = dashboards.NewDashboard("Dash")
 			dto.Message = `Here we go, 500+ characters for testing. I'm sorry that you're
 			having to read this. I spent too long trying to come up with something clever
-			to say or a funny joke. Unforuntately, nothing came to mind. So instead, I'm
+			to say or a funny joke. Why did the dashboard bring a ladder to the metrics
+			meeting? Because the alerts kept saying the numbers were climbing, and it wanted
+			to reach the top of the stack trace before anyone got paged. So instead, I
 			will share this with you, as a form of payment for having to read this:
-			https://youtu.be/dQw4w9WgXcQ?si=KeoTIpn9tUtQnOBk! Enjoy :) Now lets see if
+			https://youtu.be/dQw4w9WgXcQ?si=KeoTIpn9tUtQnOBk! Enjoy :) Now let's see if
 			this test passes or if the result is more exciting than these 500 characters
 			I wrote. Best of luck to the both of us!!`
 			_, err := service.SaveDashboard(ctx, dto, false)
