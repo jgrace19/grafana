@@ -1,0 +1,4 @@
+// Font Awesome assets live under public/fonts/. Paths must be relative to this file
+// so webpack/css-loader can resolve them when the bundle entry imports from public/app/.
+$fa-font-path: '../../fonts';
+@import '../../sass/base/font_awesome';
