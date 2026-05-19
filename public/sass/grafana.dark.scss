@@ -1,3 +1,7 @@
+// Html/body base styles for dark chrome are injected via Emotion in
+// `public/app/core/theme/registerDarkThemePreloaderGlobals.ts` (boot data theme).
+// Sass remains here for FontAwesome + Angular legacy bundles until removed.
 @import 'variables.generated';
 @import 'variables.dark.generated';
-@import 'grafana';
+@import 'base/font_awesome';
+@import 'angular';
