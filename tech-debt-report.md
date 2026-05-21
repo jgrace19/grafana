@@ -1,174 +1,77 @@
-# Tech Debt Report — All Scopes — 2026-04-14
+# Tech Debt Report — all — 2026-05-21
 
 ## Hotspots (high debt × high churn)
+Priority score = debt_signals × log2(commits + 1) with lookback `6 months`.
 
-Priority score = debt signals × log₂(commits + 1)
-
-| Rank | Area | Debt Signals | Commits (6mo) | Priority Score |
-|------|------|-------------|----------------|----------------|
-| 1 | `public/app/features/dashboard/` | 28 (10 class, 6 connect, 4 stylesFactory, 8 other) | 176 | 209 |
-| 2 | `public/app/plugins/` | 21 (11 class, 1 connect, 5 stylesFactory, 4 other) | 366 | 180 |
-| 3 | `public/app/features/explore/` | 14 (6 class, 4 connect, 3 stylesFactory, 1 unsafe lifecycle) | 110 | 96 |
-| 4 | `public/app/features/alerting/` | 11 (1 class, 0 connect, 0 stylesFactory, 10 @deprecated/any) | 273 | 92 |
-| 5 | `public/app/core/` | 5 (2 class, 0 connect, 1 stylesFactory, 2 other) | 193 | 39 |
-| 6 | `public/app/features/variables/` | 8 (4 class, 4 connect) | 23 | 37 |
-| 7 | `public/app/features/query/` | 5 (3 class, 0 connect, 1 stylesFactory, 1 other) | 27 | 24 |
-| 8 | `public/app/features/dashboard-scene/` | 0 legacy class/connect, moderate any/TODO | 552 | low (modern code) |
-| 9 | `pkg/registry/` | high TODO/nolint density | 636 | backend hotspot |
-| 10 | `pkg/services/ngalert/` | high TODO/nolint density | 185 | backend hotspot |
+| Rank | Area | Signals | Distinct Files | Commits (6 months) | Priority Score |
+|------|------|---------|----------------|--------------------|----------------|
+| 1 | `pkg/registry/` | 327 | 134 | 526 | 2956.62 |
+| 2 | `pkg/tests/` | 322 | 62 | 469 | 2858.24 |
+| 3 | `public/app/plugins/datasource/` | 285 | 75 | 148 | 2057.46 |
+| 4 | `pkg/storage/` | 240 | 72 | 325 | 2003.69 |
+| 5 | `pkg/services/ngalert/` | 211 | 95 | 162 | 1550.58 |
+| 6 | `public/app/features/dashboard/` | 151 | 52 | 136 | 1071.8 |
+| 7 | `public/app/features/alerting/` | 132 | 88 | 225 | 1032.26 |
+| 8 | `pkg/services/libraryelements/` | 122 | 14 | 13 | 464.5 |
+| 9 | `public/app/plugins/panel/` | 115 | 68 | 146 | 827.96 |
+| 10 | `pkg/api/` | 113 | 38 | 120 | 781.83 |
 
 ## Frontend Modernization
-
-### Class Components: 61 files
-
-Top areas:
-- `features/dashboard/` — 10 files (`DashboardPage`, `DashboardPanel`, `DashboardGrid`, `PanelEditor`, `SubMenu`, `ShareSnapshot`, `VersionsSettings`, `DashboardRow`, `PanelEditorQueries`, `PanelStateWrapper`)
-- `features/explore/` — 6 files (`Explore`, `LogsContainer`, `LiveLogs`, `TableContainer`, `TraceTimelineViewer`, `TraceView DraggableManager demos`)
-- `features/variables/` — 4 files (`QueryVariableEditor`, `OptionsPicker`, `VariableEditorEditor`, `VariableEditorContainer`)
-- `plugins/panel/` — 7 files (`CanvasPanel`, `GeomapPanel`, `LivePanel`, `GettingStarted`, `BarGaugePanel`, `AnnoListPanel`, debug panels)
-- `plugins/datasource/` — 8 files (InfluxDB, Graphite, Loki, Tempo, AzureMonitor, CloudMonitoring, Pyroscope editors)
-- `features/query/` — 3 files (`QueryGroup`, `QueryEditorRows`, `QueryEditorRow`)
-- `features/logs/` — 2 files (`LogMessageAnsi`, `LogDetailsRow`)
-
-### connect() HOC (Redux): 41 files
-
-Top areas:
-- `features/dashboard/` — 6 files (`DashboardPage`, `DashboardPanel`, `PanelEditor`, `SubMenu`, `DashNav`, `GeneralSettings`)
-- `features/explore/` — 7 files (`Explore`, `LogsContainer`, `TableContainer`, `RichHistoryContainer`, `ExploreQueryInspector`, `ExplorePaneContainer`, `NodeGraphContainer`)
-- `features/admin/` — 4 files (`UserAdminPage`, `UpgradePage`, `UserListAnonymousPage`, `UserListAdminPage`, `LdapSettingsPage`)
-- `features/variables/` — 4 files (`QueryVariableEditor`, `OptionsPicker`, `VariableEditorEditor`, `VariableEditorContainer`)
-
-### Unsafe Lifecycle Methods: 1 file
-
-- `public/app/features/explore/TraceView/components/TraceTimelineViewer/TimelineHeaderRow/TimelineViewingLayer.tsx` — uses `UNSAFE_componentWillReceiveProps`
-
-### Legacy `stylesFactory`: 16 files
-
-- `features/explore/TraceView/` — 7 files (SpanBarRow, SpanDetailRow, SpanTreeOffset, VirtualizedTraceView, ViewingLayer, TimelineViewingLayer, TraceTimelineViewer index)
-- `features/dashboard/` — 2 files (SubMenu, PanelEditor)
-- `features/query/` — 1 file (QueryGroup)
-- `features/inspector/` — 1 file (styles.ts)
-- `plugins/panel/` — 3 files (GettingStarted, LivePanel, LiveChannelEditor, AnnoListPanel)
-- `plugins/datasource/graphite/` — 1 file (MetricTankMetaInspector)
+- **Class components**: 61 files
+- **connect() HOC**: 41 files
+- **Unsafe lifecycles**: 1 files
+- **stylesFactory**: 16 files
 
 ## Type Safety
-
-### Explicit `any`: ~393 occurrences across ~137 files
-
-Worst offenders (by occurrence count):
-- `public/app/features/dashboard/state/DashboardModel.ts` — 23
-- `public/app/core/time_series2.ts` — 19
-- `public/app/plugins/datasource/opentsdb/datasource.ts` — 16
-- `public/app/features/dashboard/state/DashboardMigrator.ts` — 16
-- `public/app/features/dashboard/state/PanelModel.ts` — 13
-- `public/app/plugins/datasource/influxdb/query_part.ts` — 12
-- `public/app/plugins/datasource/influxdb/datasource.ts` — 11
-- `public/app/features/alerting/state/query_part.ts` — 10
-- `public/app/plugins/datasource/graphite/graphite_query.ts` — 9
-- `public/app/features/explore/TraceView/components/model/link-patterns.tsx` — 9
-- `public/app/features/templating/template_srv.ts` — 8
-
-### `@deprecated` APIs: ~51 files (non-generated)
-
-Key files with deprecated APIs still defined:
-- `public/app/features/dashboard/state/DashboardModel.ts`
-- `public/app/core/services/backend_srv.ts`
-- `public/app/features/templating/template_srv.ts`
-- `public/app/types/events.ts`
-- `public/app/core/time_series2.ts`
+- **Explicit `any`**: 393 occurrences across 137 files
+- **@deprecated APIs**: 46 files
 
 ## Comment Debt
-
-### Frontend TODO/FIXME/HACK/XXX: ~618 occurrences across ~337 files
-
-Highest-density files (sampled):
-- `public/app/plugins/datasource/azuremonitor/components/ConfigEditor/AppRegistrationCredentials.tsx` — 36
-- `public/app/plugins/datasource/prometheus/configuration/AzureCredentialsForm.tsx` — 27
-- `public/app/plugins/datasource/mssql/azureauth/AzureCredentialsForm.tsx` — 27
-- `public/app/plugins/datasource/mssql/azureauth/AzureAuth.test.ts` — 18
-
-### Backend TODO/FIXME/HACK/XXX: ~894 occurrences across ~453 files
-
-Highest-density files (sampled):
-- `pkg/storage/secret/metadata/query.go` — 17
-- `pkg/storage/unified/testing/kv.go` — 16
-- `pkg/tests/api/alerting/api_ruler_test.go` — 25 (test file)
-- `pkg/registry/apis/provisioning/register.go` — 10
-- `pkg/services/org/orgimpl/org.go` — 10
-- `pkg/storage/unified/resource/datastore.go` — 10
+- **Frontend TODO/FIXME/HACK**: 602 occurrences
+- **Backend TODO/FIXME/HACK**: 894 occurrences
 
 ## Go Quality
+- **nolint directives**: 1274 occurrences
+- **Oversized files (>800 loc)**: 66 files
+- **Deprecated Go APIs**: 65 files
 
-### `nolint` Directives: ~1,275 occurrences across ~500+ files
-
-Highest-density files:
-- `pkg/tests/api/alerting/api_ruler_test.go` — 25
-- `pkg/tests/api/annotations/annotations_test.go` — 19
-- `pkg/services/libraryelements/libraryelements_patch_test.go` — 19
-- `pkg/services/preference/prefimpl/store_test.go` — 17
-- `pkg/tests/api/dashboards/api_dashboards_test.go` — 42
-- `pkg/services/preference/prefimpl/pref_test.go` — 16
-- `pkg/services/libraryelements/libraryelements_get_all_test.go` — 42
-
-### Oversized Non-Test Go Files (>800 loc): 67 files
-
-Top actionable files (excluding generated code like wire_gen.go, zz_generated*.go):
-
+### Top oversized Go files
 | File | Lines |
 |------|-------|
+| `pkg/tests/apis/provisioning/common/testing.go` | 2835 |
 | `pkg/services/featuremgmt/registry.go` | 2828 |
+| `pkg/storage/unified/testing/storage_backend_sql_compatibility.go` | 2674 |
+| `pkg/apiserver/storage/testing/store_tests.go` | 2667 |
 | `pkg/setting/setting.go` | 2432 |
 | `pkg/services/dashboards/service/dashboard_service.go` | 2410 |
 | `pkg/storage/unified/search/bleve.go` | 2192 |
 | `pkg/storage/unified/resource/storage_backend.go` | 2189 |
 | `pkg/util/xorm/core/core.go` | 2176 |
+| `pkg/storage/unified/testing/storage_backend.go` | 2087 |
 | `pkg/storage/unified/resource/server.go` | 1941 |
 | `pkg/services/ngalert/store/alert_rule.go` | 1873 |
-| `pkg/registry/apis/provisioning/register.go` | 1579 |
-| `pkg/storage/unified/resource/search.go` | 1551 |
-| `pkg/services/live/live.go` | 1477 |
-| `pkg/storage/unified/sql/backend.go` | 1426 |
-| `pkg/services/ngalert/api/prometheus/api_prometheus.go` | 1395 |
-| `pkg/services/ngalert/models/alert_rule.go` | 1322 |
-| `pkg/api/dashboard.go` | 1290 |
-
-*Note*: `registry.go` (2828 loc) is a feature toggle registry — consider splitting by feature area. `setting.go` (2432 loc) and `dashboard_service.go` (2410 loc) are high-churn files that would benefit from modularization.
-
-### Deprecated Go APIs: ~77 files (non-generated)
+| `pkg/tests/api/alerting/testing.go` | 1689 |
+| `pkg/services/ngalert/models/testing.go` | 1650 |
+| `pkg/apiserver/storage/testing/watcher_tests.go` | 1639 |
 
 ## Feature Toggles
-
-### Deprecated Toggles (3 active in registry)
-
-| Toggle Name | Description |
-|---|---|
-| `prometheusAzureOverrideAudience` | "Allow override default AAD audience for Azure Prometheus endpoint. Enabled by default. This feature should no longer be used and will be removed in the future." |
-| `localeFormatPreference` | "Specifies the locale so the correct format for numbers and dates can be shown" — paused, will be removed |
-| `prometheusTypeMigration` | "Checks for deprecated Prometheus authentication methods (SigV4 and Azure), installs the relevant data source, and migrates the Prometheus data sources" |
-
-### Old `IsEnabled`/`IsEnabledGlobally` API: ~162 files
-
-These call sites should migrate to the OpenFeature interface (per deprecation notice in `pkg/services/featuremgmt/models.go`).
+- **Deprecated toggles with active call sites**:
+  - `alertingAlertsActivityBanner` — 3 files (sample: `public/app/features/alerting/unified/featureToggles.ts`, `public/app/features/alerting/unified/rule-list/AlertsActivityBanner.test.tsx`, `public/app/features/alerting/unified/rule-list/AlertsActivityBanner.tsx`)
+  - `alertingImportYAMLUI` — 2 files (sample: `public/app/features/alerting/unified/components/import-to-gma/ImportToGMARules.test.tsx`, `public/app/features/alerting/unified/components/import-to-gma/ImportToGMARules.tsx`)
+  - `reloadDashboardsOnParamsChange` — 16 files (sample: `e2e-playwright/dashboard-cujs/adhoc-filters-cujs.spec.ts`, `e2e-playwright/dashboard-cujs/dashboard-navigation.spec.ts`, `e2e-playwright/dashboard-cujs/dashboard-view.spec.ts`)
+- **Old IsEnabled API call sites**: 162 files
 
 ## Recommended Actions
+1. **Migrate legacy React patterns in public/app/plugins/datasource/** — Class components (61) and connect() HOC usage (41) remain high. Prioritize public/app/plugins/datasource/. Use the `migrate-class-components` skill for class/connect conversion.
+2. **Modernize TraceView styling/lifecycle usage** — Unsafe lifecycle files: 1; stylesFactory files: 16. Migrate to hooks + useStyles2.
+3. **Split oversized Go files in high-churn services** — 66 non-test Go files exceed 800 LOC. Start with `pkg/services/featuremgmt/registry.go`, `pkg/setting/setting.go`, `pkg/services/dashboards/service/dashboard_service.go`.
+4. **Migrate legacy IsEnabled API call sites to OpenFeature** — Old IsEnabled/IsEnabledGlobally API still appears in 162 files. Migrate incrementally via pkg/services/featuremgmt guidance.
+5. **Reduce explicit any in highest-density files** — `any` appears 393 times across 137 files. Begin with: `public/app/features/dashboard/state/DashboardModel.ts`, `public/app/core/time_series2.ts`, `public/app/plugins/datasource/opentsdb/datasource.ts`, `public/app/features/dashboard/state/DashboardMigrator.ts`, `public/app/features/dashboard/state/PanelModel.ts`.
+6. **Remove deprecated feature toggles and call sites** — Deprecated toggles in registry: 3. Active call-site toggles: 3.
 
-### Priority 1: Dashboard Legacy Code (highest debt × high churn)
-`features/dashboard/` has 10 class components, 6 connect() usages, heavy `any` typing (52+ occurrences), and 176 commits in 6 months. Use the **`migrate-class-components` skill** to convert `DashboardPage`, `DashboardPanel`, `DashboardGrid`, `PanelEditor`, `SubMenu` etc.
-
-### Priority 2: Explore TraceView Modernization
-The `TraceView` subtree accounts for the only unsafe lifecycle method, 7 of 16 `stylesFactory` usages, and multiple class components. These are tightly coupled and could be modernized as a batch.
-
-### Priority 3: Oversized Go Files
-Split `setting.go` (2432 loc), `dashboard_service.go` (2410 loc), and `storage_backend.go` (2189 loc) into focused submodules. These are non-generated, non-test files that are actively maintained.
-
-### Priority 4: Feature Toggle Cleanup
-Remove 3 deprecated feature toggles and migrate ~162 files from `IsEnabled`/`IsEnabledGlobally` to OpenFeature.
-
-### Priority 5: `any` Type Reduction
-Target the top 10 files (DashboardModel 23, time_series2 19, DashboardMigrator 16, PanelModel 13, opentsdb/datasource 16) for strict typing. These files are the biggest impediment to type safety.
-
-### Priority 6: Plugin Datasource Class Components
-8 datasource editors still use class components (InfluxDB, Graphite, Loki, Tempo, AzureMonitor, CloudMonitoring). Many are Yarn workspaces — modernize them as part of plugin maintenance cycles.
+<!-- TECH_DEBT_INVENTORY_START
+{"class_files":["public/app/AppWrapper.tsx","public/app/core/components/GraphNG/GraphNG.tsx","public/app/core/components/OptionsUI/multiSelect.tsx","public/app/core/components/OptionsUI/select.tsx","public/app/core/components/SharedPreferences/SharedPreferencesOld.tsx","public/app/features/alerting/unified/components/rule-editor/QueryRows.tsx","public/app/features/annotations/components/StandardAnnotationQueryEditor.tsx","public/app/features/dashboard/components/DashboardRow/DashboardRow.tsx","public/app/features/dashboard/components/DashboardSettings/VersionsSettings.tsx","public/app/features/dashboard/components/PanelEditor/PanelEditor.tsx","public/app/features/dashboard/components/PanelEditor/PanelEditorQueries.tsx","public/app/features/dashboard/components/ShareModal/ShareSnapshot.tsx","public/app/features/dashboard/components/SubMenu/SubMenu.tsx","public/app/features/dashboard/containers/DashboardPage.tsx","public/app/features/dashboard/dashgrid/DashboardGrid.tsx","public/app/features/dashboard/dashgrid/DashboardPanel.tsx","public/app/features/dashboard/dashgrid/PanelStateWrapper.tsx","public/app/features/explore/Explore.tsx","public/app/features/explore/Logs/LiveLogs.tsx","public/app/features/explore/Logs/LogsContainer.tsx","public/app/features/explore/Table/TableContainer.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/index.tsx","public/app/features/explore/TraceView/components/utils/DraggableManager/demo/DividerDemo.tsx","public/app/features/explore/TraceView/components/utils/DraggableManager/demo/DraggableManagerDemo.tsx","public/app/features/explore/TraceView/components/utils/DraggableManager/demo/RegionDemo.tsx","public/app/features/inspector/InspectDataTab.tsx","public/app/features/inspector/QueryInspector.tsx","public/app/features/logs/components/LogDetailsRow.tsx","public/app/features/logs/components/LogMessageAnsi.tsx","public/app/features/manage-dashboards/import/legacy/DashboardImportLegacy.tsx","public/app/features/plugins/components/AppRootPage.test.tsx","public/app/features/query/components/QueryEditorRow.tsx","public/app/features/query/components/QueryEditorRows.tsx","public/app/features/query/components/QueryGroup.tsx","public/app/features/variables/editor/VariableEditorContainer.tsx","public/app/features/variables/editor/VariableEditorEditor.tsx","public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx","public/app/features/variables/query/QueryVariableEditor.tsx","public/app/plugins/datasource/azuremonitor/components/ConfigEditor/ConfigEditor.tsx","public/app/plugins/datasource/cloud-monitoring/components/VariableQueryEditor.tsx","public/app/plugins/datasource/grafana-pyroscope-datasource/QueryEditor/EditorField.tsx","public/app/plugins/datasource/graphite/components/MetricTankMetaInspector.tsx","public/app/plugins/datasource/graphite/configuration/ConfigEditor.tsx","public/app/plugins/datasource/influxdb/components/editor/config/ConfigEditor.tsx","public/app/plugins/datasource/influxdb/components/editor/query/flux/FluxQueryEditor.tsx","public/app/plugins/datasource/influxdb/components/editor/query/fsql/FSQLEditor.tsx","public/app/plugins/datasource/loki/components/LokiCheatSheet.tsx","public/app/plugins/datasource/loki/components/LokiQueryField.tsx","public/app/plugins/datasource/tempo/QueryField.tsx","public/app/plugins/datasource/tempo/_importedDependencies/components/AdHocFilter/AdHocFilter.tsx","public/app/plugins/panel/annolist/AnnoListPanel.tsx","public/app/plugins/panel/bargauge/BarGaugePanel.tsx","public/app/plugins/panel/canvas/CanvasPanel.tsx","public/app/plugins/panel/debug/CursorView.tsx","public/app/plugins/panel/debug/EventBusLogger.tsx","public/app/plugins/panel/debug/RenderInfoViewer.tsx","public/app/plugins/panel/geomap/GeomapPanel.tsx","public/app/plugins/panel/geomap/components/DebugOverlay.tsx","public/app/plugins/panel/geomap/components/ObservablePropsWrapper.tsx","public/app/plugins/panel/gettingstarted/GettingStarted.tsx","public/app/plugins/panel/live/LivePanel.tsx"],"connect_files":["public/app/features/admin/UpgradePage.tsx","public/app/features/admin/UserAdminPage.tsx","public/app/features/admin/UserListAdminPage.tsx","public/app/features/admin/UserListAnonymousPage.tsx","public/app/features/admin/ldap/LdapSettingsPage.tsx","public/app/features/auth-config/AuthDrawer.tsx","public/app/features/auth-config/AuthProvidersListPage.tsx","public/app/features/auth-config/ErrorContainer.tsx","public/app/features/dashboard/components/DashNav/DashNav.tsx","public/app/features/dashboard/components/DashboardSettings/GeneralSettings.tsx","public/app/features/dashboard/components/DeleteDashboard/DeleteDashboardModal.tsx","public/app/features/dashboard/components/Inspector/PanelInspector.tsx","public/app/features/dashboard/components/PanelEditor/PanelEditor.tsx","public/app/features/dashboard/components/SubMenu/SubMenu.tsx","public/app/features/dashboard/containers/DashboardPage.tsx","public/app/features/dashboard/containers/SoloPanelPage.tsx","public/app/features/dashboard/dashgrid/DashboardPanel.tsx","public/app/features/explore/Explore.tsx","public/app/features/explore/ExplorePaneContainer.tsx","public/app/features/explore/ExploreQueryInspector.tsx","public/app/features/explore/Logs/LogsContainer.tsx","public/app/features/explore/NodeGraph/NodeGraphContainer.tsx","public/app/features/explore/RawPrometheus/RawPrometheusContainer.tsx","public/app/features/explore/RichHistory/RichHistoryContainer.tsx","public/app/features/explore/Table/TableContainer.tsx","public/app/features/invites/InviteeRow.tsx","public/app/features/manage-dashboards/import/legacy/DashboardImportLegacy.tsx","public/app/features/org/OrgDetailsPage.tsx","public/app/features/org/SelectOrgPage.tsx","public/app/features/profile/ChangePasswordPage.tsx","public/app/features/profile/UserProfileEditPage.tsx","public/app/features/serviceaccounts/ServiceAccountPage.tsx","public/app/features/serviceaccounts/ServiceAccountsListPage.tsx","public/app/features/support-bundles/SupportBundles.tsx","public/app/features/support-bundles/SupportBundlesCreate.tsx","public/app/features/users/UsersActionBar.tsx","public/app/features/users/UsersListPage.tsx","public/app/features/variables/editor/VariableEditorContainer.tsx","public/app/features/variables/editor/VariableEditorEditor.tsx","public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx","public/app/features/variables/query/QueryVariableEditor.tsx"],"unsafe_files":["public/app/features/explore/TraceView/components/TraceTimelineViewer/TimelineHeaderRow/TimelineViewingLayer.tsx"],"styles_files":["public/app/features/dashboard/components/PanelEditor/PanelEditor.tsx","public/app/features/dashboard/components/SubMenu/SubMenu.tsx","public/app/features/explore/TraceView/components/TracePageHeader/SpanGraph/ViewingLayer.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/SpanBarRow.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/SpanDetailRow.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/SpanTreeOffset.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/TimelineHeaderRow/TimelineViewingLayer.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/VirtualizedTraceView.tsx","public/app/features/explore/TraceView/components/TraceTimelineViewer/index.tsx","public/app/features/inspector/styles.ts","public/app/features/query/components/QueryGroup.tsx","public/app/plugins/datasource/graphite/components/MetricTankMetaInspector.tsx","public/app/plugins/panel/annolist/AnnoListPanel.tsx","public/app/plugins/panel/gettingstarted/GettingStarted.tsx","public/app/plugins/panel/live/LiveChannelEditor.tsx","public/app/plugins/panel/live/LivePanel.tsx"],"any_files":["public/app/core/TableModel.ts","public/app/core/components/TagFilter/TagFilter.tsx","public/app/core/components/TimeSeries/utils.test.ts","public/app/core/components/TimeSeries/utils.ts","public/app/core/specs/backend_srv.test.ts","public/app/core/time_series2.ts","public/app/core/utils/connectWithReduxStore.tsx","public/app/core/utils/deferred.ts","public/app/core/utils/isShallowEqual.ts","public/app/core/utils/object.ts","public/app/core/utils/richHistory.test.ts","public/app/features/alerting/state/ThresholdMapper.ts","public/app/features/alerting/state/alertDef.ts","public/app/features/alerting/state/query_part.ts","public/app/features/alerting/state/reducers.ts","public/app/features/alerting/unified/Analytics.ts","public/app/features/alerting/unified/components/receivers/form/fields/OptionField.test.tsx","public/app/features/alerting/unified/components/receivers/form/fields/OptionField.tsx","public/app/features/alerting/unified/components/receivers/form/fields/SubformArrayField.tsx","public/app/features/alerting/unified/components/receivers/form/fields/SubformField.tsx","public/app/features/alerting/unified/components/rule-editor/PreviewRule.tsx","public/app/features/alerting/unified/mocks.ts","public/app/features/alerting/unified/types/alerting.ts","public/app/features/alerting/unified/utils/misc.test.ts","public/app/features/annotations/events_processing.ts","public/app/features/annotations/standardAnnotationSupport.ts","public/app/features/canvas/runtime/element.tsx","public/app/features/commandPalette/KBarResults.tsx","public/app/features/dashboard-scene/inspect/HelpWizard/SupportSnapshotService.ts","public/app/features/dashboard-scene/inspect/HelpWizard/utils.ts","public/app/features/dashboard-scene/mutation-api/commands/getLayout.ts","public/app/features/dashboard-scene/mutation-api/commands/layoutCommands.test.ts","public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts","public/app/features/dashboard-scene/scene/export/exporters.test.ts","public/app/features/dashboard-scene/scene/export/exporters.ts","public/app/features/dashboard-scene/serialization/transformToV1TypesUtils.ts","public/app/features/dashboard/api/ResponseTransformers.ts","public/app/features/dashboard/components/DashExportModal/DashboardExporter.test.ts","public/app/features/dashboard/components/DashExportModal/DashboardExporter.ts","public/app/features/dashboard/components/DashboardRow/DashboardRow.test.tsx","public/app/features/dashboard/components/GenAI/jsonDiffText.ts","public/app/features/dashboard/components/HelpWizard/SupportSnapshotService.ts","public/app/features/dashboard/components/HelpWizard/utils.ts","public/app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor.tsx","public/app/features/dashboard/components/PanelEditor/utils.ts","public/app/features/dashboard/components/SaveDashboard/useDashboardSave.tsx","public/app/features/dashboard/components/ShareModal/ShareExport.tsx","public/app/features/dashboard/dashgrid/DashboardGrid.tsx","public/app/features/dashboard/services/DashboardLoaderSrv.ts","public/app/features/dashboard/state/DashboardMigrator.test.ts","public/app/features/dashboard/state/DashboardMigrator.ts","public/app/features/dashboard/state/DashboardMigratorSingleVersion.test.ts","public/app/features/dashboard/state/DashboardMigratorToBackend.test.ts","public/app/features/dashboard/state/DashboardModel.repeat.test.ts","public/app/features/dashboard/state/DashboardModel.test.ts","public/app/features/dashboard/state/DashboardModel.ts","public/app/features/dashboard/state/PanelModel.test.ts","public/app/features/dashboard/state/PanelModel.ts","public/app/features/dashboard/state/TimeModel.ts","public/app/features/dashboard/state/actions.ts","public/app/features/dashboard/state/getPanelPluginToMigrateTo.ts","public/app/features/dashboard/state/initDashboard.test.ts","public/app/features/datasources/state/actions.ts","public/app/features/explore/TraceView/components/model/link-patterns.tsx","public/app/features/geo/gazetteer/gazetteer.ts","public/app/features/inspector/QueryInspector.tsx","public/app/features/manage-dashboards/import/legacy/actions.ts","public/app/features/manage-dashboards/import/legacy/reducers.ts","public/app/features/panel/panellinks/linkSuppliers.ts","public/app/features/plugins/admin/types.ts","public/app/features/plugins/datasource_srv.ts","public/app/features/plugins/importer/pluginImporter.test.ts","public/app/features/query/state/DashboardQueryRunner/testHelpers.ts","public/app/features/query/state/DashboardQueryRunner/utils.ts","public/app/features/templating/formatVariableValue.ts","public/app/features/templating/templateProxies.ts","public/app/features/templating/template_srv.ts","public/app/features/transformers/FilterByValueTransformer/ValueMatchers/types.ts","public/app/features/transformers/FilterByValueTransformer/ValueMatchers/utils.ts","public/app/features/transformers/fieldToConfigMapping/fieldToConfigMapping.ts","public/app/features/variables/adapters.ts","public/app/features/variables/editor/getVariableQueryEditor.tsx","public/app/features/variables/inspect/NetworkGraph.tsx","public/app/features/variables/inspect/utils.ts","public/app/features/variables/pickers/OptionsPicker/actions.ts","public/app/features/variables/query/QueryVariableEditor.tsx","public/app/features/variables/query/VariableQueryRunner.ts","public/app/features/variables/query/actions.ts","public/app/features/variables/query/operators.ts","public/app/features/variables/query/queryRunners.ts","public/app/features/variables/query/reducer.ts","public/app/features/variables/state/sharedReducer.ts","public/app/features/variables/state/upgradeLegacyQueries.test.ts","public/app/features/variables/system/adapter.ts","public/app/features/variables/types.ts","public/app/features/variables/utils.ts","public/app/plugins/datasource/alertmanager/types.ts","public/app/plugins/datasource/azuremonitor/utils/messageFromError.ts","public/app/plugins/datasource/cloud-monitoring/CloudMonitoringMetricFindQuery.ts","public/app/plugins/datasource/cloudwatch/language/cloudwatch-logs/CloudWatchLogsLanguageProvider.test.ts","public/app/plugins/datasource/cloudwatch/language/cloudwatch-logs/CloudWatchLogsLanguageProvider.ts","public/app/plugins/datasource/cloudwatch/types.ts","public/app/plugins/datasource/grafana-testdata-datasource/QueryEditor.tsx","public/app/plugins/datasource/grafana/datasource.ts","public/app/plugins/datasource/graphite/datasource.ts","public/app/plugins/datasource/graphite/gfunc.ts","public/app/plugins/datasource/graphite/graphite_query.ts","public/app/plugins/datasource/graphite/lexer.ts","public/app/plugins/datasource/graphite/migrations.ts","public/app/plugins/datasource/graphite/specs/graphite_query.test.ts","public/app/plugins/datasource/graphite/specs/store.test.ts","public/app/plugins/datasource/graphite/types.ts","public/app/plugins/datasource/graphite/utils.ts","public/app/plugins/datasource/influxdb/datasource.ts","public/app/plugins/datasource/influxdb/influx_query_model.ts","public/app/plugins/datasource/influxdb/influx_series.ts","public/app/plugins/datasource/influxdb/query_part.ts","public/app/plugins/datasource/influxdb/response_parser.ts","public/app/plugins/datasource/loki/datasource.ts","public/app/plugins/datasource/opentsdb/datasource.d.ts","public/app/plugins/datasource/opentsdb/datasource.ts","public/app/plugins/datasource/opentsdb/types.ts","public/app/plugins/datasource/tempo/_importedDependencies/datasources/prometheus/types.ts","public/app/plugins/datasource/tempo/datasource.ts","public/app/plugins/datasource/tempo/resultTransformer.ts","public/app/plugins/panel/barchart/quadtree.ts","public/app/plugins/panel/debug/EventBusLogger.tsx","public/app/plugins/panel/geomap/migrations.ts","public/app/plugins/panel/heatmap/migrations.ts","public/app/plugins/panel/table/migrations.ts","public/app/plugins/panel/text/textPanelMigrationHandler.ts","public/app/plugins/panel/timeseries/migrations.ts","public/app/store/configureStore.ts","public/app/store/store.ts","public/app/types/dashboard.ts","public/app/types/events.ts","public/app/types/jquery/jquery.d.ts"],"deprecated_api_files":["public/app/api/clients/playlist/v1/index.ts","public/app/core/components/RolePicker/api.ts","public/app/core/history/richHistoryLocalStorageUtils.ts","public/app/core/services/__mocks__/backend_srv.ts","public/app/core/services/backend_srv.ts","public/app/core/time_series2.ts","public/app/core/utils/kbn.ts","public/app/core/utils/richHistoryTypes.ts","public/app/features/alerting/unified/hooks/useAbilities.ts","public/app/features/alerting/unified/hooks/useHasRuler.ts","public/app/features/alerting/unified/hooks/useUnifiedAlertingSelector.ts","public/app/features/alerting/unified/mocks.ts","public/app/features/alerting/unified/utils/datasource.ts","public/app/features/alerting/unified/utils/k8s/constants.ts","public/app/features/alerting/unified/utils/misc.ts","public/app/features/apiserver/types.ts","public/app/features/browse-dashboards/fixtures/dashboardsTreeItem.fixture.ts","public/app/features/dashboard-scene/mutation-api/commands/schemas.ts","public/app/features/dashboard-scene/utils/utils.ts","public/app/features/dashboard/state/DashboardModel.ts","public/app/features/explore/state/time.ts","public/app/features/explore/utils/links.ts","public/app/features/inspector/styles.ts","public/app/features/library-panels/types.ts","public/app/features/logs/utils.ts","public/app/features/panel/panellinks/link_srv.ts","public/app/features/search/service/searcher.ts","public/app/features/search/types.ts","public/app/features/templating/template_srv.ts","public/app/features/transformers/prepareTimeSeries/prepareTimeSeries.ts","public/app/features/variables/guard.ts","public/app/plugins/datasource/alertmanager/types.ts","public/app/plugins/datasource/azuremonitor/types/types.ts","public/app/plugins/datasource/cloudwatch/types.ts","public/app/plugins/datasource/influxdb/datasource.ts","public/app/plugins/datasource/influxdb/types.ts","public/app/plugins/datasource/loki/LanguageProvider.ts","public/app/plugins/datasource/tempo/_importedDependencies/components/AdHocFilter/types.ts","public/app/plugins/panel/dashlist/migrations.ts","public/app/plugins/panel/nodeGraph/Edge.tsx","public/app/plugins/panel/nodeGraph/types.ts","public/app/plugins/panel/nodeGraph/utils.ts","public/app/plugins/panel/timeseries/plugins/AnnotationsPlugin2.tsx","public/app/types/events.ts","public/app/types/folders.ts","public/app/types/unified-alerting.ts"],"deprecated_go_files":["pkg/aggregator/generated/clientset/versioned/fake/clientset_generated.go","pkg/aggregator/generated/informers/externalversions/factory.go","pkg/api/api.go","pkg/api/dashboard.go","pkg/api/dashboard_permission.go","pkg/api/dataproxy.go","pkg/api/datasource/connections.go","pkg/api/datasources.go","pkg/api/dtos/dashboard.go","pkg/api/dtos/folder.go","pkg/api/dtos/frontend_settings.go","pkg/api/dtos/prefs.go","pkg/api/folder.go","pkg/api/folder_permission.go","pkg/api/playlist.go","pkg/api/search.go","pkg/apimachinery/apis/common/v0alpha1/zz_generated.openapi.go","pkg/apimachinery/identity/requester.go","pkg/apimachinery/utils/manager.go","pkg/apimachinery/utils/meta.go","pkg/apis/iam/v0alpha1/types_display.go","pkg/apis/iam/v0alpha1/zz_generated.openapi.go","pkg/generated/clientset/versioned/fake/clientset_generated.go","pkg/generated/informers/externalversions/factory.go","pkg/plugins/repo/service_test.go","pkg/registry/apis/iam/team_search.go","pkg/registry/apis/provisioning/register.go","pkg/services/accesscontrol/accesscontrol.go","pkg/services/accesscontrol/mock/mock.go","pkg/services/accesscontrol/seeding/seeder.go","pkg/services/annotations/models.go","pkg/services/apiserver/auth/authorizer/role.go","pkg/services/apiserver/options/storage.go","pkg/services/dashboardimport/dashboardimport.go","pkg/services/dashboards/models.go","pkg/services/datasources/models.go","pkg/services/featuremgmt/models.go","pkg/services/folder/model.go","pkg/services/folder/tree.go","pkg/services/libraryelements/api.go","pkg/services/libraryelements/libraryelements_test.go","pkg/services/libraryelements/model/model.go","pkg/services/libraryelements/writers.go","pkg/services/librarypanels/librarypanels_test.go","pkg/services/ngalert/api/tooling/definitions/alertmanager.go","pkg/services/ngalert/api/tooling/definitions/provisioning_alert_rules.go","pkg/services/ngalert/api/tooling/definitions/provisioning_contactpoints.go","pkg/services/ngalert/api/tooling/definitions/provisioning_mute_timings.go","pkg/services/ngalert/api/tooling/definitions/provisioning_policies.go","pkg/services/ngalert/api/tooling/definitions/provisioning_templates.go","pkg/services/pluginsintegration/advisor/advisor_test.go","pkg/services/preference/model.go","pkg/services/provisioning/dashboards/file_reader.go","pkg/services/search/model/model.go","pkg/services/search/service.go","pkg/services/star/model.go","pkg/setting/setting.go","pkg/setting/setting_anonymous.go","pkg/setting/setting_feature_toggles.go","pkg/storage/unified/apistore/store.go","pkg/storage/unified/resource/server.go","pkg/tsdb/azuremonitor/metrics/azuremonitor-datasource.go","pkg/tsdb/cloudwatch/kinds/dataquery/types_dataquery_gen.go","pkg/util/xorm/session_cond.go","pkg/web/macaron.go"],"old_api_files":["pkg/api/api.go","pkg/api/common_test.go","pkg/api/dashboard.go","pkg/api/dashboard_snapshot.go","pkg/api/datasources_k8s.go","pkg/api/ds_query.go","pkg/api/folder_permission.go","pkg/api/frontendsettings.go","pkg/api/frontendsettings_test.go","pkg/api/index.go","pkg/api/login.go","pkg/api/login_oauth.go","pkg/api/pluginproxy/pluginproxy.go","pkg/api/plugins.go","pkg/api/short_url.go","pkg/expr/converter.go","pkg/expr/dataplane.go","pkg/expr/graph.go","pkg/expr/nodes.go","pkg/operators/provisioning/jobs_operator.go","pkg/plugins/config/tracing.go","pkg/plugins/pluginscdn/pluginscdn.go","pkg/registry/apis/dashboard/register.go","pkg/registry/apis/dashboard/register_test.go","pkg/registry/apis/dashboard/schema_validation.go","pkg/registry/apis/datasource/register.go","pkg/registry/apis/folders/hooks.go","pkg/registry/apis/folders/register.go","pkg/registry/apis/iam/register.go","pkg/registry/apis/iam/resourcepermission/mapper.go","pkg/registry/apis/iam/resourcepermission/mapper_test.go","pkg/registry/apis/iam/resourcepermission/validate.go","pkg/registry/apis/iam/team/rest_members.go","pkg/registry/apis/iam/user/rest_user_team.go","pkg/registry/apis/provisioning/register.go","pkg/registry/apis/query/register.go","pkg/registry/apis/query/routes.go","pkg/registry/apis/secret/validator/keeper.go","pkg/registry/apis/service/register.go","pkg/registry/apps/alerting/notifications/register.go","pkg/registry/apps/apps.go","pkg/registry/apps/playlist/register.go","pkg/registry/apps/plugins/register.go","pkg/server/module_server.go","pkg/server/server.go","pkg/services/accesscontrol/acimpl/service.go","pkg/services/accesscontrol/dualwrite/reconciler.go","pkg/services/accesscontrol/fixedrolesloader.go","pkg/services/accesscontrol/resourcepermissions/api.go","pkg/services/accesscontrol/resourcepermissions/service.go","pkg/services/anonymous/anonimpl/client.go","pkg/services/apiserver/builder/helper.go","pkg/services/apiserver/config.go","pkg/services/apiserver/service.go","pkg/services/authn/authn.go","pkg/services/authn/authnimpl/registration.go","pkg/services/authn/authnimpl/service.go","pkg/services/authn/authnimpl/sync/oauth_token_sync.go","pkg/services/authn/authnimpl/sync/user_sync.go","pkg/services/authn/authntest/fake.go","pkg/services/authn/authntest/mock.go","pkg/services/authn/clients/api_key.go","pkg/services/authn/clients/basic.go","pkg/services/authn/clients/ext_jwt.go","pkg/services/authn/clients/form.go","pkg/services/authn/clients/identity.go","pkg/services/authn/clients/jwt.go","pkg/services/authn/clients/oauth.go","pkg/services/authn/clients/oauth_test.go","pkg/services/authn/clients/provisioning.go","pkg/services/authn/clients/proxy.go","pkg/services/authn/clients/render.go","pkg/services/authn/clients/session.go","pkg/services/authz/rbac.go","pkg/services/authz/zanzana.go","pkg/services/caching/service.go","pkg/services/cleanup/cleanup.go","pkg/services/contexthandler/contexthandler.go","pkg/services/dashboardimport/api/api.go","pkg/services/extsvcauth/registry/service.go","pkg/services/featuremgmt/feature_toggles_mock.go","pkg/services/featuremgmt/manager.go","pkg/services/featuremgmt/manager_test.go","pkg/services/featuremgmt/models.go","pkg/services/featuremgmt/service.go","pkg/services/featuremgmt/service_test.go","pkg/services/grpcserver/service.go","pkg/services/libraryelements/api.go","pkg/services/navtree/navtreeimpl/admin.go","pkg/services/navtree/navtreeimpl/applinks.go","pkg/services/navtree/navtreeimpl/navtree.go","pkg/services/ngalert/api/api_configuration.go","pkg/services/ngalert/api/api_convert_prometheus.go","pkg/services/ngalert/api/api_provisioning.go","pkg/services/ngalert/api/api_ruler.go","pkg/services/ngalert/api/api_testing.go","pkg/services/ngalert/models/notifications.go","pkg/services/ngalert/ngalert.go","pkg/services/ngalert/notifier/alertmanager_config.go","pkg/services/ngalert/notifier/dispatch_timer.go","pkg/services/ngalert/notifier/inhibition_rules/service.go","pkg/services/ngalert/notifier/routes/service.go","pkg/services/ngalert/schedule/jitter.go","pkg/services/ngalert/sender/router.go","pkg/services/ngalert/state/compat.go","pkg/services/ngalert/store/alert_rule.go","pkg/services/ngalert/store/provisioning_store.go","pkg/services/oauthtoken/oauth_token.go","pkg/services/pluginsintegration/installsync/syncer.go","pkg/services/pluginsintegration/installsync/syncer_test.go","pkg/services/pluginsintegration/pluginconfig/config.go","pkg/services/pluginsintegration/pluginconfig/envvars.go","pkg/services/pluginsintegration/pluginconfig/tracing_test.go","pkg/services/pluginsintegration/pluginstore/store.go","pkg/services/pluginsintegration/serviceregistration/serviceregistration.go","pkg/services/preference/prefapi/api.go","pkg/services/promtypemigration/migrator.go","pkg/services/publicdashboards/api/api_test.go","pkg/services/publicdashboards/database/database.go","pkg/services/publicdashboards/database/database_test.go","pkg/services/publicdashboards/metric/metric.go","pkg/services/publicdashboards/models/metrics.go","pkg/services/publicdashboards/models/models.go","pkg/services/publicdashboards/service/query_annotations_test.go","pkg/services/publicdashboards/service/query_test.go","pkg/services/publicdashboards/service/service.go","pkg/services/publicdashboards/service/service_test.go","pkg/services/rendering/auth.go","pkg/services/rendering/rendering.go","pkg/services/secrets/kvstore/test_helpers.go","pkg/services/serviceaccounts/api/api.go","pkg/services/serviceaccounts/extsvcaccounts/service.go","pkg/services/serviceaccounts/proxy/service.go","pkg/services/sqlstore/database_config_test.go","pkg/services/sqlstore/sqlstore.go","pkg/services/sqlstore/sqlstore_testinfra.go","pkg/services/stats/statsimpl/stats.go","pkg/services/team/teamapi/team_members_test.go","pkg/setting/setting_unified_alerting.go","pkg/storage/unified/client.go","pkg/storage/unified/resource/client.go","pkg/storage/unified/resource/search_client.go","pkg/storage/unified/search/options.go","pkg/storage/unified/sql/db/dbimpl/dbimpl_test.go","pkg/tsdb/azuremonitor/azuremonitor.go","pkg/tsdb/azuremonitor/loganalytics/azure-log-analytics-datasource.go","pkg/tsdb/cloudwatch/features/features.go","pkg/tsdb/cloudwatch/get_dimension_values_for_wildcards.go","pkg/tsdb/cloudwatch/get_metric_data_executor.go","pkg/tsdb/cloudwatch/log_actions.go","pkg/tsdb/cloudwatch/metric_data_query_builder.go","pkg/tsdb/cloudwatch/resource_handler.go","pkg/tsdb/cloudwatch/response_parser.go","pkg/tsdb/cloudwatch/time_series_query.go","pkg/tsdb/grafana-pyroscope-datasource/query.go","pkg/tsdb/influxdb/influxql/influxql.go","pkg/tsdb/jaeger/callresource.go","pkg/tsdb/jaeger/jaeger.go","pkg/tsdb/jaeger/querydata.go","pkg/tsdb/loki/loki.go","pkg/tsdb/prometheus/prometheus.go","pkg/tsdb/tempo/utils/stream_utils.go"],"oversized_files":["pkg/tests/apis/provisioning/common/testing.go","pkg/services/featuremgmt/registry.go","pkg/storage/unified/testing/storage_backend_sql_compatibility.go","pkg/apiserver/storage/testing/store_tests.go","pkg/setting/setting.go","pkg/services/dashboards/service/dashboard_service.go","pkg/storage/unified/search/bleve.go","pkg/storage/unified/resource/storage_backend.go","pkg/util/xorm/core/core.go","pkg/storage/unified/testing/storage_backend.go","pkg/storage/unified/resource/server.go","pkg/services/ngalert/store/alert_rule.go","pkg/tests/api/alerting/testing.go","pkg/services/ngalert/models/testing.go","pkg/apiserver/storage/testing/watcher_tests.go","pkg/registry/apis/provisioning/register.go","pkg/storage/unified/resource/search.go","pkg/services/live/live.go","pkg/storage/unified/sql/backend.go","pkg/services/ngalert/api/prometheus/api_prometheus.go","pkg/services/ngalert/models/alert_rule.go","pkg/tsdb/grafana-testdata-datasource/scenarios.go","pkg/api/dashboard.go","pkg/util/xorm/dialect_postgres.go","pkg/build/wire/internal/wire/parse.go","pkg/storage/unified/testing/kv.go","pkg/services/ngalert/api/tooling/definitions/alertmanager.go","pkg/tests/apis/helper.go","pkg/tsdb/cloud-monitoring/converter/converter.go","pkg/util/xorm/statement.go","pkg/registry/apis/dashboard/register.go","pkg/services/authz/rbac/service.go","pkg/services/datasources/service/datasource.go","pkg/registry/apis/iam/register.go","pkg/api/http_server.go","pkg/services/ngalert/provisioning/alert_rules.go","pkg/api/datasources.go","pkg/storage/unified/resource/datastore.go","pkg/services/cloudmigration/cloudmigrationimpl/snapshot_mgmt.go","pkg/services/ngalert/api/api_ruler.go","pkg/services/sqlstore/migrations/accesscontrol/dashboard_permissions.go","pkg/services/ngalert/api/api_convert_prometheus.go","pkg/build/wire/internal/wire/wire.go","pkg/apimachinery/utils/meta.go","pkg/services/accesscontrol/acimpl/service.go","pkg/tests/testinfra/testinfra.go","pkg/tsdb/grafana-postgresql-datasource/sqleng/sql_engine.go","pkg/registry/apis/provisioning/controller/repository.go","pkg/registry/apis/iam/legacy/user.go","pkg/services/cloudmigration/cloudmigrationimpl/cloudmigration.go","pkg/services/ngalert/state/state.go","pkg/tsdb/azuremonitor/loganalytics/azure-log-analytics-datasource.go","pkg/services/ngalert/ngalert.go","pkg/services/ngalert/eval/eval.go","pkg/services/accesscontrol/resourcepermissions/store.go","pkg/api/frontendsettings.go","pkg/services/org/orgimpl/store.go","pkg/services/live/pipeline/tree/tree.go","pkg/expr/mathexp/exp.go","pkg/services/ngalert/notifier/receiver_svc.go","pkg/util/xorm/session_insert.go","pkg/infra/metrics/metrics.go","pkg/services/store/kind/dashboard/dashboard.go","pkg/util/xorm/session.go","pkg/storage/unified/apistore/store.go","pkg/services/libraryelements/database.go"]}
+TECH_DEBT_INVENTORY_END -->
 
 ## Change Log
 
@@ -220,3 +123,30 @@ Target the top 10 files (DashboardModel 23, time_series2 19, DashboardMigrator 1
 **Resolved since last scan:** None
 
 **New since last scan:** None
+
+### 2026-05-21 (current scan)
+
+| Metric | Previous | Current | Delta |
+|--------|----------|---------|-------|
+| Class components | 61 | 61 | 0 |
+| connect() HOC | 41 | 41 | 0 |
+| Unsafe lifecycles | 1 | 1 | 0 |
+| stylesFactory | 16 | 16 | 0 |
+| Explicit `any` | 393 | 393 | 0 |
+| `any` files | 137 | 137 | 0 |
+| @deprecated APIs | 51 | 46 | -5 |
+| Frontend TODO/FIXME/HACK | 618 | 602 | -16 |
+| Backend TODO/FIXME/HACK | 894 | 894 | 0 |
+| nolint directives | 1275 | 1274 | -1 |
+| Oversized Go files (>800 loc) | 67 | 66 | -1 |
+| Deprecated feature toggles | 3 | 3 | 0 |
+| Old IsEnabled API files | 162 | 162 | 0 |
+
+**Resolved since last scan:**
+- 5 fewer in @deprecated APIs
+- 16 fewer in Frontend TODO/FIXME/HACK
+- 1 fewer in nolint directives
+- 1 fewer in Oversized Go files (>800 loc)
+
+**New since last scan:**
+- None
