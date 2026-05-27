@@ -24,6 +24,12 @@ bash .cursor/skills/convert-console-to-structured-logging/scripts/scan-console-l
 bash .cursor/skills/convert-console-to-structured-logging/scripts/scan-console-logs.sh . all
 ```
 
+For Go backend runtime paths:
+
+```bash
+bash .cursor/skills/convert-console-to-structured-logging/scripts/scan-go-prints.sh
+```
+
 Or search manually:
 
 ```bash
@@ -162,6 +168,17 @@ logger.Error("Failed to generate CSP nonce", "err", err)
 
 Use the logger already injected on the struct/service.
 
+Go decision flow:
+
+1. Runtime `pkg/` service has `log.Logger` field or package logger already?
+   - Reuse it.
+2. Operator already uses slog logger (`logging.NewSLogLogger`)?
+   - Reuse that logger (`logger.Info/Warn/Error`).
+3. No logger in package yet?
+   - Add `var logger = log.New("domain.subdomain")`.
+4. Bootstrap/logging-subsystem fallback path?
+   - Keep stderr fallback if structured logging could recurse.
+
 ## Do NOT Convert
 
 - `scripts/`, `.github/`, `devenv/`, `e2e/`, `e2e-playwright/`
@@ -173,6 +190,9 @@ Use the logger already injected on the struct/service.
 - Bootstrap before Faro: `public/app/index.ts` boot failures
 - Commented-out `console.log` — leave or delete; do not uncomment to convert
 - JSDoc example lines (e.g. `compatibilityApi.ts`)
+- `pkg/cmd/**` CLI stdout/stderr output
+- `pkg/build/**`, `go:build ignore` tool binaries, and `*_test.go`
+- `pkg/infra/log/file.go` stderr fallback while logging internals are failing
 
 ## Common Mistakes
 
@@ -190,6 +210,8 @@ Use the logger already injected on the struct/service.
 ```bash
 bash .cursor/skills/convert-console-to-structured-logging/scripts/scan-console-logs.sh . app
 yarn typecheck   # or targeted test if behavior changed
+bash .cursor/skills/convert-console-to-structured-logging/scripts/scan-go-prints.sh
+go test ./path/to/touched/pkg/...
 ```
 
 Only run tests when the user requests verification or behavior changes.
@@ -197,6 +219,7 @@ Only run tests when the user requests verification or behavior changes.
 ## Additional Resources
 
 - Real file examples: [examples.md](examples.md)
+- Go backend examples: [examples-go.md](examples-go.md)
 - Runtime API: `packages/grafana-runtime/src/utils/logging.ts`
 - Dev logger: `packages/grafana-ui/src/utils/logger.ts`
 - App debug helper: `public/app/core/utils/debugLog.ts`
