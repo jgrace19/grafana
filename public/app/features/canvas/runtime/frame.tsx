@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
 
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { HorizontalConstraint, type Placement, VerticalConstraint } from 'app/plugins/panel/canvas/panelcfg.gen';
@@ -17,6 +18,7 @@ import { initMoveable } from './sceneAbleManagement';
 
 const DEFAULT_OFFSET = 10;
 const HORIZONTAL_OFFSET = 50;
+const canvasFrameDebugLog = createDebugLog('canvas-frame-runtime', 'CanvasFrameRuntime');
 
 export const frameItemDummy: CanvasElementItem = {
   id: 'frame',
@@ -129,7 +131,7 @@ export class FrameState extends ElementState {
         break;
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
-          console.log('Can not duplicate frames (yet)', action, element);
+          canvasFrameDebugLog('Can not duplicate frames (yet)', action, element);
           return;
         }
         const opts = cloneDeep(element.options);
@@ -239,7 +241,7 @@ export class FrameState extends ElementState {
         break;
 
       default:
-        console.log('DO action', action, element);
+        canvasFrameDebugLog('DO action', action, element);
         return;
     }
   };

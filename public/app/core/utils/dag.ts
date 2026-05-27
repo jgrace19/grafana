@@ -1,3 +1,5 @@
+import { createDebugLog } from 'app/core/utils/debugLog';
+
 export class Edge {
   inputNode?: Node;
   outputNode?: Node;
@@ -258,6 +260,7 @@ export class Graph {
 }
 
 export const printGraph = (g: Graph) => {
+  const debugLog = createDebugLog('dag', 'DAG');
   Object.keys(g.nodes).forEach((name) => {
     const n = g.nodes[name];
     let outputEdges = n.outputEdges.map((e: Edge) => e.outputNode?.name).join(', ');
@@ -268,7 +271,7 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    debugLog(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };
 

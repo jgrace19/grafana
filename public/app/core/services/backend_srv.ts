@@ -37,6 +37,7 @@ import {
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { loadUrlToken } from 'app/core/utils/urlToken';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { type DashboardSearchItem } from 'app/features/search/types';
@@ -54,6 +55,7 @@ import { ResponseQueue } from './ResponseQueue';
 import { type ContextSrv, contextSrv } from './context_srv';
 
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
+const debugLog = createDebugLog('backend-srv', 'BackendSrv');
 
 export interface BackendSrvDependencies {
   fromFetch: (input: string | Request, init?: RequestInit) => Observable<Response>;
@@ -241,7 +243,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            debugLog('stream processing catch', { requestId, error: e });
             observer.error(e);
           }); // from abort
       },
