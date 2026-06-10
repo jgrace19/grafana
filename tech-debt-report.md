@@ -1,61 +1,40 @@
-# Tech Debt Report — All Scopes — 2026-04-14
+# Tech Debt Report — All Scopes — 2026-06-10
 
 ## Hotspots (high debt × high churn)
 
-Priority score = debt signals × log₂(commits + 1)
+Priority score = debt signals × log2(commits + 1)
 
-| Rank | Area | Debt Signals | Commits (6mo) | Priority Score |
-|------|------|-------------|----------------|----------------|
-| 1 | `public/app/features/dashboard/` | 28 (10 class, 6 connect, 4 stylesFactory, 8 other) | 176 | 209 |
-| 2 | `public/app/plugins/` | 21 (11 class, 1 connect, 5 stylesFactory, 4 other) | 366 | 180 |
-| 3 | `public/app/features/explore/` | 14 (6 class, 4 connect, 3 stylesFactory, 1 unsafe lifecycle) | 110 | 96 |
-| 4 | `public/app/features/alerting/` | 11 (1 class, 0 connect, 0 stylesFactory, 10 @deprecated/any) | 273 | 92 |
-| 5 | `public/app/core/` | 5 (2 class, 0 connect, 1 stylesFactory, 2 other) | 193 | 39 |
-| 6 | `public/app/features/variables/` | 8 (4 class, 4 connect) | 23 | 37 |
-| 7 | `public/app/features/query/` | 5 (3 class, 0 connect, 1 stylesFactory, 1 other) | 27 | 24 |
-| 8 | `public/app/features/dashboard-scene/` | 0 legacy class/connect, moderate any/TODO | 552 | low (modern code) |
-| 9 | `pkg/registry/` | high TODO/nolint density | 636 | backend hotspot |
-| 10 | `pkg/services/ngalert/` | high TODO/nolint density | 185 | backend hotspot |
+| Rank | Area | Signals | Commits (6 months) | Priority Score |
+|------|------|---------|--------------------|----------------|
+| 1 | `pkg/registry/` | 177 | 475 | 1574.38 |
+| 2 | `pkg/services/ngalert/` | 142 | 144 | 1019.55 |
+| 3 | `pkg/storage/` | 107 | 294 | 877.89 |
+| 4 | `public/app/features/alerting/` | 90 | 201 | 689.24 |
+| 5 | `pkg/tests/` | 73 | 441 | 641.52 |
+| 6 | `public/app/plugins/datasource/` | 87 | 127 | 609.00 |
+| 7 | `public/app/plugins/panel/` | 76 | 137 | 540.25 |
+| 8 | `pkg/api/` | 73 | 109 | 495.04 |
+| 9 | `public/app/features/dashboard/` | 64 | 116 | 439.70 |
+| 10 | `public/app/core/` | 47 | 123 | 326.85 |
 
 ## Frontend Modernization
 
-### Class Components: 61 files
+- **Class components**: 61 files
+- **connect() HOC**: 41 files
+- **Unsafe lifecycles**: 1 file
+- **stylesFactory**: 16 files
 
-Top areas:
-- `features/dashboard/` — 10 files (`DashboardPage`, `DashboardPanel`, `DashboardGrid`, `PanelEditor`, `SubMenu`, `ShareSnapshot`, `VersionsSettings`, `DashboardRow`, `PanelEditorQueries`, `PanelStateWrapper`)
-- `features/explore/` — 6 files (`Explore`, `LogsContainer`, `LiveLogs`, `TableContainer`, `TraceTimelineViewer`, `TraceView DraggableManager demos`)
-- `features/variables/` — 4 files (`QueryVariableEditor`, `OptionsPicker`, `VariableEditorEditor`, `VariableEditorContainer`)
-- `plugins/panel/` — 7 files (`CanvasPanel`, `GeomapPanel`, `LivePanel`, `GettingStarted`, `BarGaugePanel`, `AnnoListPanel`, debug panels)
-- `plugins/datasource/` — 8 files (InfluxDB, Graphite, Loki, Tempo, AzureMonitor, CloudMonitoring, Pyroscope editors)
-- `features/query/` — 3 files (`QueryGroup`, `QueryEditorRows`, `QueryEditorRow`)
-- `features/logs/` — 2 files (`LogMessageAnsi`, `LogDetailsRow`)
-
-### connect() HOC (Redux): 41 files
-
-Top areas:
-- `features/dashboard/` — 6 files (`DashboardPage`, `DashboardPanel`, `PanelEditor`, `SubMenu`, `DashNav`, `GeneralSettings`)
-- `features/explore/` — 7 files (`Explore`, `LogsContainer`, `TableContainer`, `RichHistoryContainer`, `ExploreQueryInspector`, `ExplorePaneContainer`, `NodeGraphContainer`)
-- `features/admin/` — 4 files (`UserAdminPage`, `UpgradePage`, `UserListAnonymousPage`, `UserListAdminPage`, `LdapSettingsPage`)
-- `features/variables/` — 4 files (`QueryVariableEditor`, `OptionsPicker`, `VariableEditorEditor`, `VariableEditorContainer`)
-
-### Unsafe Lifecycle Methods: 1 file
-
-- `public/app/features/explore/TraceView/components/TraceTimelineViewer/TimelineHeaderRow/TimelineViewingLayer.tsx` — uses `UNSAFE_componentWillReceiveProps`
-
-### Legacy `stylesFactory`: 16 files
-
-- `features/explore/TraceView/` — 7 files (SpanBarRow, SpanDetailRow, SpanTreeOffset, VirtualizedTraceView, ViewingLayer, TimelineViewingLayer, TraceTimelineViewer index)
-- `features/dashboard/` — 2 files (SubMenu, PanelEditor)
-- `features/query/` — 1 file (QueryGroup)
-- `features/inspector/` — 1 file (styles.ts)
-- `plugins/panel/` — 3 files (GettingStarted, LivePanel, LiveChannelEditor, AnnoListPanel)
-- `plugins/datasource/graphite/` — 1 file (MetricTankMetaInspector)
+Hot areas:
+- `public/app/features/dashboard/` (legacy class + `connect()` concentration)
+- `public/app/features/explore/TraceView/` (unsafe lifecycle + `stylesFactory`)
+- `public/app/plugins/datasource/` and `public/app/plugins/panel/` (class components)
 
 ## Type Safety
 
-### Explicit `any`: ~393 occurrences across ~137 files
+- **Explicit `any`**: 393 occurrences across 137 files
+- **@deprecated APIs**: 46 files
 
-Worst offenders (by occurrence count):
+Top `any` offenders:
 - `public/app/features/dashboard/state/DashboardModel.ts` — 23
 - `public/app/core/time_series2.ts` — 19
 - `public/app/plugins/datasource/opentsdb/datasource.ts` — 16
@@ -64,55 +43,21 @@ Worst offenders (by occurrence count):
 - `public/app/plugins/datasource/influxdb/query_part.ts` — 12
 - `public/app/plugins/datasource/influxdb/datasource.ts` — 11
 - `public/app/features/alerting/state/query_part.ts` — 10
+- `public/app/features/dashboard/state/DashboardMigrator.test.ts` — 10
 - `public/app/plugins/datasource/graphite/graphite_query.ts` — 9
-- `public/app/features/explore/TraceView/components/model/link-patterns.tsx` — 9
-- `public/app/features/templating/template_srv.ts` — 8
-
-### `@deprecated` APIs: ~51 files (non-generated)
-
-Key files with deprecated APIs still defined:
-- `public/app/features/dashboard/state/DashboardModel.ts`
-- `public/app/core/services/backend_srv.ts`
-- `public/app/features/templating/template_srv.ts`
-- `public/app/types/events.ts`
-- `public/app/core/time_series2.ts`
 
 ## Comment Debt
 
-### Frontend TODO/FIXME/HACK/XXX: ~618 occurrences across ~337 files
-
-Highest-density files (sampled):
-- `public/app/plugins/datasource/azuremonitor/components/ConfigEditor/AppRegistrationCredentials.tsx` — 36
-- `public/app/plugins/datasource/prometheus/configuration/AzureCredentialsForm.tsx` — 27
-- `public/app/plugins/datasource/mssql/azureauth/AzureCredentialsForm.tsx` — 27
-- `public/app/plugins/datasource/mssql/azureauth/AzureAuth.test.ts` — 18
-
-### Backend TODO/FIXME/HACK/XXX: ~894 occurrences across ~453 files
-
-Highest-density files (sampled):
-- `pkg/storage/secret/metadata/query.go` — 17
-- `pkg/storage/unified/testing/kv.go` — 16
-- `pkg/tests/api/alerting/api_ruler_test.go` — 25 (test file)
-- `pkg/registry/apis/provisioning/register.go` — 10
-- `pkg/services/org/orgimpl/org.go` — 10
-- `pkg/storage/unified/resource/datastore.go` — 10
+- **Frontend TODO/FIXME/HACK/XXX**: 602 occurrences
+- **Backend TODO/FIXME/HACK/XXX**: 894 occurrences
 
 ## Go Quality
 
-### `nolint` Directives: ~1,275 occurrences across ~500+ files
+- **nolint directives**: 1274 occurrences
+- **Oversized Go files (>800 loc)**: 66 files
+- **Deprecated Go APIs (`Deprecated:` marker)**: 65 files
 
-Highest-density files:
-- `pkg/tests/api/alerting/api_ruler_test.go` — 25
-- `pkg/tests/api/annotations/annotations_test.go` — 19
-- `pkg/services/libraryelements/libraryelements_patch_test.go` — 19
-- `pkg/services/preference/prefimpl/store_test.go` — 17
-- `pkg/tests/api/dashboards/api_dashboards_test.go` — 42
-- `pkg/services/preference/prefimpl/pref_test.go` — 16
-- `pkg/services/libraryelements/libraryelements_get_all_test.go` — 42
-
-### Oversized Non-Test Go Files (>800 loc): 67 files
-
-Top actionable files (excluding generated code like wire_gen.go, zz_generated*.go):
+Top oversized actionable files (excluding obvious test harness files):
 
 | File | Lines |
 |------|-------|
@@ -126,49 +71,36 @@ Top actionable files (excluding generated code like wire_gen.go, zz_generated*.g
 | `pkg/services/ngalert/store/alert_rule.go` | 1873 |
 | `pkg/registry/apis/provisioning/register.go` | 1579 |
 | `pkg/storage/unified/resource/search.go` | 1551 |
-| `pkg/services/live/live.go` | 1477 |
-| `pkg/storage/unified/sql/backend.go` | 1426 |
-| `pkg/services/ngalert/api/prometheus/api_prometheus.go` | 1395 |
-| `pkg/services/ngalert/models/alert_rule.go` | 1322 |
-| `pkg/api/dashboard.go` | 1290 |
-
-*Note*: `registry.go` (2828 loc) is a feature toggle registry — consider splitting by feature area. `setting.go` (2432 loc) and `dashboard_service.go` (2410 loc) are high-churn files that would benefit from modularization.
-
-### Deprecated Go APIs: ~77 files (non-generated)
 
 ## Feature Toggles
 
-### Deprecated Toggles (3 active in registry)
-
-| Toggle Name | Description |
-|---|---|
-| `prometheusAzureOverrideAudience` | "Allow override default AAD audience for Azure Prometheus endpoint. Enabled by default. This feature should no longer be used and will be removed in the future." |
-| `localeFormatPreference` | "Specifies the locale so the correct format for numbers and dates can be shown" — paused, will be removed |
-| `prometheusTypeMigration` | "Checks for deprecated Prometheus authentication methods (SigV4 and Azure), installs the relevant data source, and migrates the Prometheus data sources" |
-
-### Old `IsEnabled`/`IsEnabledGlobally` API: ~162 files
-
-These call sites should migrate to the OpenFeature interface (per deprecation notice in `pkg/services/featuremgmt/models.go`).
+- **Deprecated toggles in registry**: 3
+  - `prometheusAzureOverrideAudience`
+  - `localeFormatPreference`
+  - `prometheusTypeMigration`
+- **Old IsEnabled API call sites**: 162 files
 
 ## Recommended Actions
 
-### Priority 1: Dashboard Legacy Code (highest debt × high churn)
-`features/dashboard/` has 10 class components, 6 connect() usages, heavy `any` typing (52+ occurrences), and 176 commits in 6 months. Use the **`migrate-class-components` skill** to convert `DashboardPage`, `DashboardPanel`, `DashboardGrid`, `PanelEditor`, `SubMenu` etc.
+1. **[Tech Debt] Migrate dashboard/explore class and connect components to hooks**
+   - Scope: `public/app/features/dashboard/` and `public/app/features/explore/` (class components + `connect()` debt)
+   - How: Use the `migrate-class-components` skill to migrate class + `connect()` patterns to hooks.
 
-### Priority 2: Explore TraceView Modernization
-The `TraceView` subtree accounts for the only unsafe lifecycle method, 7 of 16 `stylesFactory` usages, and multiple class components. These are tightly coupled and could be modernized as a batch.
+2. **[Tech Debt] Modernize Explore TraceView (stylesFactory + unsafe lifecycle)**
+   - Scope: `public/app/features/explore/TraceView/` (only unsafe lifecycle call site plus most legacy `stylesFactory` usages)
+   - How: Replace unsafe lifecycle methods with hooks and move to `useStyles2`.
 
-### Priority 3: Oversized Go Files
-Split `setting.go` (2432 loc), `dashboard_service.go` (2410 loc), and `storage_backend.go` (2189 loc) into focused submodules. These are non-generated, non-test files that are actively maintained.
+3. **[Tech Debt] Split oversized Go files (setting.go, dashboard_service.go, storage_backend.go)**
+   - Scope: highest-churn oversized files in `pkg/setting/`, `pkg/services/dashboards/service/`, `pkg/storage/unified/`
+   - How: extract focused helpers/modules, keep behavior unchanged, add targeted unit coverage as needed.
 
-### Priority 4: Feature Toggle Cleanup
-Remove 3 deprecated feature toggles and migrate ~162 files from `IsEnabled`/`IsEnabledGlobally` to OpenFeature.
+4. **[Tech Debt] Clean up deprecated feature toggles and migrate IsEnabled API**
+   - Scope: remove 3 toggles marked `FeatureStageDeprecated` and migrate 162 legacy `IsEnabled` / `IsEnabledGlobally` call sites.
+   - How: follow feature toggle cleanup guidance in `pkg/services/featuremgmt/` and migrate incrementally to OpenFeature APIs.
 
-### Priority 5: `any` Type Reduction
-Target the top 10 files (DashboardModel 23, time_series2 19, DashboardMigrator 16, PanelModel 13, opentsdb/datasource 16) for strict typing. These files are the biggest impediment to type safety.
-
-### Priority 6: Plugin Datasource Class Components
-8 datasource editors still use class components (InfluxDB, Graphite, Loki, Tempo, AzureMonitor, CloudMonitoring). Many are Yarn workspaces — modernize them as part of plugin maintenance cycles.
+5. **[Tech Debt] Reduce explicit any in top 10 frontend files**
+   - Scope: top 10 files account for a significant portion of `any` usage.
+   - How: introduce stricter local types and narrow unknown payload boundaries.
 
 ## Change Log
 
@@ -220,3 +152,29 @@ Target the top 10 files (DashboardModel 23, time_series2 19, DashboardMigrator 1
 **Resolved since last scan:** None
 
 **New since last scan:** None
+
+### 2026-06-10 (current scan)
+
+| Metric | Previous | Current | Delta |
+|--------|----------|---------|-------|
+| Class components | 61 | 61 | 0 |
+| connect() HOC | 41 | 41 | 0 |
+| Unsafe lifecycles | 1 | 1 | 0 |
+| stylesFactory | 16 | 16 | 0 |
+| Explicit `any` | 393 | 393 | 0 |
+| `any` files | 137 | 137 | 0 |
+| @deprecated APIs | 51 | 46 | -5 |
+| Frontend TODO/FIXME/HACK | 618 | 602 | -16 |
+| Backend TODO/FIXME/HACK | 894 | 894 | 0 |
+| nolint directives | 1275 | 1274 | -1 |
+| Oversized Go files (>800 loc) | 67 | 66 | -1 |
+| Deprecated feature toggles | 3 | 3 | 0 |
+| Old IsEnabled API files | 162 | 162 | 0 |
+
+**Resolved since last scan:**
+- 5 files with `@deprecated` APIs no longer match this scan.
+- Frontend TODO/FIXME/HACK/XXX occurrences decreased by 16.
+- `nolint` directives decreased by 1.
+- One file dropped below the oversized Go file threshold.
+
+**New since last scan:** None.
