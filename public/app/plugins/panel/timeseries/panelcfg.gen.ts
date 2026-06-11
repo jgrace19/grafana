@@ -20,12 +20,32 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   enableFacetedFilter: true,
 };
 
+export enum TrendOverlayType {
+  MovingAverage = 'movingAverage',
+  LinearRegression = 'linearRegression',
+}
+
+export interface TrendOverlayOptions {
+  enabled: boolean;
+  type: TrendOverlayType;
+  windowSize: number;
+  predictionCount: number;
+}
+
+export const defaultTrendOverlayOptions: Partial<TrendOverlayOptions> = {
+  enabled: false,
+  type: TrendOverlayType.MovingAverage,
+  windowSize: 10,
+  predictionCount: 100,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
+  trendOverlay?: TrendOverlayOptions;
 }
 
 export interface FieldConfig extends common.GraphFieldConfig {}
