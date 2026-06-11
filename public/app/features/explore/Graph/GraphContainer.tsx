@@ -13,14 +13,14 @@ import {
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type GraphThresholdsStyleConfig, PanelChrome, type PanelChromeProps } from '@grafana/ui';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 import { LimitedDataDisclaimer } from '../LimitedDataDisclaimer';
 import { storeGraphStyle } from '../state/utils';
 
 import { ExploreGraph } from './ExploreGraph';
 import { ExploreGraphLabel } from './ExploreGraphLabel';
-import { loadGraphStyle } from './utils';
+import { loadGraphScale, loadGraphStyle, storeGraphScale } from './utils';
 
 const MAX_NUMBER_OF_TIME_SERIES = 20;
 
@@ -58,10 +58,16 @@ export const GraphContainer = ({
 }: Props) => {
   const [showAllSeries, toggleShowAllSeries] = useToggle(false);
   const [graphStyle, setGraphStyle] = useState(loadGraphStyle);
+  const [graphScale, setGraphScale] = useState(loadGraphScale);
 
   const onGraphStyleChange = useCallback((graphStyle: ExploreGraphStyle) => {
     storeGraphStyle(graphStyle);
     setGraphStyle(graphStyle);
+  }, []);
+
+  const onGraphScaleChange = useCallback((graphScale: ExploreGraphScale) => {
+    storeGraphScale(graphScale);
+    setGraphScale(graphScale);
   }, []);
 
   const slicedData = useMemo(() => {
@@ -93,11 +99,19 @@ export const GraphContainer = ({
       height={height}
       loadingState={loadingState}
       statusMessage={statusMessage}
-      actions={<ExploreGraphLabel graphStyle={graphStyle} onChangeGraphStyle={onGraphStyleChange} />}
+      actions={
+        <ExploreGraphLabel
+          graphStyle={graphStyle}
+          onChangeGraphStyle={onGraphStyleChange}
+          graphScale={graphScale}
+          onChangeGraphScale={onGraphScaleChange}
+        />
+      }
     >
       {(innerWidth, innerHeight) => (
         <ExploreGraph
           graphStyle={graphStyle}
+          graphScale={graphScale}
           data={slicedData}
           height={innerHeight}
           width={innerWidth}
