@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { type LinkModel, type PanelData, type PanelPlugin, renderMarkdown } from '@grafana/data';
-import { getTemplateSrv, locationService } from '@grafana/runtime';
+import { config, getTemplateSrv, locationService } from '@grafana/runtime';
 import { type PanelPadding } from '@grafana/ui';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { InspectTab } from 'app/features/inspector/types';
@@ -23,6 +23,7 @@ interface CommonProps {
   width: number;
   height: number;
   hideMenu?: boolean;
+  onOpenComments?: () => void;
 }
 
 export function getPanelChromeProps(props: CommonProps) {
@@ -77,11 +78,15 @@ export function getPanelChromeProps(props: CommonProps) {
   const padding: PanelPadding = props.plugin.noPadding ? 'none' : 'md';
   const alertState = props.data.alertState?.state;
 
+  const dashboardUid = props.dashboard.uid ?? undefined;
+  const commentsEnabled = Boolean(config.featureToggles.dashboardComments && dashboardUid);
+
   const showTitleItems =
     (props.panel.links && props.panel.links.length > 0 && onShowPanelLinks) ||
     (props.data.series.length > 0 && props.data.series.some((v) => (v.meta?.notices?.length ?? 0) > 0)) ||
     (props.data.request && props.data.request.timeInfo) ||
-    alertState;
+    alertState ||
+    (commentsEnabled && Boolean(props.onOpenComments));
 
   const titleItems = showTitleItems && (
     <PanelHeaderTitleItems
@@ -90,6 +95,9 @@ export function getPanelChromeProps(props: CommonProps) {
       panelId={props.panel.id}
       panelLinks={props.panel.links}
       onShowPanelLinks={onShowPanelLinks}
+      commentsEnabled={commentsEnabled}
+      dashboardUid={dashboardUid}
+      onOpenComments={props.onOpenComments}
     />
   );
 

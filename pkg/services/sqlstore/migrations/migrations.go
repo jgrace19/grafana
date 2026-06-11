@@ -44,6 +44,7 @@ func (oss *OSSMigrations) AddMigration(mg *Migrator) {
 	addPreferencesMigrations(mg)
 	addAlertMigrations(mg)
 	addAnnotationMig(mg)
+	addDashboardCommentMigrations(mg)
 	addTestDataMigrations(mg)
 	addDashboardVersionMigration(mg)
 	addTeamMigrations(mg)
