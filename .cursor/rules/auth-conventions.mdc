@@ -1,0 +1,26 @@
+---
+description: Auth implementation conventions for Grafana backend auth surfaces
+globs: "{pkg/services/auth/**/*.go,pkg/services/authn/**/*.go,pkg/services/authz/**/*.go,pkg/services/login/**/*.go,pkg/services/contexthandler/**/*.go,pkg/middleware/auth.go,pkg/api/login*.go}"
+alwaysApply: false
+---
+
+# Auth implementation conventions
+
+- Keep request authentication in `authn` clients/services; do not duplicate credential parsing in API handlers.
+- For new auth mechanisms, implement `authn.Client` (and `ContextAwareClient` when request-driven), with clear `Test()` and stable `Priority()`.
+- Register auth clients and sync hooks in `pkg/services/authn/authnimpl/registration.go`; avoid ad hoc wiring in unrelated packages.
+- Return and propagate `authn.Identity` with correct `ClientParams` (`SyncUser`, `FetchSyncedUser`, `SyncPermissions`, org/team sync flags) instead of custom side effects.
+- Use `authn.Service.Login()` to create sessions; write/remove cookies via `authn.WriteSessionCookie()` and `authn.DeleteSessionCookie()`.
+- Keep session/token lifecycle in `auth.UserTokenService` (`authimpl`): store hashed tokens only, use rotation/revocation APIs, and preserve max lifetime + inactive lifetime behavior.
+- For OAuth/SAML flows, validate redirect/state/PKCE via existing authn/api helpers; never introduce open redirects (always validate redirect targets).
+- Set auth context through `contexthandler` middleware and consume `ReqContext`/requester identity downstream; do not bypass context population.
+- Enforce authorization through access-control evaluators (`ac.EvalPermission`, `ac.EvalAny`, `AuthorizeInOrgMiddleware`) rather than manual role checks.
+- Preserve existing error semantics (`Unauthorized` vs `Forbidden` vs `NotFound`) and public error messages for login/auth endpoints.
+
+Primary references:
+- `pkg/services/authn/authnimpl/service.go`
+- `pkg/services/authn/authnimpl/registration.go`
+- `pkg/services/auth/authimpl/auth_token.go`
+- `pkg/services/contexthandler/contexthandler.go`
+- `pkg/services/accesscontrol/middleware.go`
+- `pkg/api/login.go`
