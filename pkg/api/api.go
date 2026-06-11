@@ -42,6 +42,7 @@ import (
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/accesscontrol/ssoutils"
 	"github.com/grafana/grafana/pkg/services/auth"
+	"github.com/grafana/grafana/pkg/services/dashboardcomments"
 	"github.com/grafana/grafana/pkg/services/cloudmigration"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/correlations"
@@ -533,6 +534,19 @@ func (hs *HTTPServer) registerRoutes() {
 			annotationsRoute.Post("/graphite", authorize(ac.EvalPermission(ac.ActionAnnotationsCreate, ac.ScopeAnnotationsTypeOrganization)), routing.Wrap(hs.PostGraphiteAnnotation))
 			annotationsRoute.Get("/tags", authorize(ac.EvalPermission(ac.ActionAnnotationsRead)), routing.Wrap(hs.GetAnnotationTags))
 		})
+
+		// Dashboard comments (feature-flagged)
+		if hs.Features.IsEnabledGlobally(featuremgmt.FlagDashboardComments) {
+			apiRoute.Group("/dashboards/:dashboardUid/comments", func(commentsRoute routing.RouteRegister) {
+				commentsRoute.Get("/", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsRead)), routing.Wrap(hs.GetDashboardComments))
+				commentsRoute.Get("/counts", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsRead)), routing.Wrap(hs.GetDashboardCommentCounts))
+				commentsRoute.Post("/", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsCreate)), routing.Wrap(hs.CreateDashboardComment))
+				commentsRoute.Get("/:commentId", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsRead)), routing.Wrap(hs.GetDashboardComment))
+				commentsRoute.Put("/:commentId", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsCreate)), routing.Wrap(hs.UpdateDashboardComment))
+				commentsRoute.Delete("/:commentId", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsAdmin)), routing.Wrap(hs.DeleteDashboardComment))
+				commentsRoute.Post("/:commentId/resolve", authorize(ac.EvalPermission(dashboardcomments.ActionDashboardCommentsAdmin)), routing.Wrap(hs.ResolveDashboardComment))
+			})
+		}
 
 		apiRoute.Post("/frontend-metrics", routing.Wrap(hs.PostFrontendMetrics))
 

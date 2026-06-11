@@ -2811,6 +2811,13 @@ var (
 			Expression:   "false",
 			HideFromDocs: true,
 		},
+		{
+			Name:        "dashboardComments",
+			Description: "Enable collaborative threaded comments on dashboard panels and annotations",
+			Stage:       FeatureStageExperimental,
+			Owner:       grafanaDashboardsSquad,
+			Expression:  "false",
+		},
 	}
 )
 

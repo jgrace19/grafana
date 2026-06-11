@@ -5,6 +5,7 @@ import (
 
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/dashboardcomments"
 	"github.com/grafana/grafana/pkg/services/dashboards"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/folder"
@@ -606,6 +607,45 @@ func (hs *HTTPServer) declareFixedRoles() error {
 		Grants: []string{string(org.RoleEditor), string(org.RoleAdmin)},
 	}
 
+	dashboardCommentsReaderRole := ac.RoleRegistration{
+		Role: ac.RoleDTO{
+			Name:        "fixed:dashboards.comments:reader",
+			DisplayName: "Dashboard Comments Reader",
+			Description: "Read dashboard comments.",
+			Group:       "Dashboard Comments",
+			Permissions: []ac.Permission{
+				{Action: dashboardcomments.ActionDashboardCommentsRead},
+			},
+		},
+		Grants: []string{string(org.RoleViewer)},
+	}
+
+	dashboardCommentsWriterRole := ac.RoleRegistration{
+		Role: ac.RoleDTO{
+			Name:        "fixed:dashboards.comments:writer",
+			DisplayName: "Dashboard Comments Writer",
+			Description: "Create and update dashboard comments.",
+			Group:       "Dashboard Comments",
+			Permissions: ac.ConcatPermissions(dashboardCommentsReaderRole.Role.Permissions, []ac.Permission{
+				{Action: dashboardcomments.ActionDashboardCommentsCreate},
+			}),
+		},
+		Grants: []string{string(org.RoleEditor)},
+	}
+
+	dashboardCommentsAdminRole := ac.RoleRegistration{
+		Role: ac.RoleDTO{
+			Name:        "fixed:dashboards.comments:admin",
+			DisplayName: "Dashboard Comments Admin",
+			Description: "Full control over dashboard comments including resolve and delete.",
+			Group:       "Dashboard Comments",
+			Permissions: ac.ConcatPermissions(dashboardCommentsWriterRole.Role.Permissions, []ac.Permission{
+				{Action: dashboardcomments.ActionDashboardCommentsAdmin},
+			}),
+		},
+		Grants: []string{string(org.RoleAdmin)},
+	}
+
 	roles := []ac.RoleRegistration{provisioningWriterRole, datasourcesReaderRole, builtInDatasourceReader, datasourcesWriterRole,
 		datasourcesIdReaderRole, datasourcesCreatorRole, orgReaderRole, orgWriterRole,
 		orgMaintainerRole, teamsCreatorRole, teamsWriterRole, teamsReaderRole, datasourcesExplorerRole,
@@ -615,7 +655,7 @@ func (hs *HTTPServer) declareFixedRoles() error {
 		publicDashboardsWriterRole, featuremgmtReaderRole, featuremgmtWriterRole, libraryPanelsCreatorRole,
 		libraryPanelsReaderRole, libraryPanelsWriterRole, libraryPanelsGeneralReaderRole, libraryPanelsGeneralWriterRole,
 		snapshotsCreatorRole, snapshotsDeleterRole, snapshotsReaderRole, allAnnotationsReaderRole, allAnnotationsWriterRole,
-		livePushRole}
+		livePushRole, dashboardCommentsReaderRole, dashboardCommentsWriterRole, dashboardCommentsAdminRole}
 
 	return hs.accesscontrolService.DeclareFixedRoles(roles...)
 }

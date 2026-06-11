@@ -49,6 +49,7 @@ import (
 	"github.com/grafana/grafana/pkg/plugins/pluginscdn"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/annotations"
+	"github.com/grafana/grafana/pkg/services/dashboardcomments"
 	"github.com/grafana/grafana/pkg/services/anonymous"
 	"github.com/grafana/grafana/pkg/services/apikey"
 	grafanaapiserver "github.com/grafana/grafana/pkg/services/apiserver"
@@ -209,6 +210,7 @@ type HTTPServer struct {
 	TeamService                     team.Service
 	accesscontrolService            accesscontrol.Service
 	annotationsRepo                 annotations.Repository
+	dashboardCommentsService        dashboardcomments.Service
 	tagService                      tag.Service
 	oauthTokenService               oauthtoken.OAuthTokenService
 	statsService                    stats.Service
@@ -272,7 +274,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 	publicDashboardsApi *publicdashboardsApi.Api, userService user.Service, tempUserService tempUser.Service,
 	loginAttemptService loginAttempt.Service, orgService org.Service, orgDeletionService org.DeletionService, teamService team.Service,
 	accesscontrolService accesscontrol.Service, navTreeService navtree.Service,
-	annotationRepo annotations.Repository, tagService tag.Service, oauthTokenService oauthtoken.OAuthTokenService,
+	annotationRepo annotations.Repository, dashboardCommentsService dashboardcomments.Service, tagService tag.Service, oauthTokenService oauthtoken.OAuthTokenService,
 	statsService stats.Service, authnService authn.Service, pluginsCDNService *pluginscdn.Service, promGatherer prometheus.Gatherer,
 	starApi *starApi.API, promRegister prometheus.Registerer, clientConfigProvider grafanaapiserver.DirectRestConfigProvider, anonService anonymous.Service,
 	userVerifier user.Verifier, pluginPreinstall pluginchecker.Preinstall, publicDashboardsService publicdashboards.Service,
@@ -364,6 +366,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 		navTreeService:               navTreeService,
 		accesscontrolService:         accesscontrolService,
 		annotationsRepo:              annotationRepo,
+		dashboardCommentsService:     dashboardCommentsService,
 		tagService:                   tagService,
 		oauthTokenService:            oauthTokenService,
 		statsService:                 statsService,
