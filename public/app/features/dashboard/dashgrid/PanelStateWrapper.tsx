@@ -35,6 +35,7 @@ import {
 } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { profiler } from 'app/core/profiler';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { annotationServer } from 'app/features/annotations/api';
 import { applyPanelTimeOverrides } from 'app/features/dashboard/utils/panel';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
@@ -58,6 +59,7 @@ import { liveTimer } from './liveTimer';
 import { PanelOptionsLogger } from './panelOptionsLogger';
 
 const DEFAULT_PLUGIN_ERROR = 'Error in plugin';
+const panelStateDebugLog = createDebugLog('dashboard-panel-state-wrapper', 'PanelStateWrapper');
 
 export interface Props {
   panel: PanelModel;
@@ -257,7 +259,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        panelStateDebugLog('Skip tick render', this.props.panel.title, delta);
         return;
       }
     }

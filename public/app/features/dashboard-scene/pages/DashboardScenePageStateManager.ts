@@ -14,6 +14,7 @@ import {
 } from 'app/api/clients/provisioning/v0alpha1';
 import { StateManagerBase } from 'app/core/services/StateManagerBase';
 import { contextSrv } from 'app/core/services/context_srv';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { getMessageFromError, getMessageIdFromError, getStatusFromError } from 'app/core/utils/errors';
 import { startMeasure, stopMeasure } from 'app/core/utils/metrics';
 import {
@@ -86,6 +87,7 @@ const LOAD_SCENE_MEASUREMENT = 'loadDashboardScene';
 
 /** Only used by cache in loading home in DashboardPageProxy and initDashboard (Old arch), can remove this after old dashboard arch is gone */
 export const HOME_DASHBOARD_CACHE_KEY = '__grafana_home_uid__';
+const dashboardScenePageStateLog = createDebugLog('dashboard-scene-page-state', 'DashboardScenePageStateManager');
 
 interface DashboardCacheEntry<T> {
   dashboard: T;
@@ -797,7 +799,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          dashboardScenePageStateLog('not correct url correcting', { dashboardUrl, currentPath });
         }
       }
 
@@ -1017,7 +1019,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          dashboardScenePageStateLog('not correct url correcting', { dashboardUrl, currentPath });
         }
       }
       // Populate nav model in global store according to the folder

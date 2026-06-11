@@ -9,6 +9,7 @@ import { Box } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import {
   DashboardBrandingFooter,
   DashboardBrandingFooterVariant,
@@ -33,6 +34,8 @@ import { shouldHideDashboardKioskFooter } from './utils';
 
 export interface Props
   extends Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> {}
+
+const dashboardScenePageLog = createDebugLog('dashboard-scene-page', 'DashboardScenePage');
 
 export function DashboardScenePage({ route, queryParams, location }: Props) {
   const params = useParams();
@@ -126,7 +129,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // A bit tricky for transition to or from Home dashboard that does not have a uid in the url (but could have it in the dashboard model)
   // if prevMatch is undefined we are going from normal route to home route or vice versa
   if (type !== 'snapshot' && (!prevMatch || uid !== prevMatch?.params.uid)) {
-    console.log('skipping rendering');
+    dashboardScenePageLog('skipping rendering');
     return null;
   }
 

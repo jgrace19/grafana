@@ -13,12 +13,15 @@ import {
 import { getGrafanaLiveSrv, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 import { ShowModalReactEvent } from '../../../types/events';
 import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
+
+const dashboardWatcherDebugLog = createDebugLog('dashboard-watcher', 'DashboardWatcher');
 
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session
@@ -127,7 +130,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              dashboardWatcherDebugLog('dashboard event for different dashboard?', { event, dash });
               return;
             }
 

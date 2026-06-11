@@ -1,5 +1,6 @@
 import { store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -30,6 +31,8 @@ export interface PerformanceMemory {
 export interface PerformanceWithMemory extends Performance {
   memory?: PerformanceMemory;
 }
+
+const performanceDebugLog = createDebugLog('dashboard-performance', 'DashboardPerformance');
 
 /**
  * Type guard to check if performance has memory property (Chrome-specific)
@@ -85,11 +88,9 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
+      performanceDebugLog(`${logger}: ${message}`, data);
     } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
+      performanceDebugLog(`${logger}: ${message}`);
     }
   }
 }
