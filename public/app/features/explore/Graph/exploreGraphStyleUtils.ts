@@ -1,8 +1,14 @@
 import { produce } from 'immer';
 
 import { type FieldConfigSource, type ThresholdsConfig } from '@grafana/data';
-import { GraphDrawStyle, type GraphFieldConfig, type GraphThresholdsStyleConfig, StackingMode } from '@grafana/schema';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import {
+  GraphDrawStyle,
+  type GraphFieldConfig,
+  type GraphThresholdsStyleConfig,
+  ScaleDistribution,
+  StackingMode,
+} from '@grafana/schema';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 export type FieldConfig = FieldConfigSource<GraphFieldConfig>;
 
@@ -69,5 +75,21 @@ export function applyThresholdsConfig(
     draft.defaults.thresholds = thresholdsConfig;
     draft.defaults.custom = draft.defaults.custom ?? {};
     draft.defaults.custom.thresholdsStyle = thresholdsStyle;
+  });
+}
+
+export function applyGraphScale(config: FieldConfig, scale: ExploreGraphScale): FieldConfig {
+  return produce(config, (draft) => {
+    draft.defaults.custom = draft.defaults.custom ?? {};
+    if (scale === 'log') {
+      draft.defaults.custom.scaleDistribution = {
+        type: ScaleDistribution.Log,
+        log: 10,
+      };
+    } else {
+      draft.defaults.custom.scaleDistribution = {
+        type: ScaleDistribution.Linear,
+      };
+    }
   });
 }

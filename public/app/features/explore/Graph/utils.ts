@@ -1,5 +1,10 @@
 import { store } from '@grafana/data';
-import { type ExploreGraphStyle, EXPLORE_GRAPH_STYLES } from 'app/types/explore';
+import {
+  type ExploreGraphScale,
+  type ExploreGraphStyle,
+  EXPLORE_GRAPH_SCALES,
+  EXPLORE_GRAPH_STYLES,
+} from 'app/types/explore';
 
 const GRAPH_STYLE_KEY = 'grafana.explore.style.graph';
 export const storeGraphStyle = (graphStyle: string): void => {
@@ -23,4 +28,19 @@ const DEFAULT_GRAPH_STYLE: ExploreGraphStyle = 'lines';
 export const toGraphStyle = (data: unknown): ExploreGraphStyle => {
   const found = EXPLORE_GRAPH_STYLES.find((v) => v === data);
   return found ?? DEFAULT_GRAPH_STYLE;
+};
+
+const GRAPH_SCALE_KEY = 'grafana.explore.scale.graph';
+export const storeGraphScale = (scale: string): void => {
+  store.set(GRAPH_SCALE_KEY, scale);
+};
+
+export const loadGraphScale = (): ExploreGraphScale => {
+  return toGraphScale(store.get(GRAPH_SCALE_KEY));
+};
+
+const DEFAULT_GRAPH_SCALE: ExploreGraphScale = 'linear';
+export const toGraphScale = (data: unknown): ExploreGraphScale => {
+  const found = EXPLORE_GRAPH_SCALES.find((v) => v === data);
+  return found ?? DEFAULT_GRAPH_SCALE;
 };
