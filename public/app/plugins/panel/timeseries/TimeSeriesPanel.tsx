@@ -26,10 +26,12 @@ import { TimeSeriesTooltip } from './TimeSeriesTooltip';
 import { type Options } from './panelcfg.gen';
 import { AnnotationsPlugin } from './plugins/AnnotationPlugin';
 import { ExemplarsPlugin, getVisibleLabels } from './plugins/ExemplarsPlugin';
+import { GhostDeltaBandPlugin } from './plugins/GhostDeltaBandPlugin';
 import { OutsideRangePlugin } from './plugins/OutsideRangePlugin';
 import { ThresholdControlsPlugin } from './plugins/ThresholdControlsPlugin';
 import { getXAnnotationFrames } from './plugins/utils';
 import { getPrepareTimeseriesSuggestion } from './suggestions';
+import { useGhostOverlayData } from './useGhostOverlayData';
 import { getGroupedFilters, getTimezones, prepareGraphableFields } from './utils';
 
 interface TimeSeriesPanelProps extends PanelProps<Options> {}
@@ -61,12 +63,15 @@ export const TimeSeriesPanel = ({
 
   const { dataLinkPostProcessor } = useDataLinksContext();
 
+  const ghostFrames = useGhostOverlayData(data, timeRange, options.ghostOverlay);
+
   const userCanExecuteActions = useMemo(() => canExecuteActions?.() ?? false, [canExecuteActions]);
   // Vertical orientation is not available for users through config.
   // It is simplified version of horizontal time series panel and it does not support all plugins.
   const isVerticallyOriented = options.orientation === VizOrientation.Vertical;
   const { frames, compareDiffMs } = useMemo(() => {
-    let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
+    const allSeries = ghostFrames.length > 0 ? [...data.series, ...ghostFrames] : data.series;
+    let frames = prepareGraphableFields(allSeries, config.theme2, timeRange);
     if (frames != null) {
       let compareDiffMs: number[] = [0];
 
@@ -80,8 +85,6 @@ export const TimeSeriesPanel = ({
         });
 
         if (diffMs !== 0) {
-          // Check if the compared frame needs time alignment
-          // Apply alignment when time ranges match (no shift applied yet)
           const needsAlignment = shouldAlignTimeCompare(frame, frames, timeRange);
 
           if (needsAlignment) {
@@ -94,7 +97,7 @@ export const TimeSeriesPanel = ({
     }
 
     return { frames };
-  }, [data.series, timeRange]);
+  }, [data.series, ghostFrames, timeRange]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
@@ -248,6 +251,9 @@ export const TimeSeriesPanel = ({
                     fieldConfig={fieldConfig}
                     onThresholdsChange={canEditThresholds ? onThresholdsChange : undefined}
                   />
+                )}
+                {options.ghostOverlay?.enabled && ghostFrames.length > 0 && (
+                  <GhostDeltaBandPlugin config={uplotConfig} frame={alignedFrame} />
                 )}
               </>
             )}
