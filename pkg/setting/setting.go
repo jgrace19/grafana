@@ -1197,14 +1197,18 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
-		fmt.Println("Grafana-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
+		log.New("setting").Error(
+			"Grafana-server init failed: defaults config file not found",
+			"defaultConfigFile",
+			defaultConfigFile,
+		)
 		os.Exit(1)
 	}
 
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		fmt.Printf("Failed to parse defaults.ini, %v\n", err)
+		log.New("setting").Error("Failed to parse defaults.ini", "error", err, "defaultConfigFile", defaultConfigFile)
 		os.Exit(1)
 		return nil, err
 	}

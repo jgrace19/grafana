@@ -2,10 +2,13 @@ package codegen
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
+
+var logger = log.New("plugins.codegen")
 
 type PackageJSON struct {
 	Version string `json:"version"`
@@ -20,7 +23,7 @@ func OpenPackageJSON(dir string) (PackageJSON, error) {
 
 	defer func() {
 		if err := f.Close(); err != nil {
-			log.Println("error closing package.json", err)
+			logger.Warn("Failed to close package.json", "error", err)
 		}
 	}()
 
