@@ -22,6 +22,7 @@ import { NavToolbarSeparator } from '../NavToolbar/NavToolbarSeparator';
 import { QuickAdd } from '../QuickAdd/QuickAdd';
 
 import { HelpTopBarButton } from './HelpTopBarButton';
+import { HomePageThemeToggle } from './HomePageThemeToggle';
 import { InviteUserButton } from './InviteUserButton';
 import { ProfileButton } from './ProfileButton';
 import { SignInLink } from './SignInLink';
@@ -101,6 +102,7 @@ export const SingleTopBar = memo(function SingleTopBar({
           {!showToolbarLevel && actions}
           {!contextSrv.user.isSignedIn && <SignInLink />}
           <InviteUserButton />
+          <HomePageThemeToggle />
           {profileNode && <ProfileButton profileNode={profileNode} onToggleKioskMode={onToggleKioskMode} />}
         </Stack>
       </div>
