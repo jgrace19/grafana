@@ -4,7 +4,6 @@ import { TestProvider } from 'test/helpers/TestProvider';
 
 import {
   CoreApp,
-  createTheme,
   type DataSourceApi,
   EventBusSrv,
   LoadingState,
@@ -16,10 +15,9 @@ import { usePluginLinks } from '@grafana/runtime';
 import { configureStore } from 'app/store/configureStore';
 
 import { ContentOutlineContextProvider } from './ContentOutline/ContentOutlineContext';
-import { Explore, type Props } from './Explore';
+import { Explore } from './Explore';
 import { QueryLibraryContextProviderMock } from './QueryLibrary/mocks';
 import { initialExploreState } from './state/main';
-import { scanStopAction } from './state/query';
 import { createEmptyQueryResponse, makeExplorePaneState } from './state/utils';
 
 const resizeWindow = (x: number, y: number) => {
@@ -58,62 +56,6 @@ const makeEmptyQueryResponse = (loadingState: LoadingState) => {
   return baseEmptyResponse;
 };
 
-const dummyProps: Props = {
-  setShowQueryInspector: (value: boolean) => {},
-  showQueryInspector: false,
-  logsResult: undefined,
-  changeSize: jest.fn(),
-  datasourceInstance: {
-    meta: {
-      metrics: true,
-      logs: true,
-    },
-    components: {
-      QueryEditorHelp: {},
-    },
-  } as DataSourceApi,
-  exploreId: 'left',
-  loading: false,
-  modifyQueries: jest.fn(),
-  scanStart: jest.fn(),
-  scanStopAction: scanStopAction,
-  setQueries: jest.fn(),
-  queryKeys: [],
-  queries: [],
-  isLive: false,
-  syncedTimes: false,
-  updateTimeRange: jest.fn(),
-  graphResult: [],
-  timeZone: 'UTC',
-  queryResponse: makeEmptyQueryResponse(LoadingState.NotStarted),
-  addQueryRow: jest.fn(),
-  theme: createTheme(),
-  showMetrics: true,
-  showLogs: true,
-  showTable: true,
-  showTrace: true,
-  showCustom: true,
-  showNodeGraph: true,
-  showFlameGraph: true,
-  splitOpen: jest.fn(),
-  splitted: false,
-  eventBus: new EventBusSrv(),
-  showRawPrometheus: false,
-  showLogsSample: false,
-  logsSample: { enabled: false },
-  setSupplementaryQueryEnabled: jest.fn(),
-  correlationEditorDetails: undefined,
-  correlationEditorHelperData: undefined,
-  exploreActiveDS: {
-    exploreToDS: [],
-    dsToExplore: [],
-  },
-  changeDatasource: jest.fn(),
-  compact: false,
-  changeCompactMode: jest.fn(),
-  queryLibraryRef: undefined,
-  queriesChangedIndexAtRun: 0,
-};
 jest.mock('@openfeature/react-sdk', () => ({
   useBooleanFlagValue: jest.fn().mockReturnValue(false),
 }));
@@ -156,21 +98,53 @@ jest.mock('react-virtualized-auto-sizer', () => {
 
 const usePluginLinksMock = jest.mocked(usePluginLinks);
 
-const setup = (overrideProps?: Partial<Props>) => {
-  const store = configureStore({
+interface SetupOptions {
+  paneOverrides?: Partial<ReturnType<typeof makeExplorePaneState>>;
+  queryResponse?: ReturnType<typeof makeEmptyQueryResponse>;
+  queryLibraryRef?: string;
+  datasourceInstance?: DataSourceApi | null;
+}
+
+const setup = (options: SetupOptions = {}) => {
+  const { paneOverrides, queryResponse, queryLibraryRef, datasourceInstance } = options;
+
+  const defaultDatasource = {
+    meta: {
+      metrics: true,
+      logs: true,
+    },
+    components: {
+      QueryEditorHelp: {},
+    },
+  } as DataSourceApi;
+
+  const paneState = makeExplorePaneState();
+  const mergedPane = {
+    ...paneState,
+    ...paneOverrides,
+    queryResponse: queryResponse ?? paneState.queryResponse,
+    datasourceInstance: datasourceInstance !== undefined ? datasourceInstance : defaultDatasource,
+    queryLibraryRef: queryLibraryRef,
+  };
+
+  const explorerStore = configureStore({
     explore: {
       ...initialExploreState,
       panes: {
-        left: makeExplorePaneState(),
+        left: mergedPane,
       },
     },
   });
-  const exploreProps = { ...dummyProps, ...overrideProps };
 
   return render(
-    <TestProvider store={store}>
+    <TestProvider store={explorerStore}>
       <ContentOutlineContextProvider>
-        <Explore {...exploreProps} />
+        <Explore
+          exploreId="left"
+          eventBus={new EventBusSrv()}
+          showQueryInspector={false}
+          setShowQueryInspector={() => {}}
+        />
       </ContentOutlineContextProvider>
     </TestProvider>
   );
@@ -278,21 +252,40 @@ describe('Explore', () => {
     });
 
     it('should disable both add query and add from library buttons when editing from library', async () => {
-      const store = configureStore({
+      const defaultDatasource = {
+        meta: {
+          metrics: true,
+          logs: true,
+        },
+        components: {
+          QueryEditorHelp: {},
+        },
+      } as DataSourceApi;
+
+      const paneState = makeExplorePaneState();
+      const explorerStore = configureStore({
         explore: {
           ...initialExploreState,
           panes: {
-            left: makeExplorePaneState(),
+            left: {
+              ...paneState,
+              datasourceInstance: defaultDatasource,
+              queryLibraryRef: 'library-query-123',
+            },
           },
         },
       });
-      const exploreProps = { ...dummyProps, queryLibraryRef: 'library-query-123' };
 
       render(
-        <TestProvider store={store}>
+        <TestProvider store={explorerStore}>
           <QueryLibraryContextProviderMock queryLibraryEnabled={true}>
             <ContentOutlineContextProvider>
-              <Explore {...exploreProps} />
+              <Explore
+                exploreId="left"
+                eventBus={new EventBusSrv()}
+                showQueryInspector={false}
+                setShowQueryInspector={() => {}}
+              />
             </ContentOutlineContextProvider>
           </QueryLibraryContextProviderMock>
         </TestProvider>

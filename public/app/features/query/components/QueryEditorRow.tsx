@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { cloneDeep, filter, uniqBy, uniqueId } from 'lodash';
 import pluralize from 'pluralize';
-import { PureComponent, type ReactNode, type JSX, createRef } from 'react';
+import { type ReactNode, type JSX, useEffect, useRef, useState } from 'react';
 
 import {
   CoreApp,
@@ -75,99 +75,115 @@ export interface Props<TQuery extends DataQuery> {
   isOpen?: boolean;
 }
 
-interface State<TQuery extends DataQuery> {
-  /** DatasourceUid or ds variable expression used to resolve current datasource */
-  queriedDataSourceIdentifier?: string | null;
-  datasource: DataSourceApi<TQuery> | null;
-  datasourceUid?: string | null;
-  data?: PanelData;
-  isOpen?: boolean;
-  showingHelp: boolean;
-}
+export function QueryEditorRow<TQuery extends DataQuery>({
+  data,
+  query,
+  queries,
+  id,
+  index,
+  dataSource,
+  onChangeDataSource,
+  onDataSourceLoaded,
+  renderHeaderExtras,
+  onAddQuery,
+  onRemoveQuery,
+  onChange,
+  onReplace,
+  onRunQuery,
+  visualization,
+  hideHideQueryButton = false,
+  app = CoreApp.PanelEditor,
+  range,
+  history,
+  eventBus,
+  hideActionButtons,
+  onQueryCopied,
+  onQueryRemoved,
+  onQueryToggled,
+  onQueryOpenChanged,
+  onQueryReplacedFromLibrary,
+  collapsable,
+  hideRefId,
+  queryLibraryRef,
+  onCancelQueryLibraryEdit,
+  isOpen,
+}: Props<TQuery>) {
+  const dataSourceSrv = getDataSourceSrv();
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const rowId = useRef(uniqueId(id + '_'));
 
-export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Props<TQuery>, State<TQuery>> {
-  dataSourceSrv = getDataSourceSrv();
-  id = '';
-  editorRef = createRef<HTMLDivElement>();
+  const [datasource, setDatasource] = useState<DataSourceApi<TQuery> | null>(null);
+  const [queriedDataSourceIdentifier, setQueriedDataSourceIdentifier] = useState<string | null | undefined>(undefined);
+  const [filteredData, setFilteredData] = useState<PanelData | undefined>(() => filterPanelDataToQuery(data, query.refId));
+  const [showingHelp, setShowingHelp] = useState(false);
 
-  state: State<TQuery> = {
-    datasource: null,
-    data: undefined,
-    isOpen: true,
-    showingHelp: false,
-  };
-
-  componentDidMount() {
-    const { data, query, id } = this.props;
-    const dataFilteredByRefId = filterPanelDataToQuery(data, query.refId);
-    this.id = uniqueId(id + '_');
-    this.setState({ data: dataFilteredByRefId });
-
-    this.loadDatasource();
-  }
-
-  /**
-   * When datasource variables are used the query.datasource.uid property is a string variable expression
-   * DataSourceSettings.uid can also be this variable expression.
-   * This function always returns the current interpolated datasource uid.
-   */
-  getInterpolatedDataSourceUID(): string | undefined {
-    if (this.props.query.datasource) {
-      const instanceSettings = this.dataSourceSrv.getInstanceSettings(this.props.query.datasource);
+  const getInterpolatedDataSourceUID = (): string | undefined => {
+    if (query.datasource) {
+      const instanceSettings = dataSourceSrv.getInstanceSettings(query.datasource);
       return instanceSettings?.rawRef?.uid ?? instanceSettings?.uid;
     }
+    return dataSource.rawRef?.uid ?? dataSource.uid;
+  };
 
-    return this.props.dataSource.rawRef?.uid ?? this.props.dataSource.uid;
-  }
-
-  async loadDatasource() {
-    let datasource: DataSourceApi;
-    const interpolatedUID = this.getInterpolatedDataSourceUID();
+  const loadDatasource = async () => {
+    let ds: DataSourceApi;
+    const interpolatedUID = getInterpolatedDataSourceUID();
 
     try {
-      datasource = await this.dataSourceSrv.get(interpolatedUID);
+      ds = await dataSourceSrv.get(interpolatedUID);
     } catch (error) {
-      // If the DS doesn't exist, it fails. Getting with no args returns the default DS.
-      datasource = await this.dataSourceSrv.get();
+      ds = await dataSourceSrv.get();
     }
 
-    if (typeof this.props.onDataSourceLoaded === 'function') {
-      this.props.onDataSourceLoaded(datasource);
+    if (typeof onDataSourceLoaded === 'function') {
+      onDataSourceLoaded(ds);
     }
 
-    this.setState({
-      datasource: datasource as unknown as DataSourceApi<TQuery>,
-      queriedDataSourceIdentifier: interpolatedUID,
-    });
-  }
+    setDatasource(ds as unknown as DataSourceApi<TQuery>);
+    setQueriedDataSourceIdentifier(interpolatedUID);
+  };
 
-  componentDidUpdate(prevProps: Props<TQuery>) {
-    const { datasource, queriedDataSourceIdentifier } = this.state;
-    const { data, query } = this.props;
+  // On mount
+  useEffect(() => {
+    setFilteredData(filterPanelDataToQuery(data, query.refId));
+    loadDatasource();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if (prevProps.id !== this.props.id) {
-      this.id = uniqueId(this.props.id + '_');
+  // Update row id when id prop changes
+  const prevIdRef = useRef(id);
+  useEffect(() => {
+    if (prevIdRef.current !== id) {
+      prevIdRef.current = id;
+      rowId.current = uniqueId(id + '_');
     }
+  }, [id]);
 
-    if (data !== prevProps.data) {
-      const dataFilteredByRefId = filterPanelDataToQuery(data, query.refId);
+  // Update filtered data when data changes
+  useEffect(() => {
+    setFilteredData(filterPanelDataToQuery(data, query.refId));
+  }, [data, query.refId]);
 
-      this.setState({ data: dataFilteredByRefId });
+  // Reload datasource when needed
+  const prevQueriedRef = useRef(queriedDataSourceIdentifier);
+  useEffect(() => {
+    if (datasource && queriedDataSourceIdentifier !== getInterpolatedDataSourceUID()) {
+      loadDatasource();
     }
+    prevQueriedRef.current = queriedDataSourceIdentifier;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.datasource, dataSource]);
 
-    // check if we need to load another datasource
-    if (datasource && queriedDataSourceIdentifier !== this.getInterpolatedDataSourceUID()) {
-      this.loadDatasource();
-      return;
-    }
-  }
+  const isWaitingForDatasourceToLoad = (): boolean => {
+    return getInterpolatedDataSourceUID() !== queriedDataSourceIdentifier;
+  };
 
-  getQueryEditor(ds: DataSourceApi<TQuery>) {
+  const getQueryEditor = (ds: DataSourceApi<TQuery>) => {
     if (!ds) {
       return;
     }
 
-    switch (this.props.app) {
+    switch (app) {
       case CoreApp.Explore:
         return (
           ds.components?.ExploreMetricsQueryField ||
@@ -180,28 +196,19 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
       default:
         return ds.components?.QueryEditor;
     }
-  }
+  };
 
-  isWaitingForDatasourceToLoad(): boolean {
-    // if we not yet have loaded the datasource in state the
-    // ds in props and the ds in state will have different values.
-    return this.getInterpolatedDataSourceUID() !== this.state.queriedDataSourceIdentifier;
-  }
-
-  renderPluginEditor = () => {
-    const { query, onChange, queries, onRunQuery, onAddQuery, range, app = CoreApp.PanelEditor, history } = this.props;
-    const { datasource, data } = this.state;
-
-    if (this.isWaitingForDatasourceToLoad()) {
+  const renderPluginEditor = () => {
+    if (isWaitingForDatasourceToLoad()) {
       return null;
     }
 
     if (datasource) {
-      let QueryEditor = this.getQueryEditor(datasource);
+      const QueryEditor = getQueryEditor(datasource);
 
       if (QueryEditor) {
         return (
-          <DataSourcePluginContextProvider instanceSettings={this.props.dataSource}>
+          <DataSourcePluginContextProvider instanceSettings={dataSource}>
             <QueryEditor
               key={datasource?.name}
               query={query}
@@ -209,7 +216,7 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
               onChange={onChange}
               onRunQuery={onRunQuery}
               onAddQuery={onAddQuery}
-              data={data}
+              data={filteredData}
               range={range}
               queries={queries}
               app={app}
@@ -229,10 +236,7 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     );
   };
 
-  onRemoveQuery = () => {
-    const { onRemoveQuery, query, onQueryRemoved } = this.props;
-
-    // Track expression query removal
+  const onRemoveQueryFn = () => {
     const isExpressionQuery = query.datasource?.uid === ExpressionDatasourceUID;
     if (isExpressionQuery && 'type' in query && query.type) {
       reportInteraction('dashboards_expression_interaction', {
@@ -249,21 +253,18 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     }
   };
 
-  onCancelQueryLibraryEdit = () => {
-    const { query } = this.props;
+  const onCancelQueryLibraryEditFn = () => {
     reportInteraction('query_library-update_query_from_explore_cancelled', {
       datasourceType: query.datasource?.type,
     });
-    this.props.onCancelQueryLibraryEdit?.();
+    onCancelQueryLibraryEdit?.();
   };
 
-  onExitQueryLibraryEditingMode = () => {
-    // Exit query library editing mode after successful update
-    this.props.onCancelQueryLibraryEdit?.();
+  const onExitQueryLibraryEditingMode = () => {
+    onCancelQueryLibraryEdit?.();
   };
 
-  onCopyQuery = () => {
-    const { query, onAddQuery, onQueryCopied } = this.props;
+  const onCopyQuery = () => {
     const copy = cloneDeep(query);
     onAddQuery(copy);
 
@@ -272,8 +273,7 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     }
   };
 
-  onHideQuery = () => {
-    const { query, onChange, onRunQuery, onQueryToggled } = this.props;
+  const onHideQuery = () => {
     onChange({ ...query, hide: !query.hide });
     onRunQuery();
 
@@ -286,54 +286,46 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     });
   };
 
-  onToggleHelp = () => {
-    this.setState((state) => ({
-      showingHelp: !state.showingHelp,
-    }));
+  const onToggleHelp = () => {
+    setShowingHelp((prev) => !prev);
   };
 
-  onClickExample = (query: TQuery) => {
-    if (query.datasource === undefined) {
-      query.datasource = getDataSourceRef(this.props.dataSource);
+  const onClickExample = (exampleQuery: TQuery) => {
+    if (exampleQuery.datasource === undefined) {
+      exampleQuery.datasource = getDataSourceRef(dataSource);
     }
 
-    this.props.onChange({
-      ...query,
-      refId: this.props.query.refId,
+    onChange({
+      ...exampleQuery,
+      refId: query.refId,
     });
-    this.onToggleHelp();
+    onToggleHelp();
   };
 
-  onSelectQueryFromLibrary = (query: DataQuery) => {
-    this.props.onQueryReplacedFromLibrary?.();
-    this.props.onReplace?.(query);
+  const onSelectQueryFromLibrary = (libQuery: DataQuery) => {
+    onQueryReplacedFromLibrary?.();
+    onReplace?.(libQuery);
   };
 
-  renderCollapsedText(): string | null {
-    const { datasource } = this.state;
-
+  const renderCollapsedText = (): string | null => {
     if (!datasource || typeof datasource.getQueryDisplayText !== 'function') {
       return null;
     }
 
     try {
-      return datasource.getQueryDisplayText(this.props.query);
+      return datasource.getQueryDisplayText(query);
     } catch (error) {
-      // Some datasource plugins may throw errors in getQueryDisplayText
-      // Return null gracefully to prevent the query editor from crashing.
       return null;
     }
-  }
+  };
 
-  renderWarnings = (type: string): JSX.Element | null => {
-    const { data, query } = this.props;
+  const renderWarnings = (type: string): JSX.Element | null => {
     const dataFilteredByRefId = filterPanelDataToQuery(data, query.refId)?.series ?? [];
 
     const allWarnings = dataFilteredByRefId.reduce((acc: QueryResultMetaNotice[], serie) => {
       if (!serie.meta?.notices) {
         return acc;
       }
-
       const warnings = filter(serie.meta.notices, (item: QueryResultMetaNotice) => item.severity === type) ?? [];
       return acc.concat(warnings);
     }, []);
@@ -367,9 +359,7 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     );
   };
 
-  renderExtraActions = () => {
-    const { query, queries, data, onAddQuery, dataSource, app } = this.props;
-
+  const renderExtraActions = () => {
     const unscopedActions = RowActionComponents.getAllExtraRenderAction();
 
     let scopedActions: QueryActionComponent[] = [];
@@ -379,30 +369,27 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     }
 
     const extraActions = [...unscopedActions, ...scopedActions]
-      .map((action, index) =>
+      .map((action, idx) =>
         action({
           query,
           queries,
           timeRange: data.timeRange,
-          onAddQuery: onAddQuery as (query: DataQuery) => void,
+          onAddQuery: onAddQuery as (q: DataQuery) => void,
           dataSource,
-          key: index,
+          key: idx,
         })
       )
       .filter(Boolean);
 
-    extraActions.push(this.renderWarnings('info'));
-    extraActions.push(this.renderWarnings('warning'));
+    extraActions.push(renderWarnings('info'));
+    extraActions.push(renderWarnings('warning'));
     extraActions.push(<AdaptiveTelemetryQueryActions key="adaptive-telemetry-actions" query={query} />);
 
     return extraActions;
   };
 
-  renderActions = (props: QueryOperationRowRenderProps) => {
-    const { query, hideHideQueryButton: hideHideQueryButton = false, queryLibraryRef, app } = this.props;
-    const { datasource, showingHelp } = this.state;
+  const renderActions = (props: QueryOperationRowRenderProps) => {
     const isHidden = !!query.hide;
-
     const hasEditorHelp = datasource?.components?.QueryEditorHelp;
     const isEditingQueryLibrary = queryLibraryRef !== undefined;
     const isUnifiedAlerting = app === CoreApp.UnifiedAlerting;
@@ -417,10 +404,10 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
               datasource: datasource ? { uid: datasource.uid, type: datasource.type } : query.datasource,
             }}
             app={app}
-            onUpdateSuccess={this.onExitQueryLibraryEditingMode}
-            onSelectQuery={this.onSelectQueryFromLibrary}
+            onUpdateSuccess={onExitQueryLibraryEditingMode}
+            onSelectQuery={onSelectQueryFromLibrary}
             datasourceFilters={datasource?.name ? [datasource.name] : []}
-            parentRef={this.editorRef}
+            parentRef={editorRef}
           />
         )}
 
@@ -428,16 +415,16 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
           <QueryOperationToggleAction
             title={t('query-operation.header.datasource-help', 'Show data source help')}
             icon="question-circle"
-            onClick={this.onToggleHelp}
+            onClick={onToggleHelp}
             active={showingHelp}
           />
         )}
-        {this.renderExtraActions()}
+        {renderExtraActions()}
         {!isEditingQueryLibrary && (
           <QueryOperationAction
             title={t('query-operation.header.duplicate-query', 'Duplicate query')}
             icon="copy"
-            onClick={this.onCopyQuery}
+            onClick={onCopyQuery}
           />
         )}
 
@@ -451,23 +438,21 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
             }
             icon={isHidden ? 'eye-slash' : 'eye'}
             active={isHidden}
-            onClick={this.onHideQuery}
+            onClick={onHideQuery}
           />
         ) : null}
         {!isEditingQueryLibrary && (
           <QueryOperationAction
             title={t('query-operation.header.remove-query', 'Remove query')}
             icon="trash-alt"
-            onClick={this.onRemoveQuery}
+            onClick={onRemoveQueryFn}
           />
         )}
       </>
     );
   };
 
-  renderHeader = (props: QueryOperationRowRenderProps) => {
-    const { app, query, dataSource, onChangeDataSource, onChange, queries, renderHeaderExtras, hideRefId } = this.props;
-
+  const renderHeader = (props: QueryOperationRowRenderProps) => {
     return (
       <QueryEditorRowHeader
         query={query}
@@ -476,7 +461,7 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
         dataSource={dataSource}
         hidden={query.hide}
         onChange={onChange}
-        collapsedText={!props.isOpen ? this.renderCollapsedText() : null}
+        collapsedText={!props.isOpen ? renderCollapsedText() : null}
         renderExtras={() => <>{renderHeaderExtras && renderHeaderExtras()}</>}
         alerting={app === CoreApp.UnifiedAlerting}
         hideRefId={hideRefId}
@@ -484,85 +469,72 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
     );
   };
 
-  render() {
-    const {
-      query,
-      index,
-      visualization,
-      collapsable,
-      hideActionButtons,
-      isOpen,
-      onQueryOpenChanged,
-      app,
-      queryLibraryRef,
-      onCancelQueryLibraryEdit,
-    } = this.props;
-    const { datasource, showingHelp, data } = this.state;
-    const isHidden = query.hide;
-    const error =
-      data?.error && data.error.refId === query.refId ? data.error : data?.errors?.find((e) => e.refId === query.refId);
-    const rowClasses = classNames('query-editor-row', {
-      'query-editor-row--disabled': isHidden,
-      'gf-form-disabled': isHidden,
-    });
+  const isHidden = query.hide;
+  const error =
+    filteredData?.error && filteredData.error.refId === query.refId
+      ? filteredData.error
+      : filteredData?.errors?.find((e) => e.refId === query.refId);
+  const rowClasses = classNames('query-editor-row', {
+    'query-editor-row--disabled': isHidden,
+    'gf-form-disabled': isHidden,
+  });
 
-    if (!datasource) {
-      return null;
-    }
-
-    const editor = this.renderPluginEditor();
-    const DatasourceCheatsheet = datasource.components?.QueryEditorHelp;
-
-    const queryOperationRow = (
-      <QueryOperationRow
-        id={this.id}
-        draggable={!hideActionButtons && !queryLibraryRef}
-        collapsable={collapsable}
-        index={index}
-        headerElement={this.renderHeader}
-        actions={hideActionButtons ? undefined : this.renderActions}
-        isOpen={isOpen}
-        onOpen={onQueryOpenChanged}
-      >
-        <div className={rowClasses} id={this.id}>
-          <ErrorBoundaryAlert boundaryName="query-editor-operation-row">
-            {showingHelp && DatasourceCheatsheet && (
-              <OperationRowHelp>
-                <DatasourceCheatsheet
-                  onClickExample={(query) => this.onClickExample(query)}
-                  query={this.props.query}
-                  datasource={datasource}
-                />
-              </OperationRowHelp>
-            )}
-            {editor}
-          </ErrorBoundaryAlert>
-          {error && <QueryErrorAlert error={error} query={query} />}
-          {visualization}
-        </div>
-      </QueryOperationRow>
-    );
-
-    return (
-      <div data-testid={selectors.components.QueryEditorRows.rows} ref={this.editorRef}>
-        {queryLibraryRef && (
-          <MaybeQueryLibraryEditingHeader
-            query={query}
-            app={app}
-            queryLibraryRef={queryLibraryRef}
-            onCancelEdit={onCancelQueryLibraryEdit}
-            onUpdateSuccess={this.onExitQueryLibraryEditingMode}
-            onSelectQuery={this.onSelectQueryFromLibrary}
-          />
-        )}
-        {queryLibraryRef ? (
-          <QueryLibraryEditingContainer>{queryOperationRow}</QueryLibraryEditingContainer>
-        ) : (
-          queryOperationRow
-        )}
-      </div>
-    );
+  if (!datasource) {
+    return null;
   }
+
+  const editor = renderPluginEditor();
+  const DatasourceCheatsheet = datasource.components?.QueryEditorHelp;
+
+  const queryOperationRow = (
+    <QueryOperationRow
+      id={rowId.current}
+      draggable={!hideActionButtons && !queryLibraryRef}
+      collapsable={collapsable}
+      index={index}
+      headerElement={renderHeader}
+      actions={hideActionButtons ? undefined : renderActions}
+      isOpen={isOpen}
+      onOpen={onQueryOpenChanged}
+    >
+      <div className={rowClasses} id={rowId.current}>
+        <ErrorBoundaryAlert boundaryName="query-editor-operation-row">
+          {showingHelp && DatasourceCheatsheet && (
+            <OperationRowHelp>
+              <DatasourceCheatsheet
+                onClickExample={(q) => onClickExample(q)}
+                query={query}
+                datasource={datasource}
+              />
+            </OperationRowHelp>
+          )}
+          {editor}
+        </ErrorBoundaryAlert>
+        {error && <QueryErrorAlert error={error} query={query} />}
+        {visualization}
+      </div>
+    </QueryOperationRow>
+  );
+
+  return (
+    <div data-testid={selectors.components.QueryEditorRows.rows} ref={editorRef}>
+      {queryLibraryRef && (
+        <MaybeQueryLibraryEditingHeader
+          query={query}
+          app={app}
+          queryLibraryRef={queryLibraryRef}
+          onCancelEdit={onCancelQueryLibraryEditFn}
+          onUpdateSuccess={onExitQueryLibraryEditingMode}
+          onSelectQuery={onSelectQueryFromLibrary}
+        />
+      )}
+      {queryLibraryRef ? (
+        <QueryLibraryEditingContainer>{queryOperationRow}</QueryLibraryEditingContainer>
+      ) : (
+        queryOperationRow
+      )}
+    </div>
+  );
 }
 
 /**
@@ -571,7 +543,6 @@ export class QueryEditorRow<TQuery extends DataQuery> extends PureComponent<Prop
 export function filterPanelDataToQuery(data: PanelData, refId: string): PanelData | undefined {
   const series = data.series.filter((series) => series.refId === refId);
 
-  // If there was an error with no data and the panel is not in a loading state, pass it to the QueryEditors
   if (data.state !== LoadingState.Loading && (data.error || data.errors?.length) && !data.series.length) {
     return {
       ...data,
@@ -579,7 +550,6 @@ export function filterPanelDataToQuery(data: PanelData, refId: string): PanelDat
     };
   }
 
-  // Only say this is an error if the error links to the query
   let state = data.state;
   let error = data.errors?.find((e) => e.refId === refId);
   if (!error && data.error) {
@@ -663,9 +633,6 @@ function AdaptiveTelemetryQueryActions({ query }: { query: DataQuery }) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    // If `usePluginComponents` isn't properly resolved, tests will fail with 'setPluginComponentsHook(options) can only be used after the Grafana instance has started.'
-    // This will be resolved in https://github.com/grafana/grafana/pull/92983
-    // In this case, Return `null` like when there are no extensions.
     return null;
   }
 }

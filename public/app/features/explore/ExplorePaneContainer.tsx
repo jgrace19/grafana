@@ -1,11 +1,10 @@
 import { css } from '@emotion/css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { connect } from 'react-redux';
 
 import { EventBusSrv, getTimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { stopQueryState } from 'app/core/utils/explore';
-import { type StoreState, useSelector } from 'app/types/store';
+import { useSelector } from 'app/types/store';
 
 import Explore from './Explore';
 import ExploreQueryInspector from './ExploreQueryInspector';
@@ -23,16 +22,7 @@ interface Props {
   exploreId: string;
 }
 
-/*
-  Connected components subscribe to the store before function components (using hooks) and can react to store changes. Thus, this connector function is called before the parent component (ExplorePage) is rerendered.
-  This means that child components' mapStateToProps will be executed with a zombie `exploreId` that is not present anymore in the store if the pane gets closed.
-  By connecting this component and returning the pane we workaround the zombie children issue here instead of modifying every children.
-  This is definitely not the ideal solution and we should in the future invest more time in exploring other approaches to better handle this scenario, potentially by refactoring panels to be function components
-  (therefore immune to this behaviour), or by forbidding them to access the store directly and instead pass them all the data they need via props or context.
-
-  You can read more about this issue here: https://react-redux.js.org/api/hooks#stale-props-and-zombie-children
-*/
-function ExplorePaneContainerUnconnected({ exploreId }: Props) {
+export function ExplorePaneContainer({ exploreId }: Props) {
   useStopQueries(exploreId);
   const eventBus = useRef(new EventBusSrv());
   const ref = useRef(null);
@@ -61,16 +51,6 @@ function ExplorePaneContainerUnconnected({ exploreId }: Props) {
     </div>
   );
 }
-
-function mapStateToProps(state: StoreState, props: Props) {
-  const pane = state.explore.panes[props.exploreId];
-
-  return { pane };
-}
-
-const connector = connect(mapStateToProps);
-
-export const ExplorePaneContainer = connector(ExplorePaneContainerUnconnected);
 
 function useStopQueries(exploreId: string) {
   const paneSelector = useMemo(() => getExploreItemSelector(exploreId), [exploreId]);

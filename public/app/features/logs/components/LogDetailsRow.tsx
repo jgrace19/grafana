@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { isEqual } from 'lodash';
 import memoizeOne from 'memoize-one';
-import { PureComponent, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
 import {
@@ -21,9 +21,8 @@ import {
   DataLinkButton,
   IconButton,
   type PopoverContent,
-  type Themeable2,
   Tooltip,
-  withTheme2,
+  useTheme2,
 } from '@grafana/ui';
 
 import { logRowToSingleRowDataFrame } from '../logsModel';
@@ -36,7 +35,7 @@ interface LinkModelWithIcon extends LinkModel<Field> {
   icon?: IconName;
 }
 
-export interface Props extends Themeable2 {
+export interface Props {
   parsedValues: string[];
   parsedKeys: string[];
   disableActions: boolean;
@@ -54,12 +53,6 @@ export interface Props extends Themeable2 {
   isFilterLabelActive?: (key: string, value: string, refId?: string) => Promise<boolean>;
   onPinLine?: (row: LogRowModel, allowUnPin?: boolean) => void;
   pinLineButtonTooltipTitle?: PopoverContent;
-}
-
-interface State {
-  showFieldsStats: boolean;
-  fieldCount: number;
-  fieldStats: LogLabelStatsModel[] | null;
 }
 
 const getStyles = memoizeOne((theme: GrafanaTheme2) => {
@@ -135,21 +128,54 @@ const getStyles = memoizeOne((theme: GrafanaTheme2) => {
   };
 });
 
-class UnThemedLogDetailsRow extends PureComponent<Props, State> {
-  state: State = {
-    showFieldsStats: false,
-    fieldCount: 0,
-    fieldStats: null,
+export function UnThemedLogDetailsRow({
+  parsedValues,
+  parsedKeys,
+  isLabel,
+  links,
+  displayedFields,
+  wrapLogMessage,
+  onClickFilterLabel,
+  onClickFilterOutLabel,
+  disableActions,
+  row,
+  app,
+  onPinLine,
+  pinLineButtonTooltipTitle,
+  isFilterLabelActive: isFilterLabelActiveProp,
+  getStats,
+  onClickShowField: onClickShowDetectedField,
+  onClickHideField: onClickHideDetectedField,
+}: Props) {
+  const theme = useTheme2();
+  const [showFieldsStats, setShowFieldsStats] = useState(false);
+  const [fieldCount, setFieldCount] = useState(0);
+  const [fieldStats, setFieldStats] = useState<LogLabelStatsModel[] | null>(null);
+
+  const styles = getStyles(theme);
+  const rowStyles = getLogRowStyles(theme);
+
+  const updateStats = () => {
+    const newFieldStats = getStats();
+    const newFieldCount = newFieldStats ? newFieldStats.reduce((sum, stat) => sum + stat.count, 0) : 0;
+    if (!isEqual(fieldStats, newFieldStats) || fieldCount !== newFieldCount) {
+      setFieldStats(newFieldStats);
+      setFieldCount(newFieldCount);
+    }
   };
 
-  componentDidUpdate() {
-    if (this.state.showFieldsStats) {
-      this.updateStats();
-    }
-  }
+  // Update stats whenever showFieldsStats changes to true or on relevant updates
+  const showFieldsStatsRef = useRef(showFieldsStats);
+  showFieldsStatsRef.current = showFieldsStats;
 
-  showField = () => {
-    const { onClickShowField: onClickShowDetectedField, parsedKeys, row } = this.props;
+  useEffect(() => {
+    if (showFieldsStats) {
+      updateStats();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+
+  const showField = () => {
     if (onClickShowDetectedField) {
       onClickShowDetectedField(parsedKeys[0]);
     }
@@ -161,8 +187,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
     });
   };
 
-  hideField = () => {
-    const { onClickHideField: onClickHideDetectedField, parsedKeys, row } = this.props;
+  const hideField = () => {
     if (onClickHideDetectedField) {
       onClickHideDetectedField(parsedKeys[0]);
     }
@@ -174,16 +199,14 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
     });
   };
 
-  isFilterLabelActive = async () => {
-    const { isFilterLabelActive, parsedKeys, parsedValues, row } = this.props;
-    if (isFilterLabelActive) {
-      return await isFilterLabelActive(parsedKeys[0], parsedValues[0], row.dataFrame?.refId);
+  const isFilterLabelActive = async () => {
+    if (isFilterLabelActiveProp) {
+      return await isFilterLabelActiveProp(parsedKeys[0], parsedValues[0], row.dataFrame?.refId);
     }
     return false;
   };
 
-  filterLabel = () => {
-    const { onClickFilterLabel, parsedKeys, parsedValues, row } = this.props;
+  const filterLabel = () => {
     if (onClickFilterLabel) {
       onClickFilterLabel(parsedKeys[0], parsedValues[0], logRowToSingleRowDataFrame(row) || undefined);
     }
@@ -195,8 +218,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
     });
   };
 
-  filterOutLabel = () => {
-    const { onClickFilterOutLabel, parsedKeys, parsedValues, row } = this.props;
+  const filterOutLabel = () => {
     if (onClickFilterOutLabel) {
       onClickFilterOutLabel(parsedKeys[0], parsedValues[0], logRowToSingleRowDataFrame(row) || undefined);
     }
@@ -208,22 +230,11 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
     });
   };
 
-  updateStats = () => {
-    const { getStats } = this.props;
-    const fieldStats = getStats();
-    const fieldCount = fieldStats ? fieldStats.reduce((sum, stat) => sum + stat.count, 0) : 0;
-    if (!isEqual(this.state.fieldStats, fieldStats) || fieldCount !== this.state.fieldCount) {
-      this.setState({ fieldStats, fieldCount });
-    }
-  };
-
-  showStats = () => {
-    const { isLabel, row, app } = this.props;
-    const { showFieldsStats } = this.state;
+  const showStats = () => {
     if (!showFieldsStats) {
-      this.updateStats();
+      updateStats();
     }
-    this.toggleFieldsStats();
+    setShowFieldsStats(!showFieldsStats);
 
     reportInteraction('grafana_explore_logs_log_details_stats_clicked', {
       dataSourceType: row.datasourceType,
@@ -234,18 +245,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
     });
   };
 
-  toggleFieldsStats() {
-    this.setState((state) => {
-      return {
-        showFieldsStats: !state.showFieldsStats,
-      };
-    });
-  }
-
-  generateClipboardButton(val: string) {
-    const { theme } = this.props;
-    const styles = getStyles(theme);
-
+  const generateClipboardButton = (val: string) => {
     return (
       <div className={`log-details-value-copy ${styles.copyButton}`}>
         <ClipboardButton
@@ -258,9 +258,9 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
         />
       </div>
     );
-  }
+  };
 
-  generateMultiVal(value: string[], showCopy?: boolean) {
+  const generateMultiVal = (value: string[], showCopy?: boolean) => {
     return (
       <table>
         <tbody>
@@ -269,7 +269,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
               <tr key={`${val}-${i}`}>
                 <td>
                   {val}
-                  {showCopy && val !== '' && this.generateClipboardButton(val)}
+                  {showCopy && val !== '' && generateClipboardButton(val)}
                 </td>
               </tr>
             );
@@ -277,164 +277,139 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
         </tbody>
       </table>
     );
-  }
+  };
 
-  render() {
-    const {
-      theme,
-      parsedKeys,
-      parsedValues,
-      isLabel,
-      links,
-      displayedFields,
-      wrapLogMessage,
-      onClickFilterLabel,
-      onClickFilterOutLabel,
-      disableActions,
-      row,
-      app,
-      onPinLine,
-      pinLineButtonTooltipTitle,
-    } = this.props;
-    const { showFieldsStats, fieldStats, fieldCount } = this.state;
-    const styles = getStyles(theme);
-    const rowStyles = getLogRowStyles(theme);
-    const singleKey = parsedKeys == null ? false : parsedKeys.length === 1;
-    const singleVal = parsedValues == null ? false : parsedValues.length === 1;
-    const hasFilteringFunctionality = !disableActions && onClickFilterLabel && onClickFilterOutLabel;
-    const refIdTooltip = app === CoreApp.Explore && row.dataFrame?.refId ? ` in query ${row.dataFrame?.refId}` : '';
-    const labelType = singleKey ? getLabelTypeFromRow(parsedKeys[0], row) : null;
+  const singleKey = parsedKeys == null ? false : parsedKeys.length === 1;
+  const singleVal = parsedValues == null ? false : parsedValues.length === 1;
+  const hasFilteringFunctionality = !disableActions && onClickFilterLabel && onClickFilterOutLabel;
+  const refIdTooltip = app === CoreApp.Explore && row.dataFrame?.refId ? ` in query ${row.dataFrame?.refId}` : '';
+  const labelType = singleKey ? getLabelTypeFromRow(parsedKeys[0], row) : null;
 
-    const isMultiParsedValueWithNoContent =
-      !singleVal && parsedValues != null && !parsedValues.every((val) => val === '');
+  const isMultiParsedValueWithNoContent =
+    !singleVal && parsedValues != null && !parsedValues.every((val) => val === '');
 
-    const toggleFieldButton =
-      displayedFields && parsedKeys != null && displayedFields.includes(parsedKeys[0]) ? (
-        <IconButton
-          variant="primary"
-          tooltip={t('logs.un-themed-log-details-row.toggle-field-button.tooltip-hide-this-field', 'Hide this field')}
-          name="eye"
-          onClick={this.hideField}
-        />
-      ) : (
-        <IconButton
-          tooltip={t(
-            'logs.un-themed-log-details-row.toggle-field-button.tooltip-field-instead-message',
-            'Show this field instead of the message'
-          )}
-          name="eye"
-          onClick={this.showField}
-        />
-      );
+  const toggleFieldButton =
+    displayedFields && parsedKeys != null && displayedFields.includes(parsedKeys[0]) ? (
+      <IconButton
+        variant="primary"
+        tooltip={t('logs.un-themed-log-details-row.toggle-field-button.tooltip-hide-this-field', 'Hide this field')}
+        name="eye"
+        onClick={hideField}
+      />
+    ) : (
+      <IconButton
+        tooltip={t(
+          'logs.un-themed-log-details-row.toggle-field-button.tooltip-field-instead-message',
+          'Show this field instead of the message'
+        )}
+        name="eye"
+        onClick={showField}
+      />
+    );
 
-    return (
-      <>
-        <tr className={rowStyles.logDetailsValue}>
-          <td className={rowStyles.logsDetailsIcon}>
-            <div className={styles.buttonRow}>
-              {hasFilteringFunctionality && (
-                <>
-                  <AsyncIconButton
-                    name="search-plus"
-                    onClick={this.filterLabel}
-                    // We purposely want to pass a new function on every render to allow the active state to be updated when log details remains open between updates.
-                    isActive={() => this.isFilterLabelActive()}
-                    tooltipSuffix={refIdTooltip}
-                  />
-                  <IconButton
-                    name="search-minus"
-                    tooltip={
-                      app === CoreApp.Explore && row.dataFrame?.refId
-                        ? t('logs.un-themed-log-details-row.filter-out-query', 'Filter out value in query {{query}}', {
-                            query: row.dataFrame?.refId,
-                          })
-                        : t('logs.un-themed-log-details-row.filter-out', 'Filter out value')
-                    }
-                    onClick={this.filterOutLabel}
-                  />
-                </>
-              )}
-              {!disableActions && displayedFields && toggleFieldButton}
-              {!disableActions && (
-                <IconButton
-                  variant={showFieldsStats ? 'primary' : 'secondary'}
-                  name="signal"
-                  tooltip={t('logs.un-themed-log-details-row.tooltip-adhoc-statistics', 'Ad-hoc statistics')}
-                  className="stats-button"
-                  disabled={!singleKey}
-                  onClick={this.showStats}
+  return (
+    <>
+      <tr className={rowStyles.logDetailsValue}>
+        <td className={rowStyles.logsDetailsIcon}>
+          <div className={styles.buttonRow}>
+            {hasFilteringFunctionality && (
+              <>
+                <AsyncIconButton
+                  name="search-plus"
+                  onClick={filterLabel}
+                  // We purposely want to pass a new function on every render to allow the active state to be updated when log details remains open between updates.
+                  isActive={() => isFilterLabelActive()}
+                  tooltipSuffix={refIdTooltip}
                 />
-              )}
-            </div>
-          </td>
-
-          <td>{labelType && <LabelTypeBadge type={labelType} styles={styles} />}</td>
-          {/* Key - value columns */}
-          <td className={rowStyles.logDetailsLabel}>{singleKey ? parsedKeys[0] : this.generateMultiVal(parsedKeys)}</td>
-          <td className={cx(styles.wordBreakAll, wrapLogMessage && styles.wrapLine)}>
-            <div className={styles.logDetailsValue}>
-              {singleVal ? parsedValues[0] : this.generateMultiVal(parsedValues, true)}
-              {singleVal && this.generateClipboardButton(parsedValues[0])}
-              <div className={cx((singleVal || isMultiParsedValueWithNoContent) && styles.adjoiningLinkButton)}>
-                {links?.map((link, i) => {
-                  if (link.onClick && onPinLine) {
-                    const originalOnClick = link.onClick;
-                    link.onClick = (e, origin) => {
-                      // Pin the line
-                      onPinLine(row, false);
-
-                      // Execute the link onClick function
-                      originalOnClick(e, origin);
-                    };
+                <IconButton
+                  name="search-minus"
+                  tooltip={
+                    app === CoreApp.Explore && row.dataFrame?.refId
+                      ? t('logs.un-themed-log-details-row.filter-out-query', 'Filter out value in query {{query}}', {
+                          query: row.dataFrame?.refId,
+                        })
+                      : t('logs.un-themed-log-details-row.filter-out', 'Filter out value')
                   }
-                  return (
-                    <span key={`${link.title}-${i}`}>
-                      <DataLinkButton
-                        buttonProps={{
-                          // Show tooltip message if max number of pinned lines has been reached
-                          tooltip:
-                            typeof pinLineButtonTooltipTitle === 'object' && link.onClick
-                              ? pinLineButtonTooltipTitle
-                              : undefined,
-                          variant: 'secondary',
-                          fill: 'outline',
-                          ...(link.icon && { icon: link.icon }),
-                        }}
-                        link={link}
-                      />
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </td>
-        </tr>
-        {showFieldsStats && singleKey && singleVal && (
-          <tr>
-            <td colSpan={2}>
+                  onClick={filterOutLabel}
+                />
+              </>
+            )}
+            {!disableActions && displayedFields && toggleFieldButton}
+            {!disableActions && (
               <IconButton
                 variant={showFieldsStats ? 'primary' : 'secondary'}
                 name="signal"
-                tooltip={t('logs.un-themed-log-details-row.tooltip-hide-adhoc-statistics', 'Hide ad-hoc statistics')}
-                onClick={this.showStats}
+                tooltip={t('logs.un-themed-log-details-row.tooltip-adhoc-statistics', 'Ad-hoc statistics')}
+                className="stats-button"
+                disabled={!singleKey}
+                onClick={showStats}
               />
-            </td>
-            <td colSpan={2}>
-              <div className={styles.logDetailsStats}>
-                <LogLabelStats
-                  stats={fieldStats!}
-                  label={parsedKeys[0]}
-                  value={parsedValues[0]}
-                  rowCount={fieldCount}
-                  isLabel={isLabel}
-                />
-              </div>
-            </td>
-          </tr>
-        )}
-      </>
-    );
-  }
+            )}
+          </div>
+        </td>
+
+        <td>{labelType && <LabelTypeBadge type={labelType} styles={styles} />}</td>
+        {/* Key - value columns */}
+        <td className={rowStyles.logDetailsLabel}>{singleKey ? parsedKeys[0] : generateMultiVal(parsedKeys)}</td>
+        <td className={cx(styles.wordBreakAll, wrapLogMessage && styles.wrapLine)}>
+          <div className={styles.logDetailsValue}>
+            {singleVal ? parsedValues[0] : generateMultiVal(parsedValues, true)}
+            {singleVal && generateClipboardButton(parsedValues[0])}
+            <div className={cx((singleVal || isMultiParsedValueWithNoContent) && styles.adjoiningLinkButton)}>
+              {links?.map((link, i) => {
+                if (link.onClick && onPinLine) {
+                  const originalOnClick = link.onClick;
+                  link.onClick = (e, origin) => {
+                    onPinLine(row, false);
+                    originalOnClick(e, origin);
+                  };
+                }
+                return (
+                  <span key={`${link.title}-${i}`}>
+                    <DataLinkButton
+                      buttonProps={{
+                        tooltip:
+                          typeof pinLineButtonTooltipTitle === 'object' && link.onClick
+                            ? pinLineButtonTooltipTitle
+                            : undefined,
+                        variant: 'secondary',
+                        fill: 'outline',
+                        ...(link.icon && { icon: link.icon }),
+                      }}
+                      link={link}
+                    />
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </td>
+      </tr>
+      {showFieldsStats && singleKey && singleVal && (
+        <tr>
+          <td colSpan={2}>
+            <IconButton
+              variant={showFieldsStats ? 'primary' : 'secondary'}
+              name="signal"
+              tooltip={t('logs.un-themed-log-details-row.tooltip-hide-adhoc-statistics', 'Hide ad-hoc statistics')}
+              onClick={showStats}
+            />
+          </td>
+          <td colSpan={2}>
+            <div className={styles.logDetailsStats}>
+              <LogLabelStats
+                stats={fieldStats!}
+                label={parsedKeys[0]}
+                value={parsedValues[0]}
+                rowCount={fieldCount}
+                isLabel={isLabel}
+              />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
 }
 
 function LabelTypeBadge({ type, styles }: { type: string; styles: ReturnType<typeof getStyles> }) {
@@ -464,5 +439,4 @@ const AsyncIconButton = ({ isActive, tooltipSuffix, ...rest }: AsyncIconButtonPr
   return <IconButton {...rest} variant={active ? 'primary' : undefined} tooltip={tooltip + tooltipSuffix} />;
 };
 
-export const LogDetailsRow = withTheme2(UnThemedLogDetailsRow);
-LogDetailsRow.displayName = 'LogDetailsRow';
+export const LogDetailsRow = UnThemedLogDetailsRow;

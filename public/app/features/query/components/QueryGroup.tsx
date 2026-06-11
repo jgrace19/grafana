@@ -1,6 +1,5 @@
 import { css } from '@emotion/css';
-import { PureComponent, useEffect, useState } from 'react';
-import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Unsubscribable } from 'rxjs';
 
 import {
@@ -20,7 +19,6 @@ import { type DataQuery } from '@grafana/schema';
 import { Button, InlineFormLabel, Modal, ScrollContainer, Stack, stylesFactory } from '@grafana/ui';
 import { PluginHelp } from 'app/core/components/PluginHelp/PluginHelp';
 import config from 'app/core/config';
-import { backendSrv } from 'app/core/services/backend_srv';
 import { addQuery, queryIsEmpty } from 'app/core/utils/query';
 import { DataSourceModal } from 'app/features/datasources/components/picker/DataSourceModal';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -44,108 +42,88 @@ export interface Props {
   onOptionsChange: (options: QueryGroupOptions) => void;
 }
 
-interface State {
-  dataSource?: DataSourceApi;
-  dsSettings?: DataSourceInstanceSettings;
-  queries: DataQuery[];
-  helpContent: React.ReactNode;
-  isLoadingHelp: boolean;
-  isPickerOpen: boolean;
-  isDataSourceModalOpen: boolean;
-  data: PanelData;
-  isHelpOpen: boolean;
-  defaultDataSource?: DataSourceApi;
-  scrollElement?: HTMLDivElement;
-}
+export function QueryGroup({ queryRunner, options, onOpenQueryInspector, onRunQueries, onOptionsChange }: Props) {
+  const dataSourceSrv = getDataSourceSrv();
+  const querySubscriptionRef = useRef<Unsubscribable | null>(null);
 
-export class QueryGroup extends PureComponent<Props, State> {
-  backendSrv = backendSrv;
-  dataSourceSrv = getDataSourceSrv();
-  querySubscription: Unsubscribable | null = null;
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [queries, setQueries] = useState<DataQuery[]>([]);
+  const [dataSource, setDataSource] = useState<DataSourceApi | undefined>(undefined);
+  const [dsSettings, setDsSettings] = useState<DataSourceInstanceSettings | undefined>(undefined);
+  const [defaultDataSource, setDefaultDataSource] = useState<DataSourceApi | undefined>(undefined);
+  const [data, setData] = useState<PanelData>({
+    state: LoadingState.NotStarted,
+    series: [],
+    timeRange: getDefaultTimeRange(),
+  });
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | undefined>(undefined);
 
-  state: State = {
-    isDataSourceModalOpen: !!locationService.getSearchObject().firstPanel,
-    isLoadingHelp: false,
-    helpContent: null,
-    isPickerOpen: false,
-    isHelpOpen: false,
-    queries: [],
-    data: {
-      state: LoadingState.NotStarted,
-      series: [],
-      timeRange: getDefaultTimeRange(),
-    },
-  };
-
-  async componentDidMount() {
-    const { options, queryRunner } = this.props;
-
-    this.querySubscription = queryRunner.getData({ withTransforms: false, withFieldConfig: false }).subscribe({
-      next: (data: PanelData) => this.onPanelDataUpdate(data),
-    });
-
-    this.setNewQueriesAndDatasource(options);
-  }
-
-  componentWillUnmount() {
-    if (this.querySubscription) {
-      this.querySubscription.unsubscribe();
-      this.querySubscription = null;
-    }
-  }
-
-  async componentDidUpdate() {
-    const { options } = this.props;
-
-    const currentDS = await getDataSourceSrv().get(options.dataSource);
-    if (this.state.dataSource && currentDS.uid !== this.state.dataSource?.uid) {
-      this.setNewQueriesAndDatasource(options);
-    }
-  }
-
-  async setNewQueriesAndDatasource(options: QueryGroupOptions) {
+  const setNewQueriesAndDatasource = async (opts: QueryGroupOptions) => {
     try {
-      const ds = await this.dataSourceSrv.get(options.dataSource);
-      const dsSettings = this.dataSourceSrv.getInstanceSettings(options.dataSource);
+      const ds = await dataSourceSrv.get(opts.dataSource);
+      const settings = dataSourceSrv.getInstanceSettings(opts.dataSource);
 
-      const defaultDataSource = await this.dataSourceSrv.get();
+      const defaultDs = await dataSourceSrv.get();
       const datasource = ds.getRef();
-      const queries = options.queries.map((q) => ({
+      const newQueries = opts.queries.map((q) => ({
         ...(queryIsEmpty(q) && ds?.getDefaultQuery?.(CoreApp.PanelEditor)),
         datasource,
         ...q,
       }));
 
-      this.setState({
-        queries,
-        dataSource: ds,
-        dsSettings,
-        defaultDataSource,
-      });
+      setQueries(newQueries);
+      setDataSource(ds);
+      setDsSettings(settings);
+      setDefaultDataSource(defaultDs);
     } catch (error) {
       console.error('failed to load data source', error);
     }
-  }
+  };
 
-  onPanelDataUpdate(data: PanelData) {
-    this.setState({ data });
-  }
+  useEffect(() => {
+    const sub = queryRunner.getData({ withTransforms: false, withFieldConfig: false }).subscribe({
+      next: (panelData: PanelData) => setData(panelData),
+    });
+    querySubscriptionRef.current = sub;
 
-  onChangeDataSource = async (
+    setNewQueriesAndDatasource(options);
+
+    return () => {
+      if (querySubscriptionRef.current) {
+        querySubscriptionRef.current.unsubscribe();
+        querySubscriptionRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const prevDsUidRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    getDataSourceSrv()
+      .get(options.dataSource)
+      .then((currentDS) => {
+        if (dataSource && currentDS.uid !== dataSource.uid && prevDsUidRef.current !== currentDS.uid) {
+          prevDsUidRef.current = currentDS.uid;
+          setNewQueriesAndDatasource(options);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.dataSource]);
+
+  const onChangeDataSource = async (
     newSettings: DataSourceInstanceSettings,
     defaultQueries?: DataQuery[] | GrafanaQuery[]
   ) => {
-    const { dsSettings } = this.state;
     const currentDS = dsSettings ? await getDataSourceSrv().get(dsSettings.uid) : undefined;
     const nextDS = await getDataSourceSrv().get(newSettings.uid);
 
-    // We need to pass in newSettings.uid as well here as that can be a variable expression and we want to store that in the query model not the current ds variable value
-    const queries = defaultQueries || (await updateQueries(nextDS, newSettings.uid, this.state.queries, currentDS));
+    const newQueries =
+      defaultQueries || (await updateQueries(nextDS, newSettings.uid, queries, currentDS));
 
-    const dataSource = await this.dataSourceSrv.get(newSettings.name);
+    const newDataSource = await dataSourceSrv.get(newSettings.name);
 
-    this.onChange({
-      queries,
+    onChange({
+      queries: newQueries,
       dataSource: {
         name: newSettings.name,
         uid: newSettings.uid,
@@ -153,26 +131,16 @@ export class QueryGroup extends PureComponent<Props, State> {
       },
     });
 
-    this.setState({
-      queries,
-      dataSource: dataSource,
-      dsSettings: newSettings,
-    });
+    setQueries(newQueries);
+    setDataSource(newDataSource);
+    setDsSettings(newSettings);
 
     if (defaultQueries) {
-      this.props.onRunQueries();
+      onRunQueries();
     }
   };
 
-  onAddQueryClick = () => {
-    const { queries } = this.state;
-    this.onQueriesChange(addQuery(queries, this.newQuery()));
-    this.onScrollBottom();
-  };
-
-  newQuery(): Partial<DataQuery> {
-    const { dsSettings, defaultDataSource } = this.state;
-
+  const newQuery = (): Partial<DataQuery> => {
     const ds =
       dsSettings && !dsSettings.meta.mixed
         ? getDataSourceRef(dsSettings)
@@ -181,179 +149,139 @@ export class QueryGroup extends PureComponent<Props, State> {
           : { type: undefined, uid: undefined };
 
     return {
-      ...this.state.dataSource?.getDefaultQuery?.(CoreApp.PanelEditor),
+      ...dataSource?.getDefaultQuery?.(CoreApp.PanelEditor),
       datasource: ds,
     };
-  }
-
-  onChange(changedProps: Partial<QueryGroupOptions>) {
-    this.props.onOptionsChange({
-      ...this.props.options,
-      ...changedProps,
-    });
-  }
-
-  onAddExpressionClick = () => {
-    this.onQueriesChange(addQuery(this.state.queries, expressionDatasource.newQuery()));
-    this.onScrollBottom();
   };
 
-  onScrollBottom = () => {
+  const onChange = (changedProps: Partial<QueryGroupOptions>) => {
+    onOptionsChange({
+      ...options,
+      ...changedProps,
+    });
+  };
+
+  const onScrollBottom = () => {
     setTimeout(() => {
-      if (this.state.scrollElement) {
-        this.state.scrollElement.scrollTo({ top: 10000 });
+      if (scrollElement) {
+        scrollElement.scrollTo({ top: 10000 });
       }
     }, 20);
   };
 
-  onUpdateAndRun = (options: QueryGroupOptions) => {
-    this.props.onOptionsChange(options);
-    this.props.onRunQueries();
+  const onAddQueryClick = () => {
+    onQueriesChange(addQuery(queries, newQuery()));
+    onScrollBottom();
   };
 
-  renderTopSection(styles: QueriesTabStyles) {
-    const { onOpenQueryInspector, options } = this.props;
-    const { dataSource, data, dsSettings } = this.state;
-
-    if (!dsSettings || !dataSource) {
-      return null;
-    }
-    return (
-      <QueryGroupTopSection
-        data={data}
-        dataSource={dataSource}
-        options={options}
-        dsSettings={dsSettings}
-        onOptionsChange={this.onUpdateAndRun}
-        onDataSourceChange={this.onChangeDataSource}
-        onOpenQueryInspector={onOpenQueryInspector}
-      />
-    );
-  }
-
-  onOpenHelp = () => {
-    this.setState({ isHelpOpen: true });
+  const onAddExpressionClick = () => {
+    onQueriesChange(addQuery(queries, expressionDatasource.newQuery()));
+    onScrollBottom();
   };
 
-  onCloseHelp = () => {
-    this.setState({ isHelpOpen: false });
+  const onUpdateAndRun = (opts: QueryGroupOptions) => {
+    onOptionsChange(opts);
+    onRunQueries();
   };
 
-  onCloseDataSourceModal = () => {
-    this.setState({ isDataSourceModalOpen: false });
-  };
-
-  onAddQuery = (query: Partial<DataQuery>) => {
-    const { dsSettings, queries } = this.state;
-    this.onQueriesChange(
+  const onAddQuery = (query: Partial<DataQuery>) => {
+    onQueriesChange(
       addQuery(queries, query, dsSettings ? getDataSourceRef(dsSettings) : { type: undefined, uid: undefined })
     );
-    this.onScrollBottom();
+    onScrollBottom();
   };
 
-  onQueriesChange = (queries: DataQuery[] | GrafanaQuery[]) => {
-    this.onChange({ queries });
-    this.setState({ queries });
+  const onQueriesChange = (newQueries: DataQuery[] | GrafanaQuery[]) => {
+    onChange({ queries: newQueries });
+    setQueries(newQueries);
   };
 
-  renderQueries(dsSettings: DataSourceInstanceSettings) {
-    const { onRunQueries } = this.props;
-    const { data, queries } = this.state;
+  const isExpressionsSupported = (settings: DataSourceInstanceSettings): boolean => {
+    return (settings.meta.backend || settings.meta.alerting || settings.meta.mixed) === true;
+  };
 
-    return (
-      <div data-testid={selectors.components.QueryTab.content}>
-        <QueryEditorRows
-          queries={queries}
-          dsSettings={dsSettings}
-          onQueriesChange={this.onQueriesChange}
-          onAddQuery={this.onAddQuery}
-          onRunQueries={onRunQueries}
-          data={data}
-        />
-      </div>
-    );
-  }
-
-  isExpressionsSupported(dsSettings: DataSourceInstanceSettings): boolean {
-    return (dsSettings.meta.backend || dsSettings.meta.alerting || dsSettings.meta.mixed) === true;
-  }
-
-  renderExtraActions() {
+  const renderExtraActions = () => {
     return GroupActionComponents.getAllExtraRenderAction()
       .map((action, index) =>
         action({
-          onAddQuery: this.onAddQuery,
-          onChangeDataSource: this.onChangeDataSource,
+          onAddQuery,
+          onChangeDataSource,
           key: index,
         })
       )
       .filter(Boolean);
-  }
-
-  renderAddQueryRow(dsSettings: DataSourceInstanceSettings, styles: QueriesTabStyles) {
-    const showAddButton = !isSharedDashboardQuery(dsSettings.name);
-
-    return (
-      <Stack gap={2} alignItems="flex-start">
-        {showAddButton && (
-          <Button
-            icon="plus"
-            onClick={this.onAddQueryClick}
-            variant="secondary"
-            data-testid={selectors.components.QueryTab.addQuery}
-          >
-            <Trans i18nKey="query.query-group.add-query">Add query</Trans>
-          </Button>
-        )}
-        {config.expressionsEnabled && this.isExpressionsSupported(dsSettings) && (
-          <Button
-            icon="plus"
-            onClick={this.onAddExpressionClick}
-            variant="secondary"
-            className={styles.expressionButton}
-            data-testid="query-tab-add-expression"
-          >
-            <span>
-              <Trans i18nKey="query.query-group.expression">Expression</Trans>
-            </span>
-          </Button>
-        )}
-        {this.renderExtraActions()}
-      </Stack>
-    );
-  }
-
-  setScrollRef = (scrollElement: HTMLDivElement): void => {
-    this.setState({ scrollElement });
   };
 
-  render() {
-    const { isHelpOpen, dsSettings } = this.state;
-    const styles = getStyles();
+  const styles = getStyles();
 
-    return (
-      <ScrollContainer minHeight="100%" ref={this.setScrollRef}>
-        <div className={styles.innerWrapper}>
-          {this.renderTopSection(styles)}
-          {dsSettings && (
-            <>
-              <div className={styles.queriesWrapper}>{this.renderQueries(dsSettings)}</div>
-              {this.renderAddQueryRow(dsSettings, styles)}
-              {isHelpOpen && (
-                <Modal
-                  title={t('query.query-group.title-data-source-help', 'Data source help')}
-                  isOpen={true}
-                  onDismiss={this.onCloseHelp}
+  return (
+    <ScrollContainer minHeight="100%" ref={(el) => setScrollElement(el || undefined)}>
+      <div className={styles.innerWrapper}>
+        {dsSettings && dataSource && (
+          <QueryGroupTopSection
+            data={data}
+            dataSource={dataSource}
+            options={options}
+            dsSettings={dsSettings}
+            onOptionsChange={onUpdateAndRun}
+            onDataSourceChange={onChangeDataSource}
+            onOpenQueryInspector={onOpenQueryInspector}
+          />
+        )}
+        {dsSettings && (
+          <>
+            <div className={styles.queriesWrapper}>
+              <div data-testid={selectors.components.QueryTab.content}>
+                <QueryEditorRows
+                  queries={queries}
+                  dsSettings={dsSettings}
+                  onQueriesChange={onQueriesChange}
+                  onAddQuery={onAddQuery}
+                  onRunQueries={onRunQueries}
+                  data={data}
+                />
+              </div>
+            </div>
+            <Stack gap={2} alignItems="flex-start">
+              {!isSharedDashboardQuery(dsSettings.name) && (
+                <Button
+                  icon="plus"
+                  onClick={onAddQueryClick}
+                  variant="secondary"
+                  data-testid={selectors.components.QueryTab.addQuery}
                 >
-                  <PluginHelp pluginId={dsSettings.meta.id} />
-                </Modal>
+                  <Trans i18nKey="query.query-group.add-query">Add query</Trans>
+                </Button>
               )}
-            </>
-          )}
-        </div>
-      </ScrollContainer>
-    );
-  }
+              {config.expressionsEnabled && isExpressionsSupported(dsSettings) && (
+                <Button
+                  icon="plus"
+                  onClick={onAddExpressionClick}
+                  variant="secondary"
+                  className={styles.expressionButton}
+                  data-testid="query-tab-add-expression"
+                >
+                  <span>
+                    <Trans i18nKey="query.query-group.expression">Expression</Trans>
+                  </span>
+                </Button>
+              )}
+              {renderExtraActions()}
+            </Stack>
+            {isHelpOpen && (
+              <Modal
+                title={t('query.query-group.title-data-source-help', 'Data source help')}
+                isOpen={true}
+                onDismiss={() => setIsHelpOpen(false)}
+              >
+                <PluginHelp pluginId={dsSettings.meta.id} />
+              </Modal>
+            )}
+          </>
+        )}
+      </div>
+    </ScrollContainer>
+  );
 }
 
 const getStyles = stylesFactory(() => {
@@ -385,8 +313,6 @@ const getStyles = stylesFactory(() => {
     }),
   };
 });
-
-type QueriesTabStyles = ReturnType<typeof getStyles>;
 
 interface QueryGroupTopSectionProps {
   data: PanelData;
@@ -492,7 +418,6 @@ function DataSourcePickerWithPrompt({ options, scopedVars, onChange, ...otherPro
   const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(Boolean(otherProps.isDataSourceModalOpen));
 
   useEffect(() => {
-    // Clean up the first panel flag since the modal is now open
     if (!!locationService.getSearchObject().firstPanel) {
       locationService.partial({ firstPanel: null }, true);
     }
