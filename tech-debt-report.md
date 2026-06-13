@@ -87,7 +87,7 @@ Top oversized files:
 
 1. **Migrate dashboard class components and connect() usage** — Dashboard has 10 class component files and 9 connect() HOC files. Estimated scope: ~19 files; suggested estimate: 3 points. (use `migrate-class-components` skill)
 2. **Modernize Explore TraceView lifecycle and styles** — Explore TraceView still has 1 unsafe lifecycle file(s) and 7 stylesFactory files. Estimated scope: ~8 files; suggested estimate: 2 points.
-3. **Split oversized Go files in high-churn services** — 66 non-test Go files exceed 800 LOC (generated files excluded). Estimated scope: ~66 files; suggested estimate: 8 points.
+3. **Split oversized Go files in high-churn services** — 66 Go files exceed 800 LOC (generated files excluded). Estimated scope: ~66 files; suggested estimate: 8 points.
 4. **Complete feature toggle cleanup and OpenFeature migration** — 3 deprecated toggles have active call sites and old IsEnabled APIs appear in 162 files. Estimated scope: ~162 files; suggested estimate: 13 points. (see `pkg/services/featuremgmt/` docs)
 5. **Reduce explicit any usage in top frontend hotspots** — Explicit any appears 393 times across 137 files. Estimated scope: ~137 files; suggested estimate: 13 points.
 
@@ -114,7 +114,9 @@ Top oversized files:
 
 **Resolved since last scan:**
 - 9 fewer frontend todo/fixme/hack signal(s)
-- 12 fewer oversized go files (>800 loc) signal(s)
+
+**Methodology changes:**
+- Oversized Go file counts now exclude generated files with standard codegen headers; the -12 delta reflects that recount rather than resolved files.
 
 **New since last scan:**
 - 3 additional @deprecated apis signal(s)
