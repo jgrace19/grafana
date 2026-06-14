@@ -12,9 +12,9 @@ Priority score = debt signals × log2(commits + 1)
 | 4 | `pkg/storage/` | 242 | 287 | 1977.12 |
 | 5 | `pkg/api/` | 164 | 105 | 1103.38 |
 | 6 | `public/app/features/dashboard/` | 155 | 110 | 1053.13 |
-| 7 | `pkg/services/service/` | 153 | 0 | 0.00 |
-| 8 | `public/app/features/alerting/` | 133 | 196 | 1013.73 |
-| 9 | `public/app/plugins/panel/` | 128 | 133 | 904.46 |
+| 7 | `public/app/features/alerting/` | 133 | 196 | 1013.73 |
+| 8 | `public/app/plugins/panel/` | 128 | 133 | 904.46 |
+| 9 | `pkg/services/service/` | 153 | 0 | 0.00 |
 | 10 | `pkg/services/api/` | 106 | 0 | 0.00 |
 
 ## Frontend Modernization
