@@ -1,0 +1,3 @@
+// Webpack resolves these URLs from this file's directory (`public/app/`); `../fonts` is `public/fonts`.
+$fa-font-path: '../fonts';
+@import '../sass/base/font_awesome';

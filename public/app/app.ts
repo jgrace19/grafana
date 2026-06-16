@@ -57,6 +57,10 @@ import { getStandardTransformers } from 'app/features/transformers/standardTrans
 
 import getDefaultMonacoLanguages from '../lib/monaco-languages';
 
+import { injectPreloaderDocumentStyles } from './core/components/Preloader/preloader.styles';
+
+import './font-awesome.legacy.scss';
+
 import { AppWrapper } from './AppWrapper';
 import { appEvents } from './core/app_events';
 import { AppChromeService } from './core/components/AppChrome/AppChromeService';
@@ -310,6 +314,8 @@ export class GrafanaApp {
         sceneUtils.registerVariableMacro('__from', DashboardLevelTimeMacro, true);
         sceneUtils.registerVariableMacro('__to', DashboardLevelTimeMacro, true);
       }
+
+      injectPreloaderDocumentStyles(config.theme2);
 
       const root = createRoot(document.getElementById('reactRoot')!);
       root.render(createElement(AppWrapper, { context: this.context }));
