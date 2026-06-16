@@ -1,0 +1,4 @@
+// Imported from the JS app bundle (`initApp`). Webpack resolves `url()` via css-loader from the
+// entry SCSS file's directory; this file lives in `public/sass/`, so `../fonts` maps to `public/fonts/`.
+$fa-font-path: '../fonts';
+@import 'base/font_awesome';
