@@ -10,9 +10,9 @@
 | 5 | `pkg/services/ngalert/` | 213 | 134 | 1507.4 |
 | 6 | `public/app/features/dashboard/` | 151 | 107 | 1020.0 |
 | 7 | `public/app/features/alerting/` | 132 | 192 | 1002.2 |
-| 8 | `pkg/services/libraryelements/` | 122 | 11 | 437.4 |
-| 9 | `public/app/plugins/panel/` | 119 | 133 | 840.9 |
-| 10 | `pkg/api/` | 113 | 100 | 752.4 |
+| 8 | `public/app/plugins/panel/` | 119 | 133 | 840.9 |
+| 9 | `pkg/api/` | 113 | 100 | 752.4 |
+| 10 | `pkg/services/libraryelements/` | 122 | 11 | 437.4 |
 
 ## Frontend Modernization
 - **Class components**: 60 files
