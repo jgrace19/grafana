@@ -9,6 +9,7 @@ import { Box } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { HomeThemeToggle } from 'app/features/dashboard/components/HomeThemeToggle/HomeThemeToggle';
 import {
   DashboardBrandingFooter,
   DashboardBrandingFooterVariant,
@@ -41,6 +42,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // Also used by /dashboard/assistant-preview/* to load the assistant preview dashboard
   const path = params['*'];
   const prevMatch = usePrevious({ params });
+  const isHomeRoute = route.routeName === DashboardRoutes.Home;
   const stateManager = getDashboardScenePageStateManager();
   const { dashboard, isLoading, loadError } = stateManager.useState();
   // After scene migration is complete and we get rid of old dashboard we should refactor dashboardWatcher so this route reload is not need
@@ -108,12 +110,18 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   if (!dashboard) {
     let errorElement;
     if (loadError) {
-      errorElement = <DashboardPageError error={loadError} type={type} />;
+      errorElement = (
+        <>
+          {isHomeRoute && <HomeThemeToggle />}
+          <DashboardPageError error={loadError} type={type} />
+        </>
+      );
     }
 
     return (
       errorElement || (
         <Page navId="dashboards/browse" layout={PageLayoutType.Canvas} data-testid={'dashboard-scene-page'}>
+          {isHomeRoute && <HomeThemeToggle />}
           <Box paddingY={4} display="flex" direction="column" alignItems="center">
             {isLoading && <PageLoader />}
           </Box>
@@ -148,6 +156,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         useMinHeight={true}
         hide={!isKioskMode || hideFooter}
       />
+      {isHomeRoute && <HomeThemeToggle />}
     </UrlSyncContextProvider>
   );
 }
