@@ -24,6 +24,7 @@ import { OrphanedDashboardBanner } from 'app/features/provisioning/components/Da
 import { DashboardRoutes } from 'app/types/dashboard';
 
 import { DashboardConversionWarningBanner } from '../components/DashboardConversionWarningBanner';
+import { HomeThemeToggle } from '../components/HomeThemeToggle';
 import { SuggestedDashboardsBanner } from '../components/SuggestedDashboardsBanner';
 import { DashboardPrompt } from '../saving/DashboardPrompt';
 import { preserveDashboardSceneStateInLocalStorage } from '../utils/dashboardSessionState';
@@ -116,6 +117,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         <Page navId="dashboards/browse" layout={PageLayoutType.Canvas} data-testid={'dashboard-scene-page'}>
           <Box paddingY={4} display="flex" direction="column" alignItems="center">
             {isLoading && <PageLoader />}
+            {route.routeName === DashboardRoutes.Home && <HomeThemeToggle />}
           </Box>
         </Page>
       )
@@ -148,6 +150,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         useMinHeight={true}
         hide={!isKioskMode || hideFooter}
       />
+      {route.routeName === DashboardRoutes.Home && <HomeThemeToggle />}
     </UrlSyncContextProvider>
   );
 }
