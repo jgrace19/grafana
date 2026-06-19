@@ -32,7 +32,7 @@ import {
 import { type PanelContext, PanelContextProvider, type SeriesVisibilityChangeMode, useTheme2 } from '@grafana/ui';
 import { defaultGraphConfig, getGraphFieldConfig } from 'app/plugins/panel/timeseries/config';
 import { type Options as TimeSeriesOptions } from 'app/plugins/panel/timeseries/panelcfg.gen';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type ExploreGraphStyle, type ExploreGraphYAxisScale } from 'app/types/explore';
 
 import {
   isHideSeriesOverride,
@@ -40,7 +40,7 @@ import {
 } from '../../dashboard/dashgrid/SeriesVisibilityConfigFactory';
 import { useExploreDataLinkPostProcessor } from '../hooks/useExploreDataLinkPostProcessor';
 
-import { applyGraphStyle, applyThresholdsConfig } from './exploreGraphStyleUtils';
+import { applyGraphStyle, applyGraphYAxisScale, applyThresholdsConfig } from './exploreGraphStyleUtils';
 import { useStructureRev } from './useStructureRev';
 
 interface Props {
@@ -56,6 +56,7 @@ interface Props {
   splitOpenFn: SplitOpen;
   onChangeTime: (timeRange: AbsoluteTimeRange) => void;
   graphStyle: ExploreGraphStyle;
+  yAxisScale?: ExploreGraphYAxisScale;
   anchorToZero?: boolean;
   yAxisMaximum?: number;
   thresholdsConfig?: ThresholdsConfig;
@@ -78,6 +79,7 @@ export function ExploreGraph({
   onHiddenSeriesChanged,
   splitOpenFn,
   graphStyle,
+  yAxisScale = 'linear',
   tooltipDisplayMode = TooltipDisplayMode.Single,
   anchorToZero = false,
   yAxisMaximum,
@@ -121,8 +123,9 @@ export function ExploreGraph({
 
   const styledFieldConfig = useMemo(() => {
     const withGraphStyle = applyGraphStyle(fieldConfig, graphStyle, yAxisMaximum);
-    return applyThresholdsConfig(withGraphStyle, thresholdsStyle, thresholdsConfig);
-  }, [fieldConfig, graphStyle, yAxisMaximum, thresholdsConfig, thresholdsStyle]);
+    const withYAxisScale = applyGraphYAxisScale(withGraphStyle, yAxisScale);
+    return applyThresholdsConfig(withYAxisScale, thresholdsStyle, thresholdsConfig);
+  }, [fieldConfig, graphStyle, yAxisScale, yAxisMaximum, thresholdsConfig, thresholdsStyle]);
 
   const dataLinkPostProcessor = useExploreDataLinkPostProcessor(splitOpenFn, timeRange);
 

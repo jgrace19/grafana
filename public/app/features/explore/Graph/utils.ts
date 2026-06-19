@@ -1,13 +1,27 @@
 import { store } from '@grafana/data';
-import { type ExploreGraphStyle, EXPLORE_GRAPH_STYLES } from 'app/types/explore';
+import {
+  type ExploreGraphStyle,
+  EXPLORE_GRAPH_STYLES,
+  type ExploreGraphYAxisScale,
+  EXPLORE_GRAPH_Y_AXIS_SCALES,
+} from 'app/types/explore';
 
 const GRAPH_STYLE_KEY = 'grafana.explore.style.graph';
 export const storeGraphStyle = (graphStyle: string): void => {
   store.set(GRAPH_STYLE_KEY, graphStyle);
 };
 
+const GRAPH_Y_AXIS_SCALE_KEY = 'grafana.explore.scale.graph.y-axis';
+export const storeGraphYAxisScale = (scale: string): void => {
+  store.set(GRAPH_Y_AXIS_SCALE_KEY, scale);
+};
+
 export const loadGraphStyle = (): ExploreGraphStyle => {
   return toGraphStyle(store.get(GRAPH_STYLE_KEY));
+};
+
+export const loadGraphYAxisScale = (): ExploreGraphYAxisScale => {
+  return toGraphYAxisScale(store.get(GRAPH_Y_AXIS_SCALE_KEY));
 };
 
 const DEFAULT_GRAPH_STYLE: ExploreGraphStyle = 'lines';
@@ -23,4 +37,10 @@ const DEFAULT_GRAPH_STYLE: ExploreGraphStyle = 'lines';
 export const toGraphStyle = (data: unknown): ExploreGraphStyle => {
   const found = EXPLORE_GRAPH_STYLES.find((v) => v === data);
   return found ?? DEFAULT_GRAPH_STYLE;
+};
+
+const DEFAULT_GRAPH_Y_AXIS_SCALE: ExploreGraphYAxisScale = 'linear';
+export const toGraphYAxisScale = (data: unknown): ExploreGraphYAxisScale => {
+  const found = EXPLORE_GRAPH_Y_AXIS_SCALES.find((v) => v === data);
+  return found ?? DEFAULT_GRAPH_Y_AXIS_SCALE;
 };

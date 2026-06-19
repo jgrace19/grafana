@@ -109,6 +109,9 @@ export interface ExploreState {
 export const EXPLORE_GRAPH_STYLES = ['lines', 'bars', 'points', 'stacked_lines', 'stacked_bars'] as const;
 export type ExploreGraphStyle = (typeof EXPLORE_GRAPH_STYLES)[number];
 
+export const EXPLORE_GRAPH_Y_AXIS_SCALES = ['linear', 'log', 'symlog'] as const;
+export type ExploreGraphYAxisScale = (typeof EXPLORE_GRAPH_Y_AXIS_SCALES)[number];
+
 export interface ExploreItemState {
   /**
    * Width used for calculating the graph interval (can't have more datapoints than pixels)
