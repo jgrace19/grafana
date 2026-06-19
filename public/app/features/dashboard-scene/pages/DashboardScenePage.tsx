@@ -43,8 +43,10 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   const prevMatch = usePrevious({ params });
   const stateManager = getDashboardScenePageStateManager();
   const { dashboard, isLoading, loadError } = stateManager.useState();
+  const routeName = route.routeName ?? DashboardRoutes.Normal;
+  const dashboardRoute = isDashboardRoute(routeName) ? routeName : DashboardRoutes.Normal;
   // After scene migration is complete and we get rid of old dashboard we should refactor dashboardWatcher so this route reload is not need
-  const routeReloadCounter = (location.state as any)?.routeReloadCounter;
+  const routeReloadCounter = getRouteReloadCounter(location.state);
   const prevParams = useRef<Params<string>>(params);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
             : uid) ?? '',
         type,
         slug,
-        route: route.routeName as DashboardRoutes,
+        route: dashboardRoute,
         urlFolderUid: queryParams.folderUid,
       });
     }
@@ -150,6 +152,33 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       />
     </UrlSyncContextProvider>
   );
+}
+
+function isDashboardRoute(routeName: string): routeName is DashboardRoutes {
+  switch (routeName) {
+    case DashboardRoutes.Home:
+    case DashboardRoutes.New:
+    case DashboardRoutes.Template:
+    case DashboardRoutes.Normal:
+    case DashboardRoutes.Provisioning:
+    case DashboardRoutes.Scripted:
+    case DashboardRoutes.Public:
+    case DashboardRoutes.Embedded:
+    case DashboardRoutes.Report:
+    case DashboardRoutes.AssistantPreview:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function getRouteReloadCounter(state: unknown): number | undefined {
+  if (typeof state !== 'object' || state === null || !('routeReloadCounter' in state)) {
+    return undefined;
+  }
+
+  const routeReloadCounter = Reflect.get(state, 'routeReloadCounter');
+  return typeof routeReloadCounter === 'number' ? routeReloadCounter : undefined;
 }
 
 export default DashboardScenePage;

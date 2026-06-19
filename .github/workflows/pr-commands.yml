@@ -1,6 +1,6 @@
 name: PR automation
 on:
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: pr-commands-${{ github.event.number }}
