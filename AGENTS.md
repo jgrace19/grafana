@@ -138,9 +138,9 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 
 ### Prerequisites
 
-- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
+- **Node.js v24.x** (see `.nvmrc` for exact version). Run `nvm install` in the repo root to match. Gotcha: a system `node` (v22) at `/exec-daemon/node` is prepended to `PATH` in non-login shells and shadows nvm's node even after `nvm use`. If `node --version` still shows v22, explicitly prepend the nvm bin: `export PATH="$NVM_DIR/versions/node/$(nvm version)/bin:$PATH"`.
 - **Go 1.25.9** (see `go.mod`). Pre-installed in the VM.
-- **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
+- **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found (needs the v24 node on `PATH` first).
 - **GCC** required for CGo/SQLite compilation of the backend.
 
 ### Running services
@@ -148,6 +148,8 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
 - **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
 - No external databases required — Grafana uses embedded SQLite by default.
+- On a cold checkout the first backend build takes ~3 min, which exceeds the 120s backend-health wait in `.cursor/skills/start-service/scripts/start-dev.sh` — that script will kill the backend before it finishes compiling. For the first cold build, run `make run` and `yarn start` directly (e.g. in separate tmux windows) instead; the start-service script works fine once the Go build cache is warm.
+- Outbound calls to `grafana.com` (plugin manifest keys) and external RSS/news feeds fail in this network-restricted VM. These log as `connection reset`/`Error loading RSS feed` and are harmless to local dev.
 
 ### Testing gotchas
 
