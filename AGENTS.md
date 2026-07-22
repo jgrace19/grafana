@@ -138,15 +138,19 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 
 ### Prerequisites
 
-- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
+- **Node.js v24.x** (see `.nvmrc`). Although `package.json` engines allow `>=22 <25`, the decoupled core-plugin builds (nx `@grafana-plugins/*:build`, run automatically by `yarn start`) require Node 24 — under Node 22 they fail with `ERR_UNKNOWN_FILE_EXTENSION` from ts-node.
+- **PATH gotcha**: `/exec-daemon/node` (v22) precedes nvm on `PATH`, so plain `nvm use` does NOT make `node` v24. Prepend the nvm bin explicitly before running `yarn start`/`yarn build`: `export PATH="$(dirname "$(nvm which 24)"):$PATH"` (verify with `node --version`).
 - **Go 1.25.9** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
+- **Go lint/dev tools** (`golangci-lint`, `air`, `swagger`, etc.) are compiled on demand from `.citools/` the first time you run `make lint-go` / `make run` (needs network for Go modules on first compile).
 
 ### Running services
 
 - **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
-- **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
+- **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s. Requires Node 24 on `PATH` (see PATH gotcha above).
+- **One-shot dev stack**: `bash .cursor/skills/start-service/scripts/start-dev.sh` starts backend + frontend and seeds a TestData dashboard.
+- **Datasource plugin loading race (important)**: The backend registers core datasource plugins (`grafana-testdata-datasource`, `loki`, `tempo`, `mysql`, etc.) from their `dist/` folders. `dist/` is produced by the plugin builds that `yarn start` kicks off, but `start-dev.sh` launches the backend and frontend concurrently — so on a **fresh** checkout the backend may scan before `dist/` exists and instead register them as `core:plugin/<id>`, which the browser can't load ("Could not load plugin", 404 on the plugin module). Fix: once the plugin `dist/` folders exist on disk (they persist within a VM), **restart the backend** (or re-run `start-dev.sh`) so it rediscovers them from `dist/`. To avoid the race entirely, run `yarn plugin:build` before starting the backend.
 - No external databases required — Grafana uses embedded SQLite by default.
 
 ### Testing gotchas
