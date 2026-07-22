@@ -138,7 +138,7 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 
 ### Prerequisites
 
-- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
+- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match. Note: the VM injects a Node v22 at `/exec-daemon/node` that sits ahead of nvm on `PATH`, so `node --version` can report v22 even after `nvm use`. The agent `~/.bashrc` prepends the nvm v24 bin dir so interactive login shells resolve v24; if a script still picks up v22, prepend `$HOME/.nvm/versions/node/v24.11.0/bin` to `PATH` explicitly.
 - **Go 1.25.9** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
@@ -148,6 +148,8 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
 - **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
 - No external databases required — Grafana uses embedded SQLite by default.
+- The `start-service` skill script (`.cursor/skills/start-service/scripts/start-dev.sh`) gates on backend health for only 120s, which is shorter than the ~3 min first cold build; on a fresh VM it will report "Backend never became healthy" and kill the build mid-compile. For the first startup, run `make run` (backend) and `yarn start` (frontend) directly (e.g. in separate tmux sessions) so the cold build isn't interrupted; the skill script is fine once binaries are cached.
+- Plugin-manifest fetch errors from `grafana.com` in the backend log (e.g. "Error downloading plugin manifest keys", "connection reset by peer") are expected under restricted egress and do not block startup.
 
 ### Testing gotchas
 
