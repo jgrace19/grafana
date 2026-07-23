@@ -142,12 +142,14 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Go 1.25.9** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
+- **PATH gotcha**: an injected `/exec-daemon/node` (v22) sits ahead of nvm in `PATH`, so a bare `nvm use` is not enough — `node` can still resolve to v22. Prepend nvm's bin explicitly: `export PATH="$NVM_DIR/versions/node/$(nvm version)/bin:$PATH"`. A login shell (`bash -l`) already handles this via `~/.bashrc`.
 
 ### Running services
 
 - **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
 - **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
 - No external databases required — Grafana uses embedded SQLite by default.
+- **Cold-build gotcha**: the `start-service` skill (`.cursor/skills/start-service/scripts/start-dev.sh`) waits only ~120s for backend health, which is shorter than a cold `make run` build and can terminate the backend mid-build. On a fresh VM, run `make run` directly (or re-run the script after the build cache is warm) so the first build can finish; health then comes up in ~60s on subsequent starts.
 
 ### Testing gotchas
 
