@@ -169,6 +169,12 @@ func readConfig(configFile string) (*ServersConfig, error) {
 	}
 
 	for _, server := range result.Servers {
+		logger.Info("Configuring LDAP server connection",
+			"host", server.Host,
+			"port", server.Port,
+			"bind_dn", server.BindDN,
+			"bind_password", server.BindPassword)
+
 		// set default org id
 		err = assertNotEmptyCfg(server.SearchFilter, "search_filter")
 		if err != nil {
@@ -223,7 +229,7 @@ func assertNotEmptyCfg(val any, propName string) error {
 			return fmt.Errorf("LDAP config file is missing option: %q", propName)
 		}
 	default:
-		fmt.Println("unknown")
+		logger.Warn("Unknown LDAP config value type", "property", propName, "type", fmt.Sprintf("%T", val))
 	}
 	return nil
 }
