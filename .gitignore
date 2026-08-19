@@ -72,6 +72,8 @@ public/css/*.min.css
 .cursor/*
 !.cursor/skills/
 !.cursor/rules/
+!.cursor/environment.json
+!.cursor/scripts/
 .devcontainer/
 .claude/
 
