@@ -3,7 +3,6 @@ import { http, HttpResponse } from 'msw';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 
-import { DashboardInitPhase } from 'app/types/dashboard';
 
 import { configureStore } from '../../../../../store/configureStore';
 import { type DashboardModel } from '../../../state/DashboardModel';
@@ -51,8 +50,6 @@ export const renderSharePublicDashboard = async (
   const store = configureStore({
     dashboard: {
       getModel: () => props?.dashboard || mockDashboard,
-      initError: null,
-      initPhase: DashboardInitPhase.Completed,
     },
   });
 
