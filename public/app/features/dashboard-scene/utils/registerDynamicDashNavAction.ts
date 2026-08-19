@@ -19,3 +19,11 @@ export const dynamicDashNavActions: { left: DynamicDashNavButtonModel[]; right: 
 export function registerDynamicDashNavAction(side: 'left' | 'right', action: DynamicDashNavButtonModel) {
   dynamicDashNavActions[side].push(action);
 }
+
+export function addCustomLeftAction(content: DynamicDashNavButtonModel) {
+  registerDynamicDashNavAction('left', content);
+}
+
+export function addCustomRightAction(content: DynamicDashNavButtonModel) {
+  registerDynamicDashNavAction('right', content);
+}
