@@ -6,6 +6,11 @@ This file provides guidance to AI agents when working with code in the Grafana r
 
 **Directory-scoped agent files exist for specialized areas — read them when working in those directories:**
 
+- `pkg/AGENTS.md` — Go backend
+- `public/app/AGENTS.md` — Frontend app
+- `packages/AGENTS.md` — Shared `@grafana/*` npm packages
+- `apps/AGENTS.md` — App SDK backend apps
+- `e2e-playwright/AGENTS.md` — End-to-end tests
 - `docs/AGENTS.md` — Documentation style guide (for work under `docs/`)
 - `public/app/features/alerting/unified/AGENTS.md` — Alerting squad patterns
 
