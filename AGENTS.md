@@ -148,11 +148,14 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
 
+- **Node PATH gotcha**: the VM ships a system `node` (v22) at `/exec-daemon/node` that takes PATH precedence over nvm even after `nvm use`. Interactive login shells are already fixed via a `~/.bashrc` block (`grafana-cloud-node-path`) that prepends the nvm v24 bin, so a fresh `bash -l` gives v24. For non-login/script shells, run `export PATH="$(dirname "$(nvm which current)"):$PATH"` after `nvm use` to guarantee v24. Verify with `node --version` before `yarn install`.
+
 ### Running services
 
-- **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
-- **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
+- **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First (cold) build takes ~3+ minutes due to debug symbols (`-gcflags all=-N -l`); a warm cache starts in ~20s. Subsequent hot-reload rebuilds are faster.
+- **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~30–45s. HMR websocket is on port 35750.
 - No external databases required — Grafana uses embedded SQLite by default.
+- **`start-service` skill caveat**: `.cursor/skills/start-service/scripts/start-dev.sh` gates on backend health for only 120s and kills the stack if exceeded. On a **cold** backend compile (~3+ min) this fires prematurely. On a cold cache, either pre-warm with `make build-go` first, or run `yarn start` and `make run` as separate long-lived processes (e.g. in tmux) and poll `/api/health` yourself. On a warm cache the skill works fine.
 
 ### Testing gotchas
 
