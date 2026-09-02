@@ -128,19 +128,6 @@ export enum DashboardRoutes {
   AssistantPreview = 'assistant-preview',
 }
 
-export enum DashboardInitPhase {
-  NotStarted = 'Not started',
-  Fetching = 'Fetching',
-  Services = 'Services',
-  Failed = 'Failed',
-  Completed = 'Completed',
-}
-
-export interface DashboardInitError {
-  message: string;
-  error: unknown;
-}
-
 export enum KioskMode {
   Full = 'full',
 }
@@ -154,9 +141,7 @@ export interface QueriesToUpdateOnDashboardLoad {
 
 export interface DashboardState {
   getModel: GetMutableDashboardModelFn;
-  initPhase: DashboardInitPhase;
   initialDatasource?: DataSourceRef['uid'];
-  initError: DashboardInitError | null;
 }
 
 export const DASHBOARD_FROM_LS_KEY = 'DASHBOARD_FROM_LS_KEY';
