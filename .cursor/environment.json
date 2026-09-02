@@ -1,0 +1,15 @@
+{
+  "name": "Grafana",
+  "install": "bash .cursor/scripts/install.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "bash .cursor/scripts/backend.sh"
+    },
+    {
+      "name": "frontend",
+      "command": "bash .cursor/scripts/frontend.sh"
+    }
+  ],
+  "ports": [3000]
+}
