@@ -1771,4 +1771,9 @@ export interface FeatureToggles {
   * @default false
   */
   compiledBootScript?: boolean;
+  /**
+  * Enable collaborative threaded comments on dashboard panels and annotations
+  * @default false
+  */
+  dashboardComments?: boolean;
 }

@@ -173,4 +173,6 @@ func (oss *OSSMigrations) AddMigration(mg *Migrator) {
 	ualert.AddRuleAlertRoutingColumns(mg)
 
 	accesscontrol.AddManagedRoutesPermissions(mg)
+
+	addDashboardCommentMigrations(mg)
 }

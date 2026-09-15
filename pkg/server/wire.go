@@ -85,6 +85,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/cloudmigration/cloudmigrationimpl"
 	"github.com/grafana/grafana/pkg/services/contexthandler"
 	"github.com/grafana/grafana/pkg/services/correlations"
+	"github.com/grafana/grafana/pkg/services/dashboardcomments/dashboardcommentsimpl"
 	"github.com/grafana/grafana/pkg/services/dashboardimport"
 	dashboardimportservice "github.com/grafana/grafana/pkg/services/dashboardimport/service"
 	"github.com/grafana/grafana/pkg/services/dashboards"
@@ -278,6 +279,7 @@ var wireBasicSet = wire.NewSet(
 	wire.Bind(new(queryhistory.Service), new(*queryhistory.QueryHistoryService)),
 	correlations.ProvideService,
 	wire.Bind(new(correlations.Service), new(*correlations.CorrelationsService)),
+	dashboardcommentsimpl.ProvideService,
 	quotaimpl.ProvideService,
 	remotecache.ProvideService,
 	wire.Bind(new(remotecache.CacheStorage), new(*remotecache.RemoteCache)),
