@@ -8517,6 +8517,13 @@
     "get-matches-metadata": {
       "matches": "0 matches"
     },
+    "graph": {
+      "graph-scale-aria-label": "Y-axis scale",
+      "graph-style-aria-label": "Graph style",
+      "scale-linear": "Linear",
+      "scale-log": "Logarithmic",
+      "scale-log-disabled-stacked": "Logarithmic scale is unavailable for stacked graph styles"
+    },
     "legacy-create-span-link-factory": {
       "text": {
         "tags": "Tags"
