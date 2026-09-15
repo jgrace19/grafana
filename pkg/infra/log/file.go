@@ -114,6 +114,8 @@ func (w *FileLogWriter) docheck(size int) {
 		(w.Maxsize > 0 && w.maxsizeCursize >= w.Maxsize) ||
 		(w.Daily && time.Now().Day() != w.dailyOpendate)) {
 		if err := w.DoRotate(); err != nil {
+			// Intentionally write to stderr here: this path is part of logging internals,
+			// and trying to route through structured loggers could recurse or deadlock.
 			fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.Filename, err)
 			return
 		}

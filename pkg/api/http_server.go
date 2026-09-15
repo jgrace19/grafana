@@ -435,8 +435,7 @@ func (w *customErrorLogger) Write(msg []byte) (int, error) {
 		// log at debug level and remove new lines
 		w.log.Debug(strings.ReplaceAll(string(msg), "\n", ""))
 	} else {
-		// log the error as is using the standard logger (the same way as the default http server does)
-		stdlog.Print(string(msg))
+		w.log.Error("HTTP server error", "msg", strings.TrimSpace(string(msg)))
 	}
 
 	return len(msg), nil
