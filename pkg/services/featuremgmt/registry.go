@@ -176,6 +176,13 @@ var (
 			Expression:  "false",
 		},
 		{
+			Name:        "dashboardComments",
+			Description: "Enable threaded comments on dashboard panels",
+			Stage:       FeatureStageExperimental,
+			Owner:       grafanaDashboardsSquad,
+			Expression:  "false",
+		},
+		{
 			Name:         "faroDatasourceSelector",
 			Description:  "Enable the data source selector within the Frontend Apps section of the Frontend Observability",
 			Stage:        FeatureStagePublicPreview,

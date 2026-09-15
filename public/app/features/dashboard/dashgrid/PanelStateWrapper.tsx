@@ -48,6 +48,7 @@ import { getDashboardQueryRunner } from '../../query/state/DashboardQueryRunner/
 import { getTimeSrv, type TimeSrv } from '../services/TimeSrv';
 import { type DashboardModel } from '../state/DashboardModel';
 import { type PanelModel } from '../state/PanelModel';
+import { PanelCommentsChromeBridge } from '../components/Comments/PanelCommentsChromeBridge';
 import { getPanelChromeProps } from '../utils/getPanelChromeProps';
 import { loadSnapshotData } from '../utils/loadSnapshotData';
 
@@ -566,7 +567,6 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
     const { dashboard, panel, width, height, plugin } = this.props;
     const { errorMessage, data } = this.state;
     const { transparent } = panel;
-    const panelChromeProps = getPanelChromeProps({ ...this.props, data });
 
     // Shift the hover menu down if it's on the top row so it doesn't get clipped by topnav
     const hoverHeaderOffset = (panel.gridPos?.y ?? 0) === 0 ? -16 : undefined;
@@ -578,45 +578,54 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
     );
 
     return (
-      <PanelChrome
-        width={width}
-        height={height}
-        title={panelChromeProps.title}
-        loadingState={data.state}
-        statusMessage={errorMessage}
-        statusMessageOnClick={panelChromeProps.onOpenErrorInspect}
-        description={panelChromeProps.description}
-        titleItems={panelChromeProps.titleItems}
-        menu={this.props.hideMenu ? undefined : menu}
-        dragClass={panelChromeProps.dragClass}
-        dragClassCancel="grid-drag-cancel"
-        padding={panelChromeProps.padding}
-        hoverHeaderOffset={hoverHeaderOffset}
-        hoverHeader={panelChromeProps.hasOverlayHeader()}
-        displayMode={transparent ? 'transparent' : 'default'}
-        onCancelQuery={panelChromeProps.onCancelQuery}
-        onFocus={() => this.setPanelAttention()}
-        onMouseEnter={() => this.setPanelAttention()}
-        onMouseMove={() => this.debouncedSetPanelAttention()}
-      >
-        {(innerWidth, innerHeight) => (
-          <>
-            <ErrorBoundary
-              boundaryName="panel-state-wrapper"
-              dependencies={[data, plugin, panel.getOptions()]}
-              onError={this.onPanelError}
-              onRecover={this.onPanelErrorRecover}
-            >
-              {({ error }) => {
-                if (error) {
-                  return null;
-                }
-                return this.renderPanelContent(innerWidth, innerHeight);
-              }}
-            </ErrorBoundary>
-          </>
-        )}
-      </PanelChrome>
+      <>
+        <PanelCommentsChromeBridge dashboardUid={dashboard.uid ?? undefined} panelId={panel.id}>
+          {({ onOpenComments }) => {
+            const panelChromeProps = getPanelChromeProps({ ...this.props, data, onOpenComments });
+            return (
+              <PanelChrome
+                width={width}
+                height={height}
+                title={panelChromeProps.title}
+                loadingState={data.state}
+                statusMessage={errorMessage}
+                statusMessageOnClick={panelChromeProps.onOpenErrorInspect}
+                description={panelChromeProps.description}
+                titleItems={panelChromeProps.titleItems}
+                menu={this.props.hideMenu ? undefined : menu}
+                dragClass={panelChromeProps.dragClass}
+                dragClassCancel="grid-drag-cancel"
+                padding={panelChromeProps.padding}
+                hoverHeaderOffset={hoverHeaderOffset}
+                hoverHeader={panelChromeProps.hasOverlayHeader()}
+                displayMode={transparent ? 'transparent' : 'default'}
+                onCancelQuery={panelChromeProps.onCancelQuery}
+                onFocus={() => this.setPanelAttention()}
+                onMouseEnter={() => this.setPanelAttention()}
+                onMouseMove={() => this.debouncedSetPanelAttention()}
+              >
+                {(innerWidth, innerHeight) => (
+                  <>
+                    <ErrorBoundary
+                      boundaryName="panel-state-wrapper"
+                      dependencies={[data, plugin, panel.getOptions()]}
+                      onError={this.onPanelError}
+                      onRecover={this.onPanelErrorRecover}
+                    >
+                      {({ error }) => {
+                        if (error) {
+                          return null;
+                        }
+                        return this.renderPanelContent(innerWidth, innerHeight);
+                      }}
+                    </ErrorBoundary>
+                  </>
+                )}
+              </PanelChrome>
+            );
+          }}
+        </PanelCommentsChromeBridge>
+      </>
     );
   }
 }

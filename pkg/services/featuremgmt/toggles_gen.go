@@ -71,6 +71,10 @@ const (
 	// Refactor time range variables flow to reduce number of API calls made when query variables are chained
 	FlagRefactorVariablesTimeRange = "refactorVariablesTimeRange"
 
+	// FlagDashboardComments
+	// Enable threaded comments on dashboard panels
+	FlagDashboardComments = "dashboardComments"
+
 	// FlagAwsDatasourcesTempCredentials
 	// Support temporary security credentials in AWS plugins for Grafana Cloud customers
 	FlagAwsDatasourcesTempCredentials = "awsDatasourcesTempCredentials"

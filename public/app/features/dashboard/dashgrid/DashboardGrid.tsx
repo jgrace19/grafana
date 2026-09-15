@@ -11,6 +11,7 @@ import { contextSrv } from 'app/core/services/context_srv';
 import { VariablesChanged } from 'app/features/variables/types';
 import { DashboardPanelsChangedEvent } from 'app/types/events';
 
+import { DashboardCommentsPoller } from '../components/Comments/DashboardCommentsPoller';
 import { AddLibraryPanelWidget } from '../components/AddLibraryPanelWidget/AddLibraryPanelWidget';
 import { DashboardRow } from '../components/DashboardRow/DashboardRow';
 import { type DashboardModel } from '../state/DashboardModel';
@@ -331,6 +332,9 @@ export class DashboardGrid extends PureComponent<Props, State> {
           display: this.props.editPanel ? 'none' : undefined,
         }}
       >
+        {config.featureToggles.dashboardComments && dashboard.uid ? (
+          <DashboardCommentsPoller dashboardUID={dashboard.uid} />
+        ) : null}
         <div style={{ width: width, height: '100%' }} ref={this.onGetWrapperDivRef}>
           <ReactGridLayout
             width={width}
