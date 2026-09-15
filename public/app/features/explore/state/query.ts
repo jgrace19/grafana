@@ -22,6 +22,7 @@ import {
 import { combinePanelData } from '@grafana/o11y-ds-frontend';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import {
   buildQueryTransaction,
@@ -89,6 +90,7 @@ export interface AddQueryRowPayload {
   index: number;
   query: DataQuery;
 }
+const exploreQueryDebugLog = createDebugLog('explore-query', 'ExploreQuery');
 export const addQueryRowAction = createAction<AddQueryRowPayload>('explore/addQueryRow');
 
 /**
@@ -657,7 +659,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            exploreQueryDebugLog('scanning series', data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));

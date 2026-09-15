@@ -28,11 +28,14 @@ import {
   type BackendDataSourceResponse,
   getBackendSrv,
 } from '@grafana/runtime';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 import { type StreamingResponseData } from '../data/utils';
 
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
+
+const centrifugeServiceDebugLog = createDebugLog('centrifuge-service', 'CentrifugeService');
 
 export type CentrifugeSrvDeps = {
   grafanaAuthToken: string | null;
@@ -126,7 +129,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    centrifugeServiceDebugLog('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

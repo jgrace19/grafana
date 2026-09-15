@@ -4,6 +4,7 @@ import { type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/dat
 import { Trans } from '@grafana/i18n';
 import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { CodeEditor, Button } from '@grafana/ui';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 import { MessagePublishMode } from './types';
 
@@ -14,6 +15,8 @@ interface Props {
   body?: string | object;
   onSave: (v: string | object) => void;
 }
+
+const livePublishDebugLog = createDebugLog('live-publish', 'LivePublish');
 
 export function LivePublish({ height, mode, body, addr, onSave }: Props) {
   const txt = useMemo(() => {
@@ -46,7 +49,7 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    livePublishDebugLog('onPublishClicked (response from publish)', rsp);
   };
 
   return (

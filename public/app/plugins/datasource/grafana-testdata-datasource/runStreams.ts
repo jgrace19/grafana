@@ -19,6 +19,7 @@ import {
   createTheme,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 import { getRandomLine } from './LogIpsum';
 import { type TestDataDataQuery, type StreamingQuery } from './dataquery';
@@ -30,6 +31,8 @@ export const defaultStreamQuery: StreamingQuery = {
   noise: 2.2,
   bands: 1,
 };
+
+const streamDebugLog = createDebugLog('testdata-streams', 'TestDataStreams');
 
 export function runStream(
   target: TestDataDataQuery,
@@ -125,7 +128,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      streamDebugLog('unsubscribing to stream', streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +174,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      streamDebugLog('unsubscribing to stream', streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -254,7 +257,7 @@ export function runWatchStream(
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      streamDebugLog('unsubscribing to stream', streamId);
       sub.unsubscribe();
     };
   });
@@ -314,7 +317,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        streamDebugLog('Finished stream');
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +338,7 @@ export function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      streamDebugLog('unsubscribing to stream', streamId);
     };
   });
 }
@@ -368,7 +371,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      streamDebugLog('unsubscribing to stream', streamId);
       clearTimeout(timeoutId);
     };
   });

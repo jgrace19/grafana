@@ -2,6 +2,7 @@ import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
 import { config } from '@grafana/runtime';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { type CanvasConnection, type ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 import { type Scene } from 'app/features/canvas/runtime/scene';
@@ -33,6 +34,7 @@ export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
 const CONNECTION_VERTEX_ORTHO_TOLERANCE = 0.05; // Cartesian ratio against vertical or horizontal tolerance
 const CONNECTION_VERTEX_SNAP_TOLERANCE = (5 / 180) * Math.PI; // Multi-segment snapping angle in radians to trigger vertex removal
+const connections2DebugLog = createDebugLog('canvas-connections-2', 'CanvasConnections2');
 
 export class Connections2 {
   scene: Scene;
@@ -126,7 +128,7 @@ export class Connections2 {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      connections2DebugLog('no element');
       return;
     }
 
@@ -135,7 +137,7 @@ export class Connections2 {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        connections2DebugLog('no connection source');
         return;
       }
     }

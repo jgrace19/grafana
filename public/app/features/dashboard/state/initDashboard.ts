@@ -6,6 +6,7 @@ import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { type KeybindingSrv } from 'app/core/services/keybindingSrv';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { startMeasure, stopMeasure } from 'app/core/utils/metrics';
 import { dashboardLoaderSrv } from 'app/features/dashboard/services/DashboardLoaderSrv';
 import { type DashboardSrv, getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -33,6 +34,8 @@ import { contextSrv } from '../../../core/services/context_srv';
 import { createDashboardQueryRunner } from '../../query/state/DashboardQueryRunner/DashboardQueryRunner';
 import { initVariablesTransaction } from '../../variables/state/actions';
 import { getIfExistsLastKey } from '../../variables/state/selectors';
+
+const dashboardInitLog = createDebugLog('dashboard-init', 'DashboardInit');
 import { trackDashboardLoaded } from '../utils/tracking';
 
 import { DashboardModel } from './DashboardModel';
@@ -109,7 +112,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            dashboardInitLog('not correct url correcting', { dashboardUrl, currentPath });
           }
         }
         return dashDTO;

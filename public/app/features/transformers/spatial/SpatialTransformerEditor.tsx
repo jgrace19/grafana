@@ -12,6 +12,7 @@ import {
   TransformerCategory,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createDebugLog } from 'app/core/utils/debugLog';
 import { FrameGeometrySourceMode } from '@grafana/schema';
 import { useTheme2 } from '@grafana/ui';
 import { addLocationFields } from 'app/features/geo/editor/locationEditor';
@@ -130,6 +131,7 @@ const supplier = (
 };
 
 type Props = TransformerUIProps<SpatialTransformOptions>;
+const spatialTransformerDebugLog = createDebugLog('spatial-transformer-editor', 'SpatialTransformerEditor');
 
 export const SetGeometryTransformerEditor = (props: Props) => {
   // a new component is created with every change :(
@@ -137,7 +139,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      spatialTransformerDebugLog('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

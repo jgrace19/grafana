@@ -1,4 +1,5 @@
 import { type monacoTypes } from '@grafana/ui';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
@@ -19,6 +20,7 @@ import { type monacoTypes } from '@grafana/ui';
 // i would use an another approach, if there was one available.
 
 function makeStorageService() {
+  const debugLog = createDebugLog('loki-monaco-storage', 'LokiMonacoStorage');
   // we need to return an object that fulfills this interface:
   // https://github.com/microsoft/vscode/blob/ff1e16eebb93af79fd6d7af1356c4003a120c563/src/vs/platform/storage/common/storage.ts#L37
   // unfortunately it is not export from monaco-editor
@@ -81,7 +83,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      debugLog('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {
