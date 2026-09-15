@@ -26,6 +26,12 @@ composableKinds: PanelCfg: lineage: {
 				common.VizLegendOptions
 				enableFacetedFilter?: bool | *true
 			} @cuetsy(kind="interface")
+			TrendOverlayType: "movingAverage" | "linearRegression" @cuetsy(kind="enum",memberNames="MovingAverage|LinearRegression")
+			TrendOverlayOptions: {
+				enabled:     bool | *false
+				type:        TrendOverlayType | *"movingAverage"
+				windowSize?: int32 | *10
+			} @cuetsy(kind="interface")
 			Options: {
 				common.OptionsWithTimezones
 				common.OptionsWithAnnotations
@@ -36,6 +42,7 @@ composableKinds: PanelCfg: lineage: {
 				orientation?:           common.VizOrientation
 				annotations?:           common.VizAnnotations
 				disableKeyboardEvents?: bool
+				trendOverlay?:          TrendOverlayOptions
 			} @cuetsy(kind="interface")
 
 			FieldConfig: common.GraphFieldConfig & {} @cuetsy(kind="interface")

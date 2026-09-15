@@ -23,6 +23,7 @@ import { FILTER_OUT_OPERATOR, type TimeRange2, TooltipHoverMode } from '@grafana
 import { TimeSeries } from 'app/core/components/TimeSeries/TimeSeries';
 
 import { TimeSeriesTooltip } from './TimeSeriesTooltip';
+import { appendTrendOverlays } from './overlay';
 import { type Options } from './panelcfg.gen';
 import { AnnotationsPlugin } from './plugins/AnnotationPlugin';
 import { ExemplarsPlugin, getVisibleLabels } from './plugins/ExemplarsPlugin';
@@ -66,8 +67,10 @@ export const TimeSeriesPanel = ({
   // It is simplified version of horizontal time series panel and it does not support all plugins.
   const isVerticallyOriented = options.orientation === VizOrientation.Vertical;
   const { frames, compareDiffMs } = useMemo(() => {
-    let frames = prepareGraphableFields(data.series, config.theme2, timeRange);
-    if (frames != null) {
+    const prepared = prepareGraphableFields(data.series, config.theme2, timeRange);
+    if (prepared != null) {
+      const frames = appendTrendOverlays(prepared, options.trendOverlay, config.theme2);
+
       let compareDiffMs: number[] = [0];
 
       frames.forEach((frame: DataFrame) => {
@@ -93,8 +96,8 @@ export const TimeSeriesPanel = ({
       return { frames, compareDiffMs };
     }
 
-    return { frames };
-  }, [data.series, timeRange]);
+    return { frames: prepared };
+  }, [data.series, timeRange, options.trendOverlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
