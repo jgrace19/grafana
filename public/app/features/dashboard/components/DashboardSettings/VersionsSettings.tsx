@@ -1,5 +1,5 @@
-import { PureComponent } from 'react';
 import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
@@ -20,177 +20,148 @@ import { type SettingsPageProps } from './types';
 
 interface Props extends SettingsPageProps {}
 
-type State = {
-  isLoading: boolean;
-  isAppending: boolean;
-  versions: DecoratedRevisionModel[];
-  viewMode: 'list' | 'compare';
-  diffData: { lhs: object; rhs: object };
-  newInfo?: DecoratedRevisionModel;
-  baseInfo?: DecoratedRevisionModel;
-  isNewLatest: boolean;
-};
+function transformToRevisionModels(items: Array<Resource<unknown>>): RevisionModel[] {
+  return items.map(
+    (item): RevisionModel => ({
+      id: item.metadata.generation ?? 0,
+      checked: false,
+      uid: item.metadata.name,
+      version: item.metadata.generation ?? 0,
+      created: item.metadata.creationTimestamp ?? new Date().toISOString(),
+      createdBy: item.metadata.annotations?.['grafana.app/updatedBy'] ?? '',
+      message: item.metadata.annotations?.['grafana.app/message'] ?? '',
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      data: item.spec as object,
+    })
+  );
+}
 
-export class VersionsSettings extends PureComponent<Props, State> {
-  continueToken: string;
+export function VersionsSettings({ dashboard, sectionNav }: Props) {
+  const continueTokenRef = useRef('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAppending, setIsAppending] = useState(true);
+  const [versions, setVersions] = useState<DecoratedRevisionModel[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'compare'>('list');
+  const [diffData, setDiffData] = useState<{ lhs: object; rhs: object }>({ lhs: {}, rhs: {} });
+  const [newInfo, setNewInfo] = useState<DecoratedRevisionModel | undefined>(undefined);
+  const [baseInfo, setBaseInfo] = useState<DecoratedRevisionModel | undefined>(undefined);
+  const [isNewLatest, setIsNewLatest] = useState(false);
 
-  constructor(props: Props) {
-    super(props);
-    this.continueToken = '';
-    this.state = {
-      isAppending: true,
-      isLoading: true,
-      versions: [],
-      viewMode: 'list',
-      isNewLatest: false,
-      diffData: { lhs: {}, rhs: {} },
-    };
-  }
+  const decorateVersions = (revisions: RevisionModel[]): DecoratedRevisionModel[] =>
+    revisions.map((version) => ({
+      ...version,
+      createdDateString: dashboard.formatDate(version.created),
+      ageString: dashboard.getRelativeTime(version.created),
+      checked: false,
+    }));
 
-  componentDidMount() {
-    this.getVersions();
-  }
-
-  getVersions = (append = false) => {
-    this.setState({ isAppending: append });
+  const getVersions = (append = false) => {
+    setIsAppending(append);
 
     const options = append
-      ? { limit: VERSIONS_FETCH_LIMIT, continueToken: this.continueToken }
+      ? { limit: VERSIONS_FETCH_LIMIT, continueToken: continueTokenRef.current }
       : { limit: VERSIONS_FETCH_LIMIT };
 
     getDashboardAPI()
       .then(async (api) => {
-        const result = await api.listDashboardHistory(this.props.dashboard.uid, options);
-        const versions = this.transformToRevisionModels(result.items);
-        this.setState({
-          isLoading: false,
-          versions: [...(this.state.versions ?? []), ...this.decorateVersions(versions)],
-        });
-        // Update the continueToken for the next request, if available
-        this.continueToken = result.metadata.continue ?? '';
+        const result = await api.listDashboardHistory(dashboard.uid, options);
+        const revisions = transformToRevisionModels(result.items);
+        setIsLoading(false);
+        setVersions((prev) => [...(prev ?? []), ...decorateVersions(revisions)]);
+        continueTokenRef.current = result.metadata.continue ?? '';
       })
       .catch((err) => console.log(err))
-      .finally(() => this.setState({ isAppending: false }));
+      .finally(() => setIsAppending(false));
   };
 
-  transformToRevisionModels(items: Array<Resource<unknown>>): RevisionModel[] {
-    return items.map(
-      (item): RevisionModel => ({
-        id: item.metadata.generation ?? 0,
-        checked: false,
-        uid: item.metadata.name,
-        version: item.metadata.generation ?? 0,
-        created: item.metadata.creationTimestamp ?? new Date().toISOString(),
-        createdBy: item.metadata.annotations?.['grafana.app/updatedBy'] ?? '',
-        message: item.metadata.annotations?.['grafana.app/message'] ?? '',
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        data: item.spec as object,
-      })
-    );
-  }
+  useEffect(() => {
+    getVersions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  getDiff = () => {
-    const selectedVersions = this.state.versions.filter((version) => version.checked);
-    const [newInfo, baseInfo] = selectedVersions;
-    const isNewLatest = newInfo.version === this.props.dashboard.version;
+  const getDiff = () => {
+    const selectedVersions = versions.filter((version) => version.checked);
+    const [newInfoSelected, baseInfoSelected] = selectedVersions;
+    const isNewLatestVersion = newInfoSelected.version === dashboard.version;
 
-    // Use the already-loaded data from listDashboardHistory - no need for another API call
-    this.setState({
-      baseInfo,
-      isLoading: false,
-      isNewLatest,
-      newInfo,
-      viewMode: 'compare',
-      diffData: { lhs: baseInfo.data, rhs: newInfo.data },
-    });
+    setBaseInfo(baseInfoSelected);
+    setIsLoading(false);
+    setIsNewLatest(isNewLatestVersion);
+    setNewInfo(newInfoSelected);
+    setViewMode('compare');
+    setDiffData({ lhs: baseInfoSelected.data, rhs: newInfoSelected.data });
   };
 
-  decorateVersions = (versions: RevisionModel[]) =>
-    versions.map((version) => ({
-      ...version,
-      createdDateString: this.props.dashboard.formatDate(version.created),
-      ageString: this.props.dashboard.getRelativeTime(version.created),
-      checked: false,
-    }));
+  const isLastPage = () =>
+    versions.find((rev) => rev.version === 1) ||
+    versions.length % VERSIONS_FETCH_LIMIT !== 0 ||
+    continueTokenRef.current === '';
 
-  isLastPage() {
-    return (
-      this.state.versions.find((rev) => rev.version === 1) ||
-      this.state.versions.length % VERSIONS_FETCH_LIMIT !== 0 ||
-      this.continueToken === ''
-    );
-  }
-
-  onCheck = (ev: React.FormEvent<HTMLInputElement>, versionId: number) => {
-    this.setState({
-      versions: this.state.versions.map((version) =>
+  const onCheck = (ev: React.FormEvent<HTMLInputElement>, versionId: number) => {
+    setVersions((prev) =>
+      prev.map((version) =>
         version.id === versionId ? { ...version, checked: ev.currentTarget.checked } : version
-      ),
-    });
+      )
+    );
   };
 
-  reset = () => {
-    this.continueToken = '';
-    this.setState({
-      baseInfo: undefined,
-      diffData: { lhs: {}, rhs: {} },
-      isNewLatest: false,
-      newInfo: undefined,
-      versions: this.state.versions.map((version) => ({ ...version, checked: false })),
-      viewMode: 'list',
-    });
+  const reset = () => {
+    continueTokenRef.current = '';
+    setBaseInfo(undefined);
+    setDiffData({ lhs: {}, rhs: {} });
+    setIsNewLatest(false);
+    setNewInfo(undefined);
+    setVersions((prev) => prev.map((version) => ({ ...version, checked: false })));
+    setViewMode('list');
   };
 
-  render() {
-    const { versions, viewMode, baseInfo, newInfo, isNewLatest, isLoading, diffData } = this.state;
-    const canCompare = versions.filter((version) => version.checked).length === 2;
-    const showButtons = versions.length > 1;
-    const hasMore = versions.length >= VERSIONS_FETCH_LIMIT;
-    const pageNav = this.props.sectionNav.node.parentItem;
+  const canCompare = versions.filter((version) => version.checked).length === 2;
+  const showButtons = versions.length > 1;
+  const hasMore = versions.length >= VERSIONS_FETCH_LIMIT;
+  const pageNav = sectionNav.node.parentItem;
 
-    if (viewMode === 'compare') {
-      return (
-        <Page navModel={this.props.sectionNav} pageNav={pageNav}>
-          <VersionHistoryHeader
-            onClick={this.reset}
-            baseVersion={baseInfo?.version}
-            newVersion={newInfo?.version}
-            isNewLatest={isNewLatest}
-          />
-          {isLoading ? (
-            <VersionsHistorySpinner msg="Fetching changes&hellip;" />
-          ) : (
-            <VersionHistoryComparison
-              newInfo={newInfo!}
-              baseInfo={baseInfo!}
-              isNewLatest={isNewLatest}
-              diffData={diffData}
-            />
-          )}
-        </Page>
-      );
-    }
-
+  if (viewMode === 'compare') {
     return (
-      <Page navModel={this.props.sectionNav} pageNav={pageNav}>
+      <Page navModel={sectionNav} pageNav={pageNav}>
+        <VersionHistoryHeader
+          onClick={reset}
+          baseVersion={baseInfo?.version}
+          newVersion={newInfo?.version}
+          isNewLatest={isNewLatest}
+        />
         {isLoading ? (
-          <VersionsHistorySpinner msg="Fetching history list&hellip;" />
+          <VersionsHistorySpinner msg="Fetching changes&hellip;" />
         ) : (
-          <VersionHistoryTable versions={versions} onCheck={this.onCheck} canCompare={canCompare} />
-        )}
-        {this.state.isAppending && <VersionsHistorySpinner msg="Fetching more entries&hellip;" />}
-        {showButtons && (
-          <VersionsHistoryButtons
-            hasMore={hasMore}
-            canCompare={canCompare}
-            getVersions={this.getVersions}
-            getDiff={this.getDiff}
-            isLastPage={!!this.isLastPage()}
+          <VersionHistoryComparison
+            newInfo={newInfo!}
+            baseInfo={baseInfo!}
+            isNewLatest={isNewLatest}
+            diffData={diffData}
           />
         )}
       </Page>
     );
   }
+
+  return (
+    <Page navModel={sectionNav} pageNav={pageNav}>
+      {isLoading ? (
+        <VersionsHistorySpinner msg="Fetching history list&hellip;" />
+      ) : (
+        <VersionHistoryTable versions={versions} onCheck={onCheck} canCompare={canCompare} />
+      )}
+      {isAppending && <VersionsHistorySpinner msg="Fetching more entries&hellip;" />}
+      {showButtons && (
+        <VersionsHistoryButtons
+          hasMore={hasMore}
+          canCompare={canCompare}
+          getVersions={getVersions}
+          getDiff={getDiff}
+          isLastPage={!!isLastPage()}
+        />
+      )}
+    </Page>
+  );
 }
 
 export const VersionsHistorySpinner = ({ msg }: { msg: string }) => (

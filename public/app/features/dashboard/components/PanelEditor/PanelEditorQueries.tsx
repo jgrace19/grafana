@@ -1,4 +1,4 @@
-import { PureComponent } from 'react';
+import { useEffect, useState } from 'react';
 
 import { type DataQuery, getDataSourceRef } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
@@ -18,24 +18,40 @@ interface Props {
   queries: DataQuery[];
 }
 
-export class PanelEditorQueries extends PureComponent<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
+export function PanelEditorQueries({ panel }: Props) {
+  const [, forceUpdate] = useState(0);
 
-  // store last used datasource in local storage
-  updateLastUsedDatasource = (datasource: QueryGroupDataSource) => {
+  useEffect(() => {
+    // If the panel model has no datasource property load the default data source property and update the persisted model
+    if (!panel.datasource) {
+      (async () => {
+        let ds;
+        const dashboardUid = getDashboardSrv().getCurrent()?.uid ?? '';
+        const lastUsedDatasource = getLastUsedDatasourceFromStorage(dashboardUid!);
+        if (lastUsedDatasource?.datasourceUid !== null) {
+          ds = getDatasourceSrv().getInstanceSettings(lastUsedDatasource?.datasourceUid);
+        }
+        if (!ds) {
+          ds = getDatasourceSrv().getInstanceSettings(null);
+        }
+        panel.datasource = getDataSourceRef(ds!);
+        forceUpdate((c) => c + 1);
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateLastUsedDatasource = (datasource: QueryGroupDataSource) => {
     storeLastUsedDataSourceInLocalStorage(datasource);
   };
 
-  buildQueryOptions(panel: PanelModel): QueryGroupOptions {
+  const buildQueryOptions = (): QueryGroupOptions => {
     const dataSource: QueryGroupDataSource = panel.datasource ?? {
       default: true,
     };
     const datasourceSettings = getDatasourceSrv().getInstanceSettings(dataSource);
 
-    // store last datasource used in local storage
-    this.updateLastUsedDatasource(dataSource);
+    updateLastUsedDatasource(dataSource);
     return {
       cacheTimeout: datasourceSettings?.meta.queryOptions?.cacheTimeout ? panel.cacheTimeout : undefined,
       dataSource: {
@@ -52,75 +68,42 @@ export class PanelEditorQueries extends PureComponent<Props> {
         hide: panel.hideTimeOverride,
       },
     };
-  }
-
-  async componentDidMount() {
-    const { panel } = this.props;
-
-    // If the panel model has no datasource property load the default data source property and update the persisted model
-    // Because this part of the panel model is not in redux yet we do a forceUpdate.
-    if (!panel.datasource) {
-      let ds;
-      // check if we have last used datasource from local storage
-      // get dashboard uid
-      const dashboardUid = getDashboardSrv().getCurrent()?.uid ?? '';
-      const lastUsedDatasource = getLastUsedDatasourceFromStorage(dashboardUid!);
-      // do we have a last used datasource for this dashboard
-      if (lastUsedDatasource?.datasourceUid !== null) {
-        // get datasource from uid
-        ds = getDatasourceSrv().getInstanceSettings(lastUsedDatasource?.datasourceUid);
-      }
-      // else load default datasource
-      if (!ds) {
-        ds = getDatasourceSrv().getInstanceSettings(null);
-      }
-      panel.datasource = getDataSourceRef(ds!);
-      this.forceUpdate();
-    }
-  }
-
-  onRunQueries = () => {
-    this.props.panel.refresh();
   };
 
-  onOpenQueryInspector = () => {
+  const onRunQueries = () => {
+    panel.refresh();
+  };
+
+  const onOpenQueryInspector = () => {
     locationService.partial({
-      inspect: this.props.panel.id,
+      inspect: panel.id,
       inspectTab: 'query',
     });
   };
 
-  onOptionsChange = (options: QueryGroupOptions) => {
-    const { panel } = this.props;
-
+  const onOptionsChange = (options: QueryGroupOptions) => {
     panel.updateQueries(options);
 
     if (options.dataSource.uid !== panel.datasource?.uid) {
-      // trigger queries when changing data source
-      setTimeout(this.onRunQueries, 10);
+      setTimeout(onRunQueries, 10);
     }
 
-    this.forceUpdate();
+    forceUpdate((c) => c + 1);
   };
 
-  render() {
-    const { panel } = this.props;
-
-    // If no panel data soruce set, wait with render. Will be set to default in componentDidMount
-    if (!panel.datasource) {
-      return null;
-    }
-
-    const options = this.buildQueryOptions(panel);
-
-    return (
-      <QueryGroup
-        options={options}
-        queryRunner={panel.getQueryRunner()}
-        onRunQueries={this.onRunQueries}
-        onOpenQueryInspector={this.onOpenQueryInspector}
-        onOptionsChange={this.onOptionsChange}
-      />
-    );
+  if (!panel.datasource) {
+    return null;
   }
+
+  const options = buildQueryOptions();
+
+  return (
+    <QueryGroup
+      options={options}
+      queryRunner={panel.getQueryRunner()}
+      onRunQueries={onRunQueries}
+      onOpenQueryInspector={onOpenQueryInspector}
+      onOptionsChange={onOptionsChange}
+    />
+  );
 }

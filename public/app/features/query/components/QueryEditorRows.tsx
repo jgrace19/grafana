@@ -1,5 +1,5 @@
 import { DragDropContext, type DragStart, Droppable, type DropResult } from '@hello-pangea/dnd';
-import { PureComponent, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import {
   CoreApp,
@@ -49,15 +49,98 @@ export interface Props {
   panelRef?: SceneObjectRef<VizPanel>;
 }
 
-export class QueryEditorRows extends PureComponent<Props> {
-  onRemoveQuery = (query: DataQuery) => {
-    this.props.onQueriesChange(this.props.queries.filter((item) => item !== query));
+export async function changeDataSourceInQueries(
+  queries: DataQuery[],
+  newDataSource: DataSourceInstanceSettings,
+  index: number,
+  onQueriesChange: (queries: DataQuery[]) => void
+) {
+  const newQueries = await Promise.all(
+    queries.map(async (item, itemIndex) => {
+      if (itemIndex !== index) {
+        return item;
+      }
+
+      const dataSourceRef = getDataSourceRef(newDataSource);
+
+      if (item.datasource) {
+        const previous = getDataSourceSrv().getInstanceSettings(item.datasource);
+
+        if (previous?.type === newDataSource.type) {
+          return {
+            ...item,
+            datasource: dataSourceRef,
+          };
+        }
+      }
+
+      const ds = await getDataSourceSrv().get(dataSourceRef);
+
+      return { ...ds.getDefaultQuery?.(CoreApp.PanelEditor), ...item, datasource: dataSourceRef };
+    })
+  );
+  onQueriesChange(newQueries);
+}
+
+export function replaceQueryInQueries(
+  queries: DataQuery[],
+  query: DataQuery,
+  index: number,
+  currentDsUid: string,
+  onQueriesChange: (queries: DataQuery[], options?: { skipAutoImport?: boolean }) => void,
+  onUpdateDatasources: ((datasource: DataSourceRef) => void) | undefined,
+  onRunQueries: () => void
+) {
+  const newQueries = queries.map((item, itemIndex) => {
+    if (itemIndex === index) {
+      return { ...query, refId: item.refId };
+    }
+    return item;
+  });
+  onQueriesChange(newQueries, { skipAutoImport: true });
+
+  if (query.datasource?.uid) {
+    const uniqueDatasources = new Set(newQueries.map((q) => q.datasource?.uid));
+    const isMixed = uniqueDatasources.size > 1;
+    const newDatasourceRef = {
+      uid: isMixed ? MIXED_DATASOURCE_NAME : query.datasource.uid,
+    };
+    const shouldChangeDatasource = currentDsUid !== newDatasourceRef.uid;
+    if (shouldChangeDatasource) {
+      onUpdateDatasources?.(newDatasourceRef);
+    }
+  }
+
+  onRunQueries();
+}
+
+export function QueryEditorRows({
+  queries,
+  dsSettings,
+  data,
+  app,
+  history,
+  eventBus,
+  onAddQuery,
+  onRunQueries,
+  onQueriesChange,
+  onQueryCopied,
+  onQueryRemoved,
+  onQueryToggled,
+  onQueryOpenChanged,
+  onQueryReplacedFromLibrary,
+  onUpdateDatasources,
+  queryRowWrapper,
+  queryLibraryRef,
+  onCancelQueryLibraryEdit,
+  isOpen,
+  panelRef,
+}: Props) {
+  const onRemoveQuery = (query: DataQuery) => {
+    onQueriesChange(queries.filter((item) => item !== query));
   };
 
-  onChangeQuery(query: DataQuery, index: number) {
-    const { queries, onQueriesChange } = this.props;
-
-    // update query in array
+  const onChangeQuery = (query: DataQuery, index: number) => {
     onQueriesChange(
       queries.map((item, itemIndex) => {
         if (itemIndex === index) {
@@ -67,8 +150,8 @@ export class QueryEditorRows extends PureComponent<Props> {
       })
     );
 
-    if (this.props.panelRef) {
-      const panel = this.props.panelRef.resolve();
+    if (panelRef) {
+      const panel = panelRef.resolve();
       const hideSeriesOverrideIndex = panel.state.fieldConfig.overrides.findIndex(
         isSystemOverrideWithRef('hideSeriesFrom')
       );
@@ -80,73 +163,19 @@ export class QueryEditorRows extends PureComponent<Props> {
         panel.setState({ fieldConfig: { ...panel.state.fieldConfig, overrides: newOverrides } });
       }
     }
-  }
+  };
 
-  onReplaceQuery(query: DataQuery, index: number) {
-    const { queries, onQueriesChange, onUpdateDatasources, dsSettings, onRunQueries } = this.props;
+  const onReplaceQuery = (query: DataQuery, index: number) => {
+    replaceQueryInQueries(queries, query, index, dsSettings.uid, onQueriesChange, onUpdateDatasources, onRunQueries);
+  };
 
-    // Replace old query with new query, preserving the original refId
-    const newQueries = queries.map((item, itemIndex) => {
-      if (itemIndex === index) {
-        return { ...query, refId: item.refId };
-      }
-      return item;
+  const onDataSourceChange = (dataSource: DataSourceInstanceSettings, index: number) => {
+    changeDataSourceInQueries(queries, dataSource, index, onQueriesChange).catch(() => {
+      throw new Error(`Failed to get datasource ${dataSource.name ?? dataSource.uid}`);
     });
-    onQueriesChange(newQueries, { skipAutoImport: true });
+  };
 
-    // Update datasources based on the new query set
-    if (query.datasource?.uid) {
-      const uniqueDatasources = new Set(newQueries.map((q) => q.datasource?.uid));
-      const isMixed = uniqueDatasources.size > 1;
-      const newDatasourceRef = {
-        uid: isMixed ? MIXED_DATASOURCE_NAME : query.datasource.uid,
-      };
-      const shouldChangeDatasource = dsSettings.uid !== newDatasourceRef.uid;
-      if (shouldChangeDatasource) {
-        onUpdateDatasources?.(newDatasourceRef);
-      }
-    }
-
-    onRunQueries();
-  }
-
-  onDataSourceChange(dataSource: DataSourceInstanceSettings, index: number) {
-    const { queries, onQueriesChange } = this.props;
-
-    Promise.all(
-      queries.map(async (item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        const dataSourceRef = getDataSourceRef(dataSource);
-
-        if (item.datasource) {
-          const previous = getDataSourceSrv().getInstanceSettings(item.datasource);
-
-          if (previous?.type === dataSource.type) {
-            return {
-              ...item,
-              datasource: dataSourceRef,
-            };
-          }
-        }
-
-        const ds = await getDataSourceSrv().get(dataSourceRef);
-
-        return { ...ds.getDefaultQuery?.(CoreApp.PanelEditor), ...item, datasource: dataSourceRef };
-      })
-    ).then(
-      (values) => onQueriesChange(values),
-      () => {
-        throw new Error(`Failed to get datasource ${dataSource.name ?? dataSource.uid}`);
-      }
-    );
-  }
-
-  onDragStart = (result: DragStart) => {
-    const { queries, dsSettings } = this.props;
-
+  const onDragStart = (result: DragStart) => {
     reportInteraction('query_row_reorder_started', {
       startIndex: result.source.index,
       numberOfQueries: queries.length,
@@ -154,9 +183,7 @@ export class QueryEditorRows extends PureComponent<Props> {
     });
   };
 
-  onDragEnd = (result: DropResult) => {
-    const { queries, onQueriesChange, dsSettings } = this.props;
-
+  const onDragEnd = (result: DropResult) => {
     if (!result || !result.destination) {
       return;
     }
@@ -186,79 +213,57 @@ export class QueryEditorRows extends PureComponent<Props> {
     });
   };
 
-  render() {
-    const {
-      dsSettings,
-      data,
-      queries,
-      app,
-      history,
-      eventBus,
-      onAddQuery,
-      onRunQueries,
-      onQueryCopied,
-      onQueryRemoved,
-      onQueryToggled,
-      onQueryOpenChanged,
-      onQueryReplacedFromLibrary,
-      queryRowWrapper,
-      queryLibraryRef,
-      onCancelQueryLibraryEdit,
-      isOpen,
-    } = this.props;
+  return (
+    <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+      <Droppable droppableId="transformations-list" direction="vertical">
+        {(provided) => {
+          return (
+            <div data-testid="query-editor-rows" ref={provided.innerRef} {...provided.droppableProps}>
+              {queries.map((query, index) => {
+                const dataSourceSettings = getDataSourceSettings(query, dsSettings);
+                const onChangeDataSourceSettings = dsSettings.meta.mixed
+                  ? (settings: DataSourceInstanceSettings) => onDataSourceChange(settings, index)
+                  : undefined;
 
-    return (
-      <DragDropContext onDragStart={this.onDragStart} onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="transformations-list" direction="vertical">
-          {(provided) => {
-            return (
-              <div data-testid="query-editor-rows" ref={provided.innerRef} {...provided.droppableProps}>
-                {queries.map((query, index) => {
-                  const dataSourceSettings = getDataSourceSettings(query, dsSettings);
-                  const onChangeDataSourceSettings = dsSettings.meta.mixed
-                    ? (settings: DataSourceInstanceSettings) => this.onDataSourceChange(settings, index)
-                    : undefined;
+                const queryEditorRow = (
+                  <QueryEditorRow
+                    id={query.refId}
+                    index={index}
+                    key={query.refId}
+                    data={data}
+                    query={query}
+                    dataSource={dataSourceSettings}
+                    onChangeDataSource={onChangeDataSourceSettings}
+                    onChange={(q) => onChangeQuery(q, index)}
+                    onReplace={(q) => onReplaceQuery(q, index)}
+                    onRemoveQuery={onRemoveQuery}
+                    onAddQuery={onAddQuery}
+                    onRunQuery={onRunQueries}
+                    onQueryCopied={onQueryCopied}
+                    onQueryRemoved={onQueryRemoved}
+                    onQueryToggled={onQueryToggled}
+                    onQueryOpenChanged={onQueryOpenChanged}
+                    onQueryReplacedFromLibrary={onQueryReplacedFromLibrary}
+                    queries={queries}
+                    app={app}
+                    range={getTimeSrv().timeRange()}
+                    history={history}
+                    eventBus={eventBus}
+                    queryLibraryRef={queryLibraryRef}
+                    onCancelQueryLibraryEdit={onCancelQueryLibraryEdit}
+                    isOpen={isOpen}
+                  />
+                );
 
-                  const queryEditorRow = (
-                    <QueryEditorRow
-                      id={query.refId}
-                      index={index}
-                      key={query.refId}
-                      data={data}
-                      query={query}
-                      dataSource={dataSourceSettings}
-                      onChangeDataSource={onChangeDataSourceSettings}
-                      onChange={(query) => this.onChangeQuery(query, index)}
-                      onReplace={(query) => this.onReplaceQuery(query, index)}
-                      onRemoveQuery={this.onRemoveQuery}
-                      onAddQuery={onAddQuery}
-                      onRunQuery={onRunQueries}
-                      onQueryCopied={onQueryCopied}
-                      onQueryRemoved={onQueryRemoved}
-                      onQueryToggled={onQueryToggled}
-                      onQueryOpenChanged={onQueryOpenChanged}
-                      onQueryReplacedFromLibrary={onQueryReplacedFromLibrary}
-                      queries={queries}
-                      app={app}
-                      range={getTimeSrv().timeRange()}
-                      history={history}
-                      eventBus={eventBus}
-                      queryLibraryRef={queryLibraryRef}
-                      onCancelQueryLibraryEdit={onCancelQueryLibraryEdit}
-                      isOpen={isOpen}
-                    />
-                  );
-
-                  return queryRowWrapper ? queryRowWrapper(queryEditorRow, query.refId) : queryEditorRow;
-                })}
-                {provided.placeholder}
-              </div>
-            );
-          }}
-        </Droppable>
-      </DragDropContext>
-    );
-  }
+                return queryRowWrapper ? queryRowWrapper(queryEditorRow, query.refId) : queryEditorRow;
+              })}
+              {provided.placeholder}
+            </div>
+          );
+        }}
+      </Droppable>
+    </DragDropContext>
+  );
 }
 
 const getDataSourceSettings = (

@@ -1,12 +1,12 @@
 import { css, cx, keyframes } from '@emotion/css';
-import { PureComponent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
 import { type LogRowModel, dateTimeFormat, type GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type TimeZone } from '@grafana/schema';
-import { Button, type Themeable2, withTheme2 } from '@grafana/ui';
+import { Button, useStyles2, useTheme2 } from '@grafana/ui';
 
 import { LogMessageAnsi } from '../../logs/components/LogMessageAnsi';
 import { getLogRowStyles } from '../../logs/components/getLogRowStyles';
@@ -60,7 +60,7 @@ const getStyles = (theme: GrafanaTheme2) => {
   };
 };
 
-export interface Props extends Themeable2 {
+export interface Props {
   logRows?: LogRowModel[];
   timeZone: TimeZone;
   stopLive: () => void;
@@ -71,47 +71,37 @@ export interface Props extends Themeable2 {
   isPaused: boolean;
 }
 
-interface State {
-  logRowsToRender?: LogRowModel[];
-}
+export function LiveLogs({ logRows, timeZone, stopLive, onPause, onResume, onClear, clearedAtIndex, isPaused }: Props) {
+  const theme = useTheme2();
+  const styles = useStyles2(getStyles);
 
-class LiveLogs extends PureComponent<Props, State> {
-  private liveEndDiv: HTMLDivElement | null = null;
-  private scrollContainerRef = React.createRef<HTMLTableSectionElement>();
+  const [logRowsToRender, setLogRowsToRender] = useState<LogRowModel[] | undefined>(logRows);
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      logRowsToRender: props.logRows,
-    };
-  }
+  const scrollContainerRef = useRef<HTMLTableSectionElement>(null);
+  const liveEndDivRef = useRef<HTMLTableRowElement | null>(null);
 
-  static getDerivedStateFromProps(nextProps: Props, state: State) {
-    if (nextProps.isPaused && nextProps.clearedAtIndex) {
-      return {
-        logRowsToRender: filterLogRowsByIndex(nextProps.clearedAtIndex, state.logRowsToRender),
-      };
+  // Update logRowsToRender based on isPaused and clearedAtIndex
+  useEffect(() => {
+    if (isPaused && clearedAtIndex) {
+      setLogRowsToRender((prev) => filterLogRowsByIndex(clearedAtIndex, prev));
+      return;
     }
 
-    if (nextProps.isPaused) {
-      return null;
+    if (isPaused) {
+      return;
     }
 
-    return {
-      // We update what we show only if not paused. We keep any background subscriptions running and keep updating
-      // our state, but we do not show the updates, this allows us start again showing correct result after resuming
-      // without creating a gap in the log results.
-      logRowsToRender: nextProps.logRows,
-    };
-  }
+    setLogRowsToRender(logRows);
+  }, [logRows, isPaused, clearedAtIndex]);
 
-  /**
-   * Handle pausing when user scrolls up so that we stop resetting his position to the bottom when new row arrives.
-   * We do not need to throttle it here much, adding new rows should be throttled/buffered itself in the query epics
-   * and after you pause we remove the handler and add it after you manually resume, so this should not be fired often.
-   */
-  onScroll = (event: React.SyntheticEvent) => {
-    const { isPaused, onPause } = this.props;
+  // Scroll to bottom on new rows when not paused
+  useEffect(() => {
+    if (!isPaused && liveEndDivRef.current && scrollContainerRef.current?.scrollTo) {
+      scrollContainerRef.current.scrollTo(0, scrollContainerRef.current.scrollHeight);
+    }
+  });
+
+  const onScroll = (event: React.SyntheticEvent) => {
     const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
     if (distanceFromBottom >= 5 && !isPaused) {
@@ -119,80 +109,65 @@ class LiveLogs extends PureComponent<Props, State> {
     }
   };
 
-  rowsToRender = () => {
-    const { isPaused } = this.props;
-    let { logRowsToRender: rowsToRender = [] } = this.state;
+  const rowsToRender = () => {
+    let rows = logRowsToRender ?? [];
     if (!isPaused) {
-      // A perf optimisation here. Show just 100 rows when streaming and full length when the streaming is paused.
-      rowsToRender = sortLogRows(rowsToRender, LogsSortOrder.Ascending).slice(-100);
+      rows = sortLogRows(rows, LogsSortOrder.Ascending).slice(-100);
     }
-    return rowsToRender;
+    return rows;
   };
 
-  render() {
-    const { theme, timeZone, onPause, onResume, onClear, isPaused } = this.props;
-    const styles = getStyles(theme);
-    const { logsRow, logsRowLocalTime, logsRowMessage } = getLogRowStyles(theme);
+  const renderedRows = rowsToRender();
+  const { logsRow, logsRowLocalTime, logsRowMessage } = getLogRowStyles(theme);
 
-    return (
-      <div>
-        <table className={styles.fullWidth}>
-          <tbody
-            onScroll={isPaused ? undefined : this.onScroll}
-            className={styles.logsRowsLive}
-            ref={this.scrollContainerRef}
-          >
-            {this.rowsToRender().map((row: LogRowModel) => {
-              return (
-                <tr className={cx(logsRow, styles.logsRowFade)} key={row.uid}>
-                  <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
-                  <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
-                </tr>
-              );
-            })}
-            <tr
-              ref={(element) => {
-                this.liveEndDiv = element;
-                // This is triggered on every update so on every new row. It keeps the view scrolled at the bottom by
-                // default.
-                // As scrollTo is not implemented in JSDOM it needs to be part of the condition
-                if (this.liveEndDiv && this.scrollContainerRef.current?.scrollTo && !isPaused) {
-                  this.scrollContainerRef.current?.scrollTo(0, this.scrollContainerRef.current.scrollHeight);
-                }
-              }}
-            />
-          </tbody>
-        </table>
-        <div className={styles.logsRowsIndicator}>
-          <Button
-            icon={isPaused ? 'play' : 'pause'}
-            variant="secondary"
-            onClick={isPaused ? onResume : onPause}
-            className={styles.button}
-          >
-            {isPaused ? t('explore.live-logs.resume', 'Resume') : t('explore.live-logs.pause', 'Pause')}
-          </Button>
-          <Button icon="trash-alt" variant="secondary" onClick={onClear} className={styles.button}>
-            <Trans i18nKey="explore.live-logs.clear-logs">Clear logs</Trans>
-          </Button>
-          <Button icon="square-shape" variant="secondary" onClick={this.props.stopLive} className={styles.button}>
-            <Trans i18nKey="explore.live-logs.exit-live-mode">Exit live mode</Trans>
-          </Button>
-          {isPaused ||
-            (this.rowsToRender().length > 0 && (
-              <span>
-                <Trans
-                  i18nKey="explore.live-logs.last-line-received"
-                  components={{ elapsedTime: <ElapsedTime resetKey={this.props.logRows} humanize={true} /> }}
-                >
-                  Last line received: {'<elapsedTime />'} ago
-                </Trans>
-              </span>
-            ))}
-        </div>
+  return (
+    <div>
+      <table className={styles.fullWidth}>
+        <tbody
+          onScroll={isPaused ? undefined : onScroll}
+          className={styles.logsRowsLive}
+          ref={scrollContainerRef}
+        >
+          {renderedRows.map((row: LogRowModel) => {
+            return (
+              <tr className={cx(logsRow, styles.logsRowFade)} key={row.uid}>
+                <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
+                <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
+              </tr>
+            );
+          })}
+          <tr ref={liveEndDivRef} />
+        </tbody>
+      </table>
+      <div className={styles.logsRowsIndicator}>
+        <Button
+          icon={isPaused ? 'play' : 'pause'}
+          variant="secondary"
+          onClick={isPaused ? onResume : onPause}
+          className={styles.button}
+        >
+          {isPaused ? t('explore.live-logs.resume', 'Resume') : t('explore.live-logs.pause', 'Pause')}
+        </Button>
+        <Button icon="trash-alt" variant="secondary" onClick={onClear} className={styles.button}>
+          <Trans i18nKey="explore.live-logs.clear-logs">Clear logs</Trans>
+        </Button>
+        <Button icon="square-shape" variant="secondary" onClick={stopLive} className={styles.button}>
+          <Trans i18nKey="explore.live-logs.exit-live-mode">Exit live mode</Trans>
+        </Button>
+        {isPaused ||
+          (renderedRows.length > 0 && (
+            <span>
+              <Trans
+                i18nKey="explore.live-logs.last-line-received"
+                components={{ elapsedTime: <ElapsedTime resetKey={logRows} humanize={true} /> }}
+              >
+                Last line received: {'<elapsedTime />'} ago
+              </Trans>
+            </span>
+          ))}
       </div>
-    );
-  }
+    </div>
+  );
 }
 
-export const LiveLogsWithTheme = withTheme2(LiveLogs);
+export const LiveLogsWithTheme = LiveLogs;

@@ -2,19 +2,23 @@ import { BehaviorSubject } from 'rxjs';
 
 import { dateMath, dateTime, type TimeRange } from '@grafana/data';
 
-import { type PanelStateWrapper } from './PanelStateWrapper';
-
 // target is 20hz (50ms), but we poll at 100ms to smooth out jitter
 const interval = 100;
 
-interface LiveListener {
+export interface LiveTimerListener {
+  liveTimeChanged: (liveTime: TimeRange) => void;
+  isInView?: boolean;
+  width?: number;
+}
+
+interface LiveListenerEntry {
   last: number;
   intervalMs: number;
-  panel: PanelStateWrapper;
+  listener: LiveTimerListener;
 }
 
 class LiveTimer {
-  listeners: LiveListener[] = [];
+  entries: LiveListenerEntry[] = [];
 
   budget = 1;
   threshold = 1.5; // trial and error appears about right
@@ -35,34 +39,34 @@ class LiveTimer {
       const to = dateMath.parse(v!.raw.to, true)?.valueOf()!;
       this.liveTimeOffset = to - from;
 
-      for (const listener of this.listeners) {
-        listener.intervalMs = getLiveTimerInterval(this.liveTimeOffset, listener.panel.props.width);
+      for (const entry of this.entries) {
+        entry.intervalMs = getLiveTimerInterval(this.liveTimeOffset, entry.listener.width ?? 1000);
       }
     }
   }
 
-  listen(panel: PanelStateWrapper) {
-    this.listeners.push({
+  listen(listener: LiveTimerListener) {
+    this.entries.push({
       last: this.lastUpdate,
-      panel: panel,
+      listener,
       intervalMs: getLiveTimerInterval(
         60000, // 1min
-        panel.props.width
+        listener.width ?? 1000
       ),
     });
   }
 
-  remove(panel: PanelStateWrapper) {
-    this.listeners = this.listeners.filter((v) => v.panel !== panel);
+  remove(listener: LiveTimerListener) {
+    this.entries = this.entries.filter((v) => v.listener !== listener);
   }
 
-  updateInterval(panel: PanelStateWrapper) {
+  updateInterval(listener: LiveTimerListener) {
     if (!this.timeRange || !this.isLive) {
       return;
     }
-    for (const listener of this.listeners) {
-      if (listener.panel === panel) {
-        listener.intervalMs = getLiveTimerInterval(this.liveTimeOffset, listener.panel.props.width);
+    for (const entry of this.entries) {
+      if (entry.listener === listener) {
+        entry.intervalMs = getLiveTimerInterval(this.liveTimeOffset, entry.listener.width ?? 1000);
         return;
       }
     }
@@ -82,15 +86,14 @@ class LiveTimer {
 
     // For live dashboards, listen to changes
     if (this.isLive && this.ok.getValue() && this.timeRange) {
-      // when the time-range is relative fire events
       let tr: TimeRange | undefined = undefined;
-      for (const listener of this.listeners) {
-        if (!listener.panel.props.isInView) {
+      for (const entry of this.entries) {
+        if (entry.listener.isInView === false) {
           continue;
         }
 
-        const elapsed = now - listener.last;
-        if (elapsed >= listener.intervalMs) {
+        const elapsed = now - entry.last;
+        if (elapsed >= entry.intervalMs) {
           if (!tr) {
             const { raw } = this.timeRange;
             tr = {
@@ -99,12 +102,17 @@ class LiveTimer {
               to: dateTime(now),
             };
           }
-          listener.panel.liveTimeChanged(tr);
-          listener.last = now;
+          entry.listener.liveTimeChanged(tr);
+          entry.last = now;
         }
       }
     }
   };
+
+  /** @deprecated Use entries instead */
+  get listeners() {
+    return this.entries;
+  }
 }
 
 const FIVE_MINS = 5 * 60 * 1000;
