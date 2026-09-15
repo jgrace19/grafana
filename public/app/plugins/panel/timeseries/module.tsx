@@ -9,9 +9,15 @@ import { TimeSeriesPanel } from './TimeSeriesPanel';
 import { TimezonesEditor } from './TimezonesEditor';
 import { defaultGraphConfig, getGraphFieldConfig } from './config';
 import { graphPanelChangedHandler } from './migrations';
-import { type FieldConfig, type Options } from './panelcfg.gen';
+import { type FieldConfig, type Options, defaultGhostOverlayOptions } from './panelcfg.gen';
 import { timeseriesPresetsSupplier } from './presets';
 import { timeseriesSuggestionsSupplier } from './suggestions';
+
+const GHOST_OVERLAY_OFFSET_OPTIONS = [
+  { label: '1 day', value: '1d' },
+  { label: '7 days', value: '7d' },
+  { label: '30 days', value: '30d' },
+];
 
 export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
   .setPanelChangeHandler(graphPanelChangedHandler)
@@ -42,6 +48,52 @@ export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
       defaultValue: undefined,
     });
     addAnnotationOptions(builder);
+
+    const ghostOverlayCategory = [t('timeseries.ghost-overlay.category', 'Ghost overlay')];
+
+    builder.addBooleanSwitch({
+      path: 'ghostOverlay.enabled',
+      name: t('timeseries.ghost-overlay.name-enabled', 'Enabled'),
+      category: ghostOverlayCategory,
+      description: t(
+        'timeseries.ghost-overlay.description-enabled',
+        'Show a translucent overlay of historical data for comparison'
+      ),
+      defaultValue: defaultGhostOverlayOptions.enabled,
+    });
+
+    builder.addSelect({
+      path: 'ghostOverlay.offset',
+      name: t('timeseries.ghost-overlay.name-offset', 'Time offset'),
+      category: ghostOverlayCategory,
+      description: t(
+        'timeseries.ghost-overlay.description-offset',
+        'How far back to look for comparison data'
+      ),
+      settings: {
+        options: GHOST_OVERLAY_OFFSET_OPTIONS,
+        allowCustomValue: true,
+      },
+      defaultValue: defaultGhostOverlayOptions.offset,
+      showIf: (c) => c.ghostOverlay?.enabled === true,
+    });
+
+    builder.addSliderInput({
+      path: 'ghostOverlay.opacity',
+      name: t('timeseries.ghost-overlay.name-opacity', 'Opacity'),
+      category: ghostOverlayCategory,
+      description: t(
+        'timeseries.ghost-overlay.description-opacity',
+        'Opacity of the ghost overlay (10-80%)'
+      ),
+      defaultValue: defaultGhostOverlayOptions.opacity,
+      settings: {
+        min: 10,
+        max: 80,
+        step: 5,
+      },
+      showIf: (c) => c.ghostOverlay?.enabled === true,
+    });
   })
   .setSuggestionsSupplier(timeseriesSuggestionsSupplier)
   .setPresetsSupplier(timeseriesPresetsSupplier)

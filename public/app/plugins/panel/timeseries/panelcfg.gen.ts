@@ -20,8 +20,21 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   enableFacetedFilter: true,
 };
 
+export interface GhostOverlayOptions {
+  enabled: boolean;
+  offset: string;
+  opacity: number;
+}
+
+export const defaultGhostOverlayOptions: GhostOverlayOptions = {
+  enabled: false,
+  offset: '1d',
+  opacity: 30,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
+  ghostOverlay?: GhostOverlayOptions;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
   timeCompare?: common.TimeCompareOptions;
