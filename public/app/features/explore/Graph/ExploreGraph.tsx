@@ -24,6 +24,7 @@ import {
   type GraphFieldConfig,
   type GraphThresholdsStyleConfig,
   LegendDisplayMode,
+  ScaleDistribution,
   SortOrder,
   type TimeZone,
   TooltipDisplayMode,
@@ -32,7 +33,7 @@ import {
 import { type PanelContext, PanelContextProvider, type SeriesVisibilityChangeMode, useTheme2 } from '@grafana/ui';
 import { defaultGraphConfig, getGraphFieldConfig } from 'app/plugins/panel/timeseries/config';
 import { type Options as TimeSeriesOptions } from 'app/plugins/panel/timeseries/panelcfg.gen';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 import {
   isHideSeriesOverride,
@@ -56,6 +57,7 @@ interface Props {
   splitOpenFn: SplitOpen;
   onChangeTime: (timeRange: AbsoluteTimeRange) => void;
   graphStyle: ExploreGraphStyle;
+  graphScale?: ExploreGraphScale;
   anchorToZero?: boolean;
   yAxisMaximum?: number;
   thresholdsConfig?: ThresholdsConfig;
@@ -78,6 +80,7 @@ export function ExploreGraph({
   onHiddenSeriesChanged,
   splitOpenFn,
   graphStyle,
+  graphScale = 'linear',
   tooltipDisplayMode = TooltipDisplayMode.Single,
   anchorToZero = false,
   yAxisMaximum,
@@ -107,6 +110,9 @@ export function ExploreGraph({
         drawStyle: GraphDrawStyle.Line,
         fillOpacity: 0,
         pointSize: 5,
+        scaleDistribution: {
+          type: ScaleDistribution.Linear,
+        },
       },
     },
     overrides: [],
@@ -120,9 +126,9 @@ export function ExploreGraph({
   }, [queriesChangedIndexAtRun]);
 
   const styledFieldConfig = useMemo(() => {
-    const withGraphStyle = applyGraphStyle(fieldConfig, graphStyle, yAxisMaximum);
+    const withGraphStyle = applyGraphStyle(fieldConfig, graphStyle, graphScale, yAxisMaximum);
     return applyThresholdsConfig(withGraphStyle, thresholdsStyle, thresholdsConfig);
-  }, [fieldConfig, graphStyle, yAxisMaximum, thresholdsConfig, thresholdsStyle]);
+  }, [fieldConfig, graphStyle, graphScale, yAxisMaximum, thresholdsConfig, thresholdsStyle]);
 
   const dataLinkPostProcessor = useExploreDataLinkPostProcessor(splitOpenFn, timeRange);
 
