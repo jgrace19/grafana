@@ -12,6 +12,7 @@ import {
   type EventBus,
   FieldColorModeId,
   type FieldConfigSource,
+  FieldType,
   getFrameDisplayName,
   type LoadingState,
   type SplitOpen,
@@ -32,7 +33,7 @@ import {
 import { type PanelContext, PanelContextProvider, type SeriesVisibilityChangeMode, useTheme2 } from '@grafana/ui';
 import { defaultGraphConfig, getGraphFieldConfig } from 'app/plugins/panel/timeseries/config';
 import { type Options as TimeSeriesOptions } from 'app/plugins/panel/timeseries/panelcfg.gen';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 import {
   isHideSeriesOverride,
@@ -40,7 +41,7 @@ import {
 } from '../../dashboard/dashgrid/SeriesVisibilityConfigFactory';
 import { useExploreDataLinkPostProcessor } from '../hooks/useExploreDataLinkPostProcessor';
 
-import { applyGraphStyle, applyThresholdsConfig } from './exploreGraphStyleUtils';
+import { applyGraphScale, applyGraphStyle, applyThresholdsConfig } from './exploreGraphStyleUtils';
 import { useStructureRev } from './useStructureRev';
 
 interface Props {
@@ -56,6 +57,8 @@ interface Props {
   splitOpenFn: SplitOpen;
   onChangeTime: (timeRange: AbsoluteTimeRange) => void;
   graphStyle: ExploreGraphStyle;
+  graphScale?: ExploreGraphScale;
+  onLogScaleFallback?: (isFallback: boolean) => void;
   anchorToZero?: boolean;
   yAxisMaximum?: number;
   thresholdsConfig?: ThresholdsConfig;
@@ -78,6 +81,8 @@ export function ExploreGraph({
   onHiddenSeriesChanged,
   splitOpenFn,
   graphStyle,
+  graphScale = 'linear',
+  onLogScaleFallback,
   tooltipDisplayMode = TooltipDisplayMode.Single,
   anchorToZero = false,
   yAxisMaximum,
@@ -119,10 +124,34 @@ export function ExploreGraph({
     }));
   }, [queriesChangedIndexAtRun]);
 
+  const hasNonPositiveData = useMemo(() => {
+    for (const frame of data) {
+      for (const field of frame.fields) {
+        if (field.type === FieldType.number) {
+          for (let i = 0; i < field.values.length; i++) {
+            const value = field.values[i];
+            if (typeof value === 'number' && value <= 0) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }, [data]);
+
+  const isLogScaleFallback = graphScale === 'log' && hasNonPositiveData;
+  const effectiveScale: ExploreGraphScale = isLogScaleFallback ? 'linear' : graphScale;
+
+  useEffect(() => {
+    onLogScaleFallback?.(isLogScaleFallback);
+  }, [isLogScaleFallback, onLogScaleFallback]);
+
   const styledFieldConfig = useMemo(() => {
     const withGraphStyle = applyGraphStyle(fieldConfig, graphStyle, yAxisMaximum);
-    return applyThresholdsConfig(withGraphStyle, thresholdsStyle, thresholdsConfig);
-  }, [fieldConfig, graphStyle, yAxisMaximum, thresholdsConfig, thresholdsStyle]);
+    const withThresholds = applyThresholdsConfig(withGraphStyle, thresholdsStyle, thresholdsConfig);
+    return applyGraphScale(withThresholds, effectiveScale);
+  }, [fieldConfig, graphStyle, yAxisMaximum, thresholdsConfig, thresholdsStyle, effectiveScale]);
 
   const dataLinkPostProcessor = useExploreDataLinkPostProcessor(splitOpenFn, timeRange);
 

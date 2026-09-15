@@ -12,15 +12,16 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { type GraphThresholdsStyleConfig, PanelChrome, type PanelChromeProps } from '@grafana/ui';
-import { type ExploreGraphStyle } from 'app/types/explore';
+import { type GraphThresholdsStyleConfig, Icon, PanelChrome, type PanelChromeProps, Stack, Tooltip } from '@grafana/ui';
+import { type ExploreGraphScale, type ExploreGraphStyle } from 'app/types/explore';
 
 import { LimitedDataDisclaimer } from '../LimitedDataDisclaimer';
 import { storeGraphStyle } from '../state/utils';
 
 import { ExploreGraph } from './ExploreGraph';
 import { ExploreGraphLabel } from './ExploreGraphLabel';
-import { loadGraphStyle } from './utils';
+import { ExploreGraphScaleLabel } from './ExploreGraphScaleLabel';
+import { loadGraphScale, loadGraphStyle, storeGraphScale } from './utils';
 
 const MAX_NUMBER_OF_TIME_SERIES = 20;
 
@@ -58,10 +59,21 @@ export const GraphContainer = ({
 }: Props) => {
   const [showAllSeries, toggleShowAllSeries] = useToggle(false);
   const [graphStyle, setGraphStyle] = useState(loadGraphStyle);
+  const [graphScale, setGraphScale] = useState(loadGraphScale);
+  const [isLogScaleFallback, setIsLogScaleFallback] = useState(false);
 
   const onGraphStyleChange = useCallback((graphStyle: ExploreGraphStyle) => {
     storeGraphStyle(graphStyle);
     setGraphStyle(graphStyle);
+  }, []);
+
+  const onGraphScaleChange = useCallback((scale: ExploreGraphScale) => {
+    storeGraphScale(scale);
+    setGraphScale(scale);
+  }, []);
+
+  const onLogScaleFallback = useCallback((isFallback: boolean) => {
+    setIsLogScaleFallback(isFallback);
   }, []);
 
   const slicedData = useMemo(() => {
@@ -88,16 +100,36 @@ export const GraphContainer = ({
             )}
           />
         ),
+        isLogScaleFallback && (
+          <Tooltip
+            key="log-scale-warning"
+            content={t(
+              'graph.container.log-scale-fallback',
+              'Data contains zero or negative values. Falling back to linear scale.'
+            )}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', cursor: 'help' }}>
+              <Icon name="exclamation-triangle" style={{ color: 'var(--warning-text-color)' }} />
+            </span>
+          </Tooltip>
+        ),
       ].filter(Boolean)}
       width={width}
       height={height}
       loadingState={loadingState}
       statusMessage={statusMessage}
-      actions={<ExploreGraphLabel graphStyle={graphStyle} onChangeGraphStyle={onGraphStyleChange} />}
+      actions={
+        <Stack gap={1}>
+          <ExploreGraphLabel graphStyle={graphStyle} onChangeGraphStyle={onGraphStyleChange} />
+          <ExploreGraphScaleLabel graphScale={graphScale} onChangeGraphScale={onGraphScaleChange} />
+        </Stack>
+      }
     >
       {(innerWidth, innerHeight) => (
         <ExploreGraph
           graphStyle={graphStyle}
+          graphScale={graphScale}
+          onLogScaleFallback={onLogScaleFallback}
           data={slicedData}
           height={innerHeight}
           width={innerWidth}
