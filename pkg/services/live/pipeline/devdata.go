@@ -64,7 +64,6 @@ func postTestData() {
 			d.Value3 = nil
 		}
 		jsonData, _ := json.Marshal(d)
-		log.Println(string(jsonData))
 		httpClient := httpclient.New()
 
 		req, _ := http.NewRequest("POST", "http://localhost:3000/api/live/pipeline/push/stream/json/auto", bytes.NewReader(jsonData))
