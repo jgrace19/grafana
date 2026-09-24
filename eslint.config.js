@@ -132,10 +132,6 @@ const stylexMigratedAppFiles = [
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
-];
-
-// public/app files migrated to StyleX, with the same ban. Each app slice appends its files or directories here.
-const stylexMigratedAppFiles = [
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
   'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
 ];
