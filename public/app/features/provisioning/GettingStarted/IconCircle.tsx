@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
-import { Icon, type IconName, useStyles2 } from '@grafana/ui';
+import { colorManipulator } from '@grafana/data';
+import { Icon, type IconName, useTheme2 } from '@grafana/ui';
+import { shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface IconCircleProps {
   icon: IconName;
@@ -9,24 +10,26 @@ export interface IconCircleProps {
 }
 
 export const IconCircle = ({ icon, color }: IconCircleProps) => {
-  const styles = useStyles2(getStyles, color);
+  const theme = useTheme2();
+  const resolvedColor = theme.visualization.getColorByName(color);
 
   return (
-    <div className={styles.iconCircle}>
+    <div {...stylex.props(styles.iconCircle, styles.colors(resolvedColor, colorManipulator.alpha(resolvedColor, 0.2)))}>
       <Icon name={icon} size="xl" />
     </div>
   );
 };
 
-function getStyles(theme: GrafanaTheme2, color: IconCircleProps['color']) {
-  const resolvedColor = theme.visualization.getColorByName(color);
-
-  return {
-    iconCircle: css({
-      borderRadius: theme.shape.radius.circle,
-      padding: theme.spacing(1),
-      color: resolvedColor,
-      backgroundColor: colorManipulator.alpha(resolvedColor, 0.2),
-    }),
-  };
-}
+const styles = stylex.create({
+  iconCircle: {
+    borderRadius: shape['--gf-shape-radius-circle'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  colors: (color: string, backgroundColor: string) => ({
+    color,
+    backgroundColor,
+  }),
+});

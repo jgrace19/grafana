@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Box, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Stack, Text } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 
 import { DatabaseConnectionSection } from './DatabaseConnectionSection';
 import { LeftSideBar } from './LeftSideBar';
@@ -11,10 +11,9 @@ import { CONTAINER_MIN_WIDTH } from './constants';
 import { type Props } from './types';
 
 export const ConfigEditor: React.FC<Props> = ({ onOptionsChange, options }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
     <Stack justifyContent="space-between">
-      <div className={`${styles.hideOnSmallScreen} ${styles.leftSticky}`}>
+      <div {...stylex.props(styles.hideOnSmallScreen, styles.leftSticky)}>
         <Box width="100%" flex="1 1 auto">
           <LeftSideBar pdcInjected={options?.jsonData?.pdcInjected!!} />
         </Box>
@@ -35,24 +34,23 @@ export const ConfigEditor: React.FC<Props> = ({ onOptionsChange, options }: Prop
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    hideOnSmallScreen: css({
-      width: '250px',
-      flex: '0 0 250px',
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
-      },
-    }),
-    leftSticky: css({
-      position: 'sticky',
-      top: '100px',
-      alignSelf: 'flex-start',
-      maxHeight: 'calc(100vh - 100px)',
-      overflow: 'hidden',
-    }),
-    alertHeight: css({
-      height: '100px',
-    }),
-  };
-};
+const styles = stylex.create({
+  hideOnSmallScreen: {
+    width: '250px',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: '250px',
+    display: {
+      default: null,
+      [bp.smDown]: 'none',
+    },
+  },
+
+  leftSticky: {
+    position: 'sticky',
+    top: '100px',
+    alignSelf: 'flex-start',
+    maxHeight: 'calc(100vh - 100px)',
+    overflow: 'hidden',
+  },
+});

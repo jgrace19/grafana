@@ -1,13 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Divider, Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Button, Divider, Icon, IconButton } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { CloudBadge } from 'app/core/components/Branding/CloudBadge';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
 import { isOpenSourceBuildOrUnlicenced } from 'app/features/admin/EnterpriseAuthFeaturesCard';
+
+import './AdCard.css';
 
 type AdCardProps = {
   title: string;
@@ -19,8 +22,6 @@ type AdCardProps = {
 };
 
 export default function AdCard({ title, description, href, logoUrl, items, helpFlag }: AdCardProps) {
-  const styles = useStyles2(getAddCardStyles);
-
   const helpFlags = contextSrv.user.helpFlags1;
   const [isDismissed, setDismissed] = useState<boolean>(Boolean(helpFlags & helpFlag));
 
@@ -36,111 +37,113 @@ export default function AdCard({ title, description, href, logoUrl, items, helpF
   }
 
   return (
-    <div className={styles.cardBody} title={title}>
-      <div className={styles.preHeader}>
+    <div {...stylex.props(styles.cardBody)} title={title}>
+      <div {...stylex.props(styles.preHeader)}>
         <CloudBadge />
         <IconButton name="times" size="sm" onClick={onDismiss} aria-label={t('alerting.ad.close', 'Close')} />
       </div>
-      <header className={styles.header}>
-        <img src={logoUrl} alt={title.concat(' logo')} className={styles.logo} />
-        <div className={styles.contentColumn}>
-          <h3 className={styles.title}>{title}</h3>
-          <p className={styles.description}>{description}</p>
+      <header {...stylex.props(styles.header)}>
+        <img src={logoUrl} alt={title.concat(' logo')} {...stylex.props(styles.logo)} />
+        <div {...stylex.props(styles.contentColumn)}>
+          <h3 {...stylex.props(styles.title)}>{title}</h3>
+          <p {...stylex.props(styles.description)}>{description}</p>
         </div>
       </header>
       <Divider />
-      <div className={styles.itemsList}>
+      <div {...stylex.props(styles.itemsList)}>
         {items.map((item) => (
-          <div key={item} className={styles.listItem}>
-            <Icon className={styles.icon} name="check" />
+          <div key={item} {...stylex.props(styles.listItem)}>
+            <Icon xstyle={styles.icon} name="check" />
             {item}
           </div>
         ))}
       </div>
       <Divider />
-      <Button fill="solid" variant="secondary" onClick={() => window.open(href, '_blank')} className={styles.button}>
+      <Button
+        fill="solid"
+        variant="secondary"
+        onClick={() => window.open(href, '_blank')}
+        className="gf-ad-card-button"
+      >
         <Trans i18nKey="alerting.ad.learn-more">Learn more</Trans>
-        <Icon name="external-link-alt" className={styles.buttonIcon} />
+        <Icon name="external-link-alt" xstyle={styles.buttonIcon} />
       </Button>
     </div>
   );
 }
 
-const getAddCardStyles = (theme: GrafanaTheme2) => ({
-  logo: css({
+const styles = stylex.create({
+  logo: {
     objectFit: 'contain',
     width: '47px',
     height: '47px',
-  }),
+  },
 
-  header: css({
+  header: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: theme.spacing(2),
-    paddingTop: theme.spacing(2),
-    height: theme.spacing(8),
-  }),
+    gap: spacing['--gf-spacing-x2'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    height: spacing['--gf-spacing-x8'],
+  },
 
-  contentColumn: css({
-    flex: 1,
-  }),
+  contentColumn: {
+    flex: '1',
+  },
 
-  title: css({
-    marginBottom: theme.spacing(1),
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
-  }),
+  title: {
+    marginBottom: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-h4-font-size'],
+    fontWeight: typography['--gf-typography-h4-font-weight'],
+    color: colors['--gf-colors-text-primary'],
+  },
 
-  description: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-  }),
+  description: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+  },
 
-  itemsList: css({
+  itemsList: {
     display: 'grid',
-    gridTemplateColumns: '1fr',
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.up('xl')]: {
-      gridTemplateColumns: '1fr 1fr',
-      gap: theme.spacing(1),
-    },
-  }),
+    gridTemplateColumns: { default: '1fr', [bp.xlUp]: '1fr 1fr' },
+    gap: { default: spacing['--gf-spacing-x0-5'], [bp.xlUp]: spacing['--gf-spacing-x1'] },
+  },
 
-  listItem: css({
+  listItem: {
     display: 'flex',
     alignItems: 'flex-start',
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    marginBottom: theme.spacing(0.5),
-  }),
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
 
-  icon: css({
-    marginRight: theme.spacing(1),
-    color: theme.colors.success.main,
-  }),
+  icon: {
+    marginRight: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-success-main'],
+  },
 
-  button: css({
-    padding: `0 ${theme.spacing(2)}`,
-  }),
+  buttonIcon: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
 
-  buttonIcon: css({
-    marginLeft: theme.spacing(1),
-  }),
+  cardBody: {
+    paddingTop: spacing['--gf-spacing-x3'],
+    paddingRight: spacing['--gf-spacing-x4'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2.25)`,
+    paddingLeft: spacing['--gf-spacing-x4'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-lg'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    flex: '1',
+  },
 
-  cardBody: css({
-    padding: `${theme.spacing(3)} ${theme.spacing(4)} ${theme.spacing(2.25)} ${theme.spacing(4)}`,
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.lg,
-    border: `1px solid ${theme.colors.border.weak}`,
-    flex: 1,
-  }),
-
-  preHeader: css({
+  preHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-  }),
+  },
 });

@@ -1,11 +1,9 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
 import { Input } from '@grafana/ui';
 
 import { useShadowedState } from '../hooks/useShadowedState';
-
-import { paddingRightClass } from './styles';
 
 type Props = {
   value: string | undefined;
@@ -27,7 +25,7 @@ export const InputSection = ({ value, onChange, isWide, placeholder }: Props): J
     <>
       <Input
         placeholder={placeholder}
-        className={cx((isWide ?? false) ? 'width-14' : 'width-8', paddingRightClass)}
+        className={`${(isWide ?? false) ? 'width-14' : 'width-8'} ${stylex.props(styles.input).className}`}
         type="text"
         spellCheck={false}
         onBlur={onBlur}
@@ -39,3 +37,9 @@ export const InputSection = ({ value, onChange, isWide, placeholder }: Props): J
     </>
   );
 };
+
+const styles = stylex.create({
+  input: {
+    paddingRight: '4px',
+  },
+});

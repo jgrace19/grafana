@@ -1,24 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import moment, { type Moment } from 'moment/moment';
 import { type ChangeEvent, useState } from 'react';
 
-import { dateTimeAsMoment, getTimeZoneInfo, type GrafanaTheme2, isDateTime, type SelectableValue } from '@grafana/data';
+import { dateTimeAsMoment, getTimeZoneInfo, isDateTime, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import {
-  Button,
-  Field,
-  FieldSet,
-  Input,
-  Select,
-  Stack,
-  Switch,
-  TimeOfDayPicker,
-  TimeZonePicker,
-  useStyles2,
-} from '@grafana/ui';
+import { Button, Field, FieldSet, Input, Select, Stack, Switch, TimeOfDayPicker, TimeZonePicker } from '@grafana/ui';
 import { TimeZoneOffset, TimeZoneTitle } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type TimeRegionConfig, type TimeRegionMode } from 'app/core/utils/timeRegions';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
+
+import './TimeRegionEditor.css';
 
 interface Props {
   value: TimeRegionConfig;
@@ -33,8 +25,6 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 });
 
 export const TimeRegionEditor = ({ value, onChange }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const timestamp = Date.now();
   const timezoneInfo = getTimeZoneInfo(value.timezone ?? 'utc', timestamp);
   const isDashboardTimezone = getDashboardSrv().getCurrent()?.getTimezone() === value.timezone;
@@ -136,8 +126,8 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
     }
 
     return (
-      <div className={styles.timezoneContainer}>
-        <div className={styles.timezone}>{renderTimezonePicker()}</div>
+      <div {...stylex.props(styles.timezoneContainer)}>
+        <div {...stylex.props(styles.timezone)}>{renderTimezonePicker()}</div>
         <Button variant="secondary" onClick={onToggleChangeTimezone} size="sm">
           Change timezone
         </Button>
@@ -149,7 +139,7 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   const to = getTime(value.to);
 
   return (
-    <FieldSet className={styles.wrapper}>
+    <FieldSet className={`gf-grafana-time-region-editor ${stylex.props(styles.wrapper).className}`}>
       <Field
         label={t('dashboard-settings.time-regions.advanced-label', 'Advanced')}
         description={
@@ -241,22 +231,21 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      maxWidth: theme.spacing(60),
-      marginBottom: theme.spacing(2),
-    }),
-    timezoneContainer: css({
-      padding: '5px',
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontSize: '12px',
-    }),
-    timezone: css({
-      marginRight: '5px',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+  },
+
+  timezoneContainer: {
+    padding: '5px',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '12px',
+  },
+
+  timezone: {
+    marginRight: '5px',
+  },
+});

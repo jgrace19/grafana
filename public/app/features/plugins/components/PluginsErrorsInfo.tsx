@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, PluginErrorCode, PluginSignatureStatus, type PluginType } from '@grafana/data';
+import { PluginErrorCode, PluginSignatureStatus, type PluginType } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, List, PluginSignatureBadge, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, List, PluginSignatureBadge, Stack, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useGetErrors, useFetchStatus } from '../admin/state/hooks';
 
@@ -14,7 +15,6 @@ type PluginsErrorInfoProps = {
 export function PluginsErrorsInfo({ filterByPluginType }: PluginsErrorInfoProps) {
   let errors = useGetErrors(filterByPluginType);
   const { isLoading } = useFetchStatus();
-  const styles = useStyles2(getStyles);
 
   if (isLoading || errors.length === 0) {
     return null;
@@ -36,24 +36,19 @@ export function PluginsErrorsInfo({ filterByPluginType }: PluginsErrorInfoProps)
       </p>
       <List
         items={errors}
-        className={styles.list}
         renderItem={(error) => (
-          <div className={styles.wrapper}>
+          <div {...stylex.props(styles.wrapper)}>
             <Stack justifyContent="flex-start" alignItems="center">
               <strong>{error.pluginId}</strong>
               <PluginSignatureBadge
                 status={mapPluginErrorCodeToSignatureStatus(error.errorCode)}
-                className={styles.badge}
+                className={stylex.props(styles.badge).className}
               />
             </Stack>
           </div>
         )}
       />
-      <TextLink
-        href="https://grafana.com/docs/grafana/latest/plugins/plugin-signatures/"
-        external
-        className={styles.docsLink}
-      >
+      <TextLink href="https://grafana.com/docs/grafana/latest/plugins/plugin-signatures/" external>
         <Trans i18nKey="plugins.plugins-errors-info.read-more-about-plugin-signing">
           Read more about plugin signing
         </Trans>
@@ -75,20 +70,11 @@ function mapPluginErrorCodeToSignatureStatus(code: PluginErrorCode) {
   }
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    list: css({
-      listStyleType: 'circle',
-    }),
-    wrapper: css({
-      marginTop: theme.spacing(1),
-    }),
-    badge: css({
-      marginTop: 0,
-    }),
-    docsLink: css({
-      display: 'inline-block',
-      marginTop: theme.spacing(2),
-    }),
-  };
-}
+const styles = stylex.create({
+  wrapper: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  badge: {
+    marginTop: 0,
+  },
+});

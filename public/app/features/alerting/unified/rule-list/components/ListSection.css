@@ -1,0 +1,18 @@
+/*
+ * The list items are rendered by the section's children, so they can only be reached with a descendant
+ * selector (same specificity as the Emotion rule this replaces).
+ */
+.gf-list-section-items li[role='treeitem'] {
+  list-style: none;
+  position: relative;
+  padding-left: calc(var(--gf-spacing-grid-size) * 6.5);
+}
+
+.gf-list-section-items li[role='treeitem']::before {
+  content: '';
+  position: absolute;
+  height: 100%;
+  margin-left: calc(var(--gf-spacing-grid-size) * -1.5);
+  margin-top: calc(var(--gf-spacing-grid-size) * -1);
+  border-left: solid 1px var(--gf-colors-border-weak);
+}

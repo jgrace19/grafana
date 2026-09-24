@@ -143,6 +143,17 @@ const stylexMigratedAppFiles = [
   'public/app/features/admin/ldap/LdapSettingsPage.tsx',
   'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
   'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
+  // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
+  'public/app/features/alerting/*.{ts,tsx}',
+  'public/app/features/alerting/state/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/*.{ts,tsx}',
+  'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
+  // M1 plugins, provisioning
+  'public/app/features/plugins/**/*.{ts,tsx}',
+  'public/app/features/provisioning/**/*.{ts,tsx}',
+  'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
+  // P2 core-bundled datasource plugins
+  'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

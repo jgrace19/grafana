@@ -35,3 +35,15 @@ public/app/features/live/LiveConnectionWarning.tsx # stylex: pending Alert migra
 public/app/features/live/dashboard/DashboardChangedModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
 public/app/features/serviceaccounts/components/CreateTokenModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
 public/app/features/users/TokenRevokedModal.tsx # stylex: pending InfoBox/Alert and Modal migration (U4); overrides of Alert margin and getModalStyles backdrop
+
+# M1 plugins, provisioning. Remove each `pending` entry once that @grafana/ui component migrates.
+public/app/features/plugins/admin/mocks/catalogPlugin.mock.ts # false positive: "@emotion/css" appears in fixture changelog text, not an import
+public/app/features/plugins/extensions/utils.tsx # pending Modal migration (U4): modal width/height override must beat Modal's Emotion width
+public/app/features/provisioning/GettingStarted/SetupModal.tsx # pending Modal migration (U4): modal width override must beat Modal's Emotion width
+public/app/features/provisioning/GettingStarted/SidebarItem.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card padding/background
+public/app/features/provisioning/Repository/RepositoryHealthCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display
+public/app/features/provisioning/Repository/RepositoryOverview.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display and Card.Actions margin
+public/app/features/provisioning/Repository/RepositoryPullStatusCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display and Card.Actions margin
+public/app/features/provisioning/Shared/CodeBlock.tsx # pending ClipboardButton migration: overrides its position
+public/app/features/provisioning/Shared/RepositoryTypeCards.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card width/pointer-events
+public/app/features/connections/tabs/ConnectData/CardGrid/CardGrid.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, meta

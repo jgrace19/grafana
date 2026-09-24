@@ -1,0 +1,4 @@
+/* InlineLabel is still Emotion and sets its own color: the doubled class wins that tie. */
+.gf-influx-section-label.gf-influx-section-label {
+  color: var(--gf-colors-primary-text);
+}
