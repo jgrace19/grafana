@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import cx from 'classnames';
 
 import {
   type DataFrame,
@@ -11,7 +10,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { Badge, Card, IconButton, Stack, Text, useTheme2 } from '@grafana/ui';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
-import { cardClassNames, cardStyles } from './cardStyles';
+import { cardStyles } from './cardStyles';
 
 export interface TransformationCardProps {
   data?: DataFrame[];
@@ -50,16 +49,15 @@ export function TransformationCard({
     }
   }
 
-  const cardClasses = cx(
-    fullWidth ? cardClassNames.baseCardFullWidth : cardClassNames.baseCard,
-    !isApplicable && cardClassNames.cardDisabled
-  );
   const imageUrl = theme.isDark ? transform.imageDark : transform.imageLight;
   const description = standardTransformersRegistry.getIfExists(transform.id)?.description;
 
   return (
     <Card
-      className={cardClasses}
+      xstyle={[
+        fullWidth ? cardStyles.baseCardFullWidth : cardStyles.baseCard,
+        !isApplicable && cardStyles.cardDisabled(theme.colors.emphasize(theme.colors.background.secondary, 0.03)),
+      ]}
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={() => onClick(transform.id)}
       noMargin
@@ -87,11 +85,7 @@ export function TransformationCard({
           />
         )}
         {!isApplicable && applicabilityDescription !== null && (
-          <IconButton
-            className="gf-transformation-card-info-button"
-            name="info-circle"
-            tooltip={applicabilityDescription}
-          />
+          <IconButton xstyle={cardStyles.infoButton} name="info-circle" tooltip={applicabilityDescription} />
         )}
       </Card.Description>
     </Card>

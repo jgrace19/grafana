@@ -20,8 +20,6 @@ import { getPanelPluginWithFallback } from '../../state/selectors';
 
 import { toggleVizPicker } from './state/reducers';
 import { VisualizationSelectPaneTab } from './types';
-import './VisualizationSelectPane.css';
-
 interface Props {
   panel: PanelModel;
   data?: PanelData;
@@ -98,7 +96,7 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
             onClick={onCloseVizPicker}
           />
         </div>
-        <Field className="gf-visualization-select-pane-field">
+        <Field xstyle={styles.field}>
           <RadioButtonGroup options={radioOptions} value={listMode} onChange={setListMode} fullWidth />
         </Field>
       </div>
@@ -124,6 +122,9 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
 VisualizationSelectPane.displayName = 'VisualizationSelectPane';
 
 const styles = stylex.create({
+  field: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
   scrollWrapper: {
     flexGrow: 1,
     minHeight: 0,

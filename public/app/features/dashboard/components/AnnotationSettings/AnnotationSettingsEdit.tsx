@@ -15,13 +15,12 @@ import { getDataSourceSrv, locationService } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { type AnnotationPanelFilter } from '@grafana/schema';
 import { Button, Checkbox, Field, FieldSet, Input, MultiSelect, Select, Stack, Alert } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ColorValueEditor } from 'app/core/components/OptionsUI/color';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { type DashboardModel } from '../../state/DashboardModel';
-
-import './AnnotationSettingsEdit.css';
 
 type Props = {
   editIdx: number;
@@ -166,7 +165,7 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
 
   return (
     <div>
-      <FieldSet className="gf-annotation-settings-form">
+      <FieldSet xstyle={styles.form}>
         <Field label={t('dashboard.annotation-settings-edit.label-name', 'Name')}>
           <Input
             data-testid={selectors.pages.Dashboard.Settings.Annotations.Settings.name}
@@ -298,6 +297,11 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
 };
 
 const styles = stylex.create({
+  // FieldSet's own :last-child margin still wins.
+  form: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+    marginBottom: { default: spacing['--gf-spacing-x2'], ':last-child': 0 },
+  },
   select: {
     marginTop: '8px',
   },

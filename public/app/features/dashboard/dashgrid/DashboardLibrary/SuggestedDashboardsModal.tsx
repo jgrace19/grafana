@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { Modal } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardInput, type DataSourceInput, type DashboardJson } from 'app/features/manage-dashboards/types';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { CommunityDashboardMappingForm } from './CommunityDashboardMappingForm';
 import { SuggestedDashboardsList } from './SuggestedDashboardsList/SuggestedDashboardsList';
-import './SuggestedDashboardsModal.css';
 import { type ContentKind } from './constants';
 import { type GnetDashboard } from './types';
 import { type InputMapping } from './utils/autoMapDatasources';
@@ -110,8 +110,8 @@ export const SuggestedDashboardsModal = ({
       }
       isOpen={isOpen}
       onDismiss={onDismiss}
-      className="gf-suggested-dashboards-modal"
-      contentClassName="gf-suggested-dashboards-modal-content"
+      xstyle={styles.modal}
+      contentXstyle={styles.modalContent}
     >
       {activeView === 'list' && (
         <div {...stylex.props(styles.listContent)}>
@@ -150,7 +150,29 @@ export const SuggestedDashboardsModal = ({
   );
 };
 
+// ModalBase's small-height media query.
+const smallHeight = '@media (max-height: 750px)';
+
 const styles = stylex.create({
+  // Modal's own small-screen max height, padding and margin still win.
+  modal: {
+    width: '90%',
+    maxWidth: '1200px',
+    maxHeight: { default: '80vh', [smallHeight]: '100%' },
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  modalContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    paddingTop: { default: spacing['--gf-spacing-x2'], [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    marginBottom: { default: 0, [bp.smDown]: spacing['--gf-spacing-x2'] },
+    height: '100%',
+  },
   listContent: {
     flex: '1',
     overflow: 'auto',

@@ -20,8 +20,6 @@ import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScen
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { AccessControlAction } from 'app/types/accessControl';
 
-import './EmailSharingConfiguration.css';
-
 import { type PublicDashboard, PublicDashboardShareType, validEmailRegex } from '../SharePublicDashboardUtils';
 
 interface EmailSharingConfigurationForm {
@@ -149,7 +147,7 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
       >
         <Field
           label={t('public-dashboard.config.can-view-dashboard-radio-button-label', 'Can view dashboard')}
-          className="gf-email-sharing-field"
+          xstyle={styles.field}
         >
           <Controller
             name="shareType"
@@ -190,7 +188,7 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
               description={t('public-dashboard.email-sharing.invite-field-desc', 'Invite people by email')}
               error={errors.email?.message}
               invalid={!!errors.email?.message || undefined}
-              className="gf-email-sharing-field"
+              xstyle={styles.field}
             >
               <div {...stylex.props(styles.emailContainer)}>
                 <Input
@@ -233,6 +231,9 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
 };
 
 const styles = stylex.create({
+  field: {
+    marginBottom: 0,
+  },
   container: {
     display: 'flex',
     flexDirection: 'column',

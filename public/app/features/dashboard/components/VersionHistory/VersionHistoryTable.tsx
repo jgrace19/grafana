@@ -7,8 +7,6 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 
 import { RevertDashboardModal } from './RevertDashboardModal';
-import './VersionHistoryTable.css';
-
 type VersionsTableProps = {
   versions: DecoratedRevisionModel[];
   canCompare: boolean;
@@ -47,7 +45,7 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
                     'Toggle selection of version {{version}}',
                     { version: version.version }
                   )}
-                  className="gf-version-history-checkbox"
+                  xstyle={styles.checkbox}
                   checked={version.checked}
                   onChange={(ev) => onCheck(ev, version.id)}
                   disabled={!version.checked && canCompare}
@@ -90,6 +88,9 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
 };
 
 const styles = stylex.create({
+  checkbox: {
+    display: 'inline',
+  },
   margin: {
     marginBottom: spacing['--gf-spacing-x4'],
   },

@@ -1,7 +1,0 @@
-/*
- * Checkbox sets these properties in its own Emotion styles, which a StyleX override can't beat
- * (conventions §3.9). The doubled class outranks that rule whatever order the stylesheets load in.
- */
-.gf-version-history-checkbox.gf-version-history-checkbox {
-  display: inline;
-}

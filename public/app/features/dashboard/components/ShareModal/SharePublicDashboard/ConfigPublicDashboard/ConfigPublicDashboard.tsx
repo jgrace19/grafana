@@ -38,8 +38,6 @@ import { Configuration } from './Configuration';
 import { EmailSharingConfiguration } from './EmailSharingConfiguration';
 import { SettingsBar } from './SettingsBar';
 import { SettingsSummary } from './SettingsSummary';
-import './ConfigPublicDashboard.css';
-
 const selectors = e2eSelectors.pages.ShareDashboardModal.PublicDashboard;
 
 export interface ConfigPublicDashboardForm {
@@ -134,10 +132,7 @@ export function ConfigPublicDashboardBase({
 
       {isEmailSharingEnabled() && <EmailSharingConfiguration dashboard={dashboard} />}
 
-      <Field
-        label={t('public-dashboard.config.dashboard-url-field-label', 'Dashboard URL')}
-        className="gf-config-public-dashboard-field"
-      >
+      <Field label={t('public-dashboard.config.dashboard-url-field-label', 'Dashboard URL')} xstyle={styles.field}>
         <Input
           value={generatePublicDashboardUrl(publicDashboard!.accessToken!)}
           readOnly
@@ -157,7 +152,7 @@ export function ConfigPublicDashboardBase({
         />
       </Field>
 
-      <Field className="gf-config-public-dashboard-field">
+      <Field xstyle={styles.field}>
         <Stack>
           <Switch
             {...register('isPaused')}
@@ -170,13 +165,13 @@ export function ConfigPublicDashboardBase({
             }}
             data-testid={selectors.PauseSwitch}
           />
-          <Label className="gf-config-public-dashboard-pause-label">
+          <Label xstyle={styles.pauseLabel}>
             <Trans i18nKey="public-dashboard.config.pause-sharing-dashboard-label">Pause sharing dashboard</Trans>
           </Label>
         </Stack>
       </Field>
 
-      <Field className="gf-config-public-dashboard-field">
+      <Field xstyle={styles.field}>
         <SettingsBar
           title={t('public-dashboard.config.settings-title', 'Settings')}
           headerElement={({ className, xstyle }) => (
@@ -269,6 +264,13 @@ export function ConfigPublicDashboard({ publicDashboard, unsupportedDatasources 
 }
 
 const styles = stylex.create({
+  field: {
+    width: '100%',
+    marginBottom: 0,
+  },
+  pauseLabel: {
+    marginBottom: 0,
+  },
   configContainer: {
     display: 'flex',
     flexDirection: 'column',

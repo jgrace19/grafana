@@ -10,7 +10,6 @@ import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardModel } from '../../state/DashboardModel';
 
 import { SaveDashboardAsButton } from './SaveDashboardButton';
-import './SaveDashboardErrorProxy.css';
 import { type SaveDashboardModalProps } from './types';
 import { useDashboardSave } from './useDashboardSave';
 
@@ -122,7 +121,7 @@ const ConfirmPluginDashboardSaveModal = ({ onDismiss, dashboard }: SaveDashboard
 
   return (
     <Modal
-      className="gf-plugin-dashboard-save-modal"
+      xstyle={styles.modal}
       title={t('dashboard.confirm-plugin-dashboard-save-modal.title-plugin-dashboard', 'Plugin dashboard')}
       isOpen={true}
       onDismiss={onDismiss}
@@ -168,6 +167,9 @@ export const proxyHandlesError = (errorStatus: string) => {
 };
 
 const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
   modalText: {
     fontSize: typography['--gf-typography-h4-font-size'],
     color: colors['--gf-colors-text-primary'],

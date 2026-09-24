@@ -1,11 +1,11 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
 import { type DashboardModel } from '../../state/DashboardModel';
 
 import { SaveDashboardButton } from './SaveDashboardButton';
-import './UnsavedChangesModal.css';
-
 interface UnsavedChangesModalProps {
   dashboard: DashboardModel;
   onDiscard: () => void;
@@ -19,7 +19,7 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
       isOpen={true}
       title={t('dashboard.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className="gf-unsaved-changes-modal"
+      xstyle={styles.modal}
     >
       <h5>
         <Trans i18nKey="dashboard.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>
@@ -36,3 +36,9 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});
