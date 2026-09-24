@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type DataSourceInstanceSettings, type DataSourceJsonData, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { type DataSourceInstanceSettings, type DataSourceJsonData } from '@grafana/data';
+import { useTheme2 } from '@grafana/ui';
 
 export interface DataSourceLogoProps {
   dataSource: DataSourceInstanceSettings<DataSourceJsonData> | undefined;
@@ -9,9 +9,8 @@ export interface DataSourceLogoProps {
 }
 
 export function DataSourceLogo(props: DataSourceLogoProps) {
-  const { dataSource, size } = props;
+  const { dataSource, size = 20 } = props;
   const theme = useTheme2();
-  const styles = getStyles(theme, dataSource?.meta.builtIn, size);
 
   if (!dataSource) {
     return DataSourceLogoPlaceHolder();
@@ -19,7 +18,10 @@ export function DataSourceLogo(props: DataSourceLogoProps) {
 
   return (
     <img
-      className={styles.pickerDSLogo}
+      {...stylex.props(
+        styles.pickerDSLogo(size),
+        dataSource.meta.builtIn && theme.isLight ? styles.inverted : styles.notInverted
+      )}
       alt={`${dataSource.meta.name} logo`}
       src={dataSource.meta.info.logos.small || undefined}
     ></img>
@@ -27,16 +29,18 @@ export function DataSourceLogo(props: DataSourceLogoProps) {
 }
 
 export function DataSourceLogoPlaceHolder() {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.pickerDSLogo}></div>;
+  return <div {...stylex.props(styles.pickerDSLogo(20), styles.notInverted)}></div>;
 }
 
-function getStyles(theme: GrafanaTheme2, builtIn = false, size = 20) {
-  return {
-    pickerDSLogo: css({
-      height: size,
-      width: size,
-      filter: `invert(${builtIn && theme.isLight ? 1 : 0})`,
-    }),
-  };
-}
+const styles = stylex.create({
+  pickerDSLogo: (size: number) => ({
+    height: size,
+    width: size,
+  }),
+  inverted: {
+    filter: 'invert(1)',
+  },
+  notInverted: {
+    filter: 'invert(0)',
+  },
+});

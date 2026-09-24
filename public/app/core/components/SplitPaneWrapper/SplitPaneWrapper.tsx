@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SplitPane, { type Split } from 'react-split-pane';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { config } from '@grafana/runtime';
 import { getDragHandleClassNames } from '@grafana/ui/internal';
 
 interface Props {
@@ -73,7 +72,6 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
   }
 
   // Limit options pane width to 90% of screen.
-  const styles = getStyles(config.theme2, splitVisible);
   const dragStyles = getDragHandleClassNames();
 
   // Need to handle when width is relative. ie a percentage of the viewport
@@ -93,8 +91,8 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
       maxSize={maxSize}
       size={splitVisible ? paneSizePx : 0}
       primary={splitVisible ? primary : 'second'}
-      resizerClassName={cx(
-        styles.resizer,
+      resizerClassName={clsx(
+        stylex.props(splitVisible ? styles.resizer : styles.resizerHidden).className,
         splitOrientation === 'horizontal' ? dragStyles.dragHandleHorizontal : dragStyles.dragHandleVertical
       )}
       onDragStarted={() => handleDragStarted()}
@@ -108,10 +106,11 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
   );
 });
 
-const getStyles = (theme: GrafanaTheme2, hasSplit: boolean) => {
-  return {
-    resizer: css({
-      display: hasSplit ? 'block' : 'none',
-    }),
-  };
-};
+const styles = stylex.create({
+  resizer: {
+    display: 'block',
+  },
+  resizerHidden: {
+    display: 'none',
+  },
+});

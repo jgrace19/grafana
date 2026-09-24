@@ -1,24 +1,28 @@
-import { css } from '@emotion/css';
 import { autoUpdate, offset, size, useFloating } from '@floating-ui/react';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import * as React from 'react';
 import { type Observable } from 'rxjs';
 
-import { type DataSourceInstanceSettings, type GrafanaTheme2, type ScopedVars } from '@grafana/data';
+import { type DataSourceInstanceSettings, type ScopedVars } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type FavoriteDatasources, reportInteraction, useFavoriteDatasources } from '@grafana/runtime';
 import { type DataQuery, type DataSourceJsonData, type DataSourceRef } from '@grafana/schema';
-import { Button, floatingUtils, Icon, Input, ModalsController, Portal, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Button, floatingUtils, Icon, Input, ModalsController, Portal, ScrollContainer } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useKeyNavigationListener } from 'app/features/search/hooks/useSearchKeyboardSelection';
 import { type GrafanaQuery } from 'app/plugins/datasource/grafana/types';
 
 import { useDatasource, useDatasources } from '../../hooks';
 
+import './DataSourcePicker.css';
 import { DataSourceList } from './DataSourceList';
 import { DataSourceLogo, DataSourceLogoPlaceHolder } from './DataSourceLogo';
 import { DataSourceModal } from './DataSourceModal';
@@ -74,7 +78,6 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
     ...restProps
   } = props;
 
-  const styles = useStyles2(getStylesDropdown, props);
   const [isOpen, setOpen] = useState(false);
   const [inputHasFocus, setInputHasFocus] = useState(false);
   const [filterTerm, setFilterTerm] = useState<string>('');
@@ -223,11 +226,18 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
   });
 
   return (
-    <div className={styles.container} data-testid={selectors.components.DataSourcePicker.container}>
+    <div
+      {...stylex.props(
+        dropdownStyles.container,
+        disabled && dropdownStyles.containerDisabled,
+        dropdownStyles.width(width ? `calc(${spacing['--gf-spacing-grid-size']} * ${width})` : 'auto')
+      )}
+      data-testid={selectors.components.DataSourcePicker.container}
+    >
       {/* This clickable div is just extending the clickable area on the input element to include the prefix and suffix. */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
-        className={styles.trigger}
+        {...stylex.props(dropdownStyles.trigger, disabled && dropdownStyles.triggerDisabled)}
         onClick={() => {
           openDropdown();
           reportInteraction(INTERACTION_EVENT_NAME, {
@@ -240,7 +250,13 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
       >
         <Input
           id={inputId || 'data-source-picker'}
-          className={inputHasFocus ? undefined : styles.input}
+          className={
+            inputHasFocus
+              ? undefined
+              : disabled
+                ? 'gf-data-source-picker-input-disabled'
+                : 'gf-data-source-picker-input'
+          }
           data-testid={selectors.components.DataSourcePicker.inputV2}
           aria-label={t('datasources.data-source-picker.aria-label-select-a-data-source', 'Select a data source')}
           autoComplete="off"
@@ -304,24 +320,25 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
   );
 }
 
-function getStylesDropdown(theme: GrafanaTheme2, props: DataSourcePickerProps) {
-  return {
-    container: css({
-      position: 'relative',
-      cursor: props.disabled ? 'not-allowed' : 'pointer',
-      width: theme.spacing(props.width || 'auto'),
-    }),
-    trigger: css({
-      cursor: 'pointer',
-      pointerEvents: props.disabled ? 'none' : 'auto',
-    }),
-    input: css({
-      'input::placeholder': {
-        color: props.disabled ? theme.colors.action.disabledText : theme.colors.text.primary,
-      },
-    }),
-  };
-}
+const dropdownStyles = stylex.create({
+  container: {
+    position: 'relative',
+    cursor: 'pointer',
+  },
+  containerDisabled: {
+    cursor: 'not-allowed',
+  },
+  width: (width: string) => ({
+    width,
+  }),
+  trigger: {
+    cursor: 'pointer',
+    pointerEvents: 'auto',
+  },
+  triggerDisabled: {
+    pointerEvents: 'none',
+  },
+});
 
 export interface PickerContentProps extends DataSourcePickerProps {
   keyboardEvents: Observable<React.KeyboardEvent>;
@@ -346,16 +363,14 @@ const PickerContent = React.forwardRef<HTMLDivElement, PickerContentProps>((prop
     [onChange]
   );
 
-  const styles = useStyles2(getStylesPickerContent);
-
   return (
-    <div style={props.style} ref={ref} className={styles.container}>
+    <div {...mergeStylexProps(stylex.props(pickerContentStyles.container), { style: props.style })} ref={ref}>
       <ScrollContainer showScrollIndicators ref={scrollRef}>
         <DataSourceList
           {...props}
           favoriteDataSources={favoriteDataSources}
           enableKeyboardNavigation
-          className={styles.dataSourceList}
+          xstyle={pickerContentStyles.dataSourceList}
           current={current}
           onChange={changeCallback}
           filter={(ds) => (filter ? filter?.(ds) : true) && matchDataSourceWithSearch(ds, filterTerm)}
@@ -376,56 +391,30 @@ const PickerContent = React.forwardRef<HTMLDivElement, PickerContentProps>((prop
 });
 PickerContent.displayName = 'PickerContent';
 
-function getStylesPickerContent(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      background: theme.colors.background.elevated,
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z3,
-      overflow: 'hidden',
-      minWidth: calculateMinWidth('97vw'),
-      [theme.breakpoints.up('md')]: {
-        minWidth: calculateMinWidth('80vw'),
-      },
-      [theme.breakpoints.up('lg')]: {
-        minWidth: calculateMinWidth('60vw'),
-      },
-      [theme.breakpoints.up('xl')]: {
-        minWidth: calculateMinWidth('50vw'),
-      },
-      [theme.breakpoints.up('xxl')]: {
-        minWidth: calculateMinWidth('40vw'),
-      },
-    }),
-    picker: css({
-      background: theme.colors.background.secondary,
-    }),
-    dataSourceList: css({
-      flex: 1,
-    }),
-    footer: css({
-      flex: 0,
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1.5),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-}
-
-function calculateMinWidth(width: string): string {
-  return `min(700px, ${width})`;
-}
+const pickerContentStyles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    overflow: 'hidden',
+    minWidth: {
+      default: 'min(700px, 97vw)',
+      [bp.mdUp]: 'min(700px, 80vw)',
+      [bp.lgUp]: 'min(700px, 60vw)',
+      [bp.xlUp]: 'min(700px, 50vw)',
+      [bp.xxlUp]: 'min(700px, 40vw)',
+    },
+  },
+  dataSourceList: {
+    flex: '1',
+  },
+});
 
 export interface FooterProps extends PickerContentProps {}
 
 function Footer({ onClose, onChange, ...props }: FooterProps) {
-  const styles = useStyles2(getStylesFooter);
-
   const onKeyDownLastButton = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'Tab') {
       props.onNavigateOutsiteFooter(e);
@@ -433,7 +422,7 @@ function Footer({ onClose, onChange, ...props }: FooterProps) {
   };
 
   return (
-    <div className={styles.footer}>
+    <div {...stylex.props(footerStyles.footer)}>
       <ModalsController>
         {({ showModal, hideModal }) => (
           <Button
@@ -477,16 +466,19 @@ function Footer({ onClose, onChange, ...props }: FooterProps) {
   );
 }
 
-function getStylesFooter(theme: GrafanaTheme2) {
-  return {
-    footer: css({
-      flex: 0,
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1.5),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-}
+const footerStyles = stylex.create({
+  footer: {
+    flex: '0',
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    paddingTop: spacing['--gf-spacing-x1-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+});

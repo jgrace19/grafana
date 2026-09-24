@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Card, Field, FieldSet, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Card, Field, FieldSet, Input, Stack } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 
@@ -13,16 +14,6 @@ import { TransformationsEditor } from './TransformationsEditor';
 import { useCorrelationsFormContext } from './correlationsFormContext';
 import { type FormDTO } from './types';
 import { getInputId } from './utils';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  label: css({
-    maxWidth: theme.spacing(80),
-  }),
-  variable: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-});
 
 const getFormText = (queryType: string, dataSourceName?: string) => {
   if (queryType === 'query') {
@@ -55,7 +46,6 @@ const getFormText = (queryType: string, dataSourceName?: string) => {
 
 export const ConfigureCorrelationSourceForm = () => {
   const { control, formState, register, getValues } = useFormContext<FormDTO>();
-  const styles = useStyles2(getStyles);
   const withDsUID = (fn: Function) => (ds: DataSourceInstanceSettings) => fn(ds.uid);
 
   const { correlation, readOnly } = useCorrelationsFormContext();
@@ -73,7 +63,7 @@ export const ConfigureCorrelationSourceForm = () => {
     return (
       <>
         {variables.map((name, i) => (
-          <span className={styles.variable} key={i}>
+          <span {...stylex.props(styles.variable)} key={i}>
             {name}
             {i < variables.length - 1
               ? // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
@@ -135,7 +125,7 @@ export const ConfigureCorrelationSourceForm = () => {
               'correlations.source-form.results-description',
               'The link will be shown next to the value of this field'
             )}
-            className={styles.label}
+            className={stylex.props(styles.label).className}
             invalid={!!formState.errors?.config?.field}
             error={formState.errors?.config?.field?.message}
           >
@@ -159,7 +149,7 @@ export const ConfigureCorrelationSourceForm = () => {
                   the correlation button appear in the visualization.
                   <br />
                   Note: Not every variable needs to be explicitly defined below. A transformation such as{' '}
-                  <span className={styles.variable}>logfmt</span> will create variables for every key/value pair.
+                  <span {...stylex.props(styles.variable)}>logfmt</span> will create variables for every key/value pair.
                 </Trans>
               </Card.Description>
             </Card>
@@ -170,3 +160,13 @@ export const ConfigureCorrelationSourceForm = () => {
     </>
   );
 };
+
+const styles = stylex.create({
+  label: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 80)`,
+  },
+  variable: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+});

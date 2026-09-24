@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { IconButton, type IconName, useStyles2 } from '@grafana/ui';
+import { IconButton, type IconName, useTheme2 } from '@grafana/ui';
+import { colors, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 interface BaseQueryOperationActionProps {
   icon: IconName;
@@ -14,14 +14,20 @@ interface BaseQueryOperationActionProps {
 }
 
 function BaseQueryOperationAction(props: QueryOperationActionProps | QueryOperationToggleActionProps) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   return (
-    <div className={cx(styles.icon, 'active' in props && props.active && styles.active)}>
+    <div {...stylex.props(styles.icon, 'active' in props && props.active && styles.active)}>
       <IconButton
         name={props.icon}
         tooltip={props.title}
-        className={styles.icon}
+        // IconButton has no `xstyle`; its own display and colour beat a StyleX class passed as `className`.
+        // Its disabled colour still wins, as it did over the Emotion override.
+        style={{
+          display: 'flex',
+          position: 'relative',
+          color: props.disabled ? undefined : theme.colors.text.secondary,
+        }}
         disabled={!!props.disabled}
         onClick={props.onClick}
         type="button"
@@ -44,25 +50,23 @@ export const QueryOperationToggleAction = (props: QueryOperationToggleActionProp
   return <BaseQueryOperationAction {...props} />;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      display: 'flex',
-      position: 'relative',
-      color: theme.colors.text.secondary,
-    }),
-    active: css({
-      '&:before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: -1,
-        right: 2,
-        height: 3,
-        borderRadius: theme.shape.radius.default,
-        bottom: -8,
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  icon: {
+    display: 'flex',
+    position: 'relative',
+    color: colors['--gf-colors-text-secondary'],
+  },
+  active: {
+    '::before': {
+      display: 'block',
+      content: '" "',
+      position: 'absolute',
+      left: -1,
+      right: 2,
+      height: 3,
+      borderRadius: shape['--gf-shape-radius-default'],
+      bottom: -8,
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+    },
+  },
+});

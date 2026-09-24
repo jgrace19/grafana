@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, type JSX } from 'react';
 
 import { useAssistant } from '@grafana/assistant';
-import { FeatureState, type GrafanaTheme2 } from '@grafana/data';
+import { FeatureState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Grid, Modal, useStyles2, Text, FeatureBadge } from '@grafana/ui';
+import { Grid, Modal, Text, FeatureBadge } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getModKey } from 'app/core/utils/browser';
 
 export interface HelpModalProps {
@@ -13,15 +14,14 @@ export interface HelpModalProps {
 }
 
 export const HelpModal = ({ onDismiss }: HelpModalProps): JSX.Element => {
-  const styles = useStyles2(getStyles);
   const shortcuts = useShortcuts();
   return (
     <Modal title={t('help-modal.title', 'Shortcuts')} isOpen onDismiss={onDismiss} onClickBackdrop={onDismiss}>
       <Grid columns={{ xs: 1, sm: 2 }} gap={3} tabIndex={0}>
         {Object.values(shortcuts).map(({ category, shortcuts }) => (
           <section key={category}>
-            <table className={styles.table}>
-              <caption>
+            <table {...stylex.props(styles.table)}>
+              <caption {...stylex.props(styles.caption)}>
                 <Text element="p" variant="h5">
                   {category}
                 </Text>
@@ -39,13 +39,13 @@ export const HelpModal = ({ onDismiss }: HelpModalProps): JSX.Element => {
               <tbody>
                 {shortcuts.map(({ keys, description, isNew }) => (
                   <tr key={keys.join()}>
-                    <td className={styles.keys}>
+                    <td {...stylex.props(styles.keys)}>
                       {keys.map((key) => (
                         <Key key={key}>{key}</Key>
                       ))}
                     </td>
                     <td>
-                      <div className={styles.descriptionWrapper}>
+                      <div {...stylex.props(styles.descriptionWrapper)}>
                         <Text variant="bodySmall" element="p">
                           {description}
                         </Text>
@@ -252,11 +252,10 @@ interface KeyProps {
 }
 
 const Key = ({ children }: KeyProps) => {
-  const styles = useStyles2(getStyles);
   const displayText = useMemo(() => replaceCustomKeyNames(children), [children]);
   const displayElement = <span dangerouslySetInnerHTML={{ __html: displayText }}></span>;
   return (
-    <kbd className={styles.shortcutTableKey}>
+    <kbd {...stylex.props(styles.shortcutTableKey)}>
       <Text variant="code">{displayElement}</Text>
     </kbd>
   );
@@ -282,37 +281,40 @@ function replaceCustomKeyNames(key: string) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    table: css({
-      borderCollapse: 'separate',
-      borderSpacing: theme.spacing(2),
-      '& caption': {
-        captionSide: 'top',
-      },
-    }),
-    keys: css({
-      textAlign: 'end',
-      whiteSpace: 'nowrap',
-      minWidth: 83, // To match column widths with the widest
-    }),
-    descriptionWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.75),
-      flexWrap: 'nowrap',
-    }),
-    shortcutTableKey: css({
-      display: 'inline-block',
-      textAlign: 'center',
-      marginRight: theme.spacing(0.5),
-      padding: '3px 5px',
-      lineHeight: '10px',
-      verticalAlign: 'middle',
-      border: `solid 1px ${theme.colors.border.medium}`,
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.primary,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-}
+const styles = stylex.create({
+  table: {
+    borderCollapse: 'separate',
+    borderSpacing: spacing['--gf-spacing-x2'],
+  },
+  caption: {
+    captionSide: 'top',
+  },
+  keys: {
+    textAlign: 'end',
+    whiteSpace: 'nowrap',
+    minWidth: 83, // To match column widths with the widest
+  },
+  descriptionWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    flexWrap: 'nowrap',
+  },
+  shortcutTableKey: {
+    display: 'inline-block',
+    textAlign: 'center',
+    marginRight: spacing['--gf-spacing-x0-5'],
+    paddingTop: '3px',
+    paddingRight: '5px',
+    paddingBottom: '3px',
+    paddingLeft: '5px',
+    lineHeight: '10px',
+    verticalAlign: 'middle',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+});
