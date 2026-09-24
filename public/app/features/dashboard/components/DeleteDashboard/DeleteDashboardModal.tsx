@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
-import { css } from '@emotion/css';
 import { connect, type ConnectedProps } from 'react-redux';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
@@ -11,6 +9,8 @@ import { cleanUpDashboardAndVariables } from 'app/features/dashboard/state/actio
 
 import { useDeleteDashboardsMutation } from '../../../browse-dashboards/api/browseDashboardsAPI';
 import { DeleteDashboardModal as DeleteModal } from '../../../dashboard-scene/settings/DeleteDashboardButton';
+
+import './DeleteDashboardModal.css';
 
 type DeleteDashboardModalProps = {
   hideModal(): void;
@@ -56,7 +56,7 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
       isOpen={true}
       title={t('dashboard-settings.provisioned-delete-modal.title', 'Cannot delete provisioned dashboard')}
       onDismiss={hideModal}
-      className={modalStyles}
+      className="gf-provisioned-delete-modal"
     >
       <Text element="p">
         <Trans i18nKey="dashboard-settings.provisioned-delete-modal.text-1">
@@ -87,8 +87,3 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
 };
 
 export const DeleteDashboardModal = connector(DeleteDashboardModalUnconnected);
-
-// stylex: pending Modal migration. Modal's own Emotion width would beat a StyleX override.
-const modalStyles = css({
-  width: '500px',
-});

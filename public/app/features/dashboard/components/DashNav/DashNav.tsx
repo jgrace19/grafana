@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
-import { css } from '@emotion/css';
 import { memo, type ReactNode } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { useLocation } from 'react-router-dom-v5-compat';
@@ -40,6 +38,8 @@ import {
 
 import { DashNavTimeControls } from './DashNavTimeControls';
 import { ShareButton } from './ShareButton';
+
+import './DashNav.css';
 
 const mapDispatchToProps = {
   updateTimeZoneForSession,
@@ -94,7 +94,7 @@ export const DashNav = memo<Props>((props) => {
                 'dashboard.dash-nav.on-open-snapshot-original.title.proceed-to-external-site',
                 'Proceed to external site?'
               ),
-              modalClass: modalStyles,
+              modalClass: 'gf-dash-nav-external-link-modal',
               body: (
                 <>
                   <p>
@@ -303,9 +303,3 @@ export const DashNav = memo<Props>((props) => {
 DashNav.displayName = 'DashNav';
 
 export default connector(DashNav);
-
-// stylex: pending Modal migration. ConfirmModal passes this to Modal, whose own Emotion width would beat StyleX.
-const modalStyles = css({
-  width: 'max-content',
-  maxWidth: '80vw',
-});

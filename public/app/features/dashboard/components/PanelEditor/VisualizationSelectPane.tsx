@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Field migration (see customFieldMargin)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
@@ -22,6 +20,7 @@ import { getPanelPluginWithFallback } from '../../state/selectors';
 
 import { toggleVizPicker } from './state/reducers';
 import { VisualizationSelectPaneTab } from './types';
+import './VisualizationSelectPane.css';
 
 interface Props {
   panel: PanelModel;
@@ -99,7 +98,7 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
             onClick={onCloseVizPicker}
           />
         </div>
-        <Field className={customFieldMargin}>
+        <Field className="gf-visualization-select-pane-field">
           <RadioButtonGroup options={radioOptions} value={listMode} onChange={setListMode} fullWidth />
         </Field>
       </div>
@@ -123,11 +122,6 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
 };
 
 VisualizationSelectPane.displayName = 'VisualizationSelectPane';
-
-// stylex: pending Field migration. Field's own Emotion marginBottom would beat a StyleX override.
-const customFieldMargin = css({
-  marginBottom: spacing['--gf-spacing-x1'],
-});
 
 const styles = stylex.create({
   scrollWrapper: {

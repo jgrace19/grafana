@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending FieldSet migration (see settingsForm)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import * as React from 'react';
@@ -17,12 +15,13 @@ import { getDataSourceSrv, locationService } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { type AnnotationPanelFilter } from '@grafana/schema';
 import { Button, Checkbox, Field, FieldSet, Input, MultiSelect, Select, Stack, Alert } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ColorValueEditor } from 'app/core/components/OptionsUI/color';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { type DashboardModel } from '../../state/DashboardModel';
+
+import './AnnotationSettingsEdit.css';
 
 type Props = {
   editIdx: number;
@@ -167,7 +166,7 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
 
   return (
     <div>
-      <FieldSet className={settingsForm}>
+      <FieldSet className="gf-annotation-settings-form">
         <Field label={t('dashboard.annotation-settings-edit.label-name', 'Name')}>
           <Input
             data-testid={selectors.pages.Dashboard.Settings.Annotations.Settings.name}
@@ -297,12 +296,6 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
     </div>
   );
 };
-
-// stylex: pending FieldSet migration. FieldSet's own Emotion marginBottom would beat a StyleX override.
-const settingsForm = css({
-  maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
-  marginBottom: spacing['--gf-spacing-x2'],
-});
 
 const styles = stylex.create({
   select: {
