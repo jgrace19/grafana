@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useMemo, useState } from 'react';
 
@@ -12,6 +10,8 @@ import { MediaType, ResourceFolderName, ResourcePickerSize } from '../../types';
 import { ResourcePicker } from '../ResourcePicker';
 
 import { buildEditRowModels, editModelToSaveModel, ValueMappingsEditorModal } from './ValueMappingsEditorModal';
+
+import './ValueMappingsEditor.css';
 
 export interface Props extends StandardEditorProps<ValueMapping[]> {
   showIcon?: boolean;
@@ -106,7 +106,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
         isOpen={isEditorOpen}
         title={t('dimensions.value-mappings-editor.title-value-mappings', 'Value mappings')}
         onDismiss={onCloseEditor}
-        className={modalClassName}
+        className="gf-value-mappings-modal"
         closeOnBackdropClick={false}
       >
         <ValueMappingsEditorModal
@@ -121,11 +121,6 @@ export const ValueMappingsEditor = memo((props: Props) => {
 });
 
 ValueMappingsEditor.displayName = 'ValueMappingsEditor';
-
-// stylex: pending Modal migration: Modal's own width would beat a StyleX className
-const modalClassName = css({
-  width: '980px',
-});
 
 const styles = stylex.create({
   compactTable: {

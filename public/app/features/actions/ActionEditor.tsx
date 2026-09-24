@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
@@ -32,6 +30,8 @@ import { HTMLElementType, SuggestionsInput } from '../transformers/suggestionsIn
 import { ActionVariablesEditor } from './ActionVariablesEditor';
 import { ConnectionPicker } from './ConnectionPicker';
 import { ParamsEditor } from './ParamsEditor';
+
+import './ActionEditor.css';
 
 interface ActionEditorProps {
   index: number;
@@ -301,7 +301,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
         <InlineField
           label={t('actions.action-editor.button.style.background-color', 'Color')}
           labelWidth={LABEL_WIDTH}
-          className={colorPickerClassName}
+          className="gf-action-editor-color-picker"
         >
           <ColorPicker
             color={value?.style?.backgroundColor || theme.colors.secondary.main}
@@ -311,12 +311,6 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
       </Field>
     </div>
   );
-});
-
-// stylex: pending InlineField migration: InlineField's own alignItems would beat a StyleX className
-const colorPickerClassName = css({
-  display: 'flex',
-  alignItems: 'center',
 });
 
 const styles = stylex.create({
