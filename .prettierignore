@@ -48,3 +48,7 @@ test-results
 playwright-report
 
 eslint-suppressions.json
+
+# StyleX visual harness: byte-identical to the baseline copy (hashed into harnessSha256) or written by gen-dashboards.mjs
+scripts/stylex/visual/*.json
+scripts/stylex/visual/provisioning/dashboards/json

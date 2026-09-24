@@ -1,7 +1,10 @@
 {
   "uid": "vb-overview",
   "title": "Visual baseline - Overview",
-  "tags": ["baseline", "overview"],
+  "tags": [
+    "baseline",
+    "overview"
+  ],
   "editable": true,
   "graphTooltip": 0,
   "timezone": "utc",
@@ -65,7 +68,11 @@
           "showLegend": true,
           "displayMode": "table",
           "placement": "bottom",
-          "calcs": ["mean", "max", "lastNotNull"]
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -122,7 +129,9 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -185,7 +194,9 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -346,7 +357,9 @@
           "values": true
         },
         "pieType": "donut",
-        "displayLabels": ["percent"],
+        "displayLabels": [
+          "percent"
+        ],
         "legend": {
           "showLegend": true,
           "displayMode": "list",
@@ -464,7 +477,9 @@
         "cellHeight": "sm",
         "footer": {
           "show": false,
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "fields": ""
         }
       }
