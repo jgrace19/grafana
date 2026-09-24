@@ -2,8 +2,8 @@ import { css, cx } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { getFocusStyles } from '../../themes/mixins';
-import { getInputStyles } from '../Input/Input';
 
 export const getMultiComboboxStyles = (
   theme: GrafanaTheme2,

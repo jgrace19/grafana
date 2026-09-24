@@ -1,15 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import { GroupProps } from 'react-select';
 
-import { GrafanaTheme2 } from '@grafana/data';
-
-import { withTheme2 } from '../../../../themes/ThemeContext';
-import { stylesFactory } from '../../../../themes/stylesFactory';
-import { Themeable2 } from '../../../../types/theme';
+import { colors } from '../../../../themes/stylex/tokens.stylex';
 import { Icon } from '../../../Icon/Icon';
 
-interface ExtendedGroupProps extends Omit<GroupProps<any, any>, 'theme'>, Themeable2 {
+interface ExtendedGroupProps extends Omit<GroupProps<any, any>, 'theme'> {
   data: {
     label: string;
     expanded: boolean;
@@ -21,32 +17,7 @@ interface State {
   expanded: boolean;
 }
 
-const getSelectOptionGroupStyles = stylesFactory((theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      justifyItems: 'center',
-      cursor: 'pointer',
-      padding: '7px 10px',
-      width: '100%',
-      borderBottom: `1px solid ${theme.colors.background.secondary}`,
-
-      '&:hover': {
-        color: theme.colors.text.maxContrast,
-      },
-    }),
-    label: css({
-      flexGrow: 1,
-    }),
-    icon: css({
-      paddingRight: '2px',
-    }),
-  };
-});
-
-class UnthemedSelectOptionGroup extends PureComponent<ExtendedGroupProps, State> {
+export class SelectOptionGroup extends PureComponent<ExtendedGroupProps, State> {
   state = {
     expanded: false,
   };
@@ -76,17 +47,16 @@ class UnthemedSelectOptionGroup extends PureComponent<ExtendedGroupProps, State>
   };
 
   render() {
-    const { children, label, theme } = this.props;
+    const { children, label } = this.props;
     const { expanded } = this.state;
-    const styles = getSelectOptionGroupStyles(theme);
 
     return (
       <div>
         {/*React Select doesn't support focusable option group headers, this will be skipped when using
       the keyboard */}
-        <div className={styles.header} onClick={this.onToggleChildren} role="presentation">
-          <span className={styles.label}>{label}</span>
-          <Icon className={styles.icon} name={expanded ? 'angle-up' : 'angle-down'} />
+        <div {...stylex.props(styles.header)} onClick={this.onToggleChildren} role="presentation">
+          <span {...stylex.props(styles.label)}>{label}</span>
+          <Icon xstyle={styles.icon} name={expanded ? 'angle-up' : 'angle-down'} />
         </div>
         {expanded && children}
       </div>
@@ -94,5 +64,27 @@ class UnthemedSelectOptionGroup extends PureComponent<ExtendedGroupProps, State>
   }
 }
 
-// TODO: type this properly
-export const SelectOptionGroup: React.FC<ExtendedGroupProps> = withTheme2(UnthemedSelectOptionGroup);
+const styles = stylex.create({
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    justifyItems: 'center',
+    cursor: 'pointer',
+    paddingTop: '7px',
+    paddingRight: '10px',
+    paddingBottom: '7px',
+    paddingLeft: '10px',
+    width: '100%',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-background-secondary'],
+    color: { default: null, ':hover': colors['--gf-colors-text-max-contrast'] },
+  },
+  label: {
+    flexGrow: 1,
+  },
+  icon: {
+    paddingRight: '2px',
+  },
+});

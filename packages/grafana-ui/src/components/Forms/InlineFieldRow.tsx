@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLProps, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 export interface Props extends Omit<HTMLProps<HTMLDivElement>, 'css'> {
   children: ReactNode | ReactNode[];
@@ -15,23 +14,19 @@ export interface Props extends Omit<HTMLProps<HTMLDivElement>, 'css'> {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-inlinefieldrow--docs
  */
 export const InlineFieldRow = ({ children, className, ...htmlProps }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.container, className)} {...htmlProps}>
+    <div {...mergeStylexProps(stylex.props(styles.container), { className })} {...htmlProps}>
       {children}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      label: 'InlineFieldRow',
-      display: 'flex',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignContent: 'flex-start',
-      rowGap: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+    rowGap: spacing['--gf-spacing-x0-5'],
+  },
+});

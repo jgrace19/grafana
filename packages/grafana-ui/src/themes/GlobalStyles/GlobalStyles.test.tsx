@@ -44,9 +44,11 @@ describe('GlobalStyles layering', () => {
     expect(rules.slice(broken + 1).some((rule) => rule.startsWith('@layer grafana-global{.grafana-app{'))).toBe(true);
   });
 
-  it('leaves the disabled/read-only form field rules out of the layer', () => {
+  it('layers the disabled/read-only form field rules like every other global rule', () => {
     const rules = compileGlobalRules();
 
-    expect(rules.some((rule) => rule.includes('{input[disabled],select[disabled],textarea[disabled]'))).toBe(false);
+    expect(
+      rules.some((rule) => rule.startsWith('@layer grafana-global{input[disabled],select[disabled],textarea[disabled]'))
+    ).toBe(true);
   });
 });

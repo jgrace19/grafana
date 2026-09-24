@@ -6,9 +6,9 @@ import { type Moment } from 'moment';
 
 import { dateTime, type DateTime, dateTimeAsMoment, type GrafanaTheme2, isDateTimeInput } from '@grafana/data';
 
+import { inputSizes } from '../../compat/emotion/commonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
-import { inputSizes } from '../Forms/commonStyles';
 import { type FormInputSize } from '../Forms/types';
 import { Icon } from '../Icon/Icon';
 import '@rc-component/picker/assets/index.css';

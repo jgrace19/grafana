@@ -66,6 +66,19 @@ export function getFormElementStyles(theme: GrafanaTheme2) {
         width: 'auto', // Override of generic input selector
       },
 
+    // Disabled and read-only inputs
+    'input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly]': {
+      cursor: 'not-allowed',
+      backgroundColor: theme.colors.action.disabledBackground,
+    },
+
+    // Explicitly reset the colors here
+    'input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="radio"][readonly], input[type="checkbox"][readonly]':
+      {
+        cursor: 'not-allowed',
+        backgroundColor: 'transparent',
+      },
+
     'input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill, textarea:-webkit-autofill, textarea:-webkit-autofill:hover, textarea:-webkit-autofill:focus, select:-webkit-autofill, select:-webkit-autofill:hover, select:-webkit-autofill:focus':
       {
         WebkitBoxShadow: `0 0 0px 1000px ${theme.components.input.background} inset !important`,
@@ -417,26 +430,5 @@ export function getFormElementStyles(theme: GrafanaTheme2) {
     '.input-small': {
       width: '90px',
     },
-  });
-}
-
-/**
- * Disabled and read-only form fields. Not layered: at element + attribute specificity these rules override
- * the single-class background of Emotion inputs (Input, TextArea, …), which an `@layer grafana-global` rule
- * can't. Move these states into the components when they migrate to StyleX, then layer or drop this.
- */
-export function getFormFieldStateStyles(theme: GrafanaTheme2) {
-  return css({
-    'input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly]': {
-      cursor: 'not-allowed',
-      backgroundColor: theme.colors.action.disabledBackground,
-    },
-
-    // Explicitly reset the colors here
-    'input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="radio"][readonly], input[type="checkbox"][readonly]':
-      {
-        cursor: 'not-allowed',
-        backgroundColor: 'transparent',
-      },
   });
 }

@@ -1,9 +1,8 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 export interface Props {
   grow?: boolean;
@@ -12,10 +11,8 @@ export interface Props {
 
 /** @beta */
 export const InlineSegmentGroup = ({ children, className, grow, ...htmlProps }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles, grow);
-
   return (
-    <div className={cx(styles.container, className)} {...htmlProps}>
+    <div {...mergeStylexProps(stylex.props(styles.container, grow && styles.grow), { className })} {...htmlProps}>
       {children}
     </div>
   );
@@ -23,16 +20,19 @@ export const InlineSegmentGroup = ({ children, className, grow, ...htmlProps }: 
 
 InlineSegmentGroup.displayName = 'InlineSegmentGroup';
 
-const getStyles = (theme: GrafanaTheme2, grow?: boolean) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      position: 'relative',
-      flex: `${grow ? 1 : 0} 0 auto`,
-      marginBottom: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    position: 'relative',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  grow: {
+    flexGrow: 1,
+  },
+});

@@ -3,9 +3,9 @@ import { forwardRef, type JSX } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+import { inputPadding } from '../../compat/emotion/commonStyles';
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
-import { inputPadding } from '../Forms/commonStyles';
-import { getInputStyles } from '../Input/Input';
 
 interface InputControlProps {
   /** Show an icon as a prefix in the input */

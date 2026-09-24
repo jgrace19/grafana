@@ -1,0 +1,12 @@
+/*
+ * FieldValidationMessage styles links in the message it's given, which StyleX can't target. This file is
+ * deliberately not in a cascade layer: like the Emotion rules it replaces, it must win over the global `a` styles.
+ */
+.gf-field-validation-message a {
+  color: var(--gf-colors-error-contrast-text);
+  text-decoration: underline;
+}
+
+.gf-field-validation-message a:hover {
+  text-decoration: none;
+}

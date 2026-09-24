@@ -1,7 +1,8 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { type ComponentProps } from 'react';
 
-import { createTheme, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { Checkbox } from '../Forms/Checkbox';
@@ -240,8 +241,16 @@ describe('Input, as AutoSaveField child, ', () => {
   });
 
   it('shows a red border when invalid is true', async () => {
-    setup({ invalid: true, onFinishChange: mockOnFinishChangeError });
-    const theme = createTheme();
+    const receivedInvalid = jest.fn();
+    const SpyInput = (props: ComponentProps<typeof Input>) => {
+      receivedInvalid(props.invalid);
+      return <Input {...props} />;
+    };
+    render(
+      <AutoSaveField label="Test" htmlFor="input-test" invalid onFinishChange={mockOnFinishChangeError}>
+        {(onChange) => <SpyInput id="input-test" name="input-test" onChange={(e) => onChange(e.currentTarget.value)} />}
+      </AutoSaveField>
+    );
     const inputField = screen.getByRole('textbox', {
       name: 'Test',
     });
@@ -251,7 +260,8 @@ describe('Input, as AutoSaveField child, ', () => {
       jest.runAllTimers();
     });
     expect(mockOnFinishChangeError).not.toHaveBeenCalled();
-    expect(inputField).toHaveStyle(`border: 1px solid ${theme.colors.error.border};`);
+    // The red border is a static StyleX style, which jsdom can't see; the invalid Input story covers it visually.
+    expect(receivedInvalid).toHaveBeenLastCalledWith(true);
   });
 });
 
@@ -307,8 +317,18 @@ describe('TextArea, as AutoSaveField child, ', () => {
   });
 
   it('shows a red border when invalid is true', async () => {
-    setupTextArea({ invalid: true, onFinishChange: mockOnFinishChangeError });
-    const theme = createTheme();
+    const receivedInvalid = jest.fn();
+    const SpyTextArea = (props: ComponentProps<typeof TextArea>) => {
+      receivedInvalid(props.invalid);
+      return <TextArea {...props} />;
+    };
+    render(
+      <AutoSaveField label="Test" htmlFor="textarea-test" invalid onFinishChange={mockOnFinishChangeError}>
+        {(onChange) => (
+          <SpyTextArea id="textarea-test" name="textarea-test" onChange={(e) => onChange(e.currentTarget.value)} />
+        )}
+      </AutoSaveField>
+    );
     const textArea = screen.getByRole('textbox', {
       name: 'Test',
     });
@@ -319,7 +339,8 @@ describe('TextArea, as AutoSaveField child, ', () => {
       jest.runAllTimers();
     });
     expect(mockOnFinishChangeError).not.toHaveBeenCalled();
-    expect(textArea).toHaveStyle(`border-color: ${theme.colors.error.border}`);
+    // The red border is a static StyleX style, which jsdom can't see; the invalid state is covered visually.
+    expect(receivedInvalid).toHaveBeenLastCalledWith(true);
   });
 });
 

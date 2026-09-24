@@ -1,17 +1,19 @@
-import { css, cx } from '@emotion/css';
 import { Placement } from '@popperjs/core';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { uniqueId } from 'lodash';
 import { PureComponent } from 'react';
 import * as React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-
-import { withTheme2 } from '../../../../themes/ThemeContext';
-import { Themeable2 } from '../../../../types/theme';
+import { motion } from '../../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../../themes/stylex/mergeStylexProps';
+import { colors, components, shadows, shape, spacing, v1 } from '../../../../themes/stylex/tokens.stylex';
 import { Icon } from '../../../Icon/Icon';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 
-export interface Props extends Themeable2 {
+import { legacySwitchInputMarker } from './markers.stylex';
+
+export interface Props {
   label: string;
   checked: boolean;
   disabled?: boolean;
@@ -48,21 +50,19 @@ class UnthemedSwitch extends PureComponent<Props, State> {
       disabled,
       transparent,
       className,
-      theme,
       tooltip,
       tooltipPlacement,
     } = this.props;
-    const styles = getStyles(theme);
 
     const labelId = this.state.id;
     const labelClassName = `gf-form-label ${labelClass} ${transparent ? 'gf-form-label--transparent' : ''} pointer`;
-    const switchClassName = cx(styles.switch, switchClass, {
-      [styles.switchTransparent]: transparent,
-    });
 
     return (
-      <div className={styles.container}>
-        <label htmlFor={labelId} className={cx('gf-form', styles.labelContainer, className)}>
+      <div {...stylex.props(styles.container)}>
+        <label
+          htmlFor={labelId}
+          {...mergeStylexProps(stylex.props(styles.labelContainer), { className: clsx('gf-form', className) })}
+        >
           {label && (
             <div className={labelClassName}>
               {label}
@@ -73,15 +73,20 @@ class UnthemedSwitch extends PureComponent<Props, State> {
               )}
             </div>
           )}
-          <div className={switchClassName}>
+          <div
+            {...mergeStylexProps(stylex.props(styles.switch, transparent && styles.switchTransparent), {
+              className: switchClass,
+            })}
+          >
             <input
+              {...stylex.props(styles.input, legacySwitchInputMarker)}
               disabled={disabled}
               id={labelId}
               type="checkbox"
               checked={checked}
               onChange={this.internalOnChange}
             />
-            <span className={styles.slider} />
+            <span {...stylex.props(styles.slider)} />
           </div>
         </label>
       </div>
@@ -89,70 +94,68 @@ class UnthemedSwitch extends PureComponent<Props, State> {
   }
 }
 
-export const Switch = withTheme2(UnthemedSwitch);
+export const Switch: React.FunctionComponent<Props> = (props) => <UnthemedSwitch {...props} />;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const slider = css({
-    background: theme.v1.palette.gray1,
-    borderRadius: theme.shape.radius.pill,
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexShrink: 0,
+  },
+  labelContainer: {
+    display: 'flex',
+    cursor: 'pointer',
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  switch: {
+    display: 'flex',
+    position: 'relative',
+    width: '56px',
+    height: spacing['--gf-spacing-x4'],
+    backgroundColor: components['--gf-components-input-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-input-border-color'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  switchTransparent: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    width: '40px',
+  },
+  input: {
+    opacity: 0,
+    width: 0,
+    height: 0,
+  },
+  slider: {
+    backgroundColor: {
+      default: v1['--gf-v1-palette-gray1'],
+      [stylex.when.siblingBefore(':checked', legacySwitchInputMarker)]: colors['--gf-colors-primary-main'],
+    },
+    borderRadius: shape['--gf-shape-radius-pill'],
     height: '16px',
     width: '32px',
     display: 'block',
     position: 'relative',
-
-    '&::before': {
+    '::before': {
       position: 'absolute',
       content: "''",
       height: '12px',
       width: '12px',
       left: '2px',
       top: '2px',
-      background: theme.components.input.background,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: '0.4s',
+      backgroundColor: components['--gf-components-input-background'],
+      transitionProperty: { default: null, [motion.noPreference]: 'all' },
+      transitionDuration: { default: null, [motion.noPreference]: '0.4s' },
+      transitionTimingFunction: { default: null, [motion.noPreference]: 'ease' },
+      borderRadius: shape['--gf-shape-radius-circle'],
+      boxShadow: shadows['--gf-shadows-z1'],
+      transform: {
+        default: null,
+        [stylex.when.siblingBefore(':checked', legacySwitchInputMarker)]: 'translateX(16px)',
       },
-      borderRadius: theme.shape.radius.circle,
-      boxShadow: theme.shadows.z1,
     },
-  });
-  return {
-    container: css({
-      display: 'flex',
-      flexShrink: 0,
-    }),
-    labelContainer: css({
-      display: 'flex',
-      cursor: 'pointer',
-      marginRight: theme.spacing(0.5),
-    }),
-    switch: css({
-      display: 'flex',
-      position: 'relative',
-      width: '56px',
-      height: theme.spacing(4),
-      background: theme.components.input.background,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      borderRadius: theme.shape.radius.default,
-      alignItems: 'center',
-      justifyContent: 'center',
-      input: {
-        opacity: 0,
-        width: 0,
-        height: 0,
-      },
-      [`input:checked + .${slider}`]: {
-        background: theme.colors.primary.main,
-      },
-
-      [`input:checked + .${slider}::before`]: {
-        transform: 'translateX(16px)',
-      },
-    }),
-    switchTransparent: css({
-      background: 'transparent',
-      border: 0,
-      width: '40px',
-    }),
-    slider,
-  };
-};
+  },
+});

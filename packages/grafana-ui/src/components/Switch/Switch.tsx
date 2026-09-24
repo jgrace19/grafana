@@ -1,12 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { forwardRef, type HTMLProps, useRef } from 'react';
 
-import { type GrafanaTheme2, deprecationWarning } from '@grafana/data';
+import { deprecationWarning } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles, getMouseFocusStyles } from '../../themes/mixins';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
+
+import { inlineSwitchMarker, switchMarker } from './markers.stylex';
 
 export interface Props extends Omit<HTMLProps<HTMLInputElement>, 'value'> {
   value?: boolean;
@@ -20,16 +23,15 @@ export interface Props extends Omit<HTMLProps<HTMLInputElement>, 'value'> {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-switch--docs
  */
 export const Switch = forwardRef<HTMLInputElement, Props>(
-  ({ value, checked, onChange, id, label, disabled, invalid = false, ...inputProps }, ref) => {
+  ({ value, checked, onChange, id, label, disabled, invalid = false, className, style, ...inputProps }, ref) => {
     if (checked) {
       deprecationWarning('Switch', 'checked prop', 'value');
     }
 
-    const styles = useStyles2(getSwitchStyles);
     const switchIdRef = useRef(id ? id : uniqueId('switch-'));
 
     return (
-      <div className={cx(styles.switch, invalid && styles.invalid)}>
+      <div {...stylex.props(styles.switch, switchMarker)}>
         <input
           type="checkbox"
           role="switch"
@@ -40,10 +42,15 @@ export const Switch = forwardRef<HTMLInputElement, Props>(
           }}
           id={switchIdRef.current}
           {...inputProps}
+          {...mergeStylexProps(stylex.props(styles.input), { className, style })}
           ref={ref}
         />
-        <label htmlFor={switchIdRef.current} aria-label={label}>
-          <Icon name="check" size="xs" />
+        <label
+          htmlFor={switchIdRef.current}
+          aria-label={label}
+          {...stylex.props(styles.label, invalid && styles.invalid)}
+        >
+          <Icon name="check" size="xs" xstyle={styles.thumb} />
         </label>
       </div>
     );
@@ -61,21 +68,31 @@ export interface InlineSwitchProps extends Props {
 
 export const InlineSwitch = forwardRef<HTMLInputElement, InlineSwitchProps>(
   ({ transparent, className, showLabel, label, value, id, invalid, ...props }, ref) => {
-    const styles = useStyles2(getSwitchStyles, transparent);
+    const variant = transparent ? 'transparent' : props.disabled ? 'disabled' : 'default';
 
     return (
       <div
-        className={cx(styles.inlineContainer, className, props.disabled && styles.disabled, invalid && styles.invalid)}
+        {...mergeStylexProps(
+          stylex.props(
+            styles.inlineContainer,
+            inlineSwitchMarker,
+            inlineContainerStyles[variant],
+            props.disabled && styles.disabled
+          ),
+          { className }
+        )}
       >
         {showLabel && (
           <label
             htmlFor={id}
-            className={cx(styles.inlineLabel, value && styles.inlineLabelEnabled, 'inline-switch-label')}
+            {...mergeStylexProps(stylex.props(styles.inlineLabel, value && styles.inlineLabelEnabled), {
+              className: 'inline-switch-label',
+            })}
           >
             {label}
           </label>
         )}
-        <Switch {...props} id={id} label={label} ref={ref} value={value} />
+        <Switch {...props} id={id} label={label} ref={ref} value={value} invalid={invalid} />
       </div>
     );
   }
@@ -83,129 +100,178 @@ export const InlineSwitch = forwardRef<HTMLInputElement, InlineSwitchProps>(
 
 InlineSwitch.displayName = 'Switch';
 
-const getSwitchStyles = (theme: GrafanaTheme2, transparent?: boolean) => ({
-  switch: css({
-    width: theme.spacing(4),
-    height: theme.spacing(2),
+// The track and thumb take their states from the hidden checkbox. Conditions whose values differ are kept
+// mutually exclusive: StyleX orders them by its own priority, not by source order.
+
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+const styles = stylex.create({
+  switch: {
+    width: spacing['--gf-spacing-x4'],
+    height: spacing['--gf-spacing-x2'],
     position: 'relative',
     lineHeight: 1,
-
-    input: {
-      height: '100%',
-      width: '100% !important',
-      opacity: 0,
-      zIndex: -1000,
-      position: 'absolute',
-
-      '&:checked + label': {
-        background: theme.colors.primary.main,
-        borderColor: theme.colors.primary.main,
-
-        '&:hover': {
-          background: theme.colors.primary.shade,
-        },
-
-        svg: {
-          transform: `translate3d(${theme.spacing(2.25)}, -50%, 0)`,
-          background: theme.colors.primary.contrastText,
-          color: theme.colors.primary.main,
-        },
+  },
+  input: {
+    height: '100%',
+    width: '100%',
+    opacity: 0,
+    zIndex: -1000,
+    position: 'absolute',
+  },
+  label: {
+    width: '100%',
+    height: '100%',
+    cursor: { default: 'pointer', [stylex.when.ancestor(':has(> input:disabled)', switchMarker)]: 'not-allowed' },
+    borderRadius: shape['--gf-shape-radius-pill'],
+    backgroundColor: {
+      default: components['--gf-components-input-background'],
+      ':hover': {
+        default: null,
+        [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]:
+          colors['--gf-colors-primary-shade'],
       },
-
-      '&:disabled + label': {
-        background: theme.colors.action.disabledBackground,
-        borderColor: theme.colors.border.weak,
-        cursor: 'not-allowed',
-
-        svg: {
-          background: theme.colors.text.disabled,
-        },
-      },
-
-      '&:disabled:checked + label': {
-        background: theme.colors.primary.transparent,
-
-        svg: {
-          color: theme.colors.primary.contrastText,
-        },
-      },
-
-      '&:focus + label, &:focus-visible + label': getFocusStyles(theme),
-
-      '&:focus:not(:focus-visible) + label': getMouseFocusStyles(theme),
+      [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]: colors['--gf-colors-primary-main'],
+      [stylex.when.ancestor(':has(> input:disabled:not(:checked))', switchMarker)]:
+        colors['--gf-colors-action-disabled-background'],
+      [stylex.when.ancestor(':has(> input:disabled:checked)', switchMarker)]: colors['--gf-colors-primary-transparent'],
     },
-
-    label: {
-      width: '100%',
-      height: '100%',
-      cursor: 'pointer',
-      borderRadius: theme.shape.radius.pill,
-      background: theme.components.input.background,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: 'all 0.3s ease',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': {
+        default: components['--gf-components-input-border-hover'],
+        [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]:
+          colors['--gf-colors-primary-main'],
+        [stylex.when.ancestor(':has(> input:disabled)', switchMarker)]: colors['--gf-colors-border-weak'],
       },
-
-      '&:hover': {
-        borderColor: theme.components.input.borderHover,
+      [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]: colors['--gf-colors-primary-main'],
+      [stylex.when.ancestor(':has(> input:disabled)', switchMarker)]: colors['--gf-colors-border-weak'],
+    },
+    // Keyboard focus shows the ring; mouse focus removes it.
+    outlineStyle: {
+      default: null,
+      [stylex.when.ancestor(':has(> input:focus-visible)', switchMarker)]: 'dotted',
+      [stylex.when.ancestor(':has(> input:focus:not(:focus-visible))', switchMarker)]: 'none',
+    },
+    outlineWidth: { default: null, [stylex.when.ancestor(':has(> input:focus-visible)', switchMarker)]: '2px' },
+    outlineColor: { default: null, [stylex.when.ancestor(':has(> input:focus-visible)', switchMarker)]: 'transparent' },
+    outlineOffset: { default: null, [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: '2px' },
+    boxShadow: {
+      default: null,
+      [stylex.when.ancestor(':has(> input:focus-visible)', switchMarker)]: focusRing,
+      [stylex.when.ancestor(':has(> input:focus:not(:focus-visible))', switchMarker)]: 'none',
+    },
+    // Any focus swaps the track's colour transition for the focus ring's, whatever the motion preference.
+    transitionProperty: {
+      default: null,
+      [motion.noPreference]: {
+        default: 'all',
+        [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: 'outline, outline-offset, box-shadow',
       },
-
-      svg: {
-        position: 'absolute',
-        display: 'block',
-        color: 'transparent',
-        width: theme.spacing(1.5),
-        height: theme.spacing(1.5),
-        borderRadius: theme.shape.radius.circle,
-        background: theme.colors.text.secondary,
-        boxShadow: theme.shadows.z1,
-        left: 0,
-        top: '50%',
-        transform: `translate3d(${theme.spacing(0.25)}, -50%, 0)`,
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'transform 0.2s cubic-bezier(0.19, 1, 0.22, 1)',
-        },
-
-        '@media (forced-colors: active)': {
-          border: `1px solid ${theme.colors.primary.contrastText}`,
-        },
+      [motion.reduce]: {
+        default: null,
+        [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: 'outline, outline-offset, box-shadow',
       },
     },
-  }),
-  inlineContainer: css({
-    padding: theme.spacing(0, 1),
-    height: theme.spacing(theme.components.height.md),
+    transitionDuration: {
+      default: null,
+      [motion.noPreference]: { default: '0.3s', [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: '0.2s' },
+      [motion.reduce]: { default: null, [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: '0.2s' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreference]: {
+        default: 'ease',
+        [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: 'cubic-bezier(0.19, 1, 0.22, 1)',
+      },
+      [motion.reduce]: {
+        default: null,
+        [stylex.when.ancestor(':has(> input:focus)', switchMarker)]: 'cubic-bezier(0.19, 1, 0.22, 1)',
+      },
+    },
+  },
+  thumb: {
+    position: 'absolute',
+    display: 'block',
+    color: {
+      default: 'transparent',
+      [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]: colors['--gf-colors-primary-main'],
+      [stylex.when.ancestor(':has(> input:disabled:checked)', switchMarker)]:
+        colors['--gf-colors-primary-contrast-text'],
+    },
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    borderRadius: shape['--gf-shape-radius-circle'],
+    backgroundColor: {
+      default: colors['--gf-colors-text-secondary'],
+      [stylex.when.ancestor(':has(> input:checked:not(:disabled))', switchMarker)]:
+        colors['--gf-colors-primary-contrast-text'],
+      [stylex.when.ancestor(':has(> input:disabled)', switchMarker)]: colors['--gf-colors-text-disabled'],
+    },
+    boxShadow: shadows['--gf-shadows-z1'],
+    left: 0,
+    top: '50%',
+    transform: {
+      default: `translate3d(${spacing['--gf-spacing-x0-25']}, -50%, 0)`,
+      [stylex.when.ancestor(':has(> input:checked)', switchMarker)]:
+        `translate3d(calc(${spacing['--gf-spacing-grid-size']} * 2.25), -50%, 0)`,
+    },
+    transitionProperty: { default: null, [motion.noPreference]: 'transform' },
+    transitionDuration: { default: null, [motion.noPreference]: '0.2s' },
+    transitionTimingFunction: { default: null, [motion.noPreference]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    borderWidth: { default: null, '@media (forced-colors: active)': '1px' },
+    borderStyle: { default: null, '@media (forced-colors: active)': 'solid' },
+    borderColor: { default: null, '@media (forced-colors: active)': colors['--gf-colors-primary-contrast-text'] },
+  },
+  invalid: {
+    borderColor: colors['--gf-colors-error-border'],
+  },
+  inlineContainer: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
     display: 'inline-flex',
     alignItems: 'center',
-    background: transparent ? 'transparent' : theme.components.input.background,
-    border: `1px solid ${transparent ? 'transparent' : theme.components.input.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-
-    '&:hover': {
-      border: `1px solid ${transparent ? 'transparent' : theme.components.input.borderHover}`,
-
-      '.inline-switch-label': {
-        color: theme.colors.text.primary,
-      },
-    },
-  }),
-  disabled: css({
-    backgroundColor: transparent ? 'transparent' : 'rgba(204, 204, 220, 0.04)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  disabled: {
     color: 'rgba(204, 204, 220, 0.6)',
-    border: `1px solid ${transparent ? 'transparent' : 'rgba(204, 204, 220, 0.04)'}`,
-  }),
-  inlineLabel: css({
+  },
+  inlineLabel: {
     cursor: 'pointer',
-    paddingRight: theme.spacing(1),
-    color: theme.colors.text.secondary,
-    whiteSpace: 'nowrap',
-  }),
-  inlineLabelEnabled: css({
-    color: theme.colors.text.primary,
-  }),
-  invalid: css({
-    'input + label, input:checked + label, input:hover + label': {
-      border: `1px solid ${theme.colors.error.border}`,
+    paddingRight: spacing['--gf-spacing-x1'],
+    color: {
+      default: colors['--gf-colors-text-secondary'],
+      [stylex.when.ancestor(':hover', inlineSwitchMarker)]: colors['--gf-colors-text-primary'],
     },
-  }),
+    whiteSpace: 'nowrap',
+  },
+  inlineLabelEnabled: {
+    color: colors['--gf-colors-text-primary'],
+  },
+});
+
+// A disabled InlineSwitch keeps the hover border colour.
+const inlineContainerStyles = stylex.create({
+  default: {
+    backgroundColor: components['--gf-components-input-background'],
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+  },
+  disabled: {
+    backgroundColor: 'rgba(204, 204, 220, 0.04)',
+    borderColor: { default: 'rgba(204, 204, 220, 0.04)', ':hover': components['--gf-components-input-border-hover'] },
+  },
+  transparent: {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+  },
 });

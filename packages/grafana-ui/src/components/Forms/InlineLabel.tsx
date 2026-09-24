@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { type PopoverContent } from '../Tooltip/types';
@@ -40,46 +39,61 @@ export const InlineLabel = ({
   as: Component = 'label',
   ...rest
 }: Props) => {
-  const styles = useStyles2(getInlineLabelStyles, transparent, width);
-
   return (
-    <Component className={cx(styles.label, className)} {...rest}>
+    <Component
+      {...mergeStylexProps(
+        stylex.props(
+          styles.label,
+          transparent && styles.transparent,
+          width === 'auto' && styles.autoWidth,
+          typeof width === 'number' && width !== 0 && styles.width(`${8 * width}px`)
+        ),
+        { className }
+      )}
+      {...rest}
+    >
       {children}
       {tooltip && (
         <Tooltip interactive={interactive} placement="top" content={tooltip} theme="info">
-          <Icon tabIndex={0} name="info-circle" size="sm" className={styles.icon} />
+          <Icon tabIndex={0} name="info-circle" size="sm" xstyle={styles.icon} />
         </Tooltip>
       )}
     </Component>
   );
 };
 
-export const getInlineLabelStyles = (theme: GrafanaTheme2, transparent = false, width?: number | 'auto') => {
-  return {
-    label: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexShrink: 0,
-      padding: theme.spacing(0, 1),
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.size.sm,
-      backgroundColor: transparent ? 'transparent' : theme.colors.background.secondary,
-      height: theme.spacing(theme.components.height.md),
-      lineHeight: theme.spacing(theme.components.height.md),
-      marginRight: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      border: 'none',
-      width: width ? (width !== 'auto' ? `${8 * width}px` : width) : '100%',
-      color: theme.colors.text.primary,
-    }),
-    icon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: '10px',
+const labelHeight = `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`;
 
-      ':hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexShrink: 0,
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontSize: typography['--gf-typography-size-sm'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    height: labelHeight,
+    lineHeight: labelHeight,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderStyle: 'none',
+    width: '100%',
+    color: colors['--gf-colors-text-primary'],
+  },
+  transparent: {
+    backgroundColor: 'transparent',
+  },
+  autoWidth: {
+    width: 'auto',
+  },
+  width: (width: string) => ({ width }),
+  icon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    marginLeft: '10px',
+  },
+});

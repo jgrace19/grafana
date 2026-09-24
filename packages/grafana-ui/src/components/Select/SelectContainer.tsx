@@ -3,10 +3,10 @@ import { components, type ContainerProps as BaseContainerProps, type GroupBase }
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+import { sharedInputStyle } from '../../compat/emotion/commonStyles';
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
-import { sharedInputStyle } from '../Forms/commonStyles';
-import { getInputStyles } from '../Input/Input';
 
 import { type CustomComponentProps } from './types';
 

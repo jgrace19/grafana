@@ -10,12 +10,12 @@ import { Editor } from 'slate-react';
 
 import { DataLinkBuiltInVars, type GrafanaTheme2, VariableOrigin, type VariableSuggestion } from '@grafana/data';
 
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { SlatePrism } from '../../slate-plugins/slate-prism';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { SCHEMA, makeValue } from '../../utils/slate';
-import { getInputStyles } from '../Input/Input';
 import { Portal } from '../Portal/Portal';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 

@@ -6,9 +6,9 @@ import { type FormEvent, type MouseEvent, useState } from 'react';
 import { dateTime, getDefaultTimeRange, type GrafanaTheme2, type TimeRange, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { Icon } from '../Icon/Icon';
-import { getInputStyles } from '../Input/Input';
 
 import { TimePickerContent } from './TimeRangePicker/TimePickerContent';
 import { TimeRangeLabel } from './TimeRangePicker/TimeRangeLabel';

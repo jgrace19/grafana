@@ -8,12 +8,13 @@ import { type FormEvent, useCallback, useRef, useState } from 'react';
 import { type RelativeTimeRange, type GrafanaTheme2, type TimeOption } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
+import { getInputStyles } from '../../../compat/emotion/inputStyles';
 import { useStyles2 } from '../../../themes/ThemeContext';
 import { getPositioningMiddleware } from '../../../utils/floating';
 import { Button } from '../../Button/Button';
 import { Field } from '../../Forms/Field';
 import { Icon } from '../../Icon/Icon';
-import { getInputStyles, Input } from '../../Input/Input';
+import { Input } from '../../Input/Input';
 import { ScrollContainer } from '../../ScrollContainer/ScrollContainer';
 import { TimePickerTitle } from '../TimeRangePicker/TimePickerTitle';
 import { TimeRangeList } from '../TimeRangePicker/TimeRangeList';

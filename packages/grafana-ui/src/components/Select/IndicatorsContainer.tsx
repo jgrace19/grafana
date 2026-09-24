@@ -1,8 +1,8 @@
 import { cx, css } from '@emotion/css';
 import { forwardRef } from 'react';
 
+import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { useTheme2 } from '../../themes/ThemeContext';
-import { getInputStyles } from '../Input/Input';
 
 export const IndicatorsContainer = forwardRef<HTMLDivElement, React.PropsWithChildren>((props, ref) => {
   const { children } = props;
