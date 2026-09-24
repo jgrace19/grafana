@@ -283,15 +283,18 @@ describe('Combobox', () => {
       expect(allHeaders[1]).toHaveTextContent('');
     });
 
-    it('does not render a top border for the first group header', async () => {
+    // The first header drops its top border; StyleX CSS isn't in jsdom, so the border itself is covered by the
+    // visual capture and this checks the header is the one rendered with the first option.
+    it('renders the first group header with the first option', async () => {
       render(<Combobox options={optionsWithGroups} value={null} onChange={onChangeHandler} />);
 
       const input = screen.getByRole('combobox');
       await userEvent.click(input);
 
       const allHeaders = await screen.findAllByRole('presentation');
+      const allOptions = await screen.findAllByRole('option');
 
-      expect(allHeaders[0]).toHaveStyle('border-top: none');
+      expect(allHeaders[0].nextElementSibling).toBe(allOptions[0]);
     });
   });
 

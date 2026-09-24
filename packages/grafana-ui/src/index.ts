@@ -274,7 +274,7 @@ export { FieldArray } from './components/Forms/FieldArray';
 export { default as resetSelectStyles } from './components/Select/resetSelectStyles';
 export * from './components/Select/Select';
 export { SelectMenuOptions } from './components/Select/SelectMenu';
-export { getSelectStyles } from './components/Select/getSelectStyles';
+export { getSelectStyles } from './compat/emotion/getSelectStyles';
 export * from './components/Select/types';
 
 export { Combobox } from './components/Combobox/Combobox';

@@ -1,16 +1,16 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { UseComboboxPropGetters } from 'downshift';
 import { useCallback } from 'react';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { Checkbox } from '../Forms/Checkbox';
 import { Icon } from '../Icon/Icon';
 import { Stack } from '../Layout/Stack/Stack';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 
 import { AsyncError, LoadingOptions, NotFoundError } from './MessageRows';
-import { getComboboxStyles, MENU_OPTION_HEIGHT, MENU_OPTION_HEIGHT_DESCRIPTION } from './getComboboxStyles';
+import { comboboxStyles as styles, MENU_OPTION_HEIGHT, MENU_OPTION_HEIGHT_DESCRIPTION } from './getComboboxStyles';
 import { ALL_OPTION_VALUE, type ComboboxOption } from './types';
 import { isNewGroup } from './utils';
 
@@ -41,8 +41,6 @@ export const ComboboxList = <T extends string | number>({
   loading = false,
   noOptionsMessage,
 }: ComboboxListProps<T>) => {
-  const styles = useStyles2(getComboboxStyles);
-
   const estimateSize = useCallback(
     (index: number) => {
       const firstGroupItem = isNewGroup(options[index], index > 0 ? options[index - 1] : undefined);
@@ -78,7 +76,11 @@ export const ComboboxList = <T extends string | number>({
 
   return (
     <ScrollContainer showScrollIndicators maxHeight="inherit" ref={scrollRef} padding={0.5}>
-      <div style={{ height: rowVirtualizer.getTotalSize() }} className={styles.menuUlContainer}>
+      <div
+        {...mergeStylexProps(stylex.props(styles.menuUlContainer), {
+          style: { height: rowVirtualizer.getTotalSize() },
+        })}
+      >
         {rowVirtualizer.getVirtualItems().map((virtualRow, index, allVirtualRows) => {
           const item = options[virtualRow.index];
           const startingNewGroup = isNewGroup(item, options[virtualRow.index - 1]);
@@ -100,11 +102,12 @@ export const ComboboxList = <T extends string | number>({
             // It's children (header and option) should appear as flat list items.
             <div
               key={item.value}
-              className={styles.listItem}
-              style={{
-                height: virtualRow.size,
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
+              {...mergeStylexProps(stylex.props(styles.listItem), {
+                style: {
+                  height: virtualRow.size,
+                  transform: `translateY(${virtualRow.start}px)`,
+                },
+              })}
             >
               {/* Group header */}
               {startingNewGroup && (
@@ -112,9 +115,9 @@ export const ComboboxList = <T extends string | number>({
                   role="presentation"
                   data-testid="combobox-option-group"
                   id={groupHeaderId}
-                  className={cx(
+                  {...stylex.props(
                     styles.optionGroupHeader,
-                    item.group && styles.optionGroupLabel,
+                    !!item.group && styles.optionGroupLabel,
                     virtualRow.index === 0 && styles.optionFirstGroupHeader
                   )}
                 >
@@ -124,7 +127,7 @@ export const ComboboxList = <T extends string | number>({
 
               {/* Option */}
               <div
-                className={cx(
+                {...stylex.props(
                   styles.option,
                   !isMultiSelect && isOptionSelected(item) && styles.optionSelected,
                   highlightedIndex === virtualRow.index && !item.infoOption && styles.optionFocused,
@@ -138,7 +141,7 @@ export const ComboboxList = <T extends string | number>({
                 })}
               >
                 {isMultiSelect && (
-                  <div className={styles.optionAccessory}>
+                  <div {...stylex.props(styles.optionAccessory)}>
                     {!item.infoOption && (
                       <Checkbox
                         key={itemId}
@@ -154,13 +157,13 @@ export const ComboboxList = <T extends string | number>({
                   </div>
                 )}
 
-                <div className={styles.optionBody}>
+                <div {...stylex.props(styles.optionBody)}>
                   <Stack direction="row" alignItems="center">
                     {item.icon && <Icon name={item.icon} />}
-                    <div className={styles.optionLabel}>{item.label ?? item.value}</div>
+                    <div {...stylex.props(styles.optionLabel)}>{item.label ?? item.value}</div>
                   </Stack>
 
-                  {item.description && <div className={styles.optionDescription}>{item.description}</div>}
+                  {item.description && <div {...stylex.props(styles.optionDescription)}>{item.description}</div>}
                 </div>
               </div>
             </div>
