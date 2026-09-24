@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { ErrorBoundaryAlert, LoadingPlaceholder, useStyles2, useTheme2 } from '@grafana/ui';
+import { ErrorBoundaryAlert, LoadingPlaceholder, useTheme2 } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { SplitPaneWrapper } from 'app/core/components/SplitPaneWrapper/SplitPaneWrapper';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { useNavModel } from 'app/core/hooks/useNavModel';
@@ -32,7 +32,6 @@ export default function ExplorePage(props: GrafanaRouteComponentProps<{}, Explor
 }
 
 function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryParams>) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   useTimeSrvFix();
   useStateSync(props.queryParams);
@@ -64,11 +63,7 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
   useExplorePageContext(panes);
 
   return (
-    <div
-      className={cx(styles.pageScrollbarWrapper, {
-        [styles.correlationsEditorIndicator]: showCorrelationEditorBar,
-      })}
-    >
+    <div {...stylex.props(styles.pageScrollbarWrapper, showCorrelationEditorBar && styles.correlationsEditorIndicator)}>
       <h1 className="sr-only">
         <Trans i18nKey="nav.explore.title">Explore</Trans>
       </h1>
@@ -110,21 +105,25 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    pageScrollbarWrapper: css({
-      width: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-      height: '100%',
-      position: 'relative',
-      overflow: 'hidden',
-    }),
-    correlationsEditorIndicator: css({
-      borderLeft: `4px solid ${theme.colors.primary.main}`,
-      borderRight: `4px solid ${theme.colors.primary.main}`,
-      borderBottom: `4px solid ${theme.colors.primary.main}`,
-      overflow: 'scroll',
-    }),
-  };
-};
+const styles = stylex.create({
+  pageScrollbarWrapper: {
+    width: '100%',
+    flexGrow: 1,
+    minHeight: 0,
+    height: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  correlationsEditorIndicator: {
+    borderLeftWidth: '4px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-primary-main'],
+    borderRightWidth: '4px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-primary-main'],
+    borderBottomWidth: '4px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-primary-main'],
+    overflow: 'scroll',
+  },
+});

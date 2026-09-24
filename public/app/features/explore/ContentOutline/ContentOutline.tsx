@@ -1,14 +1,18 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useToggle, useScroll } from 'react-use';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
+import { store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2, PanelContainer, ScrollContainer } from '@grafana/ui';
+import { PanelContainer, ScrollContainer } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type ContentOutlineItemContextProps, useContentOutlineContext } from './ContentOutlineContext';
 import { ContentOutlineItemButton } from './ContentOutlineItemButton';
+
+import './ContentOutline.css';
 
 function scrollableChildren(item: ContentOutlineItemContextProps) {
   return item.children?.filter((child) => child.type !== 'filter') || [];
@@ -44,7 +48,6 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   const [contentOutlineExpanded, toggleContentOutlineExpanded] = useToggle(
     store.getBool(CONTENT_OUTLINE_LOCAL_STORAGE_KEYS.expanded, true)
   );
-  const styles = useStyles2(getStyles, contentOutlineExpanded);
   const scrollerRef = useRef(scroller || null);
   const { y: verticalScroll } = useScroll(scrollerRef);
   const { outlineItems } = useContentOutlineContext() ?? { outlineItems: [] };
@@ -154,9 +157,16 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   }, [outlineItems, verticalScroll]);
 
   return (
-    <PanelContainer className={styles.wrapper} id={panelId}>
+    <PanelContainer
+      className={
+        mergeStylexProps(stylex.props(styles.wrapper, contentOutlineExpanded && styles.wrapperExpanded), {
+          className: 'gf-explore-content-outline',
+        }).className
+      }
+      id={panelId}
+    >
       <ScrollContainer>
-        <div className={styles.content}>
+        <div {...stylex.props(styles.content)}>
           <ContentOutlineItemButton
             icon={'arrow-from-right'}
             tooltip={
@@ -166,9 +176,11 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
             }
             tooltipPlacement={contentOutlineExpanded ? 'right' : 'bottom'}
             onClick={toggle}
-            className={cx(styles.toggleContentOutlineButton, {
-              [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsShouldIndent,
-            })}
+            xstyle={[
+              styles.toggleContentOutlineButton,
+              contentOutlineExpanded && styles.toggleContentOutlineButtonExpanded,
+              !contentOutlineExpanded && !outlineItemsShouldIndent && styles.justifyCenter,
+            ]}
             aria-expanded={contentOutlineExpanded}
           />
 
@@ -179,15 +191,18 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                   key={item.id}
                   title={contentOutlineExpanded ? item.title : undefined}
                   contentOutlineExpanded={contentOutlineExpanded}
-                  className={cx(styles.buttonStyles, {
-                    [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
-                    [styles.sectionHighlighter]: isChildActive(item, activeSectionChildId) && !contentOutlineExpanded,
-                  })}
-                  indentStyle={cx({
-                    [styles.indentRoot]: !isCollapsible(item) && outlineItemsShouldIndent,
-                    [styles.sectionHighlighter]:
-                      isChildActive(item, activeSectionChildId) && !contentOutlineExpanded && sectionsExpanded[item.id],
-                  })}
+                  xstyle={[
+                    styles.buttonStyles,
+                    !contentOutlineExpanded && !outlineItemsHaveDeleteButton && styles.justifyCenter,
+                    isChildActive(item, activeSectionChildId) && !contentOutlineExpanded && styles.sectionHighlighter,
+                  ]}
+                  indentXstyle={[
+                    !isCollapsible(item) && outlineItemsShouldIndent && styles.indentRoot,
+                    isChildActive(item, activeSectionChildId) &&
+                      !contentOutlineExpanded &&
+                      sectionsExpanded[item.id] &&
+                      styles.sectionHighlighter,
+                  ]}
                   icon={item.icon}
                   onClick={() => handleItemClicked(item)}
                   tooltip={item.title}
@@ -203,13 +218,14 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                     isCollapsible(item) &&
                     sectionsExpanded[item.id] &&
                     item.children.map((child, i) => (
-                      <div key={child.id} className={styles.itemWrapper}>
+                      <div key={child.id} {...stylex.props(styles.itemWrapper)}>
                         {contentOutlineExpanded && (
                           <div
-                            className={cx(styles.itemConnector, {
-                              [styles.firstItemConnector]: i === 0,
-                              [styles.lastItemConnector]: i === (item.children?.length || 0) - 1,
-                            })}
+                            {...stylex.props(
+                              styles.itemConnector,
+                              i === 0 && styles.firstItemConnector,
+                              i === (item.children?.length || 0) - 1 && styles.lastItemConnector
+                            )}
                           />
                         )}
                         <ContentOutlineItemButton
@@ -217,12 +233,14 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                           title={contentOutlineExpanded ? child.title : undefined}
                           contentOutlineExpanded={contentOutlineExpanded}
                           icon={contentOutlineExpanded ? undefined : item.icon}
-                          className={cx(styles.buttonStyles, {
-                            [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
-                            [styles.sectionHighlighter]:
-                              isChildActive(item, activeSectionChildId) && !contentOutlineExpanded,
-                          })}
-                          indentStyle={styles.indentChild}
+                          xstyle={[
+                            styles.buttonStyles,
+                            !contentOutlineExpanded && !outlineItemsHaveDeleteButton && styles.justifyCenter,
+                            isChildActive(item, activeSectionChildId) &&
+                              !contentOutlineExpanded &&
+                              styles.sectionHighlighter,
+                          ]}
+                          indentXstyle={contentOutlineExpanded ? styles.indentChildExpanded : styles.indentChild}
                           onClick={(e) => {
                             handleItemClicked(child);
                             child.onClick?.(e);
@@ -245,81 +263,82 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  return {
-    wrapper: css({
-      label: 'wrapper',
-      position: 'relative',
-      display: 'flex',
-      justifyContent: 'center',
-      marginRight: theme.spacing(1),
+const styles = stylex.create({
+  wrapper: {
+    position: 'relative',
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: spacing['--gf-spacing-x1'],
+    height: '100%',
+  },
+  wrapperExpanded: {
+    width: '160px',
+    minWidth: '160px',
+  },
+  content: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    top: 0,
+  },
+  // Passed as the item button's xstyle, which replaces its `color`: repeat the button's resting colour.
+  buttonStyles: {
+    display: 'flex',
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  toggleContentOutlineButton: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+  },
+  toggleContentOutlineButtonExpanded: {
+    transform: 'rotate(180deg)',
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  indentRoot: {
+    paddingLeft: spacing['--gf-spacing-x3'],
+  },
+  indentChild: {
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2.75)`,
+  },
+  indentChildExpanded: {
+    paddingLeft: spacing['--gf-spacing-x5'],
+  },
+  itemWrapper: {
+    display: 'flex',
+    height: spacing['--gf-spacing-x4'],
+    alignItems: 'center',
+  },
+  itemConnector: {
+    position: 'relative',
+    height: '100%',
+    width: spacing['--gf-spacing-x1-5'],
+    '::before': {
+      borderRightWidth: '1px',
+      borderRightStyle: 'solid',
+      borderRightColor: colors['--gf-colors-border-medium'],
+      content: '""',
       height: '100%',
-      backgroundColor: theme.colors.background.primary,
-      width: expanded ? '160px' : undefined,
-      minWidth: expanded ? '160px' : undefined,
-    }),
-    content: css({
-      label: 'content',
-      marginLeft: theme.spacing(0.5),
-      top: 0,
-    }),
-    buttonStyles: css({
-      display: 'flex',
-      '&:hover': {
-        color: theme.colors.text.primary,
-        textDecoration: 'underline',
-      },
-    }),
-    toggleContentOutlineButton: css({
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-      transform: expanded ? 'rotate(180deg)' : '',
-      marginRight: expanded ? theme.spacing(0.5) : undefined,
-    }),
-    indentRoot: css({
-      paddingLeft: theme.spacing(3),
-    }),
-    indentChild: css({
-      paddingLeft: expanded ? theme.spacing(5) : theme.spacing(2.75),
-    }),
-    itemWrapper: css({
-      display: 'flex',
-      height: theme.spacing(4),
-      alignItems: 'center',
-    }),
-    itemConnector: css({
-      position: 'relative',
-      height: '100%',
-      width: theme.spacing(1.5),
-      '&::before': {
-        borderRight: `1px solid ${theme.colors.border.medium}`,
-        content: '""',
-        height: '100%',
-        left: theme.spacing(4.75),
-        position: 'absolute',
-        transform: 'translateX(50%)',
-      },
-    }),
-    firstItemConnector: css({
-      '&::before': {
-        top: theme.spacing(1),
-        height: `calc(100% - ${theme.spacing(1)})`,
-      },
-    }),
-    lastItemConnector: css({
-      '&::before': {
-        height: `calc(100% - ${theme.spacing(1)})`,
-      },
-    }),
-    justifyCenter: css({
-      justifyContent: 'center',
-    }),
-    sectionHighlighter: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-};
+      left: `calc(${spacing['--gf-spacing-grid-size']} * 4.75)`,
+      position: 'absolute',
+      transform: 'translateX(50%)',
+    },
+  },
+  firstItemConnector: {
+    '::before': {
+      top: spacing['--gf-spacing-x1'],
+      height: `calc(100% - ${spacing['--gf-spacing-x1']})`,
+    },
+  },
+  lastItemConnector: {
+    '::before': {
+      height: `calc(100% - ${spacing['--gf-spacing-x1']})`,
+    },
+  },
+  justifyCenter: {
+    justifyContent: 'center',
+  },
+  sectionHighlighter: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+});
 
 function isCollapsible(item: ContentOutlineItemContextProps): boolean {
   return !!(item.children && item.children.length > 0 && (!item.mergeSingleChild || item.children.length !== 1));

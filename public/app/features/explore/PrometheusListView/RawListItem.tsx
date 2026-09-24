@@ -1,16 +1,18 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCopyToClipboard } from 'react-use';
 
-import { type Field, type GrafanaTheme2 } from '@grafana/data';
+import { type Field } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { isValidLegacyName, utf8Support } from '@grafana/prometheus';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ItemLabels } from './ItemLabels';
 import { ItemValues } from './ItemValues';
 import { type instantQueryRawVirtualizedListData } from './RawListContainer';
 import RawListItemAttributes from './RawListItemAttributes';
+import { rawListLayout } from './rawListLayout.stylex';
 
 export interface RawListProps {
   listItemData: instantQueryRawVirtualizedListData;
@@ -21,56 +23,6 @@ export interface RawListProps {
 }
 
 export type RawListValue = { key: string; value: string };
-export const rawListExtraSpaceAtEndOfLine = '20px';
-export const rawListItemColumnWidth = '80px';
-export const rawListPaddingToHoldSpaceForCopyIcon = '25px';
-
-const getStyles = (theme: GrafanaTheme2, totalNumberOfValues: number, isExpandedView: boolean) => ({
-  rowWrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    display: 'flex',
-    position: 'relative',
-    paddingLeft: '22px',
-    alignItems: !isExpandedView ? 'center' : '',
-    height: !isExpandedView ? '100%' : '',
-  }),
-  copyToClipboardWrapper: css({
-    position: 'absolute',
-    left: 0,
-    bottom: !isExpandedView ? '0' : '',
-    top: isExpandedView ? '4px' : '0',
-    margin: 'auto',
-    zIndex: 1,
-    height: '16px',
-    width: '16px',
-  }),
-  rowLabelWrapWrap: css({
-    position: 'relative',
-    width: `calc(100% - (${totalNumberOfValues} * ${rawListItemColumnWidth}) - ${rawListPaddingToHoldSpaceForCopyIcon})`,
-  }),
-  rowLabelWrap: css({
-    whiteSpace: 'nowrap',
-    overflowX: 'auto',
-    MsOverflowStyle: 'none' /* IE and Edge */,
-    scrollbarWidth: 'none' /* Firefox */,
-    paddingRight: rawListExtraSpaceAtEndOfLine,
-
-    '&::-webkit-scrollbar': {
-      display: 'none' /* Chrome, Safari and Opera */,
-    },
-
-    '&:after': {
-      pointerEvents: 'none',
-      content: "''",
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      background: `linear-gradient(to right, transparent calc(100% - ${rawListExtraSpaceAtEndOfLine}), ${theme.colors.background.primary})`,
-    },
-  }),
-});
 
 function getQueryValues(allLabels: Pick<instantQueryRawVirtualizedListData, 'Value' | string | number>) {
   let attributeValues: RawListValue[] = [];
@@ -100,7 +52,6 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
   const isLegacyMetric = isValidLegacyName(__name__ ?? '');
   const [_, copyToClipboard] = useCopyToClipboard();
   const displayLength = valueLabels?.length ?? totalNumberOfValues;
-  const styles = useStyles2(getStyles, displayLength, isExpandedView);
 
   const { values, attributeValues } = getQueryValues(allLabels);
 
@@ -129,8 +80,13 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
       {valueLabels !== undefined && isExpandedView && (
         <ItemLabels valueLabels={valueLabels} expanded={isExpandedView} />
       )}
-      <div key={listKey} className={styles.rowWrapper}>
-        <span className={styles.copyToClipboardWrapper}>
+      <div key={listKey} {...stylex.props(styles.rowWrapper, !isExpandedView && styles.rowWrapperCollapsed)}>
+        <span
+          {...stylex.props(
+            styles.copyToClipboardWrapper,
+            isExpandedView ? styles.copyToClipboardWrapperExpanded : styles.copyToClipboardWrapperCollapsed
+          )}
+        >
           <IconButton
             tooltip={t('explore.raw-list-item.tooltip-copy-to-clipboard', 'Copy to clipboard')}
             onClick={() => {
@@ -140,8 +96,8 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
             name="copy"
           />
         </span>
-        <span role={'cell'} className={styles.rowLabelWrapWrap}>
-          <div className={styles.rowLabelWrap}>
+        <span role={'cell'} {...stylex.props(styles.rowLabelWrapWrap, styles.rowLabelWrapWrapWidth(displayLength))}>
+          <div {...stylex.props(styles.rowLabelWrap)}>
             {!!__name__ && isLegacyMetric && <span>{__name__}</span>}
             <span>{`{`}</span>
             {!isLegacyMetric && !!__name__ && __name__ !== '' && (
@@ -175,3 +131,58 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
   );
 };
 export default RawListItem;
+
+const styles = stylex.create({
+  rowWrapper: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    display: 'flex',
+    position: 'relative',
+    paddingLeft: '22px',
+  },
+  rowWrapperCollapsed: {
+    alignItems: 'center',
+    height: '100%',
+  },
+  copyToClipboardWrapper: {
+    position: 'absolute',
+    left: 0,
+    margin: 'auto',
+    zIndex: 1,
+    height: '16px',
+    width: '16px',
+  },
+  copyToClipboardWrapperCollapsed: {
+    bottom: '0',
+    top: '0',
+  },
+  copyToClipboardWrapperExpanded: {
+    top: '4px',
+  },
+  rowLabelWrapWrap: {
+    position: 'relative',
+  },
+  rowLabelWrapWrapWidth: (totalNumberOfValues: number) => ({
+    width: `calc(100% - (${totalNumberOfValues} * ${rawListLayout.columnWidth}) - ${rawListLayout.copyIconSpace})`,
+  }),
+  rowLabelWrap: {
+    whiteSpace: 'nowrap',
+    overflowX: 'auto',
+    scrollbarWidth: 'none' /* Firefox */,
+    paddingRight: rawListLayout.lineEndSpace,
+    '::-webkit-scrollbar': {
+      display: 'none' /* Chrome, Safari and Opera */,
+    },
+    '::after': {
+      pointerEvents: 'none',
+      content: "''",
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      backgroundImage: `linear-gradient(to right, transparent calc(100% - ${rawListLayout.lineEndSpace}), ${colors['--gf-colors-background-primary']})`,
+    },
+  },
+});

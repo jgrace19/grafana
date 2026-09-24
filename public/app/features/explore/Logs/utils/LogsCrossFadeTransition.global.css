@@ -1,0 +1,34 @@
+/*
+ * react-transition-group applies these in stages (enter, then enter + enter-active), so the later class must win
+ * by source order, which two separate StyleX class strings can't guarantee.
+ */
+@layer grafana-global {
+  .gf-logs-enter {
+    position: absolute;
+    opacity: 0;
+    height: auto;
+    width: 100%;
+  }
+
+  .gf-logs-enter-active {
+    opacity: 1;
+  }
+
+  .gf-logs-exit {
+    position: absolute;
+    opacity: 1;
+    height: auto;
+    width: 100%;
+  }
+
+  .gf-logs-exit-active {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference), (prefers-reduced-motion: reduce) {
+    .gf-logs-enter-active,
+    .gf-logs-exit-active {
+      transition: opacity 500ms ease-out 100ms;
+    }
+  }
+}

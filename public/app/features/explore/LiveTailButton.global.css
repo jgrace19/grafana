@@ -1,0 +1,27 @@
+/*
+ * react-transition-group applies these in stages (enter, then enter + enter-active), so the later class must win
+ * by source order, which two separate StyleX class strings can't guarantee.
+ */
+@layer grafana-global {
+  .gf-explore-live-stop-enter {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  .gf-explore-live-stop-enter-active {
+    opacity: 1;
+    width: 32px;
+  }
+
+  .gf-explore-live-stop-exit {
+    width: 32px;
+    opacity: 1;
+    overflow: hidden;
+  }
+
+  .gf-explore-live-stop-exit-active {
+    opacity: 0;
+    width: 0;
+  }
+}

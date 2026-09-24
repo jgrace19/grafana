@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { CoreApp, type GrafanaTheme2, LoadingState } from '@grafana/data';
+import { CoreApp, LoadingState } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { defaultTimeZone, type TimeZone } from '@grafana/schema';
-import { TabbedContainer, type TabConfig, useStyles2 } from '@grafana/ui';
+import { TabbedContainer, type TabConfig } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { requestIdGenerator } from 'app/core/utils/explore';
 import { ExploreDrawer } from 'app/features/explore/ExploreDrawer';
 import { InspectDataTab } from 'app/features/inspector/InspectDataTab';
@@ -41,7 +42,6 @@ export function ExploreQueryInspector(props: Props) {
   if (!errors?.length && queryResponse?.error) {
     errors = [queryResponse.error];
   }
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     reportInteraction('grafana_explore_query_inspector_opened');
@@ -84,7 +84,7 @@ export function ExploreQueryInspector(props: Props) {
     value: 'query',
     icon: 'info-circle',
     content: (
-      <div className={styles.queryInspectorWrapper}>
+      <div {...stylex.props(styles.queryInspectorWrapper)}>
         <QueryInspector
           instanceId={isMixed ? mixedRequestId(0, requestIdGenerator(exploreId)) : requestIdGenerator(exploreId)}
           data={queryResponse}
@@ -126,10 +126,10 @@ const mapDispatchToProps = {
   runQueries,
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  queryInspectorWrapper: css({
-    paddingBottom: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  queryInspectorWrapper: {
+    paddingBottom: spacing['--gf-spacing-x3'],
+  },
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

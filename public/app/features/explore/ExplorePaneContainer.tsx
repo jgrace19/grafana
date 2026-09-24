@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
@@ -10,14 +10,6 @@ import { type StoreState, useSelector } from 'app/types/store';
 import Explore from './Explore';
 import ExploreQueryInspector from './ExploreQueryInspector';
 import { getExploreItemSelector } from './state/selectors';
-
-const containerStyles = css({
-  label: 'explorePaneContainer',
-  display: 'flex',
-  flexDirection: 'column',
-  minWidth: '600px',
-  height: '100%',
-});
 
 interface Props {
   exploreId: string;
@@ -44,7 +36,7 @@ function ExplorePaneContainerUnconnected({ exploreId }: Props) {
   }, []);
 
   return (
-    <div className={containerStyles} ref={ref} data-testid={selectors.pages.Explore.General.container}>
+    <div {...stylex.props(styles.container)} ref={ref} data-testid={selectors.pages.Explore.General.container}>
       <Explore
         exploreId={exploreId}
         eventBus={eventBus.current}
@@ -61,6 +53,15 @@ function ExplorePaneContainerUnconnected({ exploreId }: Props) {
     </div>
   );
 }
+
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: '600px',
+    height: '100%',
+  },
+});
 
 function mapStateToProps(state: StoreState, props: Props) {
   const pane = state.explore.panes[props.exploreId];

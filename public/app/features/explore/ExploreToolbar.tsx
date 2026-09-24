@@ -1,21 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { pick } from 'lodash';
 import { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 
-import { type DataSourceInstanceSettings, type RawTimeRange, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceInstanceSettings, type RawTimeRange } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import {
-  defaultIntervals,
-  PageToolbar,
-  RefreshPicker,
-  SetInterval,
-  ToolbarButton,
-  ButtonGroup,
-  useStyles2,
-} from '@grafana/ui';
+import { defaultIntervals, PageToolbar, RefreshPicker, SetInterval, ToolbarButton, ButtonGroup } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 import { CORRELATION_EDITOR_POST_CONFIRM_ACTION } from 'app/types/explore';
@@ -42,19 +35,7 @@ import { isLeftPaneSelector, isSplit, selectCorrelationDetails, selectPanesEntri
 import { syncTimes, changeRefreshInterval } from './state/time';
 import { LiveTailControls } from './useLiveTailControls';
 
-const getStyles = (theme: GrafanaTheme2, splitted: Boolean) => ({
-  rotateIcon: css({
-    '> div > svg': {
-      transform: 'rotate(180deg)',
-    },
-  }),
-  toolbarButton: css({
-    display: 'flex',
-    justifyContent: 'center',
-    marginRight: theme.spacing(0.5),
-    width: splitted && theme.spacing(6),
-  }),
-});
+import './ExploreToolbar.css';
 
 interface Props {
   exploreId: string;
@@ -66,7 +47,6 @@ interface Props {
 export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle, isContentOutlineOpen }: Props) {
   const dispatch = useDispatch();
   const splitted = useSelector(isSplit);
-  const styles = useStyles2(getStyles, splitted);
 
   const timeZone = useSelector((state: StoreState) => getTimeZone(state.user));
   const fiscalYearStartMonth = useSelector((state: StoreState) => getFiscalYearStartMonth(state.user));
@@ -217,7 +197,7 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
             onClick={onContentOutlineToogle}
             aria-expanded={isContentOutlineOpen}
             aria-controls={isContentOutlineOpen ? 'content-outline-container' : undefined}
-            className={styles.toolbarButton}
+            className={stylex.props(styles.toolbarButton, splitted && styles.toolbarButtonSplit).className}
           >
             <Trans i18nKey="explore.explore-toolbar.outline">Outline</Trans>
           </ToolbarButton>,
@@ -263,7 +243,7 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
                 onClick={onClickResize}
                 icon={isLargerPane ? 'gf-movepane-left' : 'gf-movepane-right'}
                 iconOnly={true}
-                className={cx(shouldRotateSplitIcon && styles.rotateIcon)}
+                className={shouldRotateSplitIcon ? 'gf-explore-rotate-split-icon' : undefined}
               />
               <ToolbarButton
                 tooltip={t('explore.toolbar.split-close-tooltip', 'Close split pane')}
@@ -344,3 +324,14 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
     </div>
   );
 }
+
+const styles = stylex.create({
+  toolbarButton: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  toolbarButtonSplit: {
+    width: spacing['--gf-spacing-x6'],
+  },
+});
