@@ -1,6 +1,8 @@
 'use strict';
 
 const stylex = require('@stylexjs/unplugin').default;
+const fs = require('fs');
+const path = require('path');
 
 const { cssLayers, getStylexBabelOptions } = require('../stylex/options');
 
@@ -25,4 +27,17 @@ function getStylexWebpackPlugins({ dev, cssInjectionTarget = (fileName) => /(^|\
   ];
 }
 
-module.exports = { getStylexWebpackPlugins };
+/**
+ * StyleX output depends on compiler options and versions that webpack can't see through the unplugin loader,
+ * so they version the persistent cache.
+ */
+const packageVersion = (name) =>
+  JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve(name)), '..', 'package.json'), 'utf8')).version;
+
+const stylexCacheVersion = [
+  packageVersion('@stylexjs/babel-plugin'),
+  packageVersion('@stylexjs/unplugin'),
+  JSON.stringify({ ...getStylexBabelOptions(), cssLayers }),
+].join('|');
+
+module.exports = { getStylexWebpackPlugins, stylexCacheVersion };

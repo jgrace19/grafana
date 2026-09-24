@@ -2,8 +2,8 @@ import { css } from '@emotion/css';
 
 import { type GrafanaTheme2, type ThemeRichColor } from '@grafana/data';
 
-import { getPropertiesForButtonSize } from '../../components/Forms/commonStyles';
 import { type ButtonFill, type ButtonVariant } from '../../components/Button/Button';
+import { getPropertiesForButtonSize } from '../../components/Forms/commonStyles';
 import { type ComponentSize } from '../../types/size';
 
 import { getButtonFocusStyles, getMouseFocusStyles } from './mixins';

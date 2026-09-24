@@ -5,8 +5,8 @@ import { type ThemeSpacingTokens } from '@grafana/data';
 
 import { bp } from '../../../themes/stylex/constants.stylex';
 import { type AlignItems, type Direction, type FlexProps, type JustifyContent, type Wrap } from '../types';
-import { type ResponsiveProp } from '../utils/responsiveness';
 import { responsiveArgs, spacingValue } from '../utils/responsiveStylex';
+import { type ResponsiveProp } from '../utils/responsiveness';
 import { getSizeStyles } from '../utils/sizeStyles';
 import { type SizeProps } from '../utils/styles';
 
@@ -134,7 +134,15 @@ const styles = stylex.create({
     gap: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
   }),
   rowGap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
-    rowGap: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
+    rowGap: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
   }),
   columnGap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
     columnGap: {

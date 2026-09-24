@@ -3,7 +3,6 @@
 import { type GrafanaTheme2 } from '@grafana/data';
 
 export type ThemeCssVarName =
-  | '--gf-colors-white-base'
   | '--gf-colors-border-weak'
   | '--gf-colors-border-medium'
   | '--gf-colors-border-strong'
@@ -238,7 +237,6 @@ export type ThemeCssVarName =
 // [var name, theme path, serialisation]. Paths are read dynamically because some theme values exist at
 // runtime without being part of the GrafanaTheme2 type.
 const TOKENS: Array<[ThemeCssVarName, string[], 'string' | 'px' | 'number']> = [
-  ['--gf-colors-white-base', ['colors', 'whiteBase'], 'string'],
   ['--gf-colors-border-weak', ['colors', 'border', 'weak'], 'string'],
   ['--gf-colors-border-medium', ['colors', 'border', 'medium'], 'string'],
   ['--gf-colors-border-strong', ['colors', 'border', 'strong'], 'string'],
@@ -482,12 +480,16 @@ function readPath(theme: GrafanaTheme2, path: string[]): unknown {
   return value;
 }
 
-/** Maps a theme to the `--gf-*` custom properties declared in tokens.stylex.ts. A missing value maps to '', which unsets the property so the tokens.stylex.ts default applies. */
+/**
+ * Maps a theme to the `--gf-*` custom properties declared in tokens.stylex.ts. A value the theme omits
+ * (e.g. letterSpacing for non-default fonts) maps to `initial`, the guaranteed-invalid value, so the
+ * property using it computes to `unset`, just like Emotion omitting the declaration.
+ */
 export function themeToCssVars(theme: GrafanaTheme2): Partial<Record<ThemeCssVarName, string>> {
   const vars: Partial<Record<ThemeCssVarName, string>> = {};
   for (const [name, path, kind] of TOKENS) {
     const value = readPath(theme, path);
-    vars[name] = value === undefined || value === null ? '' : kind === 'px' ? `${value}px` : String(value);
+    vars[name] = value === undefined || value === null ? 'initial' : kind === 'px' ? `${value}px` : String(value);
   }
   return vars;
 }

@@ -88,7 +88,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       { className, style }
     );
 
-    const iconComponent = icon && <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />;
+    const iconComponent = icon && (
+      <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />
+    );
 
     // In order to standardise Button please always consider using IconButton when you need a button with an icon only
     // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
@@ -156,7 +158,9 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       { className, style }
     );
 
-    const iconComponent = icon && <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />;
+    const iconComponent = icon && (
+      <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />
+    );
 
     // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
     const button = (
@@ -242,18 +246,18 @@ function getBorderColors(
 ): [string, string, string | null, string | null] {
   const color = getRichColor(theme, variant);
   if (fill === 'text') {
-    return ['transparent', 'transparent', null, null]
+    return ['transparent', 'transparent', null, null];
   }
   if (fill === 'outline') {
     // Secondary lacks a token for "outline button border", so it uses border.strong.
     const border = variant === 'secondary' ? theme.colors.border.strong : color.border;
     const emphasized = theme.colors.emphasize(border, 0.25);
-    return [border, theme.colors.border.weak, emphasized, emphasized]
+    return [border, theme.colors.border.weak, emphasized, emphasized];
   }
   if (variant === 'secondary') {
-    return [color.border, 'transparent', theme.colors.emphasize(color.border, 0.25), null]
+    return [color.border, 'transparent', theme.colors.emphasize(color.border, 0.25), null];
   }
-  return ['transparent', 'transparent', 'transparent', null]
+  return ['transparent', 'transparent', 'transparent', null];
 }
 
 function getButtonStyles(
@@ -263,12 +267,11 @@ function getButtonStyles(
   size: ComponentSize,
   fullWidth: boolean | undefined
 ) {
-  const variantStyles = fill === 'outline' ? outlineStyles : fill === 'text' ? textStyles : solidStyles;
   return [
     styles.button,
     sizeStyles[toButtonSize(size)],
     fillStyles[fill],
-    variantStyles[variant],
+    fill === 'outline' ? outlineStyles[variant] : fill === 'text' ? textStyles[variant] : solidStyles[variant],
     styles.borderColor(...getBorderColors(theme, variant, fill)),
     fullWidth && styles.fullWidth,
   ];

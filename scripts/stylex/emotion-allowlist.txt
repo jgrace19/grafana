@@ -1,0 +1,24 @@
+# Paths allowed to keep Emotion (or the Emotion-era style hooks) after the StyleX migration.
+# One ripgrep glob per line, then `# reason`. Every entry needs a reason. Owned by the migration coordinator:
+# request new entries in the slice PR body instead of editing this file.
+
+packages/grafana-ui/src/compat/emotion/** # frozen Emotion-returning public API (getButtonStyles, styleMixins, ...) for plugins
+packages/grafana-ui/src/themes/ThemeContext*.tsx # public useStyles2/useTheme2/withTheme2 definitions and their tests
+packages/grafana-ui/src/themes/stylesFactory*.ts # public stylesFactory definition and its tests
+public/app/features/plugins/loader/sharedDependencies.ts # exports @emotion/* to SystemJS-loaded plugins
+packages/grafana-plugin-configs/** # webpack externals for @emotion/* in plugin builds
+
+public/app/plugins/datasource/azuremonitor/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/cloud-monitoring/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/grafana-postgresql-datasource/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/grafana-pyroscope-datasource/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/grafana-testdata-datasource/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/graphite/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/jaeger/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/loki/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/mssql/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/mysql/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/opentsdb/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/parca/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin CSS delivery story yet
+public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet

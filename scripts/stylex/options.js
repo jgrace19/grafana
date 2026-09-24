@@ -25,6 +25,10 @@ function getStylexBabelOptions({ dev = false, test = false } = {}) {
     dev,
     test,
     runtimeInjection: false,
+    // esbuild-loader drops imports that become unused once StyleX inlines vars/consts, which would stop
+    // webpack from building the .stylex.ts modules whose rules resolve those references. This keeps a
+    // side-effect import of each one.
+    treeshakeCompensation: true,
     sxPropName: false,
     styleResolution: 'property-specificity',
     importSources: ['@stylexjs/stylex'],

@@ -20,7 +20,10 @@ export type ResponsiveArgs<V> = [
  * which matches getResponsiveStyle (a breakpoint without a value inherits the previous one).
  */
 export function responsiveArgs<T>(prop: ResponsiveProp<T> | undefined | null): ResponsiveArgs<T>;
-export function responsiveArgs<T, V>(prop: ResponsiveProp<T> | undefined | null, map: (value: T) => V): ResponsiveArgs<V>;
+export function responsiveArgs<T, V>(
+  prop: ResponsiveProp<T> | undefined | null,
+  map: (value: T) => V
+): ResponsiveArgs<V>;
 export function responsiveArgs<T, V>(
   prop: ResponsiveProp<T> | undefined | null,
   map?: (value: T) => V

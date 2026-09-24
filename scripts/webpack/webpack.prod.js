@@ -14,7 +14,7 @@ const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 
 const getEnvConfig = require('./env-util.js');
 const FeatureFlaggedSRIPlugin = require('./plugins/FeatureFlaggedSriPlugin');
-const { getStylexWebpackPlugins } = require('./stylex.js');
+const { getStylexWebpackPlugins, stylexCacheVersion } = require('./stylex.js');
 const common = require('./webpack.common.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
 
@@ -70,6 +70,7 @@ module.exports = (env = {}) =>
         : {
             type: 'filesystem',
             name: 'grafana-default-production',
+            version: stylexCacheVersion,
             buildDependencies: {
               config: [__filename],
             },

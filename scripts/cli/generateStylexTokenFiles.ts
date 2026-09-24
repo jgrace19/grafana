@@ -20,6 +20,7 @@ const GROUP_INCLUDES: Partial<Record<VarGroup, string[][]>> = {
 /** Leaves that are not CSS values. */
 const EXCLUDED_PATHS = [
   'colors.mode',
+  'colors.whiteBase',
   'colors.contrastThreshold',
   'colors.hoverFactor',
   'colors.tonalOffset',
@@ -67,12 +68,12 @@ function collectLeaves(group: VarGroup, theme: GrafanaTheme2): TokenLeaf[] {
     // theme.spacing is a function with token properties attached.
     if ((typeof value === 'object' && value !== null && !Array.isArray(value)) || typeof value === 'function') {
       for (const key of Object.keys(value)) {
-        walk((value as Record<string, unknown>)[key], [...path, key]);
+        walk(Reflect.get(value, key), [...path, key]);
       }
     }
   };
 
-  walk((theme as unknown as Record<string, unknown>)[group], [group]);
+  walk(Reflect.get(theme, group), [group]);
 
   const seen = new Set<string>();
   for (const leaf of leaves) {
@@ -87,7 +88,7 @@ function collectLeaves(group: VarGroup, theme: GrafanaTheme2): TokenLeaf[] {
 function readLeaf(theme: GrafanaTheme2, leaf: TokenLeaf): string {
   let value: unknown = theme;
   for (const key of leaf.path) {
-    value = (value as Record<string, unknown>)[key];
+    value = typeof value === 'object' || typeof value === 'function' ? Reflect.get(Object(value), key) : undefined;
   }
   return leaf.kind === 'px' ? `${value}px` : String(value);
 }
@@ -129,12 +130,12 @@ function cssVarsFile(groups: Record<VarGroup, TokenLeaf[]>) {
   out += `  }\n`;
   out += `  return value;\n`;
   out += `}\n\n`;
-  out += `/** Maps a theme to the \`--gf-*\` custom properties declared in tokens.stylex.ts. A missing value maps to '', which unsets the property so the tokens.stylex.ts default applies. */\n`;
+  out += `/**\n * Maps a theme to the \`--gf-*\` custom properties declared in tokens.stylex.ts. A value the theme omits\n * (e.g. letterSpacing for non-default fonts) maps to \`initial\`, the guaranteed-invalid value, so the\n * property using it computes to \`unset\`, just like Emotion omitting the declaration.\n */\n`;
   out += `export function themeToCssVars(theme: GrafanaTheme2): Partial<Record<ThemeCssVarName, string>> {\n`;
   out += `  const vars: Partial<Record<ThemeCssVarName, string>> = {};\n`;
   out += `  for (const [name, path, kind] of TOKENS) {\n`;
   out += `    const value = readPath(theme, path);\n`;
-  out += `    vars[name] = value === undefined || value === null ? '' : kind === 'px' ? \`\${value}px\` : String(value);\n`;
+  out += `    vars[name] = value === undefined || value === null ? 'initial' : kind === 'px' ? \`\${value}px\` : String(value);\n`;
   out += `  }\n`;
   out += `  return vars;\n`;
   out += `}\n`;
@@ -176,10 +177,15 @@ function constantsFile(theme: GrafanaTheme2) {
 
 async function generateStylexTokenFiles() {
   const theme = createTheme();
-  const groups = Object.fromEntries(VAR_GROUPS.map((g) => [g, collectLeaves(g, theme)])) as Record<
-    VarGroup,
-    TokenLeaf[]
-  >;
+  const groups: Record<VarGroup, TokenLeaf[]> = {
+    colors: collectLeaves('colors', theme),
+    spacing: collectLeaves('spacing', theme),
+    shape: collectLeaves('shape', theme),
+    typography: collectLeaves('typography', theme),
+    shadows: collectLeaves('shadows', theme),
+    components: collectLeaves('components', theme),
+    v1: collectLeaves('v1', theme),
+  };
   try {
     await writeFile(resolve(outDir, 'tokens.stylex.ts'), tokensFile(theme, groups));
     await writeFile(resolve(outDir, 'constants.stylex.ts'), constantsFile(theme));

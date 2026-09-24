@@ -5,7 +5,6 @@
 import * as stylex from '@stylexjs/stylex';
 
 export const colors = stylex.defineVars({
-  '--gf-colors-white-base': '204, 204, 220',
   '--gf-colors-border-weak': 'rgba(204, 204, 220, 0.12)',
   '--gf-colors-border-medium': 'rgba(204, 204, 220, 0.2)',
   '--gf-colors-border-strong': 'rgba(204, 204, 220, 0.30)',

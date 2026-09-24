@@ -21,7 +21,15 @@ type V = string | undefined;
 
 const sizeStyles = stylex.create({
   width: (base: V, xs: V, sm: V, md: V, lg: V, xl: V, xxl: V) => ({
-    width: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
+    width: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
   }),
   minWidth: (base: V, xs: V, sm: V, md: V, lg: V, xl: V, xxl: V) => ({
     minWidth: {
@@ -46,7 +54,15 @@ const sizeStyles = stylex.create({
     },
   }),
   height: (base: V, xs: V, sm: V, md: V, lg: V, xl: V, xxl: V) => ({
-    height: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
+    height: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
   }),
   minHeight: (base: V, xs: V, sm: V, md: V, lg: V, xl: V, xxl: V) => ({
     minHeight: {
