@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-/** StyleX version of the shared library panel modal styles in `styles.ts`. */
 export const modalStyles = stylex.create({
   myTable: {
     maxHeight: '204px',

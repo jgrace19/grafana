@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 
 import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-/** StyleX version of the shared inspector styles in `styles.ts`. */
 export const panelInspectorStyles = stylex.create({
   heading: {
     fontSize: typography['--gf-typography-body-font-size'],

@@ -10,11 +10,6 @@ import { ExploreQueryInspector } from './ExploreQueryInspector';
 
 type ExploreQueryInspectorProps = ComponentProps<typeof ExploreQueryInspector>;
 
-jest.mock('../inspector/styles', () => ({
-  getPanelInspectorStyles: () => ({}),
-  getPanelInspectorStyles2: () => ({}),
-}));
-
 jest.mock('app/core/services/backend_srv', () => ({
   backendSrv: {
     getInspectorStream: () =>
