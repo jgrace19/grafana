@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { capitalize, filter, uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type QueryResultMetaNotice } from '@grafana/data';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { type QueryResultMetaNotice } from '@grafana/data';
+import { Badge } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { filterPanelDataToQuery } from 'app/features/query/components/QueryEditorRow';
 
 import { QueryEditorType } from '../../constants';
@@ -22,8 +23,6 @@ interface SeverityBadgeProps {
 }
 
 function SeverityBadge({ type, notices }: SeverityBadgeProps) {
-  const styles = useStyles2(getStyles);
-
   const color = type === 'warning' ? 'orange' : 'blue';
   const icon = type === 'warning' ? 'exclamation-triangle' : 'info-circle';
 
@@ -33,9 +32,9 @@ function SeverityBadge({ type, notices }: SeverityBadgeProps) {
       icon={icon}
       text={notices.length}
       tooltip={
-        <div className={styles.noticeContainer}>
+        <div {...stylex.props(styles.noticeContainer)}>
           {capitalize(type)}
-          <ol className={styles.noticeList}>
+          <ol {...stylex.props(styles.noticeList)}>
             {notices.map(({ text }, index) => (
               <li key={index}>{text}</li>
             ))}
@@ -93,15 +92,21 @@ export function WarningBadges() {
   return severityGroups.map(({ type, notices }) => <SeverityBadge key={type} type={type} notices={notices} />);
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  noticeList: css({
-    margin: 0,
-    paddingLeft: theme.spacing(2),
-  }),
-  noticeContainer: css({
+const styles = stylex.create({
+  noticeList: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  noticeContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
 });
