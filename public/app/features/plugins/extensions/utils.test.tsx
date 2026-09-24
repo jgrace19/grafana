@@ -669,7 +669,9 @@ describe('Plugin Extensions / Utils', () => {
       const modal = await screen.findByRole('dialog');
       const style = window.getComputedStyle(modal);
 
-      expect(style.width).toBe('750px');
+      // Without a width the wrapper sets none, so Modal keeps its own default (a StyleX style, which jsdom can't
+      // compute; the Modal stories' visual captures cover it).
+      expect(style.width).toBe('');
       expect(style.height).toBe('');
     });
 
