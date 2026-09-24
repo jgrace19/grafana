@@ -93,7 +93,7 @@ const PanelTypeCardComponent = ({
             e.stopPropagation();
             onDelete();
           }}
-          style={deleteButtonStyle}
+          xstyle={deleteButtonStyles.button}
           aria-label={t(
             'panel.panel-type-card.aria-label-delete-button-on-panel-type-card',
             'Delete button on panel type card'
@@ -147,11 +147,12 @@ const PanelTypeCardSkeleton: SkeletonComponent<React.PropsWithChildren<SkeletonP
 
 export const PanelTypeCard = attachSkeleton(PanelTypeCardComponent, PanelTypeCardSkeleton);
 
-// IconButton is StyleX and sets its own margin: override it through its inline style.
-const deleteButtonStyle: React.CSSProperties = {
-  cursor: 'pointer',
-  marginLeft: 'auto',
-};
+const deleteButtonStyles = stylex.create({
+  button: {
+    cursor: 'pointer',
+    marginLeft: 'auto',
+  },
+});
 
 const skeletonStyles = stylex.create({
   deleteButton: {

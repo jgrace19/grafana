@@ -1,3 +1,4 @@
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { memo, type HTMLAttributes, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
@@ -21,6 +22,8 @@ export interface Props<T> extends HTMLAttributes<HTMLButtonElement> {
   variant?: ToolbarButtonVariant;
   tooltip?: string;
   root?: HTMLElement;
+  /** @internal first-party StyleX overrides for the ToolbarButton, applied last */
+  xstyle?: StyleXStyles;
 }
 
 /**

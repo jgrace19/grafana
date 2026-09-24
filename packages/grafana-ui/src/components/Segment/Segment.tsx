@@ -1,5 +1,3 @@
-import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import { type HTMLProps } from 'react';
 import * as React from 'react';
 
@@ -9,7 +7,7 @@ import { InlineLabel } from '../Forms/InlineLabel';
 import { getLabelFromValue } from '../Select/utils';
 
 import { SegmentSelect } from './SegmentSelect';
-import { SEGMENT_PLACEHOLDER_CLASS, segmentStyles } from './styles';
+import { segmentStyles } from './styles';
 import { type SegmentProps } from './types';
 import { useExpandableLabel } from './useExpandableLabel';
 
@@ -52,11 +50,12 @@ export function Segment<T>({
           Component || (
             <InlineLabel
               width="auto"
-              className={clsx(
-                stylex.props(segmentStyles.segment, disabled && segmentStyles.disabled).className,
-                placeholder !== undefined && !value && SEGMENT_PLACEHOLDER_CLASS,
-                className
-              )}
+              className={className}
+              xstyle={[
+                segmentStyles.segment,
+                disabled && segmentStyles.disabled,
+                placeholder !== undefined && !value && segmentStyles.placeholder,
+              ]}
             >
               {label || placeholder}
             </InlineLabel>

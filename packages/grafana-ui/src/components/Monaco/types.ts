@@ -1,5 +1,6 @@
 // We use `import type` to guarantee it'll be erased from the JS and it doesnt accidently bundle monaco
 import type { EditorProps } from '@monaco-editor/react';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 
 // we do not allow customizing the theme.
@@ -61,6 +62,8 @@ export interface CodeEditorProps {
   getSuggestions?: CodeEditorSuggestionProvider;
 
   containerStyles?: string;
+  /** @internal first-party StyleX overrides for the container, applied last */
+  containerXstyle?: StyleXStyles;
 }
 
 /**

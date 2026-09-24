@@ -7,6 +7,7 @@ import { type IconName, isIconName } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { colors, components, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconSize } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
@@ -37,6 +38,10 @@ interface BaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   iconOnly?: boolean;
   /** Show highlight dot */
   isHighlighted?: boolean;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX overrides for the `imgSrc` image */
+  imgXstyle?: stylex.StyleXStyles;
 }
 
 interface BasePropsWithChildren extends BaseProps {
@@ -76,32 +81,35 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>((
     iconOnly,
     'aria-label': ariaLabel,
     isHighlighted,
+    xstyle,
+    imgXstyle,
+    style,
     ...rest
   } = props;
 
-  const buttonStyles = clsx(
-    'gf-toolbar-button',
+  const buttonProps = mergeStylexProps(
     stylex.props(
       styles.button,
       fullWidth && styles.buttonFullWidth,
       narrow && styles.narrow,
       variantStyles[variant],
-      variant === 'active' && styles.activeIndicator
-    ).className,
-    className
+      variant === 'active' && styles.activeIndicator,
+      xstyle
+    ),
+    { className: clsx('gf-toolbar-button', className), style }
   );
 
   const body = (
     <button
       ref={ref}
-      className={buttonStyles}
+      {...buttonProps}
       aria-label={getButtonAriaLabel(ariaLabel, tooltip)}
       aria-expanded={isOpen}
       type="button"
       {...rest}
     >
       {renderIcon(icon, iconSize)}
-      {imgSrc && <img {...stylex.props(styles.img)} src={imgSrc} alt={imgAlt ?? ''} />}
+      {imgSrc && <img {...stylex.props(styles.img, imgXstyle)} src={imgSrc} alt={imgAlt ?? ''} />}
       {children && !iconOnly && (
         <div
           {...stylex.props(

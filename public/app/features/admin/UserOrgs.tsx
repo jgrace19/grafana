@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { memo, type ReactElement, useEffect, useRef, useState } from 'react';
 
 import { OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, TextLink } from '@grafana/ui';
+import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, Stack, TextLink } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
@@ -200,14 +199,13 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
 });
 OrgRow.displayName = 'OrgRow';
 
-// stylex: pending Modal migration
-const getAddToOrgModalStyles = () => ({
-  modal: css({
+const addToOrgModalStyles = stylex.create({
+  modal: {
     width: '500px',
-  }),
-  modalContent: css({
+  },
+  modalContent: {
     overflow: 'visible',
-  }),
+  },
 });
 
 interface AddToOrgModalProps {
@@ -226,7 +224,6 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
   const [pendingOrgId, setPendingOrgId] = useState<number | null>(null);
   const [pendingUserId, setPendingUserId] = useState<number | null>(null);
   const [pendingRoles, setPendingRoles] = useState<Role[]>([]);
-  const pendingStyles = useStyles2(getAddToOrgModalStyles);
 
   const onOrgSelect = (org: OrgSelectItem) => {
     const userOrg = userOrgs.find((userOrg) => userOrg.orgId === org.value?.id);
@@ -281,8 +278,8 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
 
   return (
     <Modal
-      className={pendingStyles.modal}
-      contentClassName={pendingStyles.modalContent}
+      xstyle={addToOrgModalStyles.modal}
+      contentXstyle={addToOrgModalStyles.modalContent}
       title={t('admin.add-to-org-modal.title-add-to-an-organization', 'Add to an organization')}
       isOpen={isOpen}
       onDismiss={onCancel}

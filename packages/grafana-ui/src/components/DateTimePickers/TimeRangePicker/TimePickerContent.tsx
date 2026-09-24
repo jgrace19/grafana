@@ -290,7 +290,7 @@ const EmptyRecentList = memo(() => {
           <TextLink
             href="https://grafana.com/docs/grafana/latest/dashboards/time-range-controls"
             external
-            style={{ fontSize: '13px' }}
+            xstyle={emptyListStyles.text}
           >
             Read the documentation
           </TextLink>
@@ -457,7 +457,6 @@ const fullScreenStyles = stylex.create({
   },
 });
 
-// The link's font size goes through its `style`: a StyleX class string doesn't reliably override TextLink.
 const emptyListStyles = stylex.create({
   container: {
     padding: '12px',

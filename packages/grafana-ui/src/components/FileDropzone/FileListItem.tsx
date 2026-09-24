@@ -43,7 +43,7 @@ export function FileListItem({ file: customFile, removeFile }: FileListItemProps
           )}
           {removeFile && (
             <IconButton
-              className={retryUpload ? 'gf-file-list-item-remove' : ''}
+              xstyle={retryUpload ? styles.remove : undefined}
               name="trash-alt"
               onClick={() => removeFile(customFile)}
               tooltip={REMOVE_FILE}
@@ -103,6 +103,9 @@ export function FileListItem({ file: customFile, removeFile }: FileListItemProps
 const grid = spacing['--gf-spacing-grid-size'];
 
 const styles = stylex.create({
+  remove: {
+    marginLeft: spacing['--gf-spacing-grid-size'],
+  },
   fileListContainer: {
     width: '100%',
     display: 'flex',

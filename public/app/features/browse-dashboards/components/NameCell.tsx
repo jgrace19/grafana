@@ -65,7 +65,7 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
       {item.kind === 'folder' ? (
         <IconButton
           size={CHEVRON_SIZE}
-          style={chevronStyle}
+          xstyle={styles.chevron}
           onClick={() => {
             onFolderClick(item.uid, !isOpen);
           }}
@@ -123,11 +123,12 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
   );
 }
 
-// IconButton has no xstyle; an inline style wins over its own margin in every state, like the old className did.
-// 16 is getSvgSize(CHEVRON_SIZE).
-const chevronStyle = { marginRight: 'var(--gf-spacing-x1)', width: 16 };
-
 const styles = stylex.create({
+  // 16 is getSvgSize(CHEVRON_SIZE).
+  chevron: {
+    marginRight: spacing['--gf-spacing-x1'],
+    width: 16,
+  },
   emptyText: {
     // needed for text to truncate correctly
     overflow: 'hidden',

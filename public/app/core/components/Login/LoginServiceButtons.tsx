@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { pickBy } from 'lodash';
 
-import { type GrafanaTheme2, DEFAULT_SAML_NAME } from '@grafana/data';
+import { DEFAULT_SAML_NAME } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, type IconName, LinkButton, Stack, useStyles2, useTheme2 } from '@grafana/ui';
+import { Icon, type IconName, LinkButton, Stack, useTheme2 } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 
@@ -77,17 +76,6 @@ const loginServices: () => LoginServices = () => {
   };
 };
 
-// stylex: pending Button `xstyle`. The per-provider colours override Button's own background and hover
-// states, which a StyleX class passed as `className` can't do.
-const getServiceStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      color: '#d8d9da',
-      position: 'relative',
-    }),
-  };
-};
-
 const LoginDivider = () => {
   return (
     <div {...stylex.props(styles.divider)}>
@@ -104,26 +92,10 @@ const LoginDivider = () => {
   );
 };
 
-function getButtonStyleFor(service: LoginService, styles: ReturnType<typeof getServiceStyles>, theme: GrafanaTheme2) {
-  return cx(
-    styles.button,
-    css({
-      backgroundColor: service.bgColor,
-      color: theme.colors.getContrastText(service.bgColor),
-
-      ['&:hover']: {
-        backgroundColor: theme.colors.emphasize(service.bgColor, 0.15),
-        boxShadow: theme.shadows.z1,
-      },
-    })
-  );
-}
-
 export const LoginServiceButtons = () => {
   const enabledServices = pickBy(loginServices(), (service) => service.enabled);
   const hasServices = Object.keys(enabledServices).length > 0;
   const theme = useTheme2();
-  const serviceStyles = useStyles2(getServiceStyles);
 
   if (hasServices) {
     return (
@@ -134,7 +106,11 @@ export const LoginServiceButtons = () => {
           return (
             <LinkButton
               key={key}
-              className={getButtonStyleFor(service, serviceStyles, theme)}
+              xstyle={styles.service(
+                service.bgColor,
+                theme.colors.getContrastText(service.bgColor),
+                theme.colors.emphasize(service.bgColor, 0.15)
+              )}
               href={`login/${service.hrefName ? service.hrefName : key}`}
               target="_self"
               fullWidth
@@ -152,6 +128,22 @@ export const LoginServiceButtons = () => {
 };
 
 const styles = stylex.create({
+  // Over LinkButton's primary solid look (its hover shadow is the same z1). Its hover and focus colours and its focus
+  // and active backgrounds still apply, but the provider's :hover background came after them.
+  service: (background: string, color: string, hoverBackground: string) => ({
+    position: 'relative',
+    color: {
+      default: color,
+      ':hover': colors['--gf-colors-primary-contrast-text'],
+      ':focus': colors['--gf-colors-primary-contrast-text'],
+    },
+    backgroundColor: {
+      default: background,
+      ':hover': hoverBackground,
+      ':focus': { default: colors['--gf-colors-primary-shade'], ':hover': hoverBackground },
+      ':active': { default: colors['--gf-colors-primary-main'], ':hover': hoverBackground },
+    },
+  }),
   buttonIcon: {
     position: 'absolute',
     left: spacing['--gf-spacing-x1'],

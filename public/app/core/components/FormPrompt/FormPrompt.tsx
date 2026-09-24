@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type history from 'history';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom-v5-compat';
@@ -97,13 +97,7 @@ interface UnsavedChangesModalProps {
 
 const UnsavedChangesModal = ({ onDiscard, onBackToForm, isOpen }: UnsavedChangesModalProps) => {
   return (
-    <Modal
-      isOpen={isOpen}
-      title={t('form-prompt.title', 'Leave page?')}
-      onDismiss={onBackToForm}
-      // stylex: pending Modal migration (U4). Overrides Modal's own Emotion width.
-      className={css({ width: '500px' })}
-    >
+    <Modal isOpen={isOpen} title={t('form-prompt.title', 'Leave page?')} onDismiss={onBackToForm} xstyle={styles.modal}>
       <h5>
         <Trans i18nKey="form-prompt.description">Changes that you made may not be saved.</Trans>
       </h5>
@@ -118,3 +112,9 @@ const UnsavedChangesModal = ({ onDiscard, onBackToForm, isOpen }: UnsavedChanges
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

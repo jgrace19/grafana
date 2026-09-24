@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, Modal, ModalsController, useStyles2 } from '@grafana/ui';
+import { Button, Modal, ModalsController } from '@grafana/ui';
 import { typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type SessionUser } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 
@@ -10,7 +9,6 @@ import { useRevokeAllAccessMutation } from '../../dashboard/api/publicDashboardA
 
 const DeleteUserModal = ({ user, hideModal }: { user: SessionUser; hideModal: () => void }) => {
   const [revokeAllAccess] = useRevokeAllAccessMutation();
-  const pendingStyles = useStyles2(getPendingStyles);
 
   const onRevokeAccessClick = () => {
     revokeAllAccess({ email: user.email });
@@ -19,7 +17,7 @@ const DeleteUserModal = ({ user, hideModal }: { user: SessionUser; hideModal: ()
 
   return (
     <Modal
-      className={pendingStyles.modal}
+      xstyle={styles.modal}
       isOpen
       title={t('public-dashboard-users-access-list.delete-user-modal.revoke-access-title', 'Revoke access')}
       onDismiss={hideModal}
@@ -72,14 +70,10 @@ export const DeleteUserModalButton = ({ user }: { user: SessionUser }) => {
   );
 };
 
-// stylex: pending Modal migration
-const getPendingStyles = () => ({
-  modal: css({
-    width: '500px',
-  }),
-});
-
 const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
   description: {
     fontSize: typography['--gf-typography-body-font-size'],
     margin: 0,

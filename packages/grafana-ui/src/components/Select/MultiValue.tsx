@@ -8,8 +8,6 @@ import { useTheme2 } from '../../themes/ThemeContext';
 import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { IconButton, type Props as IconButtonProps } from '../IconButton/IconButton';
 
-import './Select.css';
-
 interface MultiValueContainerProps {
   innerProps: JSX.IntrinsicElements['div'];
 }
@@ -35,13 +33,20 @@ export const MultiValueRemove = ({ children, innerProps }: React.PropsWithChildr
       {...innerProps}
       name="times"
       size="sm"
-      className="gf-select-multi-value-remove"
+      xstyle={styles.remove}
       tooltip={t('grafana-ui.select.multi-value-remove', 'Remove')}
     />
   );
 };
 
 const styles = stylex.create({
+  remove: {
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    cursor: { default: 'pointer', ':disabled': 'not-allowed' },
+  },
   multiValueContainer: {
     display: 'flex',
     alignItems: 'center',

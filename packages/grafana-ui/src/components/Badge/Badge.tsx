@@ -22,29 +22,33 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
   color: BadgeColor;
   icon?: IconName;
   tooltip?: PopoverContent;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
-const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, className, style, ...otherProps }) => {
-  const theme = useTheme2();
-  const badgeColors = getBadgeColors(theme, color);
-  const badge = (
-    <div
-      {...mergeStylexProps(stylex.props(styles.wrapper, styles.colors(...badgeColors)), { className, style })}
-      {...otherProps}
-    >
-      {icon && <Icon name={icon} size="sm" />}
-      {text}
-    </div>
-  );
+const BadgeComponent = React.memo<BadgeProps>(
+  ({ icon, color, text, tooltip, className, style, xstyle, ...otherProps }) => {
+    const theme = useTheme2();
+    const badgeColors = getBadgeColors(theme, color);
+    const badge = (
+      <div
+        {...mergeStylexProps(stylex.props(styles.wrapper, styles.colors(...badgeColors), xstyle), { className, style })}
+        {...otherProps}
+      >
+        {icon && <Icon name={icon} size="sm" />}
+        {text}
+      </div>
+    );
 
-  return tooltip ? (
-    <Tooltip content={tooltip} placement="auto">
-      {badge}
-    </Tooltip>
-  ) : (
-    badge
-  );
-});
+    return tooltip ? (
+      <Tooltip content={tooltip} placement="auto">
+        {badge}
+      </Tooltip>
+    ) : (
+      badge
+    );
+  }
+);
 BadgeComponent.displayName = 'Badge';
 
 const BadgeSkeleton: SkeletonComponent = ({ rootProps }) => {

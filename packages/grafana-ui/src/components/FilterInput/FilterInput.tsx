@@ -14,6 +14,8 @@ export interface Props extends Omit<HTMLProps<HTMLInputElement>, 'onChange'> {
   onChange: (value: string) => void;
   escapeRegex?: boolean;
   suffix?: InputProps['suffix'];
+  /** @internal first-party StyleX overrides for the Input wrapper, applied last */
+  xstyle?: InputProps['xstyle'];
 }
 
 export const FilterInput = forwardRef<HTMLInputElement, Props>(

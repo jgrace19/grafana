@@ -460,7 +460,8 @@ export function PanelChrome({
                   menu={menu}
                   title={typeof title === 'string' ? title : undefined}
                   placement="bottom-end"
-                  menuButtonClass={clsx('gf-panel-chrome-menu', dragClassCancel, showOnHoverClass)}
+                  menuButtonClass={clsx(dragClassCancel, showOnHoverClass)}
+                  menuButtonXstyle={styles.menuButton}
                   onOpenMenu={onOpenMenu}
                   dragClassCancel={dragClassCancel}
                 />
@@ -552,6 +553,10 @@ const getContentStyle = (
 const panelFocusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
 const styles = stylex.create({
+  // The background matches Button's own secondary one, states included.
+  menuButton: {
+    borderStyle: 'none',
+  },
   container: {
     height: '100%',
     position: 'relative',

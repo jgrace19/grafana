@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { formatDuration } from 'date-fns';
 import { memo } from 'react';
 
@@ -8,8 +9,6 @@ import { t } from '@grafana/i18n';
 import { ButtonGroup } from '../Button/ButtonGroup';
 import { ButtonSelect } from '../Dropdown/ButtonSelect';
 import { ToolbarButton, type ToolbarButtonVariant } from '../ToolbarButton/ToolbarButton';
-
-import './RefreshPicker.css';
 
 // Default intervals used in the refresh picker component
 export const defaultIntervals = ['5s', '10s', '30s', '1m', '5m', '15m', '30m', '1h', '2h', '1d'];
@@ -126,7 +125,7 @@ const RefreshPickerComponent = memo((props: Props) => {
       </ToolbarButton>
       {!noIntervalPicker && (
         <ButtonSelect
-          className="gf-refresh-picker-interval"
+          xstyle={styles.interval}
           value={selectedValue}
           options={options}
           onChange={handleChangeSelect}
@@ -194,3 +193,10 @@ export const intervalsToOptions = ({
   options.unshift(translateOption(offOption.value));
   return options;
 };
+
+const styles = stylex.create({
+  interval: {
+    borderTopLeftRadius: 'unset',
+    borderBottomLeftRadius: 'unset',
+  },
+});

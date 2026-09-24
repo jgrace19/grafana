@@ -37,8 +37,6 @@ import { calendarClassNames } from '../TimeRangePicker/CalendarBody';
 import { isValid } from '../utils';
 import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar';
 
-import './DateTimePicker.css';
-
 export interface Props {
   /** Input date for the component */
   date?: DateTime;
@@ -263,11 +261,7 @@ const DateTimeInput = React.forwardRef<HTMLInputElement, InputProps>(
       />
     );
     return (
-      <InlineField
-        label={label}
-        invalid={!!(internalDate.value && internalDate.invalid)}
-        className="gf-date-time-picker-field"
-      >
+      <InlineField label={label} invalid={!!(internalDate.value && internalDate.invalid)} xstyle={styles.field}>
         <Input
           onChange={onChangeDate}
           addonAfter={icon}
@@ -391,6 +385,10 @@ const DateTimeCalendar = React.forwardRef<HTMLDivElement, DateTimeCalendarProps>
 DateTimeCalendar.displayName = 'DateTimeCalendar';
 
 const styles = stylex.create({
+  field: {
+    marginBottom: 0,
+    width: '100%',
+  },
   container: {
     padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     borderWidth: '1px',

@@ -6,7 +6,7 @@ import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
 import { modalStyles as styles } from '../../modalStyles';
-import { modalWidthClassName } from '../../styles';
+import { modalWidthStyles } from '../../styles';
 import { type LibraryElementDTO } from '../../types';
 import { asyncDispatcher } from '../LibraryPanelsView/actions';
 
@@ -34,7 +34,7 @@ export const DeleteLibraryPanelModal: FC<Props> = ({ libraryPanel, onDismiss, on
 
   return (
     <Modal
-      className={modalWidthClassName}
+      xstyle={modalWidthStyles.modal}
       title={t('library-panels.delete-library-panel-modal.title-delete-library-panel', 'Delete library panel')}
       onDismiss={onDismiss}
       isOpen={true}

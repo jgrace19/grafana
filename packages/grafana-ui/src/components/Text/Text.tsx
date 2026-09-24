@@ -27,6 +27,8 @@ export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, 'clas
   /** Whether to align the text to left, center or right */
   textAlignment?: Property.TextAlign;
   children: NonNullable<React.ReactNode>;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -36,7 +38,19 @@ export interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, 'clas
  */
 export const Text = React.forwardRef<HTMLElement, TextProps>(
   (
-    { element = 'span', variant, weight, color, truncate, italic, textAlignment, children, tabular, ...restProps },
+    {
+      element = 'span',
+      variant,
+      weight,
+      color,
+      truncate,
+      italic,
+      textAlignment,
+      children,
+      tabular,
+      xstyle,
+      ...restProps
+    },
     ref
   ) => {
     const defaultVariant = variant ?? elementVariant(element);
@@ -48,7 +62,8 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(
       truncate && styles.truncate,
       italic && styles.italic,
       textAlignment && styles.textAlign(textAlignment),
-      tabular && styles.tabular
+      tabular && styles.tabular,
+      xstyle
     );
 
     const childElement = (ref: React.ForwardedRef<HTMLElement> | undefined) => {

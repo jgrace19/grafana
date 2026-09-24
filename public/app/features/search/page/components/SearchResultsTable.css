@@ -8,9 +8,3 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* Overrides TagList's own alignment in the tags column; TagList has no xstyle. */
-.gf-search-results-tag-list {
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-}

@@ -67,6 +67,7 @@ export const Card: CardInterface = ({
   isCompact,
   className,
   noMargin,
+  xstyle,
   ...htmlProps
 }) => {
   const hasHeadingComponent = useMemo(
@@ -94,6 +95,7 @@ export const Card: CardInterface = ({
         isCompact && styles.compact,
         isSelectable && styles.selectable,
         isSelected && (disableHover ? styles.selected : styles.selectedHoverable),
+        xstyle,
       ]}
       noMargin={noMargin}
       hasDescriptionComponent={hasDescriptionComponent}
@@ -112,10 +114,12 @@ interface ChildProps {
   className?: string;
   disabled?: boolean;
   children?: React.ReactNode;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /** Main heading for the card */
-const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & { 'aria-label'?: string }) => {
+const Heading = ({ children, className, xstyle, 'aria-label': ariaLabel }: ChildProps & { 'aria-label'?: string }) => {
   const context = useContext(CardContext);
 
   const { href, onClick, isSelected } = context ?? {
@@ -129,7 +133,9 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
   return (
     <div
       data-testid={selectors.components.Card.heading}
-      {...mergeStylexProps(stylex.props(headingStyles.heading), { className: clsx('gf-card-heading', className) })}
+      {...mergeStylexProps(stylex.props(headingStyles.heading, xstyle), {
+        className: clsx('gf-card-heading', className),
+      })}
     >
       {href ? (
         <a href={href} className={linkHackClassName} aria-label={ariaLabel} onClick={onClick}>
@@ -149,24 +155,26 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
 };
 Heading.displayName = 'Heading';
 
-const Tags = ({ children, className }: ChildProps) => {
-  return <div {...mergeStylexProps(stylex.props(tagStyles.tagList), { className })}>{children}</div>;
+const Tags = ({ children, className, xstyle }: ChildProps) => {
+  return <div {...mergeStylexProps(stylex.props(tagStyles.tagList, xstyle), { className })}>{children}</div>;
 };
 Tags.displayName = 'Tags';
 
 /** Card description text */
-const Description = ({ children, className }: ChildProps) => {
+const Description = ({ children, className, xstyle }: ChildProps) => {
   const Element = typeof children === 'string' ? 'p' : 'div';
   return (
-    <Element {...mergeStylexProps(stylex.props(descriptionStyles.description), { className })}>{children}</Element>
+    <Element {...mergeStylexProps(stylex.props(descriptionStyles.description, xstyle), { className })}>
+      {children}
+    </Element>
   );
 };
 Description.displayName = 'Description';
 
-const Figure = ({ children, align = 'start', className }: ChildProps & { align?: 'start' | 'center' }) => {
+const Figure = ({ children, align = 'start', className, xstyle }: ChildProps & { align?: 'start' | 'center' }) => {
   return (
     <div
-      {...mergeStylexProps(stylex.props(figureStyles.media, figureAlignStyles[align]), {
+      {...mergeStylexProps(stylex.props(figureStyles.media, figureAlignStyles[align], xstyle), {
         className: clsx('gf-card-figure', className),
       })}
     >
@@ -176,7 +184,7 @@ const Figure = ({ children, align = 'start', className }: ChildProps & { align?:
 };
 Figure.displayName = 'Figure';
 
-const Meta = memo(({ children, className, separator = '|' }: ChildProps & { separator?: string }) => {
+const Meta = memo(({ children, className, xstyle, separator = '|' }: ChildProps & { separator?: string }) => {
   let meta = children;
 
   const filtered = React.Children.toArray(children).filter(Boolean);
@@ -198,7 +206,7 @@ const Meta = memo(({ children, className, separator = '|' }: ChildProps & { sepa
       curr,
     ]);
   }
-  return <div {...mergeStylexProps(stylex.props(metaStyles.metadata), { className })}>{meta}</div>;
+  return <div {...mergeStylexProps(stylex.props(metaStyles.metadata, xstyle), { className })}>{meta}</div>;
 });
 Meta.displayName = 'Meta';
 
@@ -207,15 +215,16 @@ interface ActionsProps extends ChildProps {
   variant?: 'primary' | 'secondary';
 }
 
-const BaseActions = ({ children, disabled, variant, className }: ActionsProps) => {
+const BaseActions = ({ children, disabled, variant, className, xstyle }: ActionsProps) => {
   const context = useContext(CardContext);
   const isDisabled = context?.disabled || disabled;
 
   return (
     <div
-      {...mergeStylexProps(stylex.props(variant === 'primary' ? actionStyles.actions : actionStyles.secondaryActions), {
-        className,
-      })}
+      {...mergeStylexProps(
+        stylex.props(variant === 'primary' ? actionStyles.actions : actionStyles.secondaryActions, xstyle),
+        { className }
+      )}
     >
       {React.Children.map(children, (child) => {
         return React.isValidElement<Record<string, unknown>>(child)
@@ -226,18 +235,18 @@ const BaseActions = ({ children, disabled, variant, className }: ActionsProps) =
   );
 };
 
-const Actions = ({ children, disabled, className }: ChildProps) => {
+const Actions = ({ children, disabled, className, xstyle }: ChildProps) => {
   return (
-    <BaseActions variant="primary" disabled={disabled} className={className}>
+    <BaseActions variant="primary" disabled={disabled} className={className} xstyle={xstyle}>
       {children}
     </BaseActions>
   );
 };
 Actions.displayName = 'Actions';
 
-const SecondaryActions = ({ children, disabled, className }: ChildProps) => {
+const SecondaryActions = ({ children, disabled, className, xstyle }: ChildProps) => {
   return (
-    <BaseActions variant="secondary" disabled={disabled} className={className}>
+    <BaseActions variant="secondary" disabled={disabled} className={className} xstyle={xstyle}>
       {children}
     </BaseActions>
   );

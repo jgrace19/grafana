@@ -498,7 +498,7 @@ function makeTagsColumn(
           {!response.isItemLoaded(p.row.index) ? (
             <TagList.Skeleton />
           ) : (
-            <>{tags ? <TagList className="gf-search-results-tag-list" tags={tags} onClick={onTagSelected} /> : null}</>
+            <>{tags ? <TagList xstyle={styles.tagList} tags={tags} onClick={onTagSelected} /> : null}</>
           )}
         </div>
       );
@@ -548,6 +548,10 @@ function calcCoarseDuration(start: Date, end: Date) {
 }
 
 const styles = stylex.create({
+  tagList: {
+    justifyContent: 'flex-start',
+    flexWrap: 'nowrap',
+  },
   cell: {
     padding: spacing['--gf-spacing-x1'],
     overflow: 'hidden', // Required so flex children can do text-overflow: ellipsis

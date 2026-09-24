@@ -31,6 +31,8 @@ type BaseProps = {
   tooltipPlacement?: TooltipPlacement;
   /** Position of the icon */
   iconPlacement?: 'left' | 'right';
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 };
 
 // either aria-label or tooltip is required for buttons without children
@@ -73,6 +75,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       tooltipPlacement,
       iconPlacement = 'left',
       onClick,
+      xstyle,
       ...otherProps
     },
     ref
@@ -83,7 +86,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonProps = mergeStylexProps(
       stylex.props(
         getButtonStyles(theme, variant, fill, size, fullWidth),
-        disabled && !hasTooltip && disabledStyles[fill]
+        disabled && !hasTooltip && disabledStyles[fill],
+        xstyle
       ),
       { className, style }
     );
@@ -147,6 +151,7 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       disabled,
       tooltip,
       tooltipPlacement,
+      xstyle,
       ...otherProps
     },
     ref
@@ -154,7 +159,7 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     const theme = useTheme2();
     // Links can't be :disabled; aria-disabled drives the disabled look (see ariaDisabled).
     const linkButtonProps = mergeStylexProps(
-      stylex.props(getButtonStyles(theme, variant, fill, size, fullWidth), disabled && styles.linkDisabled),
+      stylex.props(getButtonStyles(theme, variant, fill, size, fullWidth), disabled && styles.linkDisabled, xstyle),
       { className, style }
     );
 

@@ -37,6 +37,7 @@ export const InlineLabel = ({
   transparent,
   interactive,
   as: Component = 'label',
+  xstyle,
   ...rest
 }: Props) => {
   return (
@@ -46,7 +47,8 @@ export const InlineLabel = ({
           styles.label,
           transparent && styles.transparent,
           width === 'auto' && styles.autoWidth,
-          typeof width === 'number' && width !== 0 && styles.width(`${8 * width}px`)
+          typeof width === 'number' && width !== 0 && styles.width(`${8 * width}px`),
+          xstyle
         ),
         { className }
       )}

@@ -27,6 +27,8 @@ export interface Props extends Omit<FieldProps, 'css' | 'horizontal' | 'descript
   htmlFor?: string;
   /** Make tooltip interactive */
   interactive?: boolean;
+  /** @internal first-party StyleX overrides for the InlineLabel rendered from a string `label`, applied last */
+  labelXstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -51,6 +53,8 @@ export const InlineField = ({
   transparent,
   interactive,
   validationMessageHorizontalOverflow,
+  xstyle,
+  labelXstyle,
   ...htmlProps
 }: Props) => {
   const inputId = htmlFor ?? getChildId(children);
@@ -67,6 +71,7 @@ export const InlineField = ({
         transparent={transparent}
         id={labelId}
         as={useFieldset ? 'span' : 'label'}
+        xstyle={labelXstyle}
       >
         {`${label}${required ? ' *' : ''}`}
       </InlineLabel>
@@ -78,7 +83,9 @@ export const InlineField = ({
 
   return (
     <Wrapper
-      {...mergeStylexProps(stylex.props(styles.container, grow && styles.grow, shrink && styles.shrink), { className })}
+      {...mergeStylexProps(stylex.props(styles.container, grow && styles.grow, shrink && styles.shrink, xstyle), {
+        className,
+      })}
       {...htmlProps}
     >
       {labelElement}

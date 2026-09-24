@@ -26,6 +26,8 @@ export interface ConfirmModalProps {
   dismissVariant?: ButtonVariant;
   /** Additional styling for modal container */
   modalClass?: string;
+  /** @internal first-party StyleX overrides for the Modal, applied last */
+  modalXstyle?: stylex.StyleXStyles;
   /** Text user needs to fill in before confirming */
   confirmationText?: string;
   /** Text for alternative button */
@@ -61,6 +63,7 @@ export const ConfirmModal = ({
   dismissVariant = 'secondary',
   alternativeText,
   modalClass,
+  modalXstyle,
   onConfirm,
   onDismiss,
   onAlternative,
@@ -68,7 +71,13 @@ export const ConfirmModal = ({
   disabled,
 }: ConfirmModalProps): JSX.Element => {
   return (
-    <Modal className={modalClass} xstyle={styles.modal} title={title} isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal
+      className={modalClass}
+      xstyle={[styles.modal, modalXstyle]}
+      title={title}
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+    >
       <ConfirmContent
         body={body}
         description={description}

@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Card, useStyles2 } from '@grafana/ui';
+import { Card } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   description?: string;
@@ -20,70 +20,75 @@ function isCategoryStyle(cat: string): cat is CategoryStyle {
 }
 
 export function NavLandingPageCard({ description, text, url, category, onClick }: Props) {
-  const styles = useStyles2(getStyles);
-
-  const categoryClass = category && isCategoryStyle(category) ? styles[category] : undefined;
+  const categoryStyle = category && isCategoryStyle(category) ? categoryStyles[category] : undefined;
 
   return (
-    <Card noMargin className={cx(styles.card, categoryClass)} href={url} onClick={onClick}>
+    <Card noMargin xstyle={[styles.card, categoryStyle]} href={url} onClick={onClick}>
       <Card.Heading>{text}</Card.Heading>
-      <Card.Description className={styles.description}>{description}</Card.Description>
+      <Card.Description xstyle={styles.description}>{description}</Card.Description>
     </Card>
   );
 }
 
-// stylex: pending Card `xstyle`. Overrides Card's own grid, border and background, including on hover.
-const getStyles = (theme: GrafanaTheme2) => ({
-  card: css({
+const styles = stylex.create({
+  card: {
     gridTemplateRows: '1fr 0 2fr',
-  }),
+  },
   // Limit descriptions to 3 lines max before ellipsing
   // Some plugin descriptions can be very long
-  description: css({
+  description: {
     WebkitLineClamp: 3,
     WebkitBoxOrient: 'vertical',
     display: '-webkit-box',
     overflow: 'hidden',
-  }),
-  // Category-based styling
-  primary: css({
-    border: `1px solid ${theme.colors.primary.borderTransparent}`,
-    backgroundColor: theme.colors.primary.transparent,
-    '&:hover': {
-      backgroundColor: theme.colors.primary.transparent,
-      borderColor: theme.colors.primary.border,
+  },
+});
+
+// Category-based styling. The :hover background replaces Card's own hover background.
+const categoryStyles = stylex.create({
+  primary: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: colors['--gf-colors-primary-border-transparent'],
+      ':hover': colors['--gf-colors-primary-border'],
     },
-  }),
-  secondary: css({
-    border: `1px solid ${theme.colors.secondary.borderTransparent}`,
-    backgroundColor: theme.colors.secondary.transparent,
-    '&:hover': {
-      backgroundColor: theme.colors.secondary.transparent,
-      borderColor: theme.colors.secondary.border,
+    backgroundColor: colors['--gf-colors-primary-transparent'],
+  },
+  secondary: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: colors['--gf-colors-secondary-border-transparent'],
+      ':hover': colors['--gf-colors-secondary-border'],
     },
-  }),
-  success: css({
-    border: `1px solid ${theme.colors.success.borderTransparent}`,
-    backgroundColor: theme.colors.success.transparent,
-    '&:hover': {
-      backgroundColor: theme.colors.success.transparent,
-      borderColor: theme.colors.success.border,
+    backgroundColor: colors['--gf-colors-secondary-transparent'],
+  },
+  success: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: colors['--gf-colors-success-border-transparent'],
+      ':hover': colors['--gf-colors-success-border'],
     },
-  }),
-  warning: css({
-    border: `1px solid ${theme.colors.warning.borderTransparent}`,
-    backgroundColor: theme.colors.warning.transparent,
-    '&:hover': {
-      backgroundColor: theme.colors.warning.transparent,
-      borderColor: theme.colors.warning.border,
+    backgroundColor: colors['--gf-colors-success-transparent'],
+  },
+  warning: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: colors['--gf-colors-warning-border-transparent'],
+      ':hover': colors['--gf-colors-warning-border'],
     },
-  }),
-  error: css({
-    border: `1px solid ${theme.colors.error.borderTransparent}`,
-    backgroundColor: theme.colors.error.transparent,
-    '&:hover': {
-      backgroundColor: theme.colors.error.transparent,
-      borderColor: theme.colors.error.border,
+    backgroundColor: colors['--gf-colors-warning-transparent'],
+  },
+  error: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: colors['--gf-colors-error-border-transparent'],
+      ':hover': colors['--gf-colors-error-border'],
     },
-  }),
+    backgroundColor: colors['--gf-colors-error-transparent'],
+  },
 });

@@ -25,17 +25,21 @@ export interface Props {
   getColorIndex?: (name: string, i: number) => number;
   /** Icon to show next to tag label */
   icon?: IconName;
+  /** @internal first-party StyleX overrides for the wrapper, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 const TagListComponent = memo(
   forwardRef<HTMLUListElement, Props>(
-    ({ displayMax, tags, icon, onClick, className, getAriaLabel, getColorIndex }, ref) => {
+    ({ displayMax, tags, icon, onClick, className, getAriaLabel, getColorIndex, xstyle }, ref) => {
       const isTruncated = Boolean(displayMax && displayMax > 0);
       const numTags = tags.length;
       const tagsToDisplay = displayMax ? tags.slice(0, displayMax) : tags;
       return (
         <ul
-          {...mergeStylexProps(stylex.props(styles.wrapper, isTruncated && styles.wrapperTruncated), { className })}
+          {...mergeStylexProps(stylex.props(styles.wrapper, isTruncated && styles.wrapperTruncated, xstyle), {
+            className,
+          })}
           aria-label={t('grafana-ui.tags.list-label', 'Tags')}
           ref={ref}
         >

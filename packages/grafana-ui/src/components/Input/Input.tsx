@@ -28,6 +28,10 @@ export interface Props extends Omit<HTMLProps<HTMLInputElement>, 'prefix' | 'siz
   addonBefore?: ReactNode;
   /** Add a component as an addon after the input */
   addonAfter?: ReactNode;
+  /** @internal first-party StyleX overrides for the wrapper (the element that gets `className`), applied last */
+  xstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX overrides for the `<input>` element, applied last */
+  inputXstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -45,6 +49,8 @@ export const Input = forwardRef<HTMLInputElement, Props>((props, ref) => {
     invalid,
     loading,
     width = 0,
+    xstyle,
+    inputXstyle,
     ...restProps
   } = props;
   /**
@@ -77,7 +83,8 @@ export const Input = forwardRef<HTMLInputElement, Props>((props, ref) => {
     hasAddonBefore && hasAddonAfter && styles.inputBetweenAddons,
     hasAddonBefore && !hasAddonAfter && styles.inputAfterAddon,
     !hasAddonBefore && hasAddonAfter && styles.inputBeforeAddon,
-    restProps.type === 'number' && styles.numberInput
+    restProps.type === 'number' && styles.numberInput,
+    inputXstyle
   );
 
   return (
@@ -86,7 +93,8 @@ export const Input = forwardRef<HTMLInputElement, Props>((props, ref) => {
         stylex.props(
           styles.wrapper,
           inputWrapperMarker,
-          wrapperWidth ? styles.width(spacingValue(wrapperWidth)) : null
+          wrapperWidth ? styles.width(spacingValue(wrapperWidth)) : null,
+          xstyle
         ),
         {
           className,

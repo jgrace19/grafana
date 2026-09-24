@@ -8,6 +8,8 @@ import { spacing, typography } from '../../themes/stylex/tokens.stylex';
 export interface LabelProps extends React.HTMLAttributes<HTMLLegendElement> {
   children: string | ReactNode;
   description?: string;
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -15,9 +17,9 @@ export interface LabelProps extends React.HTMLAttributes<HTMLLegendElement> {
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-legend--docs
  */
-export const Legend = ({ children, className, ...legendProps }: LabelProps) => {
+export const Legend = ({ children, className, xstyle, ...legendProps }: LabelProps) => {
   return (
-    <legend {...mergeStylexProps(stylex.props(styles.legend), { className })} {...legendProps}>
+    <legend {...mergeStylexProps(stylex.props(styles.legend, xstyle), { className })} {...legendProps}>
       {children}
     </legend>
   );

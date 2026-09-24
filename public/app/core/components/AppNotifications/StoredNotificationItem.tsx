@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { formatDistanceToNow } from 'date-fns';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Card, Checkbox, useTheme2 } from '@grafana/ui';
+import { Card, Checkbox } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export type AlertVariant = 'success' | 'warning' | 'error' | 'info';
 
@@ -29,9 +29,6 @@ export const StoredNotificationItem = ({
   traceId,
   timestamp,
 }: Props) => {
-  const theme = useTheme2();
-  const styles = getStyles(theme);
-
   return (
     <Card noMargin className={className}>
       <Card.Heading>{title}</Card.Heading>
@@ -43,7 +40,7 @@ export const StoredNotificationItem = ({
           aria-label={t('notifications.select-notification', 'Select {{title}}', { title })}
         />
       </Card.Figure>
-      <Card.Tags className={styles.trace}>
+      <Card.Tags xstyle={styles.trace}>
         {traceId && <span>{`Trace ID: ${traceId}`}</span>}
         {timestamp && formatDistanceToNow(timestamp, { addSuffix: true })}
       </Card.Tags>
@@ -51,17 +48,15 @@ export const StoredNotificationItem = ({
   );
 };
 
-// stylex: pending Card migration (U6). Overrides Card.Tags' own Emotion alignSelf.
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    trace: css({
-      alignItems: 'flex-end',
-      alignSelf: 'flex-end',
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexDirection: 'column',
-      fontSize: theme.typography.pxToRem(10),
-      justifySelf: 'flex-end',
-    }),
-  };
-};
+const styles = stylex.create({
+  trace: {
+    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
+    color: colors['--gf-colors-text-secondary'],
+    display: 'flex',
+    flexDirection: 'column',
+    // theme.typography.pxToRem(10); bodySmall is pxToRem(12).
+    fontSize: `calc(${typography['--gf-typography-body-small-font-size']} * 10 / 12)`,
+    justifySelf: 'flex-end',
+  },
+});

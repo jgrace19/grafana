@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { type FunctionComponent, PureComponent } from 'react';
 
@@ -7,6 +6,7 @@ import { monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { components, shape } from '../../themes/stylex/tokens.stylex';
 import { type Themeable2 } from '../../types/theme';
 
@@ -138,7 +138,9 @@ class UnthemedCodeEditor extends PureComponent<Props> {
     const value = this.props.value ?? '';
     const longText = value.length > 100;
 
-    const containerStyles = clsx(stylex.props(styles.container).className, this.props.containerStyles);
+    const containerProps = mergeStylexProps(stylex.props(styles.container, this.props.containerXstyle), {
+      className: this.props.containerStyles,
+    });
 
     const options: MonacoOptions = {
       wordWrap: wordWrap ? 'on' : 'off',
@@ -175,7 +177,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
 
     return (
       <div
-        className={containerStyles}
+        {...containerProps}
         onFocus={this.onFocus}
         onBlur={this.onBlur}
         data-testid={selectors.components.CodeEditor.container}

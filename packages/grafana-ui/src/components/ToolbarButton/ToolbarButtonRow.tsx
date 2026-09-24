@@ -16,6 +16,8 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   /** Determine flex-alignment of child buttons. Needed for overflow behaviour. */
   alignment?: 'left' | 'right';
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -24,7 +26,7 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/navigation-toolbarbuttonrow--docs
  */
 export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
-  ({ alignment = 'left', className, children, ...rest }, ref) => {
+  ({ alignment = 'left', className, children, xstyle, ...rest }, ref) => {
     // null/undefined are valid react children so we need to filter them out to prevent unnecessary padding
     const childrenWithoutNull = Children.toArray(children).filter((child) => child != null);
     const [childVisibility, setChildVisibility] = useState<boolean[]>(Array(childrenWithoutNull.length).fill(false));
@@ -80,7 +82,7 @@ export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
     return (
       <div
         ref={containerRef}
-        {...mergeStylexProps(stylex.props(styles.container, alignmentStyles[alignment]), { className })}
+        {...mergeStylexProps(stylex.props(styles.container, alignmentStyles[alignment], xstyle), { className })}
         {...rest}
       >
         {childrenWithoutNull.map((child, index) => (

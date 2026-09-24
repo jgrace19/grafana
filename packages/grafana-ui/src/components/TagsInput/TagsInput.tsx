@@ -12,8 +12,6 @@ import { spacingValue } from '../Layout/utils/responsiveStylex';
 
 import { TagItem } from './TagItem';
 
-import './TagsInput.css';
-
 export interface Props {
   placeholder?: string;
   /** Array of selected tags */
@@ -105,7 +103,7 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
           suffix={
             <Button
               fill="text"
-              className="gf-tags-input-add"
+              xstyle={styles.add}
               onClick={onAdd}
               size="md"
               disabled={newTagName.length <= 0 || isTagTooLong}
@@ -132,6 +130,12 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
 TagsInput.displayName = 'TagsInput';
 
 const styles = stylex.create({
+  add: {
+    marginTop: 0,
+    marginRight: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+    marginBottom: 0,
+    marginLeft: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+  },
   wrapper: {
     minHeight: spacing['--gf-spacing-x4'],
     display: 'flex',
