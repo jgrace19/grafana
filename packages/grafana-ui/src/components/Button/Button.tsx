@@ -278,8 +278,9 @@ function getButtonStyles(
 }
 
 // A disabled Button with a tooltip (and a disabled LinkButton) sets aria-disabled instead of `disabled`.
-// Its disabled look sits below :hover/:focus/:active, so those states still apply on top of it.
-const ariaDisabled = ':is([aria-disabled="true"])';
+// Its disabled look sits below :hover/:focus/:active, so those states still apply on top of it. `:where` keeps it
+// layered: main applied it as a toggled class, which a consumer's className beat.
+const ariaDisabled = ':where([aria-disabled="true"])';
 const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 const focusEasing = 'cubic-bezier(0.19, 1, 0.22, 1)';
 const buttonHeight = (height: string) => `calc(${spacing['--gf-spacing-grid-size']} * ${height})`;
@@ -593,30 +594,31 @@ const textStyles = stylex.create({
   },
 });
 
-// A native :disabled button wins over every interaction state, so these replace the whole property.
+// A native :disabled button wins over every interaction state, so these replace the whole property. The values sit
+// under `:disabled`, like main's `&:disabled` rule, so they also beat a consumer's className (scripts/stylex/stateRules.js).
 const disabledStyles = stylex.create({
   solid: {
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-    color: colors['--gf-colors-text-disabled'],
-    transitionProperty: 'none',
-    backgroundColor: colors['--gf-colors-action-disabled-background'],
-    borderColor: 'transparent',
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    boxShadow: { default: null, ':disabled': 'none' },
+    color: { default: null, ':disabled': colors['--gf-colors-text-disabled'] },
+    transitionProperty: { default: null, ':disabled': 'none' },
+    backgroundColor: { default: null, ':disabled': colors['--gf-colors-action-disabled-background'] },
+    borderColor: { default: null, ':disabled': 'transparent' },
   },
   outline: {
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-    color: colors['--gf-colors-text-disabled'],
-    transitionProperty: 'none',
-    backgroundColor: 'transparent',
-    borderColor: colors['--gf-colors-border-weak'],
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    boxShadow: { default: null, ':disabled': 'none' },
+    color: { default: null, ':disabled': colors['--gf-colors-text-disabled'] },
+    transitionProperty: { default: null, ':disabled': 'none' },
+    backgroundColor: { default: null, ':disabled': 'transparent' },
+    borderColor: { default: null, ':disabled': colors['--gf-colors-border-weak'] },
   },
   text: {
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-    color: colors['--gf-colors-text-disabled'],
-    transitionProperty: 'none',
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    boxShadow: { default: null, ':disabled': 'none' },
+    color: { default: null, ':disabled': colors['--gf-colors-text-disabled'] },
+    transitionProperty: { default: null, ':disabled': 'none' },
+    backgroundColor: { default: null, ':disabled': 'transparent' },
+    borderColor: { default: null, ':disabled': 'transparent' },
   },
 });
