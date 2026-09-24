@@ -58,13 +58,13 @@ describe('StyleX state rules', () => {
   const byDecl = (decl: string) => rules.filter((r) => r.decl.replace(/\s+/g, '') === decl);
 
   it('keeps base, media-only, :where and pseudo-element-only rules in the StyleX layers', () => {
-    for (const decl of ['color:#000', 'background-color:#fff', 'color:silver', 'background-color:pink', 'opacity:0']) {
+    for (const decl of ['color:black', 'background-color:white', 'color:silver', 'background-color:pink', 'opacity:0']) {
       expect(byDecl(decl)).toEqual([expect.objectContaining({ layered: true })]);
     }
   });
 
   it('moves pseudo-class, attribute and :is() state rules out of the layers, media conditions included', () => {
-    for (const decl of ['color:#00f', 'color:gray', 'background-color:#ff0']) {
+    for (const decl of ['color:blue', 'color:grey', 'background-color:yellow']) {
       expect(byDecl(decl)).toEqual([expect.objectContaining({ layered: false })]);
     }
     expect(byDecl('opacity:.9')).toEqual([expect.objectContaining({ layered: false, media: true })]);
@@ -79,8 +79,9 @@ describe('StyleX state rules', () => {
   it('keeps StyleX priority order among the moved rules', () => {
     const moved = rules.filter((r) => !r.layered).map((r) => r.decl.replace(/\s+/g, ''));
     // :is (40) < :disabled (92) < :hover (130) < @media + :hover (330)
-    expect(moved.indexOf('background-color:#ff0')).toBeLessThan(moved.indexOf('color:gray'));
-    expect(moved.indexOf('color:gray')).toBeLessThan(moved.indexOf('color:#00f'));
-    expect(moved.indexOf('color:#00f')).toBeLessThan(moved.indexOf('opacity:.9'));
+    expect(moved.indexOf('background-color:yellow')).toBeGreaterThan(-1);
+    expect(moved.indexOf('background-color:yellow')).toBeLessThan(moved.indexOf('color:grey'));
+    expect(moved.indexOf('color:grey')).toBeLessThan(moved.indexOf('color:blue'));
+    expect(moved.indexOf('color:blue')).toBeLessThan(moved.indexOf('opacity:.9'));
   });
 });

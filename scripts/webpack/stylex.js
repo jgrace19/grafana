@@ -6,9 +6,9 @@ const fs = require('fs');
 const path = require('path');
 
 const { cssLayers, getStylexBabelOptions } = require('../stylex/options');
-const { stateRulesVisitor } = require('../stylex/stateRules');
 
 const StylexCachePlugin = require('./plugins/StylexCachePlugin');
+const StylexStateRulesPlugin = require('./plugins/StylexStateRulesPlugin');
 
 /**
  * StyleX is compiled by @stylexjs/unplugin (its own Babel pass, before esbuild-loader) and the
@@ -24,9 +24,10 @@ function getStylexWebpackPlugins({ dev, cssInjectionTarget = (fileName) => /(^|\
       useCSSLayers: cssLayers,
       cssInjectionTarget,
       devMode: 'off',
-      lightningcssOptions: { minify: !dev, visitor: stateRulesVisitor },
+      lightningcssOptions: { minify: !dev },
     }),
     new StylexCachePlugin(),
+    new StylexStateRulesPlugin(),
   ];
 }
 
