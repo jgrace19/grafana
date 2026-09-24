@@ -84,7 +84,6 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
 
 // The checkmark takes its states from the hidden input before it. Conditions whose values differ are kept
 // mutually exclusive: StyleX orders them by its own priority, not by source order.
-
 const styles = stylex.create({
   wrapper: {
     display: 'inline-grid',

@@ -100,11 +100,10 @@ export const InlineSwitch = forwardRef<HTMLInputElement, InlineSwitchProps>(
 
 InlineSwitch.displayName = 'Switch';
 
-// The track and thumb take their states from the hidden checkbox. Conditions whose values differ are kept
-// mutually exclusive: StyleX orders them by its own priority, not by source order.
-
 const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
+// The track and thumb take their states from the hidden checkbox. Conditions whose values differ are kept
+// mutually exclusive: StyleX orders them by its own priority, not by source order.
 const styles = stylex.create({
   switch: {
     width: spacing['--gf-spacing-x4'],
