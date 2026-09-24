@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
 
-import { type CentralAlertHistorySceneV1Props, type GrafanaTheme2, VariableHide } from '@grafana/data';
+import { type CentralAlertHistorySceneV1Props, VariableHide } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   CustomVariable,
@@ -36,8 +36,8 @@ import {
   Text,
   Tooltip,
   TooltipDisplayMode,
-  useStyles2,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LogMessages, logInfo } from '../../../Analytics';
 
@@ -253,9 +253,8 @@ export function ClearFilterButtonObjectRenderer({ model }: SceneComponentProps<C
 }
 
 const LabelFilter = () => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.filterLabelContainer}>
+    <div {...stylex.props(styles.filterLabelContainer)}>
       <Text variant="body" weight="light" color="secondary">
         <Trans i18nKey="alerting.central-alert-history.filterBy">Filter by:</Trans>
       </Text>
@@ -264,9 +263,8 @@ const LabelFilter = () => {
 };
 
 const FilterInfo = () => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.filterInfoContainer}>
+    <div {...stylex.props(styles.filterInfoContainer)}>
       <Tooltip
         content={
           <div>
@@ -292,18 +290,16 @@ const FilterInfo = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    filterInfoContainer: css({
-      padding: '0',
-      alignSelf: 'center',
-      marginRight: theme.spacing(-1),
-    }),
-    filterLabelContainer: css({
-      padding: '0',
-      alignSelf: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  filterInfoContainer: {
+    padding: '0',
+    alignSelf: 'center',
+    marginRight: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+  },
+  filterLabelContainer: {
+    padding: '0',
+    alignSelf: 'center',
+  },
+});
 
 export default CentralAlertHistoryScene;

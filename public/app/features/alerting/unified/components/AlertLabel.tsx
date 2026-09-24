@@ -1,21 +1,22 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   labelKey: string;
   value: string;
   operator?: string;
   onRemoveLabel?: () => void;
+  /** first-party StyleX overrides */
+  xstyle?: StyleXStyles;
 }
 
-export const AlertLabel = ({ labelKey, value, operator = '=', onRemoveLabel }: Props) => {
-  const styles = useStyles2(getStyles);
-
+export const AlertLabel = ({ labelKey, value, operator = '=', onRemoveLabel, xstyle }: Props) => {
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper, xstyle)}>
       {labelKey}
       {operator}
       {value}
@@ -31,16 +32,21 @@ export const AlertLabel = ({ labelKey, value, operator = '=', onRemoveLabel }: P
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    border: `solid 1px ${theme.colors.border.medium}`,
-    fontSize: theme.typography.bodySmall.fontSize,
-    backgroundColor: theme.colors.background.secondary,
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.colors.text.primary,
+const styles = stylex.create({
+  wrapper: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-text-primary'],
     display: 'inline-block',
-    lineHeight: '1.2',
-  }),
+    lineHeight: 1.2,
+  },
 });

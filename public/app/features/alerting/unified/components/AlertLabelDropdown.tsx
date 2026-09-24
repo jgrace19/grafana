@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import { type FC, forwardRef } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Combobox, type ComboboxOption, Field, useStyles2 } from '@grafana/ui';
+import { Combobox, type ComboboxOption, Field } from '@grafana/ui';
 
 export type AsyncOptionsLoader = (inputValue: string) => Promise<Array<ComboboxOption<string>>>;
 
@@ -18,8 +17,6 @@ export interface AlertLabelDropdownProps {
 
 const AlertLabelDropdown: FC<AlertLabelDropdownProps> = forwardRef<HTMLDivElement, AlertLabelDropdownProps>(
   function LabelPicker({ onChange, options, defaultValue, type, onOpenMenu = () => {}, isLoading = false }, ref) {
-    const styles = useStyles2(getStyles);
-
     const handleChange = (option: ComboboxOption<string> | null) => {
       if (option) {
         onChange({
@@ -40,7 +37,7 @@ const AlertLabelDropdown: FC<AlertLabelDropdownProps> = forwardRef<HTMLDivElemen
 
     return (
       <div ref={ref}>
-        <Field noMargin disabled={false} data-testid={`alertlabel-${type}-picker`} className={styles.resetMargin}>
+        <Field noMargin disabled={false} data-testid={`alertlabel-${type}-picker`}>
           <Combobox<string>
             placeholder={t('alerting.alert-label-dropdown.placeholder-select', 'Choose {{type}}', { type })}
             width={25}
@@ -55,9 +52,5 @@ const AlertLabelDropdown: FC<AlertLabelDropdownProps> = forwardRef<HTMLDivElemen
     );
   }
 );
-
-const getStyles = () => ({
-  resetMargin: css({ marginBottom: 0 }),
-});
 
 export default AlertLabelDropdown;
