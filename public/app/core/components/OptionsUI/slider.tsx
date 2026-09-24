@@ -128,7 +128,7 @@ function getTextWidth(text: string, font: string): number | null {
   return null;
 }
 
-// stylex: pending Slider migration (U7). Renders getSliderStyles' Emotion classes and <Global> rc-slider overrides.
+// stylex: pending a StyleX rewrite like U7's Slider. Renders the compat getSliderStyles' Emotion classes and <Global> rc-slider overrides.
 const getStylesSlider = (theme: GrafanaTheme2, width: number) => {
   return {
     numberInputWrapper: css({
