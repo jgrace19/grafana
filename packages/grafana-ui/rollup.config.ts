@@ -1,6 +1,6 @@
 import stylexPlugin from '@stylexjs/babel-plugin';
 import stylex from '@stylexjs/unplugin/rollup';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { type Plugin } from 'rollup';
@@ -51,8 +51,31 @@ function stylexPrecompile(): Plugin {
       await mkdir(dirname(outFile), { recursive: true });
       const plainCss = [...componentCss.keys()].sort().map((file) => componentCss.get(file));
       await writeFile(outFile, [css, ...plainCss].join('\n'));
+      await stripCssImportsFromTypes();
     },
   };
+}
+
+const CSS_SIDE_EFFECT_IMPORT = /^import ['"][^'"]+\.css['"];\r?\n/gm;
+
+/**
+ * tsc keeps components' side-effect `import './X.css'` in the emitted declarations, but the published package
+ * ships those rules in `dist/stylex.css`, not as files, so the imports would fail to resolve for consumers
+ * (and `attw`). They carry no types.
+ */
+async function stripCssImportsFromTypes() {
+  const typesDir = resolve(dirname(pkg.types));
+  for (const file of await readdir(typesDir, { recursive: true })) {
+    if (!file.endsWith('.d.ts')) {
+      continue;
+    }
+    const path = resolve(typesDir, file);
+    const source = await readFile(path, 'utf8');
+    const stripped = source.replace(CSS_SIDE_EFFECT_IMPORT, '');
+    if (stripped !== source) {
+      await writeFile(path, stripped);
+    }
+  }
 }
 
 type StylexRule = Parameters<typeof stylexPlugin.processStylexRules>[0][number];
