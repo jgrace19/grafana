@@ -8,8 +8,6 @@ import { QuickPlacement } from 'app/features/canvas/types';
 import { HorizontalConstraint, VerticalConstraint, type Placement } from '../../panelcfg.gen';
 
 import { type CanvasEditorOptions } from './elementEditor';
-import './QuickPositioning.css';
-
 type Props = {
   onPositionChange: (value: number | undefined, placement: keyof Placement) => void;
   element: ElementState;
@@ -67,21 +65,21 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
       <IconButton
         name="horizontal-align-left"
         onClick={() => onQuickPositioningChange(QuickPlacement.Left)}
-        className="gf-canvas-quick-positioning-button"
+        xstyle={styles.button}
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-left', 'Align left')}
       />
       <IconButton
         name="horizontal-align-center"
         onClick={() => onQuickPositioningChange(QuickPlacement.HorizontalCenter)}
-        className="gf-canvas-quick-positioning-button"
+        xstyle={styles.button}
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-horizontal-centers', 'Align horizontal centers')}
       />
       <IconButton
         name="horizontal-align-right"
         onClick={() => onQuickPositioningChange(QuickPlacement.Right)}
-        className="gf-canvas-quick-positioning-button"
+        xstyle={styles.button}
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-right', 'Align right')}
       />
@@ -94,14 +92,14 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
       <IconButton
         name="vertical-align-center"
         onClick={() => onQuickPositioningChange(QuickPlacement.VerticalCenter)}
-        className="gf-canvas-quick-positioning-button"
+        xstyle={styles.button}
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-vertical-centers', 'Align vertical centers')}
       />
       <IconButton
         name="vertical-align-bottom"
         onClick={() => onQuickPositioningChange(QuickPlacement.Bottom)}
-        className="gf-canvas-quick-positioning-button"
+        xstyle={styles.button}
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-bottom', 'Align bottom')}
       />
@@ -110,6 +108,10 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
 };
 
 const styles = stylex.create({
+  button: {
+    marginLeft: '5px',
+    marginRight: '5px',
+  },
   buttonGroup: {
     display: 'flex',
     flexWrap: 'wrap',

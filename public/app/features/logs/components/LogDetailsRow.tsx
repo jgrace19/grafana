@@ -16,7 +16,7 @@ import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { ClipboardButton, DataLinkButton, IconButton, type PopoverContent, Tooltip } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
-import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { logRowToSingleRowDataFrame } from '../logsModel';
 import { getLabelTypeFromRow } from '../utils';
@@ -172,6 +172,7 @@ export class LogDetailsRow extends PureComponent<Props, State> {
           variant="secondary"
           icon="copy"
           size="md"
+          xstyle={styles.detailsCopyButton}
         />
       </div>
     );
@@ -398,6 +399,18 @@ const styles = stylex.create({
   },
   wordBreakAll: {
     wordBreak: 'break-all',
+  },
+  detailsCopyButton: {
+    gap: 0,
+    color: colors['--gf-colors-text-secondary'],
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    justifyContent: 'center',
+    borderRadius: shape['--gf-shape-radius-circle'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-sm']})`,
+    width: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-sm']})`,
   },
   copyButton: {
     visibility: { default: 'hidden', [stylex.when.ancestor(':hover', logDetailsValueMarker)]: 'visible' },

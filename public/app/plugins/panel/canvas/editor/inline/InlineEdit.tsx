@@ -10,7 +10,6 @@ import { mergeStylexProps } from '@grafana/ui/internal';
 import { colors, components, shadows } from '@grafana/ui/stylex/tokens.stylex';
 import { type Scene } from 'app/features/canvas/runtime/scene';
 
-import './InlineEdit.css';
 import { InlineEditBody } from './InlineEditBody';
 
 type Props = {
@@ -92,7 +91,7 @@ export function InlineEdit({ onClose, id, scene }: Props) {
                 <IconButton
                   name="times"
                   size="xl"
-                  className="gf-canvas-inline-editor-close"
+                  xstyle={styles.close}
                   onClick={onClose}
                   tooltip={t('canvas.inline-edit.tooltip-close-inline-editor', 'Close inline editor')}
                 />
@@ -111,6 +110,9 @@ export function InlineEdit({ onClose, id, scene }: Props) {
 }
 
 const styles = stylex.create({
+  close: {
+    marginLeft: 'auto',
+  },
   inlineEditorContainer: {
     display: 'flex',
     flexDirection: 'column',

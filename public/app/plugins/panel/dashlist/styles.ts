@@ -5,9 +5,9 @@ import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { dashlistCardMarker } from './markers.stylex';
+import { dashlistCardMarker, dashlistLinkMarker } from './markers.stylex';
 
-/** Sets the card hover gradient that `DashListItem.css` applies; it's colour math on the theme. */
+/** Sets the card hover gradient that `DashListItem`'s card applies; it's colour math on the theme. */
 export function getCardHoverGradientStyle(theme: GrafanaTheme2): CSSProperties {
   const gradient = `linear-gradient(
     90deg,
@@ -72,5 +72,25 @@ export const styles = stylex.create({
     WebkitLineClamp: 1,
     overflow: 'hidden',
     whiteSpace: 'normal',
+  },
+  dashlistLinkName: {
+    color: { default: null, [stylex.when.ancestor(':hover', dashlistLinkMarker)]: colors['--gf-colors-text-link'] },
+    textDecoration: { default: null, [stylex.when.ancestor(':hover', dashlistLinkMarker)]: 'underline' },
+  },
+  // Not clickable or a link itself, so Card has no :hover background to keep. The hover gradient is theme colour
+  // math, set on the card as a custom property.
+  cardContainer: {
+    display: 'block',
+    height: '100%',
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    backgroundImage: {
+      default: null,
+      [stylex.when.descendant(':hover', dashlistCardMarker)]: 'var(--dashlist-card-hover-gradient)',
+    },
+    color: {
+      default: null,
+      [stylex.when.descendant(':hover', dashlistCardMarker)]: colors['--gf-colors-text-primary'],
+    },
   },
 });

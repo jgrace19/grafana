@@ -6,7 +6,6 @@ import { LegendDisplayMode } from '@grafana/schema';
 import { Icon, useTheme2, VizLegend, type VizLegendItem, VizLegendListItem } from '@grafana/ui';
 
 import { type Config } from './layout';
-import './Legend.css';
 import { type NodeDatum } from './types';
 
 interface Props {
@@ -43,7 +42,7 @@ export const Legend = function Legend(props: Props) {
           <>
             <VizLegendListItem
               item={item}
-              className="gf-nodegraph-legend-item"
+              xstyle={styles.legendItem}
               onLabelClick={sortable ? onClick : undefined}
               allItemsSelected={false}
             />
@@ -104,6 +103,9 @@ function getColorLegendItems(nodes: NodeDatum[], theme: GrafanaTheme2): Array<Vi
 }
 
 const styles = stylex.create({
+  legendItem: {
+    flexGrow: 0,
+  },
   legend: {
     pointerEvents: 'all',
   },

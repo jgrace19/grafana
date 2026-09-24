@@ -10,7 +10,6 @@ import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type MapMeasure, type MapMeasureOptions, measures } from '../utils/measure';
 
-import './MeasureOverlay.css';
 import { MeasureVectorLayer } from './MeasureVectorLayer';
 
 type Props = {
@@ -107,7 +106,7 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
         </div>
       ) : (
         <IconButton
-          className="gf-geomap-measure-icon"
+          xstyle={styles.measureIcon}
           data-testid={selectors.components.PanelEditor.measureButton}
           name="ruler-combined"
           tooltip={t('geomap.measure-overlay.tooltip-show-measure-tools', 'Show measure tools')}
@@ -120,6 +119,16 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
 };
 
 const styles = stylex.create({
+  measureIcon: {
+    backgroundColor: colors['--gf-colors-secondary-main'],
+    display: 'inline-block',
+    height: '19.25px',
+    marginTop: '1px',
+    marginRight: '1px',
+    marginBottom: '1px',
+    marginLeft: '1px',
+    width: '19.25px',
+  },
   button: {
     marginLeft: 'auto',
   },

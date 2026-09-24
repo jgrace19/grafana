@@ -2,14 +2,13 @@ import * as stylex from '@stylexjs/stylex';
 
 import { t } from '@grafana/i18n';
 import { IconButton } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { LayerName } from 'app/core/components/Layers/LayerName';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 
 import { LayerActionID } from '../../types';
 import { type TreeViewEditorProps } from '../element/elementEditor';
 
-import './TreeNodeTitle.css';
 import { type TreeElement } from './tree';
 
 interface Props {
@@ -73,14 +72,14 @@ export const TreeNodeTitle = ({ settings, nodeData, setAllowSelection }: Props) 
           <IconButton
             name="copy"
             title={t('canvas.tree-node-title.title-duplicate', 'Duplicate')}
-            className="gf-canvas-tree-action-icon"
+            xstyle={styles.actionIcon}
             onClick={() => onDuplicate(element)}
             tooltip={t('canvas.tree-node-title.tooltip-duplicate', 'Duplicate')}
           />
           <IconButton
             name="trash-alt"
             title={t('canvas.tree-node-title.title-remove', 'Remove')}
-            className="gf-canvas-tree-action-icon"
+            xstyle={styles.actionIcon}
             onClick={() => onDelete(element)}
             tooltip={t('canvas.tree-node-title.tooltip-remove', 'Remove')}
           />
@@ -91,6 +90,10 @@ export const TreeNodeTitle = ({ settings, nodeData, setAllowSelection }: Props) 
 };
 
 const styles = stylex.create({
+  actionIcon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    cursor: 'pointer',
+  },
   actionButtonsWrapper: {
     display: 'flex',
     alignItems: 'flex-end',

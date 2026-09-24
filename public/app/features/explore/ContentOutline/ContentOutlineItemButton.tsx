@@ -8,8 +8,6 @@ import { Button, Icon, Tooltip } from '@grafana/ui';
 import { mergeStylexProps, type TooltipPlacement } from '@grafana/ui/internal';
 import { colors, components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import './ContentOutlineItemButton.css';
-
 type CommonProps = {
   contentOutlineExpanded?: boolean;
   title?: string;
@@ -105,7 +103,7 @@ export function ContentOutlineItemButton({
             'Delete item'
           )}
           variant="destructive"
-          className="gf-explore-outline-delete-button"
+          xstyle={styles.deleteButton}
           icon="times"
           onClick={() => onRemove()}
           data-testid="content-outline-item-delete-button"
@@ -139,6 +137,15 @@ function OutlineIcon({ icon }: { icon: IconName | React.ReactNode }) {
 }
 
 const styles = stylex.create({
+  deleteButton: {
+    width: spacing['--gf-spacing-x1'],
+    height: spacing['--gf-spacing-x1'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
   buttonContainer: {
     position: 'relative',
     display: 'flex',

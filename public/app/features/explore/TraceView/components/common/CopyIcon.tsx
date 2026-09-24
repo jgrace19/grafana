@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { t } from '@grafana/i18n';
 import { Button, type IconName, Tooltip } from '@grafana/ui';
-
-import './CopyIcon.css';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 type PropsType = {
   className?: string;
@@ -38,7 +38,7 @@ export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: Prop
     <Tooltip content={hasCopied ? t('explore.trace-view.tooltip-copy-icon', 'Copied') : tooltipTitle}>
       <Button
         aria-label={t('explore.trace-view.aria-label-copy', 'Copy to clipboard')}
-        className="gf-trace-copy-icon"
+        xstyle={styles.button}
         type="button"
         icon={icon}
         onClick={handleClick}
@@ -46,3 +46,19 @@ export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: Prop
     </Tooltip>
   );
 }
+
+const styles = stylex.create({
+  // Over Button's primary solid look: its :hover and :active values beat the base override on main, and the
+  // override's :focus came after them.
+  button: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-primary-shade'],
+      ':active': { default: colors['--gf-colors-primary-main'], ':focus': 'rgba(255, 255, 255, 0.25)' },
+      ':focus': 'rgba(255, 255, 255, 0.25)',
+    },
+    borderStyle: 'none',
+    color: { default: 'inherit', ':hover': colors['--gf-colors-primary-contrast-text'], ':focus': 'inherit' },
+    overflow: 'hidden',
+  },
+});

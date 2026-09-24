@@ -1,27 +1,4 @@
-/*
- * Overrides Card and its parts, which take no StyleX override for these properties. Not in a cascade layer, so
- * it wins over their (layered) StyleX styles like the Emotion className merge did.
- */
-.gf-annolist-card {
-  grid-template-areas: 'Heading Description Meta Tags';
-  grid-template-columns: auto 1fr auto auto;
-  padding: var(--gf-spacing-x1);
-  margin: var(--gf-spacing-x0-5);
-  width: inherit;
-}
-
-.gf-annolist-timestamp {
-  margin: 0;
-  align-self: center;
-}
-
-.gf-annolist-meta {
-  margin: 0;
-  position: relative;
-  justify-content: end;
-}
-
-/* Links in the annotation text, which is user content. */
+/* Links in the annotation's user HTML. Unlayered, like the Emotion rules they replace. */
 .gf-annolist-heading a {
   z-index: 1;
   position: relative;

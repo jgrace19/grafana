@@ -47,7 +47,6 @@ export const getLogRowStyles = memoizeOne((theme: GrafanaTheme2) => ({
 export const LOGS_ROW_CLASS = 'gf-logs-row';
 export const LOGS_ROW_LABELS_CLASS = 'gf-logs-row-labels';
 export const LOGS_ROW_MENU_CLASS = 'gf-logs-row-menu';
-export const LOGS_COPY_BUTTON_CLASS = 'gf-logs-copy-button';
 export const LOGS_DETAILS_TABLE_CLASS = 'gf-logs-details-table';
 export const LOGS_DETAILS_COPY_CLASS = 'gf-logs-details-copy';
 

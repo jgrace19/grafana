@@ -24,6 +24,7 @@ import {
   type ViewRangeTimeUpdate,
   type ViewRange,
 } from '../../TraceTimelineViewer/types';
+import { viewingLayerMarker } from '../../markers.stylex';
 import { traceColors } from '../../traceColors.stylex';
 import type TNil from '../../types/TNil';
 import DraggableManager from '../../utils/DraggableManager/DraggableManager';
@@ -32,8 +33,6 @@ import { type DraggableBounds, type DraggingUpdate } from '../../utils/Draggable
 
 import GraphTicks from './GraphTicks';
 import Scrubber from './Scrubber';
-
-import './ViewingLayer.css';
 
 export type ViewingLayerProps = {
   height: number;
@@ -290,18 +289,10 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
     return (
       <div
         aria-hidden
-        {...mergeStylexProps(stylex.props(styles.ViewingLayer), {
-          className: 'gf-trace-viewing-layer',
-          style: { height },
-        })}
+        {...mergeStylexProps(stylex.props(styles.ViewingLayer, viewingLayerMarker), { style: { height } })}
       >
         {(viewStart !== 0 || viewEnd !== 1) && (
-          <Button
-            onClick={this._resetTimeZoomClickHandler}
-            className="gf-trace-viewing-layer-reset-zoom"
-            type="button"
-            variant="secondary"
-          >
+          <Button onClick={this._resetTimeZoomClickHandler} xstyle={styles.resetZoom} type="button" variant="secondary">
             <Trans i18nKey="explore.unthemed-viewing-layer.reset-selection">Reset selection</Trans>
           </Button>
         )}
@@ -373,6 +364,14 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
 export default UnthemedViewingLayer;
 
 const styles = stylex.create({
+  // `unset` computes to `inline`, as on main.
+  resetZoom: {
+    display: { default: 'none', [stylex.when.ancestor(':hover', viewingLayerMarker)]: 'unset' },
+    position: 'absolute',
+    right: '1%',
+    top: '10%',
+    zIndex: 1,
+  },
   ViewingLayer: {
     cursor: 'vertical-text',
     position: 'relative',

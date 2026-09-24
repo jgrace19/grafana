@@ -21,8 +21,6 @@ import { changeCorrelationEditorDetails, splitClose } from './state/main';
 import { runQueries } from './state/query';
 import { selectCorrelationDetails, selectIsHelperShowing } from './state/selectors';
 
-import './CorrelationEditorModeBar.css';
-
 export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, ExploreItemState]> }) => {
   const dispatch = useDispatch();
   const theme = useTheme2();
@@ -249,9 +247,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
             variant="secondary"
             disabled={!correlationDetails?.canSave}
             fill="outline"
-            className={
-              correlationDetails?.canSave ? 'gf-explore-correlation-button' : 'gf-explore-correlation-button-disabled'
-            }
+            xstyle={correlationDetails?.canSave ? styles.button(barColors.focusBorder) : styles.buttonDisabled}
             onClick={() => {
               saveCorrelationPostAction(true);
             }}
@@ -261,7 +257,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
           <Button
             variant="secondary"
             fill="outline"
-            className="gf-explore-correlation-button"
+            xstyle={styles.button(barColors.focusBorder)}
             icon="times"
             onClick={() => {
               dispatch(changeCorrelationEditorDetails({ isExiting: true }));
@@ -276,7 +272,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
   );
 };
 
-// Colour math on the theme's primary colour; the Button overrides in CorrelationEditorModeBar.css read the vars.
+// Colour math on the theme's primary colour; the Button overrides read the vars.
 function getBarColors(theme: GrafanaTheme2) {
   const contrastColor = theme.colors.getContrastText(theme.colors.primary.main);
   const vars: CSSProperties & Record<string, string> = {
@@ -285,8 +281,14 @@ function getBarColors(theme: GrafanaTheme2) {
     '--gf-explore-correlation-disabled-background': colorManipulator.darken(theme.colors.primary.main, 0.2),
     '--gf-explore-correlation-disabled-text': colorManipulator.darken(contrastColor, 0.2),
   };
-  return { contrastColor, vars };
+  const focusBorder = theme.colors.emphasize(theme.colors.border.strong, 0.25);
+  return { contrastColor, focusBorder, vars };
 }
+
+const CONTRAST = 'var(--gf-explore-correlation-contrast)';
+const HOVER_BACKGROUND = 'var(--gf-explore-correlation-hover-background)';
+const DISABLED_TEXT = 'var(--gf-explore-correlation-disabled-text)';
+const DISABLED_BACKGROUND = 'var(--gf-explore-correlation-disabled-background)';
 
 const styles = stylex.create({
   correlationEditorTop: {
@@ -297,4 +299,29 @@ const styles = stylex.create({
   iconColor: (color: string) => ({
     color,
   }),
+  // Over Button's secondary outline look: the :hover colours came after its focus and active rules. `focusBorder`
+  // is Button's own focus border.
+  button: (focusBorder: string) => ({
+    color: {
+      default: CONTRAST,
+      ':hover': CONTRAST,
+      ':focus': { default: colors['--gf-colors-secondary-text'], ':hover': CONTRAST },
+    },
+    borderColor: {
+      default: CONTRAST,
+      ':hover': CONTRAST,
+      ':focus': { default: focusBorder, ':hover': CONTRAST },
+    },
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': HOVER_BACKGROUND,
+      ':focus': { default: colors['--gf-colors-secondary-transparent'], ':hover': HOVER_BACKGROUND },
+      ':active': { default: 'transparent', ':hover': HOVER_BACKGROUND },
+    },
+  }),
+  // Wins over Button's disabled look, as the `!important` Emotion class did.
+  buttonDisabled: {
+    color: { default: DISABLED_TEXT, ':disabled': DISABLED_TEXT },
+    backgroundColor: { default: DISABLED_BACKGROUND, ':disabled': DISABLED_BACKGROUND },
+  },
 });

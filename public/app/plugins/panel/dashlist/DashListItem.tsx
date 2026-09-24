@@ -2,13 +2,11 @@ import * as stylex from '@stylexjs/stylex';
 
 import { reportInteraction } from '@grafana/runtime';
 import { Card, Icon, Link, Stack, Text, useTheme2 } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
 import { type LocationInfo } from 'app/features/search/service/types';
 import { StarToolbarButton } from 'app/features/stars/StarToolbarButton';
 
 import { type Dashboard } from './DashList';
-import './DashListItem.css';
-import { dashlistCardMarker } from './markers.stylex';
+import { dashlistCardMarker, dashlistLinkMarker } from './markers.stylex';
 import { getCardHoverGradientStyle, styles } from './styles';
 
 interface Props {
@@ -45,9 +43,11 @@ export function DashListItem({
   return (
     <>
       {layoutMode === 'list' ? (
-        <div {...mergeStylexProps(stylex.props(styles.dashlistLink), { className: 'gf-dashlist-link' })}>
-          <Link href={url} className={stylex.props(styles.dashlistLinkAnchor).className}>
-            <Text element="p">{dashboard.name}</Text>
+        <div {...stylex.props(styles.dashlistLink)}>
+          <Link href={url} className={stylex.props(styles.dashlistLinkAnchor, dashlistLinkMarker).className}>
+            <Text element="p" xstyle={styles.dashlistLinkName}>
+              {dashboard.name}
+            </Text>
             {showFolderNames && locationInfo && (
               <Text color="secondary" variant="bodySmall" element="p">
                 {locationInfo?.name}
@@ -63,7 +63,7 @@ export function DashListItem({
           />
         </div>
       ) : (
-        <Card noMargin className="gf-dashlist-card-container" style={getCardHoverGradientStyle(theme)}>
+        <Card noMargin xstyle={styles.cardContainer} style={getCardHoverGradientStyle(theme)}>
           <Stack justifyContent="space-between" alignItems="start" height="100%">
             <Link
               className={stylex.props(styles.dashlistCard, dashlistCardMarker).className}

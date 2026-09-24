@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ClipboardButton, type CustomCellRendererProps, IconButton, Modal } from '@grafana/ui';
-import { colors, shadows } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, shadows, shape } from '@grafana/ui/stylex/tokens.stylex';
 import { getLogsPermalinkRange } from 'app/core/utils/shortLinks';
 import { getUrlStateFromPaneState } from 'app/features/explore/hooks/useStateSync/external.utils';
 import { type LogsFrame, DATAPLANE_ID_NAME } from 'app/features/logs/logsFrame';
@@ -101,6 +101,7 @@ export const LogsTableActionButtons = memo((props: Props) => {
       <div {...stylex.props(styles.iconWrapper)}>
         <IconButton
           className="gf-explore-logs-table-action"
+          xstyle={[styles.action, styles.iconAction]}
           tooltip={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
           variant="secondary"
           aria-label={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
@@ -112,6 +113,7 @@ export const LogsTableActionButtons = memo((props: Props) => {
         />
         <ClipboardButton
           className="gf-explore-logs-table-action"
+          xstyle={[styles.action, styles.clipboardAction]}
           icon="share-alt"
           variant="secondary"
           fill="text"
@@ -144,6 +146,36 @@ export const LogsTableActionButtons = memo((props: Props) => {
 LogsTableActionButtons.displayName = 'LogsTableActionButtons';
 
 const styles = stylex.create({
+  action: {
+    gap: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    borderRadius: shape['--gf-shape-radius-default'],
+    width: '28px',
+    height: '32px',
+    display: 'inline-flex',
+    justifyContent: 'center',
+  },
+  iconAction: {
+    color: { default: colors['--gf-colors-secondary-text'], ':hover': colors['--gf-colors-text-link'] },
+    cursor: { default: null, ':hover': 'pointer' },
+  },
+  // Over Button's secondary text look: the :hover background came after its focus and active rules.
+  clipboardAction: {
+    color: { default: colors['--gf-colors-secondary-text'], ':hover': colors['--gf-colors-text-link'] },
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': 'transparent',
+      ':focus': { default: colors['--gf-colors-secondary-transparent'], ':hover': 'transparent' },
+      ':active': 'transparent',
+    },
+  },
   iconWrapper: {
     backgroundColor: colors['--gf-colors-background-secondary'],
     boxShadow: shadows['--gf-shadows-z2'],

@@ -31,7 +31,7 @@ export const AnnotationListItem = ({ options, annotation, formatDate, onClick, o
   const showTimeStampEnd = timeEnd && timeEnd !== time && showTime;
 
   return (
-    <Card noMargin className="gf-annolist-card" onClick={onItemClick}>
+    <Card noMargin xstyle={styles.card} onClick={onItemClick}>
       <Card.Heading>
         <RenderUserContentAsHTML
           className="gf-annolist-heading"
@@ -42,7 +42,7 @@ export const AnnotationListItem = ({ options, annotation, formatDate, onClick, o
         />
       </Card.Heading>
       {showTimeStamp && (
-        <Card.Description className="gf-annolist-timestamp">
+        <Card.Description xstyle={styles.timestamp}>
           <TimeStamp formatDate={formatDate} time={time!} />
           {showTimeStampEnd && (
             <>
@@ -53,7 +53,7 @@ export const AnnotationListItem = ({ options, annotation, formatDate, onClick, o
         </Card.Description>
       )}
       {showAvatar && (
-        <Card.Meta className="gf-annolist-meta">
+        <Card.Meta xstyle={styles.meta}>
           <Avatar email={email} login={login!} avatarUrl={avatarUrl} onClick={onLoginClick} />
         </Card.Meta>
       )}
@@ -110,6 +110,34 @@ const TimeStamp = ({ time, formatDate }: TimeStampProps) => {
 };
 
 const styles = stylex.create({
+  card: {
+    gridTemplateAreas: "'Heading Description Meta Tags'",
+    gridTemplateColumns: 'auto 1fr auto auto',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    width: 'inherit',
+  },
+  timestamp: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    alignSelf: 'center',
+  },
+  meta: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    position: 'relative',
+    justifyContent: 'end',
+  },
   time: {
     marginLeft: spacing['--gf-spacing-x1'],
     marginRight: spacing['--gf-spacing-x1'],
