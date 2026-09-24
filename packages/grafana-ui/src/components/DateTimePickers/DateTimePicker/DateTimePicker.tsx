@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
 import { autoUpdate, useFloating } from '@floating-ui/react';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import Calendar from 'react-calendar';
@@ -12,7 +12,6 @@ import {
   dateTimeFormat,
   type DateTime,
   dateTime,
-  type GrafanaTheme2,
   isDateTime,
   dateTimeForTimeZone,
   getTimeZone,
@@ -21,19 +20,23 @@ import {
 import { Components } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../../utils/floating';
 import { Button } from '../../Button/Button';
 import { InlineField } from '../../Forms/InlineField';
 import { Icon } from '../../Icon/Icon';
 import { Input } from '../../Input/Input';
 import { Stack } from '../../Layout/Stack/Stack';
-import { getModalStyles } from '../../Modal/getModalStyles';
 import { Portal } from '../../Portal/Portal';
 import { TimeOfDayPicker, POPUP_CLASS_NAME } from '../TimeOfDayPicker';
-import { getBodyStyles } from '../TimeRangePicker/CalendarBody';
+import { calendarClassNames } from '../TimeRangePicker/CalendarBody';
 import { isValid } from '../utils';
 import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar';
+
+import './DateTimePicker.css';
 
 export interface Props {
   /** Input date for the component */
@@ -96,10 +99,8 @@ export const DateTimePicker = ({
   const { dialogProps } = useDialog({}, ref);
 
   const theme = useTheme2();
-  const { modalBackdrop } = useStyles2(getModalStyles);
   const isFullscreen = useMedia(`(min-width: ${theme.breakpoints.values.lg}px)`);
   const placement = 'bottom-start';
-  const styles = useStyles2(getStyles);
 
   // the order of middleware is important!
   // see https://floating-ui.com/docs/arrow#order
@@ -168,10 +169,10 @@ export const DateTimePicker = ({
           </Portal>
         ) : (
           <Portal>
-            <div className={modalBackdrop} {...underlayProps} />
+            <div {...stylex.props(styles.modalBackdrop)} {...underlayProps} />
             <FocusScope contain autoFocus restoreFocus>
               <div ref={ref} {...overlayProps} {...dialogProps}>
-                <div className={styles.modal}>
+                <div {...stylex.props(styles.modal)}>
                   <DateTimeCalendar
                     date={date}
                     maxDate={maxDate}
@@ -214,7 +215,6 @@ type InputState = {
 
 const DateTimeInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ date, label, onChange, onOpen, timeZone, showSeconds = true, clearable = false }, ref) => {
-    const styles = useStyles2(getStyles);
     const format = showSeconds ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm';
     const [internalDate, setInternalDate] = useState<InputState>(() => {
       return {
@@ -262,7 +262,11 @@ const DateTimeInput = React.forwardRef<HTMLInputElement, InputProps>(
       />
     );
     return (
-      <InlineField label={label} invalid={!!(internalDate.value && internalDate.invalid)} className={styles.field}>
+      <InlineField
+        label={label}
+        invalid={!!(internalDate.value && internalDate.invalid)}
+        className="gf-date-time-picker-field"
+      >
         <Input
           onChange={onChangeDate}
           addonAfter={icon}
@@ -273,7 +277,7 @@ const DateTimeInput = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           suffix={
             clearable &&
-            internalDate.value && <Icon name="times" className={styles.clearIcon} onClick={clearInternalDate} />
+            internalDate.value && <Icon name="times" xstyle={styles.clearIcon} onClick={clearInternalDate} />
           }
         />
       </InlineField>
@@ -301,9 +305,6 @@ const DateTimeCalendar = React.forwardRef<HTMLDivElement, DateTimeCalendarProps>
     },
     ref
   ) => {
-    const calendarStyles = useStyles2(getBodyStyles);
-    const styles = useStyles2(getStyles);
-
     // need to keep these 2 separate in state since react-calendar doesn't support different timezones
     const [timeOfDayDateTime, setTimeOfDayDateTime] = useState(() => {
       if (date && date.isValid()) {
@@ -344,7 +345,10 @@ const DateTimeCalendar = React.forwardRef<HTMLDivElement, DateTimeCalendarProps>
     };
 
     return (
-      <div className={cx(styles.container, { [styles.fullScreen]: isFullscreen })} style={style} ref={ref}>
+      <div
+        {...mergeStylexProps(stylex.props(styles.container, isFullscreen && styles.fullScreen), { style })}
+        ref={ref}
+      >
         <Calendar
           next2Label={null}
           prev2Label={null}
@@ -355,12 +359,12 @@ const DateTimeCalendar = React.forwardRef<HTMLDivElement, DateTimeCalendarProps>
           prevAriaLabel={t('grafana-ui.date-time-picker.previous-label', 'Previous month')}
           onChange={onChangeDate}
           locale="en"
-          className={calendarStyles.body}
-          tileClassName={calendarStyles.title}
+          className={calendarClassNames.body}
+          tileClassName={calendarClassNames.tile}
           maxDate={maxDate}
           minDate={minDate}
         />
-        <div className={styles.time}>
+        <div {...stylex.props(styles.time)}>
           <TimeOfDayPicker
             showSeconds={showSeconds}
             onChange={onChangeTime}
@@ -385,33 +389,40 @@ const DateTimeCalendar = React.forwardRef<HTMLDivElement, DateTimeCalendarProps>
 
 DateTimeCalendar.displayName = 'DateTimeCalendar';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    padding: theme.spacing(1),
-    border: `1px ${theme.colors.border.weak} solid`,
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.background.primary,
-    zIndex: theme.zIndex.modal,
-  }),
-  fullScreen: css({
+const styles = stylex.create({
+  container: {
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    zIndex: zIndex.modal,
+  },
+  fullScreen: {
     position: 'absolute',
-  }),
-  time: css({
-    marginBottom: theme.spacing(2),
-  }),
-  modal: css({
+  },
+  time: {
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+  },
+  modal: {
     position: 'fixed',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    zIndex: theme.zIndex.modal,
+    zIndex: zIndex.modal,
     maxWidth: '280px',
-  }),
-  clearIcon: css({
+  },
+  modalBackdrop: {
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: components['--gf-components-overlay-background'],
+  },
+  clearIcon: {
     cursor: 'pointer',
-  }),
-  field: css({
-    marginBottom: 0,
-    width: '100%',
-  }),
+  },
 });

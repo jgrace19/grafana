@@ -108,6 +108,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/Table/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U5 time
+  'packages/grafana-ui/src/components/{DateTimePickers,RefreshPicker}/**/*.{ts,tsx}',
   // U7 viz
   'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
   // U8 chrome/globals

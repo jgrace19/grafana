@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { colors, typography } from '../../../themes/stylex/tokens.stylex';
 
 interface Props {
   label: string | undefined;
@@ -12,7 +10,6 @@ interface Props {
 
 export const TimeZoneGroup = (props: Props) => {
   const { children, label } = props;
-  const styles = useStyles2(getStyles);
 
   if (!label) {
     return <div>{children}</div>;
@@ -20,26 +17,29 @@ export const TimeZoneGroup = (props: Props) => {
 
   return (
     <div>
-      <div className={styles.header}>
-        <span className={styles.label}>{label}</span>
+      <div {...stylex.props(styles.header)}>
+        <span {...stylex.props(styles.label)}>{label}</span>
       </div>
       {children}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      padding: '7px 10px',
-      width: '100%',
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      textTransform: 'capitalize',
-    }),
-    label: css({
-      fontSize: theme.typography.size.sm,
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-  };
-};
+const styles = stylex.create({
+  header: {
+    paddingTop: '7px',
+    paddingBottom: '7px',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    width: '100%',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    textTransform: 'capitalize',
+  },
+  label: {
+    fontSize: typography['--gf-typography-size-sm'],
+    color: colors['--gf-colors-text-secondary'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+});
