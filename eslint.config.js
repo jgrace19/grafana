@@ -216,7 +216,7 @@ const stylexNotMigratedAppFiles = [
   'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
   'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
   'public/app/core/components/SplashScreenModal/{SplashScreenNav,SplashScreenSlide}.tsx',
-  'public/app/core/components/TagFilter/{TagFilter,TagOption}.tsx',
+  'public/app/core/components/TagFilter/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

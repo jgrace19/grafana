@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { getTagColorsFromName, Icon } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { shape, spacing, typography, v1 } from '@grafana/ui/stylex/tokens.stylex';
@@ -48,26 +46,4 @@ const styles = stylex.create({
     whiteSpace: 'nowrap',
     opacity: { default: null, ':hover': 0.85 },
   },
-});
-
-/**
- * @deprecated Emotion compat for VariableLink (outside `core`), which still builds on the badge styles.
- * stylex: pending VariableLink migration. TagBadge itself uses StyleX.
- */
-export const getStyles = (theme: GrafanaTheme2) => ({
-  badge: css({
-    ...theme.typography.bodySmall,
-    backgroundColor: theme.v1.palette.gray1,
-    borderRadius: theme.shape.radius.sm,
-    color: theme.v1.palette.white,
-    display: 'inline-block',
-    height: '20px',
-    lineHeight: '20px',
-    padding: theme.spacing(0, 0.75),
-    verticalAlign: 'baseline',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      opacity: 0.85,
-    },
-  }),
 });
