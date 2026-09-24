@@ -1,0 +1,7 @@
+/*
+ * Override on LoadingPlaceholder, which takes no xstyle and sets its own bottom margin. Unlayered on purpose so it beats
+ * that margin, like the Emotion className override it replaces.
+ */
+.gf-variable-editor-loading {
+  margin-bottom: 0;
+}

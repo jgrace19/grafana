@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { type UseFormReturn, Controller } from 'react-hook-form';
 
 import { type SelectableValue } from '@grafana/data';
-import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '@grafana/ui';
+import { Checkbox, Field, Input, SecretInput, Select, Switch } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
@@ -37,7 +38,6 @@ export const FieldRenderer = ({
   const name = isDependantField ? field.name : field;
   const parentValue = isDependantField && field.dependsOn ? watch(field.dependsOn) : null;
   const fieldData = fieldMap(provider)[name];
-  const theme = useTheme2();
 
   // Handle disabledWhen configuration
   const disabledWhen = isDependantField ? field.disabledWhen : undefined;
@@ -180,7 +180,7 @@ export const FieldRenderer = ({
           {...register(name)}
           id={name}
           {...fieldProps}
-          className={css({ marginBottom: theme.spacing(2) })}
+          className={stylex.props(styles.checkbox).className}
         />
       );
     case 'custom':
@@ -194,3 +194,9 @@ export const FieldRenderer = ({
       return null;
   }
 };
+
+const styles = stylex.create({
+  checkbox: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+});

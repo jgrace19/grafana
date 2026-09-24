@@ -71,8 +71,8 @@ test.describe('TimeSeries faceted labels filter', { tag: ['@panels', '@timeserie
     await expect(popover.getByText('Deselect all').first()).toBeVisible();
   });
 
-  test('filter becomes dimmed when legend item is clicked', async ({ gotoDashboardPage, page }) => {
-    await gotoDashboardPage({
+  test('filter becomes dimmed when legend item is clicked', async ({ gotoDashboardPage, page, selectors }) => {
+    const dashboardPage = await gotoDashboardPage({
       uid: DASHBOARD_UID,
       queryParams: new URLSearchParams({ editPanel: '1' }),
     });
@@ -85,7 +85,10 @@ test.describe('TimeSeries faceted labels filter', { tag: ['@panels', '@timeserie
     const filter = page.getByTestId('faceted-labels-filter').first();
     await expect(filter).toHaveCSS('opacity', '1');
 
-    const legendLabel = page.locator('button[class*="LegendLabel"]').first();
+    const legendLabel = dashboardPage
+      .getByGrafanaSelector(selectors.components.VizLayout.legend)
+      .locator('tbody button')
+      .first();
     await legendLabel.click();
 
     await expect(filter).toHaveCSS('opacity', '0.5');

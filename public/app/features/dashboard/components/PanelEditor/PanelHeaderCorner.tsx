@@ -1,18 +1,16 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, type JSX } from 'react';
 
-import {
-  type GrafanaTheme2,
-  renderMarkdown,
-  type LinkModelSupplier,
-  type ScopedVars,
-  type IconName,
-} from '@grafana/data';
+import { renderMarkdown, type LinkModelSupplier, type ScopedVars, type IconName } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { locationService, getTemplateSrv } from '@grafana/runtime';
-import { Tooltip, type PopoverContent, Icon, useStyles2 } from '@grafana/ui';
+import { Tooltip, type PopoverContent, Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { InspectTab } from 'app/features/inspector/types';
+
+import './PanelHeaderCorner.global.css';
 
 enum InfoMode {
   Error = 'Error',
@@ -30,8 +28,6 @@ export interface Props {
 }
 
 export function PanelHeaderCorner({ panel, links, error }: Props) {
-  const styles = useStyles2(getContentStyles);
-
   const getInfoMode = useCallback(() => {
     if (error) {
       return InfoMode.Error;
@@ -53,11 +49,11 @@ export function PanelHeaderCorner({ panel, links, error }: Props) {
     const linksList = links && links.getLinks(panel.replaceVariables);
 
     return (
-      <div className={styles.content}>
+      <div {...mergeStylexProps(stylex.props(contentStyles.content), { className: 'gf-panel-header-corner-content' })}>
         <div dangerouslySetInnerHTML={{ __html: markedInterpolatedMarkdown }} />
 
         {linksList && linksList.length > 0 && (
-          <ul className={styles.cornerLinks}>
+          <ul {...stylex.props(contentStyles.cornerLinks)}>
             {linksList.map((link, idx) => {
               return (
                 <li key={idx}>
@@ -71,7 +67,7 @@ export function PanelHeaderCorner({ panel, links, error }: Props) {
         )}
       </div>
     );
-  }, [panel, links, styles]);
+  }, [panel, links]);
 
   /**
    * Open the Panel Inspector when we click on an error
@@ -111,17 +107,15 @@ interface PanelInfoCornerProps {
 function PanelInfoCorner({ infoMode, content, onClick }: PanelInfoCornerProps) {
   const theme = infoMode === InfoMode.Error ? 'error' : 'info';
   const ariaLabel = selectors.components.Panels.Panel.headerCornerInfo(infoMode.toLowerCase());
-  const styles = useStyles2(getStyles);
-
   return (
     <Tooltip content={content} placement="top-start" theme={theme} interactive>
-      <button type="button" className={styles.infoCorner} onClick={onClick} aria-label={ariaLabel}>
+      <button type="button" {...stylex.props(styles.infoCorner)} onClick={onClick} aria-label={ariaLabel}>
         <Icon
           name={iconMap[infoMode]}
           size={infoMode === InfoMode.Links ? 'sm' : 'lg'}
-          className={cx(styles.icon, { [styles.iconLinks]: infoMode === InfoMode.Links })}
+          xstyle={[styles.icon, infoMode === InfoMode.Links && styles.iconLinks]}
         />
-        <span className={cx(styles.inner, { [styles.error]: infoMode === InfoMode.Error })} />
+        <span {...stylex.props(styles.inner, infoMode === InfoMode.Error && styles.error)} />
       </button>
     </Tooltip>
   );
@@ -133,61 +127,56 @@ const iconMap: Record<InfoMode, IconName> = {
   [InfoMode.Links]: 'external-link-alt',
 };
 
-const getContentStyles = (theme: GrafanaTheme2) => ({
-  content: css({
+// The markdown's code/pre rules live in PanelHeaderCorner.global.css: StyleX can't target rendered HTML.
+const contentStyles = stylex.create({
+  content: {
     overflow: 'auto',
-
-    code: {
-      whiteSpace: 'normal',
-      wordWrap: 'break-word',
-    },
-
-    'pre > code': {
-      display: 'block',
-    },
-  }),
-  cornerLinks: css({
+  },
+  cornerLinks: {
     listStyle: 'none',
     paddingLeft: 0,
-  }),
+  },
 });
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      zIndex: 2,
-      fill: theme.colors.text.maxContrast,
-    }),
-    iconLinks: css({
-      left: theme.spacing(0.5),
-      top: theme.spacing(0.25),
-    }),
-    inner: css({
-      width: 0,
-      height: 0,
-      position: 'absolute',
-      left: 0,
-      bottom: 0,
-      borderBottom: `${theme.spacing(4)} solid transparent`,
-      borderLeft: `${theme.spacing(4)} solid ${theme.colors.background.secondary}`,
-    }),
-    error: css({
-      borderLeftColor: theme.colors.error.main,
-    }),
-    infoCorner: css({
-      background: 'none',
-      border: 'none',
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      width: theme.spacing(4),
-      height: theme.spacing(4),
-      zIndex: 3,
-    }),
-  };
-};
+const styles = stylex.create({
+  icon: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 2,
+    fill: colors['--gf-colors-text-max-contrast'],
+  },
+  iconLinks: {
+    left: spacing['--gf-spacing-x0-5'],
+    top: spacing['--gf-spacing-x0-25'],
+  },
+  inner: {
+    width: 0,
+    height: 0,
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    borderBottomWidth: spacing['--gf-spacing-x4'],
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'transparent',
+    borderLeftWidth: spacing['--gf-spacing-x4'],
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-background-secondary'],
+  },
+  error: {
+    borderLeftColor: colors['--gf-colors-error-main'],
+  },
+  infoCorner: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    color: colors['--gf-colors-text-secondary'],
+    cursor: 'pointer',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: spacing['--gf-spacing-x4'],
+    height: spacing['--gf-spacing-x4'],
+    zIndex: 3,
+  },
+});

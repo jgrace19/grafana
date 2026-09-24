@@ -1,24 +1,24 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { type SceneComponentProps, sceneGraph } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { isRepeatCloneOrChildOf } from '../../utils/clone';
 import { getTestIdForLayout } from '../../utils/test-utils';
 import { useDashboardState } from '../../utils/utils';
 import { useSoloPanelContext } from '../SoloPanelContext';
 import { CanvasGridAddActions } from '../layouts-shared/CanvasGridAddActions';
-import { dashboardCanvasAddButtonHoverStyles } from '../layouts-shared/styles';
 import { DASHBOARD_DROP_TARGET_KEY_ATTR } from '../types/DashboardDropTarget';
 
 import { type AutoGridLayout, type AutoGridLayoutState } from './AutoGridLayout';
 import { AutoGridLayoutManager } from './AutoGridLayoutManager';
 
+import '../layouts-shared/canvasControls.global.css';
 export function AutoGridLayoutRenderer({ model }: SceneComponentProps<AutoGridLayout>) {
   const { children, isHidden } = model.useState();
-  const styles = useStyles2(getStyles, model.state);
   const {
     layoutOrchestrator,
     isEditing,
@@ -49,7 +49,7 @@ export function AutoGridLayoutRenderer({ model }: SceneComponentProps<AutoGridLa
 
     for (let i = 0; i <= children.length; i++) {
       if (i === insertPosition) {
-        result.push(<DropPlaceholder key="drop-placeholder" styles={styles} />);
+        result.push(<DropPlaceholder key="drop-placeholder" />);
       }
       if (i < children.length) {
         const item = children[i];
@@ -63,7 +63,15 @@ export function AutoGridLayoutRenderer({ model }: SceneComponentProps<AutoGridLa
   return (
     <div
       data-testid={selectors.components.LayoutContainer(getTestIdForLayout(model))}
-      className={cx(styles.container, fillScreen && styles.containerFillScreen, isEditing && styles.containerEditing)}
+      {...mergeStylexProps(
+        stylex.props(
+          styles.container,
+          gridStyles(model.state),
+          fillScreen && styles.containerFillScreen,
+          isEditing && styles.containerEditing
+        ),
+        { className: 'gf-auto-grid-layout' }
+      )}
       ref={model.containerRef}
       {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: layoutManager.state.key }}
     >
@@ -73,42 +81,77 @@ export function AutoGridLayoutRenderer({ model }: SceneComponentProps<AutoGridLa
   );
 }
 
-function DropPlaceholder({ styles }: { styles: ReturnType<typeof getStyles> }) {
-  return <div className={styles.dropPlaceholder} />;
+function DropPlaceholder() {
+  return <div {...stylex.props(styles.dropPlaceholder)} />;
 }
 
-const getStyles = (theme: GrafanaTheme2, state: AutoGridLayoutState) => ({
-  container: css({
+function gridSpacing(units: number) {
+  return `calc(var(--gf-spacing-grid-size) * ${units})`;
+}
+
+// theme.spacing(state.md.rowGap) for both md gaps is deliberate parity with the Emotion version.
+function gridStyles(state: AutoGridLayoutState) {
+  const { md } = state;
+  return styles.grid(
+    state.templateColumns ?? null,
+    state.templateRows || null,
+    state.autoRows || null,
+    gridSpacing(state.rowGap ?? 1),
+    gridSpacing(state.columnGap ?? 1),
+    state.justifyItems || null,
+    state.alignItems || null,
+    state.justifyContent || null,
+    md?.templateRows ?? null,
+    md?.templateColumns ?? null,
+    md?.rowGap ? gridSpacing(md.rowGap ?? 1) : null,
+    md?.columnGap ? gridSpacing(md.rowGap ?? 1) : null,
+    md?.justifyItems ?? null,
+    md?.alignItems ?? null,
+    md?.justifyContent ?? null
+  );
+}
+
+// `null` leaves a property unset, like the Emotion version's `'unset'` / omitted md values. The canvas add-actions
+// hover rule lives in layouts-shared/canvasControls.global.css.
+const styles = stylex.create({
+  container: {
     display: 'grid',
     position: 'relative',
-    gridTemplateColumns: state.templateColumns,
-    gridTemplateRows: state.templateRows || 'unset',
-    gridAutoRows: state.autoRows || 'unset',
-    rowGap: theme.spacing(state.rowGap ?? 1),
-    columnGap: theme.spacing(state.columnGap ?? 1),
-    justifyItems: state.justifyItems || 'unset',
-    alignItems: state.alignItems || 'unset',
-    justifyContent: state.justifyContent || 'unset',
-    [theme.breakpoints.down('md')]: state.md
-      ? {
-          gridTemplateRows: state.md.templateRows,
-          gridTemplateColumns: state.md.templateColumns,
-          rowGap: state.md.rowGap ? theme.spacing(state.md.rowGap ?? 1) : undefined,
-          columnGap: state.md.columnGap ? theme.spacing(state.md.rowGap ?? 1) : undefined,
-          justifyItems: state.md.justifyItems,
-          alignItems: state.md.alignItems,
-          justifyContent: state.md.justifyContent,
-        }
-      : undefined,
-    // Show add action when hovering over the grid
-    ...dashboardCanvasAddButtonHoverStyles,
+  },
+  grid: (
+    templateColumns: string | number | null,
+    templateRows: string | number | null,
+    autoRows: string | number | null,
+    rowGap: string,
+    columnGap: string,
+    justifyItems: string | null,
+    alignItems: string | null,
+    justifyContent: string | null,
+    mdTemplateRows: string | number | null,
+    mdTemplateColumns: string | number | null,
+    mdRowGap: string | null,
+    mdColumnGap: string | null,
+    mdJustifyItems: string | null,
+    mdAlignItems: string | null,
+    mdJustifyContent: string | null
+  ) => ({
+    gridTemplateColumns: { default: templateColumns, [bp.mdDown]: mdTemplateColumns },
+    gridTemplateRows: { default: templateRows, [bp.mdDown]: mdTemplateRows },
+    gridAutoRows: autoRows,
+    rowGap: { default: rowGap, [bp.mdDown]: mdRowGap },
+    columnGap: { default: columnGap, [bp.mdDown]: mdColumnGap },
+    justifyItems: { default: justifyItems, [bp.mdDown]: mdJustifyItems },
+    alignItems: { default: alignItems, [bp.mdDown]: mdAlignItems },
+    justifyContent: { default: justifyContent, [bp.mdDown]: mdJustifyContent },
   }),
-  containerFillScreen: css({ flexGrow: 1 }),
-  containerEditing: css({ paddingBottom: theme.spacing(5), position: 'relative' }),
-  dropPlaceholder: css({
-    border: `1px dashed ${theme.colors.primary.main}`,
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.primary.transparent,
+  containerFillScreen: { flexGrow: 1 },
+  containerEditing: { paddingBottom: spacing['--gf-spacing-x5'], position: 'relative' },
+  dropPlaceholder: {
+    borderWidth: '1px',
+    borderStyle: 'dashed',
+    borderColor: colors['--gf-colors-primary-main'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-primary-transparent'],
     minHeight: '100px',
-  }),
+  },
 });

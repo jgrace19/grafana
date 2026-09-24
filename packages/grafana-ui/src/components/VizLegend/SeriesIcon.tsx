@@ -1,22 +1,24 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, fieldColorModeRegistry } from '@grafana/data';
+import { fieldColorModeRegistry } from '@grafana/data';
 import { type LineStyle } from '@grafana/schema';
 
-import { useTheme2, useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
   gradient?: string;
   lineStyle?: LineStyle;
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 }
 
 export const SeriesIcon = React.memo(
-  React.forwardRef<HTMLDivElement, Props>(({ color, className, gradient, lineStyle, ...restProps }, ref) => {
+  React.forwardRef<HTMLDivElement, Props>(({ color, className, gradient, lineStyle, xstyle, ...restProps }, ref) => {
     const theme = useTheme2();
-    const styles = useStyles2(getStyles);
 
     let cssColor: string;
 
@@ -59,7 +61,7 @@ export const SeriesIcon = React.memo(
       <div
         data-testid="series-icon"
         ref={ref}
-        className={cx(className, styles.forcedColors, styles.container)}
+        {...mergeStylexProps(stylex.props(styles.forcedColors, styles.container, xstyle), { className })}
         style={customStyle}
         {...restProps}
       />
@@ -67,17 +69,15 @@ export const SeriesIcon = React.memo(
   })
 );
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+SeriesIcon.displayName = 'SeriesIcon';
+
+const styles = stylex.create({
+  container: {
     display: 'inline-block',
     width: '14px',
     height: '4px',
-  }),
-  forcedColors: css({
-    '@media (forced-colors: active)': {
-      forcedColorAdjust: 'none',
-    },
-  }),
+  },
+  forcedColors: {
+    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
+  },
 });
-
-SeriesIcon.displayName = 'SeriesIcon';

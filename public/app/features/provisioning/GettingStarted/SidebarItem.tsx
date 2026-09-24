@@ -1,18 +1,18 @@
-import { css } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
+import { css, cx } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { IconButton, Text, Stack, Card } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   step: string;
   index: number;
   currentStep: number;
   onStepClick: (index: number) => void;
-  styles: ReturnType<typeof getStyles>;
 }
 
-export const SidebarItem = ({ step, index, currentStep, onStepClick, styles }: Props) => {
+export const SidebarItem = ({ step, index, currentStep, onStepClick }: Props) => {
   const isCompleted = index < currentStep;
   const isCurrent = index === currentStep;
   const isPending = index > currentStep;
@@ -50,7 +50,7 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick, styles }: P
   return (
     <Card
       noMargin
-      className={`${styles.stepItem} ${isCurrent ? styles.activeStep : ''} ${styles.plainCard}`}
+      className={cx(cardStyles.stepItem, isCurrent && cardStyles.activeStep, cardStyles.plainCard)}
       onClick={handleClick}
     >
       <Stack direction="row" alignItems="center" gap={2}>
@@ -70,20 +70,22 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick, styles }: P
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
+// reliably overrides Card's padding and background.
+const cardStyles = {
   stepItem: css({
-    padding: theme.spacing(1),
+    padding: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
     '&:hover': {
-      background: theme.colors.action.hover,
+      background: colors['--gf-colors-action-hover'],
     },
   }),
   activeStep: css({
-    color: theme.colors.primary.text,
+    color: colors['--gf-colors-primary-text'],
   }),
   plainCard: css({
     background: 'transparent',
     border: 'none',
     boxShadow: 'none',
   }),
-});
+};

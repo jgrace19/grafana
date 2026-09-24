@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { type Dimensions, type TimeZone } from '@grafana/data';
 import { type TooltipDisplayMode } from '@grafana/schema';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Portal } from '../Portal/Portal';
 
 import { VizTooltipContainer } from './VizTooltipContainer';
@@ -60,10 +59,9 @@ export interface VizTooltipProps {
  * @public
  */
 export const VizTooltip = ({ content, position, offset }: VizTooltipProps) => {
-  const styles = useStyles2(getStyles);
   if (position) {
     return (
-      <Portal className={styles.portal}>
+      <Portal className={stylex.props(styles.portal).className}>
         <VizTooltipContainer position={position} offset={offset || { x: 0, y: 0 }}>
           {content}
         </VizTooltipContainer>
@@ -75,15 +73,13 @@ export const VizTooltip = ({ content, position, offset }: VizTooltipProps) => {
 
 VizTooltip.displayName = 'VizTooltip';
 
-const getStyles = () => {
-  return {
-    portal: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      pointerEvents: 'none',
-      width: '100%',
-      height: '100%',
-    }),
-  };
-};
+const styles = stylex.create({
+  portal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    pointerEvents: 'none',
+    width: '100%',
+    height: '100%',
+  },
+});

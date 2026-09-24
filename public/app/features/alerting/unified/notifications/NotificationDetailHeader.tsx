@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type CreateNotificationqueryNotificationEntry } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Stack, Text, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { StateTag } from '../components/StateTag';
 
@@ -14,10 +15,8 @@ interface NotificationHeaderProps {
 }
 
 export function NotificationHeader({ notification }: NotificationHeaderProps) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.headerRow}>
+    <div {...stylex.props(styles.headerRow)}>
       <Stack direction="row" gap={1} alignItems="center" wrap="wrap">
         <NotificationState status={notification.status} />
         <Tooltip content={dateTimeFormat(notification.timestamp)}>
@@ -57,13 +56,13 @@ export function formatDuration(durationNs: number): string {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  headerRow: css({
+const styles = stylex.create({
+  headerRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: theme.spacing(2),
+    gap: spacing['--gf-spacing-x2'],
     flexWrap: 'wrap',
-  }),
+  },
 });

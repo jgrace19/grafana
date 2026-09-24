@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Field, FieldSet, Select, Switch, useStyles2 } from '@grafana/ui';
+import { type SelectableValue } from '@grafana/data';
+import { Field, FieldSet, Select, Switch } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { TagFilter } from 'app/core/components/TagFilter/TagFilter';
 import { type TimeRegionConfig } from 'app/core/utils/timeRegions';
 import { annotationServer } from 'app/features/annotations/api';
@@ -12,6 +13,7 @@ import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { type GrafanaAnnotationQuery, GrafanaAnnotationType, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { TimeRegionEditor } from './TimeRegionEditor';
+import './AnnotationQueryEditor.css';
 
 const matchTooltipContent = 'Enabling this returns annotations that match any of the tags specified below';
 
@@ -60,7 +62,6 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
   const { limit, matchAny, tags, type, queryType } = annotationQuery;
   let grafanaQueryType = queryType ?? GrafanaQueryType.Annotations;
   const defaultTimezone = useMemo(() => getDashboardSrv().dashboard?.getTimezone(), []);
-  const styles = useStyles2(getStyles);
 
   const onFilterByChange = (newValue: SelectableValue<GrafanaAnnotationType>) =>
     onChange({
@@ -108,7 +109,7 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
   };
 
   return (
-    <FieldSet className={styles.container}>
+    <FieldSet className={`gf-grafana-annotation-query-editor ${stylex.props(styles.container).className}`}>
       <Field label="Query type">
         <Select
           inputId="grafana-annotations__query-type"
@@ -161,11 +162,8 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      maxWidth: theme.spacing(60),
-      marginBottom: theme.spacing(2),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+  },
+});

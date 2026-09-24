@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import {
   type VariableStaticOptionsFormItem,
   VariableStaticOptionsFormItemEditor,
 } from './VariableStaticOptionsFormItemEditor';
+
+import './VariableStaticOptionsFormItems.css';
 
 interface VariableStaticOptionsFormProps {
   items: VariableStaticOptionsFormItem[];
@@ -16,8 +16,6 @@ interface VariableStaticOptionsFormProps {
 }
 
 export function VariableStaticOptionsFormItems({ items, onChange }: VariableStaticOptionsFormProps) {
-  const styles = useStyles2(getStyles);
-
   const handleReorder = (result: DropResult) => {
     if (!result || !result.destination) {
       return;
@@ -54,17 +52,17 @@ export function VariableStaticOptionsFormItems({ items, onChange }: VariableStat
   };
 
   return (
-    <table className={styles.table}>
+    <table className="gf-variable-static-options-table">
       <thead>
         <tr>
-          <th className={styles.headerIconColumn} />
-          <th className={styles.headerInputColumn}>
+          <th {...stylex.props(styles.headerIconColumn)} />
+          <th {...stylex.props(styles.headerInputColumn)}>
             <Trans i18nKey="variables.static-options.value-header">Value</Trans>
           </th>
-          <th className={styles.headerInputColumn}>
+          <th {...stylex.props(styles.headerInputColumn)}>
             <Trans i18nKey="variables.static-options.label-header">Display text</Trans>
           </th>
-          <th className={styles.headerIconColumn} />
+          <th {...stylex.props(styles.headerIconColumn)} />
         </tr>
       </thead>
       <DragDropContext onDragEnd={handleReorder}>
@@ -89,29 +87,13 @@ export function VariableStaticOptionsFormItems({ items, onChange }: VariableStat
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    'tbody tr': css({
-      position: 'relative',
-    }),
-
-    'tbody tr:hover': css({
-      background: theme.colors.action.hover,
-    }),
-
-    'th, td': {
-      padding: theme.spacing(1),
-      width: '49%',
-    },
-
-    'th:first-child, td:first-child, th:last-child, td:last-child': css({
-      width: '1%',
-    }),
-  }),
-  headerIconColumn: css({
+// The table rules in VariableStaticOptionsFormItems.css also style the rows VariableStaticOptionsFormItemEditor renders,
+// and outrank these header widths, as before.
+const styles = stylex.create({
+  headerIconColumn: {
     width: '1%',
-  }),
-  headerInputColumn: css({
+  },
+  headerInputColumn: {
     width: '49%',
-  }),
+  },
 });

@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
@@ -138,6 +139,7 @@ const getModalWrapper = ({
   height,
   config,
 }: PluginExtensionOpenModalOptions & { config: AddedLinkRegistryItem }) => {
+  // stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
   const className = css({ width, height });
 
   const ModalWrapper = ({ onDismiss }: ModalWrapperProps) => {

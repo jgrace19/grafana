@@ -27,3 +27,27 @@ public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides To
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
+public/app/features/admin/UserOrgs.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/overflow
+public/app/features/admin/UserListPublicDashboardPage/DashboardsListModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/admin/UserListPublicDashboardPage/DeleteUserModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/admin/ldap/LdapDrawer.tsx # stylex: pending Label migration (U2); className override of Label font size
+public/app/features/live/LiveConnectionWarning.tsx # stylex: pending Alert migration (U4); className override of Alert position
+public/app/features/live/dashboard/DashboardChangedModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/serviceaccounts/components/CreateTokenModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/users/TokenRevokedModal.tsx # stylex: pending InfoBox/Alert and Modal migration (U4); overrides of Alert margin and getModalStyles backdrop
+
+# M1 plugins, provisioning. Remove each `pending` entry once that @grafana/ui component migrates.
+public/app/features/plugins/admin/mocks/catalogPlugin.mock.ts # false positive: "@emotion/css" appears in fixture changelog text, not an import
+public/app/features/plugins/extensions/utils.tsx # pending Modal migration (U4): modal width/height override must beat Modal's Emotion width
+public/app/features/provisioning/GettingStarted/SetupModal.tsx # pending Modal migration (U4): modal width override must beat Modal's Emotion width
+public/app/features/provisioning/GettingStarted/SidebarItem.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card padding/background
+public/app/features/provisioning/Repository/RepositoryHealthCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display
+public/app/features/provisioning/Repository/RepositoryOverview.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display and Card.Actions margin
+public/app/features/provisioning/Repository/RepositoryPullStatusCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card display and Card.Actions margin
+public/app/features/provisioning/Shared/CodeBlock.tsx # pending ClipboardButton migration: overrides its position
+public/app/features/provisioning/Shared/RepositoryTypeCards.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card width/pointer-events
+public/app/features/connections/tabs/ConnectData/CardGrid/CardGrid.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, meta
+public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex: pending InlineField migration: keeps one Emotion className override that must beat InlineField's own Emotion styles
+public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
+public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles

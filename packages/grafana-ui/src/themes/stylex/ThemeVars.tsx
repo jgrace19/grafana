@@ -12,8 +12,15 @@ import { themeToCssVars } from './themeToCssVars';
  * @internal Rendered by GlobalStyles.
  */
 export function useRootThemeVars(theme: GrafanaTheme2) {
-  const vars = useMemo(() => themeToCssVars(theme), [theme]);
+  useRootCssVars(useMemo(() => themeToCssVars(theme), [theme]));
+}
 
+/**
+ * Writes custom properties onto `<html>`, see useRootThemeVars. Pass a memoized object.
+ *
+ * @internal
+ */
+export function useRootCssVars(vars: Record<string, string>) {
   useInsertionEffect(() => {
     const rootStyle = document.documentElement.style;
     for (const [name, value] of Object.entries(vars)) {

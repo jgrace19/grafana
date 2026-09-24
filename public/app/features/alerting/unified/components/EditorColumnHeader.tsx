@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Label migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { type MergeExclusive } from 'type-fest';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Label, Stack, useStyles2 } from '@grafana/ui';
+import { Label, Stack } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface BaseProps {
   id?: string;
@@ -21,15 +23,13 @@ interface LabelActionsProps extends BaseProps {
 type Props = MergeExclusive<ChildrenProps, LabelActionsProps>;
 
 export function EditorColumnHeader({ label, actions, id, children }: Props) {
-  const styles = useStyles2(editorColumnStyles);
-
   if (children) {
-    return <div className={styles.container}>{children}</div>;
+    return <div {...stylex.props(styles.container)}>{children}</div>;
   }
 
   return (
-    <div className={styles.container}>
-      <Label className={styles.label} id={id}>
+    <div {...stylex.props(styles.container)}>
+      <Label className={pendingEmotionStyles.label} id={id}>
         {label}
       </Label>
       {actions && (
@@ -41,19 +41,28 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
   );
 }
 
-const editorColumnStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+// stylex: pending Label migration
+const pendingEmotionStyles = {
+  label: css({
+    margin: 0,
+  }),
+};
+
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: theme.spacing(1, 2),
-    backgroundColor: theme.colors.background.secondary,
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderTopLeftRadius: theme.shape.radius.default,
-    borderTopRightRadius: theme.shape.radius.default,
-  }),
-  label: css({
-    margin: 0,
-  }),
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+  },
 });

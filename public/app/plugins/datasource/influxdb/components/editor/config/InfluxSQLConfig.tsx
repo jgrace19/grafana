@@ -1,25 +1,24 @@
-import { css } from '@emotion/css';
 import { uniqueId } from 'lodash';
 
 import {
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   onUpdateDatasourceSecureJsonDataOption,
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
-import { Field, InlineLabel, InlineSwitch, Input, SecretInput, useStyles2 } from '@grafana/ui';
+import { Field, InlineLabel, InlineSwitch, Input, SecretInput } from '@grafana/ui';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
 import { WIDTH_SHORT } from './constants';
 import { trackInfluxDBConfigV1SQLDatabaseInputField, trackInfluxDBConfigV1SQLTokenInputField } from './trackingv1';
 
+import './InfluxConfigField.css';
+
 export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecureJsonData>;
 
 export const InfluxSqlConfig = (props: Props) => {
   const { options, onOptionsChange } = props;
   const { jsonData, secureJsonData, secureJsonFields } = options;
-  const styles = useStyles2(getStyles);
   const htmlPrefix = uniqueId('influxdb-sql-config');
 
   return (
@@ -27,7 +26,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-dbName`}
       >
         <Input
@@ -47,7 +46,7 @@ export const InfluxSqlConfig = (props: Props) => {
           onBlur={trackInfluxDBConfigV1SQLDatabaseInputField}
         />
       </Field>
-      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} className={styles.horizontalField}>
+      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} className="gf-influx-config-field">
         <SecretInput
           label="Token"
           aria-label="Token"
@@ -62,7 +61,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Insecure Connection</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
       >
         <InlineSwitch
           id={`${htmlPrefix}-insecure-grpc`}
@@ -81,10 +80,3 @@ export const InfluxSqlConfig = (props: Props) => {
     </div>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  horizontalField: css({
-    justifyContent: 'initial',
-    margin: `0 ${theme.spacing(0.5)} ${theme.spacing(0.5)} 0`,
-  }),
-});

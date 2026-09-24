@@ -1,13 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 import { type PropsWithChildren, type ReactNode } from 'react';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Spacer } from '../../components/Spacer';
+
+import './ListSection.css';
 
 interface ListSectionProps extends PropsWithChildren {
   title: ReactNode;
@@ -23,12 +26,11 @@ export const ListSection = ({
   actions = null,
   pagination = null,
 }: ListSectionProps) => {
-  const styles = useStyles2(getStyles);
   const [isCollapsed, toggleCollapsed] = useToggle(collapsed);
 
   return (
-    <li className={styles.wrapper} role="treeitem" aria-selected="false">
-      <div className={styles.sectionTitle}>
+    <li {...stylex.props(styles.wrapper)} role="treeitem" aria-selected="false">
+      <div {...stylex.props(styles.sectionTitle)}>
         <Stack alignItems="center">
           <Stack alignItems="center" gap={0.5}>
             <IconButton
@@ -48,7 +50,10 @@ export const ListSection = ({
       </div>
       {!isEmpty(children) && !isCollapsed && (
         <>
-          <ul role="group" className={styles.groupItemsWrapper}>
+          <ul
+            role="group"
+            {...mergeStylexProps(stylex.props(styles.groupItemsWrapper), { className: 'gf-list-section-items' })}
+          >
             {children}
           </ul>
           {pagination}
@@ -58,38 +63,21 @@ export const ListSection = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  groupItemsWrapper: css({
+const styles = stylex.create({
+  // The nested list items are styled by ListSection.css.
+  groupItemsWrapper: {
     position: 'relative',
-
-    // unfortunately we have to resort to this since we can't overwrite the styles of the list items individually
-    // unless we clone the React Elements and modify className
-    'li[role=treeitem]': {
-      listStyle: 'none',
-      position: 'relative',
-      paddingLeft: theme.spacing(6.5),
-
-      '&:before': {
-        content: "''",
-        position: 'absolute',
-        height: '100%',
-
-        marginLeft: theme.spacing(-1.5),
-        marginTop: theme.spacing(-1),
-        borderLeft: `solid 1px ${theme.colors.border.weak}`,
-      },
-    },
-  }),
-  wrapper: css({
+  },
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-  }),
-  sectionTitle: css({
-    padding: theme.spacing(1, 1.5),
-
-    '&:hover': {
-      background: theme.colors.action.hover,
-      borderRadius: theme.shape.radius.default,
-    },
-  }),
+  },
+  sectionTitle: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+    borderRadius: { default: null, ':hover': shape['--gf-shape-radius-default'] },
+  },
 });
