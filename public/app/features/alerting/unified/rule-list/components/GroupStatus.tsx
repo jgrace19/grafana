@@ -1,22 +1,21 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Tooltip } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface GroupStatusProps {
   status: 'deleting'; // We don't support other statuses yet
 }
 
 export function GroupStatus({ status }: GroupStatusProps) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.container}>
-      <div className={styles.loader} />
+    <div {...stylex.props(styles.container)}>
+      <div {...stylex.props(styles.loader)} />
       {status === 'deleting' && (
         <Tooltip content={t('alerting.group-status.content-the-group-is-being-deleted', 'The group is being deleted')}>
-          <div className={styles.iconWrapper}>
+          <div {...stylex.props(styles.iconWrapper)}>
             <Icon name="trash-alt" size="sm" />
           </div>
         </Tooltip>
@@ -25,7 +24,7 @@ export function GroupStatus({ status }: GroupStatusProps) {
   );
 }
 
-const rotation = keyframes({
+const rotation = stylex.keyframes({
   '0%': {
     transform: 'rotate(0deg)',
   },
@@ -34,29 +33,29 @@ const rotation = keyframes({
   },
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: theme.spacing(0.5),
-  }),
+    margin: spacing['--gf-spacing-x0-5'],
+  },
 
-  loader: css({
+  loader: {
     position: 'absolute',
-    inset: `-${theme.spacing(0.5)}`,
-    border: '2px solid #FFF',
-    borderRadius: theme.shape.radius.circle,
+    inset: `calc(${spacing['--gf-spacing-grid-size']} * -0.5)`,
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: '#FFF',
+    borderRadius: shape['--gf-shape-radius-circle'],
     boxSizing: 'border-box',
-    [theme.transitions.handleMotion('no-preference')]: {
-      animationName: rotation,
-      animationIterationCount: 'infinite',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-    },
+    animationName: { default: null, [motion.noPreference]: rotation },
+    animationIterationCount: { default: null, [motion.noPreference]: 'infinite' },
+    animationDuration: { default: null, [motion.noPreference]: '1s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'linear' },
 
-    '&::after': {
+    '::after': {
       content: '""',
       boxSizing: 'border-box',
       position: 'absolute',
@@ -65,24 +64,17 @@ const getStyles = (theme: GrafanaTheme2) => ({
       transform: 'translate(-50%, -50%)',
       width: 'calc(100% + 4px)',
       height: 'calc(100% + 4px)',
-      borderRadius: theme.shape.radius.circle,
-      border: '2px solid transparent',
-      borderBottomColor: theme.colors.action.selectedBorder,
+      borderRadius: shape['--gf-shape-radius-circle'],
+      borderWidth: '2px',
+      borderStyle: 'solid',
+      borderColor: 'transparent',
+      borderBottomColor: colors['--gf-colors-action-selected-border'],
     },
-  }),
+  },
 
-  iconWrapper: css({
+  iconWrapper: {
     position: 'relative',
     zIndex: 1,
     display: 'flex',
-  }),
-
-  '@keyframes rotation': {
-    '0%': {
-      transform: 'rotate(0deg)',
-    },
-    '100%': {
-      transform: 'rotate(360deg)',
-    },
   },
 });

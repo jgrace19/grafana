@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
 import { type CreateNotificationqueryNotificationEntry } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
+import { dateTimeFormat } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Collapse, Text, useStyles2 } from '@grafana/ui';
+import { Collapse, Text } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 type NotificationEntry = CreateNotificationqueryNotificationEntry;
 
@@ -15,15 +16,13 @@ interface DebugDetailsProps {
 }
 
 export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Collapse
       label={t('alerting.notification-detail.debug-details-heading', 'Debug details')}
       isOpen={isOpen}
       onToggle={onToggle}
     >
-      <div className={styles.detailsGrid}>
+      <div {...stylex.props(styles.detailsGrid)}>
         <DetailRow label={t('alerting.notification-detail.field-uuid', 'UUID')} value={notification.uuid} />
         <DetailRow
           label={t('alerting.notification-detail.field-timestamp', 'Timestamp')}
@@ -47,7 +46,7 @@ export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsPro
         />
         <DetailRow
           label={t('alerting.notification-detail.field-group-key', 'Group key')}
-          value={<code className={styles.groupKey}>{notification.groupKey}</code>}
+          value={<code {...stylex.props(styles.groupKey)}>{notification.groupKey}</code>}
         />
       </div>
     </Collapse>
@@ -55,39 +54,44 @@ export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsPro
 }
 
 function DetailRow({ label, value }: { label: string; value: ReactNode }) {
-  const styles = useStyles2(getStyles);
   return (
     <>
-      <div className={styles.detailLabel}>
+      <div {...stylex.props(styles.detailLabel)}>
         <Text color="secondary" variant="bodySmall">
           {label}
         </Text>
       </div>
-      <div className={styles.detailValue}>{typeof value === 'string' ? <Text>{value}</Text> : value}</div>
+      <div {...stylex.props(styles.detailValue)}>{typeof value === 'string' ? <Text>{value}</Text> : value}</div>
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  detailsGrid: css({
+const styles = stylex.create({
+  detailsGrid: {
     display: 'grid',
     gridTemplateColumns: '180px 1fr',
-    gap: `${theme.spacing(1)} ${theme.spacing(2)}`,
+    rowGap: spacing['--gf-spacing-x1'],
+    columnGap: spacing['--gf-spacing-x2'],
     alignItems: 'start',
-  }),
-  detailLabel: css({
+  },
+  detailLabel: {
     paddingTop: '2px',
-  }),
-  detailValue: css({
+  },
+  detailValue: {
     wordBreak: 'break-all',
-  }),
-  groupKey: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    backgroundColor: theme.colors.background.canvas,
-    padding: `${theme.spacing(0.25)} ${theme.spacing(0.5)}`,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
+  },
+  groupKey: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
     wordBreak: 'break-all',
-  }),
+  },
 });

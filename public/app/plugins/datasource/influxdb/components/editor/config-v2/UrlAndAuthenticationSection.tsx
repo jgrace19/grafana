@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { firstValueFrom } from 'rxjs';
 
 import { onUpdateDatasourceJsonDataOptionSelect, onUpdateDatasourceOption } from '@grafana/data';
@@ -15,7 +15,6 @@ import {
   Text,
   type ComboboxOption,
   Alert,
-  useStyles2,
 } from '@grafana/ui';
 
 import { InfluxVersion } from '../../../types';
@@ -38,7 +37,6 @@ const getQueryLanguageOptions = (productName: string): Array<{ value: string }> 
 
 export const UrlAndAuthenticationSection = (props: Props) => {
   const { options, onOptionsChange } = props;
-  const styles = useStyles2(getStyles);
 
   const isInfluxVersion = (v: string): v is InfluxVersion =>
     typeof v === 'string' && (v === InfluxVersion.Flux || v === InfluxVersion.InfluxQL || v === InfluxVersion.SQL);
@@ -192,12 +190,12 @@ export const UrlAndAuthenticationSection = (props: Props) => {
           </Field>
           <Box marginTop={2}>
             <Stack direction="row" wrap="wrap" justifyContent="space-between">
-              <div className={styles.col}>
+              <div {...stylex.props(styles.col)}>
                 <Box width="100%" minWidth={37}>
                   <Field
                     label="Product"
                     description={
-                      <div className={styles.dropdown}>
+                      <div {...stylex.props(styles.dropdown)}>
                         <Text color="secondary">
                           Use{' '}
                           <TextLink
@@ -223,11 +221,13 @@ export const UrlAndAuthenticationSection = (props: Props) => {
                   </Field>
                 </Box>
               </div>
-              <div className={styles.col}>
+              <div {...stylex.props(styles.col)}>
                 <Box width="100%" minWidth={37}>
                   <Field
                     label="Query language"
-                    description={<div className={styles.dropdown}>The query language depends on product selection</div>}
+                    description={
+                      <div {...stylex.props(styles.dropdown)}>The query language depends on product selection</div>
+                    }
                     noMargin
                     required
                   >
@@ -260,19 +260,16 @@ export const UrlAndAuthenticationSection = (props: Props) => {
   );
 };
 
-const getStyles = () => {
-  return {
-    dropdown: css({
-      display: 'flex',
-      alignItems: 'center',
-      height: '18px',
-    }),
-    col: css({
-      flex: '1 1 48%',
-      minWidth: '320px',
-    }),
-    '@media (max-width: 768px)': {
-      flexBasis: '100%',
-    },
-  };
-};
+const styles = stylex.create({
+  dropdown: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '18px',
+  },
+  col: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '48%',
+    minWidth: '320px',
+  },
+});

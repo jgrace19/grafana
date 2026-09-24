@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { useMemo, useState } from 'react';
 
 import {
   type CreateNotificationqueryNotificationEntry,
   type CreateNotificationqueryNotificationStatus,
 } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
+import { textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Icon, LinkButton, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, LinkButton, Stack, Text, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { receiverTypeNames } from 'app/plugins/datasource/alertmanager/consts';
 import { type GrafanaAlertStateWithReason } from 'app/types/unified-alerting-dto';
 
@@ -154,18 +155,16 @@ export function computeIntegrationOutcomes(notifications: NotificationEntry[]): 
 }
 
 function EntryDot({ entry }: { entry: TimelineEntry }) {
-  const styles = useStyles2(getStyles);
-
   if (entry.type === 'state-change') {
     if (entry.current === 'Pending') {
-      return <div className={cx(styles.dotBase, styles.dotPending)} />;
+      return <div {...stylex.props(styles.dotBase, styles.dotPending)} />;
     }
     const isFiringTransition = entry.current === 'Alerting' || entry.current === 'NoData' || entry.current === 'Error';
-    return <div className={cx(styles.dotBase, isFiringTransition ? styles.dotFiring : styles.dotResolved)} />;
+    return <div {...stylex.props(styles.dotBase, isFiringTransition ? styles.dotFiring : styles.dotResolved)} />;
   }
 
   if (!entry.notifications) {
-    return <div className={cx(styles.dotBase, styles.dotDefault)} />;
+    return <div {...stylex.props(styles.dotBase, styles.dotDefault)} />;
   }
 
   const allFailed = entry.notifications.every((n) => n.outcome === 'error');
@@ -174,19 +173,19 @@ function EntryDot({ entry }: { entry: TimelineEntry }) {
   if (allFailed) {
     return (
       <Tooltip content={t('alerting.instance-details.timeline-dot-all-failed', 'All notifications failed')}>
-        <Icon name="exclamation-circle" size="sm" className={styles.dotIconError} />
+        <Icon name="exclamation-circle" size="sm" xstyle={styles.dotIconError} />
       </Tooltip>
     );
   }
   if (someFailed) {
     return (
       <Tooltip content={t('alerting.instance-details.timeline-dot-some-failed', 'Some notifications failed')}>
-        <Icon name="exclamation-circle" size="sm" className={styles.dotIconError} />
+        <Icon name="exclamation-circle" size="sm" xstyle={styles.dotIconError} />
       </Tooltip>
     );
   }
 
-  return <div className={cx(styles.dotBase, styles.dotDefault)} />;
+  return <div {...stylex.props(styles.dotBase, styles.dotDefault)} />;
 }
 
 export type TimelineFilter = 'all' | 'states' | 'notifications';
@@ -198,8 +197,6 @@ interface InstanceTimelineProps {
 }
 
 export function InstanceTimeline({ records, notifications, filter = 'all' }: InstanceTimelineProps) {
-  const styles = useStyles2(getStyles);
-
   const groups = useMemo(() => buildTimelineGroups(records, notifications), [records, notifications]);
   const allEntries = useMemo(() => buildTimelineEntries(groups), [groups]);
 
@@ -228,23 +225,23 @@ export function InstanceTimeline({ records, notifications, filter = 'all' }: Ins
           {t('alerting.instance-details.timeline-filter-empty', 'No matching events for this filter')}
         </Text>
       ) : (
-        <div className={styles.timelineGrid}>
+        <div {...stylex.props(styles.timelineGrid)}>
           {entries.map((entry, index) => (
             <React.Fragment key={`${entry.type}-${entry.timestamp}-${index}`}>
-              <div className={styles.timestampCell}>
+              <div {...stylex.props(styles.timestampCell)}>
                 <Text variant="bodySmall" color="secondary">
                   {formatTimelineDate(entry.timestamp)}
                 </Text>
               </div>
-              <div className={styles.dotCell}>
+              <div {...stylex.props(styles.dotCell)}>
                 <EntryDot entry={entry} />
               </div>
-              <div className={styles.contentCell}>
+              <div {...stylex.props(styles.contentCell)}>
                 {entry.type === 'notifications' && entry.notifications && (
                   <NotificationSummary notifications={entry.notifications} />
                 )}
                 {entry.type === 'state-change' && entry.previous && entry.current && (
-                  <div className={styles.stateChangeRow}>
+                  <div {...stylex.props(styles.stateChangeRow)}>
                     <EventState state={entry.previous} showLabel addFilter={noop} type="from" />
                     <Icon name="arrow-right" size="sm" />
                     <EventState state={entry.current} showLabel addFilter={noop} type="to" />
@@ -254,8 +251,8 @@ export function InstanceTimeline({ records, notifications, filter = 'all' }: Ins
               {index < entries.length - 1 && (
                 <>
                   <div />
-                  <div className={styles.connectorCell}>
-                    <div className={styles.connectorLine} />
+                  <div {...stylex.props(styles.connectorCell)}>
+                    <div {...stylex.props(styles.connectorLine)} />
                   </div>
                   <div />
                 </>
@@ -298,7 +295,6 @@ function NotificationStatusGroup({
   status: CreateNotificationqueryNotificationStatus;
   notifications: NotificationEntry[];
 }) {
-  const styles = useStyles2(getStyles);
   const [expanded, setExpanded] = useState(false);
 
   const integrationOutcomes = useMemo(() => computeIntegrationOutcomes(notifications), [notifications]);
@@ -338,7 +334,7 @@ function NotificationStatusGroup({
   return (
     <div>
       <button
-        className={cx(styles.summaryRowBase, variantStyle)}
+        {...stylex.props(styles.summaryRowBase, variantStyle)}
         onClick={() => setExpanded(!expanded)}
         type="button"
         aria-expanded={expanded}
@@ -347,7 +343,7 @@ function NotificationStatusGroup({
         <Stack direction="row" alignItems="center" gap={0.5} wrap="wrap">
           <StateTag state={isFiring ? 'bad' : 'good'} size="sm">
             {statusLabel}{' '}
-            <span className={styles.lowercaseText}>
+            <span {...stylex.props(styles.lowercaseText)}>
               {t('alerting.instance-details.timeline-notification-label', 'notification')}
             </span>
           </StateTag>
@@ -356,7 +352,7 @@ function NotificationStatusGroup({
               <Text variant="bodySmall" color="secondary">
                 ·
               </Text>
-              <Icon name="exclamation-circle" size="sm" className={styles.errorIcon} />
+              <Icon name="exclamation-circle" size="sm" xstyle={styles.errorIcon} />
               <Text variant="bodySmall" color="error" weight="medium">
                 {deliveryLabel}
               </Text>
@@ -371,7 +367,7 @@ function NotificationStatusGroup({
               href={textUtil.sanitizeUrl(
                 createRelativeUrl(`/alerting/notifications?search=${encodeURIComponent(uniqueReceivers[0])}`)
               )}
-              className={styles.receiverLink}
+              {...stylex.props(styles.receiverLink)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -388,7 +384,7 @@ function NotificationStatusGroup({
       </button>
 
       {expanded && (
-        <div className={styles.notificationDetails}>
+        <div {...stylex.props(styles.notificationDetails)}>
           {[...notifications].reverse().map((notification) => (
             <NotificationRow key={notification.uuid} notification={notification} />
           ))}
@@ -399,12 +395,11 @@ function NotificationStatusGroup({
 }
 
 function NotificationRow({ notification }: { notification: NotificationEntry }) {
-  const styles = useStyles2(getStyles);
   const isSuccess = notification.outcome === 'success';
 
   return (
-    <div className={styles.notificationDetailRow}>
-      <div className={styles.notificationRowMain}>
+    <div {...stylex.props(styles.notificationDetailRow)}>
+      <div {...stylex.props(styles.notificationRowMain)}>
         <Text variant="bodySmall" color="secondary">
           {formatTimelineDate(notification.timestamp)}
         </Text>
@@ -417,7 +412,7 @@ function NotificationRow({ notification }: { notification: NotificationEntry }) 
         </Stack>
         {isSuccess && (
           <Stack direction="row" gap={0.5} alignItems="center">
-            <Icon name="check-circle" size="sm" className={styles.successIcon} />
+            <Icon name="check-circle" size="sm" xstyle={styles.successIcon} />
             <Text variant="bodySmall" color="success">
               {t('alerting.instance-details.timeline-delivered', 'Delivered')}
             </Text>
@@ -442,8 +437,8 @@ function NotificationRow({ notification }: { notification: NotificationEntry }) 
         )}
       </div>
       {!isSuccess && (
-        <div className={styles.notificationRowError}>
-          <Icon name="exclamation-circle" size="sm" className={styles.errorIcon} />
+        <div {...stylex.props(styles.notificationRowError)}>
+          <Icon name="exclamation-circle" size="sm" xstyle={styles.errorIcon} />
           <Text variant="bodySmall" color="error" truncate={false}>
             {notification.error || t('alerting.instance-details.timeline-failed', 'Failed')}
           </Text>
@@ -457,155 +452,162 @@ function IntegrationIcon({ integration }: { integration: string }) {
   return <Icon name={INTEGRATION_ICONS[integration] || 'bell'} size="sm" />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  timelineGrid: css({
+const styles = stylex.create({
+  timelineGrid: {
     display: 'grid',
-    gridTemplateColumns: `auto ${theme.spacing(2)} 1fr`,
-  }),
+    gridTemplateColumns: `auto ${spacing['--gf-spacing-x2']} 1fr`,
+  },
 
-  timestampCell: css({
+  timestampCell: {
     display: 'flex',
     alignItems: 'center',
     alignSelf: 'start',
-    minHeight: theme.spacing(4),
-    paddingRight: theme.spacing(1.5),
+    minHeight: spacing['--gf-spacing-x4'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
     whiteSpace: 'nowrap',
     fontVariantNumeric: 'tabular-nums',
-  }),
+  },
 
-  dotCell: css({
+  dotCell: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'start',
-    minHeight: theme.spacing(4),
-  }),
+    minHeight: spacing['--gf-spacing-x4'],
+  },
 
-  contentCell: css({
-    paddingLeft: theme.spacing(1.5),
+  contentCell: {
+    paddingLeft: spacing['--gf-spacing-x1-5'],
     minWidth: 0,
-  }),
+  },
 
-  dotBase: css({
+  dotBase: {
     width: '10px',
     height: '10px',
-    borderRadius: theme.shape.radius.circle,
-  }),
+    borderRadius: shape['--gf-shape-radius-circle'],
+  },
 
-  dotDefault: css({
-    backgroundColor: theme.colors.text.secondary,
-  }),
+  dotDefault: {
+    backgroundColor: colors['--gf-colors-text-secondary'],
+  },
 
-  dotFiring: css({
-    backgroundColor: theme.colors.error.main,
-  }),
+  dotFiring: {
+    backgroundColor: colors['--gf-colors-error-main'],
+  },
 
-  dotResolved: css({
-    backgroundColor: theme.colors.success.main,
-  }),
+  dotResolved: {
+    backgroundColor: colors['--gf-colors-success-main'],
+  },
 
-  dotPending: css({
-    backgroundColor: theme.colors.warning.main,
-  }),
+  dotPending: {
+    backgroundColor: colors['--gf-colors-warning-main'],
+  },
 
-  dotIconError: css({
-    color: theme.colors.error.main,
-  }),
+  dotIconError: {
+    color: colors['--gf-colors-error-main'],
+  },
 
-  stateChangeRow: css({
+  stateChangeRow: {
     display: 'flex',
     alignItems: 'center',
-    minHeight: theme.spacing(4),
-    gap: theme.spacing(1),
-  }),
+    minHeight: spacing['--gf-spacing-x4'],
+    gap: spacing['--gf-spacing-x1'],
+  },
 
-  connectorCell: css({
+  connectorCell: {
     display: 'flex',
     justifyContent: 'center',
-  }),
+  },
 
-  connectorLine: css({
+  connectorLine: {
     width: '2px',
-    minHeight: theme.spacing(1.5),
-    backgroundColor: theme.colors.border.medium,
-  }),
+    minHeight: spacing['--gf-spacing-x1-5'],
+    backgroundColor: colors['--gf-colors-border-medium'],
+  },
 
-  summaryRowBase: css({
+  summaryRowBase: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    minHeight: theme.spacing(4),
-    padding: theme.spacing(0.75, 1.5),
-    borderRadius: theme.shape.radius.default,
-    border: 'none',
+    minHeight: spacing['--gf-spacing-x4'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderStyle: 'none',
     cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.colors.action.hover,
+  },
+
+  // The variants repeat the hover background: a later namespace replaces the whole property, conditions included.
+  summaryRowFiring: {
+    backgroundColor: { default: colors['--gf-colors-error-transparent'], ':hover': colors['--gf-colors-action-hover'] },
+  },
+
+  summaryRowResolved: {
+    backgroundColor: {
+      default: colors['--gf-colors-success-transparent'],
+      ':hover': colors['--gf-colors-action-hover'],
     },
-  }),
+  },
 
-  summaryRowFiring: css({
-    backgroundColor: theme.colors.error.transparent,
-  }),
-
-  summaryRowResolved: css({
-    backgroundColor: theme.colors.success.transparent,
-  }),
-
-  notificationDetails: css({
-    marginTop: theme.spacing(0.5),
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
+  notificationDetails: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
     overflow: 'hidden',
-  }),
+  },
 
-  notificationDetailRow: css({
+  notificationDetailRow: {
     display: 'flex',
     flexDirection: 'column',
-    padding: theme.spacing(0.75, 1.5),
-    gap: theme.spacing(0.5),
-    '&:not(:last-child)': {
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    },
-  }),
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    gap: spacing['--gf-spacing-x0-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: { default: 'solid', ':last-child': 'none' },
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
 
-  notificationRowMain: css({
+  notificationRowMain: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: theme.spacing(0.5, 1.5),
-  }),
+    rowGap: spacing['--gf-spacing-x0-5'],
+    columnGap: spacing['--gf-spacing-x1-5'],
+  },
 
-  notificationRowError: css({
+  notificationRowError: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: theme.spacing(0.5),
-    paddingLeft: theme.spacing(0.5),
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
+    gap: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
 
-  successIcon: css({
-    color: theme.colors.success.main,
-  }),
+  successIcon: {
+    color: colors['--gf-colors-success-main'],
+  },
 
-  errorIcon: css({
-    color: theme.colors.error.main,
-  }),
+  errorIcon: {
+    color: colors['--gf-colors-error-main'],
+  },
 
-  receiverLink: css({
-    color: theme.colors.text.link,
-    textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  }),
+  receiverLink: {
+    color: colors['--gf-colors-text-link'],
+    textDecoration: { default: 'none', ':hover': 'underline' },
+  },
 
-  lowercaseText: css({
+  lowercaseText: {
     textTransform: 'none',
-  }),
+  },
 });

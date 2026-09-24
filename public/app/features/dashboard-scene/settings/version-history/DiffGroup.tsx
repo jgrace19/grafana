@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { last } from 'lodash';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DiffTitle } from './DiffTitle';
 import { DiffValues } from './DiffValues';
@@ -14,23 +13,21 @@ type DiffGroupProps = {
 };
 
 export const DiffGroup = ({ diffs, title }: DiffGroupProps) => {
-  const styles = useStyles2(getStyles);
-
   if (diffs.length === 1) {
     return (
-      <div className={styles.container} data-testid="diffGroup">
+      <div data-testid="diffGroup">
         <DiffTitle title={title} diff={diffs[0]} />
       </div>
     );
   }
 
   return (
-    <div className={styles.container} data-testid="diffGroup">
+    <div data-testid="diffGroup">
       <DiffTitle title={title} />
-      <ul className={styles.list}>
+      <ul {...stylex.props(styles.list)}>
         {diffs.map((diff: Diff, idx: number) => {
           return (
-            <li className={styles.listItem} key={`${last(diff.path)}__${idx}`}>
+            <li {...stylex.props(styles.listItem)} key={`${last(diff.path)}__${idx}`}>
               <span>{getDiffText(diff)}</span> <DiffValues diff={diff} />
             </li>
           );
@@ -40,15 +37,11 @@ export const DiffGroup = ({ diffs, title }: DiffGroupProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({}),
-  list: css({
-    marginLeft: theme.spacing(4),
-  }),
-  listItem: css({
-    marginBottom: theme.spacing(1),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  }),
+const styles = stylex.create({
+  list: {
+    marginLeft: spacing['--gf-spacing-x4'],
+  },
+  listItem: {
+    marginBottom: { default: spacing['--gf-spacing-x1'], ':last-child': 0 },
+  },
 });

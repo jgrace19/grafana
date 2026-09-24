@@ -1,10 +1,13 @@
-import { css, cx } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
+import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Card, type CellProps, Grid, InteractiveTable, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Card, type CellProps, Grid, InteractiveTable, LinkButton, Stack, Text } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type Repository, type ResourceCount } from 'app/api/clients/provisioning/v0alpha1';
 
 import { RecentJobs } from '../Job/RecentJobs';
@@ -27,7 +30,6 @@ function getColumnCount(hasWebhook: boolean): { xxlColumn: 5 | 4; lgColumn: 3 | 
 }
 
 export function RepositoryOverview({ repo }: { repo: Repository }) {
-  const styles = useStyles2(getStyles);
   const repoName = repo.metadata?.name ?? '';
   const showFolderMetadataCheck = useBooleanFlagValue('provisioningFolderMetadata', false);
 
@@ -64,8 +66,8 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
           <MissingFolderMetadataBanner repositoryName={repoName} variant="repo" />
         )}
         <Grid columns={{ xs: 1, sm: 2, lg: lgColumn, xxl: xxlColumn }} gap={2} alignItems={'flex-start'}>
-          <div className={styles.cardContainer}>
-            <Card noMargin className={styles.card}>
+          <div {...stylex.props(styles.cardContainer)}>
+            <Card noMargin className={cardStyles.card}>
               <Card.Heading>
                 <Trans i18nKey="provisioning.repository-overview.resources">Resources</Trans>
               </Card.Heading>
@@ -83,7 +85,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
                   </Box>
                 )}
               </Card.Description>
-              <Card.Actions className={styles.actions}>
+              <Card.Actions className={cardStyles.actions}>
                 <LinkButton size="md" href={getFolderURL(repo)} icon="folder-open" variant="secondary">
                   <Trans i18nKey="provisioning.repository-overview.view-folder">View Folder</Trans>
                 </LinkButton>
@@ -92,48 +94,48 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
           </div>
 
           {status?.health && (
-            <div className={styles.cardContainer}>
+            <div {...stylex.props(styles.cardContainer)}>
               <RepositoryHealthCard repo={repo} />
             </div>
           )}
 
           {/* Webhook */}
           {status?.webhook && (
-            <div className={styles.cardContainer}>
-              <Card noMargin className={styles.card}>
+            <div {...stylex.props(styles.cardContainer)}>
+              <Card noMargin className={cardStyles.card}>
                 <Card.Heading>
                   <Trans i18nKey="provisioning.repository-overview.webhook">Webhook</Trans>
                 </Card.Heading>
                 <Card.Description>
                   <Grid columns={12} gap={1} alignItems="baseline">
-                    <div className={styles.labelColumn}>
+                    <div {...stylex.props(styles.labelColumn)}>
                       <Text color="secondary">
                         <Trans i18nKey="provisioning.repository-overview.webhook-id">ID:</Trans>
                       </Text>
                     </div>
-                    <div className={styles.valueColumn}>
+                    <div {...stylex.props(styles.valueColumn)}>
                       <Text variant="body">{status?.webhook?.id ?? 'N/A'}</Text>
                     </div>
-                    <div className={styles.labelColumn}>
+                    <div {...stylex.props(styles.labelColumn)}>
                       <Text color="secondary">
                         <Trans i18nKey="provisioning.repository-overview.webhook-events">Events:</Trans>
                       </Text>
                     </div>
-                    <div className={styles.valueColumn}>
+                    <div {...stylex.props(styles.valueColumn)}>
                       <Text variant="body">{status?.webhook?.subscribedEvents?.join(', ') ?? 'N/A'}</Text>
                     </div>
-                    <div className={styles.labelColumn}>
+                    <div {...stylex.props(styles.labelColumn)}>
                       <Text color="secondary">
                         <Trans i18nKey="provisioning.repository-overview.webhook-last-event">Last Event:</Trans>
                       </Text>
                     </div>
-                    <div className={styles.valueColumn}>
+                    <div {...stylex.props(styles.valueColumn)}>
                       <Text variant="body">{formatTimestamp(status?.webhook?.lastEvent)}</Text>
                     </div>
                   </Grid>
                 </Card.Description>
                 {webhookURL && (
-                  <Card.Actions className={styles.actions}>
+                  <Card.Actions className={cardStyles.actions}>
                     <LinkButton fill="outline" href={webhookURL} icon="external-link-alt">
                       <Trans i18nKey="provisioning.repository-overview.webhook-url">View Webhook</Trans>
                     </LinkButton>
@@ -145,7 +147,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
 
           {/* Pull status */}
           <div
-            className={cx(
+            {...stylex.props(
               styles.pullStatusCard,
               status?.webhook ? styles.pullStatusCardLgSpan3 : styles.pullStatusCardLgSpan2
             )}
@@ -154,7 +156,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
           </div>
         </Grid>
 
-        <div className={styles.cardContainer}>
+        <div {...stylex.props(styles.cardContainer)}>
           <RecentJobs repo={repo} />
         </div>
       </Stack>
@@ -169,46 +171,40 @@ function getFolderURL(repo: Repository) {
   return '/dashboards';
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    cardContainer: css({
-      height: '100%',
-    }),
-    card: css({
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-    }),
-    actions: css({
-      marginTop: 'auto',
-    }),
-    labelColumn: css({
-      minWidth: theme.spacing(10),
-      gridColumn: 'span 3',
-    }),
-    valueColumn: css({
-      gridColumn: 'span 9',
-    }),
-    pullStatusCard: css({
-      height: '100%',
-      gridColumn: 'span 2',
+const styles = stylex.create({
+  cardContainer: {
+    height: '100%',
+  },
+  labelColumn: {
+    minWidth: spacing['--gf-spacing-x10'],
+    gridColumn: 'span 3',
+  },
+  valueColumn: {
+    gridColumn: 'span 9',
+  },
+  pullStatusCard: {
+    height: '100%',
+  },
+  pullStatusCardLgSpan3: {
+    gridColumn: { default: 'span 2', [bp.xxlDown]: 'span 3' },
+  },
+  pullStatusCardLgSpan2: {
+    gridColumn: 'span 2',
+  },
+});
 
-      [theme.breakpoints.down('lg')]: {
-        gridColumn: 'span 2',
-      },
-    }),
-    pullStatusCardLgSpan3: css({
-      [theme.breakpoints.down('xxl')]: {
-        gridColumn: 'span 3',
-      },
-    }),
-    pullStatusCardLgSpan2: css({
-      [theme.breakpoints.down('xxl')]: {
-        gridColumn: 'span 2',
-      },
-    }),
-  };
+// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
+// reliably overrides Card's `display: grid` and the actions' margin-top.
+const cardStyles = {
+  card: css({
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x2'],
+  }),
+  actions: css({
+    marginTop: 'auto',
+  }),
 };
 
 function getWebhookURL(repo: Repository) {

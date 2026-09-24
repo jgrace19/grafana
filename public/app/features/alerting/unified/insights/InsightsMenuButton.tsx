@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type ExploreUrlState, type GrafanaTheme2, serializeStateToUrlParam, toURLRange } from '@grafana/data';
+import { type ExploreUrlState, serializeStateToUrlParam, toURLRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   type SceneComponentProps,
@@ -12,9 +12,11 @@ import {
   sceneGraph,
 } from '@grafana/scenes';
 import { type DataQuery } from '@grafana/schema';
-import { Button, Dropdown, Icon, IconButton, Menu, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Icon, IconButton, Menu, Modal } from '@grafana/ui';
 
 import { trackInsightsFeedback } from '../Analytics';
+
+import './InsightsMenuButton.css';
 
 type DataQueryWithExpr = DataQuery & { expr: string };
 
@@ -63,8 +65,6 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
     variables: variables,
   });
 
-  const styles = useStyles2(getStyles);
-
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const onDismiss = () => {
@@ -82,7 +82,7 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
       isOpen={showModal}
       onDismiss={onDismiss}
       onClickBackdrop={onDismiss}
-      className={styles.container}
+      className="gf-insights-feedback-modal"
     >
       <div>
         <p>
@@ -90,15 +90,15 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
             Help us improve this page by telling us whether this panel is useful to you!
           </Trans>
         </p>
-        <div className={styles.buttonsContainer}>
-          <Button variant="secondary" className={styles.buttonContainer} onClick={() => onButtonClick(false)}>
-            <div className={styles.button}>
-              <Icon name="thumbs-up" className={styles.thumbsdown} size="xxxl" />
+        <div {...stylex.props(styles.buttonsContainer)}>
+          <Button variant="secondary" className="gf-insights-feedback-button" onClick={() => onButtonClick(false)}>
+            <div {...stylex.props(styles.button)}>
+              <Icon name="thumbs-up" xstyle={styles.thumbsdown} size="xxxl" />
               <span>{`I don't like it`}</span>
             </div>
           </Button>
-          <Button variant="secondary" className={styles.buttonContainer} onClick={() => onButtonClick(true)}>
-            <div className={styles.button}>
+          <Button variant="secondary" className="gf-insights-feedback-button" onClick={() => onButtonClick(true)}>
+            <div {...stylex.props(styles.button)}>
               <Icon name="thumbs-up" size="xxxl" />
               <span>
                 <Trans i18nKey="alerting.insights-menu-button-renderer.modal.i-like-it">I like it</Trans>
@@ -132,7 +132,7 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
         <IconButton
           name="ellipsis-v"
           variant="secondary"
-          className={styles.menu}
+          className="gf-insights-menu-button"
           aria-label={t('alerting.insights-menu-button-renderer.aria-label-rate-this-panel', 'Rate this panel')}
         />
       </Dropdown>
@@ -149,32 +149,19 @@ export class InsightsMenuButton extends SceneObjectBase<InsightsMenuButtonState>
   static Component = InsightsMenuButtonRenderer;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonsContainer: css({
+const styles = stylex.create({
+  buttonsContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'stretch',
     gap: '25px',
-  }),
-  buttonContainer: css({
-    height: '150px',
-    width: '150px',
-    cursor: 'pointer',
-    justifyContent: 'center',
-  }),
-  button: css({
+  },
+  button: {
     display: 'flex',
     flexDirection: 'column',
-  }),
-  container: css({
-    maxWidth: '370px',
-  }),
-  menu: css({
-    height: '25px',
-    margin: '0',
-  }),
-  thumbsdown: css({
-    transform: 'scale(-1, -1);',
-  }),
+  },
+  thumbsdown: {
+    transform: 'scale(-1, -1)',
+  },
 });
