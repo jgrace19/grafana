@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, locale } from '@grafana/data';
+import { locale } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 
 type CounterVariant = 'primary' | 'secondary';
 export interface CounterProps {
@@ -11,20 +11,28 @@ export interface CounterProps {
 }
 
 export const Counter = ({ value, variant = 'secondary' }: CounterProps) => {
-  const styles = useStyles2(getStyles, variant);
-
-  return <span className={styles.counter}>{locale(value, 0).text}</span>;
+  return <span {...stylex.props(styles.counter, variantStyles[variant])}>{locale(value, 0).text}</span>;
 };
 
-const getStyles = (theme: GrafanaTheme2, variant: CounterVariant) => ({
-  counter: css({
-    label: 'counter',
-    marginLeft: theme.spacing(1),
-    borderRadius: theme.spacing(3),
-    backgroundColor: variant === 'primary' ? theme.colors.primary.main : theme.colors.secondary.main,
-    padding: theme.spacing(0.25, 1),
-    color: theme.colors.text.secondary,
-    fontWeight: theme.typography.fontWeightMedium,
-    fontSize: theme.typography.size.sm,
-  }),
+const styles = stylex.create({
+  counter: {
+    marginLeft: spacing['--gf-spacing-grid-size'],
+    borderRadius: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingRight: spacing['--gf-spacing-grid-size'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingLeft: spacing['--gf-spacing-grid-size'],
+    color: colors['--gf-colors-text-secondary'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+});
+
+const variantStyles = stylex.create({
+  primary: {
+    backgroundColor: colors['--gf-colors-primary-main'],
+  },
+  secondary: {
+    backgroundColor: colors['--gf-colors-secondary-main'],
+  },
 });

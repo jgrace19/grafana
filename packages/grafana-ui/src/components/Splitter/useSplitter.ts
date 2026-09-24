@@ -1,13 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useRef } from 'react';
 import type * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { type ComponentSize } from '../../types/size';
 import { clamp } from '../../utils/clamp';
-import { type DragHandlePosition, getDragStyles } from '../DragHandle/DragHandle';
+import { type DragHandlePosition } from '../DragHandle/DragHandle';
+import {
+  dragHandleStyles,
+  getDragHandleGripColor,
+  horizontalOffsetStyles,
+  verticalOffsetStyles,
+} from '../DragHandle/dragHandleStyles';
 
 export interface UseSplitterOptions {
   /**
@@ -292,9 +296,12 @@ export function useSplitter(options: UseSplitterOptions) {
     }
   }, [onSizeChanged, handleSize]);
 
-  const styles = useStyles2(getStyles, direction);
-  const dragStyles = useStyles2(getDragStyles, dragPosition);
-  const dragHandleStyle = direction === 'column' ? dragStyles.dragHandleHorizontal : dragStyles.dragHandleVertical;
+  const theme = useTheme2();
+  const dragHandle = stylex.props(
+    dragHandleStyles.base,
+    direction === 'column' ? dragHandleStyles.horizontal : dragHandleStyles.vertical,
+    direction === 'column' ? horizontalOffsetStyles[dragPosition] : verticalOffsetStyles[dragPosition]
+  );
   const id = useId();
 
   const primaryStyles: React.CSSProperties = {
@@ -318,17 +325,17 @@ export function useSplitter(options: UseSplitterOptions) {
   return {
     containerProps: {
       ref: containerRef,
-      className: styles.container,
+      className: stylex.props(styles.container, direction === 'row' ? styles.row : styles.column).className,
     },
     primaryProps: {
       ref: firstPaneRef,
-      className: styles.panel,
+      className: stylex.props(styles.panel).className,
       style: primaryStyles,
       id: primaryId,
     },
     secondaryProps: {
       ref: secondPaneRef,
-      className: styles.panel,
+      className: stylex.props(styles.panel).className,
       style: secondaryStyles,
     },
     splitterProps: {
@@ -340,7 +347,12 @@ export function useSplitter(options: UseSplitterOptions) {
       onDoubleClick,
       onBlur,
       ref: splitterRef,
-      style: { [measurementProp]: `${handleSize}px` },
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      style: {
+        ...dragHandle.style,
+        [measurementProp]: `${handleSize}px`,
+        '--gf-drag-handle-grip-color': getDragHandleGripColor(theme),
+      } as React.CSSProperties,
       role: 'separator',
       'aria-valuemin': 0,
       'aria-valuemax': 100,
@@ -348,7 +360,7 @@ export function useSplitter(options: UseSplitterOptions) {
       'aria-controls': primaryId,
       'aria-label': 'Pane resize widget',
       tabIndex: 0,
-      className: dragHandleStyle,
+      className: dragHandle.className,
     },
   };
 }
@@ -392,19 +404,6 @@ function measureElement<T extends HTMLElement>(ref: T, usePixels?: boolean): Mea
   return { minWidth, maxWidth, minHeight, maxHeight };
 }
 
-function getStyles(theme: GrafanaTheme2, direction: UseSplitterOptions['direction']) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: direction === 'row' ? 'row' : 'column',
-      width: '100%',
-      flexGrow: 1,
-      overflow: 'hidden',
-    }),
-    panel: css({ display: 'flex', position: 'relative', flexBasis: 0 }),
-  };
-}
-
 function getPixelSize(size: ComponentSize = 'md') {
   return {
     xs: 4,
@@ -413,3 +412,23 @@ function getPixelSize(size: ComponentSize = 'md') {
     lg: 32,
   }[size];
 }
+
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    width: '100%',
+    flexGrow: 1,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  column: {
+    flexDirection: 'column',
+  },
+  panel: {
+    display: 'flex',
+    position: 'relative',
+    flexBasis: 0,
+  },
+});

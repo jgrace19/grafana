@@ -1,18 +1,20 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type HTMLProps } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { mixins } from '../../themes/stylex/mixins';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 import { Counter } from './Counter';
+import './Tabs.css';
 
 export interface TabProps extends HTMLProps<HTMLElement> {
   label: string;
@@ -55,28 +57,25 @@ export const Tab = React.forwardRef<HTMLElement, TabProps>(
     },
     ref
   ) => {
-    const tabsStyles = useStyles2(getStyles);
-    const clearStyles = useStyles2(clearButtonStyles);
-
     const content = () => (
       <>
         {icon && <Icon name={icon} data-testid={`tab-icon-${icon}`} />}
         {label}
         {typeof counter === 'number' && <Counter value={counter} />}
-        {Suffix && <Suffix className={tabsStyles.suffix} />}
+        {Suffix && <Suffix className={stylex.props(styles.suffix).className} />}
       </>
     );
 
-    const linkClass = cx(
-      clearStyles,
-      tabsStyles.link,
-      active ? tabsStyles.activeStyle : tabsStyles.notActive,
-      truncate && tabsStyles.linkTruncate,
-      disabled && tabsStyles.disabled
+    const link = stylex.props(
+      mixins.focusRing,
+      styles.link,
+      active ? styles.activeStyle : styles.notActive,
+      truncate && styles.linkTruncate,
+      disabled && styles.disabled
     );
 
     const commonProps = {
-      className: linkClass,
+      className: clsx('gf-tab-link', link.className),
       'data-testid': testId ?? selectors.components.Tab.title(label),
       ...otherProps,
       onClick: disabled ? undefined : onChangeTab,
@@ -91,7 +90,7 @@ export const Tab = React.forwardRef<HTMLElement, TabProps>(
 
     if (href) {
       tab = (
-        <div className={cx(tabsStyles.item, truncate && tabsStyles.itemTruncate, className)}>
+        <div {...mergeStylexProps(stylex.props(styles.item, truncate && styles.itemTruncate), { className })}>
           <a
             {...commonProps}
             href={disabled ? undefined : href}
@@ -105,7 +104,7 @@ export const Tab = React.forwardRef<HTMLElement, TabProps>(
       );
     } else {
       tab = (
-        <div className={cx(tabsStyles.item, truncate && tabsStyles.itemTruncate, className)}>
+        <div {...mergeStylexProps(stylex.props(styles.item, truncate && styles.itemTruncate), { className })}>
           <button
             {...commonProps}
             type="button"
@@ -129,81 +128,79 @@ export const Tab = React.forwardRef<HTMLElement, TabProps>(
 
 Tab.displayName = 'Tab';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    item: css({
-      listStyle: 'none',
-      position: 'relative',
-      display: 'flex',
-      whiteSpace: 'nowrap',
-      padding: theme.spacing(0, 0.5),
-    }),
-    itemTruncate: css({
-      maxWidth: theme.spacing(40),
-    }),
-    link: css({
-      color: theme.colors.text.secondary,
-      padding: theme.spacing(1, 1.5, 1),
-      borderRadius: theme.shape.radius.default,
-
+const styles = stylex.create({
+  item: {
+    listStyle: 'none',
+    position: 'relative',
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  itemTruncate: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 40)`,
+  },
+  // Also resets the native button (the old clearButtonStyles).
+  link: {
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    color: colors['--gf-colors-text-secondary'],
+    paddingTop: spacing['--gf-spacing-grid-size'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingBottom: spacing['--gf-spacing-grid-size'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'block',
+    height: '100%',
+    '::before': {
       display: 'block',
-      height: '100%',
-
-      svg: {
-        marginRight: theme.spacing(1),
+      content: '" "',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      height: '2px',
+      borderRadius: shape['--gf-shape-radius-default'],
+      bottom: 0,
+    },
+  },
+  linkTruncate: {
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    wordBreak: 'break-word',
+    overflow: 'hidden',
+  },
+  notActive: {
+    color: {
+      default: colors['--gf-colors-text-secondary'],
+      ':hover': colors['--gf-colors-text-primary'],
+      ':focus': colors['--gf-colors-text-primary'],
+    },
+    '::before': {
+      backgroundColor: {
+        default: null,
+        ':hover': colors['--gf-colors-action-hover'],
+        ':focus': colors['--gf-colors-action-hover'],
       },
-
-      '&:focus-visible': getFocusStyles(theme),
-
-      '&::before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        height: '2px',
-        borderRadius: theme.shape.radius.default,
-        bottom: 0,
-      },
-    }),
-    linkTruncate: css({
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      wordBreak: 'break-word',
-      overflow: 'hidden',
-    }),
-    notActive: css({
-      'a:hover, &:hover, &:focus': {
-        color: theme.colors.text.primary,
-
-        '&::before': {
-          backgroundColor: theme.colors.action.hover,
-        },
-      },
-    }),
-    activeStyle: css({
-      label: 'activeTabStyle',
-      color: theme.colors.text.primary,
-      overflow: 'hidden',
-
-      '&::before': {
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-      },
-    }),
-    suffix: css({
-      marginLeft: theme.spacing(1),
-    }),
-    disabled: css({
-      color: theme.colors.text.disabled,
-      cursor: 'not-allowed',
-
-      '&:hover, &:focus': {
-        color: theme.colors.text.disabled,
-
-        '&::before': {
-          backgroundColor: 'transparent',
-        },
-      },
-    }),
-  };
-};
+    },
+  },
+  activeStyle: {
+    color: colors['--gf-colors-text-primary'],
+    overflow: 'hidden',
+    '::before': {
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+    },
+  },
+  suffix: {
+    marginLeft: spacing['--gf-spacing-grid-size'],
+  },
+  // Applied last, so it replaces the hover/focus colours as well.
+  disabled: {
+    color: colors['--gf-colors-text-disabled'],
+    cursor: 'not-allowed',
+    '::before': {
+      backgroundColor: 'transparent',
+    },
+  },
+});
