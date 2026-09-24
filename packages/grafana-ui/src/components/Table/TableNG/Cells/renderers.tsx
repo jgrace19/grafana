@@ -42,8 +42,10 @@ function mixinAutoCellStyles(fn: TableCellStyles): TableCellStyles {
   return (theme, options) => {
     const styles = fn(theme, options);
     const autoStyles = getAutoCellStyles(theme, options);
+    // The cell type's styles win (JSON keeps `white-space: pre`), as they did whenever an Auto column had
+    // already inserted the Emotion Auto class.
     return {
-      xstyle: [styles.xstyle, autoStyles.xstyle],
+      xstyle: [autoStyles.xstyle, styles.xstyle],
       className: clsx(styles.className, autoStyles.className) || undefined,
       style: { ...styles.style, ...autoStyles.style },
     };
