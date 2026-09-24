@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
@@ -9,8 +9,7 @@ import {
 import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { type CellProps, Stack, Text, Icon, useStyles2 } from '@grafana/ui';
-import { getSvgSize } from '@grafana/ui/internal';
+import { type CellProps, Stack, Text, Icon } from '@grafana/ui';
 import { useGetFolderQueryFacade } from 'app/api/clients/folder/v1beta1/hooks';
 
 import { type LocalPlugin } from '../../plugins/admin/types';
@@ -216,15 +215,14 @@ function BasicResourceInfo({ data }: { data: ResourceTableItem }) {
 }
 
 function ResourceIcon({ resource }: { resource: ResourceTableItem }) {
-  const styles = useStyles2(getIconStyles);
   const datasource = useDatasource(resource.type === 'DATASOURCE' ? resource.refId : undefined);
   const pluginLogo = usePluginLogo(resource.type === 'PLUGIN' ? resource.plugin : undefined);
 
   // Handle special cases for icons.
   if (resource.type === 'DATASOURCE' && datasource?.meta?.info?.logos?.small) {
-    return <img className={styles.icon} src={datasource.meta.info.logos.small} alt="" />;
+    return <img {...stylex.props(styles.icon)} src={datasource.meta.info.logos.small} alt="" />;
   } else if (resource.type === 'PLUGIN' && pluginLogo) {
-    return <img className={styles.icon} src={pluginLogo} alt="" />;
+    return <img {...stylex.props(styles.icon)} src={pluginLogo} alt="" />;
   } else {
     // Generic icons for all other resource types.
     const iconName = iconNameForResource(resource.type);
@@ -236,15 +234,14 @@ function ResourceIcon({ resource }: { resource: ResourceTableItem }) {
   return undefined;
 }
 
-function getIconStyles() {
-  return {
-    icon: css({
-      display: 'block',
-      width: getSvgSize('xl'),
-      height: getSvgSize('xl'),
-    }),
-  };
-}
+const styles = stylex.create({
+  // getSvgSize('xl')
+  icon: {
+    display: 'block',
+    width: 24,
+    height: 24,
+  },
+});
 
 function useDatasource(datasourceUID: string | undefined): DataSourceInstanceSettings | undefined {
   const datasource = useMemo(() => {

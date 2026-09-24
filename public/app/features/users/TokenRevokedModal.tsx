@@ -1,16 +1,18 @@
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, InfoBox, Portal, useStyles2, useTheme2 } from '@grafana/ui';
 import { getModalStyles } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   maxConcurrentSessions?: number;
 }
 
 export const TokenRevokedModal = (props: Props) => {
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
   const theme = useTheme2();
 
   const modalStyles = getModalStyles(theme);
@@ -30,9 +32,9 @@ export const TokenRevokedModal = (props: Props) => {
             'You have been automatically signed out'
           )}
           severity="warning"
-          className={styles.infobox}
+          className={pendingStyles.infobox}
         >
-          <div className={styles.text}>
+          <div {...stylex.props(styles.text)}>
             <p>
               <Trans
                 i18nKey="users.token-revoked-modal.auto-revoked"
@@ -55,20 +57,27 @@ export const TokenRevokedModal = (props: Props) => {
           </Button>
         </InfoBox>
       </div>
-      <div className={cx(modalStyles.modalBackdrop, styles.backdrop)} />
+      <div className={cx(modalStyles.modalBackdrop, pendingStyles.backdrop)} />
     </Portal>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending InfoBox and Modal migration
+const getPendingStyles = (theme: GrafanaTheme2) => ({
   infobox: css({
     marginBottom: 0,
-  }),
-  text: css({
-    margin: theme.spacing(1, 0, 2),
   }),
   backdrop: css({
     backgroundColor: theme.colors.background.canvas,
     opacity: 0.8,
   }),
+});
+
+const styles = stylex.create({
+  text: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+  },
 });

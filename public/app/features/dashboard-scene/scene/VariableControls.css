@@ -1,0 +1,23 @@
+/*
+ * VariableControls styles DOM rendered by @grafana/scenes (the switch variable's root div and ControlsLabel), whose
+ * Emotion rules StyleX can't beat. Unlayered on purpose, at a specificity that wins over the scenes rules like the
+ * Emotion overrides it replaces did.
+ */
+
+/* No border radius on the input side, which shares its border with the label. */
+.gf-variable-controls-item > :nth-child(2) {
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+}
+
+.gf-variable-switch-control > div {
+  border: none;
+  background: transparent;
+  padding-right: var(--gf-spacing-x0-5);
+  height: var(--gf-spacing-x2);
+}
+
+.gf-variable-switch-label.gf-variable-switch-label {
+  margin-top: 0;
+  margin-bottom: 0;
+}
