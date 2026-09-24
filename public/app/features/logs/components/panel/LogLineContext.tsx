@@ -14,7 +14,6 @@ import {
   EventBusSrv,
   formattedValueToString,
   getValueFormat,
-  type GrafanaTheme2,
   hasLogsContextSupport,
   LoadingState,
   type LogRowContextOptions,
@@ -29,7 +28,8 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
-import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { splitOpen } from 'app/features/explore/state/main';
@@ -110,7 +110,6 @@ export const LogLineContext = memo(
     const eventBusRef = useRef(new EventBusSrv());
 
     const dispatch = useDispatch();
-    const modalStyles = useStyles2(getPendingModalStyles);
     const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
 
     const timeRange = useMemo(() => {
@@ -360,8 +359,10 @@ export const LogLineContext = memo(
       <Modal
         isOpen={open}
         title={t('logs.log-line-context.title-log-context', 'Log context')}
-        contentClassName={modalStyles.flexColumn}
-        className={modalStyles.modal}
+        contentClassName={
+          mergeStylexProps(stylex.props(styles.flexColumn), { className: pendingModalStyles.content }).className
+        }
+        className={pendingModalStyles.modal}
         onDismiss={handleClose}
       >
         {getLogRowContextUi && <div>{getLogRowContextUi(log, updateResults)}</div>}
@@ -539,26 +540,28 @@ function getTimeWindowOptions() {
   }));
 }
 
-// stylex: pending Modal migration
-const getPendingModalStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration. Modal's own (Emotion) width, height and content padding beat a StyleX class.
+const pendingModalStyles = {
   modal: css({
     width: '85vw',
     height: '80vh',
-    [theme.breakpoints.down('md')]: {
+    [bp.mdDown]: {
       width: '100%',
       height: '100vh',
     },
   }),
-  flexColumn: css({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(0, 3, 3, 3),
-    height: '100%',
-    gap: theme.spacing(0.5),
+  content: css({
+    padding: `0 ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']}`,
   }),
-});
+};
 
 const styles = stylex.create({
+  flexColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
   loadingIndicator: {
     height: spacing['--gf-spacing-x3'],
     minHeight: spacing['--gf-spacing-x3'],

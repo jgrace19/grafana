@@ -8,7 +8,6 @@ import { useAsync } from 'react-use';
 import {
   type DataQueryResponse,
   type DataSourceWithLogsContextSupport,
-  type GrafanaTheme2,
   type LogRowContextOptions,
   LogRowContextQueryDirection,
   type LogRowModel,
@@ -22,8 +21,9 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
-import { Button, Modal, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, Modal, useTheme2 } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SETTINGS_KEYS } from 'app/features/explore/Logs/utils/logs';
 import { splitOpen } from 'app/features/explore/state/main';
@@ -136,7 +136,6 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
 
   const dispatch = useDispatch();
   const theme = useTheme2();
-  const modalStyles = useStyles2(getPendingModalStyles);
 
   const [sticky, setSticky] = useState(true);
 
@@ -412,8 +411,10 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
     <Modal
       isOpen={open}
       title={t('logs.log-row-context-modal.title-log-context', 'Log context')}
-      contentClassName={modalStyles.flexColumn}
-      className={modalStyles.modal}
+      contentClassName={
+        mergeStylexProps(stylex.props(styles.flexColumn), { className: pendingModalStyles.content }).className
+      }
+      className={pendingModalStyles.modal}
       onDismiss={onClose}
     >
       {getLogRowContextUi && <div {...stylex.props(styles.datasourceUi)}>{getLogRowContextUi(row, updateResults)}</div>}
@@ -587,22 +588,24 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
   );
 };
 
-// stylex: pending Modal migration
-const getPendingModalStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration. Modal's own (Emotion) width and content padding beat a StyleX class.
+const pendingModalStyles = {
   modal: css({
     width: '85vw',
-    [theme.breakpoints.down('md')]: {
+    [bp.mdDown]: {
       width: '100%',
     },
   }),
-  flexColumn: css({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(0, 3, 3, 3),
+  content: css({
+    padding: `0 ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']}`,
   }),
-});
+};
 
 const styles = stylex.create({
+  flexColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   sticky: {
     position: 'sticky',
     zIndex: 1,
