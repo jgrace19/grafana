@@ -117,14 +117,6 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
 ];
 
-// Migrated app files that still override an unmigrated child with Emotion (`// stylex: pending <Child> migration`).
-// Each one is also in scripts/stylex/emotion-allowlist.txt; remove both entries once the child migrates.
-const stylexPendingEmotionAppFiles = [
-  // D1: Modal (U4), useSplitter (U8)
-  'public/app/features/dashboard-scene/edit-pane/DashboardCodePane.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditorRenderer.tsx',
-];
-
 const stylexRestrictedImports = {
   patterns: [
     {
@@ -747,7 +739,6 @@ module.exports = [
     // Must come after grafana/no-extensions-imports, whose restrictions it repeats.
     name: 'grafana/stylex-migrated-app',
     files: stylexMigratedAppFiles,
-    ignores: stylexPendingEmotionAppFiles,
     rules: {
       'no-restricted-imports': [
         'error',

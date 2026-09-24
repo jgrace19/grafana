@@ -22,6 +22,3 @@ public/app/plugins/datasource/opentsdb/** # decoupled plugin workspace: no plugi
 public/app/plugins/datasource/parca/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet
-
-public/app/features/dashboard-scene/edit-pane/DashboardCodePane.tsx # D1: Emotion override of Modal width/max-width/content overflow; stylex: pending Modal (U4) migration
-public/app/features/dashboard-scene/panel-edit/PanelEditorRenderer.tsx # D1: Emotion override of the useSplitter container overflow/display; stylex: pending Splitter (U8) migration
