@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
 import { FocusScope } from '@react-aria/focus';
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentType, createElement, useState } from 'react';
 
-import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
+import { colorManipulator } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Tab } from '../Tabs/Tab';
 import { TabsBar } from '../Tabs/TabsBar';
 import { type PopoverContentProps } from '../Tooltip/types';
@@ -39,8 +40,6 @@ export const ColorPickerPopover = <T extends CustomPickersDescriptor>(props: Pro
   const { color, onChange, enableNamedColors, customPickers } = props;
   const theme = useTheme2();
   const [activePicker, setActivePicker] = useState<PickerType | keyof T>('palette');
-
-  const styles = getStyles(theme);
 
   const handleChange = (color: string) => {
     if (enableNamedColors) {
@@ -95,7 +94,7 @@ export const ColorPickerPopover = <T extends CustomPickersDescriptor>(props: Pro
         tabIndex=-1 is needed here to support highlighting text within the picker when using FocusScope
         see https://github.com/adobe/react-spectrum/issues/1604#issuecomment-781574668
       */}
-      <div tabIndex={-1} className={styles.colorPickerPopover}>
+      <div tabIndex={-1} {...stylex.props(styles.colorPickerPopover)}>
         <TabsBar>
           <Tab
             label={t('grafana-ui.color-picker-popover.palette-tab', 'Colors')}
@@ -109,34 +108,29 @@ export const ColorPickerPopover = <T extends CustomPickersDescriptor>(props: Pro
           />
           {renderCustomPickerTabs()}
         </TabsBar>
-        <div className={styles.colorPickerPopoverContent}>{renderPicker()}</div>
+        <div {...stylex.props(styles.colorPickerPopoverContent)}>{renderPicker()}</div>
       </div>
     </FocusScope>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    colorPickerPopover: css({
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z3,
-      background: theme.colors.background.elevated,
-      padding: theme.spacing(0.5),
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-    colorPickerPopoverContent: css({
-      width: '246px',
-      fontSize: theme.typography.bodySmall.fontSize,
-      minHeight: '184px',
-      height: '290px',
-      padding: theme.spacing(1),
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    colorPickerPopoverTabs: css({
-      display: 'flex',
-      width: '100%',
-      borderRadius: `${theme.shape.radius.default} ${theme.shape.radius.default} 0 0`,
-    }),
-  };
-};
+const styles = stylex.create({
+  colorPickerPopover: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+  colorPickerPopoverContent: {
+    width: '246px',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    minHeight: '184px',
+    height: '290px',
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});

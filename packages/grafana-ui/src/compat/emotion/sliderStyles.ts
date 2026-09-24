@@ -5,6 +5,10 @@ import { type GrafanaTheme2 } from '@grafana/data';
 
 import '@rc-component/slider/assets/index.css';
 
+/**
+ * @deprecated Emotion styles for rc-slider, kept for existing consumers. `Slider` and `RangeSlider` use StyleX
+ * and `Slider.css`.
+ */
 export const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false) => {
   const { spacing } = theme;
   const railColor = theme.colors.border.strong;

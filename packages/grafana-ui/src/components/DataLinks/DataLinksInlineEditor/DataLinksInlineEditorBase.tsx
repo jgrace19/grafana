@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { cloneDeep } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { type Action, type DataFrame, type DataLink, type GrafanaTheme2 } from '@grafana/data';
+import { type Action, type DataFrame, type DataLink } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { spacing } from '../../../themes/stylex/tokens.stylex';
 import { Button } from '../../Button/Button';
 import { Modal } from '../../Modal/Modal';
 
@@ -42,7 +42,6 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
     setItemsSafe(items ?? []);
   }, [items]);
 
-  const styles = useStyles2(getDataLinksInlineEditorStyles);
   const isEditing = editIndex !== null;
 
   const _onChange = (index: number, item: T) => {
@@ -130,11 +129,11 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sortable-links" direction="vertical">
           {(provided) => (
-            <div className={styles.wrapper} ref={provided.innerRef} {...provided.droppableProps}>
+            <div {...stylex.props(styles.wrapper)} ref={provided.innerRef} {...provided.droppableProps}>
               {itemsSafe.map((item, idx) => {
                 const key = `${item.title}/${idx}`;
                 return (
@@ -169,23 +168,29 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
         </Modal>
       )}
 
-      <Button size="sm" icon="plus" onClick={onDataLinkAdd} variant="secondary" className={styles.button}>
+      <Button
+        size="sm"
+        icon="plus"
+        onClick={onDataLinkAdd}
+        variant="secondary"
+        className={stylex.props(styles.button).className}
+      >
         {getItemText('add')}
       </Button>
     </div>
   );
 }
 
-const getDataLinksInlineEditorStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     position: 'relative',
-  }),
-  wrapper: css({
-    marginBottom: theme.spacing(2),
+  },
+  wrapper: {
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
     display: 'flex',
     flexDirection: 'column',
-  }),
-  button: css({
-    marginLeft: theme.spacing(1),
-  }),
+  },
+  button: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
 });

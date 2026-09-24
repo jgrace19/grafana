@@ -1,15 +1,17 @@
-import { cx } from '@emotion/css';
-import { Global } from '@emotion/react';
 import Slider, { type SliderProps } from '@rc-component/slider';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 import HandleTooltip from './HandleTooltip';
-import { getStyles } from './styles';
 import { type RangeSliderProps } from './types';
+
+import '@rc-component/slider/assets/index.css';
+import './Slider.css';
 
 /**
  * @public
@@ -47,7 +49,6 @@ export const RangeSlider = ({
   );
 
   const isHorizontal = orientation === 'horizontal';
-  const styles = useStyles2(getStyles, isHorizontal);
   const dragHandleAriaLabel = t('grafana-ui.range-slider.drag-handle-aria-label', 'Use arrow keys to change the value');
 
   const tipHandleRender: SliderProps['handleRender'] = (node, handleProps) => {
@@ -64,9 +65,12 @@ export const RangeSlider = ({
   };
 
   return (
-    <div className={cx(styles.container, styles.slider)}>
-      {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
-      <Global styles={styles.tooltip} />
+    <div
+      {...mergeStylexProps(
+        stylex.props(styles.container, isHorizontal ? styles.containerHorizontal : styles.containerVertical),
+        { className: 'gf-slider' }
+      )}
+    >
       <Slider
         min={min}
         max={max}
@@ -85,3 +89,22 @@ export const RangeSlider = ({
 };
 
 RangeSlider.displayName = 'RangeSlider';
+
+const styles = stylex.create({
+  container: {
+    width: '100%',
+  },
+  containerHorizontal: {
+    margin: 'inherit',
+    paddingBottom: 'inherit',
+    height: 'auto',
+  },
+  containerVertical: {
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: 'inherit',
+    height: '100%',
+  },
+});

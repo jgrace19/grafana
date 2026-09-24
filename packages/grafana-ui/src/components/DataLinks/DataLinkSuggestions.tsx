@@ -1,12 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { groupBy, capitalize } from 'lodash';
 import { useRef, useMemo } from 'react';
 import * as React from 'react';
 import { useClickAway } from 'react-use';
 
-import { type VariableSuggestion, type GrafanaTheme2 } from '@grafana/data';
+import { type VariableSuggestion } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, typography } from '../../themes/stylex/tokens.stylex';
 import { List } from '../List/List';
 
 interface DataLinkSuggestionsProps {
@@ -16,44 +16,6 @@ interface DataLinkSuggestionsProps {
   onSuggestionSelect: (suggestion: VariableSuggestion) => void;
   onClose?: () => void;
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    list: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      '&:last-child': {
-        border: 'none',
-      },
-    }),
-    wrapper: css({
-      background: theme.colors.background.primary,
-      width: '250px',
-    }),
-    item: css({
-      background: 'none',
-      padding: '2px 8px',
-      userSelect: 'none',
-      color: theme.colors.text.primary,
-      cursor: 'pointer',
-      '&:hover': {
-        background: theme.colors.action.hover,
-      },
-    }),
-    label: css({
-      color: theme.colors.text.secondary,
-    }),
-    activeItem: css({
-      background: theme.colors.background.secondary,
-      '&:hover': {
-        background: theme.colors.background.secondary,
-      },
-    }),
-    itemValue: css({
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.size.sm,
-    }),
-  };
-};
 
 export const DataLinkSuggestions = ({ suggestions, ...otherProps }: DataLinkSuggestionsProps) => {
   const ref = useRef(null);
@@ -68,10 +30,8 @@ export const DataLinkSuggestions = ({ suggestions, ...otherProps }: DataLinkSugg
     return groupBy(suggestions, (s) => s.origin);
   }, [suggestions]);
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div role="menu" ref={ref} className={styles.wrapper}>
+    <div role="menu" ref={ref} {...stylex.props(styles.wrapper)}>
       {Object.keys(groupedSuggestions).map((key, i) => {
         const indexOffset =
           i === 0
@@ -116,12 +76,10 @@ const DataLinkSuggestionsList = React.memo(
     suggestions,
     activeRef: selectedRef,
   }: DataLinkSuggestionsListProps) => {
-    const styles = useStyles2(getStyles);
-
     return (
       <>
         <List
-          className={styles.list}
+          className={stylex.props(styles.list).className}
           items={suggestions}
           renderItem={(item, index) => {
             const isActive = index + activeIndexOffset === activeIndex;
@@ -131,15 +89,15 @@ const DataLinkSuggestionsList = React.memo(
               <div
                 role="menuitem"
                 tabIndex={0}
-                className={cx(styles.item, isActive && styles.activeItem)}
+                {...stylex.props(styles.item, isActive && styles.activeItem)}
                 ref={isActive ? selectedRef : undefined}
                 onClick={() => {
                   onSuggestionSelect(item);
                 }}
                 title={item.documentation}
               >
-                <span className={styles.itemValue}>
-                  <span className={styles.label}>{label}</span> {item.label}
+                <span {...stylex.props(styles.itemValue)}>
+                  <span {...stylex.props(styles.label)}>{label}</span> {item.label}
                 </span>
               </div>
             );
@@ -151,3 +109,35 @@ const DataLinkSuggestionsList = React.memo(
 );
 
 DataLinkSuggestionsList.displayName = 'DataLinkSuggestionsList';
+
+const styles = stylex.create({
+  list: {
+    borderBottomWidth: { default: '1px', ':last-child': null },
+    borderBottomStyle: { default: 'solid', ':last-child': 'none' },
+    borderBottomColor: { default: colors['--gf-colors-border-weak'], ':last-child': null },
+  },
+  wrapper: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    width: '250px',
+  },
+  item: {
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    paddingTop: '2px',
+    paddingRight: '8px',
+    paddingBottom: '2px',
+    paddingLeft: '8px',
+    userSelect: 'none',
+    color: colors['--gf-colors-text-primary'],
+    cursor: 'pointer',
+  },
+  label: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  activeItem: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  itemValue: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+});
