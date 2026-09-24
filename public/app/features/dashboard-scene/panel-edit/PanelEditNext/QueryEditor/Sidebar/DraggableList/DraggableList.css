@@ -1,0 +1,7 @@
+/*
+ * useDropIndicator sets data-dragging on <html> while a card is dragged, which StyleX can't key on. Unlayered, like the
+ * Emotion rule it replaces.
+ */
+[data-dragging] .gf-query-editor-draggable-item {
+  pointer-events: none;
+}

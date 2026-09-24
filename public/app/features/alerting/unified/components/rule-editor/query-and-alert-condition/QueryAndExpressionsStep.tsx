@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useEffectOnce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
@@ -20,7 +19,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import {
@@ -322,8 +320,6 @@ export const QueryAndExpressionsStep = ({ editingExistingRule, onDataChange, mod
     [dispatch]
   );
 
-  const styles = useStyles2(getStyles);
-
   // Cloud alerts load data from form values
   // whereas Grafana managed alerts load data from reducer
   //when data source is changed in the cloud selector we need to update the queries in the reducer
@@ -555,7 +551,7 @@ export const QueryAndExpressionsStep = ({ editingExistingRule, onDataChange, mod
                   variant="secondary"
                   data-testid={selectors.components.QueryTab.addQuery}
                   disabled={noCompatibleDataSources}
-                  className={styles.addQueryButton}
+                  className={stylex.props(styles.addQueryButton).className}
                 >
                   <Trans i18nKey="alerting.query-and-expressions-step.add-query">Add query</Trans>
                 </Button>
@@ -708,27 +704,10 @@ function TypeSelectorButton({ onClickType }: { onClickType: (type: ExpressionQue
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  addQueryButton: css({
+const styles = stylex.create({
+  addQueryButton: {
     width: 'fit-content',
-  }),
-  helpInfo: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: 'fit-content',
-    fontWeight: theme.typography.fontWeightMedium,
-    marginLeft: theme.spacing(1),
-    fontSize: theme.typography.size.sm,
-    cursor: 'pointer',
-  }),
-  helpInfoText: css({
-    marginLeft: theme.spacing(0.5),
-    textDecoration: 'underline',
-  }),
-  infoLink: css({
-    color: theme.colors.text.link,
-  }),
+  },
 });
 
 const useSetExpressionAndDataSource = () => {

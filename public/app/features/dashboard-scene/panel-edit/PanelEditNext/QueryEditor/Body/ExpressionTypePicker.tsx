@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { Card, Text, useStyles2, useTheme2 } from '@grafana/ui';
+import { Card, Text, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type ExpressionQueryType, expressionTypes } from 'app/features/expressions/types';
 
 import { EXPRESSION_IMAGE_MAP } from '../../constants';
@@ -15,12 +16,11 @@ function hasDefinedValue(
 }
 
 export function ExpressionTypePicker() {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const { finalizePendingExpression } = useQueryEditorUIContext();
 
   return (
-    <div className={styles.grid}>
+    <div {...stylex.props(styles.grid)}>
       {expressionTypes.filter(hasDefinedValue).map((item) => {
         const image = EXPRESSION_IMAGE_MAP[item.value];
         const imageUrl = theme.isDark ? image.dark : image.light;
@@ -42,7 +42,7 @@ export function ExpressionTypePicker() {
             <Card.Heading>{label}</Card.Heading>
             <Card.Description>
               <Text variant="bodySmall">{item.description ?? ''}</Text>
-              <img className={styles.image} src={imageUrl} alt={label} />
+              <img {...stylex.props(styles.image)} src={imageUrl} alt={label} />
             </Card.Description>
           </Card>
         );
@@ -51,15 +51,15 @@ export function ExpressionTypePicker() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  grid: css({
+const styles = stylex.create({
+  grid: {
     display: 'grid',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-  }),
-  image: css({
+  },
+  image: {
     display: 'block',
     maxWidth: '100%',
-    marginTop: theme.spacing(2),
-  }),
+    marginTop: spacing['--gf-spacing-x2'],
+  },
 });

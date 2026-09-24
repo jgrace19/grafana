@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo } from 'react';
 
-import { useStyles2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 import { LogMessageAnsi } from '../LogMessageAnsi';
 
 import { HighlightedLogRenderer } from './HighlightedLogRenderer';
-import { getStyles } from './LogLine';
+import { getLogLineVarStyles, logLineStyles } from './LogLine';
 import { useLogListContext } from './LogListContext';
 import { type LogListModel } from './processing';
 
@@ -17,26 +18,45 @@ interface Props {
 
 export const LogLineDetailsLog = memo(({ log: originalLog, syntaxHighlighting }: Props) => {
   const { fontSize } = useLogListContext();
-  const logStyles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const varStyles = useMemo(() => getLogLineVarStyles(theme), [theme]);
   const log = useMemo(() => {
     const log = originalLog.clone();
     return log;
   }, [originalLog]);
 
   return (
-    <div className={styles.logLineWrapper}>
-      <div className={`${logStyles.logLine} ${fontSize === 'small' ? logStyles.fontSizeSmall : ''} ${styles.noHover}`}>
-        <div className={logStyles.wrappedLogLine}>
+    <div {...stylex.props(styles.logLineWrapper, varStyles)}>
+      <div
+        {...stylex.props(logLineStyles.logLine, fontSize === 'small' && logLineStyles.fontSizeSmall, styles.noHover)}
+      >
+        <div {...stylex.props(logLineStyles.wrappedLogLine)}>
           {log.hasAnsi ? (
-            <span className="field no-highlighting">
+            <span
+              {...mergeStylexProps(stylex.props(logLineStyles.noHighlighting, logLineStyles.wrappedField), {
+                className: 'field no-highlighting',
+              })}
+            >
               <LogMessageAnsi value={log.body} />
             </span>
           ) : (
             <>
-              {!syntaxHighlighting && <div className="field no-highlighting">{log.body}</div>}
+              {!syntaxHighlighting && (
+                <div
+                  {...mergeStylexProps(stylex.props(logLineStyles.noHighlighting, logLineStyles.wrappedField), {
+                    className: 'field no-highlighting',
+                  })}
+                >
+                  {log.body}
+                </div>
+              )}
               {syntaxHighlighting && (
-                <div className="field log-syntax-highlight">
-                  {<HighlightedLogRenderer tokens={log.highlightedBodyTokens} />}
+                <div
+                  {...mergeStylexProps(stylex.props(logLineStyles.wrappedField), {
+                    className: 'field log-syntax-highlight',
+                  })}
+                >
+                  {<HighlightedLogRenderer tokens={log.highlightedBodyTokens} colorTokens />}
                 </div>
               )}
             </>
@@ -49,13 +69,13 @@ export const LogLineDetailsLog = memo(({ log: originalLog, syntaxHighlighting }:
 
 LogLineDetailsLog.displayName = 'LogLineDetailsLog';
 
-const styles = {
-  logLineWrapper: css({
+const styles = stylex.create({
+  logLineWrapper: {
     maxHeight: '50vh',
     overflow: 'auto',
-  }),
-  noHover: css({
+  },
+  noHover: {
     // Disable hover style
     pointerEvents: 'none',
-  }),
-};
+  },
+});

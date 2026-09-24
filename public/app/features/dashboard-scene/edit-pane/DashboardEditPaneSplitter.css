@@ -1,0 +1,10 @@
+/*
+ * Lifts the Sidebar (the body wrapper's second child) above panels on small screens. StyleX can't target the
+ * Sidebar's root, and this file is deliberately not in a cascade layer so it keeps the Emotion rule's precedence.
+ * The media query is `bp.smDown` and 999 is `zIndex.activePanel`.
+ */
+@media (max-width: 543.95px) {
+  .gf-dashboard-edit-pane-body-wrapper > div:nth-child(2) {
+    z-index: 999;
+  }
+}

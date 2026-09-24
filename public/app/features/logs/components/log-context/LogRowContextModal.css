@@ -1,0 +1,7 @@
+/*
+ * Styles the row menu rendered deep inside LogRows. Deliberately not in a cascade layer: like the Emotion rule it
+ * replaces, it must win over the menu's own styles.
+ */
+.gf-logs-context-entry .log-row-menu {
+  margin-top: -6px;
+}

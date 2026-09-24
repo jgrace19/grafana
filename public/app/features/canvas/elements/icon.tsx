@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { isString } from 'lodash';
 import { type CSSProperties } from 'react';
 
@@ -14,6 +13,8 @@ import { type LineConfig } from 'app/plugins/panel/canvas/panelcfg.gen';
 
 import { type CanvasElementItem, type CanvasElementOptions, type CanvasElementProps, defaultBgColor } from '../element';
 
+import './icon.css';
+
 export interface IconConfig {
   path?: ResourceDimensionConfig;
   fill?: ColorDimensionConfig;
@@ -28,12 +29,8 @@ interface IconData {
   links?: LinkModel[];
 }
 
-// When a stoke is defined, we want the path to be in page units
-const svgStrokePathClass = css({
-  path: {
-    vectorEffect: 'non-scaling-stroke',
-  },
-});
+// When a stoke is defined, we want the path to be in page units (see icon.css)
+const svgStrokePathClass = 'gf-canvas-icon-stroke';
 
 export function IconDisplay(props: CanvasElementProps<IconConfig, IconData>) {
   const { data } = props;

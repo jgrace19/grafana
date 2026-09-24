@@ -2,6 +2,8 @@
 // Since much of Grafana depends on it in includes side effects at import time,
 // we delay loading the rest of the app using import() until the boot data is ready.
 
+import { keyframes } from '@emotion/css';
+
 import './stylex-layers.css';
 
 // Check if we are hosting files on cdn and set webpack public path
@@ -16,6 +18,12 @@ window.__grafana_public_path__ =
 if (window.nonce) {
   __webpack_nonce__ = window.nonce;
 }
+
+// Dependencies that bundle their own @emotion/css (@grafana/scenes) get their own <style> tag, and between two
+// Emotion sheets the later tag wins specificity ties: scenes' className overrides of @grafana/ui's Emotion
+// components (the annotation toggle switch) rely on the app's sheet coming first. @grafana/ui used to create
+// it at import time; insert an unused rule so it exists before any dependency's sheet.
+keyframes({ to: { opacity: 1 } });
 
 // This is an indication to the window.onLoad failure check that the app bundle has loaded.
 window.__grafana_app_bundle_loaded = true;

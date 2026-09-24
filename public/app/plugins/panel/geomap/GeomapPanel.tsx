@@ -1,5 +1,4 @@
-import { css } from '@emotion/css';
-import { Global } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
 import type OpenLayersMap from 'ol/Map';
 import type MapBrowserEvent from 'ol/MapBrowserEvent';
 import View, { type ViewOptions } from 'ol/View';
@@ -17,7 +16,7 @@ import { Subscription } from 'rxjs';
 
 import { DataHoverEvent, type PanelData, type PanelProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, locationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import { type PanelContext, PanelContextRoot } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { VariablesChanged } from 'app/features/variables/types';
@@ -29,10 +28,13 @@ import { DebugOverlay } from './components/DebugOverlay';
 import { MeasureOverlay } from './components/MeasureOverlay';
 import { MeasureVectorLayer } from './components/MeasureVectorLayer';
 import { type GeomapHoverPayload } from './event';
-import { getGlobalStyles } from './globalStyles';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { DEFAULT_BASEMAP_CONFIG } from './layers/registry';
 import { type Options, type MapViewConfig, TooltipMode } from './panelcfg.gen';
+// Before the OpenLayers sheets, so they win ties as they did over the <Global> styles this replaces.
+import './GeomapPanel.css';
+import 'ol/ol.css';
+import 'ol-ext/dist/ol-ext.css';
 import { type ControlsOptions, type MapLayerState } from './types';
 import { getActions } from './utils/actions';
 import { getLayersExtent } from './utils/getLayersExtent';
@@ -63,8 +65,6 @@ export class GeomapPanel extends Component<Props, State> {
   static contextType = PanelContextRoot;
   panelContext: PanelContext | undefined = undefined;
   private subs = new Subscription();
-
-  globalCSS = getGlobalStyles(config.theme2);
 
   mouseWheelZoom?: MouseWheelZoom;
   hoverPayload: GeomapHoverPayload = { point: {}, pageX: -1, pageY: -1 };
@@ -527,11 +527,10 @@ export class GeomapPanel extends Component<Props, State> {
 
     return (
       <>
-        <Global styles={this.globalCSS} />
-        <div className={styles.wrap} onMouseLeave={this.clearTooltip}>
+        <div {...stylex.props(styles.wrap)} onMouseLeave={this.clearTooltip}>
           <div
             role="application"
-            className={styles.map}
+            {...stylex.props(styles.map)}
             // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0} // Interactivity is added through the ref
             aria-label={t('geomap.geomap-panel.aria-label-map', 'Navigable map')}
@@ -550,16 +549,16 @@ export class GeomapPanel extends Component<Props, State> {
   }
 }
 
-const styles = {
-  wrap: css({
+const styles = stylex.create({
+  wrap: {
     position: 'relative',
     width: '100%',
     height: '100%',
-  }),
-  map: css({
+  },
+  map: {
     position: 'absolute',
     zIndex: 0,
     width: '100%',
     height: '100%',
-  }),
-};
+  },
+});

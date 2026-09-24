@@ -157,7 +157,9 @@ Tags.displayName = 'Tags';
 /** Card description text */
 const Description = ({ children, className }: ChildProps) => {
   const Element = typeof children === 'string' ? 'p' : 'div';
-  return <Element {...mergeStylexProps(stylex.props(descriptionStyles.description), { className })}>{children}</Element>;
+  return (
+    <Element {...mergeStylexProps(stylex.props(descriptionStyles.description), { className })}>{children}</Element>
+  );
 };
 Description.displayName = 'Description';
 
@@ -211,10 +213,9 @@ const BaseActions = ({ children, disabled, variant, className }: ActionsProps) =
 
   return (
     <div
-      {...mergeStylexProps(
-        stylex.props(variant === 'primary' ? actionStyles.actions : actionStyles.secondaryActions),
-        { className }
-      )}
+      {...mergeStylexProps(stylex.props(variant === 'primary' ? actionStyles.actions : actionStyles.secondaryActions), {
+        className,
+      })}
     >
       {React.Children.map(children, (child) => {
         return React.isValidElement<Record<string, unknown>>(child)
@@ -270,8 +271,7 @@ const styles = stylex.create({
     gridTemplateColumns: 'auto 1fr auto',
   },
   gridWithDescription: {
-    gridTemplateAreas:
-      '"Figure Heading Tags" "Figure Meta Tags" "Figure Description Tags" "Figure Actions Secondary"',
+    gridTemplateAreas: '"Figure Heading Tags" "Figure Meta Tags" "Figure Description Tags" "Figure Actions Secondary"',
     gridTemplateRows: 'auto auto 1fr auto',
     gridTemplateColumns: 'auto 1fr auto',
   },

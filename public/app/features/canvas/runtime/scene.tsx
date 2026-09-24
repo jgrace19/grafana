@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type InfiniteViewer from 'infinite-viewer';
 import type Moveable from 'moveable';
 import { type CSSProperties } from 'react';
@@ -17,6 +17,7 @@ import {
   type DirectionDimensionConfig,
 } from '@grafana/schema';
 import { Portal } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import {
   getColorDimensionFromData,
@@ -52,7 +53,6 @@ export interface SelectionParams {
 }
 
 export class Scene {
-  styles = getStyles();
   readonly selection = new ReplaySubject<ElementState[]>(1);
   readonly moved = new Subject<number>(); // called after resize/drag for editor updates
   readonly byName = new Map<string, ElementState>();
@@ -407,9 +407,9 @@ export class Scene {
     );
 
     return config.featureToggles.canvasPanelPanZoom ? (
-      <div className={this.styles.viewer} ref={this.setViewerRef} key={this.revId} data-testid="canvas-scene-wrapper">
+      <div {...stylex.props(styles.viewer)} ref={this.setViewerRef} key={this.revId} data-testid="canvas-scene-wrapper">
         <div
-          className={this.styles.viewport}
+          {...stylex.props(styles.viewport)}
           ref={this.setViewportRef}
           key={this.revId}
           data-testid="canvas-scene-pan-zoom"
@@ -420,8 +420,7 @@ export class Scene {
     ) : (
       <div
         key={this.revId}
-        className={this.styles.wrap}
-        style={this.style}
+        {...mergeStylexProps(stylex.props(styles.wrap), { style: this.style })}
         ref={this.setRef}
         data-testid="canvas-scene"
       >
@@ -431,21 +430,18 @@ export class Scene {
   }
 }
 
-const getStyles = () => ({
-  wrap: css({
+const styles = stylex.create({
+  wrap: {
     overflow: 'hidden',
     position: 'relative',
-  }),
-  selected: css({
-    zIndex: '999 !important',
-  }),
-  viewer: css({
+  },
+  viewer: {
     overflow: 'hidden',
     width: '100%',
     height: '100%',
-  }),
-  viewport: css({
+  },
+  viewport: {
     width: '100%',
     height: '100%',
-  }),
+  },
 });

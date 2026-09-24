@@ -1,9 +1,13 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Collapse migration
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { ContactPointSelector as GrafanaManagedContactPointSelector } from '@grafana/alerting/unstable';
 import { Trans, t } from '@grafana/i18n';
-import { Collapse, Field, InlineLabel, Input, MultiSelect, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Collapse, Field, InlineLabel, Input, MultiSelect, Stack, TextLink } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { ExternalAlertmanagerContactPointSelector } from 'app/features/alerting/unified/components/notification-policies/ContactPointSelector';
 import { handleContactPointSelect } from 'app/features/alerting/unified/components/notification-policies/utils';
 import { type RouteWithID } from 'app/plugins/datasource/alertmanager/types';
@@ -23,7 +27,7 @@ import { validateRbacEntityName } from '../../utils/k8s/utils';
 import { makeAMLink } from '../../utils/misc';
 
 import { PromDurationInput } from './PromDurationInput';
-import { getFormStyles } from './formStyles';
+import { formStyles } from './formStyles';
 import { TIMING_OPTIONS_DEFAULTS } from './timingOptions';
 
 export interface AmRootRouteFormProps {
@@ -45,7 +49,6 @@ export const AmRootRouteForm = ({
   route,
   showNameField,
 }: AmRootRouteFormProps) => {
-  const styles = useStyles2(getFormStyles);
   const [isTimingOptionsExpanded, setIsTimingOptionsExpanded] = useState(false);
   const { isGrafanaAlertmanager } = useAlertmanager();
   const [groupByOptions, setGroupByOptions] = useState(stringsToSelectableValues(route.group_by));
@@ -93,7 +96,7 @@ export const AmRootRouteForm = ({
                       : true,
                 },
               })}
-              className={styles.input}
+              className={stylex.props(formStyles.input).className}
               data-testid="routing-tree-name"
               aria-label={t('alerting.am-root-route-form.aria-label-name', 'Name')}
             />
@@ -162,7 +165,7 @@ export const AmRootRouteForm = ({
                 aria-label={t('alerting.am-root-route-form.aria-label-group-by', 'Group by')}
                 {...field}
                 allowCustomValue
-                className={styles.input}
+                className={stylex.props(formStyles.input).className}
                 onCreateOption={(opt: string) => {
                   setGroupByOptions((opts) => [...opts, stringToSelectableValue(opt)]);
                   setValue('groupBy', [...(field.value || []), opt]);
@@ -176,12 +179,12 @@ export const AmRootRouteForm = ({
           />
         </Field>
         <Collapse
-          className={styles.collapse}
+          className={pendingEmotionStyles.collapse}
           isOpen={isTimingOptionsExpanded}
           label={t('alerting.am-root-route-form.label-timing-options', 'Timing options')}
           onToggle={setIsTimingOptionsExpanded}
         >
-          <div className={styles.timingFormContainer}>
+          <div {...stylex.props(formStyles.timingFormContainer)}>
             <Stack direction="column" gap={2}>
               <Field
                 noMargin
@@ -197,7 +200,7 @@ export const AmRootRouteForm = ({
                 <PromDurationInput
                   {...register('groupWaitValue', { validate: promDurationValidator })}
                   placeholder={TIMING_OPTIONS_DEFAULTS.group_wait}
-                  className={styles.promDurationInput}
+                  className={stylex.props(formStyles.promDurationInput).className}
                   aria-label={t('alerting.am-root-route-form.aria-label-group-wait', 'Group wait')}
                 />
               </Field>
@@ -215,7 +218,7 @@ export const AmRootRouteForm = ({
                 <PromDurationInput
                   {...register('groupIntervalValue', { validate: promDurationValidator })}
                   placeholder={TIMING_OPTIONS_DEFAULTS.group_interval}
-                  className={styles.promDurationInput}
+                  className={stylex.props(formStyles.promDurationInput).className}
                   aria-label={t('alerting.am-root-route-form.aria-label-group-interval', 'Group interval')}
                 />
               </Field>
@@ -238,7 +241,7 @@ export const AmRootRouteForm = ({
                     },
                   })}
                   placeholder={TIMING_OPTIONS_DEFAULTS.repeat_interval}
-                  className={styles.promDurationInput}
+                  className={stylex.props(formStyles.promDurationInput).className}
                   aria-label={t('alerting.am-root-route-form.aria-label-repeat-interval', 'Repeat interval')}
                 />
               </Field>
@@ -249,4 +252,13 @@ export const AmRootRouteForm = ({
       </Stack>
     </form>
   );
+};
+
+// stylex: pending Collapse migration
+const pendingEmotionStyles = {
+  collapse: css({
+    border: 'none',
+    background: 'none',
+    color: colors['--gf-colors-text-primary'],
+  }),
 };

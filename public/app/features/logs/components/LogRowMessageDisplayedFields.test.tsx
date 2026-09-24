@@ -1,17 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { createTheme, LogLevel } from '@grafana/data';
+import { LogLevel } from '@grafana/data';
 import { IconButton } from '@grafana/ui';
 
 import { LogRowMessageDisplayedFields, type Props } from './LogRowMessageDisplayedFields';
 import { LOG_LINE_BODY_FIELD_NAME } from './fieldSelector/logFields';
-import { getLogRowStyles } from './getLogRowStyles';
 import { createLogRow } from './mocks/logRow';
 
 const setup = (propOverrides: Partial<Props> = {}, detectedFields = ['place', 'planet']) => {
-  const theme = createTheme();
-  const styles = getLogRowStyles(theme);
   const labels = {
     place: 'Earth',
     planet: 'Mars',
@@ -20,7 +17,6 @@ const setup = (propOverrides: Partial<Props> = {}, detectedFields = ['place', 'p
     wrapLogMessage: false,
     row: createLogRow({ entry: 'Logs are wonderful', logLevel: LogLevel.error, timeEpochMs: 1546297200000, labels }),
     onOpenContext: () => {},
-    styles,
     detectedFields,
     mouseIsOver: true,
     onBlur: jest.fn(),

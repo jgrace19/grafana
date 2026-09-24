@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { SegmentedToggle, type SegmentedToggleProps } from '../../SegmentedToggle';
 import { QueryEditorType, type SidebarSize } from '../../constants';
@@ -22,7 +22,6 @@ interface SidebarProps {
 }
 
 export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: SidebarProps) {
-  const styles = useStyles2(getStyles);
   const { setSelectedAlert, cardType } = useQueryEditorUIContext();
   const { alertRules, loading } = useAlertingContext();
 
@@ -43,7 +42,7 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
   ];
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <SidebarHeaderActions sidebarSize={sidebarSize} setSidebarSize={setSidebarSize}>
         <SegmentedToggle
           options={viewOptions}
@@ -55,7 +54,7 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
       </SidebarHeaderActions>
       {/** The translateX property of the hoverActions in SidebarCard causes the scroll container to overflow by 8px. */}
       <ScrollContainer overflowX="hidden">
-        <div className={styles.content}>
+        <div {...stylex.props(styles.content)}>
           {cardType === QueryEditorType.Alert ? (
             <AlertsView alertRules={alertRules} />
           ) : (
@@ -68,20 +67,20 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
   );
 });
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      background: theme.colors.background.primary,
-    }),
-    content: css({
-      background: theme.colors.background.primary,
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  content: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+});

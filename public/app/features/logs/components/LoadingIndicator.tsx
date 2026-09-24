@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { Spinner } from '@grafana/ui';
 
@@ -11,7 +11,7 @@ type Props = {
 export const LoadingIndicator = ({ adjective = 'newer' }: Props) => {
   const text = `Loading ${adjective} logs...`;
   return (
-    <div className={loadingIndicatorStyles}>
+    <div {...stylex.props(styles.loadingIndicator)}>
       <div>
         {text} <Spinner inline />
       </div>
@@ -19,7 +19,9 @@ export const LoadingIndicator = ({ adjective = 'newer' }: Props) => {
   );
 };
 
-const loadingIndicatorStyles = css({
-  display: 'flex',
-  justifyContent: 'center',
+const styles = stylex.create({
+  loadingIndicator: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
 });

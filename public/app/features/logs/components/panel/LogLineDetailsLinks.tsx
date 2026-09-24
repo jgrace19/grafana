@@ -1,17 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { DataLinkButton, Icon, Toggletip, useStyles2 } from '@grafana/ui';
+import { DataLinkButton, Icon, Toggletip } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type FieldDef } from '../logParser';
 
 import { useLogDetailsContext } from './LogDetailsContext';
 import { filterFields, MultipleValue, SingleValue } from './LogLineDetailsFields';
-import { type LogListFontSize } from './LogList';
 import { useLogListContext } from './LogListContext';
 import { type LogListModel } from './processing';
+import './LogLineDetailsFields.css';
 
 interface LogLineDetailsLinksProps {
   fields: FieldDef[];
@@ -22,7 +22,6 @@ interface LogLineDetailsLinksProps {
 
 export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetailsLinksProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
   const filteredFields = useMemo(() => (search ? filterFields(fields, search) : fields), [fields, search]);
 
   if (!fields.length) {
@@ -32,7 +31,7 @@ export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetails
   }
 
   return (
-    <div className={styles.linksTable}>
+    <div {...stylex.props(styles.linksTable, fontSize === 'small' ? styles.linksTableGapSmall : styles.linksTableGap)}>
       {filteredFields.map((field, i) => (
         <LogLineDetailsField key={`${field.keys[0]}=${field.values[0]}-${i}`} field={field} log={log} />
       ))}
@@ -40,15 +39,6 @@ export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetails
   );
 });
 LogLineDetailsLinks.displayName = 'LogLineDetailsLinks';
-
-const getFieldsStyles = (theme: GrafanaTheme2, fontSize: LogListFontSize) => ({
-  linksTable: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `fit-content(30%) 1fr`,
-    marginBottom: theme.spacing(1),
-  }),
-});
 
 interface LogLineDetailsFieldProps {
   field: FieldDef;
@@ -59,15 +49,13 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
   const { onPinLine, pinLineButtonTooltipTitle, prettifyJSON } = useLogListContext();
   const { closeDetails } = useLogDetailsContext();
 
-  const styles = useStyles2(getFieldStyles);
-
   const singleKey = field.keys.length === 1;
   const singleValue = field.values.length === 1;
 
   const tooltip = useMemo(
     () => (
-      <div className={styles.value}>
-        <div className={styles.valueContainer}>
+      <div className="gf-log-line-details-value">
+        <div {...stylex.props(styles.valueContainer)}>
           {singleValue ? (
             <SingleValue value={field.values[0]} prettifyJSON={prettifyJSON} />
           ) : (
@@ -76,22 +64,22 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
         </div>
       </div>
     ),
-    [field.values, singleValue, styles.value, styles.valueContainer, prettifyJSON]
+    [field.values, singleValue, prettifyJSON]
   );
 
   return (
     <>
-      <div className={styles.label}>
+      <div {...stylex.props(styles.label)}>
         {singleKey ? field.keys[0] : <MultipleValue values={field.keys} />}
         <Toggletip fitContent content={tooltip}>
           <Icon
             aria-label={t('logs.log-line-details.link-value-tooltip', 'Link value')}
-            className={styles.labelIcon}
+            xstyle={styles.labelIcon}
             name="info-circle"
           />
         </Toggletip>
       </div>
-      <div className={styles.links}>
+      <div {...stylex.props(styles.links)}>
         {field.links?.map((link, i) => {
           if (link.onClick && onPinLine) {
             const originalOnClick = link.onClick;
@@ -106,7 +94,7 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
             };
           }
           return (
-            <span key={`${link.title}-${i}`} className={styles.link}>
+            <span key={`${link.title}-${i}`} {...stylex.props(styles.link)}>
               <DataLinkButton
                 buttonProps={{
                   // Show tooltip message if max number of pinned lines has been reached
@@ -127,37 +115,40 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
   );
 };
 
-const getFieldStyles = (theme: GrafanaTheme2) => ({
-  label: css({
+const styles = stylex.create({
+  linksTable: {
+    display: 'grid',
+    gridTemplateColumns: `fit-content(30%) 1fr`,
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  linksTableGap: {
+    rowGap: spacing['--gf-spacing-x0-5'],
+    columnGap: spacing['--gf-spacing-x1'],
+  },
+  linksTableGapSmall: {
+    rowGap: spacing['--gf-spacing-x0-25'],
+    columnGap: spacing['--gf-spacing-x0-5'],
+  },
+  label: {
     overflowWrap: 'break-word',
     wordBreak: 'break-word',
-    paddingRight: theme.spacing(1),
-  }),
-  labelIcon: css({
-    marginLeft: theme.spacing(1),
-  }),
-  value: css({
-    button: {
-      visibility: 'hidden',
-    },
-    '&:hover': {
-      button: {
-        visibility: 'visible',
-      },
-    },
-  }),
-  links: css({
-    paddingBottom: theme.spacing(0.5),
-  }),
-  link: css({
-    marginRight: theme.spacing(0.5),
-  }),
-  valueContainer: css({
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+  labelIcon: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  links: {
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+  },
+  link: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  valueContainer: {
     display: 'flex',
-    lineHeight: theme.typography.body.lineHeight,
+    lineHeight: typography['--gf-typography-body-line-height'],
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-all',
     maxHeight: '50vh',
     overflow: 'auto',
-  }),
+  },
 });

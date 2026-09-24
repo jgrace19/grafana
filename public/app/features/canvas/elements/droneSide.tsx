@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ScalarDimensionConfig } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ScalarDimensionEditor } from 'app/features/dimensions/editors/ScalarDimensionEditor';
 
@@ -18,13 +16,11 @@ interface DroneSideConfig {
 }
 
 const DroneSideDisplay = ({ data }: CanvasElementProps<DroneSideConfig, DroneSideData>) => {
-  const styles = useStyles2(getStyles);
-
   const droneSidePitchTransformStyle = `rotate(${data?.pitchAngle ? data.pitchAngle : 0}deg)`;
 
   return (
     <svg
-      className={styles.droneSide}
+      {...stylex.props(styles.droneSide)}
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 1300 290"
@@ -120,10 +116,12 @@ export const droneSideItem: CanvasElementItem = {
   },
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  droneSide: css({
+const styles = stylex.create({
+  droneSide: {
     // TODO: figure out what styles to apply when prefers-reduced-motion is set
-    // eslint-disable-next-line @grafana/no-unreduced-motion
-    transition: 'transform 0.4s',
-  }),
+    // eslint-disable-next-line @grafana/stylex-no-unreduced-motion
+    transitionProperty: 'transform',
+    // eslint-disable-next-line @grafana/stylex-no-unreduced-motion
+    transitionDuration: '0.4s',
+  },
 });

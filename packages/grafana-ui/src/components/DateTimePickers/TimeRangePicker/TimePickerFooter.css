@@ -1,0 +1,7 @@
+/*
+ * TabContent (no `xstyle`) sets its own background. Not in a cascade layer, and the class is doubled, so this
+ * wins over TabContent's rule whether it's Emotion (inserted after this stylesheet) or StyleX.
+ */
+.gf-time-picker-footer-tab-content.gf-time-picker-footer-tab-content {
+  background: inherit;
+}

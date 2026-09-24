@@ -1,0 +1,37 @@
+/*
+ * Overrides for children StyleX can't restyle, deliberately not in a cascade layer so they win like the Emotion rules
+ * they replace.
+ */
+
+/*
+ * The useSplitter container sets its own overflow (and display) with Emotion, which loads after this lazy chunk's
+ * stylesheet, so the class is doubled. The media query matches scrollReflowMediaCondition in useScrollReflowLimit.ts.
+ */
+.gf-panel-editor-content.gf-panel-editor-content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: unset;
+}
+
+@media (max-height: 540px) {
+  .gf-panel-editor-content.gf-panel-editor-content {
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(470px, 1fr) 330px;
+    grid-template-rows: 1fr;
+    gap: var(--gf-spacing-x1);
+    position: static;
+    width: 100%;
+  }
+}
+
+/* The StyleX Button has no xstyle prop; its icon is rotated through the Button's DOM. */
+.gf-panel-editor-open-data-pane-button {
+  width: var(--gf-spacing-x8);
+  justify-content: center;
+}
+
+.gf-panel-editor-open-data-pane-button svg {
+  rotate: -90deg;
+}

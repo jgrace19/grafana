@@ -1,0 +1,8 @@
+/*
+ * Overrides TagList's own alignment, and TagList has no xstyle. Deliberately not in a cascade layer: like the Emotion
+ * className it replaces, it must win over TagList's StyleX styles.
+ */
+.gf-tags-cell-tag-list {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}

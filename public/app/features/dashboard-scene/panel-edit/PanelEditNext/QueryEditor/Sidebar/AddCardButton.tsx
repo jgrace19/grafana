@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useState } from 'react';
 
-import { CoreApp, type GrafanaTheme2 } from '@grafana/data';
+import { CoreApp } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config as grafanaConfig } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Dropdown, Icon, Menu, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Dropdown, Icon, Menu, Tooltip, useTheme2 } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
 import { SHARED_DASHBOARD_QUERY } from 'app/plugins/datasource/dashboard/constants';
@@ -18,6 +20,8 @@ import {
   trackOpenSavedQueryPicker,
 } from '../../tracking';
 import { useActionsContext, useDatasourceContext, useQueryEditorUIContext } from '../QueryEditorContext';
+
+import { sidebarCardMarker } from './markers.stylex';
 
 function getButtonAriaLabel(variant: 'query' | 'transformation', afterId?: string) {
   if (variant === 'transformation') {
@@ -39,7 +43,6 @@ interface AddCardButtonProps {
 }
 
 export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }: AddCardButtonProps) => {
-  const styles = useStyles2(getStyles, alwaysVisible);
   const theme = useTheme2();
   const { dsSettings } = useDatasourceContext();
   const { addQuery } = useActionsContext();
@@ -154,7 +157,7 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
   if (variant === 'transformation') {
     return (
       <button
-        className={styles.button}
+        {...stylex.props(styles.button, alwaysVisible ? styles.alwaysVisible : styles.revealOnCardHover)}
         data-add-button={!alwaysVisible || undefined}
         type="button"
         aria-label={ariaLabel}
@@ -173,7 +176,11 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
       onVisibleChange={handleMenuVisibleChange}
     >
       <button
-        className={styles.button}
+        {...stylex.props(
+          styles.button,
+          alwaysVisible ? styles.alwaysVisible : styles.revealOnCardHover,
+          !alwaysVisible && menuOpen && styles.revealed
+        )}
         data-add-button={!alwaysVisible || undefined}
         data-menu-open={menuOpen || undefined}
         type="button"
@@ -185,58 +192,83 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
   );
 };
 
-function getStyles(theme: GrafanaTheme2, alwaysVisible: boolean) {
-  return {
-    button: css({
-      display: alwaysVisible ? 'inline-flex' : 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: theme.spacing(2.5),
-      height: theme.spacing(2.5),
-      borderRadius: theme.shape.radius.sm,
-      border: 'none',
-      background: theme.colors.primary.main,
-      color: theme.colors.primary.contrastText,
-      cursor: 'pointer',
-      padding: 0,
-      willChange: 'transform',
-      transform: alwaysVisible ? 'translateZ(0)' : 'translateY(-50%) translateZ(0)',
+const revealTransition = 'opacity, background-color, transform';
 
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: [
-          theme.transitions.create(alwaysVisible ? ['background-color'] : ['opacity', 'background-color'], {
-            duration: 100,
-          }),
-          'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
-        ].join(', '),
+const styles = stylex.create({
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: spacing['--gf-spacing-x2-5'],
+    height: spacing['--gf-spacing-x2-5'],
+    borderRadius: shape['--gf-shape-radius-sm'],
+    borderStyle: 'none',
+    backgroundColor: { default: colors['--gf-colors-primary-main'], ':hover': colors['--gf-colors-primary-shade'] },
+    color: colors['--gf-colors-primary-contrast-text'],
+    cursor: 'pointer',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    willChange: 'transform',
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineStyle: { default: null, ':focus-visible': 'solid' },
+    outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-border'] },
+    outlineOffset: { default: null, ':focus-visible': '2px' },
+  },
+  // Header "+" buttons.
+  alwaysVisible: {
+    display: 'inline-flex',
+    transform: { default: 'translateZ(0)', ':active': 'scale(0.97)' },
+    // On :focus-visible the global `button:focus-visible` transition applies instead, as it did with Emotion.
+    transitionProperty: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': 'background-color, transform' },
+    },
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': '100ms, 250ms' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: {
+        default: null,
+        ':not(:focus-visible)': 'cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.25, 1, 0.5, 1)',
       },
-
-      // Hover-button positioning & hidden-by-default state (revealed by SidebarCard hover)
-      ...(!alwaysVisible && {
-        position: 'absolute' as const,
-        top: `calc(100% + ${theme.spacing(0.25)})`,
-        left: theme.spacing(-2.5),
-        zIndex: 1,
-        opacity: 0,
-        pointerEvents: 'none' as const,
-      }),
-
-      '&:hover': {
-        background: theme.colors.primary.shade,
+    },
+  },
+  // Inline "+" below a card: hidden until the card is hovered, the button has keyboard focus, or its menu is open.
+  revealOnCardHover: {
+    display: 'flex',
+    transform: { default: 'translateY(-50%) translateZ(0)', ':active': 'translateY(-50%) scale(0.97)' },
+    transitionProperty: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': revealTransition },
+    },
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': '100ms, 100ms, 250ms' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: {
+        default: null,
+        ':not(:focus-visible)':
+          'cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.25, 1, 0.5, 1)',
       },
-
-      '&:active': {
-        transform: alwaysVisible ? 'scale(0.97)' : 'translateY(-50%) scale(0.97)',
-      },
-
-      '&:focus-visible': {
-        outline: `2px solid ${theme.colors.primary.border}`,
-        outlineOffset: '2px',
-        ...(!alwaysVisible && {
-          opacity: 1,
-          pointerEvents: 'auto' as const,
-        }),
-      },
-    }),
-  };
-}
+    },
+    position: 'absolute',
+    top: `calc(100% + ${spacing['--gf-spacing-x0-25']})`,
+    left: `calc(-1 * ${spacing['--gf-spacing-x2-5']})`,
+    zIndex: 1,
+    opacity: { default: 0, ':focus-visible': 1, [stylex.when.ancestor(':hover', sidebarCardMarker)]: 1 },
+    pointerEvents: {
+      default: 'none',
+      ':focus-visible': 'auto',
+      [stylex.when.ancestor(':hover', sidebarCardMarker)]: 'auto',
+    },
+  },
+  revealed: {
+    opacity: 1,
+    pointerEvents: 'auto',
+  },
+});

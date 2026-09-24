@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getQueryEditorColors, SidebarSize } from '../../constants';
 import { trackSidebarSizeToggle } from '../../tracking';
@@ -15,12 +15,12 @@ interface SidebarHeaderActionsProps {
 }
 
 export function SidebarHeaderActions({ sidebarSize, setSidebarSize, children }: SidebarHeaderActionsProps) {
-  const styles = useStyles2(getStyles);
+  const themeColors = getQueryEditorColors(useTheme2());
   const isMini = sidebarSize === SidebarSize.Mini;
 
   return (
-    <div className={styles.header}>
-      <div className={styles.inner}>
+    <div {...stylex.props(styles.header, styles.background(themeColors.sidebarHeaderBackground))}>
+      <div {...stylex.props(styles.inner)}>
         <IconButton
           name={isMini ? 'maximize-left' : 'compress-alt-left'}
           size="sm"
@@ -37,20 +37,20 @@ export function SidebarHeaderActions({ sidebarSize, setSidebarSize, children }: 
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const themeColors = getQueryEditorColors(theme);
-  return {
-    header: css({
-      background: themeColors.sidebarHeaderBackground,
-      padding: theme.spacing(0.5, 1.5),
-      minHeight: theme.spacing(5),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    inner: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  header: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    minHeight: spacing['--gf-spacing-x5'],
+    display: 'flex',
+    alignItems: 'center',
+  },
+  background: (backgroundColor: string) => ({ backgroundColor }),
+  inner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

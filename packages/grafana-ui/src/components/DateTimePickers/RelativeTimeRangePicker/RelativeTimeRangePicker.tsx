@@ -1,15 +1,17 @@
-import { css, cx } from '@emotion/css';
 import { autoUpdate, useClick, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, useCallback, useRef, useState } from 'react';
 
 import { type RelativeTimeRange, type GrafanaTheme2, type TimeOption } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { getInputStyles } from '../../../compat/emotion/inputStyles';
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { motion, zIndex } from '../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, components, shadows, shape, spacing, typography } from '../../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../../utils/floating';
 import { Button } from '../../Button/Button';
 import { Field } from '../../Forms/Field';
@@ -79,7 +81,11 @@ export function RelativeTimeRangePicker(props: RelativeTimeRangePickerProps) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, click]);
 
-  const styles = useStyles2(getStyles(from.validation.errorMessage, to.validation.errorMessage));
+  const theme = useTheme2();
+  const bodyHeight =
+    bodyMinimumHeight +
+    calculateErrorHeight(theme, from.validation.errorMessage) +
+    calculateErrorHeight(theme, to.validation.errorMessage);
 
   const onChangeTimeOption = (option: TimeOption) => {
     const relativeTimeRange = mapOptionToRelativeTimeRange(option);
@@ -125,15 +131,15 @@ export function RelativeTimeRangePicker(props: RelativeTimeRangePickerProps) {
   const { from: timeOptionFrom, to: timeOptionTo } = timeOption;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <button
         ref={refs.setReference}
-        className={styles.pickerInput}
+        {...stylex.props(styles.pickerInput)}
         type="button"
         onClick={onOpen}
         {...getReferenceProps()}
       >
-        <span className={styles.clockIcon}>
+        <span {...stylex.props(styles.clockIcon)}>
           <Icon name="clock-nine" />
         </span>
         <span>
@@ -141,18 +147,22 @@ export function RelativeTimeRangePicker(props: RelativeTimeRangePickerProps) {
             {{ timeOptionFrom }} to {{ timeOptionTo }}
           </Trans>
         </span>
-        <span className={styles.caretIcon}>
+        <span {...stylex.props(styles.caretIcon)}>
           <Icon name={isOpen ? 'angle-up' : 'angle-down'} size="lg" />
         </span>
       </button>
       {isOpen && (
         <div>
-          <div role="presentation" className={styles.backdrop} {...underlayProps} />
+          <div role="presentation" {...stylex.props(styles.backdrop)} {...underlayProps} />
           <FocusScope contain autoFocus restoreFocus>
             <div ref={ref} {...overlayProps} {...dialogProps}>
-              <div className={styles.content} ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
-                <div className={styles.body}>
-                  <div className={styles.leftSide}>
+              <div
+                {...mergeStylexProps(stylex.props(styles.content), { style: floatingStyles })}
+                ref={refs.setFloating}
+                {...getFloatingProps()}
+              >
+                <div {...stylex.props(styles.body, styles.height(`${bodyHeight}px`))}>
+                  <div {...stylex.props(styles.leftSide)}>
                     <ScrollContainer showScrollIndicators>
                       <TimeRangeList
                         title={t('time-picker.time-range.example-title', 'Example time ranges')}
@@ -162,8 +172,8 @@ export function RelativeTimeRangePicker(props: RelativeTimeRangePickerProps) {
                       />
                     </ScrollContainer>
                   </div>
-                  <div className={styles.rightSide}>
-                    <div className={styles.title}>
+                  <div {...stylex.props(styles.rightSide)}>
+                    <div {...stylex.props(styles.title)}>
                       <TimePickerTitle>
                         <Trans i18nKey="time-picker.time-range.specify">Specify time range</Trans>
                       </TimePickerTitle>
@@ -209,84 +219,7 @@ export function RelativeTimeRangePicker(props: RelativeTimeRangePickerProps) {
   );
 }
 
-const getStyles = (fromError?: string, toError?: string) => (theme: GrafanaTheme2) => {
-  const inputStyles = getInputStyles({ theme, invalid: false });
-  const bodyMinimumHeight = 250;
-  const bodyHeight = bodyMinimumHeight + calculateErrorHeight(theme, fromError) + calculateErrorHeight(theme, toError);
-
-  return {
-    backdrop: css({
-      position: 'fixed',
-      zIndex: theme.zIndex.modalBackdrop,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    }),
-    container: css({
-      display: 'flex',
-      position: 'relative',
-    }),
-    pickerInput: cx(
-      inputStyles.input,
-      inputStyles.wrapper,
-      css({
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        cursor: 'pointer',
-        paddingRight: 0,
-        paddingLeft: 0,
-        lineHeight: `${theme.spacing.gridSize * theme.components.height.md - 2}px`,
-      })
-    ),
-    caretIcon: cx(
-      inputStyles.suffix,
-      css({
-        position: 'relative',
-        marginLeft: theme.spacing(0.5),
-      })
-    ),
-    clockIcon: cx(
-      inputStyles.prefix,
-      css({
-        position: 'relative',
-        marginRight: theme.spacing(0.5),
-      })
-    ),
-    content: css({
-      background: theme.colors.background.primary,
-      boxShadow: theme.shadows.z3,
-      position: 'absolute',
-      zIndex: theme.zIndex.modal,
-      width: '500px',
-      top: '100%',
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.colors.border.weak}`,
-      left: 0,
-      whiteSpace: 'normal',
-    }),
-    body: css({
-      display: 'flex',
-      height: `${bodyHeight}px`,
-    }),
-    description: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.sm,
-    }),
-    leftSide: css({
-      width: '50% !important',
-      borderRight: `1px solid ${theme.colors.border.medium}`,
-    }),
-    rightSide: css({
-      width: '50%',
-      padding: theme.spacing(1),
-    }),
-    title: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+const bodyMinimumHeight = 250;
 
 function calculateErrorHeight(theme: GrafanaTheme2, errorMessage?: string): number {
   if (!errorMessage) {
@@ -299,3 +232,127 @@ function calculateErrorHeight(theme: GrafanaTheme2, errorMessage?: string): numb
 
   return theme.spacing.gridSize * 4;
 }
+
+// The Input look (getInputStyles `input` + `wrapper`, `prefix`, `suffix`) as Emotion's merged classes resolved it.
+const styles = stylex.create({
+  backdrop: {
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  container: {
+    display: 'flex',
+    position: 'relative',
+  },
+  pickerInput: {
+    padding: 0,
+    backgroundColor: components['--gf-components-input-background'],
+    lineHeight: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']} - 2px)`,
+    fontSize: typography['--gf-typography-size-md'],
+    color: components['--gf-components-input-text'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    position: 'relative',
+    zIndex: 0,
+    flexGrow: 1,
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+    // Input's later `:focus { outline: none }` replaced the ring's transparent outline.
+    outlineStyle: { default: null, ':focus': 'none' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    boxShadow: {
+      default: null,
+      ':focus': `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`,
+    },
+    transitionProperty: { default: null, ':focus': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+  },
+  caretIcon: {
+    position: 'relative',
+    top: 0,
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    height: '100%',
+    minWidth: '28px',
+    color: colors['--gf-colors-text-secondary'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    borderLeftStyle: 'none',
+    borderTopLeftRadius: 'unset',
+    borderBottomLeftRadius: 'unset',
+    right: 0,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  clockIcon: {
+    position: 'relative',
+    top: 0,
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    height: '100%',
+    minWidth: '28px',
+    color: colors['--gf-colors-text-secondary'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    borderRightStyle: 'none',
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: 'unset',
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  content: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    position: 'absolute',
+    zIndex: zIndex.modal,
+    width: '500px',
+    top: '100%',
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    left: 0,
+    whiteSpace: 'normal',
+  },
+  body: {
+    display: 'flex',
+  },
+  height: (height: string) => ({ height }),
+  leftSide: {
+    width: '50%',
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-medium'],
+  },
+  rightSide: {
+    width: '50%',
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  title: {
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+});

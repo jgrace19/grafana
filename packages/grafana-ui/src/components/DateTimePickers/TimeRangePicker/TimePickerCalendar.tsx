@@ -1,56 +1,19 @@
-import { css } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { OverlayContainer, useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { createRef, type FormEvent, memo } from 'react';
 
-import { type DateTime, type GrafanaTheme2, type TimeZone } from '@grafana/data';
+import { type DateTime, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
-import { getModalStyles } from '../../Modal/getModalStyles';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { type WeekStart } from '../WeekStartPicker';
 
 import { Body } from './CalendarBody';
 import { Footer } from './CalendarFooter';
 import { Header } from './CalendarHeader';
-
-export const getStyles = (theme: GrafanaTheme2, isReversed = false) => {
-  return {
-    container: css({
-      top: 0,
-      position: 'absolute',
-      [`${isReversed ? 'left' : 'right'}`]: '546px', // lmao
-    }),
-
-    modalContainer: css({
-      label: 'modalContainer',
-      margin: '0 auto',
-    }),
-
-    calendar: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      padding: theme.spacing(1),
-      label: 'calendar',
-      boxShadow: theme.shadows.z3,
-      backgroundColor: theme.colors.background.elevated,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-    }),
-
-    modal: css({
-      label: 'modal',
-      boxShadow: theme.shadows.z3,
-      left: '50%',
-      position: 'fixed',
-      top: '50%',
-      transform: 'translate(-50%, -50%)',
-      zIndex: theme.zIndex.modal,
-    }),
-  };
-};
 
 export interface TimePickerCalendarProps {
   isOpen: boolean;
@@ -71,9 +34,6 @@ export interface TimePickerCalendarProps {
 }
 
 function TimePickerCalendar(props: TimePickerCalendarProps) {
-  const theme = useTheme2();
-  const { modalBackdrop } = useStyles2(getModalStyles);
-  const styles = getStyles(theme, props.isReversed);
   const { isOpen, isFullscreen: isFullscreenProp, onClose } = props;
   const ref = createRef<HTMLElement>();
   const { dialogProps } = useDialog(
@@ -100,7 +60,7 @@ function TimePickerCalendar(props: TimePickerCalendarProps) {
 
   const calendar = (
     <section
-      className={styles.calendar}
+      {...stylex.props(styles.calendar)}
       ref={ref}
       {...overlayProps}
       {...dialogProps}
@@ -115,18 +75,20 @@ function TimePickerCalendar(props: TimePickerCalendarProps) {
   if (!showInModal) {
     return (
       <FocusScope contain restoreFocus autoFocus>
-        <div className={styles.container}>{calendar}</div>
+        <div {...stylex.props(styles.container, props.isReversed ? styles.containerReversed : styles.containerDefault)}>
+          {calendar}
+        </div>
       </FocusScope>
     );
   }
 
   return (
     <OverlayContainer>
-      <div className={modalBackdrop} />
+      <div {...stylex.props(styles.modalBackdrop)} />
 
       <FocusScope contain autoFocus restoreFocus>
-        <div className={styles.modal}>
-          <div className={styles.modalContainer}>{calendar}</div>
+        <div {...stylex.props(styles.modal)}>
+          <div {...stylex.props(styles.modalContainer)}>{calendar}</div>
         </div>
       </FocusScope>
     </OverlayContainer>
@@ -134,3 +96,52 @@ function TimePickerCalendar(props: TimePickerCalendarProps) {
 }
 export default memo(TimePickerCalendar);
 TimePickerCalendar.displayName = 'TimePickerCalendar';
+
+const styles = stylex.create({
+  container: {
+    top: 0,
+    position: 'absolute',
+  },
+  // Sits beside the 546px-wide time picker content.
+  containerDefault: {
+    right: '546px',
+  },
+  containerReversed: {
+    left: '546px',
+  },
+  modalContainer: {
+    marginTop: 0,
+    marginRight: 'auto',
+    marginBottom: 0,
+    marginLeft: 'auto',
+  },
+  calendar: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    boxShadow: shadows['--gf-shadows-z3'],
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  modal: {
+    boxShadow: shadows['--gf-shadows-z3'],
+    left: '50%',
+    position: 'fixed',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: zIndex.modal,
+  },
+  modalBackdrop: {
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: components['--gf-components-overlay-background'],
+  },
+});

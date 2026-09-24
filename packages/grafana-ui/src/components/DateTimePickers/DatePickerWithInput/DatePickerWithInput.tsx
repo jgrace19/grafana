@@ -1,13 +1,16 @@
-import { css } from '@emotion/css';
 import { autoUpdate, useClick, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { type ChangeEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { type GrafanaTheme2, dateTime } from '@grafana/data';
+import { dateTime } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { getPositioningMiddleware } from '../../../utils/floating';
 import { type Props as InputProps, Input } from '../../Input/Input';
 import { DatePicker } from '../DatePicker/DatePicker';
+
+import './DatePickerWithInput.css';
 
 export const formatDate = (date: Date | string) => dateTime(date).format('L');
 
@@ -36,7 +39,6 @@ export interface DatePickerWithInputProps extends Omit<InputProps, 'value' | 'on
 export const DatePickerWithInput = forwardRef<HTMLInputElement, DatePickerWithInputProps>(
   ({ value, minDate, maxDate, onChange, closeOnSelect, placeholder = 'Date', ...rest }, ref) => {
     const [open, setOpen] = useState(false);
-    const styles = useStyles2(getStyles);
     const placement = 'bottom-start';
 
     // the order of middleware is important!
@@ -61,7 +63,7 @@ export const DatePickerWithInput = forwardRef<HTMLInputElement, DatePickerWithIn
     ]);
 
     return (
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <Input
           ref={refs.setReference}
           type="text"
@@ -74,11 +76,15 @@ export const DatePickerWithInput = forwardRef<HTMLInputElement, DatePickerWithIn
               onChange('');
             }
           }}
-          className={styles.input}
+          className="gf-date-picker-with-input"
           {...rest}
           {...getReferenceProps()}
         />
-        <div className={styles.popover} ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
+        <div
+          {...mergeStylexProps(stylex.props(styles.popover), { style: floatingStyles })}
+          ref={refs.setFloating}
+          {...getFloatingProps()}
+        >
           <DatePicker
             isOpen={open}
             value={value && typeof value !== 'string' ? value : dateTime().toDate()}
@@ -100,20 +106,11 @@ export const DatePickerWithInput = forwardRef<HTMLInputElement, DatePickerWithIn
 
 DatePickerWithInput.displayName = 'DatePickerWithInput';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      position: 'relative',
-    }),
-    input: css({
-      /* hides the native Calendar picker icon given when using type=date */
-      "input[type='date']::-webkit-inner-spin-button, input[type='date']::-webkit-calendar-picker-indicator": {
-        display: 'none',
-        WebkitAppearance: 'none',
-      },
-    }),
-    popover: css({
-      zIndex: theme.zIndex.tooltip,
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    position: 'relative',
+  },
+  popover: {
+    zIndex: zIndex.tooltip,
+  },
+});

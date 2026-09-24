@@ -1,4 +1,5 @@
-import { type MouseEvent, useCallback, useMemo, useRef } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, type MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { type LogRowContextOptions, type LogRowModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -8,7 +9,7 @@ import { Dropdown, IconButton, Menu } from '@grafana/ui';
 import { copyText, handleOpenLogsContextClick } from '../../utils';
 
 import { useLogDetailsContext } from './LogDetailsContext';
-import { type LogLineStyles } from './LogLine';
+import { logLineStyles } from './LogLine';
 import { useLogIsPinned, useLogListContext } from './LogListContext';
 import { type LogListModel } from './processing';
 
@@ -32,10 +33,9 @@ export type LogLineMenuCustomItem = MenuItem | MenuItemDivider;
 interface Props {
   active?: boolean;
   log: LogListModel;
-  styles: LogLineStyles;
 }
 
-export const LogLineMenu = ({ active, log, styles }: Props) => {
+export const LogLineMenu = ({ active, log }: Props) => {
   const {
     getRowContextQuery,
     onOpenContext,
@@ -157,7 +157,8 @@ export const LogLineMenu = ({ active, log, styles }: Props) => {
   return (
     <Dropdown overlay={menu} placement="bottom-start">
       <IconButton
-        className={styles.menuIcon}
+        className={stylex.props(logLineStyles.menuIcon).className}
+        style={menuIconStyle}
         name={active ? 'angle-right' : 'ellipsis-v'}
         aria-label={t('logs.log-line-menu.icon-label', 'Log menu')}
         role="button"
@@ -174,3 +175,7 @@ function isDivider(item: LogLineMenuCustomItem) {
 function isItem(item: LogLineMenuCustomItem) {
   return 'onClick' in item && 'label' in item;
 }
+
+// IconButton has no xstyle and sets its own right margin, which a class from another stylex.props() call can't
+// reliably override.
+const menuIconStyle: CSSProperties = { margin: 0 };

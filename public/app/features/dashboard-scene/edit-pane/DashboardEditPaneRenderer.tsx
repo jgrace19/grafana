@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { sceneGraph, type SceneObject, sceneUtils, useSceneObjectState } from '@grafana/scenes';
-import { Sidebar, useStyles2, useSidebarContext, useTheme2 } from '@grafana/ui';
+import { Sidebar, useSidebarContext, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 
 import { type DashboardScene } from '../scene/DashboardScene';
@@ -39,7 +39,6 @@ export function DashboardEditPaneRenderer({ editPane, dashboard }: Props) {
     shouldActivateOrKeepAlive: true,
   });
   const { isEditing, meta, uid } = dashboard.useState();
-  const styles = useStyles2(getStyles, isEditing);
   const hasUid = Boolean(uid);
   const isEmbedded = meta.isEmbedded;
   const selectedObject = editPane.getSelectedObject();
@@ -123,7 +122,7 @@ export function DashboardEditPaneRenderer({ editPane, dashboard }: Props) {
       )}
       <Sidebar.Toolbar>
         {isEditing && (
-          <div className={styles.editGroup}>
+          <div {...stylex.props(styles.editGroup)}>
             <Sidebar.Button
               icon="plus"
               variant="primary"
@@ -181,7 +180,7 @@ export function DashboardEditPaneRenderer({ editPane, dashboard }: Props) {
             )}
           </div>
         )}
-        <div className={styles.viewGroup}>
+        <div {...stylex.props(styles.viewGroup, isEditing && styles.viewGroupEditing)}>
           {hasUid && !isEmbedded && <ShareExportDashboardButton dashboard={dashboard} />}
           <Sidebar.Button
             icon="list-ui-alt"
@@ -280,27 +279,30 @@ function RedoButton({ dashboard }: ToolbarActionProps) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2, isEditing: boolean | undefined) {
-  return {
-    editGroup: css({
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      borderTopLeftRadius: theme.shape.radius.default,
-      borderTopRightRadius: theme.shape.radius.default,
-    }),
-    viewGroup: css({
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      paddingTop: isEditing ? 0 : theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  editGroup: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x2'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+  },
+  viewGroup: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x2'],
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
+  viewGroupEditing: {
+    paddingTop: 0,
+  },
+});
