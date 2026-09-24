@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useId, useState } from 'react';
 import * as React from 'react';
 import { useUpdateEffect } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { ReactUtils, useStyles2 } from '@grafana/ui';
+import { ReactUtils } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { QueryOperationRowHeader, type ExpanderMessages } from './QueryOperationRowHeader';
 
@@ -50,7 +50,6 @@ export function QueryOperationRow({
   expanderMessages,
 }: QueryOperationRowProps) {
   const [isContentVisible, setIsContentVisible] = useState(isOpen !== undefined ? isOpen : true);
-  const styles = useStyles2(getQueryOperationRowStyles);
   const onRowToggle = useCallback(() => {
     setIsContentVisible(!isContentVisible);
   }, [isContentVisible, setIsContentVisible]);
@@ -113,7 +112,10 @@ export function QueryOperationRow({
         {(provided) => {
           return (
             <>
-              <div ref={provided.innerRef} className={styles.wrapper} {...provided.draggableProps}>
+              <div
+                ref={provided.innerRef}
+                {...stylex.props(styles.wrapper)}
+                {...provided.draggableProps}>
                 <div>
                   <QueryOperationRowHeader
                     id={contentId}
@@ -131,7 +133,7 @@ export function QueryOperationRow({
                   />
                 </div>
                 {isContentVisible && (
-                  <div className={styles.content} id={contentId}>
+                  <div {...stylex.props(styles.content)} id={contentId}>
                     {children}
                   </div>
                 )}
@@ -144,7 +146,7 @@ export function QueryOperationRow({
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <QueryOperationRowHeader
         id={contentId}
         actionsElement={actionsElement}
@@ -159,7 +161,7 @@ export function QueryOperationRow({
         expanderMessages={expanderMessages}
       />
       {isContentVisible && (
-        <div className={styles.content} id={contentId}>
+        <div {...stylex.props(styles.content)} id={contentId}>
           {children}
         </div>
       )}
@@ -167,16 +169,15 @@ export function QueryOperationRow({
   );
 }
 
-const getQueryOperationRowStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      marginBottom: theme.spacing(2),
-    }),
-    content: css({
-      marginTop: theme.spacing(0.5),
-      marginLeft: theme.spacing(3),
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+
+  content: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x3'],
+  },
+});
 
 QueryOperationRow.displayName = 'QueryOperationRow';

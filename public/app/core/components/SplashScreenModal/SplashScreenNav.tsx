@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Text, useStyles2 } from '@grafana/ui';
+import { Button, Text } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface SplashScreenNavProps {
   activeIndex: number;
@@ -13,10 +14,8 @@ interface SplashScreenNavProps {
 }
 
 export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: SplashScreenNavProps) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.nav}>
+    <div {...stylex.props(styles.nav)}>
       <Button
         icon="angle-left"
         variant="secondary"
@@ -24,13 +23,15 @@ export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: 
         size="sm"
         onClick={onPrev}
         aria-label={t('splash-screen.nav.prev', 'Previous')}
-        className={styles.navButton}
+        className={stylex.props(styles.navButton).className}
+        // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
+        style={{ padding: 0 }}
       />
-      <div className={styles.dots}>
+      <div {...stylex.props(styles.dots)}>
         {Array.from({ length: total }, (_, i) => (
           <button
             key={i}
-            className={cx(styles.dotBase, i === activeIndex ? styles.dotActive : styles.dotInactive)}
+            {...stylex.props(styles.dotBase, i === activeIndex ? styles.dotActive : styles.dotInactive)}
             onClick={() => onGoTo(i)}
             aria-label={t('splash-screen.nav.go-to', 'Go to slide {{number}}', { number: i + 1 })}
             aria-current={i === activeIndex ? 'step' : undefined}
@@ -44,7 +45,9 @@ export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: 
         size="sm"
         onClick={onNext}
         aria-label={t('splash-screen.nav.next', 'Next')}
-        className={styles.navButton}
+        className={stylex.props(styles.navButton).className}
+        // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
+        style={{ padding: 0 }}
       />
       <Text color="secondary" variant="bodySmall">
         {activeIndex + 1}/{total}
@@ -53,45 +56,42 @@ export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  nav: css({
+const styles = stylex.create({
+  nav: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  navButton: css({
-    width: theme.spacing(3),
-    minWidth: theme.spacing(3),
-    padding: 0,
+    gap: spacing['--gf-spacing-x1'],
+  },
+  navButton: {
+    width: spacing['--gf-spacing-x3'],
+    minWidth: spacing['--gf-spacing-x3'],
     justifyContent: 'center',
-  }),
-  dots: css({
+  },
+  dots: {
     display: 'flex',
     alignItems: 'center',
     // 5px gap matches design's 9px center-to-center dot spacing
     gap: 5,
-  }),
-  dotBase: css({
-    borderRadius: theme.shape.radius.circle,
-    border: 'none',
+  },
+  dotBase: {
+    borderRadius: shape['--gf-shape-radius-circle'],
+    borderStyle: 'none',
     padding: 0,
     cursor: 'pointer',
-  }),
-  dotInactive: css({
+  },
+  dotInactive: {
     width: 4,
     height: 4,
-    backgroundColor: theme.colors.text.disabled,
-    opacity: 0.65,
-    [theme.transitions.handleMotion('no-preference')]: {
-      transition: theme.transitions.create('background-color'),
-    },
-    '&:hover': {
-      opacity: 1,
-    },
-  }),
-  dotActive: css({
+    backgroundColor: colors['--gf-colors-text-disabled'],
+    opacity: { default: 0.65, ':hover': 1 },
+    transitionProperty: { default: null, [motion.noPreference]: 'background-color' },
+    transitionDuration: { default: null, [motion.noPreference]: '300ms' },
+    transitionTimingFunction: { default: null, [motion.noPreference]: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+  },
+  dotActive: {
     width: 6,
     height: 6,
-    backgroundColor: theme.colors.warning.text,
-  }),
+    backgroundColor: colors['--gf-colors-warning-text'],
+  },
 });

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -19,15 +19,6 @@ export interface Props {
   infoBox?: { __html: string };
   infoBoxTitle?: string;
 }
-
-const ctaStyle = css({
-  textAlign: 'center',
-});
-
-const infoBoxStyles = css({
-  maxWidth: '700px',
-  margin: '0 auto',
-});
 
 const EmptyListCTA = ({
   title,
@@ -60,7 +51,12 @@ const EmptyListCTA = ({
           ''
         )}
         {infoBox ? (
-          <Alert severity="info" title={infoBoxTitle ?? ''} className={infoBoxStyles}>
+          <Alert
+            severity="info"
+            title={infoBoxTitle ?? ''}
+            bottomSpacing={0}
+            className={stylex.props(styles.infoBox).className}
+          >
             <div dangerouslySetInnerHTML={infoBox} />
           </Alert>
         ) : (
@@ -70,12 +66,6 @@ const EmptyListCTA = ({
     );
   };
 
-  const ctaElementClassName = !footer()
-    ? css({
-        marginBottom: '20px',
-      })
-    : '';
-
   const ButtonEl = buttonLink ? LinkButton : Button;
   const ctaElement = (
     <ButtonEl
@@ -83,7 +73,6 @@ const EmptyListCTA = ({
       onClick={onClick}
       href={buttonLink}
       icon={buttonIcon}
-      className={ctaElementClassName}
       data-testid={selectors.components.CallToActionCard.buttonV2(buttonTitle)}
       disabled={buttonDisabled}
     >
@@ -91,7 +80,20 @@ const EmptyListCTA = ({
     </ButtonEl>
   );
 
-  return <CallToActionCard className={ctaStyle} message={title} footer={footer()} callToActionElement={ctaElement} />;
+  return <CallToActionCard
+      className={stylex.props(styles.cta).className}
+      message={title} footer={footer()} callToActionElement={ctaElement} />;
 };
 
 export default EmptyListCTA;
+
+const styles = stylex.create({
+  cta: {
+    textAlign: 'center',
+  },
+  infoBox: {
+    maxWidth: '700px',
+    marginRight: 'auto',
+    marginLeft: 'auto',
+  },
+});

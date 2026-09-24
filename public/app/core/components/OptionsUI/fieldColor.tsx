@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, type FC } from 'react';
 
 import {
@@ -15,7 +15,8 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2, useTheme2, Field, RadioButtonGroup, Select, Stack } from '@grafana/ui';
+import { useTheme2, Field, RadioButtonGroup, Select, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ColorValueEditor } from './color';
 
@@ -26,7 +27,6 @@ type Props = StandardEditorProps<FieldColor | undefined, FieldColorConfigSetting
 
 export const FieldColorEditor = ({ value, onChange, item, id }: Props) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const colorMode = getFieldColorMode(value?.mode);
   const availableOptions = item.settings?.byValueSupport
@@ -111,13 +111,13 @@ export const FieldColorEditor = ({ value, onChange, item, id }: Props) => {
 
   if (mode === FieldColorModeId.Fixed || mode === FieldColorModeId.Shades) {
     return (
-      <div className={styles.group}>
+      <div {...stylex.props(styles.group)}>
         <Select
           minMenuHeight={200}
           options={options}
           value={mode}
           onChange={onModeChange}
-          className={styles.select}
+          className={stylex.props(styles.select).className}
           inputId={id}
         />
         <ColorValueEditor value={value?.fixedColor} onChange={onColorChange} />
@@ -127,13 +127,13 @@ export const FieldColorEditor = ({ value, onChange, item, id }: Props) => {
 
   if (mode === FieldColorModeId.Gradient) {
     return (
-      <div className={styles.group}>
+      <div {...stylex.props(styles.group)}>
         <Select
           minMenuHeight={200}
           options={options}
           value={mode}
           onChange={onModeChange}
-          className={styles.select}
+          className={stylex.props(styles.select).className}
           inputId={id}
         />
         <Stack gap={0.5}>
@@ -208,14 +208,12 @@ const FieldColorModeViz: FC<ModeProps> = ({ mode, theme }) => {
   return <div style={style} />;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    group: css({
-      display: 'flex',
-    }),
-    select: css({
-      marginRight: theme.spacing(1),
-      flexGrow: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  group: {
+    display: 'flex',
+  },
+  select: {
+    marginRight: spacing['--gf-spacing-x1'],
+    flexGrow: 1,
+  },
+});
