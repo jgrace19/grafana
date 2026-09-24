@@ -4,8 +4,6 @@ import { type HTMLProps, useRef, useState } from 'react';
 import * as React from 'react';
 import { useClickAway } from 'react-use';
 
-import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
-import { measureText } from '../../utils/measureText';
 import { InlineLabel } from '../Forms/InlineLabel';
 
 import { SEGMENT_PLACEHOLDER_CLASS, segmentStyles } from './styles';
@@ -18,8 +16,6 @@ export interface SegmentInputProps
   value: string | number;
   onChange: (text: string | number) => void;
 }
-
-const FONT_SIZE = 14;
 
 /**
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-segmentinput--docs
@@ -38,7 +34,6 @@ export function SegmentInput({
 }: React.PropsWithChildren<SegmentInputProps>) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState<number | string>(initialValue);
-  const [inputWidth, setInputWidth] = useState<number>(measureText((initialValue || '').toString(), FONT_SIZE).width);
   const [Label, , expanded, setExpanded] = useExpandableLabel(autofocus, onExpandedChange);
 
   useClickAway(ref, () => {
@@ -75,14 +70,10 @@ export function SegmentInput({
       // this needs to autofocus, but it's ok as it's only rendered by choice
       // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
-      {...mergeStylexProps(stylex.props(styles.inputWidth(Math.max(inputWidth + 20, 32))), {
-        className: 'gf-form gf-form-input',
-      })}
+      className="gf-form gf-form-input"
       value={value}
       placeholder={inputPlaceholder}
       onChange={(item) => {
-        const { width } = measureText(item.target.value, FONT_SIZE);
-        setInputWidth(width);
         setValue(item.target.value);
       }}
       onBlur={() => {
@@ -98,9 +89,3 @@ export function SegmentInput({
     />
   );
 }
-
-const styles = stylex.create({
-  inputWidth: (width: number) => ({
-    width,
-  }),
-});

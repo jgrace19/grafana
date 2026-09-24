@@ -1,15 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, InternalTimeZones, type StandardEditorProps } from '@grafana/data';
+import { InternalTimeZones, type StandardEditorProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type OptionsWithTimezones } from '@grafana/schema';
-import { IconButton, TimeZonePicker, useStyles2 } from '@grafana/ui';
+import { IconButton, TimeZonePicker } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 type Props = StandardEditorProps<string[], unknown, OptionsWithTimezones>;
 
 export const TimezonesEditor = ({ value, onChange }: Props) => {
-  const styles = useStyles2(getStyles);
-
   if (!value || value.length < 1) {
     value = [''];
   }
@@ -35,9 +34,9 @@ export const TimezonesEditor = ({ value, onChange }: Props) => {
   };
 
   return (
-    <ul className={styles.list}>
+    <ul {...stylex.props(styles.list)}>
       {value.map((tz, idx) => (
-        <li className={styles.listItem} key={`${idx}.${tz}`}>
+        <li {...stylex.props(styles.listItem)} key={`${idx}.${tz}`}>
           <TimeZonePicker
             onChange={(v) => setTimezone(idx, v)}
             includeInternal={true}
@@ -62,15 +61,15 @@ export const TimezonesEditor = ({ value, onChange }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  list: css({
-    listStyle: 'none',
+const styles = stylex.create({
+  list: {
+    listStyleType: 'none',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(0.5),
-  }),
-  listItem: css({
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  listItem: {
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+  },
 });

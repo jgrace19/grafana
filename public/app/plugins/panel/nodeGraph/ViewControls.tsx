@@ -1,17 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { t } from '@grafana/i18n';
-import { Button, Stack, useStyles2 } from '@grafana/ui';
-
-function getStyles() {
-  return {
-    wrapper: css({
-      label: 'wrapper',
-      pointerEvents: 'all',
-    }),
-  };
-}
+import { Button, Stack } from '@grafana/ui';
 
 interface Props<Config> {
   config: Config;
@@ -32,10 +23,9 @@ export function ViewControls<Config extends Record<string, any>>(props: Props<Co
 
   // For debugging the layout, should be removed here and maybe moved to panel config later on
   const allowConfiguration = false;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <Stack direction="column" gap={1}>
         <Stack gap={0.5}>
           <Button
@@ -85,3 +75,9 @@ export function ViewControls<Config extends Record<string, any>>(props: Props<Co
     </div>
   );
 }
+
+const styles = stylex.create({
+  wrapper: {
+    pointerEvents: 'all',
+  },
+});

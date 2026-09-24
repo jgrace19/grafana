@@ -1,7 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
-import { Stack, Tag, useStyles2 } from '@grafana/ui';
+import { textUtil } from '@grafana/data';
+import { Stack, Tag } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './AnnotationTooltipBody.css';
 
 export function AnnotationTooltipBody({
   text,
@@ -14,11 +18,10 @@ export function AnnotationTooltipBody({
   alertText: string;
   tags: string[];
 }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.body}>
+    <div {...mergeStylexProps(stylex.props(styles.body), { className: 'gf-annotation-tooltip-body' })}>
       {title && <div dangerouslySetInnerHTML={{ __html: textUtil.sanitize(title) }}></div>}
-      {text && <div className={styles.text} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
+      {text && <div {...stylex.props(styles.text)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
       {alertText}
       <div>
         <Stack gap={0.5} wrap={true}>
@@ -31,21 +34,14 @@ export function AnnotationTooltipBody({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  body: css({
-    label: 'annotation-body',
-    padding: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
+const styles = stylex.create({
+  body: {
+    padding: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
     fontWeight: 400,
-    a: {
-      color: theme.colors.text.link,
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }),
-  text: css({
-    paddingBottom: theme.spacing(1),
-  }),
+  },
+  text: {
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
 });

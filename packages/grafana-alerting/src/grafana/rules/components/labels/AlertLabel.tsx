@@ -190,8 +190,6 @@ const getStyles = (theme: GrafanaTheme2, color?: string, size?: string) => {
     clickable: css({
       border: 'none',
       background: 'none',
-      outline: 'none',
-      boxShadow: 'none',
 
       padding: 0,
       margin: 0,
