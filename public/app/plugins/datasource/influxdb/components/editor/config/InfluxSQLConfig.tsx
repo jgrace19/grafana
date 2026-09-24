@@ -3,11 +3,10 @@ import { uniqueId } from 'lodash';
 
 import {
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   onUpdateDatasourceSecureJsonDataOption,
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
-import { Field, InlineLabel, InlineSwitch, Input, SecretInput, useStyles2 } from '@grafana/ui';
+import { Field, InlineLabel, InlineSwitch, Input, SecretInput } from '@grafana/ui';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
@@ -19,7 +18,6 @@ export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecu
 export const InfluxSqlConfig = (props: Props) => {
   const { options, onOptionsChange } = props;
   const { jsonData, secureJsonData, secureJsonFields } = options;
-  const styles = useStyles2(getStyles);
   const htmlPrefix = uniqueId('influxdb-sql-config');
 
   return (
@@ -82,9 +80,11 @@ export const InfluxSqlConfig = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Field migration. Field sets its own justifyContent and marginBottom in Emotion, which beat a StyleX
+// override.
+const styles = {
   horizontalField: css({
     justifyContent: 'initial',
-    margin: `0 ${theme.spacing(0.5)} ${theme.spacing(0.5)} 0`,
+    margin: '0 var(--gf-spacing-x0-5) var(--gf-spacing-x0-5) 0',
   }),
-});
+};

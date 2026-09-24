@@ -1,8 +1,7 @@
 import { css } from '@emotion/css';
 import { useId, useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { InlineLabel, SegmentSection, useStyles2 } from '@grafana/ui';
+import { InlineLabel, SegmentSection } from '@grafana/ui';
 
 import type InfluxDatasource from '../../../../../datasource';
 import {
@@ -47,7 +46,6 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
   const formatAsId = `influxdb-qe-format-as-${uniqueId}`;
   const orderByTimeId = `influxdb-qe-order-by${uniqueId}`;
 
-  const styles = useStyles2(getStyles);
   const query = normalizeQuery(props.query);
   const { datasource } = props;
   const { measurement, policy } = query;
@@ -245,10 +243,9 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    inlineLabel: css({
-      color: theme.colors.primary.text,
-    }),
-  };
-}
+// stylex: pending InlineLabel migration. InlineLabel sets its own color in Emotion, which beats a StyleX override.
+const styles = {
+  inlineLabel: css({
+    color: 'var(--gf-colors-primary-text)',
+  }),
+};

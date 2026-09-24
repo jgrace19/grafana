@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 
 import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
@@ -14,6 +15,7 @@ import {
   type Themeable2,
   withTheme2,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import type InfluxDatasource from '../../../../datasource';
 import { type InfluxQuery } from '../../../../types';
@@ -164,7 +166,6 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
 
   render() {
     const { query, theme } = this.props;
-    const styles = getStyles(theme);
 
     const helpTooltip = (
       <div>
@@ -177,7 +178,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
       <>
         <CodeEditor
           height={'100%'}
-          containerStyles={styles.editorContainerStyles}
+          containerStyles={getEditorContainerStyles(theme)}
           language="sql"
           value={query.query || ''}
           onBlur={this.onFluxQueryChange}
@@ -187,7 +188,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
           getSuggestions={this.getSuggestions}
           onEditorDidMount={this.editorDidMountCallbackHack}
         />
-        <div className={cx('gf-form-inline', styles.editorActions)}>
+        <div className={`gf-form-inline ${stylex.props(styles.editorActions).className}`}>
           <LinkButton
             icon="external-link-alt"
             variant="secondary"
@@ -200,10 +201,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
             options={samples}
             value="Sample query"
             onChange={this.onSampleChange}
-            className={css({
-              marginTop: theme.spacing(-0.5),
-              marginLeft: theme.spacing(0.5),
-            })}
+            className={stylex.props(styles.sampleSegment).className}
           />
           <div className="gf-form gf-form--grow">
             <div className="gf-form-label gf-form-label--grow"></div>
@@ -217,18 +215,26 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorContainerStyles: css({
+const styles = stylex.create({
+  editorActions: {
+    marginTop: '6px',
+  },
+  sampleSegment: {
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * -0.5)`,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});
+
+// stylex: pending CodeEditor migration. CodeEditor sets its own container overflow in Emotion, which beats a StyleX
+// override.
+const getEditorContainerStyles = (theme: GrafanaTheme2) =>
+  css({
     height: '200px',
     maxWidth: '100%',
     resize: 'vertical',
     overflow: 'auto',
     backgroundColor: theme.isDark ? theme.colors.background.canvas : theme.colors.background.primary,
     paddingBottom: theme.spacing(1),
-  }),
-  editorActions: css({
-    marginTop: '6px',
-  }),
-});
+  });
 
 export const FluxQueryEditor = withTheme2(UnthemedFluxQueryEditor);

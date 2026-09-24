@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
-import { Fragment, useMemo, type JSX } from 'react';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { Fragment, type JSX } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
-import { useTheme2 } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { toSelectableValue } from '../utils/toSelectableValue';
 import { unwrap } from '../utils/unwrap';
@@ -27,11 +28,6 @@ type Props = {
   onAddNewPart: (type: string) => void;
 };
 
-const noRightMarginPaddingClass = css({
-  paddingRight: '0',
-  marginRight: '0',
-});
-
 type PartProps = {
   name: string;
   params: PartParams;
@@ -39,6 +35,8 @@ type PartProps = {
   onChange: (paramValues: string[]) => void;
 };
 
+// stylex: pending InlineLabel migration. Seg passes this to InlineLabel, which sets its own padding and margin in
+// Emotion that beat a StyleX override.
 const noHorizMarginPaddingClass = css({
   paddingLeft: '0',
   paddingRight: '0',
@@ -46,31 +44,15 @@ const noHorizMarginPaddingClass = css({
   marginRight: '0',
 });
 
-const getPartClass = (theme: GrafanaTheme2) => {
-  return cx(
-    'gf-form-label',
-    css({
-      paddingLeft: '0',
-      // gf-form-label class makes certain css attributes incorrect
-      // for the selectbox-dropdown, so we have to "reset" them back
-      lineHeight: theme.typography.body.lineHeight,
-      fontSize: theme.typography.body.fontSize,
-    })
-  );
-};
-
 const Part = ({ name, params, onChange }: PartProps): JSX.Element => {
-  const theme = useTheme2();
-  const partClass = useMemo(() => getPartClass(theme), [theme]);
-
   const onParamChange = (par: string, i: number) => {
     const newParams = params.map((p) => p.value);
     newParams[i] = par;
     onChange(newParams);
   };
   return (
-    <div className={partClass}>
-      <button className={cx('gf-form-label', noRightMarginPaddingClass)}>{name}</button>(
+    <div className={`gf-form-label ${stylex.props(styles.part).className}`}>
+      <button className={`gf-form-label ${stylex.props(styles.noRightMarginPadding).className}`}>{name}</button>(
       {params.map((p, i) => {
         const { value, options } = p;
         const isLast = i === params.length - 1;
@@ -132,3 +114,17 @@ export const PartListSection = ({
     </>
   );
 };
+
+const styles = stylex.create({
+  noRightMarginPadding: {
+    paddingRight: '0',
+    marginRight: '0',
+  },
+  part: {
+    paddingLeft: '0',
+    // gf-form-label class makes certain css attributes incorrect
+    // for the selectbox-dropdown, so we have to "reset" them back
+    lineHeight: typography['--gf-typography-body-line-height'],
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
+});

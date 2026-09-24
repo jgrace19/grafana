@@ -3,7 +3,6 @@ import { uniqueId } from 'lodash';
 
 import {
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   onUpdateDatasourceJsonDataOption,
   onUpdateDatasourceJsonDataOptionSelect,
   onUpdateDatasourceOption,
@@ -11,7 +10,7 @@ import {
   type SelectableValue,
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
-import { Alert, Field, InlineLabel, Input, SecretInput, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Field, InlineLabel, Input, SecretInput, Select } from '@grafana/ui';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
@@ -32,7 +31,6 @@ export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecu
 export const InfluxInfluxQLConfig = (props: Props) => {
   const { options, onOptionsChange } = props;
   const { database, jsonData, secureJsonData, secureJsonFields } = options;
-  const styles = useStyles2(getStyles);
 
   const htmlPrefix = uniqueId('influxdb-influxql-config');
 
@@ -177,9 +175,11 @@ export const InfluxInfluxQLConfig = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Field migration. Field sets its own justifyContent and marginBottom in Emotion, which beat a StyleX
+// override.
+const styles = {
   horizontalField: css({
     justifyContent: 'initial',
-    margin: `0 ${theme.spacing(0.5)} ${theme.spacing(0.5)} 0`,
+    margin: '0 var(--gf-spacing-x0-5) var(--gf-spacing-x0-5) 0',
   }),
-});
+};
