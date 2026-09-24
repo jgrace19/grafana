@@ -1,0 +1,20 @@
+---
+description: Rails for Emotion→StyleX on the grafana-ui leaf cohort and StyleX foundation files
+globs:
+  - packages/grafana-ui/src/components/Tags/**
+  - packages/grafana-ui/src/components/Badge/**
+  - packages/grafana-ui/src/components/Divider/**
+  - packages/grafana-data/src/themes/**
+  - packages/grafana-ui/src/themes/**
+  - scripts/webpack/**
+---
+
+# StyleX migration rails (cohort + foundation)
+
+- Follow `docs/agent-specs/emotion-to-stylex-grafana-ui.md`. Prefer `/emotion-to-stylex` for procedure.
+- Do not add new `@emotion/css` or `@emotion/react` imports under cohort globs.
+- Preserve `GrafanaTheme2` token semantics (colors, spacing, typography, shape, shadows, breakpoints, `flags.visualDesignRefresh`).
+- Do not migrate Button, Box, Stack, Select, GlobalStyles, or `public/app/features/**` unless the spec is updated first.
+- Do not edit `.cursor/hooks.json`.
+- Do not change public component props/ref/a11y contracts for drive-by cleanup.
+- After each batch, run the skill verify gate before claiming progress.
