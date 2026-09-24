@@ -1,5 +1,6 @@
 // @ts-check
 const emotionPlugin = require('@emotion/eslint-plugin');
+const stylexPlugin = require('@stylexjs/eslint-plugin');
 const restrictedGlobals = require('confusing-browser-globals');
 const importPlugin = require('eslint-plugin-import');
 const jestPlugin = require('eslint-plugin-jest');
@@ -95,6 +96,46 @@ const datavizDefaultImportsRestrictions = [
     message: 'Do not use "cx" from @emotion/css. Instead, use `clsx` and compose together only strings.',
   },
 ];
+
+// Files migrated to StyleX. Emotion and the Emotion-era style hooks are banned in them. Each migration
+// slice appends its files or directories here (see the StyleX conventions doc).
+const stylexMigratedUiFiles = [
+  'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Button/Button.tsx',
+  'packages/grafana-ui/src/components/Icon/Icon.tsx',
+  'packages/grafana-ui/src/components/Layout/Stack/Stack.tsx',
+  'packages/grafana-ui/src/components/Layout/utils/responsiveStylex.ts',
+  'packages/grafana-ui/src/components/Layout/utils/sizeStyles.ts',
+];
+
+const stylexRestrictedImports = {
+  patterns: [
+    {
+      group: ['@emotion/*'],
+      message: 'This file is migrated to StyleX. Use stylex.create / stylex.props instead of Emotion.',
+    },
+    {
+      group: ['**/themes/ThemeContext', '**/themes/stylesFactory', '**/themes/mixins', '**/compat/emotion/*'],
+      importNames: [
+        'useStyles2',
+        'useStyles',
+        'withTheme2',
+        'withTheme',
+        'stylesFactory',
+        'getFocusStyles',
+        'getMouseFocusStyles',
+      ],
+      message: 'This file is migrated to StyleX. Emotion-era style helpers are not allowed.',
+    },
+  ],
+  paths: [
+    {
+      name: '@grafana/ui',
+      importNames: ['useStyles2', 'useStyles', 'stylesFactory', 'withTheme2', 'withTheme'],
+      message: 'This file is migrated to StyleX. Emotion-era style hooks are not allowed.',
+    },
+  ],
+};
 
 /**
  * @type {Array<import('eslint').Linter.Config>}
@@ -639,6 +680,48 @@ module.exports = [
               message: "'@grafana/* packages' should not be imported in @grafana/i18n",
             },
           ],
+        }),
+      ],
+    },
+  },
+
+  {
+    name: 'grafana/stylex',
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@stylexjs': stylexPlugin,
+      '@grafana': grafanaPlugin,
+    },
+    rules: {
+      '@stylexjs/valid-styles': 'error',
+      '@stylexjs/no-unused': 'error',
+      '@stylexjs/no-legacy-contextual-styles': 'error',
+      '@stylexjs/valid-shorthands': 'error',
+      '@stylexjs/enforce-extension': 'error',
+      '@grafana/stylex-no-unreduced-motion': 'error',
+      '@grafana/stylex-no-border-radius-literal': 'error',
+    },
+  },
+  {
+    // Must come after grafana/packages-that-cant-import-runtime, whose restrictions it repeats.
+    name: 'grafana/stylex-migrated-ui',
+    files: stylexMigratedUiFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            {
+              group: ['@grafana/*/internal'],
+              message: "'internal' exports are not available in NPM packages because they are not published to NPM",
+            },
+            {
+              group: ['@grafana/runtime'],
+              message: "'@grafana/runtime' should not be imported from library packages",
+            },
+            ...stylexRestrictedImports.patterns,
+          ],
+          paths: stylexRestrictedImports.paths,
         }),
       ],
     },

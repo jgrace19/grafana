@@ -1,6 +1,9 @@
-import { Global } from '@emotion/react';
+import { CacheProvider, Global } from '@emotion/react';
+
+import { type GrafanaTheme2 } from '@grafana/data';
 
 import { useTheme2 } from '../ThemeContext';
+import { useRootThemeVars } from '../stylex/ThemeVars';
 
 import { getAccessibilityStyles } from './accessibility';
 import { getAlertingStyles } from './alerting';
@@ -12,7 +15,8 @@ import { getElementStyles } from './elements';
 import { getExtraStyles } from './extra';
 import { getFilterTableStyles } from './filterTable';
 import { getFontStyles } from './fonts';
-import { getFormElementStyles } from './forms';
+import { getFormElementStyles, getFormFieldStateStyles } from './forms';
+import { globalLayerCache } from './globalLayerCache';
 import { getHacksStyles } from './hacks';
 import { getJsonFormatterStyles } from './jsonFormatter';
 import { getLegacySelectStyles } from './legacySelect';
@@ -24,35 +28,48 @@ import { getSlateStyles } from './slate';
 import { getUplotStyles } from './uPlot';
 import { getUtilityClassStyles } from './utilityClasses';
 
-/** @internal */
+/**
+ * Global element styles (in `@layer grafana-global`, below StyleX and unlayered component CSS; the form field
+ * state rules stay unlayered, see getFormFieldStateStyles) plus the theme's `--gf-*` custom properties on `<html>`.
+ *
+ * @internal
+ */
 export function GlobalStyles() {
   const theme = useTheme2();
+  useRootThemeVars(theme);
 
   return (
-    <Global
-      styles={[
-        getAccessibilityStyles(theme),
-        getAlertingStyles(theme),
-        getCodeStyles(theme),
-        getDashDiffStyles(theme),
-        getDashboardGridStyles(theme),
-        getElementStyles(theme),
-        getExtraStyles(theme),
-        getFilterTableStyles(theme),
-        getFontStyles(theme),
-        getFormElementStyles(theme),
-        getJsonFormatterStyles(theme),
-        getCardStyles(theme),
-        getMarkdownStyles(theme),
-        getPageStyles(theme),
-        getQueryEditorStyles(theme),
-        getSkeletonStyles(theme),
-        getSlateStyles(theme),
-        getUplotStyles(theme),
-        getUtilityClassStyles(theme),
-        getLegacySelectStyles(theme),
-        getHacksStyles({}),
-      ]}
-    />
+    <>
+      <CacheProvider value={globalLayerCache}>
+        <Global styles={getGlobalStyles(theme)} />
+      </CacheProvider>
+      <Global styles={getFormFieldStateStyles(theme)} />
+    </>
   );
+}
+
+export function getGlobalStyles(theme: GrafanaTheme2) {
+  return [
+    getAccessibilityStyles(theme),
+    getAlertingStyles(theme),
+    getCodeStyles(theme),
+    getDashDiffStyles(theme),
+    getDashboardGridStyles(theme),
+    getElementStyles(theme),
+    getExtraStyles(theme),
+    getFilterTableStyles(theme),
+    getFontStyles(theme),
+    getFormElementStyles(theme),
+    getJsonFormatterStyles(theme),
+    getCardStyles(theme),
+    getMarkdownStyles(theme),
+    getPageStyles(theme),
+    getQueryEditorStyles(theme),
+    getSkeletonStyles(theme),
+    getSlateStyles(theme),
+    getUplotStyles(theme),
+    getUtilityClassStyles(theme),
+    getLegacySelectStyles(theme),
+    getHacksStyles({}),
+  ];
 }

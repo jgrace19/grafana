@@ -51,7 +51,7 @@ describe('TeamList', () => {
     it('should enable the new team button', async () => {
       render(<TeamList />);
 
-      expect(await screen.findByRole('link', { name: /new team/i })).not.toHaveStyle('pointer-events: none');
+      expect(await screen.findByRole('link', { name: /new team/i })).not.toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -60,7 +60,7 @@ describe('TeamList', () => {
       jest.spyOn(contextSrv, 'hasPermission').mockReturnValue(false);
       render(<TeamList />);
 
-      expect(await screen.findByRole('link', { name: /new team/i })).toHaveStyle('pointer-events: none');
+      expect(await screen.findByRole('link', { name: /new team/i })).toHaveAttribute('aria-disabled', 'true');
     });
   });
 

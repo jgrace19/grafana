@@ -1,0 +1,7 @@
+/*
+ * Cascade layer order for the whole app. This must be the first @layer statement in the document, so it
+ * is imported first by the app entry, whose stylesheet index.html links before the theme stylesheet.
+ * StyleX layers (stylex.*) are appended after these by the StyleX compiler; unlayered CSS (Emotion
+ * component styles and consumer overrides) beats every layer.
+ */
+@layer grafana-legacy, grafana-global;

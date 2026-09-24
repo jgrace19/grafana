@@ -8,6 +8,9 @@ const noPluginExternalImportPaths = require('./rules/no-plugin-external-import-p
 const noInvalidCssProperties = require('./rules/no-invalid-css-properties.cjs');
 const defineFeatureEvents = require('./rules/define-feature-events.cjs');
 const noRestrictedSyntaxRules = require('./rules/no-restricted-syntax.cjs');
+const stylexNoUnreducedMotion = require('./rules/stylex-no-unreduced-motion.cjs');
+const stylexNoBorderRadiusLiteral = require('./rules/stylex-no-border-radius-literal.cjs');
+const stylexThemeTokenUsage = require('./rules/stylex-theme-token-usage.cjs');
 
 /** @type {import('eslint').Linter.Plugin} */
 module.exports = {
@@ -21,6 +24,9 @@ module.exports = {
     'no-plugin-external-import-paths': noPluginExternalImportPaths,
     'no-invalid-css-properties': noInvalidCssProperties,
     'define-feature-events': defineFeatureEvents,
+    'stylex-no-unreduced-motion': stylexNoUnreducedMotion,
+    'stylex-no-border-radius-literal': stylexNoBorderRadiusLiteral,
+    'stylex-theme-token-usage': stylexThemeTokenUsage,
     ...noRestrictedSyntaxRules.rules,
   },
 };

@@ -14,6 +14,7 @@ const { merge } = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 
 const getEnvConfig = require('./env-util.js');
+const { getStylexWebpackPlugins, stylexCacheVersion } = require('./stylex.js');
 const common = require('./webpack.common.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
 // esbuild-loader 3.0.0+ requires format to be set to prevent it
@@ -112,6 +113,7 @@ module.exports = (env = {}) => {
     cache: {
       type: 'filesystem',
       name: 'grafana-default-development',
+      version: stylexCacheVersion,
       buildDependencies: {
         config: [__filename],
       },
@@ -151,6 +153,7 @@ module.exports = (env = {}) => {
             configType: 'flat',
             failOnError: false,
           }),
+      ...getStylexWebpackPlugins({ dev: true }),
       new MiniCssExtractPlugin({
         filename: env.react19 ? 'grafana.[name]-react19.[contenthash].css' : 'grafana.[name].[contenthash].css',
       }),

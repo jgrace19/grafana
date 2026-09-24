@@ -3,6 +3,7 @@ import { css, cx } from '@emotion/css';
 import { type GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { Box, Divider, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { ScopedThemeVars } from '@grafana/ui/internal';
 
 import { Branding } from '../Branding/Branding';
 
@@ -13,7 +14,9 @@ interface ThemePreviewProps {
 export function ThemePreview({ theme }: ThemePreviewProps) {
   return (
     <ThemeContext.Provider value={theme}>
-      <ThemePreviewWithContext />
+      <ScopedThemeVars theme={theme}>
+        <ThemePreviewWithContext />
+      </ScopedThemeVars>
     </ThemeContext.Provider>
   );
 }

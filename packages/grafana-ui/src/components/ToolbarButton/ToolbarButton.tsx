@@ -5,10 +5,10 @@ import * as React from 'react';
 import { type GrafanaTheme2, type IconName, isIconName } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
+import { getActiveButtonStyles, getPropertiesForVariant } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles, getMouseFocusStyles, mediaUp } from '../../themes/mixins';
 import { type IconSize } from '../../types/icon';
-import { getActiveButtonStyles, getPropertiesForVariant } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 

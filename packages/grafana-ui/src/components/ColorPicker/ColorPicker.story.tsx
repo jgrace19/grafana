@@ -2,8 +2,8 @@ import { action } from '@storybook/addon-actions';
 import { useArgs } from '@storybook/preview-api';
 import { type Meta, type StoryFn } from '@storybook/react';
 
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
-import { clearButtonStyles } from '../Button/Button';
 
 import { ColorPicker } from './ColorPicker';
 import mdx from './ColorPicker.mdx';

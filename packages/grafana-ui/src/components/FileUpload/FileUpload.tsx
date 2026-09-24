@@ -7,11 +7,11 @@ import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
+import { getButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 import { type ComponentSize } from '../../types/size';
 import { trimFileName } from '../../utils/file';
-import { getButtonStyles } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 
 export interface Props {

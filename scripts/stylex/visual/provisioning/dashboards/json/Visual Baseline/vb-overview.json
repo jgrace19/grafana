@@ -1,0 +1,690 @@
+{
+  "uid": "vb-overview",
+  "title": "Visual baseline - Overview",
+  "tags": [
+    "baseline",
+    "overview"
+  ],
+  "editable": true,
+  "graphTooltip": 0,
+  "timezone": "utc",
+  "time": {
+    "from": "2024-01-01T00:00:00.000Z",
+    "to": "2024-01-01T06:00:00.000Z"
+  },
+  "timepicker": {},
+  "refresh": "",
+  "liveNow": false,
+  "schemaVersion": 41,
+  "version": 1,
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "CPU, memory and IO wait",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,cpu,mem,io wait\n1704067200000,45.1,58.2,9.4\n1704067500000,43.8,57.2,9.6\n1704067800000,43.4,60,9.4\n1704068100000,49.1,59.8,7.4\n1704068400000,46,58.8,7.9\n1704068700000,51.8,56,8.6\n1704069000000,57.2,54.6,10\n1704069300000,58.3,55.8,12.4\n1704069600000,57.8,53.7,15.2\n1704069900000,52.9,56.5,13.7\n1704070200000,47.1,54.4,14.9\n1704070500000,52.3,51.5,14.1\n1704070800000,56.4,50,12.9\n1704071100000,50.4,52.4,11.4\n1704071400000,50.4,54.2,10.8\n1704071700000,55.9,54.2,9.9\n1704072000000,56.2,55.2,12.3\n1704072300000,53.8,53.1,12.1\n1704072600000,54.2,50.9,9.5\n1704072900000,48.3,49.9,10.5\n1704073200000,49.6,50.8,12.8\n1704073500000,49.3,51.7,14.8\n1704073800000,45.7,50.5,14.6\n1704074100000,40.2,50.9,17.5\n1704074400000,41.5,48.1,19.1\n1704074700000,44.7,50.8,21.6\n1704075000000,39.6,48.6,21.9\n1704075300000,39.3,47,24.3\n1704075600000,36.6,45.1,22\n1704075900000,36.8,44.6,19.1\n1704076200000,36.4,45.3,21.1\n1704076500000,33.5,46.8,22.9\n1704076800000,37.2,48.2,24.6\n1704077100000,32,46.6,25.7\n1704077400000,32.7,44,22.7\n1704077700000,37.9,44.4,22.9\n1704078000000,41.7,45.6,20.7\n1704078300000,45.1,43.3,22\n1704078600000,49,42.8,22.1\n1704078900000,51,43.5,20\n1704079200000,46.7,41.6,17.5\n1704079500000,50.4,40.6,19.4\n1704079800000,45.6,41.4,19\n1704080100000,46.3,40,18.9\n1704080400000,42.4,40.3,16.8\n1704080700000,37.1,42.5,15.7\n1704081000000,33.4,40.4,17.6\n1704081300000,30.5,39.5,20\n1704081600000,28.3,40.2,17.2\n1704081900000,31.5,38.8,17.8\n1704082200000,25.9,41.5,18.2\n1704082500000,25.3,38.7,15.7\n1704082800000,23.6,38.4,13.2\n1704083100000,24.4,35.5,12.6\n1704083400000,29,32.9,11\n1704083700000,31.2,30.8,9.8\n1704084000000,29.7,33.1,7\n1704084300000,29.1,33.9,7.5\n1704084600000,25.4,33.1,7.2\n1704084900000,29.5,34.6,5.9\n1704085200000,28.8,34.6,2.9\n1704085500000,24.9,33.1,5\n1704085800000,26.9,35.5,3.2\n1704086100000,31.7,36.3,5.7\n1704086400000,37.3,38.9,5.8\n1704086700000,34.4,37.3,5.9\n1704087000000,38,40,5.2\n1704087300000,33.7,40.7,6.1\n1704087600000,37.2,43.6,3.8\n1704087900000,35.8,46.1,1.7\n1704088200000,29.8,47.6,1.4\n1704088500000,27.6,46.5,3.4\n1704088800000,25.6,44.1,2"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Requests / 5m",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 4,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,requests\n1704067200000,1250\n1704067500000,1207\n1704067800000,1121\n1704068100000,1189\n1704068400000,1105\n1704068700000,1131\n1704069000000,1103\n1704069300000,1156\n1704069600000,1223\n1704069900000,1182\n1704070200000,1108\n1704070500000,1043\n1704070800000,1087\n1704071100000,1026\n1704071400000,1079\n1704071700000,1157\n1704072000000,1231\n1704072300000,1191\n1704072600000,1277\n1704072900000,1247\n1704073200000,1295\n1704073500000,1297\n1704073800000,1351\n1704074100000,1403\n1704074400000,1363\n1704074700000,1348\n1704075000000,1391\n1704075300000,1405\n1704075600000,1490\n1704075900000,1562\n1704076200000,1596\n1704076500000,1675\n1704076800000,1631\n1704077100000,1718\n1704077400000,1735\n1704077700000,1772\n1704078000000,1692\n1704078300000,1656\n1704078600000,1688\n1704078900000,1662\n1704079200000,1624\n1704079500000,1631\n1704079800000,1577\n1704080100000,1570\n1704080400000,1568\n1704080700000,1594\n1704081000000,1535\n1704081300000,1574\n1704081600000,1536\n1704081900000,1561\n1704082200000,1503\n1704082500000,1503\n1704082800000,1470\n1704083100000,1401\n1704083400000,1378\n1704083700000,1410\n1704084000000,1353\n1704084300000,1322\n1704084600000,1307\n1704084900000,1243\n1704085200000,1291\n1704085500000,1207\n1704085800000,1186\n1704086100000,1237\n1704086400000,1224\n1704086700000,1146\n1704087000000,1058\n1704087300000,1107\n1704087600000,1038\n1704087900000,1075\n1704088200000,988\n1704088500000,945\n1704088800000,923"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "purple",
+                "value": 1500
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "gauge",
+      "title": "Disk usage",
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 4,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,disk\n1704067200000,61.2\n1704070800000,62.5\n1704074400000,63.1\n1704078000000,64.8\n1704081600000,66\n1704085200000,67.4\n1704088800000,71.9"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 4,
+      "type": "bargauge",
+      "title": "Service latency",
+      "gridPos": {
+        "x": 20,
+        "y": 0,
+        "w": 4,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "service,latency\napi-gateway,182\ncheckout,341\nsearch,96\nauth,57\ninventory,228"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 400,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color"
+      }
+    },
+    {
+      "id": 5,
+      "type": "barchart",
+      "title": "Monthly revenue vs costs",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "month,revenue,costs\nJan,42,31\nFeb,48,33\nMar,51,35\nApr,46,36\nMay,58,38\nJun,63,41"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 1
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": 0,
+        "showValue": "auto",
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "piechart",
+      "title": "Browser share",
+      "gridPos": {
+        "x": 8,
+        "y": 8,
+        "w": 4,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "browser,share\nChrome,64.2\nSafari,18.9\nEdge,5.3\nFirefox,3.1\nOther,8.5"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "pieType": "donut",
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "values": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "table",
+      "title": "Hosts",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "host,region,cpu,mem,status,healthy\nweb-01,us-east-1,72.4,61.0,serving,true\nweb-02,us-east-1,38.1,55.2,serving,true\nweb-03,eu-west-1,91.7,83.9,degraded,false\ndb-01,eu-west-1,55.0,77.3,serving,true\ndb-02,ap-south-1,12.9,40.6,maintenance,false\ncache-01,ap-south-1,27.3,33.8,serving,true\nqueue-01,us-west-2,64.8,58.1,serving,true"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cpu"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mem"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "heatmap",
+      "title": "Latency distribution",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,10,25,50,100,250,500\n1704067200000,5,20,43,15,2,0\n1704067920000,4,14,44,28,2,1\n1704068640000,1,7,35,31,9,6\n1704069360000,0,7,27,39,9,4\n1704070080000,1,2,25,42,13,1\n1704070800000,1,4,19,45,18,1\n1704071520000,0,3,13,42,19,1\n1704072240000,2,1,15,42,21,2\n1704072960000,3,1,10,44,26,7\n1704073680000,2,1,15,39,21,4\n1704074400000,2,2,18,43,18,7\n1704075120000,6,6,16,40,19,5\n1704075840000,1,5,23,44,10,6\n1704076560000,1,6,32,35,8,3\n1704077280000,1,10,34,28,7,0\n1704078000000,2,11,44,26,4,5\n1704078720000,6,22,42,14,5,2\n1704079440000,5,29,40,12,3,5\n1704080160000,6,34,32,5,4,5\n1704080880000,11,40,26,3,0,1\n1704081600000,17,42,20,7,4,4\n1704082320000,17,42,16,6,4,3\n1704083040000,22,44,12,5,2,5\n1704083760000,22,44,14,4,1,2\n1704084480000,25,39,11,6,3,4\n1704085200000,21,44,16,3,1,1\n1704085920000,20,40,18,1,4,1\n1704086640000,17,44,18,1,0,1\n1704087360000,12,42,28,6,4,3\n1704088080000,9,38,30,6,3,1\n1704088800000,4,31,38,12,1,3"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "calculate": false,
+        "cellGap": 1,
+        "color": {
+          "mode": "scheme",
+          "scheme": "Oranges",
+          "fill": "dark-orange",
+          "scale": "exponential",
+          "exponent": 0.5,
+          "steps": 64,
+          "reverse": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "unit": "ms"
+        },
+        "legend": {
+          "show": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "yHistogram": false
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "cellValues": {},
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "showValue": "never"
+      }
+    },
+    {
+      "id": 9,
+      "type": "logs",
+      "title": "Application logs",
+      "gridPos": {
+        "x": 8,
+        "y": 16,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,line,level\n1704085200000,slow query detected duration=1.8s,info\n1704085350000,GET /api/search?query= 200 7ms,error\n1704085500000,cache miss for key=panel:7,info\n1704085650000,GET /api/dashboards/uid/vb-overview 200 12ms,error\n1704085800000,GET /api/search?query= 200 7ms,debug\n1704085950000,slow query detected duration=1.8s,info\n1704086100000,GET /api/dashboards/uid/vb-overview 200 12ms,info\n1704086250000,slow query detected duration=1.8s,info\n1704086400000,POST /api/ds/query 200 48ms,info\n1704086550000,POST /api/ds/query 200 48ms,info\n1704086700000,slow query detected duration=1.8s,warn\n1704086850000,upstream connect error reset reason=timeout,error\n1704087000000,upstream connect error reset reason=timeout,error\n1704087150000,reloading provisioning config,debug\n1704087300000,cache miss for key=panel:7,info\n1704087450000,reloading provisioning config,info\n1704087600000,GET /api/search?query= 200 7ms,error\n1704087750000,reloading provisioning config,info\n1704087900000,upstream connect error reset reason=timeout,info\n1704088050000,user admin logged in,warn\n1704088200000,GET /api/dashboards/uid/vb-overview 200 12ms,info\n1704088350000,slow query detected duration=1.8s,info\n1704088500000,GET /api/search?query= 200 7ms,debug\n1704088650000,user admin logged in,info"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": false,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 10,
+      "type": "text",
+      "title": "Notes",
+      "gridPos": {
+        "x": 16,
+        "y": 16,
+        "w": 4,
+        "h": 8
+      },
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Visual baseline\n\nThis dashboard is **provisioned** from fixed CSV data.\n\n- Time range: 2024-01-01 00:00-06:00 UTC\n- Seed: `20240101`\n\n> Emotion to StyleX migration reference.\n\n[Link text](https://example.invalid)",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "state-timeline",
+      "title": "Service status",
+      "gridPos": {
+        "x": 20,
+        "y": 16,
+        "w": 4,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "vb-testdata"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "vb-testdata"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "time,api,db,queue\n1704067200000,DOWN,OK,OK\n1704068100000,WARN,DOWN,DOWN\n1704069000000,WARN,OK,DOWN\n1704069900000,OK,OK,WARN\n1704070800000,DOWN,DOWN,OK\n1704071700000,WARN,OK,OK\n1704072600000,OK,DOWN,DOWN\n1704073500000,OK,OK,WARN\n1704074400000,OK,WARN,OK\n1704075300000,DOWN,OK,OK\n1704076200000,OK,WARN,OK\n1704077100000,DOWN,WARN,WARN\n1704078000000,DOWN,DOWN,DOWN\n1704078900000,DOWN,OK,OK\n1704079800000,DOWN,DOWN,OK\n1704080700000,DOWN,DOWN,DOWN\n1704081600000,OK,OK,OK\n1704082500000,DOWN,OK,WARN\n1704083400000,OK,OK,OK\n1704084300000,DOWN,OK,DOWN\n1704085200000,DOWN,DOWN,WARN\n1704086100000,OK,DOWN,OK\n1704087000000,OK,OK,OK\n1704087900000,OK,OK,OK\n1704088800000,OK,OK,OK"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "OK": {
+                  "color": "green",
+                  "index": 0
+                },
+                "WARN": {
+                  "color": "orange",
+                  "index": 1
+                },
+                "DOWN": {
+                  "color": "red",
+                  "index": 2
+                }
+              }
+            }
+          ],
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "auto",
+        "mergeValues": true,
+        "alignValue": "left",
+        "rowHeight": 0.9,
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    }
+  ]
+}

@@ -4,8 +4,8 @@ import { memo, type MouseEventHandler } from 'react';
 import { type DisplayValue, type DisplayValueAlignmentFactors, type FieldSparkline } from '@grafana/data';
 import { type PercentChangeColorMode, type VizTextDisplayOptions } from '@grafana/schema';
 
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { type Themeable2 } from '../../types/theme';
-import { clearButtonStyles } from '../Button/Button';
 import { FormattedValueDisplay } from '../FormattedValueDisplay/FormattedValueDisplay';
 
 import { buildLayout } from './BigValueLayout';

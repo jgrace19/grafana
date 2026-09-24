@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
+import { type ThemeSpacingTokens } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { bp } from '../../../themes/stylex/constants.stylex';
 import { type AlignItems, type Direction, type FlexProps, type JustifyContent, type Wrap } from '../types';
-import { type ResponsiveProp, getResponsiveStyle } from '../utils/responsiveness';
-import { getSizeStyles, type SizeProps } from '../utils/styles';
+import { responsiveArgs, spacingValue } from '../utils/responsiveStylex';
+import { type ResponsiveProp } from '../utils/responsiveness';
+import { getSizeStyles } from '../utils/sizeStyles';
+import { type SizeProps } from '../utils/styles';
 
 interface StackProps extends FlexProps, SizeProps, Omit<React.HTMLAttributes<HTMLElement>, 'className' | 'style'> {
   gap?: ResponsiveProp<ThemeSpacingTokens>;
@@ -46,23 +48,27 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>((props, ref) =
     maxHeight,
     ...rest
   } = props;
-  const styles = useStyles2(
-    getStyles,
-    gap,
-    rowGap,
-    columnGap,
-    alignItems,
-    justifyContent,
-    direction,
-    wrap,
-    grow,
-    shrink,
-    basis,
-    flex
-  );
-  const sizeStyles = useStyles2(getSizeStyles, width, minWidth, maxWidth, height, minHeight, maxHeight);
+
   return (
-    <div ref={ref} className={cx(styles.flex, sizeStyles)} {...rest}>
+    <div
+      ref={ref}
+      {...stylex.props(
+        styles.flex,
+        styles.flexDirection(...responsiveArgs(direction)),
+        styles.flexWrap(...responsiveArgs(wrap, toFlexWrap)),
+        styles.alignItems(...responsiveArgs(alignItems)),
+        styles.justifyContent(...responsiveArgs(justifyContent)),
+        styles.gap(...responsiveArgs(gap, spacingValue)),
+        styles.rowGap(...responsiveArgs(rowGap, spacingValue)),
+        styles.columnGap(...responsiveArgs(columnGap, spacingValue)),
+        styles.flexGrow(...responsiveArgs(grow)),
+        styles.flexShrink(...responsiveArgs(shrink)),
+        styles.flexBasis(...responsiveArgs(basis)),
+        styles.flexShorthand(...responsiveArgs(flex)),
+        getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+      )}
+      {...rest}
+    >
       {children}
     </div>
   );
@@ -70,58 +76,119 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>((props, ref) =
 
 Stack.displayName = 'Stack';
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  gap: StackProps['gap'],
-  rowGap: StackProps['rowGap'],
-  columnGap: StackProps['columnGap'],
-  alignItems: StackProps['alignItems'],
-  justifyContent: StackProps['justifyContent'],
-  direction: StackProps['direction'],
-  wrap: StackProps['wrap'],
-  grow: StackProps['grow'],
-  shrink: StackProps['shrink'],
-  basis: StackProps['basis'],
-  flex: StackProps['flex']
-) => {
-  return {
-    flex: css([
-      {
-        display: 'flex',
-      },
-      getResponsiveStyle(theme, direction, (val) => ({
-        flexDirection: val,
-      })),
-      getResponsiveStyle(theme, wrap, (val) => ({
-        flexWrap: typeof val === 'boolean' ? (val ? 'wrap' : 'nowrap') : val,
-      })),
-      getResponsiveStyle(theme, alignItems, (val) => ({
-        alignItems: val,
-      })),
-      getResponsiveStyle(theme, justifyContent, (val) => ({
-        justifyContent: val,
-      })),
-      getResponsiveStyle(theme, gap, (val) => ({
-        gap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, rowGap, (val) => ({
-        rowGap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, columnGap, (val) => ({
-        columnGap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, grow, (val) => ({
-        flexGrow: val,
-      })),
-      getResponsiveStyle(theme, shrink, (val) => ({
-        flexShrink: val,
-      })),
-      getResponsiveStyle(theme, basis, (val) => ({
-        flexBasis: val,
-      })),
-      getResponsiveStyle(theme, flex, (val) => ({
-        flex: val,
-      })),
-    ]),
-  };
-};
+const toFlexWrap = (value: Wrap) => (typeof value === 'boolean' ? (value ? 'wrap' : 'nowrap') : value);
+
+type S = string | undefined;
+type N = number | undefined;
+type SN = string | number | undefined;
+
+const styles = stylex.create({
+  flex: {
+    display: 'flex',
+  },
+  flexDirection: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    flexDirection: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  flexWrap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    flexWrap: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  alignItems: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    alignItems: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  justifyContent: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    justifyContent: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  gap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    gap: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
+  }),
+  rowGap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    rowGap: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  columnGap: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    columnGap: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  flexGrow: (base: N, xs: N, sm: N, md: N, lg: N, xl: N, xxl: N) => ({
+    flexGrow: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  flexShrink: (base: N, xs: N, sm: N, md: N, lg: N, xl: N, xxl: N) => ({
+    flexShrink: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  flexBasis: (base: S, xs: S, sm: S, md: S, lg: S, xl: S, xxl: S) => ({
+    flexBasis: {
+      default: base,
+      [bp.xsUp]: xs,
+      [bp.smUp]: sm,
+      [bp.mdUp]: md,
+      [bp.lgUp]: lg,
+      [bp.xlUp]: xl,
+      [bp.xxlUp]: xxl,
+    },
+  }),
+  flexShorthand: (base: SN, xs: SN, sm: SN, md: SN, lg: SN, xl: SN, xxl: SN) => ({
+    flex: { default: base, [bp.xsUp]: xs, [bp.smUp]: sm, [bp.mdUp]: md, [bp.lgUp]: lg, [bp.xlUp]: xl, [bp.xxlUp]: xxl },
+  }),
+});

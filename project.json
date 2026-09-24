@@ -38,15 +38,20 @@
     "themes-generate": {
       "inputs": [
         "{workspaceRoot}/scripts/cli/generateSassVariableFiles.ts",
+        "{workspaceRoot}/scripts/cli/generateStylexTokenFiles.ts",
         "{workspaceRoot}/packages/grafana-data/src/themes/**",
         "{workspaceRoot}/packages/grafana-ui/src/themes/**",
+        "!{workspaceRoot}/packages/grafana-ui/src/themes/stylex/**",
         "{workspaceRoot}/package.json"
       ],
       "outputs": [
         "{workspaceRoot}/public/sass/_variables.generated.scss",
         "{workspaceRoot}/public/sass/_variables.dark.generated.scss",
         "{workspaceRoot}/public/sass/_variables.light.generated.scss",
-        "{workspaceRoot}/public/app/features/theme-playground/schema.json"
+        "{workspaceRoot}/public/app/features/theme-playground/schema.json",
+        "{workspaceRoot}/packages/grafana-ui/src/themes/stylex/tokens.stylex.ts",
+        "{workspaceRoot}/packages/grafana-ui/src/themes/stylex/constants.stylex.ts",
+        "{workspaceRoot}/packages/grafana-ui/src/themes/stylex/themeToCssVars.ts"
       ],
       "cache": true
     }

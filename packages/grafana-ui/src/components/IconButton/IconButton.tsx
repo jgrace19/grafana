@@ -3,11 +3,12 @@ import * as React from 'react';
 
 import { type GrafanaTheme2, deprecationWarning } from '@grafana/data';
 
+import { getActiveButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles, getMouseFocusStyles } from '../../themes/mixins';
 import { type IconName, type IconSize, type IconType } from '../../types/icon';
 import { type ComponentSize } from '../../types/size';
-import { getActiveButtonStyles, IconRenderer } from '../Button/Button';
+import { IconRenderer } from '../Button/Button';
 import { getSvgSize } from '../Icon/utils';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { type PopoverContent, type TooltipPlacement } from '../Tooltip/types';

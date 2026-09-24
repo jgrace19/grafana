@@ -28,9 +28,9 @@ import {
   type VizTextDisplayOptions,
 } from '@grafana/schema';
 
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { type Themeable2 } from '../../types/theme';
 import { calculateFontSize, measureText } from '../../utils/measureText';
-import { clearButtonStyles } from '../Button/Button';
 import { FormattedValueDisplay } from '../FormattedValueDisplay/FormattedValueDisplay';
 
 const MIN_VALUE_HEIGHT = 18;

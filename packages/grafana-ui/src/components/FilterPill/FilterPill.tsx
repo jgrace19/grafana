@@ -3,9 +3,9 @@ import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { type IconName } from '../../types/icon';
-import { clearButtonStyles } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 
 export interface FilterPillProps {
