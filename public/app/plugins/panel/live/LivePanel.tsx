@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
 
 import {
-  type GrafanaTheme2,
   type PanelProps,
   type LiveChannelStatusEvent,
   isValidLiveChannelAddress,
@@ -20,7 +19,9 @@ import {
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, stylesFactory, JSONFormatter, CustomScrollbar } from '@grafana/ui';
+import { Alert, JSONFormatter, CustomScrollbar } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, v1 } from '@grafana/ui/stylex/tokens.stylex';
 
 import { TablePanel } from '../table/TablePanel';
 
@@ -40,7 +41,6 @@ interface State {
 export class LivePanel extends PureComponent<Props, State> {
   private readonly isValid: boolean;
   subscription?: Unsubscribable;
-  styles = getStyles(config.theme2);
 
   constructor(props: Props) {
     super(props);
@@ -201,11 +201,7 @@ export class LivePanel extends PureComponent<Props, State> {
       return; // nothing
     }
 
-    let statusClass = '';
-    if (status) {
-      statusClass = this.styles.status[status.state];
-    }
-    return <div className={cx(statusClass, this.styles.statusWrap)}>{status?.state}</div>;
+    return <div {...stylex.props(status && statusStyles[status.state], styles.statusWrap)}>{status?.state}</div>;
   }
 
   renderBody() {
@@ -276,34 +272,47 @@ export class LivePanel extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  statusWrap: css({
+const styles = stylex.create({
+  statusWrap: {
     margin: 'auto',
     position: 'absolute',
     top: 0,
     right: 0,
-    background: theme.components.panel.background,
+    backgroundColor: components['--gf-components-panel-background'],
     padding: '10px',
-    zIndex: theme.zIndex.modal,
-  }),
-  status: {
-    [LiveChannelConnectionState.Pending]: css({
-      border: `1px solid ${theme.v1.palette.orange}`,
-    }),
-    [LiveChannelConnectionState.Connected]: css({
-      border: `1px solid ${theme.colors.success.main}`,
-    }),
-    [LiveChannelConnectionState.Connecting]: css({
-      border: `1px solid ${theme.v1.palette.brandWarning}`,
-    }),
-    [LiveChannelConnectionState.Disconnected]: css({
-      border: `1px solid ${theme.colors.warning.main}`,
-    }),
-    [LiveChannelConnectionState.Shutdown]: css({
-      border: `1px solid ${theme.colors.error.main}`,
-    }),
-    [LiveChannelConnectionState.Invalid]: css({
-      border: '1px solid red',
-    }),
+    zIndex: zIndex.modal,
   },
-}));
+});
+
+const statusStyles = stylex.create({
+  pending: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: v1['--gf-v1-palette-orange'],
+  },
+  connected: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-success-main'],
+  },
+  connecting: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: v1['--gf-v1-palette-brand-warning'],
+  },
+  disconnected: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-warning-main'],
+  },
+  shutdown: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-error-main'],
+  },
+  invalid: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'red',
+  },
+});

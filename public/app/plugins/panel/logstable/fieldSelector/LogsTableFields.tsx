@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { type DataFrame, type GrafanaTheme2, store } from '@grafana/data';
-import { getDragStyles, useStyles2 } from '@grafana/ui';
+import { type DataFrame, store } from '@grafana/data';
+import { getDragStyles, useTheme2 } from '@grafana/ui';
 import { type FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 import { SETTING_KEY_ROOT } from 'app/features/explore/Logs/utils/logs';
 import {
@@ -45,8 +45,9 @@ export function LogsTableFields({
   logsFrame,
   onFieldSelectorWidthChange,
 }: Props) {
-  const styles = useStyles2(getStyles, fieldSelectorWidth, height);
-  const dragStyles = useStyles2(getDragStyles);
+  const theme = useTheme2();
+  // stylex: pending a StyleX DragHandle; re-resizable renders the handle and only takes class names.
+  const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
   const [containerElement, setContainerRefState] = useState<HTMLDivElement | null>(null);
   const containerRef = useCallback((node: HTMLDivElement) => {
     setContainerRefState(node);
@@ -119,7 +120,7 @@ export function LogsTableFields({
   }
 
   return (
-    <div ref={containerRef} className={styles.fieldSelectorWrapper}>
+    <div ref={containerRef} {...stylex.props(styles.fieldSelectorWrapper(height, fieldSelectorWidth))}>
       {containerElement && (
         <Resizable
           enable={{
@@ -149,13 +150,11 @@ export function LogsTableFields({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, fieldSelectorWidth: number, height: number) => {
-  return {
-    fieldSelectorWrapper: css({
-      position: 'absolute',
-      height: height,
-      width: fieldSelectorWidth,
-      zIndex: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  fieldSelectorWrapper: (height: number, width: number) => ({
+    position: 'absolute',
+    height,
+    width,
+    zIndex: 1,
+  }),
+});

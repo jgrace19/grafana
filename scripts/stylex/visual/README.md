@@ -9,17 +9,17 @@ and `manifest.json` live outside the repo, in the migration project store (`medi
 
 ## Layout
 
-| Path | Purpose |
-|---|---|
-| `check.sh` | Slice entry point: capture this checkout, then diff it against the baseline |
-| `scripts/run-capture.sh` | One capture run: fresh Grafana + static Storybook + `capture.mjs` |
-| `scripts/capture.mjs` | Playwright capture (suites `app`, `storybook`, `states`) and manifest writer |
-| `scripts/diff.mjs` | Baseline vs candidate diff (default migration mode, `--strict` for determinism) |
-| `scripts/targets.mjs` / `scripts/states.mjs` | App page targets and interaction-state recipes |
-| `scripts/start-grafana.sh` / `stop-grafana.sh` / `seed.sh` | Throwaway Grafana with a brand-new SQLite DB per run |
-| `scripts/gen-dashboards.mjs` | Regenerates the provisioned dashboards from a fixed seed |
-| `conf/`, `provisioning/` | Deterministic Grafana config, datasources, dashboards, paused alert rules |
-| `storybook-excludes.json` / `storybook-overrides.json` | Excluded stories (with reasons) and story masks |
+| Path                                                       | Purpose                                                                         |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `check.sh`                                                 | Slice entry point: capture this checkout, then diff it against the baseline     |
+| `scripts/run-capture.sh`                                   | One capture run: fresh Grafana + static Storybook + `capture.mjs`               |
+| `scripts/capture.mjs`                                      | Playwright capture (suites `app`, `storybook`, `states`) and manifest writer    |
+| `scripts/diff.mjs`                                         | Baseline vs candidate diff (default migration mode, `--strict` for determinism) |
+| `scripts/targets.mjs` / `scripts/states.mjs`               | App page targets and interaction-state recipes                                  |
+| `scripts/start-grafana.sh` / `stop-grafana.sh` / `seed.sh` | Throwaway Grafana with a brand-new SQLite DB per run                            |
+| `scripts/gen-dashboards.mjs`                               | Regenerates the provisioned dashboards from a fixed seed                        |
+| `conf/`, `provisioning/`                                   | Deterministic Grafana config, datasources, dashboards, paused alert rules       |
+| `storybook-excludes.json` / `storybook-overrides.json`     | Excluded stories (with reasons) and story masks                                 |
 
 ## Build the checkout under test
 

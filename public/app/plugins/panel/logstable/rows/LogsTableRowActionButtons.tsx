@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ClipboardButton,
@@ -9,11 +8,13 @@ import {
   IconButton,
   TableCellInspector,
   TableCellInspectorMode,
-  useTheme2,
 } from '@grafana/ui';
+import { colors, shadows, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { type BuildLinkToLogLine } from '../types';
+
+import './LogsTableRowActionButtons.css';
 
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
@@ -28,9 +29,7 @@ interface Props extends CustomCellRendererProps {
  */
 export function LogsTableRowActionButtons(props: Props) {
   const { rowIndex, buildLinkToLog, showInspectLogLine, logsFrame } = props;
-  const theme = useTheme2();
   const [isInspecting, setIsInspecting] = useState(false);
-  const styles = getStyles(theme);
 
   const handleViewClick = () => {
     setIsInspecting(true);
@@ -38,11 +37,11 @@ export function LogsTableRowActionButtons(props: Props) {
 
   return (
     <>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         {showInspectLogLine && (
-          <div className={styles.buttonWrapper}>
+          <div {...stylex.props(styles.buttonWrapper)}>
             <IconButton
-              className={styles.inspectButton}
+              className="gf-logstable-inspect-button"
               tooltip={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
               variant="secondary"
               aria-label={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
@@ -55,9 +54,9 @@ export function LogsTableRowActionButtons(props: Props) {
           </div>
         )}
         {buildLinkToLog && (
-          <div className={styles.buttonWrapper}>
+          <div {...stylex.props(styles.buttonWrapper)}>
             <ClipboardButton
-              className={styles.clipboardButton}
+              className="gf-logstable-clipboard-button"
               icon="share-alt"
               variant="secondary"
               fill="text"
@@ -97,10 +96,10 @@ const getLineValue = (logsFrame: LogsFrame, rowIndex: number) => {
   return bodyField?.values[rowIndex];
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    background: theme.colors.background.secondary,
-    boxShadow: theme.shadows.z2,
+const styles = stylex.create({
+  container: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    boxShadow: shadows['--gf-shadows-z2'],
     display: 'flex',
     flexDirection: 'row',
     height: '100%',
@@ -108,31 +107,15 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     top: 0,
     position: 'absolute',
     zIndex: 1,
-  }),
-  buttonWrapper: css({
+  },
+  buttonWrapper: {
     height: '100%',
-    '&:hover': {
-      color: theme.colors.text.link,
-    },
-    padding: theme.spacing(0, 0.5),
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
     display: 'flex',
     alignItems: 'center',
-  }),
-  inspectButton: css({
-    borderRadius: theme.shape.radius.default,
-    display: 'inline-flex',
-    margin: 0,
-    overflow: 'hidden',
-    verticalAlign: 'middle',
-    cursor: 'pointer',
-    height: '24px',
-    width: '20px',
-  }),
-  clipboardButton: css({
-    lineHeight: '1',
-    padding: 0,
-    width: '20px',
-    cursor: 'pointer',
-    height: '24px',
-  }),
+  },
 });
