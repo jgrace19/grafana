@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, type UrlQueryValue } from '@grafana/data';
+import { type UrlQueryValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 import grafanaTextLogoDarkSvg from 'img/grafana_text_logo_dark.svg';
 import grafanaTextLogoLightSvg from 'img/grafana_text_logo_light.svg';
 
@@ -43,7 +45,6 @@ export function shouldHideSoloPanelLogo(hideLogo?: UrlQueryValue): boolean {
 export function SoloPanelPageLogo({ containerRef, isHovered, hideLogo }: SoloPanelPageLogoProps) {
   const shouldHide = shouldHideSoloPanelLogo(hideLogo);
   const [scale, setScale] = useState(1);
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const grafanaLogo = theme.isDark ? grafanaTextLogoLightSvg : grafanaTextLogoDarkSvg;
 
@@ -88,7 +89,7 @@ export function SoloPanelPageLogo({ containerRef, isHovered, hideLogo }: SoloPan
 
   return (
     <div
-      className={cx(styles.logoContainer, isHovered && styles.logoHidden)}
+      {...stylex.props(styles.logoContainer, isHovered && styles.logoHidden)}
       style={{
         fontSize: `${scale * 100}%`,
         top: `${8 * scale}px`,
@@ -96,13 +97,13 @@ export function SoloPanelPageLogo({ containerRef, isHovered, hideLogo }: SoloPan
         padding: `${8 * scale}px ${8 * scale}px`,
       }}
     >
-      <span className={styles.text}>
+      <span {...stylex.props(styles.text)}>
         <Trans i18nKey="embedded-panel.powered-by">Powered by</Trans>
       </span>
       <img
         src={grafanaLogo}
         alt="Grafana"
-        className={styles.logo}
+        {...stylex.props(styles.logo)}
         style={{
           height: `${16 * scale}px`,
           marginLeft: '0.25em',
@@ -112,48 +113,37 @@ export function SoloPanelPageLogo({ containerRef, isHovered, hideLogo }: SoloPan
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const logoContainer = css({
+// top, right, padding, the font size and the logo height are set inline, scaled to the panel size.
+const styles = stylex.create({
+  logoContainer: {
     position: 'absolute',
-    // top, right, and padding will be set via inline styles for scaling
-    backgroundColor: theme.colors.background.primary,
-    borderRadius: theme.shape.radius.default,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderRadius: shape['--gf-shape-radius-default'],
     opacity: 0.9,
     pointerEvents: 'none',
     zIndex: 1000,
     display: 'flex',
     alignItems: 'center',
-    boxShadow: theme.shadows.z3,
-    border: `1px solid ${theme.colors.border.weak}`,
-    // Base font size - will be scaled via inline style
-    fontSize: theme.typography.body.fontSize,
+    boxShadow: shadows['--gf-shadows-z3'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    fontSize: typography['--gf-typography-body-font-size'],
     lineHeight: 1.2,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: 'opacity 0.2s ease-in-out',
-    },
-  });
-
-  const logoHidden = css({
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.2s' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-in-out' },
+  },
+  logoHidden: {
     opacity: 0,
-  });
-
-  const text = css({
-    color: theme.colors.text.secondary,
-    // fontSize will be inherited from parent container's scale
+  },
+  text: {
+    color: colors['--gf-colors-text-secondary'],
     lineHeight: 1.2,
     display: 'block',
-  });
-
-  const logo = css({
-    // height will be set via inline style (16px * scale) to scale with panel size
+  },
+  logo: {
     display: 'block',
     flexShrink: 0,
-  });
-
-  return {
-    logoContainer,
-    logoHidden,
-    text,
-    logo,
-  };
-};
+  },
+});

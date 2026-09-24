@@ -20,6 +20,7 @@ export function FolderPickerSkeleton() {
   );
 }
 
+// stylex: pending Input migration (U2). Composes the Emotion classes returned by getInputStyles.
 const getStyles = (theme: GrafanaTheme2) => {
   const baseStyles = getInputStyles({ theme });
 

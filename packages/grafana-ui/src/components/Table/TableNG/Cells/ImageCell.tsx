@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useState } from 'react';
 
 import { TableCellDisplayMode } from '../../types';
@@ -22,14 +21,5 @@ export const ImageCell = ({ cellOptions, field, value, rowIdx }: ImageCellProps)
   );
 };
 
-const styles = css({
-  '&, a, img': {
-    width: '100%',
-    height: '100%',
-  },
-  img: {
-    objectFit: 'contain',
-  },
-});
-
-export const getStyles: TableCellStyles = () => styles;
+// The cell, its link and its image are sized by TableNG.css.
+export const getStyles: TableCellStyles = () => ({ className: 'gf-table-ng-image' });

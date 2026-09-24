@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useKBar, VisualState } from 'kbar';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export const KBAR_LISTBOX = 'kbar-listbox';
 export const getListboxItemId = (id: number) => `kbar-listbox-item-${id}`;
@@ -37,12 +36,10 @@ export function KBarSearch(
 
   const defaultText = defaultPlaceholder ?? 'Type a command or search…';
 
-  const styles = useStyles2(getStyles);
-
   return (
     <input
       {...rest}
-      className={styles.input}
+      className={stylex.props(styles.input).className}
       ref={query.inputRefSetter}
       /* eslint-disable-next-line jsx-a11y/no-autofocus */
       autoFocus
@@ -70,17 +67,14 @@ export function KBarSearch(
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    input: css({
-      label: 'kbar-search-input',
-      fontSize: theme.typography.body.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.body.lineHeight,
-      color: theme.colors.text.secondary,
-      width: '100%',
-      outline: 'none',
-      paddingLeft: 0,
-    }),
-  };
-};
+const styles = stylex.create({
+  input: {
+    fontSize: typography['--gf-typography-body-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    lineHeight: typography['--gf-typography-body-line-height'],
+    color: colors['--gf-colors-text-secondary'],
+    width: '100%',
+    outline: 'none',
+    paddingLeft: 0,
+  },
+});

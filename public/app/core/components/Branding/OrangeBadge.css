@@ -1,0 +1,7 @@
+/*
+ * Without text the icon needs no gap. Deliberately not in a cascade layer, with a doubled class: it must beat
+ * icon margins set by containers such as Tab (`.link svg`, 0,1,1), like the Emotion rule it replaces did.
+ */
+.gf-orange-badge-icon-only.gf-orange-badge-icon-only {
+  margin-right: 0;
+}

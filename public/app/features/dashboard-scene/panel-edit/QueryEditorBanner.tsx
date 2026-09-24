@@ -1,11 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Button, Icon, IconButton, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getQueryEditorBannerColors } from './PanelEditNext/constants';
 import { startIntercomSurvey, trackBannerDismiss, trackFeedbackClick } from './PanelEditNext/tracking';
+
+import './QueryEditorBanner.css';
 
 interface Props {
   useQueryExperienceNext: boolean;
@@ -15,18 +18,25 @@ interface Props {
 }
 
 export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss, className }: Props) {
-  const styles = useStyles2(getStyles);
+  const bannerColors = getQueryEditorBannerColors(useTheme2());
 
   return (
-    <div className={cx(styles.banner, className)}>
-      <div className={styles.left}>
-        <Icon name="flask" size="md" className={styles.accentIcon} />
-        <span className={styles.title}>
+    <div
+      {...mergeStylexProps(
+        stylex.props(styles.banner, styles.bannerColors(bannerColors.background, bannerColors.border)),
+        {
+          className,
+        }
+      )}
+    >
+      <div {...stylex.props(styles.left)}>
+        <Icon name="flask" size="md" xstyle={styles.accent(bannerColors.accent)} />
+        <span {...stylex.props(styles.title, styles.accent(bannerColors.accent))}>
           {useQueryExperienceNext
             ? t('dashboard-scene.query-editor-banner.downgrade-title', 'New query editor')
             : t('dashboard-scene.query-editor-banner.upgrade-title', 'New editor available')}
         </span>
-        <span className={styles.description}>
+        <span {...stylex.props(styles.description)}>
           {useQueryExperienceNext
             ? t(
                 'dashboard-scene.query-editor-banner.description-new',
@@ -38,7 +48,7 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
               )}
         </span>
       </div>
-      <div className={styles.right}>
+      <div {...stylex.props(styles.right)}>
         {useQueryExperienceNext && (
           <Button
             variant="primary"
@@ -79,7 +89,7 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
             trackBannerDismiss();
             onDismiss();
           }}
-          className={styles.closeButton}
+          className="gf-query-editor-banner-close"
           aria-label={t('dashboard-scene.query-editor-banner.dismiss', 'Dismiss')}
         />
       </div>
@@ -87,53 +97,44 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const bannerColors = getQueryEditorBannerColors(theme);
-
-  return {
-    banner: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(0, 2),
-      height: theme.spacing(5),
-      backgroundColor: bannerColors.background,
-      border: `1px solid ${bannerColors.border}`,
-      borderRadius: theme.shape.radius.default,
-      flexShrink: 0,
-    }),
-    left: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1.5),
-      minWidth: 0,
-    }),
-    accentIcon: css({
-      color: bannerColors.accent,
-    }),
-    title: css({
-      color: bannerColors.accent,
-      fontWeight: theme.typography.fontWeightMedium,
-      whiteSpace: 'nowrap',
-    }),
-    description: css({
-      color: theme.colors.text.secondary,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    }),
-    right: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      flexShrink: 0,
-      marginLeft: theme.spacing(2), // minimum gap when left content is wide
-    }),
-    closeButton: css({
-      color: theme.colors.text.secondary,
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  banner: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    height: spacing['--gf-spacing-x5'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderRadius: shape['--gf-shape-radius-default'],
+    flexShrink: 0,
+  },
+  bannerColors: (backgroundColor: string, borderColor: string) => ({ backgroundColor, borderColor }),
+  left: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1-5'],
+    minWidth: 0,
+  },
+  accent: (color: string) => ({ color }),
+  title: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    whiteSpace: 'nowrap',
+  },
+  description: {
+    color: colors['--gf-colors-text-secondary'],
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  right: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    flexShrink: 0,
+    marginLeft: spacing['--gf-spacing-x2'], // minimum gap when left content is wide
+  },
+});

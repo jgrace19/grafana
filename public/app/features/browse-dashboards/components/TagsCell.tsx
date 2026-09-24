@@ -1,17 +1,15 @@
-import { css } from '@emotion/css';
 import { type CellProps } from 'react-table';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { TagList, useStyles2 } from '@grafana/ui';
+import { TagList } from '@grafana/ui';
 
 import { type DashboardsTreeItem } from '../types';
+import './TagsCell.css';
 
 interface TagsCellProps extends CellProps<DashboardsTreeItem, unknown> {
   onTagClick?: (tag: string) => void;
 }
 
 export function TagsCell({ row: { original: data }, onTagClick }: TagsCellProps) {
-  const styles = useStyles2(getStyles);
   const item = data.item;
 
   if (item.kind === 'ui') {
@@ -26,15 +24,5 @@ export function TagsCell({ row: { original: data }, onTagClick }: TagsCellProps)
     return null;
   }
 
-  return <TagList className={styles.tagList} tags={item.tags} onClick={onTagClick} />;
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    // TagList is annoying and has weird default alignment
-    tagList: css({
-      justifyContent: 'flex-start',
-      flexWrap: 'nowrap',
-    }),
-  };
+  return <TagList className="gf-tags-cell-tag-list" tags={item.tags} onClick={onTagClick} />;
 }

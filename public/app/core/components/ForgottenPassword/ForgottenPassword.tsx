@@ -1,29 +1,19 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getBackendSrv } from '@grafana/runtime';
-import { Field, Input, Button, Legend, Container, useStyles2, LinkButton, Stack } from '@grafana/ui';
+import { Field, Input, Button, Legend, Container, LinkButton, Stack } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 
 interface EmailDTO {
   userOrEmail: string;
 }
 
-const paragraphStyles = (theme: GrafanaTheme2) =>
-  css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightRegular,
-    marginTop: theme.spacing(1),
-    display: 'block',
-  });
-
 export const ForgottenPassword = () => {
   const [emailSent, setEmailSent] = useState(false);
-  const styles = useStyles2(paragraphStyles);
   const loginHref = `${config.appSubUrl}/login`;
   const {
     handleSubmit,
@@ -82,7 +72,7 @@ export const ForgottenPassword = () => {
         </LinkButton>
       </Stack>
 
-      <p className={styles}>
+      <p {...stylex.props(styles.paragraph)}>
         <Trans i18nKey="forgot-password.contact-admin">
           Did you forget your username or email? Contact your Grafana administrator.
         </Trans>
@@ -90,3 +80,13 @@ export const ForgottenPassword = () => {
     </form>
   );
 };
+
+const styles = stylex.create({
+  paragraph: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+    marginTop: spacing['--gf-spacing-x1'],
+    display: 'block',
+  },
+});

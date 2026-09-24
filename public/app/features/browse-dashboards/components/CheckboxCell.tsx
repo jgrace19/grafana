@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Checkbox, Tooltip, useStyles2 } from '@grafana/ui';
+import { Checkbox, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ManagerKind } from 'app/features/apiserver/types';
 import { useIsProvisionedInstance } from 'app/features/provisioning/hooks/useIsProvisionedInstance';
 import { useSelectionRepoValidation } from 'app/features/provisioning/hooks/useSelectionRepoValidation';
@@ -96,13 +96,12 @@ export default function CheckboxCell({
 }
 
 function CheckboxSpacer() {
-  const styles = useStyles2(getStyles);
-  return <span className={styles.checkboxSpacer} />;
+  return <span {...stylex.props(styles.checkboxSpacer)} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const styles = stylex.create({
   // Should be the same size as the <IconButton /> so Dashboard name is aligned to Folder name siblings
-  checkboxSpacer: css({
-    paddingLeft: theme.spacing(2),
-  }),
+  checkboxSpacer: {
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
 });

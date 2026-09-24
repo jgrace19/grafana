@@ -1,0 +1,13 @@
+/*
+ * The overlay shrinks while its parent, the conditionally hidden layout item, is hovered. The parent carries the global
+ * `dashboard-visible-hidden-element` class and is rendered by the layouts, so this relation can't be a StyleX marker.
+ * Unlayered so it beats the overlay's own StyleX size.
+ */
+.dashboard-visible-hidden-element:hover > .gf-conditional-rendering-overlay {
+  width: 30px;
+  height: 30px;
+  top: unset;
+  left: unset;
+  right: 0;
+  bottom: 0;
+}

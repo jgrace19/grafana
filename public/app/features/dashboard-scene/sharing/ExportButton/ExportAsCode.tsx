@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import yaml from 'js-yaml';
 import { useAsync } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { Button, ClipboardButton, CodeEditor, Label, Spinner, Stack, Switch, useStyles2 } from '@grafana/ui';
+import { Button, ClipboardButton, CodeEditor, Label, Spinner, Stack, Switch } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { ExportFormat } from 'app/features/dashboard/api/types';
@@ -33,7 +33,6 @@ export class ExportAsCode extends ShareExportTab {
 }
 
 function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
-  const styles = useStyles2(getStyles);
   const { isSharingExternally, isViewingYAML, exportFormat } = model.useState();
 
   const dashboardJson = useAsync(async () => {
@@ -57,7 +56,7 @@ function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
   const switchExportLabel = t('export.json.export-externally-label', 'Export the dashboard to use in another instance');
 
   return (
-    <div data-testid={selector.container} className={styles.container}>
+    <div data-testid={selector.container} {...stylex.props(styles.container)}>
       {config.featureToggles.kubernetesDashboards ? (
         <ResourceExport
           dashboardJson={dashboardJson}
@@ -81,7 +80,7 @@ function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
         </Stack>
       )}
 
-      <div className={styles.codeEditorBox}>
+      <div {...stylex.props(styles.codeEditorBox)}>
         <AutoSizer data-testid={selector.codeEditor} disableWidth>
           {({ height }) => {
             if (stringifiedDashboard) {
@@ -102,7 +101,7 @@ function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
           }}
         </AutoSizer>
       </div>
-      <div className={styles.buttonsContainer}>
+      <div {...stylex.props(styles.buttonsContainer)}>
         <Stack gap={1} flex={1} direction={{ xs: 'column', sm: 'row' }}>
           <Button
             data-testid={selector.saveToFileButton}
@@ -136,17 +135,18 @@ function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      height: '100%',
-    }),
-    codeEditorBox: css({
-      margin: `${theme.spacing(2, 0)}`,
-      height: '75%',
-    }),
-    buttonsContainer: css({
-      paddingBottom: theme.spacing(2),
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    height: '100%',
+  },
+  codeEditorBox: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+    height: '75%',
+  },
+  buttonsContainer: {
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+});

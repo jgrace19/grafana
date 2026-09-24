@@ -225,7 +225,10 @@ export function InteractiveTable<TableData extends object>({
 
             return (
               <Fragment key={key}>
-                <tr {...otherRowProps} {...stylex.props(styles.row, styles.rowHover(rowHoverBg), isExpanded && styles.expandedRow)}>
+                <tr
+                  {...otherRowProps}
+                  {...stylex.props(styles.row, styles.rowHover(rowHoverBg), isExpanded && styles.expandedRow)}
+                >
                   {row.cells.map((cell) => {
                     const { key, ...otherCellProps } = cell.getCellProps();
 
