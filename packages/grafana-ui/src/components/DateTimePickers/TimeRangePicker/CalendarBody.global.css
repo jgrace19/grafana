@@ -1,0 +1,119 @@
+/*
+ * react-calendar renders the calendar DOM and toggles its state classes (`--hover`, `--active`, `--range*`) on
+ * the tiles, so StyleX can't style it. Scoped under the `gf-calendar` root class; tiles also get
+ * `gf-calendar-tile`. The tile rule stays in this file: the root's descendant rules must beat it by specificity.
+ */
+@layer grafana-global {
+  .gf-calendar-tile {
+    color: var(--gf-colors-text-primary);
+    background-color: var(--gf-colors-background-primary);
+    font-size: var(--gf-typography-size-md);
+    border: 1px solid transparent;
+  }
+
+  .gf-calendar-tile:hover,
+  .gf-calendar-tile:focus {
+    position: relative;
+  }
+
+  .gf-calendar-tile:disabled {
+    color: var(--gf-colors-action-disabled-text);
+    cursor: not-allowed;
+  }
+
+  .gf-calendar .react-calendar__navigation {
+    display: flex;
+  }
+
+  .gf-calendar .react-calendar__navigation__label,
+  .gf-calendar .react-calendar__navigation__arrow,
+  .gf-calendar .react-calendar__navigation {
+    padding-top: 4px;
+    background-color: inherit;
+    color: var(--gf-colors-text-primary);
+    border: 0;
+    font-weight: var(--gf-typography-font-weight-medium);
+  }
+
+  .gf-calendar .react-calendar__month-view__weekdays {
+    background-color: inherit;
+    text-align: center;
+    color: var(--gf-colors-primary-text);
+  }
+
+  .gf-calendar .react-calendar__month-view__weekdays abbr {
+    border: 0;
+    text-decoration: none;
+    cursor: default;
+    display: block;
+    padding: 4px 0 4px 0;
+  }
+
+  .gf-calendar .react-calendar__month-view__days {
+    background-color: inherit;
+  }
+
+  .gf-calendar .react-calendar__tile,
+  .gf-calendar .react-calendar__tile--now {
+    margin-bottom: 4px;
+    background-color: inherit;
+    height: 26px;
+  }
+
+  .gf-calendar .react-calendar__navigation__label,
+  .gf-calendar .react-calendar__navigation > button:focus {
+    outline: 0;
+  }
+
+  /*
+   * --hover is on every tile between the clicked date and the hovered one while a range is being picked: the
+   * clicked date keeps the primary background, the pending range gets the hover background.
+   */
+  .gf-calendar .react-calendar__tile--hover {
+    background-color: var(--gf-colors-action-hover);
+    border-radius: 0;
+  }
+
+  .gf-calendar .react-calendar__tile--hoverStart {
+    border-top-left-radius: var(--gf-shape-radius-pill);
+    border-bottom-left-radius: var(--gf-shape-radius-pill);
+  }
+
+  .gf-calendar .react-calendar__tile--hoverEnd {
+    border-top-right-radius: var(--gf-shape-radius-pill);
+    border-bottom-right-radius: var(--gf-shape-radius-pill);
+  }
+
+  /* Hovering a date before any is clicked. */
+  .gf-calendar .react-calendar__tile:hover:not(.react-calendar__tile--hover):not(.react-calendar__tile--active):not(.react-calendar__tile--hasActive) {
+    background-color: var(--gf-colors-action-hover);
+    border-radius: var(--gf-shape-radius-pill);
+  }
+
+  /*
+   * A range inside a single day that doesn't cover the whole day only gets `--hasActive`, without `--range`.
+   * While a range is being picked, both `--rangeStart` and `--rangeEnd` are on the clicked tile; the `--hover`
+   * rules round the pending range.
+   */
+  .gf-calendar .react-calendar__tile--hasActive:not(.react-calendar__tile--range),
+  .gf-calendar .react-calendar__tile--rangeStart:not(.react-calendar__tile--hover) {
+    border-top-left-radius: var(--gf-shape-radius-pill);
+    border-bottom-left-radius: var(--gf-shape-radius-pill);
+  }
+
+  .gf-calendar .react-calendar__tile--hasActive:not(.react-calendar__tile--range),
+  .gf-calendar .react-calendar__tile--rangeEnd:not(.react-calendar__tile--hover) {
+    border-top-right-radius: var(--gf-shape-radius-pill);
+    border-bottom-right-radius: var(--gf-shape-radius-pill);
+  }
+
+  .gf-calendar .react-calendar__tile--hasActive:not(.react-calendar__tile--range),
+  .gf-calendar .react-calendar__tile--active,
+  .gf-calendar .react-calendar__tile--rangeEnd,
+  .gf-calendar .react-calendar__tile--rangeStart {
+    color: var(--gf-colors-primary-contrast-text);
+    font-weight: var(--gf-typography-font-weight-medium);
+    background: var(--gf-colors-primary-main);
+    border: 0px;
+  }
+}

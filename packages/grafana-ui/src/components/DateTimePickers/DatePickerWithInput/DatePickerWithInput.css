@@ -1,0 +1,9 @@
+/*
+ * Hides the native calendar picker icon of `type="date"` inputs inside Input, which StyleX can't target. Not in a
+ * cascade layer, like the Emotion rule it replaces.
+ */
+.gf-date-picker-with-input input[type='date']::-webkit-inner-spin-button,
+.gf-date-picker-with-input input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}

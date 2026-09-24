@@ -107,6 +107,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U5 time
+  'packages/grafana-ui/src/components/{DateTimePickers,RefreshPicker}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

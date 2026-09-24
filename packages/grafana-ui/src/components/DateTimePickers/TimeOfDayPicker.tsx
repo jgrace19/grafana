@@ -1,17 +1,17 @@
-import { css, cx } from '@emotion/css';
 import RcPicker, { type PickerProps } from '@rc-component/picker';
 import generateConfig from '@rc-component/picker/lib/generate/moment';
 import locale from '@rc-component/picker/lib/locale/en_US';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type Moment } from 'moment';
 
-import { dateTime, type DateTime, dateTimeAsMoment, type GrafanaTheme2, isDateTimeInput } from '@grafana/data';
+import { dateTime, type DateTime, dateTimeAsMoment, isDateTimeInput } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
-import { inputSizes } from '../Forms/commonStyles';
+import { colors } from '../../themes/stylex/tokens.stylex';
 import { type FormInputSize } from '../Forms/types';
 import { Icon } from '../Icon/Icon';
 import '@rc-component/picker/assets/index.css';
+import './TimeOfDayPicker.css';
 
 interface BaseProps {
   onChange: (value: DateTime) => void | ((value?: DateTime) => void);
@@ -59,7 +59,6 @@ export const TimeOfDayPicker = ({
   // in order to discriminate the types properly later in the onChange handler
   ...restProps
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const allowClear = restProps.allowEmpty ?? false;
 
   return (
@@ -69,13 +68,13 @@ export const TimeOfDayPicker = ({
       locale={locale}
       allowClear={
         allowClear && {
-          clearIcon: <Icon name="times" className={styles.clearIcon} />,
+          clearIcon: <Icon name="times" xstyle={styles.clearIcon} />,
         }
       }
-      className={cx(inputSizes()[size], styles.input)}
+      className={clsx(stylex.props(sizeStyles[size]).className, 'gf-time-of-day-picker')}
       classNames={{
         popup: {
-          container: cx(styles.picker, POPUP_CLASS_NAME),
+          container: clsx('gf-time-of-day-picker-panel', POPUP_CLASS_NAME),
         },
       }}
       defaultValue={restProps.allowEmpty ? undefined : dateTimeAsMoment()}
@@ -100,7 +99,7 @@ export const TimeOfDayPicker = ({
       placeholder={placeholder}
       showNow={false}
       needConfirm={false}
-      suffixIcon={<Caret wrapperStyle={styles.caretWrapper} />}
+      suffixIcon={<Caret />}
       value={value ? dateTimeAsMoment(value) : value}
     />
   );
@@ -112,136 +111,31 @@ function generateFormat(showHour = true, showSeconds = false) {
   return maybeHour + 'mm' + maybeSecond;
 }
 
-interface CaretProps {
-  wrapperStyle?: string;
-}
-
-const Caret = ({ wrapperStyle = '' }: CaretProps) => {
+const Caret = () => {
   return (
-    <div className={wrapperStyle}>
+    <div {...stylex.props(styles.caretWrapper)}>
       <Icon name="angle-down" />
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const bgColor = theme.components.input.background;
-  const optionBgHover = theme.colors.action.hover;
-  const borderRadius = theme.shape.radius.default;
-  const borderColor = theme.components.input.borderColor;
+// The rc-picker DOM itself is styled by TimeOfDayPicker.css.
+const styles = stylex.create({
+  caretWrapper: {
+    position: 'relative',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    display: 'inline-block',
+    color: colors['--gf-colors-text-secondary'],
+  },
+  clearIcon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-max-contrast'] },
+  },
+});
 
-  return {
-    caretWrapper: css({
-      position: 'relative',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      display: 'inline-block',
-      color: theme.colors.text.secondary,
-    }),
-    clearIcon: css({
-      color: theme.colors.text.secondary,
-
-      '&:hover': {
-        color: theme.colors.text.maxContrast,
-      },
-    }),
-    picker: css({
-      '&.rc-picker-dropdown': {
-        boxShadow: 'none',
-        zIndex: theme.zIndex.portal,
-      },
-      '.rc-picker-time-panel-column': {
-        fontSize: theme.typography.htmlFontSize,
-        backgroundColor: bgColor,
-        color: theme.colors.text.secondary,
-        padding: 'unset',
-        overflowY: 'auto',
-        scrollbarWidth: 'thin',
-        width: theme.spacing(8),
-        li: {
-          paddingRight: theme.spacing(2),
-          width: 'auto',
-          '&.rc-picker-time-panel-cell-selected': {
-            backgroundColor: 'inherit',
-            border: `1px solid ${theme.colors.action.selectedBorder}`,
-            borderRadius,
-            color: theme.colors.text.primary,
-          },
-
-          '&:hover': {
-            background: optionBgHover,
-            color: theme.colors.text.primary,
-          },
-
-          '&.rc-picker-time-panel-cell-disabled': {
-            color: theme.colors.action.disabledText,
-          },
-        },
-
-        '.rc-picker-time-panel-cell-inner': {
-          color: 'inherit',
-        },
-
-        '&:not(:last-of-type)': {
-          borderRight: `1px solid ${borderColor}`,
-        },
-      },
-
-      '.rc-picker-panel': {
-        boxShadow: theme.shadows.z3,
-        backgroundColor: bgColor,
-        borderColor,
-        borderRadius,
-        overflow: 'hidden',
-      },
-    }),
-    input: css({
-      '&.rc-picker-focused': {
-        border: 'none',
-
-        '.rc-picker-input': getFocusStyles(theme),
-      },
-
-      '&.rc-picker-disabled': {
-        '.rc-picker-input': {
-          backgroundColor: theme.colors.action.disabledBackground,
-          color: theme.colors.action.disabledText,
-          border: `1px solid ${theme.colors.action.disabledBackground}`,
-          '&:focus': {
-            boxShadow: 'none',
-          },
-        },
-      },
-
-      '.rc-picker-input': {
-        backgroundColor: bgColor,
-        borderRadius,
-        borderColor,
-        borderStyle: 'solid',
-        borderWidth: '1px',
-        color: theme.colors.text.primary,
-        height: theme.spacing(4),
-        padding: theme.spacing(0, 1),
-
-        input: {
-          color: 'unset',
-          backgroundColor: 'unset',
-          '&:focus': {
-            outline: 'none',
-          },
-
-          '&::placeholder': {
-            color: theme.colors.text.disabled,
-          },
-        },
-      },
-
-      '.rc-picker-clear': {
-        alignItems: 'center',
-        display: 'flex',
-        insetInlineEnd: 'unset',
-        position: 'relative',
-      },
-    }),
-  };
-};
+const sizeStyles = stylex.create({
+  sm: { width: '200px' },
+  md: { width: '320px' },
+  lg: { width: '580px' },
+  auto: { width: 'auto' },
+});
