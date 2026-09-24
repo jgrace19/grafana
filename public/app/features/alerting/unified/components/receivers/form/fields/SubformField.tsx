@@ -1,8 +1,9 @@
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 import {
   type NotificationChannelOption,
   type NotificationChannelSecureFields,
@@ -12,7 +13,7 @@ import {
 import { ActionIcon } from '../../../rules/ActionIcon';
 
 import { OptionField } from './OptionField';
-import { getReceiverFormFieldStyles } from './styles';
+import { receiverFormFieldStyles as styles } from './styles';
 
 interface Props {
   defaultValue: any;
@@ -41,7 +42,6 @@ export const SubformField = ({
   onDelete,
   onResetSecureField,
 }: Props) => {
-  const styles = useStyles2(getReceiverFormFieldStyles);
   const name = `${pathPrefix}${option.propertyName}`;
   const { watch } = useFormContext();
   const _watchValue = watch(name);
@@ -55,9 +55,9 @@ export const SubformField = ({
   };
 
   return (
-    <div className={styles.wrapper} data-testid={`${name}.container`}>
+    <div {...stylex.props(styles.wrapper)} data-testid={`${name}.container`}>
       <h6>{option.label}</h6>
-      {option.description && <p className={styles.description}>{option.description}</p>}
+      {option.description && <p {...stylex.props(styles.description)}>{option.description}</p>}
       {show && (
         <>
           {!readOnly && onDelete && (
@@ -66,7 +66,7 @@ export const SubformField = ({
               icon="trash-alt"
               tooltip={t('alerting.subform-field.tooltip-delete', 'delete')}
               onClick={onDeleteClick}
-              className={styles.deleteIcon}
+              className={stylex.props(styles.deleteIcon).className}
             />
           )}
           {(option.subformOptions ?? []).map((subOption) => {
@@ -89,7 +89,7 @@ export const SubformField = ({
       )}
       {!show && !readOnly && (
         <Button
-          className={styles.addButton}
+          className={stylex.props(styles.addButton).className}
           type="button"
           variant="secondary"
           icon="plus"

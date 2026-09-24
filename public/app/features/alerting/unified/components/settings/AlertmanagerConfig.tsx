@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type JSX, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, CodeEditor, ConfirmModal, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Button, CodeEditor, ConfirmModal, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { reportFormErrors } from '../../Analytics';
 import { useAlertmanagerConfig } from '../../hooks/useAlertmanagerConfig';
@@ -33,8 +33,6 @@ export default function AlertmanagerConfig({ alertmanagerName, onDismiss, onSave
   // ⚠️ provisioned data sources should not prevent the configuration from being edited
   const immutableDataSource = alertmanagerName ? isVanillaPrometheusAlertManagerDataSource(alertmanagerName) : false;
   const readOnly = immutableDataSource || isGrafanaManagedAlertmanager;
-
-  const styles = useStyles2(getStyles);
 
   const {
     currentData: config,
@@ -138,7 +136,7 @@ export default function AlertmanagerConfig({ alertmanagerName, onDismiss, onSave
   );
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {isGrafanaManagedAlertmanager && (
         <Alert
           severity="info"
@@ -164,7 +162,7 @@ export default function AlertmanagerConfig({ alertmanagerName, onDismiss, onSave
       )}
 
       {isLoadingSuccessful && (
-        <div className={styles.content}>
+        <div {...stylex.props(styles.content)}>
           <AutoSizer disableWidth>
             {({ height }) => (
               <CodeEditor
@@ -222,14 +220,16 @@ export default function AlertmanagerConfig({ alertmanagerName, onDismiss, onSave
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    gap: theme.spacing(2),
-  }),
-  content: css({
-    flex: '1 1 100%',
-  }),
+    gap: spacing['--gf-spacing-x2'],
+  },
+  content: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+  },
 });

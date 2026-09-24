@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { type JSX, useEffect, useMemo } from 'react';
 import { Controller, type FieldErrors, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Badge, Button, Field, Select, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Button, Field, Select, Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type NotificationChannelOption } from 'app/features/alerting/unified/types/alerting';
 
 import {
@@ -63,7 +64,6 @@ export function ChannelSubForm<R extends ChannelValues>({
   canEditProtectedFields,
   customValidators = {},
 }: Props<R>): JSX.Element {
-  const styles = useStyles2(getStyles);
   const { control, watch, register, trigger, formState, setValue, getValues } =
     useFormContext<ReceiverFormValues<CloudChannelValues | GrafanaChannelValues>>();
 
@@ -240,8 +240,8 @@ export function ChannelSubForm<R extends ChannelValues>({
 
   const contactPointTypeInputId = `contact-point-type-${pathPrefix}`;
   return (
-    <div className={styles.wrapper} data-testid="item-container">
-      <div className={styles.topRow}>
+    <div {...stylex.props(styles.wrapper)} data-testid="item-container">
+      <div {...stylex.props(styles.topRow)}>
         <div>
           <Field
             label={t('alerting.channel-sub-form.label-integration', 'Integration')}
@@ -291,9 +291,16 @@ export function ChannelSubForm<R extends ChannelValues>({
             </Stack>
           </Field>
         </div>
-        <div className={styles.buttons}>
+        <div>
           {isTestable && onTest && isTestAvailable && (
-            <Button size="xs" variant="secondary" type="button" onClick={() => handleTest()} icon="message">
+            <Button
+              className={stylex.props(styles.button).className}
+              size="xs"
+              variant="secondary"
+              type="button"
+              onClick={() => handleTest()}
+              icon="message"
+            >
               <Trans i18nKey="alerting.channel-sub-form.test">Test</Trans>
             </Button>
           )}
@@ -301,12 +308,20 @@ export function ChannelSubForm<R extends ChannelValues>({
             <>
               {/* Only show duplicate button if the notifier type can be created */}
               {notifier && canCreateNotifier(notifier.dto) && (
-                <Button size="xs" variant="secondary" type="button" onClick={() => onDuplicate()} icon="copy">
+                <Button
+                  className={stylex.props(styles.button).className}
+                  size="xs"
+                  variant="secondary"
+                  type="button"
+                  onClick={() => onDuplicate()}
+                  icon="copy"
+                >
                   <Trans i18nKey="alerting.channel-sub-form.duplicate">Duplicate</Trans>
                 </Button>
               )}
               {onDelete && (
                 <Button
+                  className={stylex.props(styles.button).className}
                   data-testid={`${pathPrefix}delete-button`}
                   size="xs"
                   variant="secondary"
@@ -322,7 +337,7 @@ export function ChannelSubForm<R extends ChannelValues>({
         </div>
       </div>
       {notifier && (
-        <div className={styles.innerContent}>
+        <div {...stylex.props(styles.innerContent)}>
           {showTelegramWarning && (
             <Alert
               title={t(
@@ -394,27 +409,27 @@ function getDefaultNotifierSettings(notifier: Notifier): Record<string, string> 
   return defaultSettings;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttons: css({
-    '& > * + *': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  innerContent: css({
+const styles = stylex.create({
+  button: {
+    marginLeft: { default: null, ':not(:first-child)': spacing['--gf-spacing-x1'] },
+  },
+  innerContent: {
     maxWidth: '536px',
-  }),
-  wrapper: css({
-    margin: theme.spacing(2, 0),
-    padding: theme.spacing(1),
-    border: `solid 1px ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-  topRow: css({
+  },
+  wrapper: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+    padding: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  topRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }),
-  channelSettingsHeader: css({
-    marginTop: theme.spacing(2),
-  }),
+  },
 });

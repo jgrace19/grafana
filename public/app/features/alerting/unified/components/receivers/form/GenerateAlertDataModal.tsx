@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { addDays, subDays } from 'date-fns';
 import { uniqueId } from 'lodash';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Card, Modal, RadioButtonGroup, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Card, Modal, RadioButtonGroup, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type TestTemplateAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { type KeyValueField } from '../../../api/templateApi';
@@ -32,8 +32,6 @@ const defaultValues: FormFields = {
 };
 
 export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const [alerts, setAlerts] = useState<TestTemplateAlert[]>([]);
 
   const formMethods = useForm<FormFields>({ defaultValues, mode: 'onBlur' });
@@ -104,17 +102,17 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
         >
           <Card noMargin>
             <Stack direction="column" gap={1}>
-              <div className={styles.section}>
+              <div {...stylex.props(styles.section)}>
                 <AnnotationsStep />
               </div>
-              <div className={styles.section}>
+              <div {...stylex.props(styles.section)}>
                 <LabelsField />
               </div>
-              <div className={styles.flexWrapper}>
+              <div {...stylex.props(styles.flexWrapper)}>
                 <RadioButtonGroup value={status} options={alertOptions} onChange={(value) => setStatus(value)} />
                 <Button
                   onClick={onAdd}
-                  className={styles.onAddButton}
+                  style={onAddButtonStyle}
                   icon="plus-circle"
                   type="button"
                   variant="secondary"
@@ -125,7 +123,7 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
               </div>
             </Stack>
           </Card>
-          <div className={styles.onSubmitWrapper} />
+          <div {...stylex.props(styles.onSubmitWrapper)} />
           {alerts.length > 0 && (
             <Stack direction="column" gap={1}>
               <h5>
@@ -134,14 +132,18 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
                   Review alert data to add to the payload:
                 </Trans>
               </h5>
-              <pre className={styles.result} data-testid="payloadJSON">
+              <pre {...stylex.props(styles.result)} data-testid="payloadJSON">
                 {JSON.stringify(alerts, null, 2)}
               </pre>
             </Stack>
           )}
-          <div className={styles.onSubmitWrapper}>
+          <div {...stylex.props(styles.onSubmitWrapper)}>
             <Modal.ButtonRow>
-              <Button onClick={onSubmit} disabled={alerts.length === 0} className={styles.onSubmitButton}>
+              <Button
+                onClick={onSubmit}
+                disabled={alerts.length === 0}
+                className={stylex.props(styles.onSubmitButton).className}
+              >
                 <Trans i18nKey="alerting.generate-alert-data-modal.add-alert-data-to-payload">
                   Add alert data to payload
                 </Trans>
@@ -154,32 +156,34 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  section: css({
-    marginBottom: theme.spacing(2),
-  }),
-  onAddButton: css({
-    flex: 'none',
-    width: 'fit-content',
-    paddingRight: theme.spacing(1),
-    marginLeft: 'auto',
-  }),
-  flexWrapper: css({
+const styles = stylex.create({
+  section: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  flexWrapper: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }),
-  onSubmitWrapper: css({
+  },
+  onSubmitWrapper: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'flex-end',
-  }),
-  onSubmitButton: css({
-    marginLeft: theme.spacing(2),
-  }),
-  result: css({
+  },
+  onSubmitButton: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  result: {
     width: '570px',
     height: '363px',
-  }),
+  },
 });
+
+// Button has no xstyle, and its own padding must lose to this.
+const onAddButtonStyle = {
+  flex: 'none',
+  width: 'fit-content',
+  paddingRight: spacing['--gf-spacing-x1'],
+  marginLeft: 'auto',
+};

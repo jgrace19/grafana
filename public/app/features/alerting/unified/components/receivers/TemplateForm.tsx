@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { addMinutes, subDays, subHours } from 'date-fns';
 import { type Location } from 'history';
 import { useRef, useState } from 'react';
@@ -6,7 +6,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useToggle } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, isFetchError, locationService } from '@grafana/runtime';
 import {
@@ -23,8 +22,8 @@ import {
   Stack,
   Text,
   useSplitter,
-  useStyles2,
 } from '@grafana/ui';
+import { colors, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import { ActiveTab as ContactPointsActiveTabs } from 'app/features/alerting/unified/components/contact-points/ContactPoints';
@@ -56,6 +55,7 @@ import { GlobalTemplateDataExamples } from './TemplateDataExamples';
 import { TemplateEditor } from './TemplateEditor';
 import { TemplatePreview } from './TemplatePreview';
 import { snippets } from './editor/templateDataSuggestions';
+import './TemplateCodeEditor.css';
 
 export interface TemplateFormValues {
   title: string;
@@ -96,8 +96,6 @@ export const isDuplicating = (location: Location) => location.pathname.endsWith(
  * └───────────────────┘└───────────┘
  */
 export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const appNotification = useAppNotification();
 
   const [createNewTemplate, { error: createTemplateError }] = useCreateNotificationTemplate({ alertmanager });
@@ -203,7 +201,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
         <form
           onSubmit={handleSubmit(submit)}
           ref={formRef}
-          className={styles.form}
+          {...stylex.props(styles.form)}
           aria-label={t('alerting.template-form.aria-label-template-form', 'Template form')}
         >
           {/* error message */}
@@ -240,7 +238,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
           )}
 
           {/* name field for the template */}
-          <FieldSet disabled={isProvisioned} className={styles.fieldset}>
+          <FieldSet disabled={isProvisioned} className={stylex.props(styles.fieldset).className}>
             <Stack direction="column" gap={1} alignItems="stretch" minHeight="100%">
               {/* name and save buttons */}
               <Stack direction="row" alignItems="center">
@@ -282,14 +280,16 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
               </Stack>
 
               {/* editor layout */}
-              <div {...rowSplitter.containerProps} className={styles.contentContainer}>
+              <div {...rowSplitter.containerProps} className={stylex.props(styles.contentContainer).className}>
                 <div {...rowSplitter.primaryProps}>
                   {/* template content and payload editor column – full height and half-width */}
-                  <div {...columnSplitter.containerProps} className={styles.contentField}>
+                  <div {...columnSplitter.containerProps} className={stylex.props(styles.contentField).className}>
                     {/* template editor */}
                     <div {...columnSplitter.primaryProps}>
                       {/* primaryProps will set "minHeight: min-content;" so we have to make sure to apply minHeight to the child */}
-                      <div className={cx(styles.flexColumn, styles.containerWithBorderAndRadius, styles.minEditorSize)}>
+                      <div
+                        {...stylex.props(styles.flexColumn, styles.containerWithBorderAndRadius, styles.minEditorSize)}
+                      >
                         <div>
                           <EditorColumnHeader
                             label={t('alerting.template-form.label-template-group', 'Template group')}
@@ -351,7 +351,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                               <TemplateEditor
                                 value={getValues('content')}
                                 onBlur={(value) => setValue('content', value)}
-                                containerStyles={styles.editorContainer}
+                                containerStyles="gf-alerting-template-code-editor"
                                 width={width}
                                 height={height}
                               />
@@ -366,7 +366,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                         <div {...columnSplitter.splitterProps} />
                         <div {...columnSplitter.secondaryProps}>
                           <div
-                            className={cx(
+                            {...stylex.props(
                               styles.containerWithBorderAndRadius,
                               styles.minEditorSize,
                               styles.payloadEditor,
@@ -396,7 +396,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                       templateContent={watch('content')}
                       setPayloadFormatError={setPayloadFormatError}
                       payloadFormatError={payloadFormatError}
-                      className={cx(styles.templatePreview, styles.minEditorSize)}
+                      className={stylex.props(styles.templatePreview, styles.minEditorSize).className}
                       aiGeneratedTemplate={aiGeneratedTemplate}
                       setAiGeneratedTemplate={setAiGeneratedTemplate}
                     />
@@ -421,8 +421,6 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
 };
 
 function TemplatingBasics() {
-  const styles = useStyles2(getStyles);
-
   const intro = t(
     'alerting.templates.help.intro',
     `Notification templates use Go templating language to create notification messages.
@@ -453,7 +451,7 @@ For detailed information about notification templates, refer to our documentatio
           <Trans i18nKey="alerting.templates.editor.auto-complete">
             For auto-completion of common templating code, type the following keywords in the content editor:
           </Trans>
-          <div className={styles.code}>
+          <div {...stylex.props(styles.code)}>
             {Object.values(snippets)
               .map((s) => s.label)
               .join(', ')}
@@ -473,79 +471,58 @@ function TemplatingCheatSheet() {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  const narrowScreenQuery = theme.breakpoints.down('md');
-
-  return {
-    flexFull: css({
-      flex: 1,
-    }),
-    minEditorSize: css({
-      minHeight: 300,
-      minWidth: 300,
-    }),
-    payloadEditor: css({
-      minHeight: 0,
-    }),
-    containerWithBorderAndRadius: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.colors.border.medium}`,
-    }),
-    flexColumn: css({
-      display: 'flex',
-      flex: 1,
-      flexDirection: 'column',
-    }),
-    form: css({
-      label: 'template-form',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    fieldset: css({
-      label: 'template-fieldset',
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    label: css({
-      margin: 0,
-    }),
-    contentContainer: css({
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'row',
-    }),
-    contentField: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: 1,
-      marginBottom: 0,
-    }),
-    templatePreview: css({
-      flex: 1,
-      display: 'flex',
-    }),
-    templatePayload: css({
-      flex: 1,
-    }),
-    editorContainer: css({
-      width: 'fit-content',
-      border: 'none',
-    }),
-    payloadCollapseButton: css({
-      backgroundColor: theme.colors.info.transparent,
-      margin: 0,
-      [narrowScreenQuery]: {
-        display: 'none',
-      },
-    }),
-    code: css({
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-  };
-};
+const styles = stylex.create({
+  flexFull: {
+    flex: '1',
+  },
+  minEditorSize: {
+    minHeight: '300px',
+    minWidth: '300px',
+  },
+  payloadEditor: {
+    minHeight: 0,
+  },
+  containerWithBorderAndRadius: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
+  flexColumn: {
+    display: 'flex',
+    flex: '1',
+    flexDirection: 'column',
+  },
+  form: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  fieldset: {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  contentContainer: {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  contentField: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1',
+    marginBottom: 0,
+  },
+  templatePreview: {
+    flex: '1',
+    display: 'flex',
+  },
+  code: {
+    color: colors['--gf-colors-text-secondary'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+});
 
 const defaultPayload: TestTemplateAlert[] = [
   {

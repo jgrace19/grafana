@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Stack, Text, useStyles2 } from '@grafana/ui';
+import { Stack, Text } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { PopupCard } from '../HoverCard';
 
@@ -17,8 +17,6 @@ import {
 } from './TemplateData';
 
 export function TemplateDataDocs() {
-  const styles = useStyles2(getTemplateDataDocsStyles);
-
   const AlertTemplateDataTable = (
     <TemplateDataTable
       caption={
@@ -59,14 +57,14 @@ export function TemplateDataDocs() {
           if (type === '[]Alert') {
             return (
               <PopupCard content={AlertTemplateDataTable}>
-                <div className={styles.interactiveType}>{type}</div>
+                <div {...stylex.props(styles.interactiveType)}>{type}</div>
               </PopupCard>
             );
           }
           if (type === 'KeyValue') {
             return (
               <PopupCard content={<KeyValueTemplateDataTable />}>
-                <div className={styles.interactiveType}>{type}</div>
+                <div {...stylex.props(styles.interactiveType)}>{type}</div>
               </PopupCard>
             );
           }
@@ -77,10 +75,35 @@ export function TemplateDataDocs() {
   );
 }
 
-const getTemplateDataDocsStyles = (theme: GrafanaTheme2) => ({
-  interactiveType: css({
-    color: theme.colors.text.link,
-  }),
+const styles = stylex.create({
+  interactiveType: {
+    color: colors['--gf-colors-text-link'],
+  },
+  table: {
+    borderCollapse: 'collapse',
+    width: '100%',
+  },
+  caption: {
+    captionSide: 'top',
+  },
+  cell: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  thead: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  bodyRow: {
+    backgroundColor: {
+      default: null,
+      ':nth-child(2n + 1)': colors['--gf-colors-background-secondary'],
+    },
+  },
+  firstBodyCell: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  secondBodyCell: {
+    fontStyle: 'italic',
+  },
 });
 
 interface TemplateDataTableProps {
@@ -90,30 +113,28 @@ interface TemplateDataTableProps {
 }
 
 export function TemplateDataTable({ dataItems, caption, typeRenderer }: TemplateDataTableProps) {
-  const styles = useStyles2(getTemplateDataTableStyles);
-
   return (
-    <table className={styles.table}>
-      {caption && <caption>{caption}</caption>}
-      <thead>
+    <table {...stylex.props(styles.table)}>
+      {caption && <caption {...stylex.props(styles.caption)}>{caption}</caption>}
+      <thead {...stylex.props(styles.thead)}>
         <tr>
-          <th>
+          <th {...stylex.props(styles.cell)}>
             <Trans i18nKey="alerting.template-data-table.name">Name</Trans>
           </th>
-          <th>
+          <th {...stylex.props(styles.cell)}>
             <Trans i18nKey="alerting.template-data-table.type">Type</Trans>
           </th>
-          <th>
+          <th {...stylex.props(styles.cell)}>
             <Trans i18nKey="alerting.template-data-table.notes">Notes</Trans>
           </th>
         </tr>
       </thead>
       <tbody>
         {dataItems.map(({ name, type, notes }, index) => (
-          <tr key={index}>
-            <td>{name}</td>
-            <td>{typeRenderer ? typeRenderer(type) : type}</td>
-            <td>{notes}</td>
+          <tr key={index} {...stylex.props(styles.bodyRow)}>
+            <td {...stylex.props(styles.cell, styles.firstBodyCell)}>{name}</td>
+            <td {...stylex.props(styles.cell, styles.secondBodyCell)}>{typeRenderer ? typeRenderer(type) : type}</td>
+            <td {...stylex.props(styles.cell)}>{notes}</td>
           </tr>
         ))}
       </tbody>
@@ -122,8 +143,6 @@ export function TemplateDataTable({ dataItems, caption, typeRenderer }: Template
 }
 
 function KeyValueTemplateDataTable() {
-  const tableStyles = useStyles2(getTemplateDataTableStyles);
-
   return (
     <div>
       <Trans i18nKey="alerting.key-value-template-data-table.description">
@@ -132,33 +151,33 @@ function KeyValueTemplateDataTable() {
       <pre>
         <code>{KeyValueCodeSnippet}</code>
       </pre>
-      <table className={tableStyles.table}>
-        <caption>
+      <table {...stylex.props(styles.table)}>
+        <caption {...stylex.props(styles.caption)}>
           <Trans i18nKey="alerting.key-value-template-data-table.keyvalue-methods">Key-value methods</Trans>
         </caption>
-        <thead>
+        <thead {...stylex.props(styles.thead)}>
           <tr>
-            <th>
+            <th {...stylex.props(styles.cell)}>
               <Trans i18nKey="alerting.key-value-template-data-table.name">Name</Trans>
             </th>
-            <th>
+            <th {...stylex.props(styles.cell)}>
               <Trans i18nKey="alerting.key-value-template-data-table.arguments">Arguments</Trans>
             </th>
-            <th>
+            <th {...stylex.props(styles.cell)}>
               <Trans i18nKey="alerting.key-value-template-data-table.returns">Returns</Trans>
             </th>
-            <th>
+            <th {...stylex.props(styles.cell)}>
               <Trans i18nKey="alerting.key-value-template-data-table.notes">Notes</Trans>
             </th>
           </tr>
         </thead>
         <tbody>
           {KeyValueTemplateFunctions.map(({ name, args, returns, notes }) => (
-            <tr key={name}>
-              <td>{name}</td>
-              <td>{args}</td>
-              <td>{returns}</td>
-              <td>{notes}</td>
+            <tr key={name} {...stylex.props(styles.bodyRow)}>
+              <td {...stylex.props(styles.cell, styles.firstBodyCell)}>{name}</td>
+              <td {...stylex.props(styles.cell, styles.secondBodyCell)}>{args}</td>
+              <td {...stylex.props(styles.cell)}>{returns}</td>
+              <td {...stylex.props(styles.cell)}>{notes}</td>
             </tr>
           ))}
         </tbody>
@@ -166,34 +185,3 @@ function KeyValueTemplateDataTable() {
     </div>
   );
 }
-
-export const getTemplateDataTableStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    borderCollapse: 'collapse',
-    width: '100%',
-
-    caption: {
-      captionSide: 'top',
-    },
-
-    'td, th': {
-      padding: theme.spacing(1, 1),
-    },
-
-    thead: {
-      fontWeight: theme.typography.fontWeightBold,
-    },
-
-    'tbody tr:nth-child(2n + 1)': {
-      backgroundColor: theme.colors.background.secondary,
-    },
-
-    'tbody td:nth-child(1)': {
-      fontWeight: theme.typography.fontWeightBold,
-    },
-
-    'tbody td:nth-child(2)': {
-      fontStyle: 'italic',
-    },
-  }),
-});
