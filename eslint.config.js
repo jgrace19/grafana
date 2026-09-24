@@ -149,6 +149,8 @@ const stylexMigratedAppFiles = [
   'public/app/features/plugins/**/*.{ts,tsx}',
   'public/app/features/provisioning/**/*.{ts,tsx}',
   'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
+  // P2 core-bundled datasource plugins
+  'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

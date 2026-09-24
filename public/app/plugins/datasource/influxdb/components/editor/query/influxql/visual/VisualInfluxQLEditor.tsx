@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 import { useId, useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { InlineLabel, SegmentSection, useStyles2 } from '@grafana/ui';
+import { InlineLabel, SegmentSection } from '@grafana/ui';
 
 import type InfluxDatasource from '../../../../../datasource';
 import {
@@ -34,6 +32,7 @@ import { InputSection } from './InputSection';
 import { OrderByTimeSection } from './OrderByTimeSection';
 import { PartListSection } from './PartListSection';
 import { TagsSection } from './TagsSection';
+import './VisualInfluxQLEditor.css';
 
 type Props = {
   query: InfluxQuery;
@@ -47,7 +46,6 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
   const formatAsId = `influxdb-qe-format-as-${uniqueId}`;
   const orderByTimeId = `influxdb-qe-order-by${uniqueId}`;
 
-  const styles = useStyles2(getStyles);
   const query = normalizeQuery(props.query);
   const { datasource } = props;
   const { measurement, policy } = query;
@@ -125,7 +123,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
           }
           onChange={handleFromSectionChange}
         />
-        <InlineLabel width="auto" className={styles.inlineLabel}>
+        <InlineLabel width="auto" className="gf-influx-section-label">
           WHERE
         </InlineLabel>
         <TagsSection
@@ -182,7 +180,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, tz });
           }}
         />
-        <InlineLabel htmlFor={orderByTimeId} width="auto" className={styles.inlineLabel}>
+        <InlineLabel htmlFor={orderByTimeId} width="auto" className="gf-influx-section-label">
           ORDER BY TIME
         </InlineLabel>
         <OrderByTimeSection
@@ -206,7 +204,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, limit });
           }}
         />
-        <InlineLabel width="auto" className={styles.inlineLabel}>
+        <InlineLabel width="auto" className="gf-influx-section-label">
           SLIMIT
         </InlineLabel>
         <InputSection
@@ -227,7 +225,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
         />
         {query.resultFormat !== 'table' && (
           <>
-            <InlineLabel width="auto" className={styles.inlineLabel}>
+            <InlineLabel width="auto" className="gf-influx-section-label">
               ALIAS
             </InlineLabel>
             <InputSection
@@ -244,11 +242,3 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
     </div>
   );
 };
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    inlineLabel: css({
-      color: theme.colors.primary.text,
-    }),
-  };
-}

@@ -1,13 +1,16 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { useCallback, useRef } from 'react';
 
-import { CodeEditor, getInputStyles, type Monaco, useTheme2 } from '@grafana/ui';
+import { CodeEditor, type Monaco } from '@grafana/ui';
+import { components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DynamicLabelsCompletionItemProvider } from '../../../language/dynamic-labels/CompletionItemProvider';
 import language from '../../../language/dynamic-labels/definition';
 import { TRIGGER_SUGGEST } from '../../../language/monarch/commands';
 import { registerLanguage } from '../../../language/monarch/register';
+
+import './DynamicLabelsField.css';
 
 const dynamicLabelsCompletionItemProvider = new DynamicLabelsCompletionItemProvider();
 
@@ -18,8 +21,6 @@ export interface Props {
 }
 
 export function DynamicLabelsField({ label, width, onChange }: Props) {
-  const theme = useTheme2();
-  const styles = getInputStyles({ theme, width });
   const containerRef = useRef<HTMLDivElement>(null);
   const onEditorMount = useCallback(
     (editor: monacoType.editor.IStandaloneCodeEditor, monaco: Monaco) => {
@@ -36,14 +37,9 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
   );
 
   return (
-    <div ref={containerRef} className={cx(styles.wrapper)}>
+    <div ref={containerRef} {...stylex.props(styles.wrapper, width ? styles.width(width) : styles.fullWidth)}>
       <CodeEditor
-        containerStyles={css({
-          border: `1px solid ${theme.colors.action.disabledBackground}`,
-          '&:hover': {
-            borderColor: theme.components.input.borderColor,
-          },
-        })}
+        containerStyles="gf-cloudwatch-dynamic-labels"
         monacoOptions={{
           // without this setting, the auto-resize functionality causes an infinite loop, don't remove it!
           scrollBeyondLastLine: false,
@@ -77,3 +73,17 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
     </div>
   );
 }
+
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  width: (width: number) => ({
+    width: `calc(${spacing['--gf-spacing-grid-size']} * ${width})`,
+  }),
+  fullWidth: {
+    width: '100%',
+  },
+});
