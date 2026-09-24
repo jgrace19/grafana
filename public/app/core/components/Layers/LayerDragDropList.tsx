@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton } from '@grafana/ui';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LayerName } from './LayerName';
 import { type LayerElement } from './types';
+
+import './LayerDragDropList.css';
 
 export const DATA_TEST_ID = 'layer-drag-drop-list';
 
@@ -38,12 +40,6 @@ export const LayerDragDropList = <T extends LayerElement>({
   onNameChange,
   verifyLayerNameUniqueness,
 }: LayerDragDropListProps<T>) => {
-  const style = useStyles2(getStyles);
-
-  const getRowStyle = (isSelected: boolean) => {
-    return isSelected ? `${style.row} ${style.sel}` : style.row;
-  };
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="droppable">
@@ -63,7 +59,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                   <Draggable key={uid} draggableId={uid} index={rows.length}>
                     {(provided, snapshot) => (
                       <div
-                        className={getRowStyle(isSelected)}
+                        {...stylex.props(styles.row, isSelected && styles.sel)}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
@@ -82,7 +78,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                           onChange={(v) => onNameChange(element, v)}
                           verifyLayerNameUniqueness={verifyLayerNameUniqueness ?? undefined}
                         />
-                        <div className={style.textWrapper}>&nbsp; {getLayerInfo(element)}</div>
+                        <div {...stylex.props(styles.textWrapper)}>&nbsp; {getLayerInfo(element)}</div>
 
                         {showActions(element) && (
                           <>
@@ -90,7 +86,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                               <IconButton
                                 name="copy"
                                 tooltip={t('layers.layer-drag-drop-list.duplicate-tooltip', 'Duplicate')}
-                                className={style.actionIcon}
+                                className="gf-layer-action-icon"
                                 onClick={() => onDuplicate(element)}
                               />
                             ) : null}
@@ -98,7 +94,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                             <IconButton
                               name="trash-alt"
                               tooltip={t('layers.layer-drag-drop-list.remove-tooltip', 'Remove')}
-                              className={cx(style.actionIcon, style.dragIcon)}
+                              className="gf-layer-action-icon"
                               onClick={() => onDelete(element)}
                             />
                           </>
@@ -111,7 +107,6 @@ export const LayerDragDropList = <T extends LayerElement>({
                             )}
                             name="draggabledots"
                             size="lg"
-                            className={style.dragIcon}
                           />
                         )}
                       </div>
@@ -131,50 +126,35 @@ export const LayerDragDropList = <T extends LayerElement>({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginBottom: theme.spacing(2),
-  }),
-  row: css({
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.secondary,
-    minHeight: theme.spacing(4),
+const styles = stylex.create({
+  row: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    minHeight: spacing['--gf-spacing-x4'],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: '3px',
     cursor: 'pointer',
-
-    border: `1px solid ${theme.components.input.borderColor}`,
-    '&:hover': {
-      border: `1px solid ${theme.components.input.borderHover}`,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
     },
-  }),
-  sel: css({
-    border: `1px solid ${theme.colors.primary.border}`,
-    '&:hover': {
-      border: `1px solid ${theme.colors.primary.border}`,
-    },
-  }),
-  dragIcon: css({
-    cursor: 'drag',
-  }),
-  actionIcon: css({
-    color: theme.colors.text.secondary,
-    '&:hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-  typeWrapper: css({
-    color: theme.colors.primary.text,
-    marginRight: '5px',
-  }),
-  textWrapper: css({
+  },
+  sel: {
+    borderColor: colors['--gf-colors-primary-border'],
+  },
+  textWrapper: {
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
     overflow: 'hidden',
-    marginRight: theme.spacing(1),
-  }),
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useTheme2, useStyles2, ColorPicker, IconButton } from '@grafana/ui';
+import { useTheme2, ColorPicker, IconButton } from '@grafana/ui';
 import { ColorSwatch } from '@grafana/ui/internal';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface ColorValueEditorSettings {
   placeholder?: string;
@@ -28,14 +28,13 @@ interface Props {
  * */
 export const ColorValueEditor = ({ value, settings, onChange, details, id }: Props) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   return (
     <ColorPicker color={value ?? ''} onChange={onChange} enableNamedColors={settings?.enableNamedColors !== false}>
       {({ ref, showColorPicker, hideColorPicker }) => {
         return (
-          <div className={styles.spot}>
-            <div className={styles.colorPicker}>
+          <div {...stylex.props(styles.spot)}>
+            <div {...stylex.props(styles.colorPicker)}>
               <ColorSwatch
                 ref={ref}
                 id={id}
@@ -49,13 +48,13 @@ export const ColorValueEditor = ({ value, settings, onChange, details, id }: Pro
                 {value ? (
                   // TODO: fix keyboard a11y
                   // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                  <span className={styles.colorText} onClick={showColorPicker}>
+                  <span {...stylex.props(styles.colorText)} onClick={showColorPicker}>
                     {value}
                   </span>
                 ) : (
                   // TODO: fix keyboard a11y
                   // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                  <span className={styles.placeholderText} onClick={showColorPicker}>
+                  <span {...stylex.props(styles.placeholderText)} onClick={showColorPicker}>
                     {settings?.placeholder ?? 'Select color'}
                   </span>
                 )}
@@ -75,33 +74,37 @@ export const ColorValueEditor = ({ value, settings, onChange, details, id }: Pro
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spot: css({
-      cursor: 'pointer',
-      color: theme.colors.text.primary,
-      background: theme.components.input.background,
-      borderRadius: theme.shape.radius.default,
-      padding: '3px',
-      height: theme.v1.spacing.formInputHeight,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignContent: 'flex-end',
-      '&:hover': {
-        border: `1px solid ${theme.components.input.borderHover}`,
-      },
-    }),
-    colorPicker: css({
-      padding: `0 ${theme.spacing(1)}`,
-    }),
-    colorText: css({
-      flexGrow: 2,
-    }),
-    placeholderText: css({
-      flexGrow: 2,
-      color: theme.colors.text.secondary,
-    }),
-  };
-};
+const styles = stylex.create({
+  spot: {
+    cursor: 'pointer',
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: components['--gf-components-input-background'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: '3px',
+    // theme.v1.spacing.formInputHeight
+    height: spacing['--gf-spacing-x4'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'flex-end',
+  },
+  colorPicker: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  colorText: {
+    flexGrow: 2,
+  },
+  placeholderText: {
+    flexGrow: 2,
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

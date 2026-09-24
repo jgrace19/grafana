@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
 import { type DraggableProvided } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEventHandler } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, useStyles2, Stack } from '@grafana/ui';
+import { Icon, IconButton, Stack, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface QueryOperationRowHeaderProps {
   actionsElement?: React.ReactNode;
@@ -41,7 +41,7 @@ export const QueryOperationRowHeader = ({
   id,
   expanderMessages,
 }: QueryOperationRowHeaderProps) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   let tooltipMessage = isContentVisible
     ? t('query-operation.header.collapse-row', 'Collapse query row')
@@ -55,13 +55,14 @@ export const QueryOperationRowHeader = ({
   const dragAndDropLabel = t('query-operation.header.drag-and-drop', 'Drag and drop to reorder');
 
   return (
-    <div className={styles.header}>
-      <div className={styles.column}>
+    <div {...stylex.props(styles.header)}>
+      <div {...stylex.props(styles.column)}>
         {collapsable && (
           <IconButton
             name={isContentVisible ? 'angle-down' : 'angle-right'}
             tooltip={tooltipMessage}
-            className={styles.collapseIcon}
+            // IconButton has no `xstyle`; its own margin and colour beat a StyleX class passed as `className`.
+            style={{ marginLeft: theme.spacing(0.5), color: theme.colors.text.disabled }}
             onClick={onRowToggle}
             aria-expanded={isContentVisible}
             aria-controls={id}
@@ -72,8 +73,8 @@ export const QueryOperationRowHeader = ({
           // disabling the a11y rules here as the IconButton above handles keyboard interactions
           // this is just to provide a better experience for mouse users
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div className={styles.titleWrapper} onClick={onRowToggle}>
-            <div className={cx(styles.title, disabled && styles.disabled)}>{title}</div>
+          <div {...stylex.props(styles.titleWrapper)} onClick={onRowToggle}>
+            <div {...stylex.props(styles.title, disabled && styles.disabled)}>{title}</div>
           </div>
         )}
         {headerElement}
@@ -83,7 +84,7 @@ export const QueryOperationRowHeader = ({
         {actionsElement}
         {draggable && (
           <div onMouseMove={reportDragMousePosition} {...dragHandleProps}>
-            <Icon title={dragAndDropLabel} name="draggabledots" size="lg" className={styles.dragIcon} />
+            <Icon title={dragAndDropLabel} name="draggabledots" size="lg" xstyle={styles.dragIcon} />
           </div>
         )}
       </Stack>
@@ -91,59 +92,53 @@ export const QueryOperationRowHeader = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
-    label: 'Header',
-    padding: theme.spacing(0.5, 0.5),
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.secondary,
-    minHeight: theme.spacing(4),
+const styles = stylex.create({
+  header: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    minHeight: spacing['--gf-spacing-x4'],
     display: 'grid',
     gridTemplateColumns: 'minmax(100px, max-content) min-content',
     alignItems: 'center',
     justifyContent: 'space-between',
     whiteSpace: 'nowrap',
-
-    '&:focus': {
-      outline: 'none',
-    },
-  }),
-  column: css({
-    label: 'Column',
+    outline: { default: null, ':focus': 'none' },
+  },
+  column: {
     display: 'flex',
     alignItems: 'center',
     overflow: 'hidden',
-  }),
-  dragIcon: css({
+  },
+  dragIcon: {
     cursor: 'grab',
-    color: theme.colors.text.disabled,
-    margin: theme.spacing(0, 0.5),
-    '&:hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-  collapseIcon: css({
-    marginLeft: theme.spacing(0.5),
-    color: theme.colors.text.disabled,
-  }),
-  titleWrapper: css({
+    color: { default: colors['--gf-colors-text-disabled'], ':hover': colors['--gf-colors-text-primary'] },
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  titleWrapper: {
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
     cursor: 'pointer',
     overflow: 'hidden',
-    marginRight: theme.spacing(0.5),
-  }),
-  title: css({
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.colors.text.link,
-    marginLeft: theme.spacing(0.5),
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  title: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-text-link'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  disabled: css({
-    color: theme.colors.text.disabled,
-  }),
+  },
+  disabled: {
+    color: colors['--gf-colors-text-disabled'],
+  },
 });
 
 QueryOperationRowHeader.displayName = 'QueryOperationRowHeader';

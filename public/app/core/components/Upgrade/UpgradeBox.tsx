@@ -7,6 +7,7 @@ import { Trans, t } from '@grafana/i18n';
 import { reportExperimentView } from '@grafana/runtime';
 import { Button, Icon, LinkButton, useStyles2 } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
+import { breakpointWidths } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 type ComponentSize = 'sm' | 'md';
@@ -79,8 +80,7 @@ const boxStyles = stylex.create({
     marginRight: 'auto',
     marginBottom: spacing['--gf-spacing-x3'],
     marginLeft: 'auto',
-    // theme.breakpoints.values.xxl
-    maxWidth: '1440px',
+    maxWidth: breakpointWidths.xxl,
     width: '100%',
   },
   inner: {

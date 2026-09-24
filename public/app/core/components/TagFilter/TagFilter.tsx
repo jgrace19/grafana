@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { components, type MultiValueRemoveProps } from 'react-select';
 
-import { escapeStringForRegex, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { escapeStringForRegex, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
+import { Icon, MultiSelect } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
-import { TagBadge, getStyles as getTagBadgeStyles } from './TagBadge';
+import { TagBadge } from './TagBadge';
 import { TagOption, type TagSelectOption } from './TagOption';
 
 export interface TermCount {
@@ -47,8 +48,6 @@ export const TagFilter = ({
   width,
   disabled,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const currentlySelectedTags = tags.map((tag) => ({ value: tag, label: tag, count: 0 }));
   const [options, setOptions] = useState<TagSelectOption[]>(currentlySelectedTags);
   const [isLoading, setIsLoading] = useState(false);
@@ -146,7 +145,13 @@ export const TagFilter = ({
 
         return (
           <components.MultiValueRemove {...props}>
-            <TagBadge key={data.label} label={data.label} removeIcon={true} count={data.count} />
+            <TagBadge
+              key={data.label}
+              label={data.label}
+              removeIcon={true}
+              count={data.count}
+              className={stylex.props(styles.tagBadge).className}
+            />
           </components.MultiValueRemove>
         );
       },
@@ -155,9 +160,9 @@ export const TagFilter = ({
   };
 
   return (
-    <div className={styles.tagFilter}>
+    <div {...stylex.props(styles.tagFilter)}>
       {isClearable && tags.length > 0 && (
-        <button className={styles.clear} onClick={() => onTagChange([])} disabled={disabled}>
+        <button {...stylex.props(styles.clear)} onClick={() => onTagChange([])} disabled={disabled}>
           <Trans i18nKey="tag-filter.clear-button">Clear tags</Trans>
         </button>
       )}
@@ -174,35 +179,26 @@ export const TagFilter = ({
 
 TagFilter.displayName = 'TagFilter';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const tagBadgeStyles = getTagBadgeStyles(theme);
-
-  return {
-    tagFilter: css({
-      position: 'relative',
-      minWidth: '180px',
-      flexGrow: 1,
-
-      [`.${tagBadgeStyles.badge}`]: {
-        marginLeft: '6px',
-        cursor: 'pointer',
-      },
-    }),
-    clear: css({
-      background: 'none',
-      border: 'none',
-      textDecoration: 'underline',
-      fontSize: '12px',
-      padding: 'none',
-      position: 'absolute',
-      top: '-17px',
-      right: 0,
-      cursor: 'pointer',
-      color: theme.colors.text.secondary,
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  tagFilter: {
+    position: 'relative',
+    minWidth: '180px',
+    flexGrow: 1,
+  },
+  tagBadge: {
+    marginLeft: '6px',
+    cursor: 'pointer',
+  },
+  clear: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    textDecoration: 'underline',
+    fontSize: '12px',
+    position: 'absolute',
+    top: '-17px',
+    right: 0,
+    cursor: 'pointer',
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+  },
+});

@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Input, FieldValidationMessage, useStyles2 } from '@grafana/ui';
+import { Icon, Input, FieldValidationMessage } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import { layerNameMarker } from './markers.stylex';
 
 export interface LayerNameProps {
   name: string;
@@ -14,8 +16,6 @@ export interface LayerNameProps {
 }
 
 export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideStyles }: LayerNameProps) => {
-  const styles = useStyles2(getStyles);
-
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -70,16 +70,16 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
 
   return (
     <>
-      <div className={styles.wrapper}>
+      <div {...stylex.props(styles.wrapper)}>
         {!isEditing && (
           <button
-            className={styles.layerNameWrapper}
+            {...stylex.props(styles.layerNameWrapper, layerNameMarker)}
             title={t('layers.layer-name.edit-layer-title', 'Edit layer name')}
             onClick={onEditLayer}
             data-testid="layer-name-div"
           >
-            <span className={overrideStyles ? '' : styles.layerName}>{name}</span>
-            <Icon name="pen" className={styles.layerEditIcon} size="sm" />
+            <span {...stylex.props(!overrideStyles && styles.layerName)}>{name}</span>
+            <Icon name="pen" className="query-name-edit-icon" xstyle={styles.layerEditIcon} size="sm" />
           </button>
         )}
 
@@ -94,7 +94,7 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
               onFocus={onFocus}
               invalid={validationError !== null}
               onChange={onInputChange}
-              className={styles.layerNameInput}
+              className={stylex.props(styles.layerNameInput).className}
               data-testid="layer-name-input"
             />
             {validationError && <FieldValidationMessage horizontal>{validationError}</FieldValidationMessage>}
@@ -105,56 +105,51 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      label: 'Wrapper',
-      display: 'flex',
-      alignItems: 'center',
-      marginLeft: theme.spacing(0.5),
-    }),
-    layerNameWrapper: css({
-      display: 'flex',
-      cursor: 'pointer',
-      border: '1px solid transparent',
-      borderRadius: theme.shape.radius.default,
-      alignItems: 'center',
-      padding: `0 0 0 ${theme.spacing(0.5)}`,
-      margin: 0,
-      background: 'transparent',
-
-      '&:hover': {
-        background: theme.colors.action.hover,
-        border: `1px dashed ${theme.colors.border.strong}`,
-      },
-
-      '&:focus': {
-        border: `2px solid ${theme.colors.primary.border}`,
-      },
-
-      '&:hover, &:focus': {
-        '.query-name-edit-icon': {
-          visibility: 'visible',
-        },
-      },
-    }),
-    layerName: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.primary.text,
-      cursor: 'pointer',
-      overflow: 'hidden',
-      marginLeft: theme.spacing(0.5),
-    }),
-    layerEditIcon: cx(
-      css({
-        marginLeft: theme.spacing(2),
-        visibility: 'hidden',
-      }),
-      'query-name-edit-icon'
-    ),
-    layerNameInput: css({
-      maxWidth: '300px',
-      margin: '-4px 0',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  layerNameWrapper: {
+    display: 'flex',
+    cursor: 'pointer',
+    borderWidth: { default: '1px', ':hover': '1px', ':focus': '2px' },
+    borderStyle: { default: 'solid', ':hover': 'dashed', ':focus': 'solid' },
+    borderColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-border-strong'],
+      ':focus': colors['--gf-colors-primary-border'],
+    },
+    borderRadius: shape['--gf-shape-radius-default'],
+    alignItems: 'center',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    margin: 0,
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+  },
+  layerName: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-primary-text'],
+    cursor: 'pointer',
+    overflow: 'hidden',
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  layerEditIcon: {
+    marginLeft: spacing['--gf-spacing-x2'],
+    visibility: {
+      default: 'hidden',
+      [stylex.when.ancestor(':hover', layerNameMarker)]: 'visible',
+      [stylex.when.ancestor(':focus', layerNameMarker)]: 'visible',
+    },
+  },
+  layerNameInput: {
+    maxWidth: '300px',
+    marginTop: '-4px',
+    marginRight: 0,
+    marginBottom: '-4px',
+    marginLeft: 0,
+  },
+});
