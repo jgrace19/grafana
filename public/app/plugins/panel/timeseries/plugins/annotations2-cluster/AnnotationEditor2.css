@@ -1,0 +1,9 @@
+/*
+ * TextArea is still styled with Emotion and sets its own colour
+ * and font size, and Emotion's style block can come before or after this sheet depending on the chunk. The doubled class outranks them like the Emotion className merge did; unlayered, it keeps
+ * winning once TextArea is StyleX.
+ */
+.gf-annotation-editor-textarea.gf-annotation-editor-textarea {
+  color: var(--gf-colors-text-secondary);
+  font-size: var(--gf-typography-body-small-font-size);
+}
