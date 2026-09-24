@@ -1,0 +1,19 @@
+/*
+ * Alert is still styled with Emotion, whose runtime rules come after this sheet. The doubled class outranks
+ * Alert's own class like the Emotion className merge did; the descendant rules target Alert's markup at the
+ * specificity of the Emotion rules they replace. Unlayered, all of them keep winning once Alert is StyleX.
+ */
+.gf-canvas-pan-zoom-help.gf-canvas-pan-zoom-help {
+  margin-bottom: 0;
+  margin-top: 5px;
+  padding: 2px;
+}
+
+.gf-canvas-pan-zoom-help div {
+  padding: 4px;
+  align-items: start;
+}
+
+.gf-canvas-pan-zoom-help ul > li {
+  margin-left: 10px;
+}
