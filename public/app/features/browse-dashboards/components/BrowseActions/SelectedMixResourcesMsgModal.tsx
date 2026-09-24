@@ -1,18 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { Trans, t } from '@grafana/i18n';
-import { Modal, useStyles2 } from '@grafana/ui';
+import { Modal } from '@grafana/ui';
 
 export interface Props {}
 
 export const SelectedMixResourcesMsgModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const styles = useStyles2(getStyles);
   return (
     <Modal
       title={t('browse-dashboards.action.selected-mix-resources-modal-title', 'Mixed resource types selected')}
       isOpen={true}
       onDismiss={onDismiss}
-      className={styles.modal}
+      xstyle={modalStyles.modal}
     >
       <Trans i18nKey="browse-dashboards.action.selected-mix-resources-modal-text">
         You have selected both provisioned and non-provisioned resources. These cannot be processed together. Please
@@ -22,10 +21,8 @@ export const SelectedMixResourcesMsgModal = ({ onDismiss }: { onDismiss: () => v
   );
 };
 
-// stylex: pending Modal migration
-const getStyles = () => ({
-  modal: css({
-    label: 'RowOptionsModal',
+const modalStyles = stylex.create({
+  modal: {
     width: '500px',
-  }),
+  },
 });

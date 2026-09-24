@@ -60,9 +60,7 @@ const LoginPage = () => {
                     <Stack justifyContent="flex-end">
                       {!config.auth.disableLogin && (
                         <LinkButton
-                          className={stylex.props(styles.forgottenPassword).className}
-                          // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
-                          style={{ padding: 0 }}
+                          xstyle={styles.forgottenPassword}
                           fill="text"
                           href={`${config.appSubUrl}/user/password/send-reset-email`}
                         >
@@ -97,6 +95,10 @@ export default LoginPage;
 
 const styles = stylex.create({
   forgottenPassword: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     marginTop: spacing['--gf-spacing-x0-5'],
   },
   alert: {

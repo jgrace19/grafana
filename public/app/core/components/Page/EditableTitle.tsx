@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { isFetchError } from '@grafana/runtime';
-import { Field, IconButton, Input, Text, useStyles2 } from '@grafana/ui';
-import { components, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { Field, IconButton, Input, Text } from '@grafana/ui';
+import { components, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   value: string;
@@ -19,7 +17,6 @@ export const EditableTitle = ({ value, onEdit }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const fieldStyles = useStyles2(getFieldStyles);
 
   // sync local value with prop value
   useEffect(() => {
@@ -77,9 +74,9 @@ export const EditableTitle = ({ value, onEdit }: Props) => {
     </div>
   ) : (
     <div {...stylex.props(styles.inputContainer)}>
-      <Field className={fieldStyles.field} loading={isLoading} invalid={!!errorMessage} error={errorMessage}>
+      <Field xstyle={styles.field} loading={isLoading} invalid={!!errorMessage} error={errorMessage}>
         <Input
-          className={fieldStyles.input}
+          inputXstyle={styles.input}
           defaultValue={localValue}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -114,23 +111,19 @@ const styles = stylex.create({
     gap: spacing['--gf-spacing-x1'],
     height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
   },
+  field: {
+    flex: '1',
+    // magic number here to ensure the input text lines up exactly with the h1 text
+    // input has a 1px border + theme.spacing(1) padding so we need to offset that
+    left: `calc(-1 * ${spacing['--gf-spacing-grid-size']} - 1px)`,
+    position: 'relative',
+    marginBottom: 0,
+  },
+  input: {
+    fontFamily: typography['--gf-typography-h1-font-family'],
+    fontWeight: typography['--gf-typography-h1-font-weight'],
+    fontSize: typography['--gf-typography-h1-font-size'],
+    lineHeight: typography['--gf-typography-h1-line-height'],
+    letterSpacing: typography['--gf-typography-h1-letter-spacing'],
+  },
 });
-
-// stylex: pending Field and Input migration (U2). These override Field's and Input's own Emotion styles.
-const getFieldStyles = (theme: GrafanaTheme2) => {
-  return {
-    field: css({
-      flex: '1',
-      // magic number here to ensure the input text lines up exactly with the h1 text
-      // input has a 1px border + theme.spacing(1) padding so we need to offset that
-      left: `calc(-${theme.spacing(1)} - 1px)`,
-      position: 'relative',
-      marginBottom: 0,
-    }),
-    input: css({
-      input: {
-        ...theme.typography.h1,
-      },
-    }),
-  };
-};

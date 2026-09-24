@@ -23,9 +23,7 @@ export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: 
         size="sm"
         onClick={onPrev}
         aria-label={t('splash-screen.nav.prev', 'Previous')}
-        className={stylex.props(styles.navButton).className}
-        // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
-        style={{ padding: 0 }}
+        xstyle={styles.navButton}
       />
       <div {...stylex.props(styles.dots)}>
         {Array.from({ length: total }, (_, i) => (
@@ -45,9 +43,7 @@ export function SplashScreenNav({ activeIndex, total, onPrev, onNext, onGoTo }: 
         size="sm"
         onClick={onNext}
         aria-label={t('splash-screen.nav.next', 'Next')}
-        className={stylex.props(styles.navButton).className}
-        // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
-        style={{ padding: 0 }}
+        xstyle={styles.navButton}
       />
       <Text color="secondary" variant="bodySmall">
         {activeIndex + 1}/{total}
@@ -63,6 +59,10 @@ const styles = stylex.create({
     gap: spacing['--gf-spacing-x1'],
   },
   navButton: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     width: spacing['--gf-spacing-x3'],
     minWidth: spacing['--gf-spacing-x3'],
     justifyContent: 'center',

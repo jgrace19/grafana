@@ -1,13 +1,12 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useAsyncRetry } from 'react-use';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
+import { store } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, CollapsableSection, Grid, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { Button, CollapsableSection, Grid, Spinner, Stack, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useDashboardLocationInfo } from 'app/features/search/hooks/useDashboardLocationInfo';
@@ -20,7 +19,6 @@ const MAX_RECENT = 5;
 const recentDashboardsKey = `dashboard_impressions-${contextSrv.user.orgId}`;
 
 export function RecentlyViewedDashboards() {
-  const pendingStyles = useStyles2(getPendingStyles);
   const isMediumScreen = !useMediaQueryMinWidth('md');
   const [isOpen, setIsOpen] = useState(!isMediumScreen); // Default to closed on small screens
 
@@ -61,7 +59,7 @@ export function RecentlyViewedDashboards() {
       headerDataTestId="browseDashboardsRecentlyViewedTitle"
       label={
         <Stack direction="row" justifyContent="space-between" alignItems="baseline" width="100%">
-          <Text variant="h5" element="h3" onClick={handleSectionToggle}>
+          <Text variant="h5" element="h3" onClick={handleSectionToggle} xstyle={styles.titleText}>
             <Trans i18nKey="browse-dashboards.recently-viewed.title">Recently viewed</Trans>
           </Text>
           <Button icon="times" size="xs" variant="secondary" fill="text" onClick={handleClearHistory}>
@@ -73,8 +71,9 @@ export function RecentlyViewedDashboards() {
       // passing empty function to disable controlled mode, we only want to control isOpen when click on title
       // this avoid entire header section being clickable which can be confusing with the Clear history button
       onToggle={() => {}}
-      className={pendingStyles.title}
-      contentClassName={pendingStyles.content}
+      xstyle={styles.title}
+      contentXstyle={styles.content}
+      iconXstyle={styles.titleIcon}
     >
       {error && (
         <>
@@ -114,30 +113,27 @@ export function RecentlyViewedDashboards() {
   );
 }
 
-// stylex: pending CollapsableSection migration
-const getPendingStyles = (theme: GrafanaTheme2) => {
-  return {
-    title: css({
-      cursor: 'default',
-      '& [id^="collapse-button-"] svg': {
-        color: theme.colors.primary.text,
-      },
-      h3: {
-        background: `linear-gradient(90deg, ${theme.colors.primary.shade} 0%, ${theme.colors.primary.text} 100%)`,
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        color: 'transparent',
-        cursor: 'pointer',
-      },
-      padding: 0,
-    }),
-    content: css({
-      paddingTop: theme.spacing(0),
-    }),
-  };
-};
-
 const styles = stylex.create({
+  title: {
+    cursor: 'default',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  titleIcon: {
+    color: colors['--gf-colors-primary-text'],
+  },
+  titleText: {
+    backgroundImage: `linear-gradient(90deg, ${colors['--gf-colors-primary-shade']} 0%, ${colors['--gf-colors-primary-text']} 100%)`,
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    color: 'transparent',
+    cursor: 'pointer',
+  },
+  content: {
+    paddingTop: 0,
+  },
   list: {
     listStyle: 'none',
     margin: 0,

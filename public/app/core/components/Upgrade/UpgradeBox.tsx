@@ -1,14 +1,12 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportExperimentView } from '@grafana/runtime';
-import { Button, Icon, LinkButton, useStyles2 } from '@grafana/ui';
+import { Button, Icon, LinkButton } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { breakpointWidths } from '@grafana/ui/stylex/constants.stylex';
-import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 type ComponentSize = 'sm' | 'md';
 
@@ -30,8 +28,6 @@ export const UpgradeBox = ({
   size = 'md',
   ...htmlProps
 }: Props) => {
-  const buttonStyles = useStyles2(getUpgradeButtonStyles);
-
   useEffect(() => {
     reportExperimentView(`feature-highlights-${featureId}`, 'test', eventVariant);
   }, [eventVariant, featureId]);
@@ -50,7 +46,7 @@ export const UpgradeBox = ({
         <LinkButton
           variant="secondary"
           size={size}
-          className={buttonStyles.button}
+          xstyle={buttonStyles.button}
           href="https://grafana.com/profile/org/subscription"
           target="__blank"
           rel="noopener noreferrer"
@@ -100,6 +96,44 @@ const boxStyles = stylex.create({
   },
 });
 
+// Over LinkButton's secondary solid look: its focus and active backgrounds and colours still apply, but the
+// override's :hover and :focus-visible rules came after them, as in the merged Emotion class.
+const buttonStyles = stylex.create({
+  button: {
+    fontWeight: typography['--gf-typography-font-weight-light'],
+    backgroundColor: {
+      default: colors['--gf-colors-success-main'],
+      ':hover': colors['--gf-colors-success-main'],
+      ':focus': { default: colors['--gf-colors-secondary-shade'], ':hover': colors['--gf-colors-success-main'] },
+      ':active': { default: colors['--gf-colors-secondary-main'], ':hover': colors['--gf-colors-success-main'] },
+    },
+    color: {
+      default: 'white',
+      ':focus-visible': colors['--gf-colors-text-primary'],
+      ':hover': {
+        default: colors['--gf-colors-secondary-contrast-text'],
+        ':focus-visible': colors['--gf-colors-text-primary'],
+      },
+      ':focus': {
+        default: colors['--gf-colors-secondary-contrast-text'],
+        ':focus-visible': colors['--gf-colors-text-primary'],
+      },
+    },
+    boxShadow: {
+      default: null,
+      ':focus-visible': 'none',
+      ':hover': { default: shadows['--gf-shadows-z1'], ':focus-visible': 'none' },
+      ':focus': { default: null, ':not(:focus-visible)': 'none' },
+    },
+    outlineStyle: {
+      default: null,
+      ':focus-visible': 'solid',
+      ':focus': { default: null, ':not(:focus-visible)': 'none' },
+    },
+    outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-main'] },
+  },
+});
+
 const sizeStyles = stylex.create({
   sm: {
     fontSize: typography['--gf-typography-body-small-font-size'],
@@ -108,27 +142,6 @@ const sizeStyles = stylex.create({
     fontSize: typography['--gf-typography-body-font-size'],
   },
 });
-
-// stylex: pending Button `xstyle`. Overrides Button's own background, hover and focus-visible states.
-const getUpgradeButtonStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      backgroundColor: theme.colors.success.main,
-      fontWeight: theme.typography.fontWeightLight,
-      color: 'white',
-
-      '&:hover': {
-        backgroundColor: theme.colors.success.main,
-      },
-
-      '&:focus-visible': {
-        boxShadow: 'none',
-        color: theme.colors.text.primary,
-        outline: `2px solid ${theme.colors.primary.main}`,
-      },
-    }),
-  };
-};
 
 export interface UpgradeContentProps {
   image: string;

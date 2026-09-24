@@ -155,7 +155,7 @@ const ServiceAccountListItemComponent = memo(
                 ))}
               {contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsDelete, serviceAccount) && (
                 <IconButton
-                  style={deleteButtonStyle}
+                  xstyle={styles.deleteButton}
                   name="trash-alt"
                   size="md"
                   onClick={() => onRemoveButtonClick(serviceAccount)}
@@ -238,10 +238,10 @@ const skeletonStyles = stylex.create({
   },
 });
 
-// IconButton has no xstyle; an inline style wins over its variant color in every state, like the old className did.
-const deleteButtonStyle = { color: 'var(--gf-colors-text-secondary)' };
-
 const styles = stylex.create({
+  deleteButton: {
+    color: colors['--gf-colors-text-secondary'],
+  },
   accountId: {
     color: colors['--gf-colors-text-secondary'],
   },

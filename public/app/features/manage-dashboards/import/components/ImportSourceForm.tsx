@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -16,7 +15,6 @@ import {
   TextLink,
   Label,
   Stack,
-  useStyles2,
 } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Form } from 'app/core/components/Form/Form';
@@ -38,8 +36,6 @@ type Props = {
 };
 
 export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: Props) {
-  const pendingStyles = useStyles2(getPendingStyles);
-
   // Do not display upload file list
   const fileListRenderer = (_file: DropzoneFile, _removeFile: (file: DropzoneFile) => void) => null;
 
@@ -72,7 +68,7 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
           {({ register, errors }) => (
             <Field
               label={
-                <Label className={pendingStyles.labelWithLink} htmlFor="url-input">
+                <Label xstyle={styles.labelWithLink} htmlFor="url-input">
                   <span>
                     <Trans i18nKey="dashboard-import.gcom-field.label" components={{ link: gcomLink }}>
                       {'Find and import dashboards for common applications at <link />'}
@@ -143,16 +139,10 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
   );
 }
 
-// stylex: pending Label migration
-function getPendingStyles() {
-  return {
-    labelWithLink: css({
-      maxWidth: '100%',
-    }),
-  };
-}
-
 const styles = stylex.create({
+  labelWithLink: {
+    maxWidth: '100%',
+  },
   option: {
     marginBottom: spacing['--gf-spacing-x4'],
     maxWidth: '600px',

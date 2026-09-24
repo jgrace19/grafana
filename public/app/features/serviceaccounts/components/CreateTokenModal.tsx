@@ -1,20 +1,10 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import {
-  Button,
-  ClipboardButton,
-  DatePickerWithInput,
-  Field,
-  Input,
-  Modal,
-  RadioButtonGroup,
-  useStyles2,
-} from '@grafana/ui';
+import { Button, ClipboardButton, DatePickerWithInput, Field, Input, Modal, RadioButtonGroup } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 const NO_EXPIRATION_OPTION = 'no-expiration';
@@ -54,7 +44,6 @@ export const CreateTokenModal = ({ isOpen, token, serviceAccountLogin, onCreateT
   const [expirationOption, setExpirationOption] = useState(defaultExpirationOption);
   const [newTokenExpirationDate, setNewTokenExpirationDate] = useState<Date | string>(tomorrow);
   const [isExpirationDateValid, setIsExpirationDateValid] = useState(newTokenExpirationDate !== '');
-  const pendingStyles = useStyles2(getPendingStyles);
 
   useEffect(() => {
     // Generate new token name every time we open modal
@@ -107,7 +96,7 @@ export const CreateTokenModal = ({ isOpen, token, serviceAccountLogin, onCreateT
   };
 
   return (
-    <Modal isOpen={isOpen} title={modalTitle} onDismiss={onCloseInternal} className={pendingStyles.modal}>
+    <Modal isOpen={isOpen} title={modalTitle} onDismiss={onCloseInternal} xstyle={modalStyles.modal}>
       {!token ? (
         <div>
           <Field
@@ -203,13 +192,6 @@ const getSecondsToLive = (date: Date | string) => {
   return Math.ceil((dateAsDate.getTime() - now.getTime()) / 1000);
 };
 
-// stylex: pending Modal migration
-const getPendingStyles = () => ({
-  modal: css({
-    width: '550px',
-  }),
-});
-
 const styles = stylex.create({
   modalTokenRow: {
     display: 'flex',
@@ -217,5 +199,11 @@ const styles = stylex.create({
 
   modalCopyToClipboardButton: {
     marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});
+
+const modalStyles = stylex.create({
+  modal: {
+    width: '550px',
   },
 });

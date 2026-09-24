@@ -1,22 +1,15 @@
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, InfoBox, Portal, useStyles2, useTheme2 } from '@grafana/ui';
-import { getModalStyles } from '@grafana/ui/internal';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { Button, InfoBox, Portal } from '@grafana/ui';
+import { modalBackdropStyles, modalContainerStyles } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   maxConcurrentSessions?: number;
 }
 
 export const TokenRevokedModal = (props: Props) => {
-  const pendingStyles = useStyles2(getPendingStyles);
-  const theme = useTheme2();
-
-  const modalStyles = getModalStyles(theme);
-
   const showMaxConcurrentSessions = Boolean(props.maxConcurrentSessions);
 
   const redirectToLogin = () => {
@@ -25,14 +18,14 @@ export const TokenRevokedModal = (props: Props) => {
 
   return (
     <Portal>
-      <div className={modalStyles.modal}>
+      <div {...stylex.props(modalContainerStyles.modal)}>
         <InfoBox
           title={t(
             'users.token-revoked-modal.title-you-have-been-automatically-signed-out',
             'You have been automatically signed out'
           )}
           severity="warning"
-          className={pendingStyles.infobox}
+          xstyle={styles.infobox}
         >
           <div {...stylex.props(styles.text)}>
             <p>
@@ -57,23 +50,19 @@ export const TokenRevokedModal = (props: Props) => {
           </Button>
         </InfoBox>
       </div>
-      <div className={cx(modalStyles.modalBackdrop, pendingStyles.backdrop)} />
+      <div {...stylex.props(modalBackdropStyles.modalBackdrop, styles.backdrop)} />
     </Portal>
   );
 };
 
-// stylex: pending InfoBox and Modal migration
-const getPendingStyles = (theme: GrafanaTheme2) => ({
-  infobox: css({
-    marginBottom: 0,
-  }),
-  backdrop: css({
-    backgroundColor: theme.colors.background.canvas,
-    opacity: 0.8,
-  }),
-});
-
 const styles = stylex.create({
+  infobox: {
+    marginBottom: 0,
+  },
+  backdrop: {
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    opacity: 0.8,
+  },
   text: {
     marginTop: spacing['--gf-spacing-x1'],
     marginRight: 0,
