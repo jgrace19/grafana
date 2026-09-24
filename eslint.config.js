@@ -108,17 +108,21 @@ const stylexMigratedUiFiles = [
 // App files migrated to StyleX. Same ban as stylexMigratedUiFiles. Each app slice appends its files or directories.
 const stylexMigratedAppFiles = [
   // D1 dashboard-scene panel edit and edit pane
-  'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
-  'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
-  'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
 ];
 
 // Migrated app files that still override an unmigrated child with Emotion (`// stylex: pending <Child> migration`).
 // Each one is also in scripts/stylex/emotion-allowlist.txt; remove both entries once the child migrates.
 const stylexPendingEmotionAppFiles = [
-  // D1: Modal (U4), useSplitter (U8)
+  // D1: Modal (U4), useSplitter and getDragStyles (U8), Input and FieldValidationMessage (U2), CollapsableSection
   'public/app/features/dashboard-scene/edit-pane/DashboardCodePane.tsx',
   'public/app/features/dashboard-scene/panel-edit/PanelEditorRenderer.tsx',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/PanelEditorRendererNext.tsx',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/hooks.ts',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/OptionField.tsx',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/TransformationTypePicker.tsx',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Header/EditableQueryName.tsx',
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Sidebar/SidebarCollapsableHeader.tsx',
 ];
 
 const stylexRestrictedImports = {

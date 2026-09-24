@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { CSSTransition } from 'react-transition-group';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { easings, motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { CONTENT_SIDE_BAR } from '../../constants';
 import { CardEditorRenderer } from '../CardEditorRenderer';
@@ -11,23 +11,22 @@ import { useQueryEditorUIContext } from '../QueryEditorContext';
 import { QueryEditorDetailsSidebar } from './QueryEditorDetailsSidebar';
 
 export function QueryEditorBody() {
-  const styles = useStyles2(getStyles);
   const { queryOptions } = useQueryEditorUIContext();
   const { isQueryOptionsOpen } = queryOptions;
 
   return (
-    <div className={styles.container}>
-      <div className={cx(styles.scrollableContent, { [styles.scrollableContentBlurred]: isQueryOptionsOpen })}>
+    <div {...stylex.props(styles.container)}>
+      <div {...stylex.props(styles.scrollableContent, isQueryOptionsOpen && styles.scrollableContentBlurred)}>
         <CardEditorRenderer />
       </div>
       <CSSTransition
-        classNames={styles.sidebarTransition}
+        classNames={sidebarTransitionClass}
         in={isQueryOptionsOpen}
         mountOnEnter
         timeout={CONTENT_SIDE_BAR.sidebarTransitionMs}
         unmountOnExit
       >
-        <div className={styles.sidebar}>
+        <div {...stylex.props(styles.sidebar)}>
           <QueryEditorDetailsSidebar />
         </div>
       </CSSTransition>
@@ -35,54 +34,78 @@ export function QueryEditorBody() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const slideTransition = theme.transitions.create('transform', {
-    duration: CONTENT_SIDE_BAR.sidebarTransitionMs,
-    easing: theme.transitions.easing.easeInOut,
-  });
+// CSSTransition adds `<prefix>-enter` and `<prefix>-enter-active` (then `-exit`, `-exit-active`) together, so
+// `styles.sidebar` keys its transform on mutually exclusive selectors for those classes.
+const sidebarTransitionClass = 'gf-query-editor-details-sidebar';
 
-  return {
-    container: css({
-      position: 'relative',
-      flex: 1,
-      minHeight: 0,
-      display: 'flex',
-    }),
-    scrollableContent: css({
-      flex: 1,
-      minWidth: 0,
-      overflow: 'auto',
-      padding: theme.spacing(2),
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create('filter', {
-          duration: CONTENT_SIDE_BAR.sidebarTransitionMs,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-    }),
-    scrollableContentBlurred: css({
-      filter: 'blur(10px)',
-      pointerEvents: 'none',
-    }),
-    sidebar: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      bottom: 0,
-      width: CONTENT_SIDE_BAR.width,
-      zIndex: theme.zIndex.sidemenu,
-    }),
-    sidebarTransition: {
-      enter: css({ transform: 'translateX(-100%)' }),
-      enterActive: css({
-        transform: 'translateX(0)',
-        [theme.transitions.handleMotion('no-preference')]: { transition: slideTransition },
-      }),
-      exit: css({ transform: 'translateX(0)' }),
-      exitActive: css({
-        transform: 'translateX(-100%)',
-        [theme.transitions.handleMotion('no-preference')]: { transition: slideTransition },
-      }),
+// CONTENT_SIDE_BAR.sidebarTransitionMs in ../../constants.ts
+const sidebarTransitionDuration = '150ms';
+
+const styles = stylex.create({
+  container: {
+    position: 'relative',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    minHeight: 0,
+    display: 'flex',
+  },
+  scrollableContent: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    minWidth: 0,
+    overflow: 'auto',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    transitionProperty: { default: null, [motion.noPreference]: 'filter' },
+    transitionDuration: { default: null, [motion.noPreference]: sidebarTransitionDuration },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeInOut },
+  },
+  scrollableContentBlurred: {
+    filter: 'blur(10px)',
+    pointerEvents: 'none',
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    // CONTENT_SIDE_BAR.width in ../../constants.ts
+    width: 500,
+    zIndex: zIndex.sidemenu,
+    transform: {
+      default: null,
+      ':is(.gf-query-editor-details-sidebar-enter:not(.gf-query-editor-details-sidebar-enter-active))':
+        'translateX(-100%)',
+      ':is(.gf-query-editor-details-sidebar-enter-active)': 'translateX(0)',
+      ':is(.gf-query-editor-details-sidebar-exit:not(.gf-query-editor-details-sidebar-exit-active))': 'translateX(0)',
+      ':is(.gf-query-editor-details-sidebar-exit-active)': 'translateX(-100%)',
     },
-  };
-};
+    transitionProperty: {
+      default: null,
+      [motion.noPreference]: {
+        default: null,
+        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)': 'transform',
+      },
+    },
+    transitionDuration: {
+      default: null,
+      [motion.noPreference]: {
+        default: null,
+        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)':
+          sidebarTransitionDuration,
+      },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreference]: {
+        default: null,
+        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)':
+          easings.easeInOut,
+      },
+    },
+  },
+});

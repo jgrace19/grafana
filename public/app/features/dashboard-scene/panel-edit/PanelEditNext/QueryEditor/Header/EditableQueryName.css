@@ -1,0 +1,7 @@
+/*
+ * Sets the font of the Input's inner <input>, which StyleX can't target. This file is deliberately not in a cascade
+ * layer so it keeps the Emotion rule's precedence over the Input's own styles.
+ */
+.gf-editable-query-name-input input {
+  font-family: var(--gf-typography-font-family-monospace);
+}

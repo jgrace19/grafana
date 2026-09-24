@@ -1,0 +1,13 @@
+/*
+ * Restyles the StyleX Button (no xstyle prop) and its content span, which StyleX can't target. This file is
+ * deliberately not in a cascade layer: like the Emotion rules it replaces, it must win over Button's own padding.
+ */
+.gf-query-editor-footer-item {
+  padding: var(--gf-spacing-x0) var(--gf-spacing-x0-5);
+}
+
+.gf-query-editor-footer-item > span {
+  display: flex;
+  align-items: center;
+  gap: var(--gf-spacing-x0-5);
+}

@@ -1,12 +1,16 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
-import { useStyles2, Input, FieldValidationMessage, Icon, Text } from '@grafana/ui';
+import { Input, FieldValidationMessage, Icon, Text } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { trackRenameInitiated } from '../../tracking';
+
+import './EditableQueryName.css';
 
 interface EditableQueryNameProps {
   query: DataQuery;
@@ -16,8 +20,6 @@ interface EditableQueryNameProps {
 }
 
 export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: EditableQueryNameProps) {
-  const styles = useStyles2(getStyles);
-
   const [isEditing, setIsEditing] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -105,7 +107,7 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
 
   if (readOnly) {
     return (
-      <span className={styles.queryNameText}>
+      <span {...stylex.props(styles.queryNameText)}>
         <Text color="primary" truncate variant="code">
           {query.refId}
         </Text>
@@ -115,7 +117,7 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
 
   if (isEditing) {
     return (
-      <div className={styles.inputRow}>
+      <div {...stylex.props(styles.inputRow)}>
         <Input
           type="text"
           defaultValue={query.refId}
@@ -125,11 +127,16 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
           onFocus={onFocus}
           onChange={onInputChange}
           invalid={validationError !== null}
-          className={styles.queryNameInput}
+          className={
+            mergeStylexProps(stylex.props(styles.queryNameInput), { className: 'gf-editable-query-name-input' })
+              .className
+          }
           data-testid="query-name-input"
         />
         {validationError && (
-          <FieldValidationMessage className={styles.validationMessage}>{validationError}</FieldValidationMessage>
+          <FieldValidationMessage className={validationMessageOverrides.validationMessage}>
+            {validationError}
+          </FieldValidationMessage>
         )}
       </div>
     );
@@ -137,18 +144,18 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
 
   return (
     <button
-      className={styles.queryNameWrapper}
+      {...stylex.props(styles.queryNameWrapper)}
       onClick={onEditQuery}
       type="button"
       aria-label={t('query-editor-next.edit-query-name', 'Edit query name')}
       title={t('query-editor-next.edit-query-name', 'Edit query name')}
     >
-      <span className={styles.queryNameText}>
+      <span {...stylex.props(styles.queryNameText)}>
         <Text color="primary" element="p" truncate variant="code">
           {query.refId}
         </Text>
       </span>
-      <Icon name="pen" className={styles.queryEditIcon} data-edit-icon size="sm" />
+      <Icon name="pen" xstyle={styles.queryEditIcon} data-edit-icon size="sm" />
     </button>
   );
 }
@@ -157,54 +164,67 @@ function isSidebarCardElement(target: EventTarget | null) {
   return target instanceof HTMLElement && target.closest('[data-query-sidebar-card]') !== null;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  queryNameWrapper: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1.5),
-    cursor: 'pointer',
-    border: '1px solid transparent',
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(0, 0.5),
-    margin: 0,
-    background: 'transparent',
-    overflow: 'hidden',
-
-    '&:hover': {
-      background: theme.colors.action.hover,
-      border: `1px dashed ${theme.colors.border.strong}`,
-    },
-
-    '&:focus-visible': {
-      border: `2px solid ${theme.colors.primary.border}`,
-    },
-  }),
-  queryNameText: css({
-    display: 'block',
-    maxWidth: '180px',
-    minWidth: 0,
-    overflow: 'hidden',
-  }),
-  queryNameInput: css({
-    maxWidth: '300px',
-
-    input: {
-      fontFamily: theme.typography.fontFamilyMonospace,
-    },
-  }),
-  inputRow: css({
-    position: 'relative',
-  }),
-  queryEditIcon: css({
-    color: theme.colors.text.secondary,
-  }),
+// stylex: pending FieldValidationMessage migration. Overrides the message's own position and margin, which are
+// unlayered Emotion and would beat a StyleX class. FieldValidationMessage merges it with Emotion's cx.
+const validationMessageOverrides = {
   validationMessage: css({
     position: 'absolute',
     top: '100%',
     left: 0,
-    marginTop: theme.spacing(0.5),
+    marginTop: 'var(--gf-spacing-x0-5)',
     whiteSpace: 'normal',
     maxWidth: 'min(360px, 40vw)',
-    zIndex: theme.zIndex.tooltip,
+    // theme.zIndex.tooltip
+    zIndex: 1040,
   }),
+};
+
+const styles = stylex.create({
+  // On hover and focus-visible together, the focus-visible border wins, as the later Emotion rule did.
+  queryNameWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1-5'],
+    cursor: 'pointer',
+    borderWidth: { default: '1px', ':hover': { default: '1px', ':focus-visible': '2px' }, ':focus-visible': '2px' },
+    borderStyle: {
+      default: 'solid',
+      ':hover': { default: 'dashed', ':focus-visible': 'solid' },
+      ':focus-visible': 'solid',
+    },
+    borderColor: {
+      default: 'transparent',
+      ':hover': {
+        default: colors['--gf-colors-border-strong'],
+        ':focus-visible': colors['--gf-colors-primary-border'],
+      },
+      ':focus-visible': colors['--gf-colors-primary-border'],
+    },
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    overflow: 'hidden',
+  },
+  queryNameText: {
+    display: 'block',
+    maxWidth: '180px',
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+  queryNameInput: {
+    maxWidth: '300px',
+  },
+  inputRow: {
+    position: 'relative',
+  },
+  queryEditIcon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

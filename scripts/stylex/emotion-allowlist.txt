@@ -25,3 +25,9 @@ public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin 
 
 public/app/features/dashboard-scene/edit-pane/DashboardCodePane.tsx # D1: Emotion override of Modal width/max-width/content overflow; stylex: pending Modal (U4) migration
 public/app/features/dashboard-scene/panel-edit/PanelEditorRenderer.tsx # D1: Emotion override of the useSplitter container overflow/display; stylex: pending Splitter (U8) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/PanelEditorRendererNext.tsx # D1: Emotion override of the useSplitter container overflow/display; stylex: pending Splitter (U8) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/hooks.ts # D1: Emotion overrides of getDragStyles handle sizes (cx-merged); stylex: pending DragHandle (U8) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/OptionField.tsx # D1: Emotion override of the Input wrapper width; stylex: pending Input (U2) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/TransformationTypePicker.tsx # D1: Emotion override of the Input wrapper width; stylex: pending Input (U2) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Header/EditableQueryName.tsx # D1: Emotion override of FieldValidationMessage position/margin; stylex: pending FieldValidationMessage (U2) migration
+public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Sidebar/SidebarCollapsableHeader.tsx # D1: Emotion override of the CollapsableSection content padding; stylex: pending CollapsableSection migration

@@ -18,7 +18,10 @@ const CONTROLS_ROW_HEIGHT = 'auto';
 const MIN_SIDEBAR_RATIO = 0.1;
 const MAX_SIDEBAR_RATIO = 0.5;
 const MIN_SIDEBAR_PIXELS = 220;
+// stylex: pending DragHandle migration. getDragStyles returns Emotion classes whose click-target size these override;
+// cx merges them after the drag handle class.
 const vizResizerClassName = css({ height: 2, width: '100%' });
+const sidebarResizerClassName = css({ height: '100%', width: 2 });
 // Pre-mount placeholder — useLayoutEffect replaces this with the responsive default before the first paint.
 const FALLBACK_SIDEBAR_RATIO = 0.25;
 
@@ -204,6 +207,7 @@ export function useVizAndDataPaneLayout(
     containerRef,
     minRatio: MIN_SIDEBAR_RATIO,
     maxRatio: MAX_SIDEBAR_RATIO,
+    className: sidebarResizerClassName,
   });
 
   const vizResize = useRatioResize({
