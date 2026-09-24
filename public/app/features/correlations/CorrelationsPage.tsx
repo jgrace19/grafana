@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { negate } from 'lodash';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { type Status } from '@grafana/api-clients/rtkq/correlations/v0alpha1';
-import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   type CorrelationData,
@@ -17,7 +17,6 @@ import {
   Button,
   DeleteButton,
   LoadingPlaceholder,
-  useStyles2,
   Alert,
   InteractiveTable,
   type Column,
@@ -26,6 +25,7 @@ import {
   Pagination,
   TextLink,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { useNavModel } from 'app/core/hooks/useNavModel';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -57,11 +57,6 @@ const sortDatasource: SortByFn<CorrelationData> = (a, b, column) =>
   collator.compare(a.values[column].name, b.values[column].name);
 
 const isCorrelationsReadOnly = (correlation: CorrelationData) => correlation.provisioned;
-
-const loaderWrapper = css({
-  display: 'flex',
-  justifyContent: 'center',
-});
 
 export default function CorrelationsPage(props: CorrelationsPageProps) {
   const { fetchCorrelations, correlations, isLoading, error, removeFn, changePageFn, hasNextPage } = props;
@@ -190,7 +185,7 @@ export default function CorrelationsPage(props: CorrelationsPageProps) {
       <Page.Contents>
         <div>
           {isLoading && (
-            <div className={loaderWrapper}>
+            <div {...stylex.props(styles.loaderWrapper)}>
               <LoadingPlaceholder text={t('correlations.list.loading', 'loading...')} />
             </div>
           )}
@@ -269,27 +264,13 @@ function ExpendedRow({ correlation: { source, ...correlation }, readOnly, onUpda
   return <EditCorrelationFormWrapper correlation={corr} onUpdated={onUpdated} readOnly={readOnly} />;
 }
 
-const getDatasourceCellStyles = (theme: GrafanaTheme2) => ({
-  root: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  dsLogo: css({
-    marginRight: theme.spacing(),
-    height: '16px',
-    width: '16px',
-  }),
-});
-
 const DataSourceCell = memo(
   function DataSourceCell({ cell: { value } }: CellProps<CorrelationData, DataSourceInstanceSettings>) {
-    const styles = useStyles2(getDatasourceCellStyles);
-
     return (
-      <span className={styles.root}>
+      <span {...stylex.props(styles.dataSourceCell)}>
         {value?.name !== undefined && (
           <>
-            <img src={value.meta.info.logos.small} alt="" className={styles.dsLogo} />
+            <img src={value.meta.info.logos.small} alt="" {...stylex.props(styles.dsLogo)} />
             {value.name}
           </>
         )}
@@ -301,19 +282,40 @@ const DataSourceCell = memo(
   }
 );
 
-const noWrap = css({
-  whiteSpace: 'nowrap',
-});
-
 const InfoCell = memo(
   function InfoCell({ ...props }: CellProps<CorrelationData, void>) {
     const readOnly = props.row.original.provisioned;
 
     if (readOnly) {
-      return <Badge text={t('correlations.list.read-only', 'Read only')} color="purple" className={noWrap} />;
+      return (
+        <Badge
+          text={t('correlations.list.read-only', 'Read only')}
+          color="purple"
+          className={stylex.props(styles.noWrap).className}
+        />
+      );
     } else {
       return null;
     }
   },
   (props, prevProps) => props.row.original.source.readOnly === prevProps.row.original.source.readOnly
 );
+
+const styles = stylex.create({
+  loaderWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  dataSourceCell: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  dsLogo: {
+    marginRight: spacing['--gf-spacing-x1'],
+    height: '16px',
+    width: '16px',
+  },
+  noWrap: {
+    whiteSpace: 'nowrap',
+  },
+});

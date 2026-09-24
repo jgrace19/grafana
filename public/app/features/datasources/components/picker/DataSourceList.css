@@ -1,0 +1,7 @@
+/*
+ * Highlights the keyboard-selected data source card. The card is a Card, which only takes className, so StyleX can't
+ * override its background. Unlayered, with the same specificity as the Emotion rule it replaces.
+ */
+.gf-data-source-list [data-selecteditem='true'] {
+  background-color: var(--gf-colors-action-focus);
+}

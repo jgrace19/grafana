@@ -1,0 +1,7 @@
+/*
+ * Spaces the list items rendered by List, which StyleX can't target. Unlayered, with the same specificity as the
+ * Emotion rule it replaces.
+ */
+.gf-data-source-type-card-list > li {
+  margin-bottom: 2px;
+}
