@@ -78,6 +78,7 @@ export function LogMessageAnsi({ value, highlight }: Props) {
 ```
 
 Key changes:
+
 - `getDerivedStateFromProps` → `useMemo` (the "prevValue" tracking is free — `useMemo` handles it)
 - `withTheme2(Unthemed...)` HOC → `useTheme2()` hook
 - `Themeable2` removed from Props — theme comes from hook
@@ -112,15 +113,21 @@ export default class TimelineViewingLayer extends React.PureComponent<Props> {
     this._draggerReframe.dispose();
   }
 
-  _setRoot = (elm: Element | TNil) => { this._root = elm; };
+  _setRoot = (elm: Element | TNil) => {
+    this._root = elm;
+  };
 
   _getDraggingBounds = (): DraggableBounds => {
-    if (!this._root) { throw new Error('invalid state'); }
+    if (!this._root) {
+      throw new Error('invalid state');
+    }
     const { left: clientXLeft, width } = this._root.getBoundingClientRect();
     return { clientXLeft, width };
   };
 
-  render() { /* ... */ }
+  render() {
+    /* ... */
+  }
 }
 ```
 
@@ -138,7 +145,9 @@ export default function TimelineViewingLayer({
   const draggerReframe = useRef(
     new DraggableManager({
       getBounds: () => {
-        if (!rootRef.current) { throw new Error('invalid state'); }
+        if (!rootRef.current) {
+          throw new Error('invalid state');
+        }
         const { left: clientXLeft, width } = rootRef.current.getBoundingClientRect();
         return { clientXLeft, width };
       },
@@ -160,6 +169,7 @@ export default function TimelineViewingLayer({
 ```
 
 Key changes:
+
 - `UNSAFE_componentWillReceiveProps` → `useEffect` with `[boundsInvalidator]` dep
 - `componentWillUnmount` → cleanup return in `useEffect`
 - Instance fields (`_root`, `_draggerReframe`) → `useRef`
@@ -228,6 +238,7 @@ export default function MyPanel({ panelId }: Props) {
 ```
 
 Key changes:
+
 - Three interfaces (`OwnProps`, `ConnectedProps`, `DispatchProps`) → one `Props`
 - `mapStateToProps` fields → individual `useSelector` calls
 - `mapDispatchToProps` → `useDispatch()` + `dispatch(action())`
