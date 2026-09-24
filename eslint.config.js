@@ -126,10 +126,6 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
-];
-
-// The same ban for migrated files under public/app. Each app slice appends its files or directories here.
-const stylexMigratedAppFiles = [
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
 ];
@@ -744,27 +740,6 @@ module.exports = [
             {
               group: ['@grafana/runtime'],
               message: "'@grafana/runtime' should not be imported from library packages",
-            },
-            ...stylexRestrictedImports.patterns,
-          ],
-          paths: stylexRestrictedImports.paths,
-        }),
-      ],
-    },
-  },
-  {
-    // Must come after grafana/no-extensions-imports and the dataviz panel restrictions, whose patterns it repeats
-    // (the dataviz ban on Emotion's cx is covered by the @emotion/* ban).
-    name: 'grafana/stylex-migrated-app',
-    files: stylexMigratedAppFiles,
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [
-            {
-              group: ['app/extensions', 'app/extensions/*'],
-              message: 'Importing from app/extensions is not allowed',
             },
             ...stylexRestrictedImports.patterns,
           ],

@@ -1,9 +1,8 @@
 /*
- * TagList is still styled with Emotion, and Emotion's style block can come before or after this sheet depending on the chunk. The doubled class
- * outranks its own class like the Emotion className merge did; unlayered, it keeps winning once TagList
- * is StyleX. The tag buttons are rendered by TagList.
+ * Overrides TagList and the Tag buttons it renders, which take no StyleX override for these properties. Not in
+ * a cascade layer, so it wins over their (layered) StyleX styles like the Emotion className merge did.
  */
-.gf-annolist-tag-list.gf-annolist-tag-list {
+.gf-annolist-tag-list {
   justify-content: flex-start;
 }
 
