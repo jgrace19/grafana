@@ -2,12 +2,13 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import * as stylex from '@stylexjs/stylex';
 import classNames from 'classnames';
 import { Resizable } from 're-resizable';
-import { type PropsWithChildren, useEffect, useMemo } from 'react';
+import { type PropsWithChildren, useEffect } from 'react';
 
 import { store } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { locationSearchToObject, locationService, useScopes } from '@grafana/runtime';
-import { ErrorBoundaryAlert, floatingUtils, LinkButton, useTheme2 } from '@grafana/ui';
+import { ErrorBoundaryAlert, floatingUtils, LinkButton } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { bp, zIndex } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SplashScreenModal } from 'app/core/components/SplashScreenModal/SplashScreenModal';
@@ -51,7 +52,6 @@ export function AppChrome({ children }: Props) {
 
   const headerLevels = useChromeHeaderLevels();
   const headerHeight = getChromeHeaderLevelHeight();
-  const theme = useTheme2();
   const dragStyles = getDragHandleClassNames();
 
   useResponsiveDockedMegaMenu(chrome);

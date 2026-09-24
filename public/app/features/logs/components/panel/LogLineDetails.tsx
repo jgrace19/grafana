@@ -6,7 +6,7 @@ import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useStat
 import { type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Icon, ScrollContainer, Tab, TabsBar, useTheme2 } from '@grafana/ui';
+import { Icon, ScrollContainer, Tab, TabsBar } from '@grafana/ui';
 import { getDragHandleClassNames, mergeStylexProps } from '@grafana/ui/internal';
 import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
@@ -35,7 +35,6 @@ export const LogLineDetails = memo(
   ({ containerElement, focusLogLine, logs, timeRange, timeZone, showControls, showFieldSelector }: Props) => {
     const { noInteractions, fontSize, logOptionsStorageKey } = useLogListContext();
     const { detailsWidth, setDetailsWidth } = useLogDetailsContext();
-    const theme = useTheme2();
     const dragStyles = getDragHandleClassNames();
     const containerRef = useRef<HTMLDivElement | null>(null);
 

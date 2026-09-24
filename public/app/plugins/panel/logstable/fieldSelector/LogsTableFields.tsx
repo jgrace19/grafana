@@ -3,7 +3,6 @@ import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type DataFrame, store } from '@grafana/data';
-import { useTheme2 } from '@grafana/ui';
 import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { type FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 import { SETTING_KEY_ROOT } from 'app/features/explore/Logs/utils/logs';
@@ -46,8 +45,6 @@ export function LogsTableFields({
   logsFrame,
   onFieldSelectorWidthChange,
 }: Props) {
-  const theme = useTheme2();
-  // stylex: pending a StyleX DragHandle; re-resizable renders the handle and only takes class names.
   const dragStyles = getDragHandleClassNames();
   const [containerElement, setContainerRefState] = useState<HTMLDivElement | null>(null);
   const containerRef = useCallback((node: HTMLDivElement) => {

@@ -6,7 +6,7 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { type DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, useTheme2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
 import { getDragHandleClassNames } from '@grafana/ui/internal';
 
 import { useLogListContext } from '../panel/LogListContext';
@@ -41,7 +41,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const [sidebarHeight, setSidebarHeight] = useState(220);
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(logOptionsStorageKey));
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
-  const theme = useTheme2();
   const dragStyles = getDragHandleClassNames();
 
   useLayoutEffect(() => {
