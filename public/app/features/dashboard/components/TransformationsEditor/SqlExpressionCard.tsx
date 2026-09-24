@@ -1,6 +1,8 @@
-import { Card, Text, useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
 
-import { getCardStyles } from './getCardStyles';
+import { Card, Text } from '@grafana/ui';
+
+import { cardClassNames, cardStyles } from './cardStyles';
 
 export interface SqlExpressionCardProps {
   name: string;
@@ -12,14 +14,17 @@ export interface SqlExpressionCardProps {
 }
 
 export function SqlExpressionCard({ name, description, imageUrl, onClick, testId, fullWidth }: SqlExpressionCardProps) {
-  const styles = useStyles2(getCardStyles, fullWidth);
-
   return (
-    <Card className={styles.baseCard} data-testid={testId} onClick={onClick} noMargin>
+    <Card
+      className={fullWidth ? cardClassNames.baseCardFullWidth : cardClassNames.baseCard}
+      data-testid={testId}
+      onClick={onClick}
+      noMargin
+    >
       <Card.Heading>{name}</Card.Heading>
       <Card.Description>
         <Text variant="bodySmall">{description}</Text>
-        {imageUrl && <img className={styles.image} src={imageUrl} alt={name} />}
+        {imageUrl && <img {...stylex.props(cardStyles.image)} src={imageUrl} alt={name} />}
       </Card.Description>
     </Card>
   );

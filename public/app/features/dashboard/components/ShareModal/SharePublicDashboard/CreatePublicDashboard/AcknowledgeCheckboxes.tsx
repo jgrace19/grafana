@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type UseFormRegister } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Checkbox, FieldSet, LinkButton, useStyles2, Stack } from '@grafana/ui';
+import { Checkbox, FieldSet, LinkButton, Stack } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type SharePublicDashboardAcknowledgmentInputs } from './CreatePublicDashboard';
 
@@ -26,8 +26,6 @@ export const AcknowledgeCheckboxes = ({
   disabled: boolean;
   register: UseFormRegister<SharePublicDashboardAcknowledgmentInputs>;
 }) => {
-  const styles = useStyles2(getStyles);
-
   const ACKNOWLEDGES: Acknowledge[] = [
     {
       type: 'publicAcknowledgment',
@@ -78,7 +76,7 @@ export const AcknowledgeCheckboxes = ({
 
   return (
     <>
-      <p className={styles.title}>
+      <p {...stylex.props(styles.title)}>
         <Trans i18nKey="public-dashboard.acknowledgment-checkboxes.ack-title">
           Before you make the dashboard public, acknowledge the following:
         </Trans>
@@ -109,8 +107,8 @@ export const AcknowledgeCheckboxes = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  title: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
+const styles = stylex.create({
+  title: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
 });

@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, useEffect, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { Modal, useStyles2 } from '@grafana/ui';
+import { Modal } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardInput, type DataSourceInput, type DashboardJson } from 'app/features/manage-dashboards/types';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { CommunityDashboardMappingForm } from './CommunityDashboardMappingForm';
 import { SuggestedDashboardsList } from './SuggestedDashboardsList/SuggestedDashboardsList';
+import './SuggestedDashboardsModal.css';
 import { type ContentKind } from './constants';
 import { type GnetDashboard } from './types';
 import { type InputMapping } from './utils/autoMapDatasources';
@@ -54,8 +55,6 @@ export const SuggestedDashboardsModal = ({
 }: SuggestedDashboardsModalProps) => {
   const [activeView, setActiveView] = useState<ModalView>('list');
   const [mappingContext, setMappingContext] = useState<MappingContext | null>(initialMappingContext || null);
-  const styles = useStyles2(getStyles);
-
   // Get datasource info for modal title
   const datasourceInfo = useMemo(() => {
     if (!datasourceUid) {
@@ -111,11 +110,11 @@ export const SuggestedDashboardsModal = ({
       }
       isOpen={isOpen}
       onDismiss={onDismiss}
-      className={styles.modal}
-      contentClassName={styles.modalContent}
+      className="gf-suggested-dashboards-modal"
+      contentClassName="gf-suggested-dashboards-modal-content"
     >
       {activeView === 'list' && (
-        <div className={styles.listContent}>
+        <div {...stylex.props(styles.listContent)}>
           <SuggestedDashboardsList
             provisionedDashboards={provisionedDashboards}
             communityDashboards={communityDashboards}
@@ -131,7 +130,7 @@ export const SuggestedDashboardsModal = ({
         </div>
       )}
       {activeView === 'mapping' && mappingContext && (
-        <div className={styles.listContent}>
+        <div {...stylex.props(styles.listContent)}>
           <CommunityDashboardMappingForm
             unmappedDsInputs={mappingContext.unmappedDsInputs}
             constantInputs={mappingContext.constantInputs}
@@ -151,28 +150,11 @@ export const SuggestedDashboardsModal = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    modal: css({
-      width: '90%',
-      maxWidth: '1200px',
-      maxHeight: '80vh',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    modalContent: css({
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      padding: theme.spacing(2),
-      marginBottom: 0,
-      height: '100%',
-    }),
-    listContent: css({
-      flex: 1,
-      overflow: 'auto',
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  listContent: {
+    flex: '1',
+    overflow: 'auto',
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+});

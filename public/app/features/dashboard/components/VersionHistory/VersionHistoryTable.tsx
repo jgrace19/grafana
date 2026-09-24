@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Checkbox, Button, Tag, ModalsController, useStyles2 } from '@grafana/ui';
+import { Checkbox, Button, Tag, ModalsController } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 
 import { RevertDashboardModal } from './RevertDashboardModal';
+import './VersionHistoryTable.css';
 
 type VersionsTableProps = {
   versions: DecoratedRevisionModel[];
@@ -15,10 +16,8 @@ type VersionsTableProps = {
 };
 
 export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsTableProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.margin}>
+    <div {...stylex.props(styles.margin)}>
       <table className="filter-table">
         <thead>
           <tr>
@@ -48,9 +47,7 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
                     'Toggle selection of version {{version}}',
                     { version: version.version }
                   )}
-                  className={css({
-                    display: 'inline',
-                  })}
+                  className="gf-version-history-checkbox"
                   checked={version.checked}
                   onChange={(ev) => onCheck(ev, version.id)}
                   disabled={!version.checked && canCompare}
@@ -92,10 +89,8 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    margin: css({
-      marginBottom: theme.spacing(4),
-    }),
-  };
-}
+const styles = stylex.create({
+  margin: {
+    marginBottom: spacing['--gf-spacing-x4'],
+  },
+});

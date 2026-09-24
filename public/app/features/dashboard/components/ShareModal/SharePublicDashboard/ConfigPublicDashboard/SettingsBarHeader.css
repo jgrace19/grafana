@@ -1,0 +1,8 @@
+/*
+ * IconButton has no xstyle, and a StyleX class string would race its own color and margin (conventions §3.9).
+ * Unlayered, this beats its layered StyleX.
+ */
+.gf-settings-bar-header-collapse-icon {
+  margin-left: var(--gf-spacing-x0-5);
+  color: var(--gf-colors-text-disabled);
+}
