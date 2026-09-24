@@ -1,10 +1,15 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { reportInteraction } from '@grafana/runtime';
-import { Card, Icon, Link, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Card, Icon, Link, Stack, Text, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type LocationInfo } from 'app/features/search/service/types';
 import { StarToolbarButton } from 'app/features/stars/StarToolbarButton';
 
 import { type Dashboard } from './DashList';
-import { getStyles } from './styles';
+import './DashListItem.css';
+import { dashlistCardMarker } from './markers.stylex';
+import { getCardHoverGradientStyle, styles } from './styles';
 
 interface Props {
   dashboard: Dashboard;
@@ -26,7 +31,7 @@ export function DashListItem({
   onStarChange,
   source,
 }: Props) {
-  const css = useStyles2(getStyles);
+  const theme = useTheme2();
 
   const onCardLinkClick = () => {
     reportInteraction('grafana_browse_dashboards_page_click_list_item', {
@@ -40,8 +45,8 @@ export function DashListItem({
   return (
     <>
       {layoutMode === 'list' ? (
-        <div className={css.dashlistLink}>
-          <Link href={url}>
+        <div {...mergeStylexProps(stylex.props(styles.dashlistLink), { className: 'gf-dashlist-link' })}>
+          <Link href={url} className={stylex.props(styles.dashlistLinkAnchor).className}>
             <Text element="p">{dashboard.name}</Text>
             {showFolderNames && locationInfo && (
               <Text color="secondary" variant="bodySmall" element="p">
@@ -58,21 +63,21 @@ export function DashListItem({
           />
         </div>
       ) : (
-        <Card noMargin className={css.dashlistCardContainer}>
+        <Card noMargin className="gf-dashlist-card-container" style={getCardHoverGradientStyle(theme)}>
           <Stack justifyContent="space-between" alignItems="start" height="100%">
             <Link
-              className={css.dashlistCard}
+              className={stylex.props(styles.dashlistCard, dashlistCardMarker).className}
               href={url}
               aria-label={dashboard.name}
               title={dashboard.name}
               onClick={onCardLinkClick}
             >
-              <div className={css.dashlistCardLink}>{dashboard.name}</div>
+              <div {...stylex.props(styles.dashlistCardLink)}>{dashboard.name}</div>
 
               {showFolderNames && locationInfo && (
                 <Stack alignItems="start" direction="row" gap={0.5}>
-                  <Icon name="folder" size="sm" className={css.dashlistCardIcon} aria-hidden="true" />
-                  <div className={css.dashlistCardFolder}>
+                  <Icon name="folder" size="sm" xstyle={styles.dashlistCardIcon} aria-hidden="true" />
+                  <div {...stylex.props(styles.dashlistCardFolder)}>
                     <Text
                       color="secondary"
                       variant="bodySmall"

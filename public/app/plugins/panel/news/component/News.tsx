@@ -1,12 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type DataFrameView, type GrafanaTheme2, textUtil, dateTimeFormat } from '@grafana/data';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { type DataFrameView, textUtil, dateTimeFormat } from '@grafana/data';
+import { TextLink } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
 
 import { type NewsItem } from '../types';
+
+import './News.css';
 
 interface NewsItemProps {
   width: number;
@@ -17,35 +20,38 @@ interface NewsItemProps {
 
 function NewsComponent({ width, showImage, data, index }: NewsItemProps) {
   const titleId = useId();
-  const styles = useStyles2(getStyles);
   const useWideLayout = width > 600;
   const newsItem = data.get(index);
 
   return (
-    <article aria-labelledby={titleId} className={cx(styles.item, useWideLayout && styles.itemWide)}>
+    <article aria-labelledby={titleId} {...stylex.props(styles.item, useWideLayout && styles.itemWide)}>
       {showImage && newsItem.ogImage && (
         <a
           tabIndex={-1}
           href={textUtil.sanitizeUrl(newsItem.link)}
           target="_blank"
           rel="noopener noreferrer"
-          className={cx(styles.socialImage, useWideLayout && styles.socialImageWide)}
+          {...stylex.props(styles.socialImage, useWideLayout && styles.socialImageWide)}
           aria-hidden
         >
-          <img src={newsItem.ogImage} alt={newsItem.title} />
+          <img
+            src={newsItem.ogImage}
+            alt={newsItem.title}
+            {...stylex.props(styles.socialImageImg, useWideLayout && styles.socialImageWideImg)}
+          />
         </a>
       )}
-      <div className={styles.body}>
-        <time className={styles.date} dateTime={dateTimeFormat(newsItem.date, { format: 'MMM DD' })}>
+      <div {...stylex.props(styles.body)}>
+        <time {...stylex.props(styles.date)} dateTime={dateTimeFormat(newsItem.date, { format: 'MMM DD' })}>
           {dateTimeFormat(newsItem.date, { format: 'MMM DD' })}{' '}
         </time>
 
-        <h1 className={styles.title} id={titleId}>
+        <h1 {...stylex.props(styles.title)} id={titleId}>
           <TextLink href={textUtil.sanitizeUrl(newsItem.link)} external inline={false}>
             {newsItem.title}
           </TextLink>
         </h1>
-        <div className={styles.content} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(newsItem.content) }} />
+        <div className="gf-news-content" dangerouslySetInnerHTML={{ __html: textUtil.sanitize(newsItem.content) }} />
       </div>
     </article>
   );
@@ -56,22 +62,21 @@ const NewsSkeleton: SkeletonComponent<Pick<NewsItemProps, 'width' | 'showImage'>
   showImage,
   rootProps,
 }) => {
-  const styles = useStyles2(getStyles);
   const useWideLayout = width > 600;
 
   return (
-    <div className={cx(styles.item, useWideLayout && styles.itemWide)} {...rootProps}>
+    <div {...stylex.props(styles.item, useWideLayout && styles.itemWide)} {...rootProps}>
       {showImage && (
         <Skeleton
-          containerClassName={cx(styles.socialImage, useWideLayout && styles.socialImageWide)}
+          containerClassName={stylex.props(styles.socialImage, useWideLayout && styles.socialImageWide).className}
           width={useWideLayout ? '250px' : '100%'}
           height={useWideLayout ? '150px' : width * 0.5}
         />
       )}
-      <div className={styles.body}>
-        <Skeleton containerClassName={styles.date} width={60} />
-        <Skeleton containerClassName={styles.title} width={250} />
-        <Skeleton containerClassName={styles.content} width="100%" count={6} />
+      <div {...stylex.props(styles.body)}>
+        <Skeleton containerClassName={stylex.props(styles.date).className} width={60} />
+        <Skeleton containerClassName={stylex.props(styles.title).className} width={250} />
+        <Skeleton containerClassName="gf-news-content" width="100%" count={6} />
       </div>
     </div>
   );
@@ -79,61 +84,66 @@ const NewsSkeleton: SkeletonComponent<Pick<NewsItemProps, 'width' | 'showImage'>
 
 export const News = attachSkeleton(NewsComponent, NewsSkeleton);
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    height: '100%',
-  }),
-  item: css({
+const styles = stylex.create({
+  item: {
     display: 'flex',
-    padding: theme.spacing(1),
+    padding: spacing['--gf-spacing-x1'],
     position: 'relative',
-    marginBottom: theme.spacing(0.5),
-    marginRight: theme.spacing(1),
-    borderBottom: `2px solid ${theme.colors.border.weak}`,
-    background: theme.colors.background.primary,
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    backgroundColor: colors['--gf-colors-background-primary'],
     flexDirection: 'column',
     flexShrink: 0,
-  }),
-  itemWide: css({
+  },
+  itemWide: {
     flexDirection: 'row',
-  }),
-  body: css({
+  },
+  body: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
-  }),
-  socialImage: css({
+    flex: '1',
+  },
+  socialImage: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: theme.spacing(1),
-    '> img': {
-      width: '100%',
-      borderRadius: `${theme.shape.radius.default} ${theme.shape.radius.default} 0 0`,
-    },
-  }),
-  socialImageWide: css({
-    marginRight: theme.spacing(2),
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  socialImageImg: {
+    width: '100%',
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: 'unset',
+    borderBottomLeftRadius: 'unset',
+  },
+  socialImageWide: {
+    marginRight: spacing['--gf-spacing-x2'],
     marginBottom: 0,
-    '> img': {
-      width: '250px',
-      borderRadius: theme.shape.radius.default,
-    },
-  }),
-  title: css({
-    ...theme.typography.h3,
+  },
+  socialImageWideImg: {
+    width: '250px',
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+  },
+  title: {
+    fontFamily: typography['--gf-typography-h3-font-family'],
+    fontWeight: typography['--gf-typography-h3-font-weight'],
+    lineHeight: typography['--gf-typography-h3-line-height'],
+    letterSpacing: typography['--gf-typography-h3-letter-spacing'],
     fontSize: '16px',
-    marginBottom: theme.spacing(0.5),
-  }),
-  content: css({
-    p: {
-      marginBottom: theme.spacing(0.5),
-      color: theme.colors.text.primary,
-    },
-  }),
-  date: css({
-    marginBottom: theme.spacing(0.5),
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  date: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
     fontWeight: 500,
-    borderRadius: `0 0 0 ${theme.shape.radius.default}`,
-    color: theme.colors.text.secondary,
-  }),
+    borderTopLeftRadius: 'unset',
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: 'unset',
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

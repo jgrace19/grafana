@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ColumnInstance, type HeaderGroup } from 'react-table';
 
 import { fieldReducers, ReducerID } from '@grafana/data';
@@ -31,7 +32,12 @@ export function FooterRow(props: FooterRowProps) {
       {footerGroups.map((footerGroup: HeaderGroup) => {
         const { key, ...footerGroupProps } = footerGroup.getFooterGroupProps();
         return (
-          <div className={tableStyles.tfoot} {...footerGroupProps} key={key} data-testid={e2eSelectorsTable.footer}>
+          <div
+            {...stylex.props(tableStyles.tfoot)}
+            {...footerGroupProps}
+            key={key}
+            data-testid={e2eSelectorsTable.footer}
+          >
             {footerGroup.headers.map((column: ColumnInstance) => renderFooterCell(column, tableStyles))}
           </div>
         );
@@ -52,7 +58,7 @@ function renderFooterCell(column: ColumnInstance, tableStyles: TableStyles) {
   footerProps.style.justifyContent = (column as any).justifyContent;
 
   return (
-    <div key={key} className={tableStyles.headerCell} {...footerProps}>
+    <div key={key} {...stylex.props(tableStyles.headerCell)} {...footerProps}>
       {column.render('Footer')}
     </div>
   );

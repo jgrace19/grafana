@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type HeaderGroup, type Column } from 'react-table';
 
 import { type Field } from '@grafana/data';
@@ -22,12 +23,12 @@ export const HeaderRow = (props: HeaderRowProps) => {
   const e2eSelectorsTable = selectors.components.Panels.Visualization.Table;
 
   return (
-    <div role="rowgroup" className={tableStyles.headerRow}>
+    <div role="rowgroup" {...stylex.props(tableStyles.headerRow)}>
       {headerGroups.map((headerGroup: HeaderGroup) => {
         const { key, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
         return (
           <div
-            className={tableStyles.thead}
+            {...stylex.props(tableStyles.thead)}
             {...headerGroupProps}
             key={key}
             aria-label={e2eSelectorsTable.header}
@@ -65,16 +66,16 @@ function renderHeaderCell(column: any, tableStyles: TableStyles, showTypeIcons?:
 
   let sortHeaderContent = column.canSort && (
     <>
-      <button {...column.getSortByToggleProps()} className={tableStyles.headerCellLabel} aria-label={ariaLabel}>
+      <button {...column.getSortByToggleProps()} {...stylex.props(tableStyles.headerCellLabel)} aria-label={ariaLabel}>
         {showTypeIcons && (
-          <Icon name={getFieldTypeIcon(field)} title={field?.type} size="sm" className={tableStyles.typeIcon} />
+          <Icon name={getFieldTypeIcon(field)} title={field?.type} size="sm" xstyle={tableStyles.typeIcon} />
         )}
         <div>{headerContent}</div>
         {column.isSorted &&
           (column.isSortedDesc ? (
-            <Icon size="lg" name="arrow-down" className={tableStyles.sortIcon} />
+            <Icon size="lg" name="arrow-down" xstyle={tableStyles.sortIcon} />
           ) : (
-            <Icon name="arrow-up" size="lg" className={tableStyles.sortIcon} />
+            <Icon name="arrow-up" size="lg" xstyle={tableStyles.sortIcon} />
           ))}
       </button>
       {column.canFilter && <Filter column={column} tableStyles={tableStyles} field={field} />}
@@ -87,11 +88,11 @@ function renderHeaderCell(column: any, tableStyles: TableStyles, showTypeIcons?:
   }
 
   return (
-    <div className={tableStyles.headerCell} key={key} {...headerProps} role="columnheader">
+    <div {...stylex.props(tableStyles.headerCell)} key={key} {...headerProps} role="columnheader">
       {column.canSort && sortHeaderContent}
       {!column.canSort && headerContent}
       {!column.canSort && column.canFilter && <Filter column={column} tableStyles={tableStyles} field={field} />}
-      {column.canResize && <div {...column.getResizerProps()} className={tableStyles.resizeHandle} />}
+      {column.canResize && <div {...column.getResizerProps()} {...stylex.props(tableStyles.resizeHandle)} />}
     </div>
   );
 }

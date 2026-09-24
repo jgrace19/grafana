@@ -1,22 +1,19 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useRef } from 'react';
 import { useAsync } from 'react-use';
 
 import { type TraceSearchProps, type Field, type LinkModel, type PanelProps } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { TraceView } from 'app/features/explore/TraceView/TraceView';
 import { type SpanLinkFunc } from 'app/features/explore/TraceView/components/types/links';
 import { transformDataFrames } from 'app/features/explore/TraceView/utils/transform';
 
 import { replaceSearchVariables } from '../../../features/explore/TraceView/useSearch';
 
-const styles = {
-  wrapper: css({
-    height: '100%',
-    overflow: 'scroll',
-  }),
-};
+// TraceView looks the scroll element up by class name; StyleX's atomic classes are shared with other elements.
+const SCROLL_ELEMENT_CLASS = 'gf-traces-panel-scroll';
 
 export interface TracesPanelOptions {
   createSpanLink?: SpanLinkFunc;
@@ -44,11 +41,11 @@ export const TracesPanel = ({ data, options, replaceVariables }: PanelProps<Trac
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className: SCROLL_ELEMENT_CLASS })}>
       <div ref={topOfViewRef}></div>
       <TraceView
         dataFrames={data.series}
-        scrollElementClass={styles.wrapper}
+        scrollElementClass={SCROLL_ELEMENT_CLASS}
         traceProp={traceProp}
         datasource={dataSource.value}
         topOfViewRef={topOfViewRef}
@@ -62,3 +59,10 @@ export const TracesPanel = ({ data, options, replaceVariables }: PanelProps<Trac
     </div>
   );
 };
+
+const styles = stylex.create({
+  wrapper: {
+    height: '100%',
+    overflow: 'scroll',
+  },
+});

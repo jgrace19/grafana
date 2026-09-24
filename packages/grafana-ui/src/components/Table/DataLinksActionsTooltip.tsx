@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
 import { useDismiss, useFloating, useInteractions } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, type ReactNode } from 'react';
 
-import { type ActionModel, type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type ActionModel, type LinkModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { Portal } from '../Portal/Portal';
 import { VizTooltipFooter } from '../VizTooltip/VizTooltipFooter';
@@ -27,7 +29,6 @@ interface Props {
  */
 export const DataLinksActionsTooltip = ({ links, actions, value, coords, onTooltipClose }: Props) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const placement = 'right-start';
 
   // the order of middleware is important!
@@ -83,8 +84,7 @@ export const DataLinksActionsTooltip = ({ links, actions, value, coords, onToolt
           ref={refCallback}
           {...getReferenceProps()}
           {...getFloatingProps()}
-          style={floatingStyles}
-          className={styles.tooltipWrapper}
+          {...mergeStylexProps(stylex.props(styles.tooltipWrapper), { style: floatingStyles })}
           data-testid={selectors.components.DataLinksActionsTooltip.tooltipWrapper}
         >
           <VizTooltipWrapper>
@@ -111,18 +111,18 @@ export const renderSingleLink = (link: LinkModel, children: ReactNode, className
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    tooltipWrapper: css({
-      whiteSpace: 'pre',
-      borderRadius: theme.shape.radius.default,
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      boxShadow: theme.shadows.z3,
-      maxHeight: `calc(100vh - ${theme.spacing(4)})`,
-      overflowX: 'hidden',
-      userSelect: 'text',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-};
+const styles = stylex.create({
+  tooltipWrapper: {
+    whiteSpace: 'pre',
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    maxHeight: `calc(100vh - ${spacing['--gf-spacing-x4']})`,
+    overflowX: 'hidden',
+    userSelect: 'text',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});
