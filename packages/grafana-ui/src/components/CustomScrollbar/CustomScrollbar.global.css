@@ -1,0 +1,54 @@
+/*
+ * react-custom-scrollbars-2 positions the view, tracks and thumbs with inline styles, which only
+ * `!important` overrides. StyleX can't emit `!important`, so these rules stay plain CSS.
+ */
+@layer grafana-global {
+  /*
+   * Fix for Firefox. For some reason sometimes .view container gets a height of its content, but in order to
+   * make scroll working it should fit outer container size (scroll appears only when inner container size is
+   * greater than outer one).
+   */
+  .gf-custom-scrollbar .scrollbar-view {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+  }
+  .gf-custom-scrollbar .track-vertical {
+    border-radius: calc(var(--gf-shape-radius-default) * 2);
+    width: var(--gf-spacing-grid-size) !important;
+    right: 0;
+    bottom: calc(var(--gf-spacing-grid-size) * 0.25);
+    top: calc(var(--gf-spacing-grid-size) * 0.25);
+  }
+  .gf-custom-scrollbar .track-horizontal {
+    border-radius: calc(var(--gf-shape-radius-default) * 2);
+    height: var(--gf-spacing-grid-size) !important;
+    right: calc(var(--gf-spacing-grid-size) * 0.25);
+    bottom: calc(var(--gf-spacing-grid-size) * 0.25);
+    left: calc(var(--gf-spacing-grid-size) * 0.25);
+  }
+  .gf-custom-scrollbar .thumb-vertical {
+    background: var(--gf-colors-action-focus);
+    border-radius: calc(var(--gf-shape-radius-default) * 2);
+    opacity: 0;
+  }
+  .gf-custom-scrollbar .thumb-horizontal {
+    background: var(--gf-colors-action-focus);
+    border-radius: calc(var(--gf-shape-radius-default) * 2);
+    opacity: 0;
+  }
+  .gf-custom-scrollbar:hover .thumb-vertical,
+  .gf-custom-scrollbar:hover .thumb-horizontal {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference), (prefers-reduced-motion: reduce) {
+    .gf-custom-scrollbar:hover .thumb-vertical,
+    .gf-custom-scrollbar:hover .thumb-horizontal {
+      transition: opacity 0.3s ease-in-out;
+    }
+  }
+  /* the scroll indicators are positioned against the scrollbar root, not the scrolling view */
+  .gf-custom-scrollbar--with-indicators .scrollbar-view {
+    position: static !important;
+  }
+}

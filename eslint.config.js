@@ -115,6 +115,8 @@ const stylexMigratedUiFiles = [
   // U8 chrome/globals
   'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
   'packages/grafana-ui/src/utils/skeleton.tsx',
+  // U8 chrome
+  'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
   // U8 long tail
   'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
   'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
@@ -198,6 +200,7 @@ const stylexMigratedAppFiles = [
   'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
   'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
