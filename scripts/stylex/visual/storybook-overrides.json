@@ -1,7 +1,10 @@
 {
   "masks": [
     {
-      "patterns": ["^alerting-contact-points-contactpointselector--", "^alerting-notification-policies-routingtreeselector--"],
+      "patterns": [
+        "^alerting-contact-points-contactpointselector--",
+        "^alerting-notification-policies-routingtreeselector--"
+      ],
       "selectors": [
         "xpath=//input[@role=\"combobox\"]/ancestor::*[.//*[local-name()=\"svg\" and starts-with(@data-testid,\"icon-\")]][1]//*[local-name()=\"svg\" and starts-with(@data-testid,\"icon-\")]"
       ],

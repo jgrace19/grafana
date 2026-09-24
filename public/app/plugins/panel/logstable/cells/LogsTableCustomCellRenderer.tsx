@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type Field, formattedValueToString, getDisplayProcessor, type GrafanaTheme2 } from '@grafana/data';
-import { type CustomCellRendererProps, useStyles2, useTheme2 } from '@grafana/ui';
+import { type Field, formattedValueToString, getDisplayProcessor } from '@grafana/data';
+import { type CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 import { MaybeWrapWithLink } from '@grafana/ui/internal';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
@@ -25,7 +25,6 @@ export function LogsTableCustomCellRenderer(props: {
       : options.showInspectLogLine || options.showCopyLogLink
         ? ROW_ACTION_BUTTON_WIDTH / 2
         : 0;
-  const styles = useStyles2(getStyles, cellPadding);
 
   return (
     <>
@@ -36,7 +35,7 @@ export function LogsTableCustomCellRenderer(props: {
         showInspectLogLine={options.showInspectLogLine ?? true}
       />
 
-      <span className={styles.firstColumnCell}>
+      <span {...stylex.props(styles.firstColumnCell(cellPadding))}>
         <AutoCell field={field} value={field.display?.(value).text ?? String(value)} rowIdx={rowIndex} />
       </span>
     </>
@@ -69,10 +68,8 @@ function AutoCell({ value, field, rowIdx }: AutoCellProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, cellPadding: number) => {
-  return {
-    firstColumnCell: css({
-      paddingLeft: cellPadding,
-    }),
-  };
-};
+const styles = stylex.create({
+  firstColumnCell: (cellPadding: number) => ({
+    paddingLeft: cellPadding,
+  }),
+});

@@ -109,6 +109,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U7 viz
+  'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
@@ -126,6 +128,10 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
+  // P1 core-bundled panels
+  'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  // D3 dashboard
+  'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
   'public/app/features/alerting/*.{ts,tsx}',
   'public/app/features/alerting/state/**/*.{ts,tsx}',
