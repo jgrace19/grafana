@@ -1,19 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FeatureLike } from 'ol/Feature';
 import { useCallback, useMemo } from 'react';
 import { useObservable } from 'react-use';
 import { type Observable } from 'rxjs';
 
-import {
-  type GrafanaTheme2,
-  type SelectableValue,
-  type StandardEditorProps,
-  type StandardEditorsRegistryItem,
-} from '@grafana/data';
+import { type SelectableValue, type StandardEditorProps, type StandardEditorsRegistryItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ComparisonOperation } from '@grafana/schema';
-import { Button, InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { comparisonOperationOptions } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
 import { DEFAULT_STYLE_RULE } from '../layers/data/geojsonLayer';
@@ -23,6 +19,7 @@ import { getUniqueFeatureValues, type LayerContentInfo } from '../utils/getFeatu
 import { getSelectionInfo } from '../utils/selection';
 
 import { StyleEditor } from './StyleEditor';
+import './StyleRuleEditor.css';
 
 export interface StyleRuleEditorSettings {
   features: Observable<FeatureLike[]>;
@@ -63,8 +60,6 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
     }
     return [];
   }, [feats, value]);
-
-  const styles = useStyles2(getStyles);
 
   const LABEL_WIDTH = 10;
 
@@ -136,8 +131,8 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
   const valuev = getSelectionInfo(check.value, uniqueSelectables);
 
   return (
-    <div className={styles.rule}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(styles.rule)}>
+      <InlineFieldRow className={stylex.props(styles.row).className}>
         <InlineField label={t('geomap.style-rule-editor.label-rule', 'Rule')} labelWidth={LABEL_WIDTH} grow={true}>
           <Select
             placeholder={t('geomap.style-rule-editor.placeholder-feature-property', 'Feature property')}
@@ -149,7 +144,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             allowCustomValue
           />
         </InlineField>
-        <InlineField className={styles.inline}>
+        <InlineField className="gf-geomap-style-rule-inline">
           <Select
             value={comparisonOperationOptions.find((v) => v.value === check.operation)}
             options={comparisonOperationOptions}
@@ -158,8 +153,8 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             width={8}
           />
         </InlineField>
-        <InlineField className={styles.inline} grow={true}>
-          <div className={styles.flexRow}>
+        <InlineField className="gf-geomap-style-rule-inline" grow={true}>
+          <div {...stylex.props(styles.flexRow)}>
             {(check.operation === ComparisonOperation.EQ || check.operation === ComparisonOperation.NEQ) && (
               <Select
                 placeholder={t('geomap.style-rule-editor.placeholder-value', 'value')}
@@ -187,7 +182,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
           onClick={() => onDelete()}
           variant="secondary"
           aria-label={t('geomap.style-rule-editor.aria-label-delete-style-rule', 'Delete style rule')}
-          className={styles.button}
+          className={stylex.props(styles.button).className}
         ></Button>
       </InlineFieldRow>
       <div>
@@ -209,24 +204,20 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  rule: css({
-    marginBottom: theme.spacing(1),
-  }),
-  row: css({
+const styles = stylex.create({
+  rule: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  row: {
     display: 'flex',
     marginBottom: '4px',
-  }),
-  inline: css({
-    marginBottom: 0,
+  },
+  button: {
     marginLeft: '4px',
-  }),
-  button: css({
-    marginLeft: '4px',
-  }),
-  flexRow: css({
+  },
+  flexRow: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-  }),
+  },
 });
