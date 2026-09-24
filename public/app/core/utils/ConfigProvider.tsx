@@ -4,6 +4,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 
 import { type GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { ThemeChangedEvent, config } from '@grafana/runtime';
+import { useThemeCssVariables } from '@grafana/ui/internal';
 
 import { appEvents } from '../app_events';
 
@@ -24,6 +25,8 @@ export const ThemeProvider = ({ children, value }: { children: React.ReactNode; 
   useEffect(() => {
     setTheme(value);
   }, [value]);
+
+  useThemeCssVariables(theme);
 
   return (
     <ThemeContext.Provider value={theme}>

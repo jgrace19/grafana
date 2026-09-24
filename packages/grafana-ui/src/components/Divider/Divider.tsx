@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
+import { type ThemeSpacingTokens } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { getSpacingVariableName } from '../../themes/stylex/cssVariables';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 interface DividerProps {
   direction?: 'vertical' | 'horizontal';
@@ -13,28 +14,41 @@ interface DividerProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/layout-divider--docs
  */
 export const Divider = ({ direction = 'horizontal', spacing = 2 }: DividerProps) => {
-  const styles = useStyles2(getStyles, spacing);
+  const margin = `var(${getSpacingVariableName(spacing)})`;
 
   if (direction === 'vertical') {
-    return <div className={styles.verticalDivider}></div>;
+    return <div {...stylex.props(styles.verticalDivider, styles.verticalMargin(margin))}></div>;
   } else {
-    return <hr className={styles.horizontalDivider} />;
+    return <hr {...stylex.props(styles.horizontalDivider, styles.horizontalMargin(margin))} />;
   }
 };
 
 Divider.displayName = 'Divider';
 
-const getStyles = (theme: GrafanaTheme2, spacing: ThemeSpacingTokens) => {
-  return {
-    horizontalDivider: css({
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(spacing, 0),
-      width: '100%',
-    }),
-    verticalDivider: css({
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(0, spacing),
-      height: '100%',
-    }),
-  };
-};
+const styles = stylex.create({
+  horizontalDivider: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--grafana-colors-border-weak'],
+    marginRight: 0,
+    marginLeft: 0,
+    width: '100%',
+  },
+  verticalDivider: {
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--grafana-colors-border-weak'],
+    marginTop: 0,
+    marginBottom: 0,
+    height: '100%',
+  },
+  // The spacing prop picks a theme spacing token at runtime, so margins are passed through StyleX dynamic styles.
+  horizontalMargin: (margin: string) => ({
+    marginTop: margin,
+    marginBottom: margin,
+  }),
+  verticalMargin: (margin: string) => ({
+    marginRight: margin,
+    marginLeft: margin,
+  }),
+});

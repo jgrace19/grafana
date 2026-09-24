@@ -112,3 +112,6 @@ export { flattenTokens } from '../slate-plugins/slate-prism';
 export { RadialGauge } from '../components/RadialGauge/RadialGauge';
 
 export { MaybeWrapWithLink } from '../components/Table/TableNG/components/MaybeWrapWithLink';
+
+export { useThemeCssVariables } from '../themes/stylex/useThemeCssVariables';
+export { getThemeCssVariables, getThemeCssText } from '../themes/stylex/cssVariables';

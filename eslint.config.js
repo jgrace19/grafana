@@ -1,5 +1,6 @@
 // @ts-check
 const emotionPlugin = require('@emotion/eslint-plugin');
+const stylexPlugin = require('@stylexjs/eslint-plugin');
 const restrictedGlobals = require('confusing-browser-globals');
 const importPlugin = require('eslint-plugin-import');
 const jestPlugin = require('eslint-plugin-jest');
@@ -245,6 +246,19 @@ module.exports = [
       '@emotion/jsx-import': 'off',
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
+    },
+  },
+  {
+    name: 'grafana/stylex',
+    files: ['packages/grafana-ui/src/**/*.{ts,tsx}'],
+    plugins: {
+      '@stylexjs': stylexPlugin,
+    },
+    rules: {
+      '@stylexjs/valid-styles': 'error',
+      '@stylexjs/valid-shorthands': 'error',
+      '@stylexjs/no-unused': 'error',
+      '@stylexjs/enforce-extension': 'error',
     },
   },
   {

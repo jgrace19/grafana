@@ -22,20 +22,24 @@ export default {
   },
   testMatch: ['<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}', '<rootDir>/**/*.{spec,test,jest}.{js,jsx,ts,tsx}'],
   transform: {
+    // @grafana/ui is resolved from source, so StyleX-styled components must be compiled before swc runs.
     '^.+\\.(t|j)sx?$': [
-      '@swc/jest',
+      path.resolve(import.meta.dirname, '../../../scripts/stylex/jest-transformer.js'),
       {
-        sourceMaps: 'inline',
-        jsc: {
-          parser: {
-            syntax: 'typescript',
-            tsx: true,
-            decorators: false,
-            dynamicImport: true,
-          },
-          transform: {
-            react: {
-              runtime: 'automatic',
+        transformer: '@swc/jest',
+        config: {
+          sourceMaps: 'inline',
+          jsc: {
+            parser: {
+              syntax: 'typescript',
+              tsx: true,
+              decorators: false,
+              dynamicImport: true,
+            },
+            transform: {
+              react: {
+                runtime: 'automatic',
+              },
             },
           },
         },

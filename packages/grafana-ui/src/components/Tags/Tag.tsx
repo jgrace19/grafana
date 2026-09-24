@@ -1,11 +1,10 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type HTMLAttributes } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { type SkeletonComponent, attachSkeleton } from '../../utils/skeleton';
 import { getTagColor, getTagColorsFromName } from '../../utils/tags';
@@ -25,36 +24,46 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   onClick?: OnTagClick;
 }
 
-const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, className, colorIndex, ...rest }, ref) => {
-  const theme = useTheme2();
-  const styles = getTagStyles(theme, name, colorIndex);
+const TagComponent = forwardRef<HTMLElement, Props>(
+  ({ name, onClick, icon, className, colorIndex, style, ...rest }, ref) => {
+    const { color } = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
+    const styleProps = mergeStylexProps(
+      stylex.props(styles.wrapper, styles.background(color), onClick !== undefined && styles.hover),
+      className,
+      style
+    );
 
-  const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+    const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    onClick?.(name, event);
-  };
+      onClick?.(name, event);
+    };
 
-  const classes = cx(styles.wrapper, className, { [styles.hover]: onClick !== undefined });
-
-  return onClick ? (
-    <button {...rest} className={classes} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </button>
-  ) : (
-    <span {...rest} className={classes} ref={ref}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </span>
-  );
-});
+    return onClick ? (
+      <button {...rest} {...styleProps} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </button>
+    ) : (
+      <span {...rest} {...styleProps} ref={ref}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </span>
+    );
+  }
+);
 TagComponent.displayName = 'Tag';
 
 const TagSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
-  return <Skeleton width={60} height={22} containerClassName={styles.container} {...rootProps} />;
+  return (
+    <Skeleton
+      width={60}
+      height={22}
+      containerClassName={stylex.props(styles.skeletonContainer).className}
+      {...rootProps}
+    />
+  );
 };
 
 /**
@@ -64,39 +73,36 @@ const TagSkeleton: SkeletonComponent = ({ rootProps }) => {
  */
 export const Tag = attachSkeleton(TagComponent, TagSkeleton);
 
-const getSkeletonStyles = () => ({
-  container: css({
+const styles = stylex.create({
+  skeletonContainer: {
     lineHeight: 1,
+  },
+  wrapper: {
+    appearance: 'none',
+    borderStyle: 'none',
+    fontWeight: typography['--grafana-typography-font-weight-medium'],
+    fontSize: typography['--grafana-typography-size-sm'],
+    lineHeight: typography['--grafana-typography-body-small-line-height'],
+    verticalAlign: 'baseline',
+    color: colors['--grafana-v1-palette-gray98'],
+    whiteSpace: 'pre',
+    textShadow: 'none',
+    paddingBlock: '3px',
+    paddingInline: '6px',
+    borderRadius: shape['--grafana-shape-radius-sm'],
+  },
+  // Tag colors are derived from the tag name at runtime, so they are passed through a StyleX dynamic style.
+  background: (color: string) => ({
+    backgroundColor: color,
   }),
+  hover: {
+    opacity: {
+      default: null,
+      ':hover': 0.85,
+    },
+    cursor: {
+      default: null,
+      ':hover': 'pointer',
+    },
+  },
 });
-
-const getTagStyles = (theme: GrafanaTheme2, name: string, colorIndex?: number) => {
-  let colors;
-  if (colorIndex === undefined) {
-    colors = getTagColorsFromName(name);
-  } else {
-    colors = getTagColor(colorIndex);
-  }
-  return {
-    wrapper: css({
-      appearance: 'none',
-      borderStyle: 'none',
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.size.sm,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      verticalAlign: 'baseline',
-      backgroundColor: colors.color,
-      color: theme.v1.palette.gray98,
-      whiteSpace: 'pre',
-      textShadow: 'none',
-      padding: '3px 6px',
-      borderRadius: theme.shape.radius.sm,
-    }),
-    hover: css({
-      '&:hover': {
-        opacity: 0.85,
-        cursor: 'pointer',
-      },
-    }),
-  };
-};

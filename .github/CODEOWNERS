@@ -1115,6 +1115,7 @@ playwright.storybook.config.ts @grafana/grafana-frontend-platform
 
 /scripts/**/generate-transformations* @grafana/datapro
 /scripts/webpack/ @grafana/frontend-ops
+/scripts/stylex/ @grafana/frontend-ops
 eslint-suppressions.json @grafanabot
 
 # Design system

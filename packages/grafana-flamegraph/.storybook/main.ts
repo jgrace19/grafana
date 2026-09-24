@@ -46,6 +46,14 @@ const config: StorybookConfig = {
       })
     );
 
+    // @grafana/ui is compiled from source here, so its StyleX styles must be compiled before the swc loader.
+    config.module?.rules?.push({
+      test: /\.tsx?$/,
+      enforce: 'pre',
+      exclude: /node_modules/,
+      loader: require.resolve('../../../scripts/stylex/webpack-loader.js'),
+    });
+
     // Tell storybook to resolve imports with the @grafana-app/source condition for
     // the packages in this repo.
     if (config && config.resolve) {

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { getThemeById, type GrafanaTheme2, ThemeContext } from '@grafana/data';
 
 import { GlobalStyles } from '../../themes/GlobalStyles/GlobalStyles';
+import { useThemeCssVariables } from '../../themes/stylex/useThemeCssVariables';
 
 type SassThemeChangeHandler = (theme: GrafanaTheme2) => void;
 interface ThemeableStoryProps {
@@ -14,6 +15,7 @@ const ThemeableStory = ({ children, handleSassThemeChange, themeId }: React.Prop
   const theme = getThemeById(themeId);
 
   handleSassThemeChange(theme);
+  useThemeCssVariables(theme);
 
   const css = `
   #storybook-root {
