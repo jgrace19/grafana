@@ -12,44 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-import { autoColor } from '../Theme';
+import { traceColors } from '../traceColors.stylex';
 import type TNil from '../types/TNil';
 import { formatDuration } from '../utils/date';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  Ticks: css({
-    label: 'Ticks',
-    pointerEvents: 'none',
-  }),
-  TicksTick: css({
-    label: 'TicksTick',
-    position: 'absolute',
-    height: '100%',
-    width: '1px',
-    background: autoColor(theme, '#d8d8d8'),
-    '&:last-child': {
-      width: 0,
-    },
-  }),
-  TicksTickLabel: css({
-    label: 'TicksTickLabel',
-    left: '0.25rem',
-    position: 'absolute',
-    whiteSpace: 'nowrap',
-  }),
-  TicksTickLabelEndAnchor: css({
-    label: 'TicksTickLabelEndAnchor',
-    left: 'initial',
-    right: '0.25rem',
-  }),
-});
 
 type TicksProps = {
   endTime?: number | TNil;
@@ -68,7 +38,6 @@ export default function Ticks({ endTime = null, numTicks, showLabels = null, sta
       labels.push(formatDuration(durationAtTick));
     }
   }
-  const styles = useStyles2(getStyles);
   const ticks: React.ReactNode[] = [];
   for (let i = 0; i < numTicks; i++) {
     const portion = i / (numTicks - 1);
@@ -76,18 +45,36 @@ export default function Ticks({ endTime = null, numTicks, showLabels = null, sta
       <div
         data-testid="TicksID"
         key={portion}
-        className={styles.TicksTick}
-        style={{
-          left: `${portion * 100}%`,
-        }}
+        {...mergeStylexProps(stylex.props(styles.TicksTick), { style: { left: `${portion * 100}%` } })}
       >
         {labels && (
-          <span className={cx(styles.TicksTickLabel, { [styles.TicksTickLabelEndAnchor]: portion >= 1 })}>
+          <span {...stylex.props(styles.TicksTickLabel, portion >= 1 && styles.TicksTickLabelEndAnchor)}>
             {labels[i]}
           </span>
         )}
       </div>
     );
   }
-  return <div className={styles.Ticks}>{ticks}</div>;
+  return <div {...stylex.props(styles.Ticks)}>{ticks}</div>;
 }
+
+const styles = stylex.create({
+  Ticks: {
+    pointerEvents: 'none',
+  },
+  TicksTick: {
+    position: 'absolute',
+    height: '100%',
+    width: { default: '1px', ':last-child': 0 },
+    backgroundColor: traceColors['--gf-trace-d8d8d8'],
+  },
+  TicksTickLabel: {
+    left: '0.25rem',
+    position: 'absolute',
+    whiteSpace: 'nowrap',
+  },
+  TicksTickLabelEndAnchor: {
+    left: 'initial',
+    right: '0.25rem',
+  },
+});

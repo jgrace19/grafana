@@ -1,0 +1,9 @@
+/*
+ * Hides the Button's label on small screens. StyleX can't target Button's inner span; unlayered, like the Emotion
+ * rule it replaces, so it beats Button's own display. The media query is bp.smDown.
+ */
+@media (max-width: 543.95px) {
+  .gf-trace-share-span-button span {
+    display: none;
+  }
+}

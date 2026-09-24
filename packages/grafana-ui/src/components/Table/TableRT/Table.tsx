@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useAbsoluteLayout,
@@ -16,6 +17,7 @@ import { Trans } from '@grafana/i18n';
 import { TableCellHeight } from '@grafana/schema';
 
 import { useTheme2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { CustomScrollbar } from '../../CustomScrollbar/CustomScrollbar';
 import { Pagination } from '../../Pagination/Pagination';
 import { TableCellInspector } from '../TableCellInspector';
@@ -292,7 +294,7 @@ export const Table = memo((props: Props) => {
     const numRows = rows.length;
     const displayedEnd = itemsRangeEnd < rows.length ? itemsRangeEnd : rows.length;
     paginationEl = (
-      <div className={tableStyles.paginationWrapper}>
+      <div {...mergeStylexProps(stylex.props(tableStyles.paginationWrapper), { className: 'gf-table-rt-pagination' })}>
         <Pagination
           currentPage={state.pageIndex + 1}
           numberOfPages={pageOptions.length}
@@ -300,7 +302,7 @@ export const Table = memo((props: Props) => {
           onNavigate={onNavigate}
         />
         {isSmall ? null : (
-          <div className={tableStyles.paginationSummary}>
+          <div {...stylex.props(tableStyles.paginationSummary)}>
             <Trans i18nKey="grafana-ui.table.pagination-summary">
               {{ itemsRangeStart }} - {{ displayedEnd }} of {{ numRows }} rows
             </Trans>
@@ -334,14 +336,14 @@ export const Table = memo((props: Props) => {
     <>
       <div
         {...getTableProps()}
-        className={tableStyles.table}
+        {...stylex.props(tableStyles.table)}
         aria-label={ariaLabel}
         role="table"
         ref={tableDivRef}
         style={{ width, height }}
       >
         <CustomScrollbar hideVerticalTrack={true}>
-          <div className={tableStyles.tableContentWrapper(totalColumnsWidth)}>
+          <div {...stylex.props(tableStyles.tableContentWrapper(totalColumnsWidth))}>
             {!noHeader && (
               <HeaderRow headerGroups={headerGroups} showTypeIcons={showTypeIcons} tableStyles={tableStyles} />
             )}
@@ -379,7 +381,7 @@ export const Table = memo((props: Props) => {
                 />
               </div>
             ) : (
-              <div style={{ height: height - headerHeight, width }} className={tableStyles.noData}>
+              <div {...stylex.props(tableStyles.noData)} style={{ height: height - headerHeight, width }}>
                 {noValuesDisplayText}
               </div>
             )}

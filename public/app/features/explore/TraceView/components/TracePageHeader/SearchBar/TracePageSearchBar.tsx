@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type Dispatch, type SetStateAction } from 'react';
 
-import { type GrafanaTheme2, type TraceSearchProps } from '@grafana/data';
+import { type TraceSearchProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { InlineSwitch, useStyles2 } from '@grafana/ui';
+import { InlineSwitch } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type Trace } from '../../types/trace';
 
 import NextPrevResult from './NextPrevResult';
+
+import './TracePageSearchBar.css';
 
 export type TracePageSearchBarProps = {
   trace: Trace;
@@ -47,10 +51,9 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
     datasourceType,
     showSpanFilters,
   } = props;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.controls}>
+    <div {...stylex.props(styles.controls)}>
       <NextPrevResult
         trace={trace}
         spanFilterMatches={spanFilterMatches}
@@ -65,7 +68,7 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
         value={!search.matchesOnly}
         label={t('explore.show-all-spans', 'Show all spans')}
         disabled={!spanFilterMatches?.size}
-        className={styles.switch}
+        className={mergeStylexProps(stylex.props(styles.switch), { className: 'gf-trace-search-bar-switch' }).className}
         onChange={(e) => {
           setShowSpanFilterMatchesOnly(!search.matchesOnly);
         }}
@@ -74,26 +77,14 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
   );
 });
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    controls: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    switch: css({
-      flexDirection: 'row-reverse',
-      gap: theme.spacing(0.5),
-
-      label: {
-        padding: 0,
-        fontSize: theme.typography.bodySmall.fontSize,
-      },
-    }),
-    clearMatchesButton: css({
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-  };
-};
+const styles = stylex.create({
+  controls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  switch: {
+    flexDirection: 'row-reverse',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+});

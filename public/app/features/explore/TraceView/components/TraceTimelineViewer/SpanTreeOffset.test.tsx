@@ -15,12 +15,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { createTheme } from '@grafana/data';
-
 import { type TraceSpan } from '../types/trace';
 import spanAncestorIdsSpy from '../utils/span-ancestor-ids';
 
-import SpanTreeOffset, { getStyles, type TProps } from './SpanTreeOffset';
+import SpanTreeOffset, { type TProps } from './SpanTreeOffset';
 
 jest.mock('../utils/span-ancestor-ids');
 
@@ -86,8 +84,7 @@ describe('SpanTreeOffset', () => {
     it('adds .is-active to correct indentGuide', () => {
       props.hoverIndentGuideIds = new Set([rootSpanID]);
       render(<SpanTreeOffset {...props} />);
-      const styles = getStyles(createTheme());
-      const activeIndentGuide = document.querySelector(`.${styles.indentGuideActive}`);
+      const activeIndentGuide = document.querySelector('[data-active]');
       expect(activeIndentGuide).toBeInTheDocument();
       expect(activeIndentGuide).toHaveAttribute('data-ancestor-id', rootSpanID);
     });

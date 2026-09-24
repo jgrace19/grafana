@@ -1,8 +1,7 @@
+import * as stylex from '@stylexjs/stylex';
 import { type GroupProps } from 'react-select';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-
-import { getSelectStyles } from './getSelectStyles';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 export const SelectOptionGroup = ({
   children,
@@ -15,9 +14,8 @@ export const SelectOptionGroup = ({
   selectProps,
   theme,
 }: GroupProps) => {
-  const styles = useStyles2(getSelectStyles);
   return (
-    <div className={styles.group}>
+    <div {...stylex.props(styles.group)}>
       <Heading
         cx={cx}
         getClassNames={getClassNames}
@@ -32,3 +30,15 @@ export const SelectOptionGroup = ({
     </div>
   );
 };
+
+const styles = stylex.create({
+  group: {
+    borderTopWidth: { default: null, ':not(:first-child)': '1px' },
+    borderTopStyle: { default: null, ':not(:first-child)': 'solid' },
+    borderTopColor: { default: null, ':not(:first-child)': colors['--gf-colors-border-weak'] },
+    // ensure there's a bottom border if there are options following the group
+    borderBottomWidth: { default: null, ':has(+ [role="option"])': '1px' },
+    borderBottomStyle: { default: null, ':has(+ [role="option"])': 'solid' },
+    borderBottomColor: { default: null, ':has(+ [role="option"])': colors['--gf-colors-border-weak'] },
+  },
+});

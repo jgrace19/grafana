@@ -1,12 +1,15 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCombobox, useMultipleSelection } from 'downshift';
 import { useCallback, useMemo, useState } from 'react';
 
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { Box } from '../Layout/Box/Box';
+import { spacingValue } from '../Layout/utils/responsiveStylex';
 import { Portal } from '../Portal/Portal';
 import { Text } from '../Text/Text';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -16,8 +19,7 @@ import { ComboboxList } from './ComboboxList';
 import { SuffixIcon } from './SuffixIcon';
 import { ValuePill } from './ValuePill';
 import { itemToString } from './filter';
-import { getComboboxStyles } from './getComboboxStyles';
-import { getMultiComboboxStyles } from './getMultiComboboxStyles';
+import { comboboxStyles } from './getComboboxStyles';
 import { ALL_OPTION_VALUE, type ComboboxOption } from './types';
 import { useComboboxFloat } from './useComboboxFloat';
 import { MAX_SHOWN_ITEMS, useMeasureMulti } from './useMeasureMulti';
@@ -61,7 +63,6 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
     id,
   } = props;
 
-  const styles = useStyles2(getComboboxStyles);
   const [inputValue, setInputValue] = useState('');
 
   const allOptionItem = useMemo(() => {
@@ -251,24 +252,30 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
   });
 
   const { inputRef: containerRef, floatingRef, floatStyles, scrollRef } = useComboboxFloat(options, isOpen);
-  const multiStyles = useStyles2(
-    getMultiComboboxStyles,
-    isOpen,
-    invalid,
-    disabled,
-    width,
-    minWidth,
-    maxWidth,
-    isClearable
-  );
 
   // Selected items that show up in the input field
   const visibleItems = isOpen ? selectedItems.slice(0, MAX_SHOWN_ITEMS) : selectedItems.slice(0, shownItems);
 
   const { inputRef, inputWidth } = useMultiInputAutoSize(inputValue);
   return (
-    <div className={multiStyles.container} ref={containerRef}>
-      <div className={cx(multiStyles.wrapper, { [multiStyles.disabled]: disabled })} ref={measureRef}>
+    <div
+      {...stylex.props(
+        width === 'auto' ? styles.containerAuto : styles.container,
+        width !== 'auto' && !!width && styles.width(spacingValue(width)),
+        !!minWidth && styles.minWidth(spacingValue(minWidth)),
+        !!maxWidth && styles.maxWidth(spacingValue(maxWidth))
+      )}
+      ref={containerRef}
+    >
+      <div
+        {...stylex.props(
+          styles.wrapper,
+          invalid && styles.wrapperInvalid,
+          isClearable && styles.wrapperClearable,
+          disabled && (invalid ? styles.disabledInvalid : styles.disabled)
+        )}
+        ref={measureRef}
+      >
         {prefixIcon && (
           <Box marginLeft={0.5}>
             <Text color="secondary">
@@ -276,7 +283,7 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
             </Text>
           </Box>
         )}
-        <span className={multiStyles.pillWrapper}>
+        <span {...stylex.props(styles.pillWrapper, isOpen && styles.pillWrapperOpen)}>
           {visibleItems.map((item, index) => (
             <ValuePill
               disabled={disabled}
@@ -302,12 +309,14 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
                   </>
                 }
               >
-                <div className={multiStyles.restNumber}>{selectedItems.length - visibleItems.length}</div>
+                <div {...stylex.props(styles.restNumber, disabled && styles.restNumberDisabled)}>
+                  {selectedItems.length - visibleItems.length}
+                </div>
               </Tooltip>
             </Box>
           )}
           <input
-            className={multiStyles.input}
+            {...stylex.props(styles.input)}
             {...getInputProps({
               ...getDropdownProps({
                 disabled,
@@ -321,11 +330,11 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
             })}
           />
 
-          <div className={multiStyles.suffix} ref={suffixMeasureRef}>
+          <div {...stylex.props(styles.suffix)} ref={suffixMeasureRef}>
             {isClearable && selectedItems.length > 0 && (
               <Icon
                 name="times"
-                className={styles.clear}
+                xstyle={comboboxStyles.clear}
                 title={t('multicombobox.clear.title', 'Clear all')}
                 tabIndex={0}
                 role="button"
@@ -346,12 +355,13 @@ export const MultiCombobox = <T extends string | number>(props: MultiComboboxPro
       </div>
       <Portal root={portalContainer}>
         <div
-          className={cx(styles.menu, !isOpen && styles.menuClosed)}
-          style={{
-            ...floatStyles,
-            width: floatStyles.width + 24, // account for checkbox
-            pointerEvents: 'auto', // Override container's pointer-events: none
-          }}
+          {...mergeStylexProps(stylex.props(comboboxStyles.menu, !isOpen && comboboxStyles.menuClosed), {
+            style: {
+              ...floatStyles,
+              width: floatStyles.width + 24, // account for checkbox
+              pointerEvents: 'auto', // Override container's pointer-events: none
+            },
+          })}
           {...getMenuProps({ ref: floatingRef })}
         >
           {isOpen && (
@@ -407,3 +417,152 @@ function isComboboxOptions<T extends string | number>(
 ): value is Array<ComboboxOption<T>> {
   return typeof value[0] === 'object';
 }
+
+const styles = stylex.create({
+  // wraps everything
+  container: {
+    width: '100%',
+    display: 'block',
+  },
+  containerAuto: {
+    width: 'auto',
+    display: 'inline-block',
+  },
+  width: (width: string) => ({ width }),
+  minWidth: (minWidth: string) => ({ minWidth }),
+  maxWidth: (maxWidth: string) => ({ maxWidth }),
+  // The Input look (getInputStyles().input) plus the multi-value layout
+  wrapper: {
+    backgroundColor: components['--gf-components-input-background'],
+    lineHeight: typography['--gf-typography-body-line-height'],
+    fontSize: typography['--gf-typography-size-md'],
+    color: components['--gf-components-input-text'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    position: 'relative',
+    zIndex: 0,
+    flexGrow: 1,
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    gap: spacing['--gf-spacing-x0-5'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 28, // Account for suffix
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    outlineStyle: { default: null, ':focus-within': 'dotted' },
+    outlineWidth: { default: null, ':focus-within': '2px' },
+    outlineColor: { default: null, ':focus-within': 'transparent' },
+    outlineOffset: { default: null, ':focus-within': '2px' },
+    boxShadow: {
+      default: null,
+      ':focus-within': `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`,
+    },
+    transitionTimingFunction: {
+      default: null,
+      ':focus-within': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+    transitionDuration: { default: null, ':focus-within': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionProperty: {
+      default: null,
+      ':focus-within': { default: null, [motion.noPreferenceOrReduce]: 'outline, outline-offset, box-shadow' },
+    },
+  },
+  wrapperInvalid: {
+    borderColor: {
+      default: colors['--gf-colors-error-border'],
+      ':hover': colors['--gf-colors-error-shade'],
+    },
+  },
+  wrapperClearable: {
+    paddingRight: spacing['--gf-spacing-x5'],
+  },
+  // getInputStyles().inputDisabled; the hover border colour still applies, as it did with Emotion.
+  disabled: {
+    backgroundColor: colors['--gf-colors-action-disabled-background'],
+    color: colors['--gf-colors-action-disabled-text'],
+    borderColor: {
+      default: colors['--gf-colors-action-disabled-background'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+  },
+  disabledInvalid: {
+    backgroundColor: colors['--gf-colors-action-disabled-background'],
+    color: colors['--gf-colors-action-disabled-text'],
+    borderColor: {
+      default: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-error-shade'],
+    },
+  },
+  input: {
+    borderStyle: 'none',
+    outlineStyle: 'none',
+    backgroundColor: 'transparent',
+    flexGrow: 1,
+    maxWidth: '100%',
+    minWidth: 20, // This is a bit arbitrary, but is used to leave some space for clicking. This will override the minWidth property
+    '::placeholder': {
+      color: colors['--gf-colors-text-disabled'],
+    },
+    cursor: { default: 'pointer', ':focus': 'text' },
+  },
+
+  pillWrapper: {
+    display: 'inline-flex',
+    flexWrap: 'nowrap',
+    flexGrow: 1,
+    minWidth: '50px',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  pillWrapperOpen: {
+    flexWrap: 'wrap',
+  },
+  restNumber: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: {
+      default: colors['--gf-colors-background-secondary'],
+      ':hover': colors['--gf-colors-action-hover'],
+    },
+    cursor: 'pointer',
+  },
+  restNumberDisabled: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+  // getInputStyles().suffix
+  suffix: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    height: '100%',
+    minWidth: '28px',
+    color: colors['--gf-colors-text-secondary'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    borderLeftStyle: 'none',
+    borderTopLeftRadius: 'unset',
+    borderBottomLeftRadius: 'unset',
+  },
+});

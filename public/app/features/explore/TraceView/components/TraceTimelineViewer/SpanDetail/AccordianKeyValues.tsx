@@ -12,75 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type TraceKeyValuePair } from '@grafana/data';
-import { Counter, Icon, useStyles2 } from '@grafana/ui';
+import { type TraceKeyValuePair } from '@grafana/data';
+import { Counter, Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-import { autoColor } from '../../Theme';
+import { traceColors } from '../../traceColors.stylex';
 import type TNil from '../../types/TNil';
 
 import * as markers from './AccordianKeyValues.markers';
 import KeyValuesTable, { type KeyValuesTableLink } from './KeyValuesTable';
 
-import { alignIcon } from '.';
-
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      textOverflow: 'ellipsis',
-    }),
-    header: css({
-      label: 'header',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      padding: '0.25em 0.1em',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    headerLabel: css({
-      width: '120px',
-      display: 'inline-block',
-    }),
-    headerEmpty: css({
-      label: 'headerEmpty',
-      background: 'none',
-      cursor: 'initial',
-    }),
-    headerHighContrast: css({
-      label: 'headerHighContrast',
-      '&:hover': {
-        background: autoColor(theme, '#ddd'),
-      },
-    }),
-    emptyIcon: css({
-      label: 'emptyIcon',
-      color: autoColor(theme, '#aaa'),
-    }),
-    summary: css({
-      label: 'summary',
-      display: 'inline',
-      listStyle: 'none',
-      padding: 0,
-    }),
-    summaryItem: css({
-      label: 'summaryItem',
-      display: 'inline',
-      paddingRight: '0.5rem',
-      '&:last-child': {
-        paddingRight: 0,
-        borderRight: 'none',
-      },
-    }),
-    summaryLabel: css({
-      label: 'summaryLabel',
-      color: autoColor(theme, '#777'),
-      paddingRight: '0.5rem',
-    }),
-  };
-};
+import { alignIconStyles } from '.';
 
 export type AccordianKeyValuesProps = {
   className?: string | TNil;
@@ -95,6 +40,8 @@ export type AccordianKeyValuesProps = {
   label: string | React.ReactNode;
   linksGetter?: ((pairs: TraceKeyValuePair[], index: number) => KeyValuesTableLink[]) | TNil;
   onToggle?: null | (() => void);
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 };
 
 interface KeyValuesSummaryProps {
@@ -103,18 +50,16 @@ interface KeyValuesSummaryProps {
 
 // export for tests
 export function KeyValuesSummary({ data = null }: KeyValuesSummaryProps) {
-  const styles = useStyles2(getStyles);
-
   if (!Array.isArray(data) || !data.length) {
     return null;
   }
 
   return (
-    <ul className={styles.summary}>
+    <ul {...stylex.props(styles.summary)}>
       {data.map((item, i) => (
         // `i` is necessary in the key because item.key can repeat
-        <li className={styles.summaryItem} key={`${item.key}-${i}`}>
-          <span className={styles.summaryLabel}>{item.key}</span>
+        <li {...stylex.props(styles.summaryItem)} key={`${item.key}-${i}`}>
+          <span {...stylex.props(styles.summaryLabel)}>{item.key}</span>
           {String(item.value)}
         </li>
       ))}
@@ -135,18 +80,18 @@ export default function AccordianKeyValues({
   showSummary = true,
   showCountBadge = false,
   onToggle = null,
+  xstyle,
 }: AccordianKeyValuesProps) {
   const isEmpty = (!Array.isArray(data) || !data.length) && !logName;
-  const styles = useStyles2(getStyles);
-  const iconCls = cx(alignIcon, { [styles.emptyIcon]: isEmpty });
+  const iconXstyle = [alignIconStyles.alignIcon, isEmpty && styles.emptyIcon];
   let arrow: React.ReactNode | null = null;
   let headerProps: {} | null = null;
   const tableFields = logName ? [{ key: 'event name', value: logName }, ...data] : data;
   if (interactive) {
     arrow = isOpen ? (
-      <Icon name={'angle-down'} className={iconCls} />
+      <Icon name={'angle-down'} xstyle={iconXstyle} />
     ) : (
-      <Icon name={'angle-right'} className={iconCls} />
+      <Icon name={'angle-right'} xstyle={iconXstyle} />
     );
     headerProps = {
       'aria-checked': isOpen,
@@ -158,22 +103,23 @@ export default function AccordianKeyValues({
   const showDataSummaryFields = showSummary && data.length > 0 && !isOpen;
 
   return (
-    <div className={cx(className, styles.container)}>
+    <div {...mergeStylexProps(stylex.props(styles.container, xstyle), { className: className ?? undefined })}>
       <div
-        className={cx(styles.header, {
-          [styles.headerEmpty]: isEmpty,
-          [styles.headerHighContrast]: highContrast && !isEmpty,
-        })}
+        {...stylex.props(
+          styles.header,
+          isEmpty && styles.headerEmpty,
+          highContrast && !isEmpty && styles.headerHighContrast
+        )}
         {...headerProps}
         data-testid="AccordianKeyValues--header"
       >
         {arrow}
-        <strong data-test={markers.LABEL} className={styles.headerLabel}>
+        <strong data-test={markers.LABEL} {...stylex.props(styles.headerLabel)}>
           {label}
           {showCountBadge ? <Counter value={data.length} variant="secondary" /> : null}
         </strong>
         {showDataSummaryFields && (
-          <span className={css({ marginLeft: '0.7em' })}>
+          <span {...stylex.props(styles.summaryWrapper)}>
             <KeyValuesSummary data={data} />
           </span>
         )}
@@ -182,3 +128,51 @@ export default function AccordianKeyValues({
     </div>
   );
 }
+
+const styles = stylex.create({
+  container: {
+    textOverflow: 'ellipsis',
+  },
+  header: {
+    cursor: 'pointer',
+    overflow: 'hidden',
+    paddingTop: '0.25em',
+    paddingBottom: '0.25em',
+    paddingLeft: '0.1em',
+    paddingRight: '0.1em',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  headerLabel: {
+    width: '120px',
+    display: 'inline-block',
+  },
+  headerEmpty: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    cursor: 'initial',
+  },
+  headerHighContrast: {
+    backgroundColor: { default: null, ':hover': traceColors['--gf-trace-ddd'] },
+  },
+  emptyIcon: {
+    color: traceColors['--gf-trace-aaa'],
+  },
+  summaryWrapper: {
+    marginLeft: '0.7em',
+  },
+  summary: {
+    display: 'inline',
+    listStyle: 'none',
+    padding: 0,
+  },
+  summaryItem: {
+    display: 'inline',
+    paddingRight: { default: '0.5rem', ':last-child': 0 },
+    borderRightStyle: { default: null, ':last-child': 'none' },
+  },
+  summaryLabel: {
+    color: traceColors['--gf-trace-777'],
+    paddingRight: '0.5rem',
+  },
+});

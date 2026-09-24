@@ -105,6 +105,20 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
+  // U3 pickers
+  'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U8 long tail
+  'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
+  'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
+];
+
+// public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
+const stylexMigratedAppFiles = [
+  // E1 explore
+  'public/app/features/explore/TraceView/**/*.{ts,tsx}',
   // U8 long tail
   'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
   'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
@@ -721,6 +735,27 @@ module.exports = [
             {
               group: ['@grafana/runtime'],
               message: "'@grafana/runtime' should not be imported from library packages",
+            },
+            ...stylexRestrictedImports.patterns,
+          ],
+          paths: stylexRestrictedImports.paths,
+        }),
+      ],
+    },
+  },
+
+  {
+    // Must come after grafana/no-extensions-imports, whose restriction it repeats.
+    name: 'grafana/stylex-migrated-app',
+    files: stylexMigratedAppFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            {
+              group: ['app/extensions', 'app/extensions/*'],
+              message: 'Importing from app/extensions is not allowed',
             },
             ...stylexRestrictedImports.patterns,
           ],
