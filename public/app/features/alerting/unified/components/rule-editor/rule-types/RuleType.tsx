@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration
-import { css, cx } from '@emotion/css';
-import { type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 
 import { Card } from '@grafana/ui';
 
@@ -22,13 +20,15 @@ export interface SharedProps {
 
 const RuleType = (props: Props) => {
   const { name, description, image, selected = false, value, onClick, disabled = false } = props;
-  const cardStyles = cx({
-    [pendingEmotionStyles.wrapper]: true,
-    [pendingEmotionStyles.disabled]: disabled,
-  });
 
   return (
-    <Card noMargin className={cardStyles} isSelected={selected} onClick={() => onClick(value)} disabled={disabled}>
+    <Card
+      noMargin
+      style={disabled ? disabledCardStyle : cardStyle}
+      isSelected={selected}
+      onClick={() => onClick(value)}
+      disabled={disabled}
+    >
       <Card.Figure>
         <img src={image} alt="" />
       </Card.Figure>
@@ -38,16 +38,16 @@ const RuleType = (props: Props) => {
   );
 };
 
-// stylex: pending Card migration
-const pendingEmotionStyles = {
-  wrapper: css({
-    width: '380px',
-    cursor: 'pointer',
-    userSelect: 'none',
-  }),
-  disabled: css({
-    opacity: '0.5',
-  }),
+// Card has no xstyle for consumers, and these must win over its own width and cursor in every state.
+const cardStyle: CSSProperties = {
+  width: '380px',
+  cursor: 'pointer',
+  userSelect: 'none',
+};
+
+const disabledCardStyle: CSSProperties = {
+  ...cardStyle,
+  opacity: 0.5,
 };
 
 export { RuleType };

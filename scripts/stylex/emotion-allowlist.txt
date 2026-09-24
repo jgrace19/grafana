@@ -75,4 +75,3 @@ public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx 
 public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/GroupAndNamespaceFields.tsx # stylex: pending Select migration: keeps Emotion className overrides that must beat Select's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.tsx # stylex: pending InlineLabel migration: keeps Emotion className overrides that must beat InlineLabel's own Emotion styles
-public/app/features/alerting/unified/components/rule-editor/rule-types/RuleType.tsx # stylex: pending Card migration: keeps Emotion className overrides that must beat Card's own Emotion styles
