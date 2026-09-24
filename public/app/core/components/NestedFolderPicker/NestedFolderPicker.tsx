@@ -19,7 +19,6 @@ import { queryResultToViewItem } from 'app/features/search/service/utils';
 import { type DashboardViewItem } from 'app/features/search/types';
 import { type PermissionLevel } from 'app/types/acl';
 
-import './NestedFolderPicker.css';
 import { FolderRepo } from './FolderRepo';
 import { getDOMId, NestedFolderList } from './NestedFolderList';
 import Trigger from './Trigger';
@@ -318,7 +317,7 @@ export function NestedFolderPicker({
         placeholder={label ?? t('browse-dashboards.folder-picker.search-placeholder', 'Search folders')}
         value={search}
         invalid={invalid}
-        className="gf-nested-folder-picker-search"
+        inputXstyle={styles.searchInput}
         onChange={(e) => setSearch(e.currentTarget.value)}
         aria-autocomplete="list"
         aria-expanded
@@ -490,6 +489,10 @@ function filterExcludedItems(items: DashboardsTreeItem[], excludeUIDs: string[] 
 }
 
 const styles = stylex.create({
+  // Input's disabled cursor still wins, as on main.
+  searchInput: {
+    cursor: { default: 'default', ':disabled': { default: 'not-allowed', ':is([readonly])': 'default' } },
+  },
   tableWrapper: {
     boxShadow: shadows['--gf-shadows-z3'],
     position: 'relative',

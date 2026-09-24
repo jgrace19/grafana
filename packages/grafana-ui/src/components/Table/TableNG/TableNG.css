@@ -166,25 +166,6 @@
 }
 
 /*
- * FilterPopup's Label (Forms) and operator ButtonSelect (ToolbarButton), owned by other slices. Doubled while
- * they are still Emotion: their rules are inserted after this sheet.
- */
-.gf-table-ng-filter-label.gf-table-ng-filter-label {
-  margin-bottom: 0;
-}
-
-.gf-table-ng-filter-operator.gf-table-ng-filter-operator {
-  font-size: 12px;
-}
-
-.gf-table-ng-filter-operator.gf-table-ng-filter-operator:hover,
-.gf-table-ng-filter-operator.gf-table-ng-filter-operator:focus,
-.gf-table-ng-filter-operator.gf-table-ng-filter-operator:active {
-  color: var(--gf-colors-text-primary);
-  background: transparent;
-}
-
-/*
  * The header label resets the browser's button styles. StyleX drops `all`, and this rule is layered so that
  * the label's own StyleX styles still apply on top of it.
  */

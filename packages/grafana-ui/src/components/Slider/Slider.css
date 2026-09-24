@@ -62,20 +62,6 @@
   order: 2;
 }
 
-/* The input field is an Input, which has no StyleX override prop. */
-.gf-slider-input-field {
-  margin-left: calc(var(--gf-spacing-grid-size) * 3);
-}
-
-.gf-slider-input-field input {
-  text-align: center;
-}
-
-.gf-slider-input-field-vertical {
-  margin: 0 0 calc(var(--gf-spacing-grid-size) * 3) 0;
-  order: 1;
-}
-
 /* rc-slider renders its tooltips in <body>. */
 body .rc-slider-tooltip {
   cursor: grab;

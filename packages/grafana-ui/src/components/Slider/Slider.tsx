@@ -193,7 +193,8 @@ export const Slider = ({
           <Input
             type="text"
             width={7.5}
-            className={clsx('gf-slider-input-field', !isHorizontal && 'gf-slider-input-field-vertical')}
+            xstyle={isHorizontal ? styles.inputField : styles.inputFieldVertical}
+            inputXstyle={styles.inputFieldInput}
             value={inputValue}
             onChange={onTextInputChange}
             onBlur={onTextInputBlur}
@@ -210,6 +211,19 @@ export const Slider = ({
 Slider.displayName = 'Slider';
 
 const styles = stylex.create({
+  inputField: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+  },
+  inputFieldVertical: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+    marginLeft: 0,
+    order: 1,
+  },
+  inputFieldInput: {
+    textAlign: 'center',
+  },
   container: {
     width: '100%',
   },

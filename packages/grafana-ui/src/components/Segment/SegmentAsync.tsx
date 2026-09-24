@@ -37,6 +37,7 @@ export function SegmentAsync<T>({
   reloadOptionsOnChange = false,
   Component,
   className,
+  xstyle,
   allowCustomValue,
   allowEmptyValue,
   disabled,
@@ -68,6 +69,7 @@ export function SegmentAsync<T>({
                 segmentStyles.segment,
                 disabled && segmentStyles.disabled,
                 placeholder !== undefined && !value && segmentStyles.placeholder,
+                xstyle,
               ]}
             >
               {label || placeholder}

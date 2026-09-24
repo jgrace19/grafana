@@ -11,6 +11,8 @@ import { Spinner } from '../Spinner/Spinner';
  */
 export interface LoadingPlaceholderProps extends HTMLAttributes<HTMLDivElement> {
   text: React.ReactNode;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -19,9 +21,9 @@ export interface LoadingPlaceholderProps extends HTMLAttributes<HTMLDivElement> 
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-loadingplaceholder--docs
  * @public
  */
-export const LoadingPlaceholder = ({ text, className, style, ...rest }: LoadingPlaceholderProps) => {
+export const LoadingPlaceholder = ({ text, className, style, xstyle, ...rest }: LoadingPlaceholderProps) => {
   return (
-    <div {...mergeStylexProps(stylex.props(styles.container), { className, style })} {...rest}>
+    <div {...mergeStylexProps(stylex.props(styles.container, xstyle), { className, style })} {...rest}>
       {text} <Spinner inline={true} />
     </div>
   );

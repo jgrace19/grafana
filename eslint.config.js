@@ -244,22 +244,18 @@ const stylexMigratedAppFiles = [
   'public/app/features/live/**/*.{ts,tsx}',
   'public/app/features/serviceaccounts/components/CreateTokenModal.tsx',
   'public/app/features/users/TokenRevokedModal.tsx',
-];
-
-// Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
-const stylexNotMigratedAppFiles = [
-  // C1 core: notifications, options UI, query rows, splash screen, tags and the rest of core/components
-  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
+  // Lock-down A part 2: Emotion-free files that were listed as not migrated, and the login page
+  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,SplitPaneWrapper,TagFilter,ValidationLabels}/*.{ts,tsx}',
   'public/app/core/components/CardButton.tsx',
   'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
   'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
-  'public/app/core/components/TagFilter/*.{ts,tsx}',
-  // M1 datasources, connections, correlations
-  'public/app/features/correlations/**/*.{ts,tsx}',
-  // M1 library-panels, inspector, panel, query
-  'public/app/features/inspector/**/*.{ts,tsx}',
-  'public/app/features/query/**/*.{ts,tsx}',
+  'public/app/core/components/Login/LoginLayout.tsx',
+  'public/app/features/{correlations,inspector,query}/**/*.{ts,tsx}',
 ];
+
+// Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
+/** @type {string[]} */
+const stylexNotMigratedAppFiles = [];
 
 const stylexRestrictedImports = {
   patterns: [

@@ -15,6 +15,8 @@ import { type VizLegendItem } from './types';
 export interface Props<T> {
   item: VizLegendItem<T>;
   className?: string;
+  /** @internal first-party StyleX overrides for the item wrapper, applied last */
+  xstyle?: stylex.StyleXStyles;
   onLabelClick?: (item: VizLegendItem<T>, event: React.MouseEvent<HTMLButtonElement>) => void;
   onLabelMouseOver?: (
     item: VizLegendItem,
@@ -37,6 +39,7 @@ export const VizLegendListItem = <T = unknown,>({
   onLabelMouseOver,
   onLabelMouseOut,
   className,
+  xstyle,
   readonly,
   allItemsSelected,
 }: Props<T>) => {
@@ -76,7 +79,9 @@ export const VizLegendListItem = <T = unknown,>({
 
   return (
     <div
-      {...mergeStylexProps(stylex.props(styles.itemWrapper, item.disabled && styles.itemDisabled), { className })}
+      {...mergeStylexProps(stylex.props(styles.itemWrapper, item.disabled && styles.itemDisabled, xstyle), {
+        className,
+      })}
       data-testid={selectors.components.VizLegend.seriesName(item.label)}
     >
       <VizLegendSeriesIcon
