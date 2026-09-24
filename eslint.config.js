@@ -109,6 +109,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U7 viz
+  'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
   // U8 chrome/globals
   'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
   'packages/grafana-ui/src/utils/skeleton.tsx',
@@ -129,6 +131,18 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
+  // P1 core-bundled panels
+  'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  // D3 dashboard
+  'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
+  // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
+  'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
+  // M2 admin and misc features
+  'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
+  'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,ServerStatsCard,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
+  'public/app/features/admin/ldap/LdapSettingsPage.tsx',
+  'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
+  'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
 ];
 
 const stylexRestrictedImports = {

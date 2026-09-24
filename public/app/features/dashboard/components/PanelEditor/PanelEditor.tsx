@@ -1,16 +1,10 @@
-import { css } from '@emotion/css';
-import { PureComponent } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type ComponentProps, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { Subscription } from 'rxjs';
 
-import {
-  type FieldConfigSource,
-  type GrafanaTheme2,
-  type NavModel,
-  type NavModelItem,
-  PageLayoutType,
-} from '@grafana/data';
+import { type FieldConfigSource, type NavModel, type NavModelItem, PageLayoutType } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
@@ -19,13 +13,14 @@ import {
   InlineSwitch,
   ModalsController,
   RadioButtonGroup,
-  stylesFactory,
   type Themeable2,
   ToolbarButton,
   ToolbarButtonRow,
-  withTheme2,
+  useTheme2,
   Stack,
 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { AppChromeUpdate } from 'app/core/components/AppChrome/AppChromeUpdate';
 import { Page } from 'app/core/components/Page/Page';
@@ -199,13 +194,16 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
     this.props.toggleTableView();
   };
 
-  renderPanel(styles: EditorStyles, isOnlyPanel: boolean) {
+  renderPanel(isOnlyPanel: boolean) {
     const { dashboard, panel, uiState, tableViewEnabled, theme } = this.props;
 
     return (
-      <div className={styles.mainPaneWrapper} key="panel">
-        {this.renderPanelToolbar(styles)}
-        <div className={styles.panelWrapper}>
+      <div
+        {...stylex.props(styles.mainPaneWrapper, uiState.isPanelOptionsVisible && styles.mainPaneWrapperOptionsVisible)}
+        key="panel"
+      >
+        {this.renderPanelToolbar()}
+        <div {...stylex.props(styles.panelWrapper)}>
           <AutoSizer>
             {({ width, height }) => {
               if (width < 3 || height < 3) {
@@ -224,7 +222,7 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
               const panelSize = calculatePanelSize(uiState.mode, width, height, panel);
 
               return (
-                <div className={styles.centeringContainer} style={{ width, height }}>
+                <div {...mergeStylexProps(stylex.props(styles.centeringContainer), { style: { width, height } })}>
                   <div style={panelSize} data-panelid={panel.id}>
                     <DashboardPanel
                       key={panel.key}
@@ -247,14 +245,14 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
     );
   }
 
-  renderPanelAndEditor(uiState: PanelEditorUIState, styles: EditorStyles) {
+  renderPanelAndEditor(uiState: PanelEditorUIState) {
     const { panel, dashboard, plugin, tab } = this.props;
     const tabs = getPanelEditorTabs(tab, plugin);
     const isOnlyPanel = tabs.length === 0;
-    const panelPane = this.renderPanel(styles, isOnlyPanel);
+    const panelPane = this.renderPanel(isOnlyPanel);
 
     if (tabs.length === 0) {
-      return <div className={styles.onlyPanel}>{panelPane}</div>;
+      return <div {...stylex.props(styles.onlyPanel)}>{panelPane}</div>;
     }
 
     return (
@@ -272,7 +270,7 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
       >
         {panelPane}
         <div
-          className={styles.tabsWrapper}
+          {...stylex.props(styles.tabsWrapper)}
           data-testid={selectors.components.PanelEditor.DataPane.content}
           key="panel-editor-tabs"
         >
@@ -288,7 +286,7 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
     );
   }
 
-  renderTemplateVariables(styles: EditorStyles) {
+  renderTemplateVariables() {
     const { variables } = this.props;
 
     if (!variables.length) {
@@ -296,19 +294,19 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
     }
 
     return (
-      <div className={styles.variablesWrapper}>
+      <div {...stylex.props(styles.variablesWrapper)}>
         <SubMenuItems variables={variables} />
       </div>
     );
   }
 
-  renderPanelToolbar(styles: EditorStyles) {
+  renderPanelToolbar() {
     const { dashboard, uiState, variables, updateTimeZoneForSession, panel, tableViewEnabled } = this.props;
 
     return (
-      <div className={styles.panelToolbar}>
+      <div {...stylex.props(styles.panelToolbar)}>
         <Stack justifyContent={variables.length > 0 ? 'space-between' : 'flex-end'} alignItems="flex-start">
-          {this.renderTemplateVariables(styles)}
+          {this.renderTemplateVariables()}
           <Stack gap={1}>
             <InlineSwitch
               label={t('dashboard.panel-editor-unconnected.table-view-label-table-view', 'Table view')}
@@ -452,9 +450,7 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
   };
 
   render() {
-    const { initDone, uiState, theme, sectionNav, pageNav, className, updatePanelEditorUIState } = this.props;
-    const styles = getStyles(theme, this.props);
-
+    const { initDone, uiState, sectionNav, pageNav, className, updatePanelEditorUIState } = this.props;
     if (!initDone) {
       return null;
     }
@@ -470,10 +466,10 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
         <AppChromeUpdate
           actions={<ToolbarButtonRow alignment="right">{this.renderEditorActions()}</ToolbarButtonRow>}
         />
-        <div className={styles.wrapper}>
-          <div className={styles.verticalSplitPanesWrapper}>
+        <div {...stylex.props(styles.wrapper)}>
+          <div {...stylex.props(styles.verticalSplitPanesWrapper)}>
             {!uiState.isPanelOptionsVisible ? (
-              this.renderPanelAndEditor(uiState, styles)
+              this.renderPanelAndEditor(uiState)
             ) : (
               <SplitPaneWrapper
                 splitOrientation="vertical"
@@ -486,7 +482,7 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
                   }
                 }}
               >
-                {this.renderPanelAndEditor(uiState, styles)}
+                {this.renderPanelAndEditor(uiState)}
                 {this.renderOptionsPane()}
               </SplitPaneWrapper>
             )}
@@ -506,82 +502,77 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
   }
 }
 
-export const PanelEditor = withTheme2(connector(PanelEditorUnconnected));
+const ConnectedPanelEditor = connector(PanelEditorUnconnected);
 
-/*
- * Styles
- */
-export const getStyles = stylesFactory((theme: GrafanaTheme2, props: Props) => {
-  const { uiState } = props;
-  const paneSpacing = theme.spacing(2);
+export const PanelEditor = (props: Omit<ComponentProps<typeof ConnectedPanelEditor>, 'theme'>) => {
+  const theme = useTheme2();
+  return <ConnectedPanelEditor {...props} theme={theme} />;
+};
 
-  return {
-    wrapper: css({
-      width: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-      display: 'flex',
-      paddingTop: theme.spacing(2),
-    }),
-    verticalSplitPanesWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      position: 'relative',
-    }),
-    mainPaneWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      paddingRight: `${uiState.isPanelOptionsVisible ? 0 : paneSpacing}`,
-    }),
-    variablesWrapper: css({
-      label: 'variablesWrapper',
-      display: 'flex',
-      flexGrow: 1,
-      flexWrap: 'wrap',
-      gap: theme.spacing(1, 2),
-    }),
-    panelWrapper: css({
-      flex: '1 1 0',
-      minHeight: 0,
-      width: '100%',
-      paddingLeft: paneSpacing,
-    }),
-    tabsWrapper: css({
-      height: '100%',
-      width: '100%',
-    }),
-    panelToolbar: css({
-      display: 'flex',
-      padding: `0 0 ${paneSpacing} ${paneSpacing}`,
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    }),
-    angularWarning: css({
-      display: 'flex',
-      height: theme.spacing(4),
-      alignItems: 'center',
-    }),
-    toolbarLeft: css({
-      paddingLeft: theme.spacing(1),
-    }),
-    centeringContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
-      flexDirection: 'column',
-    }),
-    onlyPanel: css({
-      height: '100%',
-      position: 'absolute',
-      overflow: 'hidden',
-      width: '100%',
-    }),
-  };
+const styles = stylex.create({
+  wrapper: {
+    width: '100%',
+    flexGrow: 1,
+    minHeight: 0,
+    display: 'flex',
+    paddingTop: spacing['--gf-spacing-x2'],
+  },
+  verticalSplitPanesWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    width: '100%',
+    position: 'relative',
+  },
+  mainPaneWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    width: '100%',
+    paddingRight: spacing['--gf-spacing-x2'],
+  },
+  mainPaneWrapperOptionsVisible: {
+    paddingRight: 0,
+  },
+  variablesWrapper: {
+    display: 'flex',
+    flexGrow: 1,
+    flexWrap: 'wrap',
+    rowGap: spacing['--gf-spacing-x1'],
+    columnGap: spacing['--gf-spacing-x2'],
+  },
+  panelWrapper: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minHeight: 0,
+    width: '100%',
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  tabsWrapper: {
+    height: '100%',
+    width: '100%',
+  },
+  panelToolbar: {
+    display: 'flex',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  centeringContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    flexDirection: 'column',
+  },
+  onlyPanel: {
+    height: '100%',
+    position: 'absolute',
+    overflow: 'hidden',
+    width: '100%',
+  },
 });
-
-type EditorStyles = ReturnType<typeof getStyles>;

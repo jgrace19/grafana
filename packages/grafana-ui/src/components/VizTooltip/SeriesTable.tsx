@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type GraphSeriesValue } from '@grafana/data';
+import { type GraphSeriesValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { SeriesIcon } from '../VizLegend/SeriesIcon';
 
 /**
@@ -17,55 +17,19 @@ export interface SeriesTableRowProps {
   isActive?: boolean;
 }
 
-const getSeriesTableRowStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      marginRight: theme.spacing(1),
-      verticalAlign: 'middle',
-    }),
-    seriesTable: css({
-      display: 'table',
-    }),
-    seriesTableRow: css({
-      display: 'table-row',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    seriesTableCell: css({
-      display: 'table-cell',
-    }),
-    label: css({
-      wordBreak: 'break-all',
-    }),
-    value: css({
-      paddingLeft: theme.spacing(2),
-      textAlign: 'right',
-    }),
-    activeSeries: css({
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.text.maxContrast,
-    }),
-    timestamp: css({
-      fontWeight: theme.typography.fontWeightBold,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-};
-
 /**
  * @public
  */
 export const SeriesTableRow = ({ color, label, value, isActive }: SeriesTableRowProps) => {
-  const styles = useStyles2(getSeriesTableRowStyles);
-
   return (
-    <div data-testid="SeriesTableRow" className={cx(styles.seriesTableRow, isActive && styles.activeSeries)}>
+    <div data-testid="SeriesTableRow" {...stylex.props(styles.seriesTableRow, isActive && styles.activeSeries)}>
       {color && (
-        <div className={styles.seriesTableCell}>
-          <SeriesIcon color={color} className={styles.icon} />
+        <div {...stylex.props(styles.seriesTableCell)}>
+          <SeriesIcon color={color} xstyle={styles.icon} />
         </div>
       )}
-      {label && <div className={cx(styles.seriesTableCell, styles.label)}>{label}</div>}
-      {value && <div className={cx(styles.seriesTableCell, styles.value)}>{value}</div>}
+      {label && <div {...stylex.props(styles.seriesTableCell, styles.label)}>{label}</div>}
+      {value && <div {...stylex.props(styles.seriesTableCell, styles.value)}>{value}</div>}
     </div>
   );
 };
@@ -82,12 +46,10 @@ export interface SeriesTableProps {
  * @public
  */
 export const SeriesTable = ({ timestamp, series }: SeriesTableProps) => {
-  const styles = useStyles2(getSeriesTableRowStyles);
-
   return (
     <>
       {timestamp && (
-        <div className={styles.timestamp} aria-label={t('grafana-ui.viz-tooltip.timestamp', 'Timestamp')}>
+        <div {...stylex.props(styles.timestamp)} aria-label={t('grafana-ui.viz-tooltip.timestamp', 'Timestamp')}>
           {timestamp}
         </div>
       )}
@@ -105,3 +67,32 @@ export const SeriesTable = ({ timestamp, series }: SeriesTableProps) => {
     </>
   );
 };
+
+const styles = stylex.create({
+  icon: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    verticalAlign: 'middle',
+  },
+  seriesTableRow: {
+    display: 'table-row',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  seriesTableCell: {
+    display: 'table-cell',
+  },
+  label: {
+    wordBreak: 'break-all',
+  },
+  value: {
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    textAlign: 'right',
+  },
+  activeSeries: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-text-max-contrast'],
+  },
+  timestamp: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});

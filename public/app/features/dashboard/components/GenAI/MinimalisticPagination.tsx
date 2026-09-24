@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 export interface MinimalisticPaginationProps {
   currentPage: number;
@@ -10,6 +11,8 @@ export interface MinimalisticPaginationProps {
   onNavigate: (toPage: number) => void;
   hideWhenSinglePage?: boolean;
   className?: string;
+  /** StyleX overrides for the wrapper, applied after its own styles */
+  xstyle?: StyleXStyles;
 }
 
 export const MinimalisticPagination = ({
@@ -18,15 +21,14 @@ export const MinimalisticPagination = ({
   onNavigate,
   hideWhenSinglePage,
   className,
+  xstyle,
 }: MinimalisticPaginationProps) => {
-  const styles = useStyles2(getStyles);
-
   if (hideWhenSinglePage && numberOfPages <= 1) {
     return null;
   }
 
   return (
-    <div className={cx(styles.wrapper, className)}>
+    <div {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })}>
       <IconButton
         name="angle-left"
         size="md"
@@ -48,11 +50,11 @@ export const MinimalisticPagination = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'row',
     gap: 16,
     userSelect: 'none',
-  }),
+  },
 });

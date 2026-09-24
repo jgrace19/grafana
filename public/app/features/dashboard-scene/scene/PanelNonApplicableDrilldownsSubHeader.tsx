@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useMeasure } from 'react-use';
 
@@ -11,7 +11,8 @@ import {
   type GroupByVariable,
   type SceneQueryRunner,
 } from '@grafana/scenes';
-import { Tooltip, measureText, useStyles2, useTheme2 } from '@grafana/ui';
+import { Tooltip, measureText, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getDrilldownApplicability } from '../utils/drilldownUtils';
 
@@ -30,7 +31,6 @@ interface Props {
 }
 
 export function PanelNonApplicableDrilldownsSubHeader({ filtersVar, groupByVar, queryRunner }: Props) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const [sizeRef, { width: containerWidth }] = useMeasure<HTMLDivElement>();
 
@@ -151,17 +151,17 @@ export function PanelNonApplicableDrilldownsSubHeader({ filtersVar, groupByVar, 
   return (
     <div
       ref={sizeRef}
-      className={styles.container}
+      {...stylex.props(styles.container)}
       data-testid={selectors.components.Panels.Panel.PanelNonApplicableDrilldownsSubHeader}
     >
       {visibleItems.map((item, index) => (
         <Tooltip key={`${item.label}-${index}`} content={item.reason ?? defaultReason} placement="bottom">
-          <div className={cx(styles.disabledPill, styles.strikethrough, styles.pill)}>{item.label}</div>
+          <div {...stylex.props(styles.disabledPill, styles.strikethrough, styles.pill)}>{item.label}</div>
         </Tooltip>
       ))}
       {hasOverflow && (
         <Tooltip content={remainingItems.map((item) => item.label).join(', ')} placement="bottom">
-          <div className={cx(styles.disabledPill, styles.pill)}>+{remainingCount}</div>
+          <div {...stylex.props(styles.disabledPill, styles.pill)}>+{remainingCount}</div>
         </Tooltip>
       )}
     </div>
@@ -198,32 +198,30 @@ function calculateVisibleCount(labels: string[], containerWidth: number, theme: 
   return visible;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: theme.spacing(1),
-      width: '100%',
-      overflow: 'hidden',
-    }),
-    pill: css({
-      padding: theme.spacing(0.2, 0.4),
-      borderRadius: theme.shape.radius.default,
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    disabledPill: css({
-      background: theme.colors.action.selected,
-      color: theme.colors.text.disabled,
-      border: 0,
-      '&:hover': {
-        background: theme.colors.action.selected,
-      },
-    }),
-    strikethrough: css({
-      textDecoration: 'line-through',
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gap: spacing['--gf-spacing-x1'],
+    width: '100%',
+    overflow: 'hidden',
+  },
+  pill: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.2)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.2)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  disabledPill: {
+    backgroundColor: colors['--gf-colors-action-selected'],
+    color: colors['--gf-colors-text-disabled'],
+    borderWidth: 0,
+  },
+  strikethrough: {
+    textDecoration: 'line-through',
+  },
+});

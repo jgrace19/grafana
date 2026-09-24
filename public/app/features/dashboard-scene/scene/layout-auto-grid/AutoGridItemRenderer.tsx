@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { memo, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { LazyLoader, sceneGraph, type SceneComponentProps, type VizPanel } from '@grafana/scenes';
-import { useElementSelection, useStyles2 } from '@grafana/ui';
+import { useElementSelection } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
 import { useIsConditionallyHidden } from '../../conditional-rendering/hooks/useIsConditionallyHidden';
@@ -15,13 +17,11 @@ import { AUTO_GRID_ITEM_DROP_TARGET_ATTR } from '../types/DashboardDropTarget';
 
 import { type AutoGridItem } from './AutoGridItem';
 import { AutoGridLayoutManager } from './AutoGridLayoutManager';
-import { DRAGGED_ITEM_HEIGHT, DRAGGED_ITEM_LEFT, DRAGGED_ITEM_TOP, DRAGGED_ITEM_WIDTH } from './const';
 
 export function AutoGridItemRenderer({ model }: SceneComponentProps<AutoGridItem>) {
   const { body, repeatedPanels = [], key } = model.useState();
   const { draggingKey } = model.getParentGrid().useState();
   const { isEditing, preload } = useDashboardState(model);
-  const styles = useStyles2(getStyles);
   const soloPanelContext = useSoloPanelContext();
   const isLazy = useMemo(() => getIsLazy(preload), [preload]);
 
@@ -58,20 +58,21 @@ export function AutoGridItemRenderer({ model }: SceneComponentProps<AutoGridItem
               {...(addDndContainer
                 ? { ref: model.containerRef, [AUTO_GRID_ITEM_DROP_TARGET_ATTR]: showDropTarget ? key : undefined }
                 : {})}
-              className={cx(isConditionallyHidden && !isEditing && styles.hidden)}
+              {...stylex.props(isConditionallyHidden && !isEditing && styles.hidden)}
             >
-              {isDragged && <div className={styles.draggedPlaceholder} />}
+              {isDragged && <div {...stylex.props(styles.draggedPlaceholder)} />}
               {
                 // The lazy loader causes issues when used with conditional rendering
                 isLazy && (!isConditionallyHidden || !renderHidden) ? (
                   <LazyLoader
                     key={item.state.key!}
-                    className={cx(
-                      conditionalRenderingClass,
-                      styles.wrapper,
-                      isDragged && !isRepeat && styles.draggedWrapper,
-                      isDragged && isRepeat && styles.draggedRepeatWrapper,
-                      isSelected && 'dashboard-selected-element'
+                    {...mergeStylexProps(
+                      stylex.props(
+                        styles.wrapper,
+                        isDragged && !isRepeat && styles.draggedWrapper,
+                        isDragged && isRepeat && styles.draggedRepeatWrapper
+                      ),
+                      { className: clsx(conditionalRenderingClass, isSelected && 'dashboard-selected-element') }
                     )}
                   >
                     <item.Component model={item} />
@@ -79,12 +80,13 @@ export function AutoGridItemRenderer({ model }: SceneComponentProps<AutoGridItem
                   </LazyLoader>
                 ) : (
                   <div
-                    className={cx(
-                      conditionalRenderingClass,
-                      styles.wrapper,
-                      isDragged && !isRepeat && styles.draggedWrapper,
-                      isDragged && isRepeat && styles.draggedRepeatWrapper,
-                      isSelected && 'dashboard-selected-element'
+                    {...mergeStylexProps(
+                      stylex.props(
+                        styles.wrapper,
+                        isDragged && !isRepeat && styles.draggedWrapper,
+                        isDragged && isRepeat && styles.draggedRepeatWrapper
+                      ),
+                      { className: clsx(conditionalRenderingClass, isSelected && 'dashboard-selected-element') }
                     )}
                   >
                     <item.Component model={item} />
@@ -96,7 +98,7 @@ export function AutoGridItemRenderer({ model }: SceneComponentProps<AutoGridItem
           );
         }
       ),
-    [model, isLazy, key, styles, isEditing]
+    [model, isLazy, key, isEditing]
   );
 
   const { isSelected: isSourceSelected } = useElementSelection(body.state.key);
@@ -140,34 +142,31 @@ export function AutoGridItemRenderer({ model }: SceneComponentProps<AutoGridItem
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({ width: '100%', height: '100%', position: 'relative' }),
-  draggedWrapper: css({
+// StyleX ranks above the layered `.dashboard-visible-hidden-element { position: relative }` global rule, so the dragged
+// wrapper keeps its absolute position without a compound selector. The custom properties are the DRAGGED_ITEM_* names
+// from ./const, which stylex.create can't import.
+const styles = stylex.create({
+  wrapper: { width: '100%', height: '100%', position: 'relative' },
+  draggedWrapper: {
     position: 'absolute',
     zIndex: 1000,
-    top: `var(${DRAGGED_ITEM_TOP})`,
-    left: `var(${DRAGGED_ITEM_LEFT})`,
-    width: `var(${DRAGGED_ITEM_WIDTH})`,
-    height: `var(${DRAGGED_ITEM_HEIGHT})`,
+    top: 'var(--responsive-grid-dragged-item-top)',
+    left: 'var(--responsive-grid-dragged-item-left)',
+    width: 'var(--responsive-grid-dragged-item-width)',
+    height: 'var(--responsive-grid-dragged-item-height)',
     opacity: 0.8,
-
-    // Unfortunately, we need to re-enforce the absolute position here. Otherwise, the position will be overwritten with
-    //  a relative position by .dashboard-visible-hidden-element
-    '&.dashboard-visible-hidden-element': {
-      position: 'absolute',
-    },
-  }),
-  draggedRepeatWrapper: css({
+  },
+  draggedRepeatWrapper: {
     visibility: 'hidden',
-  }),
-  draggedPlaceholder: css({
+  },
+  draggedPlaceholder: {
     width: '100%',
     height: '100%',
-    boxShadow: `0 0 ${theme.spacing(0.5)} ${theme.colors.primary.border}`,
-    background: `${theme.colors.primary.transparent}`,
+    boxShadow: `0 0 ${spacing['--gf-spacing-x0-5']} ${colors['--gf-colors-primary-border']}`,
+    backgroundColor: colors['--gf-colors-primary-transparent'],
     zIndex: -1,
-  }),
-  hidden: css({
+  },
+  hidden: {
     display: 'none',
-  }),
+  },
 });

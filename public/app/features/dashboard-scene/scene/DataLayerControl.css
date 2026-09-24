@@ -1,0 +1,20 @@
+/*
+ * DataLayerControl styles DOM rendered by @grafana/scenes (the data layer's root div and ControlsLabel), whose Emotion
+ * rules StyleX can't beat. Unlayered on purpose, at a specificity that wins over the scenes rules like the Emotion
+ * overrides it replaces did.
+ */
+.gf-data-layer-control-wrapper > div,
+.gf-data-layer-control-wrapper > div:hover {
+  border: none;
+  background: transparent;
+}
+
+.gf-data-layer-control-wrapper > div {
+  padding-right: var(--gf-spacing-x0-5);
+  height: var(--gf-spacing-x2);
+}
+
+.gf-data-layer-menu-label.gf-data-layer-menu-label {
+  margin-top: 0;
+  margin-bottom: 0;
+}

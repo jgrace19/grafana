@@ -57,6 +57,7 @@ export const LiveConnectionWarning = memo(function LiveConnectionWarning() {
   return null;
 });
 
+// stylex: pending Alert migration
 const getStyle = (theme: GrafanaTheme2) => ({
   warn: css({
     position: 'fixed',

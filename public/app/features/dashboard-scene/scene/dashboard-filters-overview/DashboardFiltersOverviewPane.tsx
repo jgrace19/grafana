@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type AdHocFiltersVariable, type GroupByVariable } from '@grafana/scenes';
-import { Box, IconButton, Text, useStyles2 } from '@grafana/ui';
+import { Box, IconButton, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardFiltersOverview } from './DashboardFiltersOverview';
 import { DashboardFiltersOverviewSearch } from './DashboardFiltersOverviewSearch';
@@ -16,24 +16,23 @@ interface Props {
 }
 
 export function DashboardFiltersOverviewPane({ adhocFilters, groupByVariable, onClose }: Props) {
-  const styles = useStyles2(getStyles);
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <Box display="flex" direction="column" flex={1} height="100%" minHeight={0}>
-      <div className={styles.header}>
+      <div {...stylex.props(styles.header)}>
         <IconButton
           name="times"
           size="lg"
           onClick={onClose}
           aria-label={t('dashboard.filters-overview.close', 'Close')}
         />
-        <div className={styles.title}>
+        <div {...stylex.props(styles.title)}>
           <Text variant="h6">{t('dashboard.filters-overview.title', 'Edit filters')}</Text>
         </div>
         <DashboardFiltersOverviewSearch value={searchQuery} onChange={setSearchQuery} />
       </div>
-      <div className={cx(styles.content, styles.body)}>
+      <div {...stylex.props(styles.content, styles.body)}>
         <DashboardFiltersOverview
           adhocFilters={adhocFilters}
           groupByVariable={groupByVariable}
@@ -45,31 +44,33 @@ export function DashboardFiltersOverviewPane({ adhocFilters, groupByVariable, on
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
+const styles = stylex.create({
+  header: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
     overflow: 'hidden',
     minWidth: 0,
-  }),
-  title: css({
-    flex: 1,
+  },
+  title: {
+    flex: '1',
     minWidth: 0,
     overflow: 'hidden',
-  }),
-  content: css({
+  },
+  content: {
     display: 'flex',
     flexDirection: 'column',
-    padding: theme.spacing(1),
+    padding: spacing['--gf-spacing-x1'],
     height: '100%',
     boxSizing: 'border-box',
-  }),
-  body: css({
-    flex: 1,
+  },
+  body: {
+    flex: '1',
     minHeight: 0,
     height: '100%',
-  }),
+  },
 });

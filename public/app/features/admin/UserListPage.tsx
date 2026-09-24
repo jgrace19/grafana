@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2, TabsBar, Tab } from '@grafana/ui';
+import { TabsBar, Tab } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { isEmailSharingEnabled } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -46,8 +46,6 @@ const TAB_PAGE_MAP: Record<TabView, React.ReactElement> = {
 };
 
 export default function UserListPage() {
-  const styles = useStyles2(getStyles);
-
   const hasAccessToAdminUsers = contextSrv.hasPermission(AccessControlAction.UsersRead);
   const hasAccessToOrgUsers = contextSrv.hasPermission(AccessControlAction.OrgUsersRead);
 
@@ -65,7 +63,7 @@ export default function UserListPage() {
   return (
     <Page navId={'global-users'}>
       {showAdminAndOrgTabs ? (
-        <TabsBar className={styles.tabsMargin}>
+        <TabsBar className={stylex.props(styles.tabsMargin).className}>
           <Tab
             label={t('admin.user-list-page.label-all-users', 'All users')}
             active={view === TabView.ADMIN}
@@ -90,7 +88,7 @@ export default function UserListPage() {
         </TabsBar>
       ) : (
         isEmailSharingEnabled() && (
-          <TabsBar className={styles.tabsMargin}>
+          <TabsBar className={stylex.props(styles.tabsMargin).className}>
             <Tab
               label={t('admin.user-list-page.label-users', 'Users')}
               active={view === TabView.ORG}
@@ -106,8 +104,8 @@ export default function UserListPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tabsMargin: css({
-    marginBottom: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  tabsMargin: {
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
 });

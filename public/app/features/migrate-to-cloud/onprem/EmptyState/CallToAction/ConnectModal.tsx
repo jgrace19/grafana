@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 
 import { type CreateSessionApiArg } from '@grafana/api-clients/internal/rtkq/legacy/migrate-to-cloud';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Modal, Button, Stack, TextLink, Field, Input, Text, useStyles2 } from '@grafana/ui';
+import { Modal, Button, Stack, TextLink, Field, Input, Text } from '@grafana/ui';
 import { AlertWithTraceID } from 'app/features/migrate-to-cloud/shared/AlertWithTraceID';
 
 import { maybeAPIError } from '../../../api/errors';
@@ -69,7 +68,6 @@ function getTMessage(messageId: string): string {
 
 export const ConnectModal = ({ isOpen, isLoading, error, hideModal, onConfirm }: Props) => {
   const tokenId = useId();
-  const styles = useStyles2(getStyles);
 
   const {
     handleSubmit,
@@ -155,7 +153,7 @@ export const ConnectModal = ({ isOpen, isLoading, error, hideModal, onConfirm }:
             ) : undefined}
 
             <Field
-              className={styles.field}
+              className={stylex.props(styles.field).className}
               invalid={!!errors.token}
               error={errors.token?.message}
               label={t('migrate-to-cloud.connect-modal.body-token-field', 'Migration token')}
@@ -192,8 +190,8 @@ export const ConnectModal = ({ isOpen, isLoading, error, hideModal, onConfirm }:
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  field: css({
+const styles = stylex.create({
+  field: {
     alignSelf: 'stretch',
-  }),
+  },
 });
