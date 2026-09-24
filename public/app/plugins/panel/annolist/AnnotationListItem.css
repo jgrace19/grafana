@@ -1,9 +1,8 @@
 /*
- * Card and its parts are still styled with Emotion, whose runtime rules come after this sheet. The doubled
- * classes outrank their own class like the Emotion className merge did; unlayered, they keep winning once
- * Card is StyleX.
+ * Overrides Card and its parts, which take no StyleX override for these properties. Not in a cascade layer, so
+ * it wins over their (layered) StyleX styles like the Emotion className merge did.
  */
-.gf-annolist-card.gf-annolist-card {
+.gf-annolist-card {
   grid-template-areas: 'Heading Description Meta Tags';
   grid-template-columns: auto 1fr auto auto;
   padding: var(--gf-spacing-x1);
@@ -11,12 +10,12 @@
   width: inherit;
 }
 
-.gf-annolist-timestamp.gf-annolist-timestamp {
+.gf-annolist-timestamp {
   margin: 0;
   align-self: center;
 }
 
-.gf-annolist-meta.gf-annolist-meta {
+.gf-annolist-meta {
   margin: 0;
   position: relative;
   justify-content: end;

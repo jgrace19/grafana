@@ -1,9 +1,9 @@
 /*
- * Card is still styled with Emotion, whose runtime rules come after this sheet. The doubled class outranks
- * Card's own class like the Emotion className merge did; unlayered, it keeps winning once Card is StyleX.
- * The hover gradient is theme colour math, set on the card as a custom property.
+ * Overrides Card, which takes no StyleX override for these properties. Not in a cascade layer, so it wins over
+ * Card's (layered) StyleX styles like the Emotion className merge did. The hover gradient is theme colour math,
+ * set on the card as a custom property.
  */
-.gf-dashlist-card-container.gf-dashlist-card-container {
+.gf-dashlist-card-container {
   display: block;
   height: 100%;
   padding-top: calc(var(--gf-spacing-grid-size) * 1.25);
