@@ -4,8 +4,14 @@ import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.st
 
 export const receiverFormFieldStyles = stylex.create({
   collapsibleSection: {
-    margin: 0,
-    padding: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
   },
   wrapper: {
     marginTop: spacing['--gf-spacing-x2'],

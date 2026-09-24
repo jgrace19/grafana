@@ -290,6 +290,7 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderColor: colors['--gf-colors-border-medium'],
     backgroundColor: 'transparent',
+    backgroundImage: 'none',
     borderRadius: shape['--gf-shape-radius-default'],
     color: colors['--gf-colors-text-secondary'],
   },

@@ -42,7 +42,7 @@ export const SubformArrayField = ({
   return (
     <div {...stylex.props(styles.wrapper)}>
       <CollapsibleSection
-        className={stylex.props(styles.collapsibleSection).className}
+        xstyle={styles.collapsibleSection}
         // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
         label={`${option.label} (${fields.length})`}
         description={option.description}

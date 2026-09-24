@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
@@ -12,6 +13,7 @@ interface Props {
   label: string;
   description?: string;
   className?: string;
+  xstyle?: StyleXStyles;
   size?: IconSize;
 }
 
@@ -20,6 +22,7 @@ export const CollapsibleSection = ({
   description,
   children,
   className,
+  xstyle,
   size = 'xl',
 }: React.PropsWithChildren<Props>) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -27,7 +30,7 @@ export const CollapsibleSection = ({
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
   return (
-    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className })}>
+    <div {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })}>
       <CollapseToggle
         style={toggleStyle}
         size={size}

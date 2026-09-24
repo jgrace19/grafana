@@ -318,6 +318,7 @@ const styles = stylex.create({
   },
   rowButton: {
     backgroundColor: 'transparent',
+    backgroundImage: 'none',
     color: {
       default: colors['--gf-colors-text-primary'],
       ':disabled': colors['--gf-colors-text-disabled'],
