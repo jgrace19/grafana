@@ -1,6 +1,6 @@
 ---
 name: emotion-to-stylex
-description: Use when migrating a bounded Grafana Emotion cohort to StyleX on internalsphere/grafana (seed), including StyleX webpack/esbuild foundation and grafana-ui Tags/Badge/Divider. Enforces per-batch verification. Do not use for general frontend work or full-repo rewrites.
+description: Use when migrating a bounded Grafana Emotion cohort to StyleX on jgrace19/grafana (main), including StyleX webpack/esbuild foundation and grafana-ui Tags/Badge/Divider. Enforces per-batch verification. Do not use for general frontend work or full-repo rewrites.
 ---
 
 # Emotion → StyleX (Grafana)
@@ -37,7 +37,8 @@ yarn eslint --cache <paths>
 ```
 
 On any non-zero exit: fix in place and re-run the gate. Do not start the next component red.
-Append command, exit code, and last ~40 log lines to `docs/agent-runs/emotion-to-stylex/VERIFY.md`.
+Append command, exit code, and last ~40 log lines to `docs/agent-runs/emotion-to-stylex/VERIFY.md`
+(`scripts/stylex/verify-gate.sh "<batch label>" <paths...>` runs all four gates and appends the entry).
 
 For foundation batches, also prove a StyleX class renders under light and dark (Storybook or fixture) and attach screenshots/artifacts.
 
