@@ -1,6 +1,6 @@
 /*
- * TextArea is still styled with Emotion, whose runtime rules come after this sheet and set their own colour
- * and font size. The doubled class outranks them like the Emotion className merge did; unlayered, it keeps
+ * TextArea is still styled with Emotion and sets its own colour
+ * and font size, and Emotion's style block can come before or after this sheet depending on the chunk. The doubled class outranks them like the Emotion className merge did; unlayered, it keeps
  * winning once TextArea is StyleX.
  */
 .gf-annotation-editor-textarea.gf-annotation-editor-textarea {
