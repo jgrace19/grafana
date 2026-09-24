@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2, type PanelData, type ThresholdsConfig, isTimeSeriesFrames } from '@grafana/data';
+import { type PanelData, type ThresholdsConfig, isTimeSeriesFrames } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type GraphThresholdsStyleMode } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { GraphContainer } from 'app/features/explore/Graph/GraphContainer';
 
@@ -20,13 +20,12 @@ interface Props {
 
 /** The VizWrapper is just a simple component that renders either a table or a graph based on the type of data we receive from "PanelData" */
 export const VizWrapper = ({ data, thresholds, thresholdsType }: Props) => {
-  const styles = useStyles2(getStyles);
   const isTimeSeriesData = isTimeSeriesFrames(data.series);
   const statusMessage = getStatusMessage(data);
   const thresholdsStyle = thresholdsType ? { mode: thresholdsType } : undefined;
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <AutoSizer disableHeight>
         {({ width }) => (
           <div style={{ width }}>
@@ -46,8 +45,8 @@ export const VizWrapper = ({ data, thresholds, thresholdsType }: Props) => {
                 thresholdsStyle={thresholdsStyle}
               />
             ) : (
-              <div className={styles.instantVectorResultWrapper}>
-                <header className={styles.title}>
+              <div {...stylex.props(styles.instantVectorResultWrapper)}>
+                <header {...stylex.props(styles.title)}>
                   <Trans i18nKey="alerting.viz-wrapper.table">Table</Trans>
                 </header>
                 <ExpressionResult series={data.series} />
@@ -60,27 +59,27 @@ export const VizWrapper = ({ data, thresholds, thresholdsType }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     width: '100%',
     position: 'relative',
-  }),
-  instantVectorResultWrapper: css({
-    border: `solid 1px ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
+  },
+  instantVectorResultWrapper: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
     padding: 0,
-
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'nowrap',
-  }),
-  title: css({
-    label: 'panel-title',
-    padding: theme.spacing(),
+  },
+  title: {
+    padding: spacing['--gf-spacing-x1'],
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-  }),
+    fontSize: typography['--gf-typography-h6-font-size'],
+    fontWeight: typography['--gf-typography-h6-font-weight'],
+  },
 });

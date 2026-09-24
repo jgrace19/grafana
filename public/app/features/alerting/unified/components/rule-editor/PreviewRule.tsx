@@ -1,14 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { useCallback, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useMountedState } from 'react-use';
 import { takeWhile } from 'rxjs/operators';
 
-import { type GrafanaTheme2, LoadingState, dateTimeFormatISO } from '@grafana/data';
+import { LoadingState, dateTimeFormatISO } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { Alert, Button, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { previewAlertRule } from '../../api/preview';
 import { useAlertQueriesStatus } from '../../hooks/useAlertQueriesStatus';
@@ -21,7 +22,6 @@ import { PreviewRuleResult } from './PreviewRuleResult';
 const fields: Array<keyof RuleFormValues> = ['type', 'dataSourceName', 'condition', 'queries', 'expression'];
 
 export function PreviewRule(): React.ReactElement | null {
-  const styles = useStyles2(getStyles);
   const [preview, onPreview] = usePreview();
   const { watch } = useFormContext<RuleFormValues>();
   const [type, condition, queries] = watch(['type', 'condition', 'queries']);
@@ -34,7 +34,7 @@ export function PreviewRule(): React.ReactElement | null {
   const isPreviewAvailable = Boolean(condition) && allDataSourcesAvailable;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack>
         {allDataSourcesAvailable && (
           <Button disabled={!isPreviewAvailable} type="button" variant="primary" onClick={onPreview}>
@@ -118,11 +118,9 @@ function isCompleted(response: PreviewRuleResponse): boolean {
   }
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      marginTop: theme.spacing(2),
-      maxWidth: `${theme.breakpoints.values.xxl}px`,
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    marginTop: spacing['--gf-spacing-x2'],
+    maxWidth: '1440px',
+  },
+});

@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import './QueryOptions.css';
 import { useState } from 'react';
 
-import { type GrafanaTheme2, type RelativeTimeRange, getDefaultRelativeTimeRange } from '@grafana/data';
+import { type RelativeTimeRange, getDefaultRelativeTimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, InlineField, RelativeTimeRangePicker, Toggletip, clearButtonStyles, useStyles2 } from '@grafana/ui';
+import { Icon, InlineField, RelativeTimeRangePicker, Toggletip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { TimeRangeLabel } from '../TimeRangeLabel';
@@ -25,8 +27,6 @@ export const QueryOptions = ({
   onChangeQueryOptions,
   index,
 }: QueryOptionsProps) => {
-  const styles = useStyles2(getStyles);
-
   const [showOptions, setShowOptions] = useState(false);
 
   const separator = <span>, </span>;
@@ -35,7 +35,7 @@ export const QueryOptions = ({
     <>
       <Toggletip
         content={
-          <div className={styles.queryOptions}>
+          <div className="gf-alerting-query-options">
             {onChangeTimeRange && (
               <InlineField label={t('alerting.query-options.label-time-range', 'Time Range')}>
                 <RelativeTimeRangePicker
@@ -51,13 +51,13 @@ export const QueryOptions = ({
         closeButton={true}
         placement="bottom-start"
       >
-        <button type="button" className={styles.actionLink} onClick={() => setShowOptions(!showOptions)}>
+        <button type="button" {...stylex.props(styles.actionLink)} onClick={() => setShowOptions(!showOptions)}>
           <Trans i18nKey="alerting.query-options.button-options">Options</Trans>{' '}
           {showOptions ? <Icon name="angle-right" /> : <Icon name="angle-down" />}
         </button>
       </Toggletip>
 
-      <div className={styles.staticValues}>
+      <div {...stylex.props(styles.staticValues)}>
         <span>
           <TimeRangeLabel relativeTimeRange={query.relativeTimeRange ?? getDefaultRelativeTimeRange()} />
         </span>
@@ -86,28 +86,17 @@ export const QueryOptions = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const clearButton = clearButtonStyles(theme);
-
-  return {
-    queryOptions: css({
-      '> div': {
-        justifyContent: 'space-between',
-      },
-    }),
-
-    staticValues: css({
-      color: theme.colors.text.secondary,
-      marginRight: theme.spacing(1),
-    }),
-
-    actionLink: css(clearButton, {
-      color: theme.colors.text.link,
-      cursor: 'pointer',
-
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  staticValues: {
+    color: colors['--gf-colors-text-secondary'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  actionLink: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-link'],
+    borderStyle: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    textDecorationLine: { default: null, ':hover': 'underline' },
+  },
+});

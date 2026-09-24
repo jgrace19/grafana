@@ -1,34 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-export const getFormStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      alignItems: 'center',
-      display: 'flex',
-      flexFlow: 'row nowrap',
-
-      '& > * + *': {
-        marginLeft: theme.spacing(1),
-      },
-    }),
-    input: css({
-      flex: 1,
-    }),
-    promDurationInput: css({
-      maxWidth: theme.spacing(32),
-    }),
-    timingFormContainer: css({
-      padding: theme.spacing(1),
-    }),
-    linkText: css({
-      textDecoration: 'underline',
-    }),
-    collapse: css({
-      border: 'none',
-      background: 'none',
-      color: theme.colors.text.primary,
-    }),
-  };
-};
+export const formStyles = stylex.create({
+  input: {
+    flex: '1',
+  },
+  promDurationInput: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 32)`,
+  },
+  timingFormContainer: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+});

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, Input, Select, useStyles2 } from '@grafana/ui';
+import { Field, Input, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { RuleFormType, type RuleFormValues } from '../../types/rule-form';
 import { timeOptions } from '../../utils/time';
@@ -13,7 +13,6 @@ import { PreviewRule } from './PreviewRule';
 import { RuleEditorSection } from './RuleEditorSection';
 
 export const CloudEvaluationBehavior = () => {
-  const styles = useStyles2(getStyles);
   const {
     register,
     control,
@@ -36,8 +35,8 @@ export const CloudEvaluationBehavior = () => {
           'Period during which the threshold condition must be met to trigger an alert. Selecting "None" triggers the alert immediately once the condition is met.'
         )}
       >
-        <div className={styles.flexRow}>
-          <Field invalid={!!errors.forTime?.message} error={errors.forTime?.message} className={styles.inlineField}>
+        <div {...stylex.props(styles.flexRow)}>
+          <Field noMargin invalid={!!errors.forTime?.message} error={errors.forTime?.message}>
             <Input
               {...register('forTime', {
                 pattern: {
@@ -59,7 +58,7 @@ export const CloudEvaluationBehavior = () => {
                 options={timeOptions}
                 onChange={(value) => onChange(value?.value)}
                 width={15}
-                className={styles.timeUnit}
+                className={stylex.props(styles.timeUnit).className}
               />
             )}
             control={control}
@@ -75,17 +74,14 @@ export const CloudEvaluationBehavior = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  inlineField: css({
-    marginBottom: 0,
-  }),
-  flexRow: css({
+const styles = stylex.create({
+  flexRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-  }),
-  timeUnit: css({
-    marginLeft: theme.spacing(0.5),
-  }),
+  },
+  timeUnit: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
 });
