@@ -26,34 +26,36 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   xstyle?: stylex.StyleXStyles;
 }
 
-const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, className, colorIndex, xstyle, ...rest }, ref) => {
-  const colors = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
+const TagComponent = forwardRef<HTMLElement, Props>(
+  ({ name, onClick, icon, className, colorIndex, xstyle, ...rest }, ref) => {
+    const colors = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
 
-  const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+    const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    onClick?.(name, event);
-  };
+      onClick?.(name, event);
+    };
 
-  const { style, ...domProps } = rest;
-  const classes = mergeStylexProps(
-    stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover, xstyle),
-    { className, style }
-  );
+    const { style, ...domProps } = rest;
+    const classes = mergeStylexProps(
+      stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover, xstyle),
+      { className, style }
+    );
 
-  return onClick ? (
-    <button {...domProps} {...classes} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </button>
-  ) : (
-    <span {...domProps} {...classes} ref={ref}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </span>
-  );
-});
+    return onClick ? (
+      <button {...domProps} {...classes} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </button>
+    ) : (
+      <span {...domProps} {...classes} ref={ref}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </span>
+    );
+  }
+);
 TagComponent.displayName = 'Tag';
 
 const TagSkeleton: SkeletonComponent = ({ rootProps }) => {
