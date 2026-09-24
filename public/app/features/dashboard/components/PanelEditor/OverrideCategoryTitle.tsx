@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type FieldConfigOptionsRegistry, type GrafanaTheme2, type ConfigOverrideRule } from '@grafana/data';
+import { type FieldConfigOptionsRegistry, type ConfigOverrideRule } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Stack, Icon, useStyles2 } from '@grafana/ui';
+import { Button, Stack, Icon } from '@grafana/ui';
 import { type FieldMatcherUIRegistryItem } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   isExpanded: boolean;
@@ -21,8 +22,6 @@ export const OverrideCategoryTitle = ({
   override,
   onOverrideRemove,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const properties = override.properties.map((p) => registry.getIfExists(p.id)).filter((prop) => !!prop);
   const propertyNames = properties.map((p) => p?.name).join(', ');
   const matcherOptions = matcherUi.optionsToLabel(override.matcher.options);
@@ -41,8 +40,8 @@ export const OverrideCategoryTitle = ({
         />
       </Stack>
       {!isExpanded && (
-        <div className={styles.overrideDetails}>
-          <div className={styles.options} title={matcherOptions}>
+        <div {...stylex.props(styles.overrideDetails)}>
+          <div {...stylex.props(styles.options)} title={matcherOptions}>
             {matcherOptions} <Icon name="angle-right" /> {propertyNames}
           </div>
         </div>
@@ -53,25 +52,14 @@ export const OverrideCategoryTitle = ({
 
 OverrideCategoryTitle.displayName = 'OverrideTitle';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    matcherUi: css({
-      padding: theme.spacing(1),
-    }),
-    propertyPickerWrapper: css({
-      marginTop: theme.spacing(2),
-    }),
-    overrideDetails: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightRegular,
-    }),
-    options: css({
-      overflow: 'hidden',
-      paddingRight: theme.spacing(4),
-    }),
-    unknownLabel: css({
-      marginBottom: 0,
-    }),
-  };
-};
+const styles = stylex.create({
+  overrideDetails: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+  },
+  options: {
+    overflow: 'hidden',
+    paddingRight: spacing['--gf-spacing-x4'],
+  },
+});

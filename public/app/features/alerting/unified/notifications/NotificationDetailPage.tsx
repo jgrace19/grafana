@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom-v5-compat';
 
@@ -9,9 +9,11 @@ import {
   useCreateNotificationqueryMutation,
   useCreateNotificationsqueryalertsMutation,
 } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, LoadingPlaceholder, TabContent, useStyles2 } from '@grafana/ui';
+import { Alert, LoadingPlaceholder, TabContent } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type PageInfoItem } from 'app/core/components/Page/types';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
@@ -180,7 +182,6 @@ function NotificationDetail({
   onRelatedCountChange,
   onHeaderDataChange,
 }: NotificationDetailProps) {
-  const styles = useStyles2(getStyles);
   const [notification, setNotification] = useState<NotificationEntry | null | undefined>(undefined);
   const [relatedNotifications, setRelatedNotifications] = useState<NotificationEntry[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
@@ -339,15 +340,15 @@ function NotificationDetail({
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {notification.error && (
         <Alert title={t('alerting.notification-detail.error-title-banner', 'Delivery error')} severity="error">
           {notification.error}
         </Alert>
       )}
 
-      <div className={styles.layout}>
-        <div className={styles.main}>
+      <div {...stylex.props(styles.layout)}>
+        <div {...stylex.props(styles.main)}>
           <TabContent>
             {activeTab === ActiveTab.Overview && (
               <OverviewSection alerts={alerts} groupLabels={notification.groupLabels} isLoading={isLoadingAlerts} />
@@ -365,7 +366,7 @@ function NotificationDetail({
           </TabContent>
         </div>
 
-        <aside className={styles.sidebar}>
+        <aside {...stylex.props(styles.sidebar)}>
           <NotificationDetailSidebar notification={notification} />
         </aside>
       </div>
@@ -373,38 +374,34 @@ function NotificationDetail({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  layout: css({
+    gap: spacing['--gf-spacing-x2'],
+  },
+  layout: {
     display: 'grid',
-    gridTemplateColumns: '1fr 320px',
-    gap: theme.spacing(3),
+    gridTemplateColumns: { default: '1fr 320px', [bp.lgDown]: '1fr' },
+    gap: spacing['--gf-spacing-x3'],
     alignItems: 'start',
-
-    [theme.breakpoints.down('lg')]: {
-      gridTemplateColumns: '1fr',
-    },
-  }),
-  main: css({
+  },
+  main: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  sidebar: css({
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
-    paddingLeft: theme.spacing(3),
+    gap: spacing['--gf-spacing-x2'],
+  },
+  sidebar: {
+    borderLeftWidth: '1px',
+    borderLeftStyle: { default: 'solid', [bp.lgDown]: 'none' },
+    borderLeftColor: colors['--gf-colors-border-weak'],
+    paddingLeft: { default: spacing['--gf-spacing-x3'], [bp.lgDown]: 0 },
 
-    [theme.breakpoints.down('lg')]: {
-      borderLeft: 'none',
-      paddingLeft: 0,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      paddingTop: theme.spacing(3),
-    },
-  }),
+    borderTopWidth: { default: null, [bp.lgDown]: '1px' },
+    borderTopStyle: { default: null, [bp.lgDown]: 'solid' },
+    borderTopColor: { default: null, [bp.lgDown]: colors['--gf-colors-border-weak'] },
+    paddingTop: { default: null, [bp.lgDown]: spacing['--gf-spacing-x3'] },
+  },
 });
 
 export default withPageErrorBoundary(NotificationDetailPage);

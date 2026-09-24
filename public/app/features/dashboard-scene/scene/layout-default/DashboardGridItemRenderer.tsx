@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type RefObject, useMemo } from 'react';
 
-import { config } from '@grafana/runtime';
 import { LazyLoader, type SceneComponentProps, type VizPanel } from '@grafana/scenes';
 import { useElementSelection } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN } from 'app/core/constants';
 
 import { useDashboardState } from '../../utils/utils';
@@ -26,14 +29,21 @@ function PanelWrapper({ panel, isLazy, containerRef, isSelected }: PanelWrapperP
       <LazyLoader
         key={panel.state.key!}
         ref={containerRef}
-        className={cx(panelWrapper, isSelected && 'dashboard-selected-element')}
+        {...mergeStylexProps(stylex.props(styles.panelWrapper), {
+          className: clsx(isSelected && 'dashboard-selected-element'),
+        })}
       >
         <panel.Component model={panel} />
       </LazyLoader>
     );
   }
   return (
-    <div className={cx(panelWrapper, isSelected && 'dashboard-selected-element')} ref={containerRef}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.panelWrapper), {
+        className: clsx(isSelected && 'dashboard-selected-element'),
+      })}
+      ref={containerRef}
+    >
       <panel.Component model={panel} />
     </div>
   );
@@ -65,7 +75,7 @@ export function DashboardGridItemRenderer({ model }: SceneComponentProps<Dashboa
   }
 
   return (
-    <div className={layoutStyle} ref={model.containerRef}>
+    <div {...stylex.props(layoutStyle)} ref={model.containerRef}>
       <PanelWrapper panel={body} isLazy={isLazy} />
       {repeatedPanels.map((panel) => (
         <PanelWrapper key={panel.state.key!} panel={panel} isLazy={isLazy} isSelected={isSourceSelected} />
@@ -76,8 +86,6 @@ export function DashboardGridItemRenderer({ model }: SceneComponentProps<Dashboa
 
 function useLayoutStyle(direction: RepeatDirection, itemCount: number, maxPerRow: number, itemHeight: number) {
   return useMemo(() => {
-    const theme = config.theme2;
-
     // In mobile responsive layout we have to calculate the absolute height
     const mobileHeight = itemHeight * GRID_CELL_HEIGHT * itemCount + (itemCount - 1) * GRID_CELL_VMARGIN;
 
@@ -85,41 +93,37 @@ function useLayoutStyle(direction: RepeatDirection, itemCount: number, maxPerRow
       const rowCount = Math.ceil(itemCount / maxPerRow);
       const columnCount = Math.min(itemCount, maxPerRow);
 
-      return css({
-        display: 'grid',
-        height: '100%',
-        width: '100%',
-        gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
-        gridTemplateRows: `repeat(${rowCount}, 1fr)`,
-        gridColumnGap: theme.spacing(1),
-        gridRowGap: theme.spacing(1),
-
-        [theme.breakpoints.down('md')]: {
-          display: 'flex',
-          flexDirection: 'column',
-          height: mobileHeight,
-        },
-      });
+      return styles.horizontalRepeat(`repeat(${columnCount}, 1fr)`, `repeat(${rowCount}, 1fr)`, mobileHeight);
     }
 
     // Vertical is a bit simpler
-    return css({
-      display: 'flex',
-      height: '100%',
-      width: '100%',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      [theme.breakpoints.down('md')]: {
-        height: mobileHeight,
-      },
-    });
+    return styles.verticalRepeat(mobileHeight);
   }, [direction, itemCount, maxPerRow, itemHeight]);
 }
 
-const panelWrapper = css({
-  display: 'flex',
-  flexGrow: 1,
-  position: 'relative',
-  width: '100%',
-  height: '100%',
+const styles = stylex.create({
+  horizontalRepeat: (templateColumns: string, templateRows: string, mobileHeight: number) => ({
+    display: { default: 'grid', [bp.mdDown]: 'flex' },
+    flexDirection: { default: null, [bp.mdDown]: 'column' },
+    height: { default: '100%', [bp.mdDown]: mobileHeight },
+    width: '100%',
+    gridTemplateColumns: templateColumns,
+    gridTemplateRows: templateRows,
+    columnGap: spacing['--gf-spacing-x1'],
+    rowGap: spacing['--gf-spacing-x1'],
+  }),
+  verticalRepeat: (mobileHeight: number) => ({
+    display: 'flex',
+    height: { default: '100%', [bp.mdDown]: mobileHeight },
+    width: '100%',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  }),
+  panelWrapper: {
+    display: 'flex',
+    flexGrow: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
 });

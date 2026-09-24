@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import { type CSSProperties } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
-export const getBadgeColor = (theme: GrafanaTheme2) =>
-  css({
-    background: theme.colors.background.primary,
-    borderColor: theme.colors.border.strong,
-    color: theme.colors.text.secondary,
-  });
+// Badge is StyleX and sets these colours itself; StyleX only resolves conflicts within a single stylex.props()
+// call, so the override goes through Badge's inline `style` instead of a class.
+export const badgeColorStyle: CSSProperties = {
+  background: colors['--gf-colors-background-primary'],
+  borderColor: colors['--gf-colors-border-strong'],
+  color: colors['--gf-colors-text-secondary'],
+};

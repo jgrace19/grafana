@@ -1,13 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { keyBy, startCase, uniqueId } from 'lodash';
 import * as React from 'react';
 
-import { type DataSourceInstanceSettings, type GrafanaTheme2, type PanelData, urlUtil } from '@grafana/data';
+import { type DataSourceInstanceSettings, type PanelData, urlUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DataSourceRef } from '@grafana/schema';
 import { Preview } from '@grafana/sql';
-import { Alert, Badge, ErrorBoundaryAlert, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, ErrorBoundaryAlert, LinkButton, Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedRule } from 'app/types/unified-alerting';
 
 import { type AlertDataQuery, type AlertQuery } from '../../../types/unified-alerting-dto';
@@ -44,13 +45,11 @@ export function GrafanaRuleQueryViewer({ rule, queries, condition, evalDataByQue
   const dsByUid = keyBy(Object.values(config.datasources), (ds) => ds.uid);
   const dataQueries = queries.filter((q) => !isExpressionQuery(q.model));
   const expressions = queries.filter((q) => isExpressionQuery(q.model));
-  const styles = useStyles2(getExpressionViewerStyles);
-
   const thresholds = getThresholdsForQueries(queries, condition);
 
   return (
     <Stack gap={1} direction="column" flex={'1 1 320px'}>
-      <div className={styles.maxWidthContainer}>
+      <div {...stylex.props(expressionViewerStyles.maxWidthContainer)}>
         <Stack gap={1} wrap="wrap" data-testid="queries-container">
           {dataQueries.map(({ model, relativeTimeRange, refId, datasourceUid }, index) => {
             const dataSource = dsByUid[datasourceUid];
@@ -70,7 +69,7 @@ export function GrafanaRuleQueryViewer({ rule, queries, condition, evalDataByQue
           })}
         </Stack>
       </div>
-      <div className={styles.maxWidthContainer}>
+      <div {...stylex.props(expressionViewerStyles.maxWidthContainer)}>
         <Stack gap={1} wrap="wrap" data-testid="expressions-container">
           {expressions.map(({ model, refId, datasourceUid }, index) => {
             return (
@@ -107,7 +106,6 @@ export function QueryPreview({
   queryData,
   relativeTimeRange,
 }: QueryPreviewProps) {
-  const styles = useStyles2(getQueryPreviewStyles);
   const isExpression = isExpressionQuery(model);
   const [exploreSupported, exploreAllowed] = useAlertRuleAbility(rule, AlertRuleAction.Explore);
   const canExplore = exploreSupported && exploreAllowed;
@@ -137,7 +135,7 @@ export function QueryPreview({
   return (
     <>
       <QueryBox refId={refId} headerItems={headerItems} exploreLink={exploreLink}>
-        <div className={styles.queryPreviewWrapper}>
+        <div {...stylex.props(queryPreviewStyles.queryPreviewWrapper)}>
           <ErrorBoundaryAlert>
             {model && dataSource && <DatasourceModelPreview model={model} dataSource={dataSource} />}
           </ErrorBoundaryAlert>
@@ -173,32 +171,13 @@ interface DataSourceBadgeProps {
 }
 
 function DataSourceBadge({ name, imgUrl }: DataSourceBadgeProps) {
-  const styles = useStyles2(getQueryPreviewStyles);
-
   return (
-    <div className={styles.dataSource} key="datasource">
+    <div {...stylex.props(queryPreviewStyles.dataSource)} key="datasource">
       <img src={imgUrl} width={16} alt={name} />
       {name}
     </div>
   );
 }
-
-const getQueryPreviewStyles = (theme: GrafanaTheme2) => ({
-  queryPreviewWrapper: css({
-    margin: theme.spacing(1),
-  }),
-  contentBox: css({
-    flex: '1 0 100%',
-  }),
-  dataSource: css({
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(0.5, 1),
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-});
 
 interface ExpressionPreviewProps extends Pick<AlertQuery, 'refId'> {
   isAlertCondition: boolean;
@@ -207,8 +186,6 @@ interface ExpressionPreviewProps extends Pick<AlertQuery, 'refId'> {
 }
 
 function ExpressionPreview({ refId, model, evalData, isAlertCondition }: ExpressionPreviewProps) {
-  const styles = useStyles2(getQueryBoxStyles);
-
   function renderPreview() {
     switch (model.type) {
       case ExpressionQueryType.math:
@@ -248,7 +225,7 @@ function ExpressionPreview({ refId, model, evalData, isAlertCondition }: Express
       ]}
       isAlertCondition={isAlertCondition}
     >
-      <div className={styles.previewWrapper}>
+      <div {...stylex.props(queryBoxStyles.previewWrapper)}>
         {evalData?.errors?.map((error) => (
           <Alert
             key={uniqueId()}
@@ -275,12 +252,10 @@ interface QueryBoxProps extends React.PropsWithChildren<unknown> {
 }
 
 function QueryBox({ refId, headerItems = [], children, isAlertCondition, exploreLink }: QueryBoxProps) {
-  const styles = useStyles2(getQueryBoxStyles);
-
   return (
-    <div className={cx(styles.container)}>
-      <header className={styles.header}>
-        <span className={styles.refId}>{refId}</span>
+    <div {...stylex.props(queryBoxStyles.container)}>
+      <header {...stylex.props(queryBoxStyles.header)}>
+        <span {...stylex.props(queryBoxStyles.refId)}>{refId}</span>
         {headerItems}
         <Spacer />
         {isAlertCondition && (
@@ -301,65 +276,30 @@ function QueryBox({ refId, headerItems = [], children, isAlertCondition, explore
   );
 }
 
-const getQueryBoxStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    flex: '1 0 25%',
-    border: `1px solid ${theme.colors.border.weak}`,
-    maxWidth: '100%',
-    borderRadius: theme.shape.radius.default,
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  header: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-    backgroundColor: theme.colors.background.secondary,
-  }),
-  textBlock: css({
-    border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(0.5, 1),
-    backgroundColor: theme.colors.background.primary,
-    borderRadius: theme.shape.radius.default,
-  }),
-  refId: css({
-    color: theme.colors.text.link,
-    padding: theme.spacing(0.5, 1),
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-  previewWrapper: css({
-    padding: theme.spacing(1),
-  }),
-});
-
 function ClassicConditionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getClassicConditionViewerStyles);
-
   const reducerFunctions = keyBy(alertDef.reducerTypes, (rt) => rt.value);
   const evalOperators = keyBy(alertDef.evalOperators, (eo) => eo.value);
   const evalFunctions = keyBy(alertDef.evalFunctions, (ef) => ef.value);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(classicConditionViewerStyles.container)}>
       {model.conditions?.map(({ query, operator, reducer, evaluator }, index) => {
         const isRange = isRangeEvaluator(evaluator);
 
         return (
           <React.Fragment key={index}>
-            <div className={styles.blue}>
+            <div {...stylex.props(commonQueryStyles.blue)}>
               {index === 0
                 ? t('alerting.classic-condition-viewer.when', 'WHEN')
                 : !!operator?.type && evalOperators[operator?.type]?.text}
             </div>
-            <div className={styles.bold}>{reducer?.type && reducerFunctions[reducer.type]?.text}</div>
-            <div className={styles.blue}>
+            <div {...stylex.props(commonQueryStyles.bold)}>{reducer?.type && reducerFunctions[reducer.type]?.text}</div>
+            <div {...stylex.props(commonQueryStyles.blue)}>
               <Trans i18nKey="alerting.classic-condition-viewer.of">OF</Trans>
             </div>
-            <div className={styles.bold}>{query.params[0]}</div>
-            <div className={styles.blue}>{evalFunctions[evaluator.type].text}</div>
-            <div className={styles.bold}>
+            <div {...stylex.props(commonQueryStyles.bold)}>{query.params[0]}</div>
+            <div {...stylex.props(commonQueryStyles.blue)}>{evalFunctions[evaluator.type].text}</div>
+            <div {...stylex.props(commonQueryStyles.bold)}>
               {isRange ? `(${evaluator.params[0]}; ${evaluator.params[1]})` : evaluator.params[0]}
             </div>
           </React.Fragment>
@@ -369,18 +309,7 @@ function ClassicConditionViewer({ model }: { model: ExpressionQuery }) {
   );
 }
 
-const getClassicConditionViewerStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gridTemplateColumns: 'repeat(6, max-content)',
-    gap: theme.spacing(0, 1),
-  }),
-  ...getCommonQueryStyles(theme),
-});
-
 function ReduceConditionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getReduceConditionViewerStyles);
-
   const { reducer, expression, settings } = model;
   const reducerType = reducerTypes.find((rt) => rt.value === reducer);
 
@@ -388,84 +317,56 @@ function ReduceConditionViewer({ model }: { model: ExpressionQuery }) {
   const modeName = reducerModes.find((rm) => rm.value === reducerMode);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(reduceConditionViewerStyles.container)}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.function">Function</Trans>
       </div>
-      <div className={styles.value}>{reducerType?.label}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{reducerType?.label}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{expression}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.mode">Mode</Trans>
       </div>
-      <div className={styles.value}>{modeName?.label}</div>
+      <div {...stylex.props(commonQueryStyles.value, reduceConditionViewerStyles.modeValue)}>{modeName?.label}</div>
     </div>
   );
 }
 
-const getReduceConditionViewerStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gap: theme.spacing(0.5),
-    gridTemplateRows: '1fr 1fr',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-
-    '> :nth-child(6)': {
-      gridColumn: 'span 3',
-    },
-  }),
-  ...getCommonQueryStyles(theme),
-});
-
 function ResampleExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getResampleExpressionViewerStyles);
-
   const { expression, window, downsampler, upsampler } = model;
   const downsamplerType = downsamplingTypes.find((dt) => dt.value === downsampler);
   const upsamplerType = upsamplingTypes.find((ut) => ut.value === upsampler);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(resampleExpressionViewerStyles.container)}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{expression}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.resample-to">Resample to</Trans>
       </div>
-      <div className={styles.value}>{window}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{window}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.downsample">Downsample</Trans>
       </div>
-      <div className={styles.value}>{downsamplerType?.label}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{downsamplerType?.label}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.upsample">Upsample</Trans>
       </div>
-      <div className={styles.value}>{upsamplerType?.label}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{upsamplerType?.label}</div>
     </div>
   );
 }
 
-const getResampleExpressionViewerStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gap: theme.spacing(0.5),
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gridTemplateRows: '1fr 1fr',
-  }),
-  ...getCommonQueryStyles(theme),
-});
-
 function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getExpressionViewerStyles);
-
   const { expression, conditions } = model;
 
   const evaluator = conditions && conditions[0]?.evaluator;
@@ -480,34 +381,36 @@ function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.label}>
+      <div {...stylex.props(expressionViewerStyles.container)}>
+        <div {...stylex.props(commonQueryStyles.label)}>
           <Trans i18nKey="alerting.threshold-expression-viewer.input">Input</Trans>
         </div>
-        <div className={styles.value}>{expression}</div>
+        <div {...stylex.props(commonQueryStyles.value)}>{expression}</div>
 
         {evaluator && (
           <>
-            <div className={styles.blue}>{thresholdFunction?.label}</div>
-            <div className={styles.bold}>
+            <div {...stylex.props(commonQueryStyles.blue, expressionViewerStyles.blue)}>{thresholdFunction?.label}</div>
+            <div {...stylex.props(commonQueryStyles.bold, expressionViewerStyles.bold)}>
               {isRange ? `(${evaluator.params[0]}; ${evaluator.params[1]})` : evaluator.params[0]}
             </div>
           </>
         )}
       </div>
-      <div className={styles.container}>
+      <div {...stylex.props(expressionViewerStyles.container)}>
         {unloadEvaluator && (
           <>
-            <div className={styles.label}>
+            <div {...stylex.props(commonQueryStyles.label)}>
               <Trans i18nKey="alerting.threshold-expression-viewer.stop-alerting-when">
                 Stop alerting (or pending state) when{' '}
               </Trans>
             </div>
-            <div className={styles.value}>{expression}</div>
+            <div {...stylex.props(commonQueryStyles.value)}>{expression}</div>
 
             <>
-              <div className={styles.blue}>{unloadThresholdFunction?.label}</div>
-              <div className={styles.bold}>
+              <div {...stylex.props(commonQueryStyles.blue, expressionViewerStyles.blue)}>
+                {unloadThresholdFunction?.label}
+              </div>
+              <div {...stylex.props(commonQueryStyles.bold, expressionViewerStyles.bold)}>
                 {unloadIsRange
                   ? `(${unloadEvaluator.params[0]}; ${unloadEvaluator.params[1]})`
                   : unloadEvaluator.params[0]}
@@ -520,61 +423,18 @@ function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
   );
 }
 
-const getExpressionViewerStyles = (theme: GrafanaTheme2) => {
-  const { blue, bold, ...common } = getCommonQueryStyles(theme);
-
-  return {
-    ...common,
-    maxWidthContainer: css({
-      maxWidth: '100%',
-    }),
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-    }),
-    blue: css(blue, { margin: 'auto 0' }),
-    bold: css(bold, { margin: 'auto 0' }),
-  };
-};
-
 function MathExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getExpressionViewerStyles);
-
   const { expression } = model;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(expressionViewerStyles.container)}>
+      <div {...stylex.props(commonQueryStyles.label)}>
         <Trans i18nKey="alerting.math-expression-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(commonQueryStyles.value)}>{expression}</div>
     </div>
   );
 }
-
-const getCommonQueryStyles = (theme: GrafanaTheme2) => ({
-  blue: css({
-    color: theme.colors.text.link,
-  }),
-  bold: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  label: css({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0.5, 1),
-    backgroundColor: theme.colors.background.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    fontWeight: theme.typography.fontWeightBold,
-    borderRadius: theme.shape.radius.default,
-  }),
-  value: css({
-    padding: theme.spacing(0.5, 1),
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-});
 
 function isRangeEvaluator(evaluator: { params: number[]; type: EvalFunction }) {
   return (
@@ -584,3 +444,142 @@ function isRangeEvaluator(evaluator: { params: number[]; type: EvalFunction }) {
     evaluator.type === EvalFunction.IsWithinRangeIncluded
   );
 }
+
+const queryPreviewStyles = stylex.create({
+  queryPreviewWrapper: {
+    margin: spacing['--gf-spacing-x1'],
+  },
+  dataSource: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});
+
+const queryBoxStyles = stylex.create({
+  container: {
+    flexGrow: '1',
+    flexShrink: '0',
+    flexBasis: '25%',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    maxWidth: '100%',
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  refId: {
+    color: colors['--gf-colors-text-link'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  previewWrapper: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+});
+
+const classicConditionViewerStyles = stylex.create({
+  container: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(6, max-content)',
+    rowGap: 0,
+    columnGap: spacing['--gf-spacing-x1'],
+  },
+});
+
+const reduceConditionViewerStyles = stylex.create({
+  container: {
+    display: 'grid',
+    gap: spacing['--gf-spacing-x0-5'],
+    gridTemplateRows: '1fr 1fr',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+  },
+  modeValue: {
+    gridColumn: 'span 3',
+  },
+});
+
+const resampleExpressionViewerStyles = stylex.create({
+  container: {
+    display: 'grid',
+    gap: spacing['--gf-spacing-x0-5'],
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateRows: '1fr 1fr',
+  },
+});
+
+const expressionViewerStyles = stylex.create({
+  maxWidthContainer: {
+    maxWidth: '100%',
+  },
+  container: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  blue: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 0,
+    marginRight: 0,
+  },
+  bold: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 0,
+    marginRight: 0,
+  },
+});
+
+const commonQueryStyles = stylex.create({
+  blue: {
+    color: colors['--gf-colors-text-link'],
+  },
+  bold: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  value: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+});

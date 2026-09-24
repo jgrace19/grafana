@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isString } from 'lodash';
 import React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, Text, useStyles2 } from '@grafana/ui';
+import { Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { MetaText } from '../../components/MetaText';
 import { type GenericGroupedRow } from '../types';
@@ -20,8 +20,6 @@ interface FolderGroupRowProps {
 }
 
 export const FolderGroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, children }: FolderGroupRowProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <GenericRow
       key={rowKey}
@@ -34,8 +32,7 @@ export const FolderGroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, childr
       }
       actions={<RowActions counts={row.instanceCounts} />}
       isOpenByDefault={true}
-      leftColumnClassName={styles.folderGroupRow}
-      rightColumnClassName={styles.empty}
+      leftColumnXstyle={styles.folderGroupRow}
       depth={depth}
     >
       {children}
@@ -43,13 +40,14 @@ export const FolderGroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, childr
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  folderGroupRow: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-    marginTop: theme.spacing(0.5),
-    marginBottom: theme.spacing(0.5),
-  }),
-  empty: css({}),
+const styles = stylex.create({
+  folderGroupRow: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
 });

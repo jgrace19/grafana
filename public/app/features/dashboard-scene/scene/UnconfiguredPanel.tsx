@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useState } from 'react';
 import useMeasure from 'react-use/lib/useMeasure';
 
-import { AppEvents, CoreApp, type GrafanaTheme2, PanelPlugin, type PanelProps } from '@grafana/data';
+import { AppEvents, CoreApp, PanelPlugin, type PanelProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { sceneGraph, sceneUtils } from '@grafana/scenes';
@@ -20,8 +20,9 @@ import {
   Text,
   useElementSelection,
   usePanelContext,
-  useStyles2,
 } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
@@ -30,23 +31,15 @@ import emptyPanelSvg from 'img/dashboards/empty-panel.svg';
 
 import { applyQueryToPanel, getVizSuggestionForQuery } from '../utils/getVizSuggestionForQuery';
 import { DashboardInteractions } from '../utils/interactions';
-import {
-  BUTTON_ANIM_DURATION_MS,
-  BUTTON_STAGGER_INTERVAL_MS,
-  EXIT_DURATION_MS,
-  EXIT_EASING,
-  TEXT_EXIT_DELAY_MS,
-  ViewPhase,
-  buttonFrames,
-  gearFrames,
-  textFrames,
-  useViewPhase,
-} from '../utils/unconfiguredPanelUtils';
+import { BUTTON_STAGGER_INTERVAL_MS, ViewPhase, useViewPhase } from '../utils/unconfiguredPanelUtils';
 import { findVizPanelByKey, getVizPanelKeyForPanelId } from '../utils/utils';
 
 import { DashboardScene } from './DashboardScene';
 
 export const UNCONFIGURED_PANEL_PLUGIN_ID = '__unconfigured-panel';
+// A url() in a dynamic style resolves against the stylesheet, not the document, so the relative asset path is made
+// absolute the way Emotion's inline <style> resolved it.
+const EMPTY_PANEL_BACKGROUND = `url(${new URL(emptyPanelSvg, document.baseURI).href})`;
 const UnconfiguredPanel = new PanelPlugin(UnconfiguredPanelComp);
 
 function hasSavedQueryReadPermissions(): boolean {
@@ -86,7 +79,6 @@ function useUnconfiguredPanelDashboard(): { dashboard: DashboardScene | null; is
 
 function NewUnconfiguredPanelComp(props: PanelProps) {
   const panelContext = usePanelContext();
-  const styles = useStyles2(getStyles);
   const { openDrawer, queryLibraryEnabled = false } = useQueryLibraryContext();
 
   const { dashboard, isEditing } = useUnconfiguredPanelDashboard();
@@ -169,8 +161,8 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
 
   if (showEmptyState) {
     return (
-      <div className={styles.emptyStateWrapper}>
-        <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />
+      <div {...stylex.props(styles.emptyStateWrapper)}>
+        <Icon name="chart-line" size="xxxl" xstyle={styles.emptyStateIcon} />
         <Text element="p" textAlignment="center" color="secondary">
           <Trans i18nKey="dashboard.new-panel.empty-state-message">
             Run a query to visualize it here or go to all visualizations to add other panel types
@@ -218,7 +210,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
   return (
     <div
       ref={measureRef}
-      className={styles.root}
+      {...stylex.props(styles.root, styles.backgroundImage(EMPTY_PANEL_BACKGROUND))}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsFocused(true)}
@@ -227,13 +219,13 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
       {isEditing ? (
         <>
           <div
-            className={cx(styles.quietState, !isQuietVisible && styles.hidden)}
+            {...stylex.props(styles.quietState, !isQuietVisible && styles.hidden)}
             aria-hidden={!isQuietVisible}
             {...(isQuietVisible && isEditing ? { tabIndex: 0 } : { tabIndex: -1 })}
             aria-label={t('dashboard.new-panel.aria-label', 'Unconfigured panel. Tab to see configuration options.')}
           >
             <div
-              className={cx(
+              {...stylex.props(
                 styles.gearIconWrapper,
                 phase === ViewPhase.TransitioningToQuiet && styles.gearEntering,
                 phase === ViewPhase.TransitioningToActive && styles.gearExiting
@@ -242,7 +234,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
               <Icon name="cog" size="md" />
             </div>
             <span
-              className={cx(
+              {...stylex.props(
                 phase === ViewPhase.TransitioningToQuiet && styles.textEntering,
                 phase === ViewPhase.TransitioningToActive && styles.textExiting
               )}
@@ -254,14 +246,18 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
           </div>
 
           <div
-            className={cx(styles.buttonList, isCompact && styles.buttonListCompact, !isButtonsVisible && styles.hidden)}
+            {...stylex.props(
+              styles.buttonList,
+              isCompact && styles.buttonListCompact,
+              !isButtonsVisible && styles.hidden
+            )}
             aria-hidden={!isButtonsVisible}
             {...(!isButtonsVisible ? { inert: '' } : {})}
           >
             {buttons.map((button, i) => (
               <div
                 key={button.key}
-                className={cx(
+                {...stylex.props(
                   styles.buttonWrapper,
                   phase === ViewPhase.TransitioningToActive && styles.buttonEntering,
                   phase === ViewPhase.TransitioningToQuiet && styles.buttonExiting
@@ -284,8 +280,8 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
           </div>
         </>
       ) : (
-        <div className={styles.quietState}>
-          <div className={styles.gearIconWrapper}>
+        <div {...stylex.props(styles.quietState)}>
+          <div {...stylex.props(styles.gearIconWrapper)}>
             <Icon name="cog" size="md" />
           </div>
           <Text color="secondary">
@@ -300,7 +296,6 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
 function LegacyUnconfiguredPanelComp(props: PanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelContext = usePanelContext();
-  const styles = useStyles2(getStyles);
 
   const onMenuClick = useCallback(
     (isOpen: boolean) => {
@@ -357,8 +352,8 @@ function LegacyUnconfiguredPanelComp(props: PanelProps) {
     );
 
     return (
-      <div className={styles.emptyStateWrapper}>
-        <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />
+      <div {...stylex.props(styles.emptyStateWrapper)}>
+        <Icon name="chart-line" size="xxxl" xstyle={styles.emptyStateIcon} />
         <Text element="p" textAlignment="center" color="secondary">
           {defaultContent}
         </Text>
@@ -398,111 +393,149 @@ sceneUtils.registerRuntimePanelPlugin({
   plugin: UnconfiguredPanel,
 });
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    root: css({
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: '100%',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `url(${emptyPanelSvg})`,
-        backgroundSize: '100% auto',
-        backgroundPosition: 'bottom',
-        backgroundRepeat: 'no-repeat',
-        opacity: 0.08,
-        pointerEvents: 'none',
-      },
-    }),
-    hidden: css({
-      opacity: 0,
+// Timings mirror EXIT_DURATION_MS, EXIT_EASING, TEXT_EXIT_DELAY_MS and BUTTON_ANIM_DURATION_MS in
+// unconfiguredPanelUtils, which drive the phase timer; stylex.create can't import them.
+const gearEnter = stylex.keyframes({
+  from: { transform: 'translateY(-30px)', opacity: 0, filter: 'blur(3px)' },
+  to: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+});
+const gearExit = stylex.keyframes({
+  from: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+  to: { transform: 'translateY(-30px)', opacity: 0, filter: 'blur(3px)' },
+});
+const textEnter = stylex.keyframes({
+  from: { transform: 'translateY(20px)', opacity: 0, filter: 'blur(3px)' },
+  to: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+});
+const textExit = stylex.keyframes({
+  from: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+  to: { transform: 'translateY(20px)', opacity: 0, filter: 'blur(3px)' },
+});
+const buttonEnter = stylex.keyframes({
+  from: { transform: 'translateY(8px)', opacity: 0, filter: 'blur(0px)' },
+  to: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+});
+const buttonExit = stylex.keyframes({
+  from: { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' },
+  to: { transform: 'translateY(8px)', opacity: 0, filter: 'blur(0px)' },
+});
+
+const styles = stylex.create({
+  root: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      inset: 0,
+      backgroundSize: '100% auto',
+      backgroundPosition: 'bottom',
+      backgroundRepeat: 'no-repeat',
+      opacity: 0.08,
       pointerEvents: 'none',
-    }),
-    quietState: css({
-      position: 'absolute',
-      inset: 0,
-      margin: 'auto',
-      width: 'fit-content',
-      height: 'fit-content',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    gearIconWrapper: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: `1px dashed ${theme.colors.text.secondary}`,
-      borderRadius: theme.shape.radius.circle,
-      padding: theme.spacing(1),
-      color: theme.colors.text.secondary,
-    }),
-    gearEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${gearFrames.enter} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    gearExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${gearFrames.exit} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    textEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${textFrames.enter} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    textExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${textFrames.exit} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-        animationDelay: `${TEXT_EXIT_DELAY_MS}ms`,
-      },
-    }),
-    buttonList: css({
-      position: 'absolute',
-      inset: 0,
-      margin: 'auto',
-      width: 'fit-content',
-      height: 'fit-content',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      gap: theme.spacing(1),
-    }),
-    buttonListCompact: css({
-      flexDirection: 'row',
-      alignItems: 'center',
-    }),
-    buttonWrapper: css({
-      display: 'flex',
-    }),
-    buttonEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${buttonFrames.enter} ${BUTTON_ANIM_DURATION_MS}ms ease-out both`,
-      },
-    }),
-    buttonExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${buttonFrames.exit} ${BUTTON_ANIM_DURATION_MS}ms ease-out both`,
-      },
-    }),
-    emptyStateWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      textAlign: 'center',
-    }),
-    emptyStateIcon: css({
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing(2),
-    }),
-  };
-}
+    },
+  },
+  // The asset URL is resolved by webpack at runtime, so it can't be a static value.
+  backgroundImage: (image: string) => ({
+    '::before': {
+      backgroundImage: image,
+    },
+  }),
+  hidden: {
+    opacity: 0,
+    pointerEvents: 'none',
+  },
+  quietState: {
+    position: 'absolute',
+    inset: 0,
+    margin: 'auto',
+    width: 'fit-content',
+    height: 'fit-content',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  gearIconWrapper: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: '1px',
+    borderStyle: 'dashed',
+    borderColor: colors['--gf-colors-text-secondary'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    padding: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  gearEntering: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: gearEnter },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '400ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.2, 0, 0, 1)' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+  },
+  gearExiting: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: gearExit },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '400ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.2, 0, 0, 1)' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+  },
+  textEntering: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: textEnter },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '400ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.2, 0, 0, 1)' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+  },
+  textExiting: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: textExit },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '400ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.2, 0, 0, 1)' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+    animationDelay: { default: null, [motion.noPreferenceOrReduce]: '30ms' },
+  },
+  buttonList: {
+    position: 'absolute',
+    inset: 0,
+    margin: 'auto',
+    width: 'fit-content',
+    height: 'fit-content',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  buttonListCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonWrapper: {
+    display: 'flex',
+  },
+  buttonEntering: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: buttonEnter },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '200ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+  },
+  buttonExiting: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: buttonExit },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '200ms' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'both' },
+  },
+  emptyStateWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    textAlign: 'center',
+  },
+  emptyStateIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+});

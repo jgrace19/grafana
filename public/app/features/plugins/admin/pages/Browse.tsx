@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type SelectableValue, type GrafanaTheme2, type PluginType } from '@grafana/data';
+import { type SelectableValue, type PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationSearchToObject } from '@grafana/runtime';
-import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
+import { Select, RadioButtonGroup, Tooltip, Field, TextLink } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { getNavModel } from 'app/core/selectors/navModel';
 import { AdvisorRedirectNotice } from 'app/features/connections/components/AdvisorRedirectNotice/AdvisorRedirectNotice';
@@ -26,7 +28,6 @@ export default function Browse() {
   const location = useLocation();
   const locationSearch = locationSearchToObject(location.search);
   const navModel = useSelector((state) => getNavModel(state.navIndex, 'plugins'));
-  const styles = useStyles2(getStyles);
   const history = useHistory();
   const remotePluginsAvailable = useIsRemotePluginsAvailable();
 
@@ -94,15 +95,20 @@ export default function Browse() {
   );
 
   return (
-    <Page navModel={navModel} actions={updateAllButton} subTitle={subTitle} className={styles.pageContainer}>
+    <Page
+      navModel={navModel}
+      actions={updateAllButton}
+      subTitle={subTitle}
+      className={stylex.props(styles.pageContainer).className}
+    >
       <Page.Contents>
         <AdvisorRedirectNotice />
-        <div className={styles.searchContainer}>
+        <div {...stylex.props(styles.searchContainer)}>
           <HorizontalGroup wrap>
             <Field label={t('plugins.browse.label-search', 'Search')}>
               <SearchField value={keyword} onSearch={onSearch} />
             </Field>
-            <HorizontalGroup wrap className={styles.actionBar}>
+            <HorizontalGroup wrap xstyle={styles.actionBar}>
               {/* Filter by type */}
               <Field label={t('plugins.browse.label-type', 'Type')}>
                 <Select
@@ -147,7 +153,7 @@ export default function Browse() {
             </HorizontalGroup>
           </HorizontalGroup>
         </div>
-        <div className={styles.listWrap}>
+        <div {...stylex.props(styles.listWrap)}>
           <PluginList plugins={plugins} isLoading={isLoading} />
         </div>
         <RoadmapLinks />
@@ -162,29 +168,27 @@ export default function Browse() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  pageContainer: css({
+const styles = stylex.create({
+  pageContainer: {
     height: '100vh',
     overflow: 'hidden',
-  }),
-  searchContainer: css({
-    paddingTop: theme.spacing(0.5),
-    paddingBottom: theme.spacing(1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    marginBottom: theme.spacing(3),
-  }),
-  listWrap: css({
+  },
+  searchContainer: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
+  listWrap: {
     height: 'calc(100vh - 350px)',
     overflowY: 'auto',
-  }),
-  actionBar: css({
-    [theme.breakpoints.up('xl')]: {
-      marginLeft: 'auto',
+  },
+  actionBar: {
+    marginLeft: {
+      default: null,
+      [bp.xlUp]: 'auto',
     },
-  }),
-  displayAs: css({
-    svg: {
-      marginRight: 0,
-    },
-  }),
+  },
 });

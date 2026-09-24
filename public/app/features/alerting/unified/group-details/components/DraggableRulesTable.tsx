@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import {
   DragDropContext,
   Draggable,
@@ -7,12 +6,14 @@ import {
   Droppable,
   type DroppableProvided,
 } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { produce } from 'immer';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Badge, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Badge, Icon, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type RulerRuleDTO } from 'app/types/unified-alerting-dto';
 
 import { type SwapOperation, swapItems } from '../../reducers/ruler/ruleGroups';
@@ -26,7 +27,6 @@ interface DraggableRulesTableProps {
 }
 
 export function DraggableRulesTable({ rules, groupInterval, onSwap }: DraggableRulesTableProps) {
-  const styles = useStyles2(getStyles);
   const [rulesList, setRulesList] = useState<RulerRuleDTO[]>(rules);
 
   const onDragEnd = useCallback(
@@ -62,7 +62,7 @@ export function DraggableRulesTable({ rules, groupInterval, onSwap }: DraggableR
           'alerting.draggable-rules-table.evals-to-start-alerting',
           'Evaluations to start alerting'
         )}
-        className={styles.listHeader}
+        xstyle={styles.listHeader}
       />
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
@@ -103,8 +103,6 @@ interface DraggableListItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const DraggableListItem = ({ provided, rule, groupInterval, isClone = false }: DraggableListItemProps) => {
-  const styles = useStyles2(getStyles);
-
   const ruleName = getRuleName(rule);
   const pendingPeriod = rulerRuleType.any.alertingRule(rule) ? rule.for : null;
   const numberEvaluationsToStartAlerting = getNumberEvaluationsToStartAlerting(pendingPeriod ?? '0s', groupInterval);
@@ -123,7 +121,7 @@ const DraggableListItem = ({ provided, rule, groupInterval, isClone = false }: D
         )
       }
       data-testid="reorder-alert-rule"
-      className={cx(styles.listItem, { [styles.listItemClone]: isClone })}
+      xstyle={isClone && styles.listItemClone}
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
@@ -131,7 +129,8 @@ const DraggableListItem = ({ provided, rule, groupInterval, isClone = false }: D
   );
 };
 
-interface ListItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ListItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
+  xstyle?: stylex.StyleXStyles;
   dragHandle?: React.ReactNode;
   ruleName: React.ReactNode;
   pendingPeriod: React.ReactNode;
@@ -139,11 +138,9 @@ interface ListItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const ListItem = forwardRef<HTMLDivElement, ListItemProps>(
-  ({ dragHandle, ruleName, pendingPeriod, evalsToStartAlerting, className, ...props }, ref) => {
-    const styles = useStyles2(getStyles);
-
+  ({ dragHandle, ruleName, pendingPeriod, evalsToStartAlerting, xstyle, style, ...props }, ref) => {
     return (
-      <div className={cx(styles.listItem, className)} ref={ref} {...props}>
+      <div {...mergeStylexProps(stylex.props(styles.listItem, xstyle), { style })} ref={ref} {...props}>
         <Stack flex="0 0 24px">{dragHandle}</Stack>
         <Stack flex={1}>{ruleName}</Stack>
         <Stack basis="30%">{pendingPeriod}</Stack>
@@ -154,24 +151,29 @@ const ListItem = forwardRef<HTMLDivElement, ListItemProps>(
 );
 ListItem.displayName = 'ListItem';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listItem: css({
+const styles = stylex.create({
+  listItem: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
 
-    gap: theme.spacing(1),
-    padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
 
-    '&:nth-child(even)': {
-      background: theme.colors.background.secondary,
-    },
-  }),
-  listItemClone: css({
-    border: `solid 1px ${theme.colors.primary.shade}`,
-  }),
-  listHeader: css({
-    fontWeight: theme.typography.fontWeightBold,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
+    backgroundColor: { default: null, ':nth-child(even)': colors['--gf-colors-background-secondary'] },
+  },
+  listItemClone: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-primary-shade'],
+  },
+  listHeader: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
 });

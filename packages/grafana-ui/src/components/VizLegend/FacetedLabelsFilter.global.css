@@ -1,0 +1,9 @@
+/*
+ * StyleX drops `all`, so the buttons' reset lives here. It is layered below StyleX so the buttons' own StyleX
+ * styles still apply on top of it, as they did after `all: unset` in the Emotion rule.
+ */
+@layer grafana-global {
+  .gf-faceted-labels-filter-button {
+    all: unset;
+  }
+}

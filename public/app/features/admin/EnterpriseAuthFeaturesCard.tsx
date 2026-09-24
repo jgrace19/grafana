@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { GrafanaEdition } from '@grafana/data/internal';
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Text, Stack, useStyles2, Button, LinkButton } from '@grafana/ui';
+import { Text, Stack, Button, LinkButton } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { CloudEnterpriseBadge } from 'app/core/components/Branding/CloudEnterpriseBadge';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -15,7 +15,6 @@ export interface Props {
 }
 
 export function EnterpriseAuthFeaturesCard({ page }: Props) {
-  const styles = useStyles2(getStyles);
   const helpFlags = contextSrv.user.helpFlags1;
   const HELP_FLAG_ENTERPRISE_AUTH = 0x0004;
   const [isDismissed, setDismissed] = useState<boolean>(Boolean(helpFlags & HELP_FLAG_ENTERPRISE_AUTH));
@@ -35,7 +34,7 @@ export function EnterpriseAuthFeaturesCard({ page }: Props) {
   }
 
   return (
-    <div className={styles.box}>
+    <div {...stylex.props(styles.box)}>
       <Stack direction="row" alignItems="center" justifyContent={'space-between'}>
         <CloudEnterpriseBadge />
         <Button
@@ -51,7 +50,10 @@ export function EnterpriseAuthFeaturesCard({ page }: Props) {
           <Trans i18nKey="admin.enterprise-auth-features-card.heading">Enterprise authentication</Trans>
         </Text>
         <Text variant="body" color="secondary">
-          <Trans i18nKey="admin.enterprise-auth-features-card.text">
+          <Trans
+            i18nKey="admin.enterprise-auth-features-card.text"
+            components={{ strong: <strong {...stylex.props(styles.strong)} /> }}
+          >
             Manage users, teams, and permissions automatically with <strong>SAML</strong>, <strong>SCIM</strong>,{' '}
             <strong>LDAP</strong>, and <strong>RBAC</strong> — available in Grafana Cloud and Enterprise.
           </Trans>
@@ -72,38 +74,6 @@ export function EnterpriseAuthFeaturesCard({ page }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    cloudBadge: css({
-      display: 'flex',
-      alignItems: 'center',
-      background: theme.colors.gradients.brandHorizontal,
-      color: theme.colors.primary.contrastText,
-      padding: theme.spacing(0.5, 1),
-      borderRadius: theme.shape.radius.pill,
-      fontSize: theme.typography.bodySmall.fontSize,
-      gap: theme.spacing(1),
-    }),
-    box: css({
-      padding: theme.spacing(3),
-      border: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1.5),
-      borderRadius: theme.shape.radius.lg,
-      marginTop: theme.spacing(3),
-      strong: {
-        color: theme.colors.text.primary,
-      },
-    }),
-    icon: css({
-      position: 'relative',
-      top: -1,
-    }),
-  };
-}
-
 export function isOpenSourceBuildOrUnlicenced() {
   if (config.buildInfo.edition === GrafanaEdition.OpenSource) {
     return true;
@@ -115,3 +85,21 @@ export function isOpenSourceBuildOrUnlicenced() {
 
   return false;
 }
+
+const styles = stylex.create({
+  box: {
+    padding: spacing['--gf-spacing-x3'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1-5'],
+    borderRadius: shape['--gf-shape-radius-lg'],
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  strong: {
+    color: colors['--gf-colors-text-primary'],
+  },
+});

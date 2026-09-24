@@ -1,21 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type ReactNode, useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
+import { store } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Dropdown,
-  Icon,
-  Menu,
-  ToolbarButton,
-  ToolbarButtonRow,
-  useStyles2,
-} from '@grafana/ui';
+import { Badge, Button, ButtonGroup, Dropdown, Icon, Menu, ToolbarButton, ToolbarButtonRow } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { AppChromeUpdate } from 'app/core/components/AppChrome/AppChromeUpdate';
 import { NavToolbarSeparator } from 'app/core/components/AppChrome/NavToolbar/NavToolbarSeparator';
 import { LS_PANEL_COPY_KEY } from 'app/core/constants';
@@ -83,7 +74,6 @@ export function ToolbarActions({ dashboard }: Props) {
 
   const canSaveAs = contextSrv.hasEditPermissionInFolders;
   const toolbarActions: ToolbarAction[] = [];
-  const styles = useStyles2(getStyles);
   const isEditingPanel = Boolean(editPanel);
   const isViewingPanel = Boolean(viewPanel);
   const isEditedPanelDirty = usePanelEditDirty(editPanel);
@@ -342,7 +332,7 @@ export function ToolbarActions({ dashboard }: Props) {
             : t('dashboard.toolbar.edit.tooltip', 'Enter edit mode')
         }
         key="edit"
-        className={styles.buttonWithExtraMargin}
+        className={stylex.props(styles.buttonWithExtraMargin).className}
         variant={'secondary'}
         size="sm"
         data-testid={selectors.components.NavToolbar.editDashboard.editButton}
@@ -365,7 +355,7 @@ export function ToolbarActions({ dashboard }: Props) {
         }}
         tooltip={t('dashboard.toolbar.enter-edit-mode.tooltip', 'This dashboard was marked as read only')}
         key="edit"
-        className={styles.buttonWithExtraMargin}
+        className={stylex.props(styles.buttonWithExtraMargin).className}
         variant="secondary"
         size="sm"
         data-testid={selectors.components.NavToolbar.editDashboard.editButton}
@@ -520,7 +510,7 @@ export function ToolbarActions({ dashboard }: Props) {
             onClick={() => {
               dashboard.openSaveDrawer({});
             }}
-            className={styles.buttonWithExtraMargin}
+            className={stylex.props(styles.buttonWithExtraMargin).className}
             tooltip={t('dashboard.toolbar.save-dashboard.tooltip', 'Save changes')}
             key="save"
             size="sm"
@@ -539,7 +529,7 @@ export function ToolbarActions({ dashboard }: Props) {
             onClick={() => {
               dashboard.openSaveDrawer({ saveAsCopy: true });
             }}
-            className={styles.buttonWithExtraMargin}
+            className={stylex.props(styles.buttonWithExtraMargin).className}
             tooltip={t('dashboard.toolbar.save-dashboard-copy.tooltip', 'Save as copy')}
             key="save"
             size="sm"
@@ -571,7 +561,7 @@ export function ToolbarActions({ dashboard }: Props) {
       );
 
       return (
-        <ButtonGroup className={styles.buttonWithExtraMargin} key="save">
+        <ButtonGroup className={stylex.props(styles.buttonWithExtraMargin).className} key="save">
           <Button
             onClick={() => {
               dashboard.openSaveDrawer({});
@@ -665,21 +655,11 @@ interface ToolbarAction {
   render: () => ReactNode;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    hiddenElementsContainer: css({
-      display: 'flex',
-      padding: 0,
-      gap: theme.spacing(1),
-      whiteSpace: 'nowrap',
-    }),
-    buttonWithExtraMargin: css({
-      margin: theme.spacing(0, 0.5),
-    }),
-    publicBadge: css({
-      color: 'grey',
-      backgroundColor: 'transparent',
-      border: '1px solid',
-    }),
-  };
-}
+const styles = stylex.create({
+  buttonWithExtraMargin: {
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

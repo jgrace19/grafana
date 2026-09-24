@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren, type ReactNode } from 'react';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack, Text, TextLink } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Spacer } from '../../components/Spacer';
 
@@ -26,11 +26,10 @@ export const ListGroup = ({
   href,
   children,
 }: GroupProps) => {
-  const styles = useStyles2(getStyles);
   const [open, toggle] = useToggle(isOpen);
 
   return (
-    <div className={styles.groupWrapper} role="treeitem" aria-expanded={open} aria-selected="false">
+    <div {...stylex.props(styles.groupWrapper)} role="treeitem" aria-expanded={open} aria-selected="false">
       <GroupHeader
         onToggle={() => toggle()}
         isOpen={open}
@@ -41,7 +40,7 @@ export const ListGroup = ({
         href={href}
       />
       {open && (
-        <div role="group" className={styles.childrenWrapper}>
+        <div role="group" {...stylex.props(styles.childrenWrapper)}>
           {children}
         </div>
       )}
@@ -56,10 +55,8 @@ type GroupHeaderProps = GroupProps & {
 const GroupHeader = (props: GroupHeaderProps) => {
   const { name, description, metaRight = null, actions = null, isOpen = false, onToggle, href } = props;
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.headerWrapper}>
+    <div {...stylex.props(styles.headerWrapper)}>
       <Stack direction="row" alignItems="center" gap={1}>
         <Stack alignItems="center" gap={0.5}>
           <IconButton
@@ -87,32 +84,32 @@ const GroupHeader = (props: GroupHeaderProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  groupWrapper: css({
+const styles = stylex.create({
+  groupWrapper: {
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
 
-    '&:before': {
+    '::before': {
       content: "''",
       position: 'absolute',
       height: '100%',
 
-      marginLeft: theme.spacing(2.5),
-      borderLeft: `solid 1px ${theme.colors.border.weak}`,
+      marginLeft: spacing['--gf-spacing-x2-5'],
+      borderLeftWidth: '1px',
+      borderLeftStyle: 'solid',
+      borderLeftColor: colors['--gf-colors-border-weak'],
     },
-  }),
-  headerWrapper: css({
-    padding: theme.spacing(1),
-    paddingLeft: theme.spacing(4),
+  },
+  headerWrapper: {
+    padding: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x4'],
     position: 'relative',
 
-    '&:hover': {
-      background: theme.colors.action.hover,
-      borderRadius: theme.shape.radius.default,
-    },
-  }),
-  childrenWrapper: css({
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+    borderRadius: { default: null, ':hover': shape['--gf-shape-radius-default'] },
+  },
+  childrenWrapper: {
     position: 'relative',
-  }),
+  },
 });

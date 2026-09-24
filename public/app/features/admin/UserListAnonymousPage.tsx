@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { RadioButtonGroup, useStyles2, FilterInput } from '@grafana/ui';
+import { RadioButtonGroup, FilterInput } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { type StoreState } from 'app/types/store';
 
@@ -48,16 +49,14 @@ const UserListAnonymousDevicesPageUnConnected = ({
   changeAnonPage,
   changeAnonUserSort,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-
   useEffect(() => {
     fetchUsersAnonymousDevices();
   }, [fetchUsersAnonymousDevices]);
 
   return (
     <Page.Contents>
-      <div className={styles.actionBar} data-testid={selectors.container}>
-        <div className={styles.row}>
+      <div {...stylex.props(styles.actionBar)} data-testid={selectors.container}>
+        <div {...stylex.props(styles.row)}>
           <FilterInput
             placeholder={t(
               'admin.user-list-anonymous-devices-page-un-connected.placeholder-search-devices-by-ip-address',
@@ -79,7 +78,7 @@ const UserListAnonymousDevicesPageUnConnected = ({
             ]}
             // onChange={(value) => changeFilter({ name: 'activeLast30Days', value })}
             value={filters.find((f) => f.name === 'activeLast30Days')?.value}
-            className={styles.filter}
+            className={stylex.props(styles.filter).className}
           />
         </div>
       </div>
@@ -105,37 +104,48 @@ export function UserListAnonymousDevicesPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    filter: css({
-      margin: theme.spacing(0, 1),
-      [theme.breakpoints.down('sm')]: {
-        margin: 0,
-      },
-    }),
-    actionBar: css({
-      marginBottom: theme.spacing(2),
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-      },
-    }),
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      marginBottom: theme.spacing(0.5),
-      flexGrow: 1,
+const styles = stylex.create({
+  filter: {
+    marginTop: 0,
+    marginRight: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    marginBottom: 0,
+    marginLeft: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+  },
 
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-        gap: theme.spacing(2),
-        width: '100%',
-      },
-    }),
-  };
-};
+  actionBar: {
+    marginBottom: spacing['--gf-spacing-x2'],
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: spacing['--gf-spacing-x2'],
+
+    flexWrap: {
+      default: null,
+      [bp.smDown]: 'wrap',
+    },
+  },
+
+  row: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    flexGrow: 1,
+
+    flexWrap: {
+      default: null,
+      [bp.smDown]: 'wrap',
+    },
+
+    gap: {
+      default: null,
+      [bp.smDown]: spacing['--gf-spacing-x2'],
+    },
+
+    width: {
+      default: null,
+      [bp.smDown]: '100%',
+    },
+  },
+});
 
 export default UserListAnonymousDevicesPage;

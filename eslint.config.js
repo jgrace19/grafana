@@ -109,6 +109,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U7 viz
+  'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
@@ -128,6 +130,25 @@ const stylexMigratedAppFiles = [
   'public/app/core/navigation/*.{ts,tsx}',
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  // D3 dashboard
+  'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
+  // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
+  'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
+  // M2 admin and misc features
+  'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
+  'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,ServerStatsCard,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
+  'public/app/features/admin/ldap/LdapSettingsPage.tsx',
+  'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
+  'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
+  // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
+  'public/app/features/alerting/*.{ts,tsx}',
+  'public/app/features/alerting/state/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/*.{ts,tsx}',
+  'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
+  // M1 plugins, provisioning
+  'public/app/features/plugins/**/*.{ts,tsx}',
+  'public/app/features/provisioning/**/*.{ts,tsx}',
+  'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
   // D1 dashboard-scene panel edit and edit pane
   'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
