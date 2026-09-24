@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, Link, useTheme2 } from '@grafana/ui';
+import { Icon, IconButton, Link } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
+
+import { menuItemMarker } from './markers.stylex';
 
 export interface Props {
   children: React.ReactNode;
@@ -19,13 +21,10 @@ export interface Props {
 }
 
 export function MegaMenuItemText({ children, isActive, onClick, target, url, onPin, isPinned, itemName }: Props) {
-  const theme = useTheme2();
-
-  const styles = getStyles(theme, isActive);
   const LinkComponent = !target && url.startsWith('/') ? Link : 'a';
 
   const linkContent = (
-    <div className={styles.linkContent}>
+    <div {...stylex.props(styles.linkContent)}>
       {children}
 
       {
@@ -36,10 +35,10 @@ export function MegaMenuItemText({ children, isActive, onClick, target, url, onP
   );
 
   return (
-    <div className={cx(styles.wrapper, isActive && styles.wrapperActive)}>
+    <div {...stylex.props(styles.wrapper, menuItemMarker, isActive && styles.wrapperActive)}>
       <LinkComponent
         data-testid={selectors.components.NavMenu.item}
-        className={styles.container}
+        {...stylex.props(styles.container, isActive && styles.containerActive)}
         href={url}
         target={target}
         onClick={onClick}
@@ -50,7 +49,7 @@ export function MegaMenuItemText({ children, isActive, onClick, target, url, onP
       {contextSrv.isSignedIn && url && url !== '/bookmarks' && (
         <IconButton
           name="bookmark"
-          className={'pin-icon'}
+          className={`pin-icon ${stylex.props(styles.pinIcon).className}`}
           iconType={isPinned ? 'solid' : 'default'}
           onClick={() => onPin(url)}
           aria-pressed={isPinned}
@@ -63,67 +62,63 @@ export function MegaMenuItemText({ children, isActive, onClick, target, url, onP
 
 MegaMenuItemText.displayName = 'MegaMenuItemText';
 
-const getStyles = (theme: GrafanaTheme2, isActive: Props['isActive']) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
     height: '100%',
-    '.pin-icon': {
-      visibility: 'hidden',
+  },
+  pinIcon: {
+    visibility: {
+      default: 'hidden',
+      [stylex.when.ancestor(':hover', menuItemMarker)]: 'visible',
+      [stylex.when.ancestor(':focus-within', menuItemMarker)]: 'visible',
     },
-    '&:hover, &:focus-within': {
-      a: {
-        width: 'calc(100% - 20px)',
-      },
-      '.pin-icon': {
-        visibility: 'visible',
-      },
-    },
-  }),
-  wrapperActive: css({
-    backgroundColor: theme.colors.action.selected,
-    borderTopRightRadius: theme.shape.radius.default,
-    borderBottomRightRadius: theme.shape.radius.default,
+  },
+  wrapperActive: {
+    backgroundColor: colors['--gf-colors-action-selected'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
     position: 'relative',
-    color: theme.colors.text.primary,
-
-    '&::before': {
-      backgroundImage: theme.colors.gradients.brandVertical,
-      borderRadius: theme.shape.radius.default,
+    color: colors['--gf-colors-text-primary'],
+    '::before': {
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+      borderRadius: shape['--gf-shape-radius-default'],
       content: '" "',
       display: 'block',
       height: '100%',
       position: 'absolute',
       transform: 'translateX(-50%)',
       left: 0,
-      width: theme.spacing(0.25),
+      width: spacing['--gf-spacing-x0-25'],
     },
-  }),
-  container: css({
+  },
+  container: {
     alignItems: 'center',
-    color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
+    color: colors['--gf-colors-text-secondary'],
     height: '100%',
     position: 'relative',
-    width: '100%',
-
-    '&:hover span, &:focus-visible span': {
-      color: theme.colors.text.primary,
-      textDecoration: 'underline',
+    width: {
+      default: '100%',
+      [stylex.when.ancestor(':hover', menuItemMarker)]: 'calc(100% - 20px)',
+      [stylex.when.ancestor(':focus-within', menuItemMarker)]: 'calc(100% - 20px)',
     },
-
-    '&:focus-visible': {
-      boxShadow: 'none',
-      outline: `2px solid ${theme.colors.primary.main}`,
-      outlineOffset: '-2px',
-    },
-  }),
-  linkContent: css({
+    boxShadow: { default: null, ':focus-visible': 'none' },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineStyle: { default: null, ':focus-visible': 'solid' },
+    outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-main'] },
+    outlineOffset: { default: null, ':focus-visible': '-2px' },
+  },
+  containerActive: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  linkContent: {
     alignItems: 'center',
     display: 'flex',
     gap: '0.5rem',
     height: '100%',
     width: '100%',
     justifyContent: 'space-between',
-  }),
+  },
 });
