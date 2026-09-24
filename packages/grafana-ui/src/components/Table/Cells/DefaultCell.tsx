@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ReactElement, useState } from 'react';
 import * as React from 'react';
 
@@ -8,7 +9,7 @@ import { getCellLinks } from '../../../utils/table';
 import { CellActions } from '../CellActions';
 import { DataLinksActionsTooltip, renderSingleLink } from '../DataLinksActionsTooltip';
 import { TableCellInspectorMode } from '../TableCellInspector';
-import { type TableStyles } from '../TableRT/styles';
+import { getCellContainerProps, type TableStyles } from '../TableRT/styles';
 import { type TableCellProps, type CustomCellRendererProps, type TableCellOptions } from '../types';
 import {
   type DataLinksActionsTooltipCoords,
@@ -87,12 +88,14 @@ export const DefaultCell = (props: TableCellProps) => {
     <div
       key={key}
       {...rest}
-      className={cellStyle}
-      style={{ ...cellProps.style, cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto' }}
+      {...getCellContainerProps(cellStyle, {
+        ...cellProps.style,
+        cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto',
+      })}
       onClick={tooltipOnClickHandler(setTooltipCoords)}
     >
       {shouldShowLink ? (
-        renderSingleLink(links[0], value, getLinkStyle(tableStyles, cellOptions))
+        renderSingleLink(links[0], value, stylex.props(getLinkStyle(tableStyles, cellOptions)).className)
       ) : shouldShowTooltip ? (
         <DataLinksActionsTooltip
           links={links}
@@ -103,7 +106,7 @@ export const DefaultCell = (props: TableCellProps) => {
       ) : isStringValue ? (
         `${value}`
       ) : (
-        <div className={tableStyles.cellText}>{value}</div>
+        <div {...stylex.props(tableStyles.cellText)}>{value}</div>
       )}
 
       {showActions && <CellActions {...props} previewMode={TableCellInspectorMode.text} showFilters={showFilters} />}

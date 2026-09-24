@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties } from 'react';
 import * as React from 'react';
 
-import { type DataFrame, type Field, type GrafanaTheme2 } from '@grafana/data';
+import { type DataFrame, type Field } from '@grafana/data';
 import { type TableCellHeight } from '@grafana/schema';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { colors, spacing } from '../../../themes/stylex/tokens.stylex';
 import { EXPANDER_WIDTH } from '../utils';
 
 import { Table } from './Table';
@@ -23,7 +24,6 @@ export function ExpandedRow({ tableStyles, nestedData, rowIndex, width, cellHeig
   const frames: DataFrame[][] = nestedData.values;
   const subTables: React.ReactNode[] = [];
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   let top = tableStyles.rowHeight + theme.spacing.gridSize; // initial height for row that expands above sub tables + 1 grid unit spacing
 
@@ -55,24 +55,8 @@ export function ExpandedRow({ tableStyles, nestedData, rowIndex, width, cellHeig
     );
   });
 
-  return <div className={styles.subTables}>{subTables}</div>;
+  return <div {...stylex.props(styles.subTables)}>{subTables}</div>;
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    subTables: css({
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        width: '1px',
-        top: theme.spacing(5),
-        left: theme.spacing(1),
-        bottom: theme.spacing(2),
-        background: theme.colors.border.medium,
-      },
-    }),
-  };
-};
 
 export function getExpandedRowHeight(nestedData: Field, rowIndex: number, tableStyles: TableStyles) {
   const frames: DataFrame[][] = nestedData.values;
@@ -87,3 +71,17 @@ export function getExpandedRowHeight(nestedData: Field, rowIndex: number, tableS
 
   return height ?? tableStyles.rowHeight;
 }
+
+const styles = stylex.create({
+  subTables: {
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      width: '1px',
+      top: spacing['--gf-spacing-x5'],
+      left: spacing['--gf-spacing-x1'],
+      bottom: spacing['--gf-spacing-x2'],
+      backgroundColor: colors['--gf-colors-border-medium'],
+    },
+  },
+});

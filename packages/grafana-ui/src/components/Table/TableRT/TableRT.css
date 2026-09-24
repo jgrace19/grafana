@@ -1,0 +1,12 @@
+/*
+ * TableRT rules that style children the table doesn't render (custom cell content, Pagination's items).
+ * Deliberately not in a cascade layer, like the Emotion rules they replace: they must keep beating the
+ * children's own (StyleX, global or legacy) styles.
+ */
+.gf-table-rt-cell a {
+  color: inherit;
+}
+
+.gf-table-rt-pagination li {
+  margin-bottom: 0;
+}

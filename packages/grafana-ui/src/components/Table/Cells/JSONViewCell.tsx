@@ -1,21 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, type JSX } from 'react';
 
 import { getCellLinks } from '../../../utils/table';
 import { CellActions } from '../CellActions';
 import { DataLinksActionsTooltip, renderSingleLink } from '../DataLinksActionsTooltip';
 import { TableCellInspectorMode } from '../TableCellInspector';
+import { getCellContainerProps } from '../TableRT/styles';
 import { type TableCellProps } from '../types';
 import { tooltipOnClickHandler, type DataLinksActionsTooltipCoords, getDataLinksActionsTooltipUtils } from '../utils';
 
 export function JSONViewCell(props: TableCellProps): JSX.Element {
   const { cell, tableStyles, cellProps, field, row } = props;
   const inspectEnabled = Boolean(field.config.custom?.inspect);
-  const txt = css({
-    cursor: 'pointer',
-    fontFamily: 'monospace',
-  });
-
   let value = cell.value;
   let displayValue = value;
 
@@ -39,9 +35,15 @@ export function JSONViewCell(props: TableCellProps): JSX.Element {
   const shouldShowTooltip = hasMultipleLinksOrActions && tooltipCoords !== undefined;
 
   return (
-    <div {...cellProps} className={inspectEnabled ? tableStyles.cellContainerNoOverflow : tableStyles.cellContainer}>
+    <div
+      {...cellProps}
+      {...getCellContainerProps(
+        inspectEnabled ? tableStyles.cellContainerNoOverflow : tableStyles.cellContainer,
+        cellProps.style
+      )}
+    >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-      <div className={cx(tableStyles.cellText, txt)} onClick={tooltipOnClickHandler(setTooltipCoords)}>
+      <div {...stylex.props(tableStyles.cellText, styles.txt)} onClick={tooltipOnClickHandler(setTooltipCoords)}>
         {shouldShowLink ? (
           renderSingleLink(links[0], displayValue)
         ) : shouldShowTooltip ? (
@@ -52,10 +54,17 @@ export function JSONViewCell(props: TableCellProps): JSX.Element {
             onTooltipClose={() => setTooltipCoords(undefined)}
           />
         ) : (
-          <div className={tableStyles.cellText}>{displayValue}</div>
+          <div {...stylex.props(tableStyles.cellText)}>{displayValue}</div>
         )}
       </div>
       {inspectEnabled && <CellActions {...props} previewMode={TableCellInspectorMode.code} />}
     </div>
   );
 }
+
+const styles = stylex.create({
+  txt: {
+    cursor: 'pointer',
+    fontFamily: 'monospace',
+  },
+});

@@ -1,11 +1,14 @@
-import { css, cx } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Label migration
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type Field, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type Field, type SelectableValue } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { colors, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { Button } from '../../Button/Button';
 import { ClickOutsideWrapper } from '../../ClickOutsideWrapper/ClickOutsideWrapper';
 import { Label } from '../../Forms/Label';
@@ -65,17 +68,16 @@ export const FilterPopup = ({
   );
 
   const clearFilterVisible = useMemo(() => filterValue !== undefined, [filterValue]);
-  const styles = useStyles2(getStyles);
 
   return (
     <ClickOutsideWrapper onClick={onCancel} useCapture={true}>
       {/* This is just blocking click events from bubbeling and should not have a keyboard interaction. */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-      <div ref={ref} className={cx(styles.filterContainer)} onClick={stopPropagation}>
+      <div ref={ref} {...stylex.props(styles.filterContainer)} onClick={stopPropagation}>
         <Stack direction="column" gap={3}>
           <Stack direction="column" gap={0.5}>
             <Stack justifyContent="space-between" alignItems="center">
-              <Label className={styles.label}>
+              <Label className={labelOverride}>
                 <Trans i18nKey="grafana-ui.table.filter-popup-heading">Filter by values:</Trans>
               </Label>
               <IconButton
@@ -87,7 +89,7 @@ export const FilterPopup = ({
                 }}
               />
             </Stack>
-            <div className={cx(styles.listDivider)} />
+            <div {...stylex.props(styles.listDivider)} />
             {ref.current && (
               <FilterList
                 referenceElement={ref.current}
@@ -126,28 +128,38 @@ export const FilterPopup = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  filterContainer: css({
-    label: 'filterContainer',
+// stylex: pending Label migration. Label's own Emotion margin would beat a StyleX class.
+const labelOverride = css({
+  marginBottom: 0,
+});
+
+const styles = stylex.create({
+  filterContainer: {
     width: '100%',
     minWidth: '250px',
     height: '100%',
     maxHeight: '400px',
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(2),
-    boxShadow: theme.shadows.z3,
-    borderRadius: theme.shape.radius.default,
-  }),
-  listDivider: css({
-    label: 'listDivider',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  listDivider: {
     width: '100%',
-    borderTop: `1px solid ${theme.colors.border.medium}`,
-    padding: theme.spacing(0.5, 2),
-  }),
-  label: css({
-    marginBottom: 0,
-  }),
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
 });
 
 const stopPropagation = (event: React.MouseEvent) => {
