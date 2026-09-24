@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { useState } from 'react';
 import { useMeasure } from 'react-use';
@@ -10,7 +10,7 @@ import {
   type CreateNotificationsqueryalertsNotificationEntryAlert,
   useCreateNotificationqueryMutation,
 } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, type TimeRange, dateTimeFormat } from '@grafana/data';
+import { type TimeRange, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -34,9 +34,9 @@ import {
   Text,
   TextLink,
   Tooltip,
-  useStyles2,
   withErrorBoundary,
 } from '@grafana/ui';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { receiverTypeNames } from 'app/plugins/datasource/alertmanager/consts';
 
 import { AlertEnrichments } from '../components/AlertEnrichments';
@@ -52,6 +52,8 @@ import { createRelativeUrl } from '../utils/url';
 
 import { isNotificationOutcome, isNotificationStatus, matcherToAPIFormat } from './NotificationsRuntimeDataSource';
 import { LABELS_FILTER, OUTCOME_FILTER, RECEIVER_FILTER, STATUS_FILTER } from './constants';
+
+import './NotificationsListSceneObject.css';
 
 const PAGE_SIZE = 100;
 
@@ -162,11 +164,9 @@ interface NotificationsLogEventsProps {
 
 function NotificationsLogEvents({ logRecords, onLabelClick }: NotificationsLogEventsProps) {
   const { page, pageItems, numberOfPages, onPageChange } = usePagination(logRecords, 1, PAGE_SIZE);
-  const styles = useStyles2(getStyles);
-
   if (logRecords.length === 0) {
     return (
-      <div className={styles.emptyState}>
+      <div {...stylex.props(styles.emptyState)}>
         <Text color="secondary">
           <Trans i18nKey="alerting.notifications-scene.no-notifications">
             No notifications found for the selected time range and filters
@@ -179,7 +179,7 @@ function NotificationsLogEvents({ logRecords, onLabelClick }: NotificationsLogEv
   return (
     <Stack direction="column" gap={0}>
       <ListHeader />
-      <ul className={styles.list}>
+      <ul {...stylex.props(styles.list)}>
         {pageItems.map((record, index) => {
           return <NotificationRow key={`${record.timestamp}-${index}`} record={record} onLabelClick={onLabelClick} />;
         })}
@@ -190,32 +190,31 @@ function NotificationsLogEvents({ logRecords, onLabelClick }: NotificationsLogEv
 }
 
 function ListHeader() {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.mainHeader}>
-      <div className={styles.timeCol}>
+    <div {...stylex.props(styles.mainHeader)}>
+      <div {...stylex.props(styles.timeCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.notifications-scene.header.time">Time</Trans>
         </Text>
       </div>
-      <div className={styles.stateCol}>
+      <div {...stylex.props(styles.stateCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.notifications-scene.header.status">Status</Trans>
         </Text>
       </div>
-      <div className={styles.labelsCol}>
+      <div {...stylex.props(styles.labelsCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.notifications-scene.header.group-labels">Group Labels</Trans>
         </Text>
       </div>
-      <div className={styles.statusCol}>{/* Status badge column */}</div>
-      <div className={styles.receiverCol}>
+      <div {...stylex.props(styles.statusCol)}>{/* Status badge column */}</div>
+      <div {...stylex.props(styles.receiverCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.notifications-scene.header.contact-point">Contact point</Trans>
         </Text>
       </div>
       {config.featureToggles.alertingNotificationHistoryDetail && (
-        <div className={styles.viewCol}>{/* View link column */}</div>
+        <div {...stylex.props(styles.viewCol)}>{/* View link column */}</div>
       )}
     </div>
   );
@@ -227,35 +226,34 @@ interface NotificationRowProps {
 }
 
 function NotificationRow({ record, onLabelClick }: NotificationRowProps) {
-  const styles = useStyles2(getStyles);
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <Stack direction="column" gap={0}>
       <div
-        className={cx(styles.header, isCollapsed ? styles.collapsedHeader : styles.notCollapsedHeader)}
+        {...stylex.props(styles.header, isCollapsed ? styles.collapsedHeader : styles.notCollapsedHeader)}
         data-testid="notification-row-header"
       >
         <CollapseToggle
           size="sm"
-          className={styles.collapseToggle}
+          className="gf-notification-row-toggle"
           isCollapsed={isCollapsed}
           onToggle={setIsCollapsed}
         />
-        <div className={styles.timeCol}>
+        <div {...stylex.props(styles.timeCol)}>
           <Timestamp time={record.timestamp} />
         </div>
-        <div className={styles.stateCol}>
+        <div {...stylex.props(styles.stateCol)}>
           <NotificationState status={record.status} />
         </div>
-        <div className={styles.labelsCol}>
+        <div {...stylex.props(styles.labelsCol)}>
           {record.groupLabels && Object.keys(record.groupLabels).length > 0 ? (
             <AlertLabels labels={record.groupLabels} size="xs" onClick={onLabelClick} />
           ) : (
             <Text>-</Text>
           )}
         </div>
-        <div className={styles.statusCol}>
+        <div {...stylex.props(styles.statusCol)}>
           {record.outcome === 'error' && (
             <Tooltip
               content={record.error || t('alerting.notifications-list.no-error-details', 'No error details available')}
@@ -270,7 +268,7 @@ function NotificationRow({ record, onLabelClick }: NotificationRowProps) {
             </Tooltip>
           )}
         </div>
-        <div className={styles.receiverCol}>
+        <div {...stylex.props(styles.receiverCol)}>
           <Tooltip
             content={t('alerting.notifications-list.integration-tooltip', '{{integration}} #{{index}}', {
               integration: receiverTypeNames[record.integration] ?? record.integration,
@@ -289,7 +287,7 @@ function NotificationRow({ record, onLabelClick }: NotificationRowProps) {
           </Tooltip>
         </div>
         {config.featureToggles.alertingNotificationHistoryDetail && (
-          <div className={styles.viewCol}>
+          <div {...stylex.props(styles.viewCol)}>
             <LinkButton
               href={createRelativeUrl(
                 `/alerting/notifications-history/view/${record.uuid}?ts=${new Date(record.timestamp).getTime()}`
@@ -304,7 +302,7 @@ function NotificationRow({ record, onLabelClick }: NotificationRowProps) {
         )}
       </div>
       {!isCollapsed && (
-        <div className={styles.expandedRow}>
+        <div {...stylex.props(styles.expandedRow)}>
           <NotificationDetails record={record} />
         </div>
       )}
@@ -330,8 +328,6 @@ interface NotificationDetailsProps {
 }
 
 function NotificationDetails({ record }: NotificationDetailsProps) {
-  const styles = useStyles2(getStyles);
-
   const {
     alerts,
     firingAlerts,
@@ -372,7 +368,7 @@ function NotificationDetails({ record }: NotificationDetailsProps) {
     const hasOtherAnnotations = Object.keys(otherAnnotations).length > 0;
 
     return (
-      <div key={index} className={styles.alertDetail}>
+      <div key={index} {...stylex.props(styles.alertDetail)}>
         <Stack direction="column" gap={1}>
           <Stack direction="row" gap={2} alignItems="center">
             {ruleLink ? (
@@ -491,93 +487,94 @@ const Timestamp = ({ time }: TimestampProps) => {
 
 export default withErrorBoundary(NotificationsList, { style: 'page' });
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      flexWrap: 'nowrap',
-      gap: theme.spacing(0.5),
-      '&:hover': {
-        backgroundColor: theme.components.table.rowHoverBackground,
-      },
-    }),
-    collapsedHeader: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    notCollapsedHeader: css({
-      borderBottom: 'none',
-    }),
-    collapseToggle: css({
-      background: 'none',
-      border: 'none',
-      marginTop: `-${theme.spacing(1)}`,
-      marginBottom: `-${theme.spacing(1)}`,
-
-      svg: {
-        marginBottom: 0,
-      },
-    }),
-    timeCol: css({
-      width: '180px',
-    }),
-    stateCol: css({
-      width: '100px',
-    }),
-    labelsCol: css({
-      display: 'flex',
-      overflow: 'hidden',
-      alignItems: 'center',
-      paddingRight: theme.spacing(2),
-      flex: 1,
-    }),
-    statusCol: css({
-      width: '100px',
-      display: 'flex',
-    }),
-    receiverCol: css({
-      width: '200px',
-      flexShrink: 0,
-    }),
-    viewCol: css({
-      width: '80px',
-    }),
-    expandedRow: css({
-      padding: theme.spacing(2),
-      marginLeft: theme.spacing(2),
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-    mainHeader: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      marginLeft: '30px',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      gap: theme.spacing(0.5),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    list: css({
-      listStyle: 'none',
-      padding: 0,
-      margin: 0,
-    }),
-    emptyState: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing(4),
-    }),
-    alertDetail: css({
-      padding: theme.spacing(1.5),
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-};
+// CollapseToggle's Button overrides live in NotificationsListSceneObject.css.
+const styles = stylex.create({
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    flexWrap: 'nowrap',
+    gap: spacing['--gf-spacing-x0-5'],
+    backgroundColor: { default: null, ':hover': components['--gf-components-table-row-hover-background'] },
+  },
+  collapsedHeader: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  notCollapsedHeader: {
+    borderBottomStyle: 'none',
+  },
+  timeCol: {
+    width: '180px',
+  },
+  stateCol: {
+    width: '100px',
+  },
+  labelsCol: {
+    display: 'flex',
+    overflow: 'hidden',
+    alignItems: 'center',
+    paddingRight: spacing['--gf-spacing-x2'],
+    flex: '1',
+  },
+  statusCol: {
+    width: '100px',
+    display: 'flex',
+  },
+  receiverCol: {
+    width: '200px',
+    flexShrink: 0,
+  },
+  viewCol: {
+    width: '80px',
+  },
+  expandedRow: {
+    padding: spacing['--gf-spacing-x2'],
+    marginLeft: spacing['--gf-spacing-x2'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
+  mainHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    marginLeft: '30px',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    gap: spacing['--gf-spacing-x0-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  list: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  emptyState: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing['--gf-spacing-x4'],
+  },
+  alertDetail: {
+    padding: spacing['--gf-spacing-x1-5'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+});
 
 /**
  * This is a scene object that displays a list of notification events.

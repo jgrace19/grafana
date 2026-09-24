@@ -1,11 +1,13 @@
 // Libraries
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 
 import { type PanelProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, reportInteraction } from '@grafana/runtime';
-import { Button, Spinner, stylesFactory } from '@grafana/ui';
+import { reportInteraction } from '@grafana/runtime';
+import { Button, Spinner } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -83,14 +85,13 @@ export class GettingStarted extends PureComponent<PanelProps, State> {
 
   render() {
     const { checksDone, currentStep, steps } = this.state;
-    const styles = getStyles();
     const step = steps[currentStep];
 
     return (
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         {!checksDone ? (
-          <div className={styles.loading}>
-            <div className={styles.loadingText}>
+          <div {...stylex.props(styles.loading)}>
+            <div {...stylex.props(styles.loadingText)}>
               <Trans i18nKey="gettingstarted.getting-started.checking-completed-setup-steps">
                 Checking completed setup steps
               </Trans>
@@ -99,24 +100,24 @@ export class GettingStarted extends PureComponent<PanelProps, State> {
           </div>
         ) : (
           <>
-            <Button size="sm" fill="text" className={styles.dismiss} onClick={this.dismiss}>
+            <Button size="sm" fill="text" className={stylex.props(styles.dismiss).className} onClick={this.dismiss}>
               <Trans i18nKey="gettingstarted.getting-started.remove-this-panel">Remove this panel</Trans>
             </Button>
             {currentStep === steps.length - 1 && (
               <Button
-                className={cx(styles.backForwardButtons, styles.previous)}
+                className={stylex.props(styles.backForwardButtons, styles.previous).className}
                 onClick={this.onPreviousClick}
                 aria-label={t('gettingstarted.getting-started.aria-label-to-basic-tutorials', 'To basic tutorials')}
                 icon="angle-left"
                 variant="secondary"
               />
             )}
-            <div className={styles.content}>
+            <div {...stylex.props(styles.content)}>
               <Step step={step} />
             </div>
             {currentStep < steps.length - 1 && (
               <Button
-                className={cx(styles.backForwardButtons, styles.forward)}
+                className={stylex.props(styles.backForwardButtons, styles.forward).className}
                 onClick={this.onForwardClick}
                 aria-label={t(
                   'gettingstarted.getting-started.aria-label-to-advanced-tutorials',
@@ -133,85 +134,56 @@ export class GettingStarted extends PureComponent<PanelProps, State> {
   }
 }
 
-const getStyles = stylesFactory(() => {
-  const theme = config.theme2;
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      backgroundSize: 'cover',
-      padding: `${theme.spacing(4)} ${theme.spacing(2)} 0`,
-    }),
-    content: css({
-      label: 'content',
-      display: 'flex',
-      justifyContent: 'center',
-
-      [theme.breakpoints.down('xxl')]: {
-        marginLeft: theme.spacing(3),
-        justifyContent: 'flex-start',
-      },
-    }),
-    header: css({
-      label: 'header',
-      marginBottom: theme.spacing(3),
-      display: 'flex',
-      flexDirection: 'column',
-
-      [theme.breakpoints.down('lg')]: {
-        flexDirection: 'row',
-      },
-    }),
-    headerLogo: css({
-      height: '58px',
-      paddingRight: theme.spacing(2),
-      display: 'none',
-
-      [theme.breakpoints.up('md')]: {
-        display: 'block',
-      },
-    }),
-    heading: css({
-      label: 'heading',
-      marginRight: theme.spacing(3),
-      marginBottom: theme.spacing(3),
-      flexGrow: 1,
-      display: 'flex',
-
-      [theme.breakpoints.up('md')]: {
-        marginBottom: 0,
-      },
-    }),
-    backForwardButtons: css({
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-    }),
-    previous: css({
-      left: '10px',
-      [theme.breakpoints.down('md')]: {
-        left: 0,
-      },
-    }),
-    forward: css({
-      right: '10px',
-      [theme.breakpoints.down('md')]: {
-        right: 0,
-      },
-    }),
-    dismiss: css({
-      alignSelf: 'flex-end',
-      marginBottom: theme.spacing(1),
-    }),
-    loading: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100%',
-    }),
-    loadingText: css({
-      marginRight: theme.spacing(1),
-    }),
-  };
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    backgroundSize: 'cover',
+    paddingTop: spacing['--gf-spacing-x4'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  content: {
+    display: 'flex',
+    justifyContent: {
+      default: 'center',
+      [bp.xxlDown]: 'flex-start',
+    },
+    marginLeft: {
+      default: null,
+      [bp.xxlDown]: spacing['--gf-spacing-x3'],
+    },
+  },
+  backForwardButtons: {
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+  },
+  previous: {
+    left: {
+      default: '10px',
+      [bp.mdDown]: 0,
+    },
+  },
+  forward: {
+    right: {
+      default: '10px',
+      [bp.mdDown]: 0,
+    },
+  },
+  dismiss: {
+    alignSelf: 'flex-end',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
+  loadingText: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });

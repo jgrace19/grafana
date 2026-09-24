@@ -1,20 +1,21 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps, useId } from 'react';
 
-import { type GrafanaTheme2, type StandardEditorProps } from '@grafana/data';
+import { type StandardEditorProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Stack, Switch, Label, Tooltip, Grid, useStyles2 } from '@grafana/ui';
+import { Stack, Switch, Label, Tooltip, Grid } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type GaugePanelEffects } from './panelcfg.gen';
+import './EffectsEditor.css';
 
 function EffectsEditorInput(props: ComponentProps<typeof Switch> & { tooltip?: string }) {
   const id = useId();
-  const styles = useStyles2(getStyles);
   const content = (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack gap={1} alignItems="center">
         <Switch {...props} id={id} />
-        <Label className={styles.label} htmlFor={id}>
+        <Label className="gf-gauge-effects-label" htmlFor={id}>
           {props.label}
         </Label>
       </Stack>
@@ -24,13 +25,6 @@ function EffectsEditorInput(props: ComponentProps<typeof Switch> & { tooltip?: s
     return <Tooltip content={props.tooltip}>{content}</Tooltip>;
   }
   return content;
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    label: css({ marginBottom: 0 }),
-    container: css({ paddingBlock: theme.spacing(0.5) }),
-  };
 }
 
 /**
@@ -57,3 +51,10 @@ export function EffectsEditor(props: StandardEditorProps<GaugePanelEffects>) {
     </Grid>
   );
 }
+
+const styles = stylex.create({
+  container: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+  },
+});

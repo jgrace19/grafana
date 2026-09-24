@@ -1,0 +1,10 @@
+/*
+ * Hides the "scheme" gradient option, which is rendered by the field config editor and not this component.
+ * Not in a cascade layer, like the Emotion descendant rule it replaces.
+ *
+ * @TODO don't show "scheme" option for custom gradient mode. It needs thresholds to work, which are not
+ * supported for area chart cell right now.
+ */
+.gf-sparkline-cell-field [title='Use color scheme to define gradient'] {
+  display: none;
+}

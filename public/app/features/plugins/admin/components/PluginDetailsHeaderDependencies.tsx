@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Icon, Stack } from '@grafana/ui';
+import { Icon, Stack } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CatalogPlugin, PluginIconName } from '../types';
 
@@ -14,7 +14,6 @@ type Props = {
 };
 
 export function PluginDetailsHeaderDependencies({ plugin, grafanaDependency }: Props): React.ReactElement | null {
-  const styles = useStyles2(getStyles);
   const pluginDependencies = plugin.details?.pluginDependencies;
   const hasNoDependencyInfo = !grafanaDependency && (!pluginDependencies || !pluginDependencies.length);
 
@@ -26,8 +25,8 @@ export function PluginDetailsHeaderDependencies({ plugin, grafanaDependency }: P
     <Stack gap={1}>
       {/* Grafana dependency */}
       {Boolean(grafanaDependency) && (
-        <div className={styles.depBadge}>
-          <Icon name="grafana" className={styles.icon} />
+        <div {...stylex.props(styles.depBadge)}>
+          <Icon name="grafana" xstyle={styles.icon} />
           <Trans i18nKey="plugins.plugin-details-header-dependencies.grafana-dependency">
             Grafana {{ grafanaDependency }}
           </Trans>
@@ -39,8 +38,8 @@ export function PluginDetailsHeaderDependencies({ plugin, grafanaDependency }: P
         <div>
           {pluginDependencies.map((p) => {
             return (
-              <span className={styles.depBadge} key={p.name}>
-                <Icon name={PluginIconName[p.type]} className={styles.icon} />
+              <span {...stylex.props(styles.depBadge)} key={p.name}>
+                <Icon name={PluginIconName[p.type]} xstyle={styles.icon} />
                 {p.name} {p.version}
               </span>
             );
@@ -51,23 +50,13 @@ export function PluginDetailsHeaderDependencies({ plugin, grafanaDependency }: P
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    dependencyTitle: css({
-      marginRight: theme.spacing(0.5),
-
-      '&::after': {
-        content: "''",
-        padding: 0,
-      },
-    }),
-    depBadge: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-    }),
-    icon: css({
-      color: theme.colors.text.secondary,
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  depBadge: {
+    display: 'flex',
+    alignItems: 'flex-start',
+  },
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+});

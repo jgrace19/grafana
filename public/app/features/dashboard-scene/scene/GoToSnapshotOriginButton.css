@@ -1,0 +1,8 @@
+/*
+ * Override on ConfirmModal's container, which takes no xstyle and sets its own width. Unlayered, and the doubled class
+ * outranks the modal's rules (which may be inserted later) like the Emotion `modalClass` it replaces.
+ */
+.gf-snapshot-origin-modal.gf-snapshot-origin-modal {
+  width: max-content;
+  max-width: 80vw;
+}

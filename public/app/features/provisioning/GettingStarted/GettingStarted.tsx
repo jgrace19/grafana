@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
 import { skipToken } from '@reduxjs/toolkit/query';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Stack, useStyles2 } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
+import { shape } from '@grafana/ui/stylex/tokens.stylex';
 import { type Repository, useGetFrontendSettingsQuery } from 'app/api/clients/provisioning/v0alpha1';
 
 import { CloudInfoBox } from '../Shared/CloudInfoBox';
@@ -123,7 +123,6 @@ interface Props {
 }
 
 export default function GettingStarted({ items }: Props) {
-  const styles = useStyles2(getStyles);
   const settingsArg = config.featureToggles.provisioning ? undefined : skipToken;
   const settingsQuery = useGetFrontendSettingsQuery(settingsArg, {
     refetchOnMountOrArgChange: true,
@@ -141,9 +140,9 @@ export default function GettingStarted({ items }: Props) {
       <Stack direction="column" gap={6} wrap="wrap">
         <CloudInfoBox />
         <Stack gap={10} alignItems="center">
-          <div className={styles.imageContainer}>
+          <div {...stylex.props(styles.imageContainer)}>
             {/* decorative img, use empty str to skip alt*/}
-            <img src={provisioningSvg} className={styles.image} alt="" />
+            <img src={provisioningSvg} {...stylex.props(styles.image)} alt="" />
           </div>
           <FeaturesList
             hasRequiredFeatures={hasRequiredFeatures}
@@ -177,18 +176,16 @@ export default function GettingStarted({ items }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    imageContainer: css({
-      height: 350,
-      display: `flex`,
-      alignItems: `center`,
-      justifyContent: `center`,
-    }),
-    image: css({
-      borderRadius: theme.shape.radius.default,
-      width: '100%',
-      height: '100%',
-    }),
-  };
-}
+const styles = stylex.create({
+  imageContainer: {
+    height: 350,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    width: '100%',
+    height: '100%',
+  },
+});

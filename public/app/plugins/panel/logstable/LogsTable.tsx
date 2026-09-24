@@ -1,17 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useState } from 'react';
 
 import {
   CoreApp,
   type DataFrame,
   type FieldConfigSource,
-  type GrafanaTheme2,
   LoadingState,
   LogsSortOrder,
   type PanelData,
   type PanelProps,
 } from '@grafana/data';
-import { usePanelContext, useStyles2 } from '@grafana/ui';
+import { usePanelContext } from '@grafana/ui';
 import { SETTING_KEY_ROOT } from 'app/features/explore/Logs/utils/logs';
 import { getDefaultFieldSelectorWidth } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { LOG_LINE_BODY_FIELD_NAME } from 'app/features/logs/components/fieldSelector/logFields';
@@ -63,7 +62,6 @@ export const LogsTable = ({
   renderCounter,
 }: LogsTablePanelProps) => {
   const frameIndex = options.frameIndex <= data.series.length - 1 ? options.frameIndex : 0;
-  const styles = useStyles2(getStyles, height, width);
   const { app } = usePanelContext();
 
   const rawTableFrame: DataFrame | null = data.series[frameIndex] ? data.series[frameIndex] : null;
@@ -255,7 +253,7 @@ export const LogsTable = ({
   const renderTable = timeFieldName && bodyFieldName && logsFrame && organizedFrame && extractedFrame;
 
   return (
-    <div className={styles.wrapper} ref={containerRef}>
+    <div {...stylex.props(styles.wrapper(height, width))} ref={containerRef}>
       {renderTable && containerElement && (
         <>
           <LogsTableFields
@@ -301,13 +299,11 @@ export const LogsTable = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, height: number, width: number) => {
-  return {
-    wrapper: css({
-      // prevent overflow in the tiny suggestions preview
-      overflow: 'hidden',
-      height,
-      width,
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: (height: number, width: number) => ({
+    // prevent overflow in the tiny suggestions preview
+    overflow: 'hidden',
+    height,
+    width,
+  }),
+});

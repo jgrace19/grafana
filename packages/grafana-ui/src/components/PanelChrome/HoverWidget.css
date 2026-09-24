@@ -1,0 +1,8 @@
+/*
+ * The hover widget's menu button is a Button, which has no StyleX override prop. Deliberately not in a cascade
+ * layer: like the Emotion class it replaces, it must win over Button's own background and border.
+ */
+.gf-hover-widget-menu-button {
+  background: inherit;
+  border: none;
+}

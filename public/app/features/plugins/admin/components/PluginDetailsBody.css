@@ -1,0 +1,57 @@
+/*
+ * Styles the plugin README HTML, which StyleX can't target. Unlayered, with the same specificity as the Emotion
+ * rules it replaces, so it still wins over the global typography styles.
+ */
+.gf-plugin-readme img {
+  max-width: 100%;
+}
+
+.gf-plugin-readme h1,
+.gf-plugin-readme h2,
+.gf-plugin-readme h3 {
+  margin-top: var(--gf-spacing-x3);
+  margin-bottom: var(--gf-spacing-x2);
+}
+
+.gf-plugin-readme *:first-child {
+  margin-top: 0;
+}
+
+.gf-plugin-readme li {
+  margin-left: var(--gf-spacing-x2);
+}
+
+.gf-plugin-readme li > p {
+  margin: var(--gf-spacing-x1) 0;
+}
+
+.gf-plugin-readme li code {
+  white-space: pre-wrap;
+}
+
+.gf-plugin-readme a {
+  color: var(--gf-colors-text-link);
+}
+
+.gf-plugin-readme a:hover {
+  color: var(--gf-colors-text-link);
+  text-decoration: underline;
+}
+
+.gf-plugin-readme table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.gf-plugin-readme table td,
+.gf-plugin-readme table th {
+  overflow-x: auto;
+  padding: var(--gf-spacing-x0-5) var(--gf-spacing-x1);
+}
+
+.gf-plugin-readme table table,
+.gf-plugin-readme table th,
+.gf-plugin-readme table td {
+  border: 1px solid var(--gf-colors-border-medium);
+  border-collapse: collapse;
+}

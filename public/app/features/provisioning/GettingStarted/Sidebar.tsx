@@ -1,6 +1,6 @@
-import { useStyles2, Stack, Box } from '@grafana/ui';
+import { Stack, Box } from '@grafana/ui';
 
-import { SidebarItem, getStyles as getStepItemStyles } from './SidebarItem';
+import { SidebarItem } from './SidebarItem';
 
 interface Props {
   steps: string[];
@@ -9,8 +9,6 @@ interface Props {
 }
 
 export const Sidebar = ({ steps, currentStep, onStepClick }: Props) => {
-  const stepItemStyles = useStyles2(getStepItemStyles);
-
   if (steps.length === 0 || steps.length === 1) {
     return null;
   }
@@ -19,14 +17,7 @@ export const Sidebar = ({ steps, currentStep, onStepClick }: Props) => {
     <Box width={'260px'} padding={1}>
       <Stack direction="column" gap={1}>
         {steps.map((step, index) => (
-          <SidebarItem
-            key={index}
-            step={step}
-            index={index}
-            currentStep={currentStep}
-            onStepClick={onStepClick}
-            styles={stepItemStyles}
-          />
+          <SidebarItem key={index} step={step} index={index} currentStep={currentStep} onStepClick={onStepClick} />
         ))}
       </Stack>
     </Box>

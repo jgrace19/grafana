@@ -1,16 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Text, TextLink } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {}
 
 const ConfigureAuthCTA: React.FunctionComponent<Props> = () => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack gap={1} alignItems={'center'}>
         <Icon name={'cog'} />
         <Text>
@@ -31,19 +30,20 @@ const ConfigureAuthCTA: React.FunctionComponent<Props> = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(3),
-      width: 'max-content',
-      margin: theme.spacing(3, 'auto'),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: spacing['--gf-spacing-x3'],
+    width: 'max-content',
+    marginTop: spacing['--gf-spacing-x3'],
+    marginRight: 'auto',
+    marginBottom: spacing['--gf-spacing-x3'],
+    marginLeft: 'auto',
+  },
+});
 
 export default ConfigureAuthCTA;

@@ -1,0 +1,35 @@
+/*
+ * The clickable TitleItem restyles Button, which has no StyleX override prop. Deliberately not in a cascade
+ * layer: like the Emotion class it replaces, it must win over Button's own styles. Keep in sync with
+ * `styles.item` in TitleItem.tsx. The Emotion mouse-focus reset was an invalid selector and never applied.
+ */
+.gf-panel-header-item {
+  color: var(--gf-colors-text-secondary);
+  border: none;
+  border-radius: var(--gf-shape-radius-default);
+  padding: 0px calc(var(--gf-spacing-grid-size) * 1);
+  height: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-md));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.gf-panel-header-item:focus,
+.gf-panel-header-item:focus-visible {
+  outline: 2px dotted transparent;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px var(--gf-colors-background-canvas),
+    0 0 0px 4px var(--gf-colors-primary-main);
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  transition-duration: 0.2s;
+  transition-property: outline, outline-offset, box-shadow;
+  z-index: 1;
+}
+
+.gf-panel-header-item:hover {
+  box-shadow: var(--gf-shadows-z1);
+  background: var(--gf-colors-secondary-shade);
+  color: var(--gf-colors-text-primary);
+}

@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useRef, useState, useCallback, useEffect } from 'react';
 import * as React from 'react';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, ConfirmButton, ConfirmModal, Input, LegacyInputStatus, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type UserDTO } from 'app/types/user';
@@ -247,13 +248,6 @@ export const UserProfileRow = memo(
       }
     }, [onChange, value]);
 
-    const labelClass = cx(
-      'width-16',
-      css({
-        fontWeight: 500,
-      })
-    );
-
     if (locked) {
       return <LockedRow label={label} value={value} lockMessage={lockMessage} />;
     }
@@ -261,7 +255,7 @@ export const UserProfileRow = memo(
     const inputId = `${label}-input`;
     return (
       <tr>
-        <td className={labelClass}>
+        <td {...mergeStylexProps(stylex.props(styles.label), { className: 'width-16' })}>
           <label htmlFor={inputId}>{label}</label>
         </td>
         <td className="width-25" colSpan={2}>
@@ -303,26 +297,25 @@ interface LockedRowProps {
 }
 
 export const LockedRow = ({ label, value, lockMessage }: LockedRowProps) => {
-  const lockMessageClass = css({
-    fontStyle: 'italic',
-    marginRight: '0.6rem',
-  });
-  const labelClass = cx(
-    'width-16',
-    css({
-      fontWeight: 500,
-    })
-  );
-
   return (
     <tr>
-      <td className={labelClass}>{label}</td>
+      <td {...mergeStylexProps(stylex.props(styles.label), { className: 'width-16' })}>{label}</td>
       <td className="width-25" colSpan={2}>
         {value}
       </td>
       <td>
-        <span className={lockMessageClass}>{lockMessage}</span>
+        <span {...stylex.props(styles.lockMessage)}>{lockMessage}</span>
       </td>
     </tr>
   );
 };
+
+const styles = stylex.create({
+  label: {
+    fontWeight: 500,
+  },
+  lockMessage: {
+    fontStyle: 'italic',
+    marginRight: '0.6rem',
+  },
+});

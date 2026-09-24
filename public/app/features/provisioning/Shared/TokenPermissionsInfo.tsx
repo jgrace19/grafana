@@ -1,17 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Stack, TextLink } from '@grafana/ui';
+import { colors, components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type InstructionAvailability } from '../Wizard/types';
 
 export function TokenPermissionsInfo({ type }: { type: InstructionAvailability }) {
-  const styles = useStyles2(getStyles);
   const { tokenText, createTokenLink, createTokenButtonText } = connectStepInstruction()[type];
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack gap={0.5} wrap={'wrap'}>
         <Trans i18nKey="provisioning.token-permissions-info.go-to">Go to</Trans>
         <TextLink external href={createTokenLink}>
@@ -22,42 +21,13 @@ export function TokenPermissionsInfo({ type }: { type: InstructionAvailability }
         <Trans i18nKey="provisioning.token-permissions-info.make-sure">Create a token with these permissions</Trans>:
       </Stack>
 
-      <ul className={styles.permissionsList}>
+      <ul {...stylex.props(styles.permissionsList)}>
         {getPermissionsForProvider(type).map((permission) => (
           <AccessLevelField key={permission.name} label={permission.name} access={permission.access} />
         ))}
       </ul>
     </div>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      marginBottom: theme.spacing(1),
-      position: 'relative',
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      flex: '1 1 0',
-      padding: theme.spacing(theme.components.panel.padding),
-    }),
-    permissionsList: css({
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(1),
-      paddingLeft: theme.spacing(3),
-
-      li: css({
-        marginBottom: theme.spacing(1),
-      }),
-    }),
-    accessLevel: css({
-      fontFamily: theme.typography.fontFamilyMonospace,
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0.25, 0.5),
-    }),
-  };
 }
 
 type Permission = {
@@ -111,10 +81,9 @@ function getPermissionsForProvider(type: InstructionAvailability): Permission[] 
 }
 
 function AccessLevelField({ label, access }: { label: string; access: string }) {
-  const styles = useStyles2(getStyles);
   return (
     <li>
-      {label}: <span className={styles.accessLevel}>{access}</span>
+      {label}: <span {...stylex.props(styles.accessLevel)}>{access}</span>
     </li>
   );
 }
@@ -142,3 +111,36 @@ function connectStepInstruction() {
     },
   };
 }
+
+const panelPadding = `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-panel-padding']})`;
+
+const styles = stylex.create({
+  container: {
+    marginBottom: spacing['--gf-spacing-x1'],
+    position: 'relative',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
+    paddingTop: panelPadding,
+    paddingRight: panelPadding,
+    paddingBottom: panelPadding,
+    paddingLeft: panelPadding,
+  },
+  permissionsList: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x3'],
+  },
+  accessLevel: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+});
