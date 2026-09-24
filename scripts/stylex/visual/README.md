@@ -77,6 +77,10 @@ scripts/stylex/visual/check.sh U2-inputs                   # full manifest, both
 STYLEX_DIFF_ONLY='^storybook' scripts/stylex/visual/check.sh U2-inputs --suites storybook,states
 ```
 
+Before capturing, `check.sh` runs `scripts/stylex/check-dropped-props.js` over every StyleX file and exits 3 if
+any style property compiles to no CSS (see `stylex-conventions.md` §3). Those drops only show up on pages the
+manifest happens to render, so the check covers what the capture can't.
+
 `check.sh` runs **both** diffs. Each writes `summary.md`, `summary.json`, and a `.diff.png` for every entry with a
 non-zero pixel count, passing or not: default mode to the store's `media/visual-diff/<slice-id>/`, strict mode to
 `media/visual-diff/<slice-id>/strict/`.

@@ -94,6 +94,8 @@ jobs:
     - name: Install yarn dependencies
       uses: ./.github/actions/yarn-install
     - run: yarn run typecheck
+    - name: Check for StyleX properties that compile to no CSS
+      run: node scripts/stylex/check-dropped-props.js
   lint-frontend-typecheck-enterprise:
     needs: detect-changes
     permissions:
@@ -118,6 +120,8 @@ jobs:
     - name: Install yarn dependencies
       uses: ./.github/actions/yarn-install
     - run: yarn run typecheck
+    - name: Check for StyleX properties that compile to no CSS
+      run: node scripts/stylex/check-dropped-props.js
   lint-frontend-api-clients:
     permissions:
       contents: read
