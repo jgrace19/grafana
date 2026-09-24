@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Tag migration
-import { css } from '@emotion/css';
 import { capitalize } from 'lodash';
 
 import { Trans } from '@grafana/i18n';
@@ -31,7 +29,7 @@ export const AlertInstanceStateFilter = ({
   const getOptionComponent = (state: InstanceStateFilter) => {
     return function InstanceStateCounter() {
       return itemPerStateStats && itemPerStateStats[state] ? (
-        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} className={pendingEmotionStyles.tag} />
+        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} style={tagStyle} />
       ) : null;
     };
   };
@@ -70,13 +68,11 @@ export const AlertInstanceStateFilter = ({
   );
 };
 
-// stylex: pending Tag migration
-const pendingEmotionStyles = {
-  tag: css({
-    fontSize: '11px',
-    fontWeight: 'normal',
-    padding: `${spacing['--gf-spacing-x0-25']} ${spacing['--gf-spacing-x0-5']}`,
-    verticalAlign: 'middle',
-    marginLeft: spacing['--gf-spacing-x0-5'],
-  }),
+// Tag has no xstyle, and these must win over its own font and padding.
+const tagStyle = {
+  fontSize: '11px',
+  fontWeight: 'normal',
+  padding: `${spacing['--gf-spacing-x0-25']} ${spacing['--gf-spacing-x0-5']}`,
+  verticalAlign: 'middle',
+  marginLeft: spacing['--gf-spacing-x0-5'],
 };
