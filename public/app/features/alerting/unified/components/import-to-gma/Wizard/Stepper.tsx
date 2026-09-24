@@ -120,6 +120,7 @@ const styles = stylex.create({
     paddingBottom: spacing['--gf-spacing-x0-5'],
     paddingLeft: 0,
     backgroundColor: 'transparent',
+    backgroundImage: 'none',
     borderStyle: 'none',
     cursor: 'pointer',
     textAlign: 'left',

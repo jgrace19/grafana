@@ -14,6 +14,7 @@ import { MetaText } from '../MetaText';
 
 import { AlertGroupAlertsTable } from './AlertGroupAlertsTable';
 import { AlertGroupHeader } from './AlertGroupHeader';
+import './AlertGroup.css';
 
 interface Props {
   group: AlertmanagerGroup;
@@ -29,7 +30,7 @@ export const AlertGroup = ({ alertManagerSourceName, group }: Props) => {
   const contactPoint = group.receiver.name;
 
   return (
-    <div {...stylex.props(styles.wrapper)}>
+    <div className="gf-alerting-alert-group">
       <div {...stylex.props(styles.header)}>
         <div {...stylex.props(styles.group)} data-testid="alert-group">
           <CollapseToggle
@@ -87,9 +88,6 @@ export const AlertGroup = ({ alertManagerSourceName, group }: Props) => {
 };
 
 const styles = stylex.create({
-  wrapper: {
-    marginTop: { default: null, ':not(:first-child)': spacing['--gf-spacing-x2'] },
-  },
   header: {
     display: 'flex',
     flexDirection: 'row',
