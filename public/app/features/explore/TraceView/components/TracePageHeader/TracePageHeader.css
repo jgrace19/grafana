@@ -1,7 +1,0 @@
-/*
- * Overview section padding. CollapsableSection is still Emotion and pads its content itself; the element-qualified
- * selector (0,1,1) outranks that single class, as the merged Emotion override did.
- */
-div.gf-trace-overview-content {
-  padding: 0 var(--gf-spacing-x1) var(--gf-spacing-x2) var(--gf-spacing-x1);
-}

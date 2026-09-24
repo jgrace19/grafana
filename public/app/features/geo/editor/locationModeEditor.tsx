@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
 import { type StandardEditorProps, type DataFrame } from '@grafana/data';
@@ -5,6 +6,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type FrameGeometrySource, FrameGeometrySourceMode } from '@grafana/schema';
 import { Alert, Icon, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type FrameGeometryField, getGeometryField, getLocationMatchers } from '../utils/location';
 
@@ -79,6 +81,7 @@ export const LocationModeEditor = ({
             severity="warning"
             buttonContent={<Icon name="question-circle" size="xl" />}
             className="gf-location-mode-alert"
+            xstyle={styles.alert}
             onRemove={() => {
               const newWindow = window.open(helpUrl, '_blank', 'noopener,noreferrer');
               if (newWindow) {
@@ -108,3 +111,11 @@ export const LocationModeEditor = ({
     </>
   );
 };
+
+const styles = stylex.create({
+  alert: {
+    marginBottom: '0px',
+    marginTop: '5px',
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+  },
+});

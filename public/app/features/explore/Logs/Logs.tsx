@@ -95,8 +95,6 @@ import { getDefaultDisplayedFieldsFromExploreState } from './utils/table/columns
 import { getDefaultTableSortBy } from './utils/table/logsTable';
 import { getExploreBaseUrl } from './utils/url';
 
-import './Logs.css';
-
 interface Props {
   width: number;
   splitOpen: SplitOpen;
@@ -952,61 +950,57 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
               <InlineFieldRow>
                 <InlineField
                   label={t('explore.unthemed-logs.label-time', 'Time')}
-                  className="gf-explore-logs-inline-label"
+                  labelXstyle={styles.inlineLabel}
                   transparent
                 >
                   <InlineSwitch
                     value={showTime}
                     onChange={onChangeShowTime}
-                    className="gf-explore-logs-inline-switch"
+                    xstyle={styles.inlineSwitch}
                     transparent
                     id={`show-time_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-unique-labels', 'Unique labels')}
-                  className="gf-explore-logs-inline-label"
+                  labelXstyle={styles.inlineLabel}
                   transparent
                 >
                   <InlineSwitch
                     value={showLabels}
                     onChange={onChangeLabels}
-                    className="gf-explore-logs-inline-switch"
+                    xstyle={styles.inlineSwitch}
                     transparent
                     id={`unique-labels_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-wrap-lines', 'Wrap lines')}
-                  className="gf-explore-logs-inline-label"
+                  labelXstyle={styles.inlineLabel}
                   transparent
                 >
                   <InlineSwitch
                     value={wrapLogMessage}
                     onChange={onChangeWrapLogMessage}
-                    className="gf-explore-logs-inline-switch"
+                    xstyle={styles.inlineSwitch}
                     transparent
                     id={`wrap-lines_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-prettify-json', 'Prettify JSON')}
-                  className="gf-explore-logs-inline-label"
+                  labelXstyle={styles.inlineLabel}
                   transparent
                 >
                   <InlineSwitch
                     value={prettifyLogMessage}
                     onChange={onChangePrettifyLogMessage}
-                    className="gf-explore-logs-inline-switch"
+                    xstyle={styles.inlineSwitch}
                     transparent
                     id={`prettify_${exploreId}`}
                   />
                 </InlineField>
-                <InlineField
-                  label={t('explore.unthemed-logs.label-deduplication', 'Deduplication')}
-                  className="gf-explore-logs-inline-label"
-                  transparent
-                >
+                <InlineField label={t('explore.unthemed-logs.label-deduplication', 'Deduplication')} transparent>
                   <RadioButtonGroup
                     options={DEDUP_OPTIONS.map((dedupType) => ({
                       label: capitalize(dedupType),
@@ -1023,7 +1017,6 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
               <div>
                 <InlineField
                   label={t('explore.unthemed-logs.label-display-results', 'Display results')}
-                  className="gf-explore-logs-inline-label"
                   transparent
                   disabled={isFlipping || loading}
                 >
@@ -1351,6 +1344,16 @@ const dedupRows = (logRows: LogRowModel[], dedupStrategy: LogsDedupStrategy) => 
 };
 
 const styles = stylex.create({
+  // The legacy log options row (shown only with the new logs panel and its controls turned off).
+  inlineLabel: {
+    marginRight: 0,
+  },
+  inlineSwitch: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
   noDataWrapper: {
     display: 'flex',
     justifyContent: 'center',

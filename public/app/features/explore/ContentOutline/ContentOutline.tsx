@@ -6,13 +6,10 @@ import { store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { PanelContainer, ScrollContainer } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type ContentOutlineItemContextProps, useContentOutlineContext } from './ContentOutlineContext';
 import { ContentOutlineItemButton } from './ContentOutlineItemButton';
-
-import './ContentOutline.css';
 
 function scrollableChildren(item: ContentOutlineItemContextProps) {
   return item.children?.filter((child) => child.type !== 'filter') || [];
@@ -157,14 +154,7 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   }, [outlineItems, verticalScroll]);
 
   return (
-    <PanelContainer
-      className={
-        mergeStylexProps(stylex.props(styles.wrapper, contentOutlineExpanded && styles.wrapperExpanded), {
-          className: 'gf-explore-content-outline',
-        }).className
-      }
-      id={panelId}
-    >
+    <PanelContainer xstyle={[styles.wrapper, contentOutlineExpanded && styles.wrapperExpanded]} id={panelId}>
       <ScrollContainer>
         <div {...stylex.props(styles.content)}>
           <ContentOutlineItemButton
@@ -265,6 +255,7 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
 
 const styles = stylex.create({
   wrapper: {
+    backgroundColor: colors['--gf-colors-background-primary'],
     position: 'relative',
     display: 'flex',
     justifyContent: 'center',

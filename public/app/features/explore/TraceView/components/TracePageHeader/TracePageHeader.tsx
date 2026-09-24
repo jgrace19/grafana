@@ -67,8 +67,6 @@ import SpanGraph from './SpanGraph';
 import { TraceFilterPills } from './TraceFilterPills';
 import { useTraceAdHocFiltersController } from './useTraceAdHocFiltersController';
 
-import './TracePageHeader.css';
-
 export type TracePageHeaderProps = {
   trace: Trace | null;
   data: DataFrame;
@@ -394,7 +392,7 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
             isOpen={isOverviewOpen}
             onToggle={setIsOverviewOpen}
             className={stylex.props(styles.overviewCollapsableSection).className}
-            contentClassName="gf-trace-overview-content"
+            contentXstyle={styles.overviewContent}
           >
             <SpanGraph
               trace={trace}
@@ -439,6 +437,12 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
 TracePageHeader.displayName = 'TracePageHeader';
 
 const styles = stylex.create({
+  overviewContent: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
   header: {
     backgroundColor: colors['--gf-colors-background-primary'],
     padding: '0.5em',

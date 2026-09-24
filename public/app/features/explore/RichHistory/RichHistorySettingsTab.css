@@ -1,7 +1,0 @@
-/*
- * InlineField is still Emotion and sets its own margin; the element-qualified selector (0,1,1) outranks its single
- * class, as the merged Emotion override did.
- */
-div.gf-explore-rich-history-setting {
-  margin-bottom: var(--gf-spacing-x3);
-}

@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { parse, stringify } from 'lossless-json';
-import { type CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   CoreApp,
@@ -329,8 +329,7 @@ export const LogLineDetailsField = ({
                 name="signal"
                 size={fontSize === 'small' ? 'sm' : undefined}
                 tooltip={t('logs.log-line-details.fields.adhoc-statistics', 'Ad-hoc statistics')}
-                className={stylex.props(styles.statsIcon).className}
-                style={statsIconStyle}
+                xstyle={styles.statsIcon}
                 disabled={!singleKey}
                 onClick={showStats}
               />
@@ -508,10 +507,6 @@ function filterLabels(labels: LabelWithLinks[], search: string) {
   return results;
 }
 
-// IconButton has no xstyle and sets its own right margin, which a class from another stylex.props() call can't
-// reliably override.
-const statsIconStyle: CSSProperties = { margin: 0 };
-
 const tableStyles = stylex.create({
   table: {
     display: 'grid',
@@ -549,6 +544,10 @@ const styles = stylex.create({
   },
   statsIcon: {
     paddingRight: 4,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
   },
   label: {
     paddingRight: spacing['--gf-spacing-x1'],

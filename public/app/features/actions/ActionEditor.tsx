@@ -31,8 +31,6 @@ import { ActionVariablesEditor } from './ActionVariablesEditor';
 import { ConnectionPicker } from './ConnectionPicker';
 import { ParamsEditor } from './ParamsEditor';
 
-import './ActionEditor.css';
-
 interface ActionEditorProps {
   index: number;
   value: Action;
@@ -301,7 +299,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
         <InlineField
           label={t('actions.action-editor.button.style.background-color', 'Color')}
           labelWidth={LABEL_WIDTH}
-          className="gf-action-editor-color-picker"
+          xstyle={styles.colorPicker}
         >
           <ColorPicker
             color={value?.style?.backgroundColor || theme.colors.secondary.main}
@@ -314,6 +312,10 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
 });
 
 const styles = stylex.create({
+  colorPicker: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   listItem: {
     marginBottom: spacing['--gf-spacing-x1'],
   },

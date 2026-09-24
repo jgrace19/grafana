@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties } from 'react';
 
 export const logsFieldSelectorWrapperStyles = stylex.create({
   collapsedButtonContainer: {
@@ -9,8 +8,10 @@ export const logsFieldSelectorWrapperStyles = stylex.create({
     alignItems: 'center',
     paddingTop: 2,
   },
+  collapsedButton: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
 });
-
-// IconButton has no xstyle and sets its own right margin, which a class from another stylex.props() call can't
-// reliably override.
-export const collapsedButtonStyle: CSSProperties = { margin: 0 };

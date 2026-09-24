@@ -4,7 +4,7 @@ import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getAppEvents } from '@grafana/runtime';
 import { Select, Button, Field, InlineField, InlineSwitch, Alert } from '@grafana/ui';
-import { typography, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { MAX_HISTORY_ITEMS } from 'app/core/history/RichHistoryLocalStorage';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -12,8 +12,6 @@ import { dispatch } from 'app/store/store';
 
 import { supportedFeatures } from '../../../core/history/richHistoryStorageProvider';
 import { ShowConfirmModalEvent } from '../../../types/events';
-
-import './RichHistorySettingsTab.css';
 
 export interface RichHistorySettingsProps {
   retentionPeriod: number;
@@ -26,6 +24,9 @@ export interface RichHistorySettingsProps {
 }
 
 const styles = stylex.create({
+  setting: {
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
   container: {
     fontSize: typography['--gf-typography-body-small-font-size'],
   },
@@ -113,7 +114,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
           'explore.rich-history-settings-tab.change-default-tab',
           'Change the default active tab from “Query history” to “Starred”'
         )}
-        className="gf-explore-rich-history-setting"
+        xstyle={styles.setting}
       >
         <InlineSwitch
           id="explore-query-history-settings-default-active-tab"
@@ -127,7 +128,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
             'explore.rich-history-settings-tab.only-show-active-datasource',
             'Only show queries for data source currently active in Explore'
           )}
-          className="gf-explore-rich-history-setting"
+          xstyle={styles.setting}
         >
           <InlineSwitch
             id="explore-query-history-settings-data-source-behavior"

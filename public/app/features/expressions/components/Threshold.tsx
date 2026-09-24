@@ -24,8 +24,6 @@ import {
   updateUnloadParams,
 } from './thresholdReducer';
 
-import './Threshold.css';
-
 interface Props {
   labelWidth: number | 'auto';
   refIds: Array<SelectableValue<string>>;
@@ -224,11 +222,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
               >
                 <Stack direction="row" gap={0}>
                   <div {...stylex.props(styles.range)}>
-                    <InlineField
-                      invalid={Boolean(errorMsgFrom)}
-                      error={errorMsgFrom}
-                      className="gf-threshold-range-field"
-                    >
+                    <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom} xstyle={styles.rangeField}>
                       <Input
                         type="number"
                         width={10}
@@ -514,6 +508,12 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
 }
 
 const styles = stylex.create({
+  rangeField: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   range: {
     width: 'min-content',
   },

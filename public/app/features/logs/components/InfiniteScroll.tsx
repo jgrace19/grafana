@@ -1,13 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import {
-  type CSSProperties,
-  type ReactNode,
-  type MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type ReactNode, type MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { type AbsoluteTimeRange, CoreApp, type LogRowModel, type TimeRange, rangeUtil } from '@grafana/data';
 // import { convertRawToRange, isRelativeTime, isRelativeTimeRange } from '@grafana/data/internal';
@@ -179,7 +171,7 @@ export const InfiniteScroll = ({
       {upperLoading && <LoadingIndicator adjective={sortOrder === LogsSortOrder.Descending ? 'newer' : 'older'} />}
       {!hideTopMessage && upperOutOfRange && outOfRangeMessage}
       {sortOrder === LogsSortOrder.Ascending && app === CoreApp.Explore && loadMoreLogs && (
-        <Button style={navButtonStyle} variant="secondary" onClick={loadOlderLogs} disabled={loading}>
+        <Button xstyle={styles.navButton} variant="secondary" onClick={loadOlderLogs} disabled={loading}>
           <div {...stylex.props(styles.navButtonContent)}>
             <Icon name="angle-up" size="lg" />
             <Trans i18nKey="logs.infinite-scroll.older-logs">Older logs</Trans>
@@ -193,23 +185,20 @@ export const InfiniteScroll = ({
   );
 };
 
-// Button has no xstyle and sets its own size and layout, which a class from another stylex.props() call can't
-// reliably override.
-const navButtonStyle: CSSProperties = {
-  width: '58px',
-  height: '68px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  lineHeight: '1',
-  position: 'absolute',
-  top: 0,
-  right: -3,
-  zIndex: 1,
-};
-
 const styles = stylex.create({
+  navButton: {
+    width: '58px',
+    height: '68px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    lineHeight: 1,
+    position: 'absolute',
+    top: 0,
+    right: -3,
+    zIndex: 1,
+  },
   messageContainer: {
     textAlign: 'center',
     padding: 0.25,

@@ -29,8 +29,6 @@ import {
   usePortalContainer,
 } from './utils';
 
-import './RulesFilterSidebar.css';
-
 const SIDEBAR_WIDTH = 250;
 
 /**
@@ -577,7 +575,7 @@ function SidebarField({
 }) {
   return (
     <div {...stylex.props(styles.field)}>
-      <Label id={labelId} className="gf-rules-filter-field-label">
+      <Label id={labelId} xstyle={styles.fieldLabel}>
         {label}
       </Label>
       <div {...stylex.props(styles.fieldValue)}>{children}</div>
@@ -629,6 +627,11 @@ function ToggleButtonGroup<T>({ options, value, onChange, 'aria-labelledby': lab
 }
 
 const styles = stylex.create({
+  fieldLabel: {
+    marginBottom: 0,
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
   sidebar: {
     width: SIDEBAR_WIDTH,
     borderRightWidth: '1px',

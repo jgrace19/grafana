@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useId, useState, useMemo, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useForm, Controller } from 'react-hook-form';
@@ -12,8 +13,6 @@ import {
   type TransformationFieldDetails,
 } from '../correlations/Forms/types';
 import { getTransformationVars } from '../correlations/transformations';
-
-import './CorrelationTransformationAddModal.css';
 
 interface CorrelationTransformationAddModalProps {
   onCancel: () => void;
@@ -137,7 +136,7 @@ export const CorrelationTransformationAddModal = ({
           : t('explore.correlation-transformation-add-modal.title-add', 'Add transformation')
       }
       onDismiss={onCancel}
-      className="gf-explore-correlation-transformation-modal"
+      xstyle={styles.modal}
     >
       <p>
         <Trans i18nKey="explore.correlation-transformation-add-modal.body">
@@ -259,3 +258,9 @@ export const CorrelationTransformationAddModal = ({
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '700px',
+  },
+});

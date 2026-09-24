@@ -9,8 +9,6 @@ import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.st
 import alertDef, { EvalFunction } from '../../alerting/state/alertDef';
 import { type ClassicCondition, type ReducerType } from '../types';
 
-import './Condition.css';
-
 interface Props {
   condition: ClassicCondition;
   onChange: (condition: ClassicCondition) => void;
@@ -82,7 +80,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
             </div>
           ) : (
             <ButtonSelect
-              className="gf-condition-select gf-condition-select-operator"
+              xstyle={[styles.select, styles.selectOperator]}
               options={evalOperators}
               onChange={onEvalOperatorChange}
               value={evalOperators.find((ea) => ea.value === condition.operator!.type)}
@@ -106,7 +104,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
         </InlineFieldRow>
         <InlineFieldRow>
           <ButtonSelect
-            className="gf-condition-select"
+            xstyle={styles.select}
             options={evalFunctions}
             onChange={onEvalFunctionChange}
             value={evalFunctions.find((ef) => ef.value === condition.evaluator.type)}
@@ -147,6 +145,17 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
 };
 
 const styles = stylex.create({
+  // Over ButtonSelect's ToolbarButton, whose own :hover colours still win.
+  select: {
+    color: {
+      default: colors['--gf-colors-primary-text'],
+      ':hover': { default: colors['--gf-colors-text-primary'], ':disabled': colors['--gf-colors-text-disabled'] },
+    },
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  selectOperator: {
+    width: '75px',
+  },
   button: {
     display: 'flex',
     alignItems: 'center',

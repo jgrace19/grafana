@@ -7,8 +7,6 @@ import { Button, InlineField, InlineFieldRow, IconButton, Input } from '@grafana
 
 import { type JSONPath } from '../types';
 
-import './JSONPathEditor.css';
-
 interface Props {
   options: JSONPath[];
   onChange: (options: JSONPath[]) => void;
@@ -73,7 +71,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
                   onChange={(event: React.SyntheticEvent<HTMLInputElement>) => onJSONPathChange(event, key, 'alias')}
                 />
               </InlineField>
-              <InlineField className="gf-jsonpath-remove">
+              <InlineField xstyle={styles.remove}>
                 <IconButton
                   onClick={() => removeJSONPath(key)}
                   name={'trash-alt'}
@@ -179,6 +177,13 @@ const getTooltips = () => {
 };
 
 const styles = stylex.create({
+  remove: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: '4px',
+    alignItems: 'center',
+  },
   list: {
     marginLeft: '20px',
   },

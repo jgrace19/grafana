@@ -19,8 +19,6 @@ import { GRAFANA_RULES_SOURCE_NAME } from './utils/datasource';
 import { parsePromQLStyleMatcherLooseSafe } from './utils/matchers';
 import { rulesNav } from './utils/navigation';
 
-import './AlertsFolderView.css';
-
 interface Props {
   folder: FolderDTO;
   rules: RulerGrafanaRuleDTO[];
@@ -79,7 +77,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               'alerting.alerts-folder-view.label-filter-placeholder-search-alerts-by-labels',
               'Search alerts by labels'
             )}
-            className="gf-alerts-folder-label-filter"
+            xstyle={styles.labelFilter}
             data-testid="label-filter"
           />
         </Stack>
@@ -90,7 +88,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               key={grafana_alert.uid}
               noMargin
               href={createGrafanaRuleViewLink(grafana_alert)}
-              className="gf-alerts-folder-card"
+              xstyle={styles.card}
               data-testid="alert-card-row"
             >
               <Card.Heading>{grafana_alert.title}</Card.Heading>
@@ -197,6 +195,14 @@ function createGrafanaRuleViewLink(ruleDefinition: GrafanaRuleDefinition): strin
 }
 
 const styles = stylex.create({
+  card: {
+    gridTemplateColumns: 'auto 1fr 2fr',
+  },
+  labelFilter: {
+    flex: '1',
+    width: 'auto',
+    minWidth: '240px',
+  },
   container: {
     padding: spacing['--gf-spacing-x1'],
   },

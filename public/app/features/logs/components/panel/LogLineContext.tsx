@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import * as stylex from '@stylexjs/stylex';
 import { partition } from 'lodash';
@@ -29,7 +28,6 @@ import { t, Trans } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
 import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { splitOpen } from 'app/features/explore/state/main';
@@ -359,10 +357,8 @@ export const LogLineContext = memo(
       <Modal
         isOpen={open}
         title={t('logs.log-line-context.title-log-context', 'Log context')}
-        contentClassName={
-          mergeStylexProps(stylex.props(styles.flexColumn), { className: pendingModalStyles.content }).className
-        }
-        className={pendingModalStyles.modal}
+        contentXstyle={[styles.flexColumn, modalStyles.content]}
+        xstyle={modalStyles.modal}
         onDismiss={handleClose}
       >
         {getLogRowContextUi && <div>{getLogRowContextUi(log, updateResults)}</div>}
@@ -540,20 +536,19 @@ function getTimeWindowOptions() {
   }));
 }
 
-// stylex: pending Modal migration. Modal's own (Emotion) width, height and content padding beat a StyleX class.
-const pendingModalStyles = {
-  modal: css({
-    width: '85vw',
-    height: '80vh',
-    [bp.mdDown]: {
-      width: '100%',
-      height: '100vh',
-    },
-  }),
-  content: css({
-    padding: `0 ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']}`,
-  }),
-};
+const modalStyles = stylex.create({
+  modal: {
+    width: { default: '85vw', [bp.mdDown]: '100%' },
+    height: { default: '80vh', [bp.mdDown]: '100vh' },
+  },
+  // Modal's own small-screen padding still wins.
+  content: {
+    paddingTop: { default: 0, [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x2'] },
+    paddingBottom: spacing['--gf-spacing-x3'],
+    paddingLeft: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x2'] },
+  },
+});
 
 const styles = stylex.create({
   flexColumn: {

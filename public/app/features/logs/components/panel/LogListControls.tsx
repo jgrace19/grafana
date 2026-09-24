@@ -1,7 +1,7 @@
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import * as stylex from '@stylexjs/stylex';
 import { capitalize } from 'lodash';
-import { type CSSProperties, type MouseEvent, useCallback, useMemo } from 'react';
+import { type MouseEvent, useCallback, useMemo } from 'react';
 
 import {
   CoreApp,
@@ -284,8 +284,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
         <LogListControlsOption
           expanded={controlsExpanded}
           name="arrow-from-right"
-          className={stylex.props(styles.controlButton, !controlsExpanded && styles.controlsCollapsedButton).className}
-          style={controlButtonStyle}
+          xstyle={[controlButtonStyles.button, !controlsExpanded && styles.controlsCollapsedButton]}
           variant="secondary"
           onClick={onExpandControlsClick}
           label={
@@ -427,7 +426,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   disabled={wrapLogMessage}
                   name="columns"
                   aria-pressed={unwrappedColumns}
-                  {...getControlButtonProps(unwrappedColumns, wrapLogMessage)}
+                  {...getControlButtonProps(unwrappedColumns)}
                   onClick={onSetUnwrappedColumnsClick}
                   label={
                     wrapLogMessage
@@ -607,8 +606,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           expanded={controlsExpanded}
           name="arrow-up"
           data-testid="scrollToTop"
-          className={stylex.props(styles.controlButton).className}
-          style={scrollToTopButtonStyle}
+          xstyle={[controlButtonStyles.button, styles.scrollToTop]}
           variant="secondary"
           onClick={onScrollToTopClick}
           tooltip={t('logs.logs-controls.scroll-top', 'Scroll to top')}
@@ -785,18 +783,23 @@ const WrapLogMessageButton = ({ expanded }: LogSelectOptionProps) => {
 
 export const CONTROLS_WIDTH_EXPANDED = 176;
 
-// IconButton has no xstyle and sets its own margin and color, which a class from another stylex.props() call can't
-// reliably override. Disabled buttons keep IconButton's disabled color, like the Emotion override did.
-export function getControlButtonProps(active: boolean, disabled = false) {
+export function getControlButtonProps(active: boolean) {
   return {
-    className: stylex.props(styles.controlButton, active && styles.controlButtonActive).className,
-    style: disabled ? disabledControlButtonStyle : controlButtonStyle,
+    xstyle: [controlButtonStyles.button, active && styles.controlButtonActive],
   };
 }
 
-export const controlButtonStyle: CSSProperties = { margin: 0, color: colors['--gf-colors-text-secondary'] };
-const disabledControlButtonStyle: CSSProperties = { margin: 0 };
-const scrollToTopButtonStyle: CSSProperties = { ...controlButtonStyle, marginTop: 'auto' };
+// Over IconButton's margin and colour. Its disabled colour still wins, like the Emotion override did.
+export const controlButtonStyles = stylex.create({
+  button: {
+    height: spacing['--gf-spacing-x2'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    color: { default: colors['--gf-colors-text-secondary'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+  },
+});
 
 const styles = stylex.create({
   navContainer: {
@@ -822,8 +825,8 @@ const styles = stylex.create({
   controlsCollapsedButton: {
     transform: 'rotate(180deg)',
   },
-  controlButton: {
-    height: spacing['--gf-spacing-x2'],
+  scrollToTop: {
+    marginTop: 'auto',
   },
   divider: {
     borderTopStyle: 'solid',

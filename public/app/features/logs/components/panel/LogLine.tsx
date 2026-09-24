@@ -305,7 +305,7 @@ const LogLineComponent = memo(
               variant="primary"
               fill="text"
               size="sm"
-              style={expandCollapseButtonStyle}
+              xstyle={logLineStyles.expandCollapseButton}
               onClick={handleExpandCollapse}
             >
               {t('logs.log-line.show-more', 'show more')}
@@ -318,7 +318,7 @@ const LogLineComponent = memo(
               variant="primary"
               fill="text"
               size="sm"
-              style={expandCollapseButtonStyle}
+              xstyle={logLineStyles.expandCollapseButton}
               onClick={handleExpandCollapse}
             >
               {t('logs.log-line.show-less', 'show less')}
@@ -692,7 +692,19 @@ export const logLineStyles = stylex.create({
   permalinkedLogLine: {
     backgroundColor: { default: logLineVars.highlightBackground, ':hover': logLineVars.hoverBackground },
   },
+  expandCollapseButton: {
+    fontWeight: typography['--gf-typography-font-weight-light'],
+    height: logLineVars.lineHeight,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   menuIcon: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
     height: logLineVars.lineHeight,
     paddingTop: 0,
     paddingRight: 0,
@@ -794,14 +806,6 @@ const levelStyles = stylex.create({
 });
 
 const matchHighlightClassName = stylex.props(logLineStyles.matchHighLight).className ?? '';
-
-// Button has no xstyle and sets its own font weight and height, which a class from another stylex.props() call
-// can't reliably override.
-const expandCollapseButtonStyle: CSSProperties = {
-  fontWeight: typography['--gf-typography-font-weight-light'],
-  height: logLineVars.lineHeight,
-  margin: 0,
-};
 
 function isLogLineClick(target: EventTarget) {
   const targetIsButton = target instanceof HTMLButtonElement || (target instanceof Element && target.closest('button'));

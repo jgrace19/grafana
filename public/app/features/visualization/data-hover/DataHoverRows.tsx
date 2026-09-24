@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { isString } from 'lodash';
 import { type FeatureLike } from 'ol/Feature';
 import { useState } from 'react';
@@ -9,8 +10,6 @@ import { type GeomapLayerHover } from 'app/plugins/panel/geomap/event';
 import { renderValue } from 'app/plugins/panel/geomap/utils/uiUtils';
 
 import { DataHoverRow } from './DataHoverRow';
-
-import './DataHoverRows.css';
 
 type Props = {
   layers: GeomapLayerHover[];
@@ -43,7 +42,7 @@ export const DataHoverRows = ({ layers, activeTabIndex }: Props) => {
                       onToggle={() => {
                         updateRowMap(key, !rowMap.get(key));
                       }}
-                      className="gf-data-hover-collapsible-row"
+                      xstyle={styles.collapsibleRow}
                     >
                       <DataHoverRow feature={feature} />
                     </Collapse>
@@ -105,3 +104,9 @@ export const generateLabel = (feature: FeatureLike, idx: number): string | React
 
   return `Match: ${idx + 1}`;
 };
+
+const styles = stylex.create({
+  collapsibleRow: {
+    marginBottom: 0,
+  },
+});

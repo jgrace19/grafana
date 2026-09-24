@@ -24,8 +24,6 @@ import { useDispatch, useSelector } from 'app/types/store';
 import { getTransformationVars } from '../correlations/transformations';
 import { generateDefaultLabel } from '../correlations/utils';
 
-import './CorrelationHelper.css';
-
 import { CorrelationTransformationAddModal } from './CorrelationTransformationAddModal';
 import { changeCorrelationHelperData } from './state/explorePane';
 import { changeCorrelationEditorDetails } from './state/main';
@@ -246,9 +244,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
                 <Card.Heading>
                   {field}: {type}
                 </Card.Heading>
-                {detailsString.length > 0 && (
-                  <Card.Meta className="gf-explore-correlation-transformation-meta">{detailsString}</Card.Meta>
-                )}
+                {detailsString.length > 0 && <Card.Meta xstyle={styles.transformationMeta}>{detailsString}</Card.Meta>}
                 <Card.SecondaryActions>
                   <IconButton
                     key="edit"
@@ -278,6 +274,9 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
 };
 
 const styles = stylex.create({
+  transformationMeta: {
+    alignItems: 'baseline',
+  },
   labelCollapseDetails: {
     marginLeft: spacing['--gf-spacing-x2'],
     fontFamily: typography['--gf-typography-body-small-font-family'],

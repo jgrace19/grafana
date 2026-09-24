@@ -16,8 +16,6 @@ import {
   RawPrometheusListItemEmptyValue,
 } from './utils/getRawPrometheusListItemsFromDataFrame';
 
-import './RawListContainer.css';
-
 export type instantQueryRawVirtualizedListData = {
   Value: string;
   __name__?: string;
@@ -95,7 +93,7 @@ const RawListContainer = (props: RawListContainerProps) => {
     <section>
       <header {...stylex.props(styles.header)}>
         <Field
-          className="gf-explore-raw-list-switch"
+          xstyle={styles.switchField}
           label={t('explore.raw-list-container.label-expand-results', 'Expand results')}
           htmlFor={'isExpandedView'}
           noMargin
@@ -164,6 +162,12 @@ const RawListContainer = (props: RawListContainerProps) => {
 export default RawListContainer;
 
 const styles = stylex.create({
+  // Lays the "Expand results" Field out in a row.
+  switchField: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: 0,
+  },
   wrapper: {
     height: '100%',
     overflow: 'scroll',
