@@ -1,11 +1,11 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { useCombobox } from 'downshift';
 import React, { type ComponentProps, useCallback, useId, useMemo } from 'react';
 
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { Icon } from '../Icon/Icon';
 import { AutoSizeInput } from '../Input/AutoSizeInput';
 import { Input, type Props as InputProps } from '../Input/Input';
@@ -14,11 +14,13 @@ import { Portal } from '../Portal/Portal';
 import { ComboboxList } from './ComboboxList';
 import { SuffixIcon } from './SuffixIcon';
 import { itemToString } from './filter';
-import { getComboboxStyles, MENU_OPTION_HEIGHT, MENU_OPTION_HEIGHT_DESCRIPTION } from './getComboboxStyles';
+import { comboboxStyles as styles, MENU_OPTION_HEIGHT, MENU_OPTION_HEIGHT_DESCRIPTION } from './getComboboxStyles';
 import { type ComboboxOption } from './types';
 import { useComboboxFloat } from './useComboboxFloat';
 import { useOptions } from './useOptions';
 import { isNewGroup } from './utils';
+
+import './Combobox.css';
 
 // TODO: It would be great if ComboboxOption["label"] was more generic so that if consumers do pass it in (for async),
 // then the onChange handler emits ComboboxOption with the label as non-undefined.
@@ -206,8 +208,6 @@ export const Combobox = <T extends string | number>(props: ComboboxProps<T>) => 
   const menuId = `${baseId}-downshift-menu`;
   const labelId = `${baseId}-downshift-label`;
 
-  const styles = useStyles2(getComboboxStyles);
-
   // Injects the group header for the first rendered item into the range to render.
   // Accepts the range that useVirtualizer wants to render, and then returns indexes
   // to actually render.
@@ -370,7 +370,7 @@ export const Combobox = <T extends string | number>(props: ComboboxProps<T>) => 
       {value !== undefined && value === selectedItem?.value && isClearable && (
         <Icon
           name="times"
-          className={styles.clear}
+          xstyle={styles.clear}
           title={t('combobox.clear.title', 'Clear value')}
           tabIndex={0}
           role="button"
@@ -392,7 +392,7 @@ export const Combobox = <T extends string | number>(props: ComboboxProps<T>) => 
   const { Wrapper, wrapperProps } = isAutoSize
     ? {
         Wrapper: 'div',
-        wrapperProps: { className: styles.adaptToParent },
+        wrapperProps: { className: 'gf-combobox-adapt-to-parent' },
       }
     : { Wrapper: React.Fragment };
 
@@ -407,7 +407,7 @@ export const Combobox = <T extends string | number>(props: ComboboxProps<T>) => 
         prefix={icon && <Icon name={icon} />}
         disabled={disabled}
         invalid={invalid}
-        className={styles.input}
+        className="gf-combobox-input"
         suffix={inputSuffix}
         {...getInputProps({
           ref: inputRef,
@@ -419,11 +419,12 @@ export const Combobox = <T extends string | number>(props: ComboboxProps<T>) => 
       />
       <Portal root={portalContainer}>
         <div
-          className={cx(styles.menu, !isOpen && styles.menuClosed)}
-          style={{
-            ...floatStyles,
-            pointerEvents: 'auto', // Override container's pointer-events: none
-          }}
+          {...mergeStylexProps(stylex.props(styles.menu, !isOpen && styles.menuClosed), {
+            style: {
+              ...floatStyles,
+              pointerEvents: 'auto', // Override container's pointer-events: none
+            },
+          })}
           {...getMenuProps({
             ref: floatingRef,
             'aria-labelledby': ariaLabelledBy,

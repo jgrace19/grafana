@@ -1,13 +1,8 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { Component, createRef, type ReactNode } from 'react';
 import { type ValueContainerProps as BaseValueContainerProps, type GroupBase } from 'react-select';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { withTheme2 } from '../../themes/ThemeContext';
-
-import { getSelectStyles } from './getSelectStyles';
 import type { CustomComponentProps } from './types';
 
 type ValueContainerProps<Option, isMulti extends boolean, Group extends GroupBase<Option>> = BaseValueContainerProps<
@@ -17,8 +12,8 @@ type ValueContainerProps<Option, isMulti extends boolean, Group extends GroupBas
 > &
   CustomComponentProps<Option, isMulti, Group>;
 
-class UnthemedValueContainer<Option, isMulti extends boolean, Group extends GroupBase<Option>> extends Component<
-  ValueContainerProps<Option, isMulti, Group> & { theme: GrafanaTheme2 }
+class ValueContainerComponent<Option, isMulti extends boolean, Group extends GroupBase<Option>> extends Component<
+  ValueContainerProps<Option, isMulti, Group>
 > {
   private ref = createRef<HTMLDivElement>();
 
@@ -59,22 +54,47 @@ class UnthemedValueContainer<Option, isMulti extends boolean, Group extends Grou
   }
 
   renderContainer(children?: ReactNode) {
-    const { isMulti, theme, selectProps } = this.props;
+    const { isMulti, selectProps } = this.props;
     const noWrap = this.props.selectProps?.noMultiValueWrap && !this.props.selectProps?.menuIsOpen;
-    const styles = getSelectStyles(theme);
     const dataTestid = selectProps['data-testid'];
-    const className = cx(styles.valueContainer, {
-      [styles.valueContainerMulti]: isMulti && !noWrap,
-      [styles.valueContainerMultiNoWrap]: isMulti && noWrap,
-    });
 
     return (
-      <div ref={this.ref} data-testid={dataTestid} className={className}>
+      <div
+        ref={this.ref}
+        data-testid={dataTestid}
+        {...stylex.props(
+          styles.valueContainer,
+          isMulti && !noWrap && styles.valueContainerMulti,
+          isMulti && noWrap && styles.valueContainerMultiNoWrap
+        )}
+      >
         {children}
       </div>
     );
   }
 }
 
-export const ValueContainer: React.FC<ValueContainerProps<unknown, boolean, GroupBase<unknown>>> =
-  withTheme2(UnthemedValueContainer);
+export const ValueContainer: React.ComponentType<ValueContainerProps<unknown, boolean, GroupBase<unknown>>> =
+  ValueContainerComponent;
+
+const styles = stylex.create({
+  valueContainer: {
+    alignItems: 'center',
+    display: 'grid',
+    position: 'relative',
+    boxSizing: 'border-box',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    outline: 'none',
+    overflow: 'hidden',
+  },
+  valueContainerMulti: {
+    flexWrap: 'wrap',
+    display: 'flex',
+  },
+  valueContainerMultiNoWrap: {
+    display: 'grid',
+    gridAutoFlow: 'column',
+  },
+});
