@@ -1,15 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useRef, useEffect } from 'react';
 import { Controller } from 'react-hook-form';
 import { useAsyncFn, useClickAway } from 'react-use';
 
-import { type AnnotationEventUIModel, type GrafanaTheme2, dateTimeFormat, systemDateFormats } from '@grafana/data';
+import { type AnnotationEventUIModel, dateTimeFormat, systemDateFormats } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Stack, TextArea, usePanelContext, useStyles2 } from '@grafana/ui';
+import { Button, Field, Stack, TextArea, usePanelContext } from '@grafana/ui';
+import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { Form } from 'app/core/components/Form/Form';
 import { TagFilter } from 'app/core/components/TagFilter/TagFilter';
 import { annotationServer } from 'app/features/annotations/api';
 
+import './AnnotationEditor2.css';
 import { AnnotationTooltipHeaderCloseIcon } from './AnnotationTooltipHeaderCloseIcon';
 import { type AnnotationVals } from './types';
 
@@ -26,7 +28,6 @@ interface AnnotationEditFormDTO {
 }
 
 export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...otherProps }: Props) => {
-  const styles = useStyles2(getStyles);
   const { onAnnotationCreate, onAnnotationUpdate } = usePanelContext();
   const focusRef = useRef<HTMLButtonElement | null>(null);
   const clickAwayRef = useRef(null);
@@ -80,8 +81,8 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
 
   // Annotation editor
   return (
-    <div ref={clickAwayRef} className={styles.editor} {...otherProps}>
-      <div className={styles.header}>
+    <div ref={clickAwayRef} {...stylex.props(styles.editor)} {...otherProps}>
+      <div {...stylex.props(styles.header)}>
         <Stack justifyContent={'space-between'} alignItems={'center'}>
           <Stack gap={0} width="100%" justifyContent={'space-between'} alignItems={'center'}>
             <div>
@@ -108,7 +109,7 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
         {({ register, errors, control }) => {
           return (
             <>
-              <div className={styles.content}>
+              <div {...stylex.props(styles.content)}>
                 <Field
                   htmlFor={'annotation-description-textarea'}
                   autoFocus={true}
@@ -119,7 +120,7 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
                   <TextArea
                     id={'annotation-description-textarea'}
                     data-testid={'annotation-editor-description'}
-                    className={styles.textarea}
+                    className="gf-annotation-editor-textarea"
                     {...register('description', {
                       required: 'Annotation description is required',
                     })}
@@ -144,7 +145,7 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
                   />
                 </Field>
               </div>
-              <div className={styles.footer}>
+              <div {...stylex.props(styles.footer)}>
                 <Stack justifyContent={'flex-end'}>
                   <Button size={'sm'} variant="secondary" onClick={dismiss} fill="outline">
                     <Trans i18nKey="timeseries.annotation-editor2.cancel">Cancel</Trans>
@@ -164,33 +165,36 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    editor: css({
-      background: theme.colors.background.elevated,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z3,
-      userSelect: 'text',
-      width: '460px',
-    }),
-    content: css({
-      padding: theme.spacing(1),
-    }),
-    header: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      padding: theme.spacing(0.5, 1),
-      fontWeight: theme.typography.fontWeightBold,
-      fontSize: theme.typography.fontSize,
-      color: theme.colors.text.primary,
-    }),
-    footer: css({
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      padding: theme.spacing(1, 1),
-    }),
-    textarea: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-};
+const styles = stylex.create({
+  editor: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    userSelect: 'text',
+    width: '460px',
+  },
+  content: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  header: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    fontSize: typography['--gf-typography-font-size'],
+    color: colors['--gf-colors-text-primary'],
+  },
+  footer: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    padding: spacing['--gf-spacing-x1'],
+  },
+});
