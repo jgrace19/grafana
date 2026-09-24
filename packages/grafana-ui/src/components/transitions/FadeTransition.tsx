@@ -1,11 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useRef } from 'react';
 import * as React from 'react';
 import { CSSTransition } from 'react-transition-group';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
 
 type Props = {
   children: React.ReactElement<Record<string, unknown>>;
@@ -15,8 +13,8 @@ type Props = {
 
 export function FadeTransition(props: Props) {
   const { visible, children, duration = 250 } = props;
-  const styles = useStyles2(getStyles, duration);
-  const transitionRef = useRef(null);
+  const transitionRef = useRef<HTMLElement>(null);
+  const setDuration = () => transitionRef.current?.style.setProperty('--gf-transition-duration', `${duration}ms`);
 
   return (
     <CSSTransition
@@ -24,35 +22,40 @@ export function FadeTransition(props: Props) {
       mountOnEnter={true}
       unmountOnExit={true}
       timeout={duration}
-      classNames={styles}
+      classNames={classNames}
       nodeRef={transitionRef}
+      onEnter={setDuration}
+      onExit={setDuration}
     >
       {React.cloneElement(children, { ref: transitionRef })}
     </CSSTransition>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, duration: number) => ({
-  enter: css({
-    label: 'enter',
+const styles = stylex.create({
+  enter: {
     opacity: 0,
-  }),
-  enterActive: css({
-    label: 'enterActive',
+  },
+  enterActive: {
     opacity: 1,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: `opacity ${duration}ms ease-out`,
-    },
-  }),
-  exit: css({
-    label: 'exit',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: 'var(--gf-transition-duration)' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+  },
+  exit: {
     opacity: 1,
-  }),
-  exitActive: css({
-    label: 'exitActive',
+  },
+  exitActive: {
     opacity: 0,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: `opacity ${duration}ms ease-out`,
-    },
-  }),
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: 'var(--gf-transition-duration)' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+  },
 });
+
+const classNames = {
+  enter: stylex.props(styles.enter).className,
+  enterActive: stylex.props(styles.enterActive).className,
+  exit: stylex.props(styles.exit).className,
+  exitActive: stylex.props(styles.exitActive).className,
+};

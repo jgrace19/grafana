@@ -6,7 +6,7 @@ import { DataFrame, TimeRange } from '@grafana/data';
 import { PanelContextRoot } from '../../components/PanelChrome/PanelContext';
 import { hasVisibleLegendSeries, PlotLegend } from '../../components/uPlot/PlotLegend';
 import { UPlotConfigBuilder } from '../../components/uPlot/config/UPlotConfigBuilder';
-import { withTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { GraphNG, GraphNGProps, PropDiffFn } from '../GraphNG/GraphNG';
 
 import { preparePlotConfigBuilder } from './utils';
@@ -58,5 +58,8 @@ export class UnthemedTimeSeries extends Component<TimeSeriesProps> {
   }
 }
 
-export const TimeSeries = withTheme2(UnthemedTimeSeries);
+export const TimeSeries: React.FunctionComponent<Omit<TimeSeriesProps, 'theme'>> = (props) => {
+  const theme = useTheme2();
+  return <UnthemedTimeSeries {...props} theme={theme} />;
+};
 TimeSeries.displayName = 'TimeSeries';

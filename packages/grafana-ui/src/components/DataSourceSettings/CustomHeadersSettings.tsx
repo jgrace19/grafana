@@ -1,17 +1,18 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { uniqueId } from 'lodash';
 import { memo, useState } from 'react';
 
 import { type DataSourceSettings } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { FormField } from '../FormField/FormField';
 import { Icon } from '../Icon/Icon';
 import { Box } from '../Layout/Box/Box';
 import { Stack } from '../Layout/Stack/Stack';
 import { SecretFormField } from '../SecretFormField/SecretFormField';
+import './CustomHeadersSettings.css';
 
 export interface CustomHeader {
   id: string;
@@ -35,27 +36,9 @@ interface CustomHeaderRowProps {
   onBlur: () => void;
 }
 
-const getCustomHeaderRowStyles = () => ({
-  layout: css({
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '4px',
-    '> *': {
-      marginLeft: '4px',
-      marginBottom: 0,
-      height: '100%',
-      '&:first-child, &:last-child': {
-        marginLeft: 0,
-      },
-    },
-  }),
-});
-
 const CustomHeaderRow = ({ header, onBlur, onChange, onRemove, onReset }: CustomHeaderRowProps) => {
-  const styles = useStyles2(getCustomHeaderRowStyles);
-
   return (
-    <div className={styles.layout}>
+    <div className={clsx('gf-custom-header-row', stylex.props(styles.layout).className)}>
       <FormField
         label={t('grafana-ui.data-source-settings.custom-headers-header', 'Header')}
         name="name"
@@ -220,3 +203,11 @@ export const CustomHeadersSettings = memo<Props>(({ dataSourceConfig, onChange }
 CustomHeadersSettings.displayName = 'CustomHeadersSettings';
 
 export default CustomHeadersSettings;
+
+const styles = stylex.create({
+  layout: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '4px',
+  },
+});

@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineField } from '../Forms/InlineField';
 import { Stack } from '../Layout/Stack/Stack';
 import { InlineSwitch } from '../Switch/Switch';
@@ -17,9 +15,8 @@ export const HttpProxySettings = ({
   onChange,
   showForwardOAuthIdentityOption = true,
 }: HttpSettingsBaseProps) => {
-  const gridLayout = useStyles2(getGridLayout);
   return (
-    <div className={gridLayout}>
+    <div {...stylex.props(styles.gridLayout)}>
       <Stack direction="row" gap={0.5}>
         <InlineField
           label={t('grafana-ui.data-source-http-proxy-settings.ts-client-auth-label', 'TLS Client Auth')}
@@ -84,9 +81,10 @@ export const HttpProxySettings = ({
   );
 };
 
-const getGridLayout = (theme: GrafanaTheme2) =>
-  css({
+const styles = stylex.create({
+  gridLayout: {
     display: 'grid',
     gridTemplateColumns: 'auto',
     gap: 0, // Inline field has a margin
-  });
+  },
+});

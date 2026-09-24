@@ -1,95 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapse: css({
-    label: 'collapse',
-    marginBottom: theme.spacing(1),
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    position: 'relative',
-    borderRadius: theme.shape.radius.default,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: '1 1 0',
-  }),
-  collapseBody: css({
-    label: 'collapse__body',
-    padding: theme.spacing(theme.components.panel.padding),
-    paddingTop: 0,
-    flex: 1,
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  bodyContentWrapper: css({
-    label: 'bodyContentWrapper',
-    flex: 1,
-  }),
-  loader: css({
-    label: 'collapse__loader',
-    height: '2px',
-    position: 'relative',
-    overflow: 'hidden',
-    background: 'none',
-    margin: theme.spacing(0.5),
-  }),
-  loaderActive: css({
-    label: 'collapse__loader_active',
-    '&:after': {
-      content: "' '",
-      display: 'block',
-      width: '25%',
-      top: 0,
-      height: '250%',
-      position: 'absolute',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: 'loader 2s cubic-bezier(0.17, 0.67, 0.83, 0.67) 500ms',
-        animationIterationCount: 100,
-      },
-      [theme.transitions.handleMotion('reduce')]: {
-        animationDuration: '10s',
-        animationIterationCount: 20,
-      },
-      left: '-25%',
-      background: theme.colors.primary.main,
-    },
-    '@keyframes loader': {
-      from: {
-        left: '-25%',
-        opacity: 0.1,
-      },
-      to: {
-        left: '100%',
-        opacity: 1,
-      },
-    },
-  }),
-  header: css({
-    cursor: 'pointer',
-    label: 'collapse__header',
-    padding: theme.spacing(1),
-    display: 'flex',
-    gap: theme.spacing(1),
-  }),
-  button: css({
-    marginRight: 0,
-  }),
-  headerLabel: css({
-    label: 'collapse__header-label',
-    fontWeight: theme.typography.fontWeightMedium,
-    fontSize: theme.typography.size.md,
-    display: 'flex',
-    flex: 1,
-  }),
-});
+import './Collapse.css';
 
 export interface Props {
   /** Expand or collapse te content */
@@ -128,7 +46,6 @@ export const ControlledCollapse = ({ isOpen, onToggle, ...otherProps }: React.Pr
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/layout-collapse--docs
  */
 export const Collapse = ({ isOpen, label, loading, onToggle, className, children }: React.PropsWithChildren<Props>) => {
-  const style = useStyles2(getStyles);
   const labelId = useId();
   const contentId = useId();
 
@@ -137,30 +54,27 @@ export const Collapse = ({ isOpen, label, loading, onToggle, className, children
       onToggle(!isOpen);
     }
   };
-  const panelClass = cx([style.collapse, className]);
-  const loaderClass = loading ? cx([style.loader, style.loaderActive]) : style.loader;
-
   return (
-    <div className={panelClass}>
+    <div {...mergeStylexProps(stylex.props(styles.collapse), { className })}>
       {/* the inner button handles keyboard a11y. this is a convenience for mouse users */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div className={style.header} onClick={onClickToggle}>
+      <div {...stylex.props(styles.header)} onClick={onClickToggle}>
         <IconButton
           aria-describedby={labelId}
           aria-expanded={isOpen}
           aria-controls={contentId}
-          className={style.button}
+          className="gf-collapse-button"
           aria-labelledby={labelId}
           name={isOpen ? 'angle-down' : 'angle-right'}
         />
-        <div id={labelId} className={style.headerLabel}>
+        <div id={labelId} {...stylex.props(styles.headerLabel)}>
           {label}
         </div>
       </div>
       {isOpen && (
-        <div className={style.collapseBody} id={contentId}>
-          <div className={loaderClass} />
-          <div className={style.bodyContentWrapper}>{children}</div>
+        <div {...stylex.props(styles.collapseBody)} id={contentId}>
+          <div {...stylex.props(styles.loader, loading && styles.loaderActive)} />
+          <div {...stylex.props(styles.bodyContentWrapper)}>{children}</div>
         </div>
       )}
     </div>
@@ -168,3 +82,86 @@ export const Collapse = ({ isOpen, label, loading, onToggle, className, children
 };
 
 Collapse.displayName = 'Collapse';
+
+const loader = stylex.keyframes({
+  from: {
+    left: '-25%',
+    opacity: 0.1,
+  },
+  to: {
+    left: '100%',
+    opacity: 1,
+  },
+});
+
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  collapse: {
+    marginBottom: grid,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    position: 'relative',
+    borderRadius: shape['--gf-shape-radius-default'],
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+  },
+  collapseBody: {
+    paddingTop: 0,
+    paddingRight: `calc(${grid} * ${components['--gf-components-panel-padding']})`,
+    paddingBottom: `calc(${grid} * ${components['--gf-components-panel-padding']})`,
+    paddingLeft: `calc(${grid} * ${components['--gf-components-panel-padding']})`,
+    flex: '1',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  bodyContentWrapper: {
+    flex: '1',
+  },
+  loader: {
+    height: '2px',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    margin: `calc(${grid} * 0.5)`,
+  },
+  loaderActive: {
+    '::after': {
+      content: "' '",
+      display: 'block',
+      width: '25%',
+      top: 0,
+      height: '250%',
+      position: 'absolute',
+      animationName: { default: null, [motion.noPreferenceOrReduce]: loader },
+      animationDuration: { default: null, [motion.noPreference]: '2s', [motion.reduce]: '10s' },
+      animationTimingFunction: {
+        default: null,
+        [motion.noPreferenceOrReduce]: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)',
+      },
+      animationDelay: { default: null, [motion.noPreferenceOrReduce]: '500ms' },
+      animationIterationCount: { default: null, [motion.noPreference]: 100, [motion.reduce]: 20 },
+      left: '-25%',
+      backgroundColor: colors['--gf-colors-primary-main'],
+    },
+  },
+  header: {
+    cursor: 'pointer',
+    padding: grid,
+    display: 'flex',
+    gap: grid,
+  },
+  headerLabel: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontSize: typography['--gf-typography-size-md'],
+    display: 'flex',
+    flex: '1',
+  },
+});

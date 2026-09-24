@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
+import { type ThemeSpacingTokens } from '@grafana/data';
 
-import { getResponsiveStyle } from '../../compat/emotion/getResponsiveStyle';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { shape } from '../../themes/stylex/tokens.stylex';
+import { responsive, responsiveStyles } from '../Layout/utils/responsiveStyles';
+import { spacingValue } from '../Layout/utils/responsiveStylex';
 import { type ResponsiveProp } from '../Layout/utils/responsiveness';
 
 export interface AvatarProps {
@@ -12,22 +13,22 @@ export interface AvatarProps {
   width?: ResponsiveProp<ThemeSpacingTokens>;
   height?: ResponsiveProp<ThemeSpacingTokens>;
 }
-export const Avatar = ({ src, alt, width, height }: AvatarProps) => {
-  const styles = useStyles2(getStyles, width, height);
-
-  return <img className={styles.image} src={src} alt={alt} />;
+export const Avatar = ({ src, alt, width = 3, height = 3 }: AvatarProps) => {
+  return (
+    <img
+      {...stylex.props(
+        responsive(responsiveStyles.width, width, spacingValue),
+        responsive(responsiveStyles.height, height, spacingValue),
+        styles.image
+      )}
+      src={src}
+      alt={alt}
+    />
+  );
 };
 
-const getStyles = (theme: GrafanaTheme2, width: AvatarProps['width'] = 3, height: AvatarProps['height'] = 3) => {
-  return {
-    image: css([
-      getResponsiveStyle(theme, width, (val) => ({
-        width: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, height, (val) => ({
-        height: theme.spacing(val),
-      })),
-      { borderRadius: theme.shape.radius.circle },
-    ]),
-  };
-};
+const styles = stylex.create({
+  image: {
+    borderRadius: shape['--gf-shape-radius-circle'],
+  },
+});

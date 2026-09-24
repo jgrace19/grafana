@@ -1,12 +1,15 @@
-import { css, cx } from '@emotion/css';
-import { useMemo, type PropsWithChildren } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
+import { type PropsWithChildren } from 'react';
 
-import { dateTime, type DateTimeInput, type GrafanaTheme2 } from '@grafana/data';
+import { dateTime, type DateTimeInput } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Tooltip } from '../Tooltip/Tooltip';
 
+import { userIconMarker } from './markers.stylex';
 import { type UserView } from './types';
 
 export interface UserIconProps {
@@ -18,6 +21,8 @@ export interface UserIconProps {
   className?: string;
   /** onClick handler to be called when the icon is clicked */
   onClick?: () => void;
+  /** @internal first-party StyleX overrides for the button */
+  xstyle?: StyleXStyles;
 }
 
 /**
@@ -62,41 +67,44 @@ export const UserIcon = ({
   children,
   onClick,
   showTooltip = true,
+  xstyle,
 }: PropsWithChildren<UserIconProps>) => {
   const { user, lastActiveAt } = userView;
   const hasActive = lastActiveAt !== undefined && lastActiveAt !== null;
   const isActive = hasActive && dateTime(lastActiveAt).diff(dateTime(), 'minutes', true) >= -15;
-  const theme = useTheme2();
-  const styles = useMemo(() => getStyles(theme, isActive), [theme, isActive]);
+  const variant = isActive ? 'active' : 'inactive';
+  const shadow = showTooltip || onClick ? hoverShadowStyles[variant] : shadowStyles[variant];
   const content = (
     <button
       type={'button'}
       onClick={onClick}
-      className={cx(styles.container, (showTooltip || onClick) && styles.hover, onClick && styles.pointer, className)}
+      {...mergeStylexProps(stylex.props(styles.container, onClick && styles.pointer, userIconMarker, xstyle), {
+        className,
+      })}
       aria-label={t('grafana-ui.user-icon.label', '{{name}} icon', { name: user.name })}
     >
       {children ? (
-        <div className={cx(styles.content, styles.textContent)}>{children}</div>
+        <div {...stylex.props(styles.content, styles.textContent, shadow)}>{children}</div>
       ) : user.avatarUrl ? (
-        <img className={styles.content} src={user.avatarUrl} alt={`${user.name} avatar`} />
+        <img {...stylex.props(styles.content, shadow)} src={user.avatarUrl} alt={`${user.name} avatar`} />
       ) : (
-        <div className={cx(styles.content, styles.textContent)}>{getUserInitials(user.name)}</div>
+        <div {...stylex.props(styles.content, styles.textContent, shadow)}>{getUserInitials(user.name)}</div>
       )}
     </button>
   );
 
   if (showTooltip) {
     const tooltip = (
-      <div className={styles.tooltipContainer}>
-        <div className={styles.tooltipName}>{user.name}</div>
+      <div {...stylex.props(styles.tooltipContainer)}>
+        <div {...stylex.props(styles.tooltipName)}>{user.name}</div>
         {hasActive && (
-          <div className={styles.tooltipDate}>
+          <div {...stylex.props(styles.tooltipDate)}>
             {isActive ? (
-              <div className={styles.dotContainer}>
+              <div {...stylex.props(styles.dotContainer)}>
                 <span>
                   <Trans i18nKey="grafana-ui.user-icon.active-text">Active last 15m</Trans>
                 </span>
-                <span className={styles.dot}></span>
+                <span {...stylex.props(styles.dot)}></span>
               </div>
             ) : (
               formatViewed(lastActiveAt)
@@ -112,73 +120,81 @@ export const UserIcon = ({
   }
 };
 
-const getIconBorder = (color: string): string => {
-  return `0 0 0 1px ${color}`;
-};
+const styles = stylex.create({
+  container: {
+    padding: 0,
+    width: '30px',
+    height: '30px',
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-circle'],
+    cursor: 'default',
+  },
+  content: {
+    borderRadius: shape['--gf-shape-radius-circle'],
+    lineHeight: '24px',
+    maxWidth: '100%',
+    borderWidth: '3px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-background-primary'],
+    backgroundClip: 'padding-box',
+  },
+  textContent: {
+    // Initials fill under the border as well; only avatar images clip to the padding box.
+    backgroundClip: 'border-box',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    padding: 0,
+    color: colors['--gf-colors-text-secondary'],
+    textAlign: 'center',
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+  tooltipContainer: {
+    textAlign: 'center',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-grid-size'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-grid-size'],
+  },
+  tooltipName: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  tooltipDate: {
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+  },
+  dotContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  dot: {
+    height: '6px',
+    width: '6px',
+    backgroundColor: colors['--gf-colors-primary-main'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    display: 'inline-block',
+    marginLeft: spacing['--gf-spacing-grid-size'],
+  },
+  pointer: {
+    cursor: 'pointer',
+  },
+});
 
-export const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
-  const shadowColor = isActive ? theme.colors.primary.main : theme.colors.border.medium;
-  const shadowHoverColor = isActive ? theme.colors.primary.text : theme.colors.border.strong;
+const shadowStyles = stylex.create({
+  active: { boxShadow: `0 0 0 1px ${colors['--gf-colors-primary-main']}` },
+  inactive: { boxShadow: `0 0 0 1px ${colors['--gf-colors-border-medium']}` },
+});
 
-  return {
-    container: css({
-      padding: 0,
-      width: '30px',
-      height: '30px',
-      background: 'none',
-      border: 'none',
-      borderRadius: theme.shape.radius.circle,
-      cursor: 'default',
-      '& > *': {
-        borderRadius: theme.shape.radius.circle,
-      },
-    }),
-    content: css({
-      lineHeight: '24px',
-      maxWidth: '100%',
-      border: `3px ${theme.colors.background.primary} solid`,
-      boxShadow: getIconBorder(shadowColor),
-      backgroundClip: 'padding-box',
-    }),
-    textContent: css({
-      background: theme.colors.background.primary,
-      padding: 0,
-      color: theme.colors.text.secondary,
-      textAlign: 'center',
-      fontSize: theme.typography.size.sm,
-      '&:focus': {
-        boxShadow: getIconBorder(shadowColor),
-      },
-    }),
-    tooltipContainer: css({
-      textAlign: 'center',
-      padding: theme.spacing(0, 1),
-    }),
-    tooltipName: css({
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    tooltipDate: css({
-      fontWeight: theme.typography.fontWeightRegular,
-    }),
-    dotContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    dot: css({
-      height: '6px',
-      width: '6px',
-      backgroundColor: theme.colors.primary.main,
-      borderRadius: theme.shape.radius.circle,
-      display: 'inline-block',
-      marginLeft: theme.spacing(1),
-    }),
-    pointer: css({
-      cursor: 'pointer',
-    }),
-    hover: css({
-      '&:hover > *': {
-        boxShadow: getIconBorder(shadowHoverColor),
-      },
-    }),
-  };
-};
+// A hoverable icon (tooltip or click handler) highlights its image or initials while the button is hovered.
+const hoverShadowStyles = stylex.create({
+  active: {
+    boxShadow: {
+      default: `0 0 0 1px ${colors['--gf-colors-primary-main']}`,
+      [stylex.when.ancestor(':hover', userIconMarker)]: `0 0 0 1px ${colors['--gf-colors-primary-text']}`,
+    },
+  },
+  inactive: {
+    boxShadow: {
+      default: `0 0 0 1px ${colors['--gf-colors-border-medium']}`,
+      [stylex.when.ancestor(':hover', userIconMarker)]: `0 0 0 1px ${colors['--gf-colors-border-strong']}`,
+    },
+  },
+});

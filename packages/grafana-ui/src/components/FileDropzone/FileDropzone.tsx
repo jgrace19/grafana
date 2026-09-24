@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { type ReactNode, useCallback, useState } from 'react';
 import {
@@ -11,10 +11,10 @@ import {
   ErrorCode,
 } from 'react-dropzone';
 
-import { formattedValueToString, getValueFormat, type GrafanaTheme2 } from '@grafana/data';
+import { formattedValueToString, getValueFormat } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Alert } from '../Alert/Alert';
 import { Icon } from '../Icon/Icon';
 
@@ -185,8 +185,6 @@ export function FileDropzone({
     onDrop,
     accept: transformAcceptToNewFormat(options?.accept),
   });
-  const theme = useTheme2();
-  const styles = getStyles(theme, isDragActive);
   const fileList = files.map((file) => {
     if (fileListRenderer) {
       return fileListRenderer(file, removeFile);
@@ -214,7 +212,7 @@ export function FileDropzone({
   const renderErrorMessages = (errors: FileError[]) => {
     const size = formattedValueToString(formattedSize);
     return (
-      <div className={styles.errorAlert}>
+      <div {...stylex.props(styles.errorAlert)}>
         <Alert
           title={t('grafana-ui.file-dropzone.error-title', 'Upload failed')}
           severity="error"
@@ -242,15 +240,15 @@ export function FileDropzone({
   };
 
   return (
-    <div className={styles.container}>
-      <div data-testid="dropzone" {...getRootProps({ className: styles.dropzone })}>
+    <div {...stylex.props(styles.container, isDragActive && styles.containerDragActive)}>
+      <div data-testid="dropzone" {...getRootProps({ className: stylex.props(styles.dropzone).className })}>
         <input {...getInputProps()} id={id} />
         {children ?? <FileDropzoneDefaultChildren primaryText={getPrimaryText(files, options)} />}
       </div>
       {fileErrors.length > 0 && renderErrorMessages(fileErrors)}
-      <small className={cx(styles.small, styles.acceptContainer)}>
+      <small {...stylex.props(styles.small, styles.acceptContainer)}>
         {options?.maxSize && `Max file size: ${formattedValueToString(formattedSize)}`}
-        {options?.maxSize && options?.accept && <span className={styles.acceptSeparator}>{'|'}</span>}
+        {options?.maxSize && options?.accept && <span {...stylex.props(styles.acceptSeparator)}>{'|'}</span>}
         {options?.accept && getAcceptedFileTypeText(options.accept)}
       </small>
       {fileList}
@@ -287,14 +285,11 @@ export function transformAcceptToNewFormat(accept?: string | string[] | Accept):
 }
 
 export function FileDropzoneDefaultChildren({ primaryText = 'Drop file here or click to upload', secondaryText = '' }) {
-  const theme = useTheme2();
-  const styles = getStyles(theme);
-
   return (
-    <div className={cx(styles.defaultDropZone)} data-testid="file-drop-zone-default-children">
-      <Icon className={cx(styles.icon)} name="upload" size="xl" />
-      <h6 className={cx(styles.primaryText)}>{primaryText}</h6>
-      <small className={styles.small}>{secondaryText}</small>
+    <div {...stylex.props(styles.defaultDropZone)} data-testid="file-drop-zone-default-children">
+      <Icon xstyle={styles.icon} name="upload" size="xl" />
+      <h6 {...stylex.props(styles.primaryText)}>{primaryText}</h6>
+      <small {...stylex.props(styles.small)}>{secondaryText}</small>
     </div>
   );
 }
@@ -328,47 +323,55 @@ function mapToCustomFile(file: File): DropzoneFile {
   };
 }
 
-function getStyles(theme: GrafanaTheme2, isDragActive?: boolean) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      padding: theme.spacing(2),
-      borderRadius: theme.shape.radius.default,
-      border: `1px dashed ${theme.colors.border.strong}`,
-      backgroundColor: isDragActive ? theme.colors.background.secondary : theme.colors.background.primary,
-      cursor: 'pointer',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    dropzone: css({
-      height: '100%',
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    defaultDropZone: css({
-      textAlign: 'center',
-    }),
-    icon: css({
-      marginBottom: theme.spacing(1),
-    }),
-    primaryText: css({
-      marginBottom: theme.spacing(1),
-    }),
-    acceptContainer: css({
-      textAlign: 'center',
-      margin: 0,
-    }),
-    acceptSeparator: css({
-      margin: `0 ${theme.spacing(1)}`,
-    }),
-    small: css({
-      color: theme.colors.text.secondary,
-    }),
-    errorAlert: css({
-      paddingTop: '10px',
-    }),
-  };
-}
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    padding: `calc(${grid} * 2)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'dashed',
+    borderColor: colors['--gf-colors-border-strong'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  containerDragActive: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  dropzone: {
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  defaultDropZone: {
+    textAlign: 'center',
+  },
+  icon: {
+    marginBottom: grid,
+  },
+  primaryText: {
+    marginBottom: grid,
+  },
+  acceptContainer: {
+    textAlign: 'center',
+    margin: 0,
+  },
+  acceptSeparator: {
+    marginTop: 0,
+    marginRight: grid,
+    marginBottom: 0,
+    marginLeft: grid,
+  },
+  small: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  errorAlert: {
+    paddingTop: '10px',
+  },
+});

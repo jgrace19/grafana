@@ -1,0 +1,13 @@
+/*
+ * Resets Storybook's Source block margins and borders so it sits flush. Storybook styles its own DOM at
+ * runtime, so like the Emotion rules they replace these stay out of the cascade layers.
+ */
+.gf-example-frame-source .docblock-source {
+  border: none;
+  border-radius: unset;
+  margin: 0;
+}
+
+.gf-example-frame-source .docblock-source pre {
+  border: none;
+}

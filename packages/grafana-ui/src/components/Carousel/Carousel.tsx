@@ -1,16 +1,17 @@
-import { css, cx } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { OverlayContainer, useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { useState, useEffect, useRef, useId } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Alert } from '../Alert/Alert';
 import { IconButton } from '../IconButton/IconButton';
+
+import './Carousel.css';
 
 // Define the image item interface
 export interface CarouselImage {
@@ -32,9 +33,6 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [validImages, setValidImages] = useState<CarouselImage[]>(images);
   const id = useId();
-
-  const styles = useStyles2(getStyles);
-  const resetButtonStyles = useStyles2(clearButtonStyles);
 
   const handleImageError = (path: string) => {
     setImageErrors((prev) => ({
@@ -105,7 +103,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
 
   return (
     <>
-      <div className={cx(styles.imageGrid)}>
+      <div {...stylex.props(styles.imageGrid)}>
         {validImages.map((image, index) => {
           const imageNameId = `${id}-carousel-image-${index}`;
           return (
@@ -115,10 +113,17 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
               type="button"
               key={image.path}
               onClick={() => openPreview(index)}
-              className={cx(resetButtonStyles, styles.imageButton)}
+              {...stylex.props(styles.imageButton)}
             >
-              <img src={image.path} alt="" onError={() => handleImageError(image.path)} />
-              <p id={imageNameId}>{image.name}</p>
+              <img
+                src={image.path}
+                alt=""
+                onError={() => handleImageError(image.path)}
+                {...stylex.props(styles.imageGridImage)}
+              />
+              <p id={imageNameId} {...stylex.props(styles.imageGridName)}>
+                {image.name}
+              </p>
             </button>
           );
         })}
@@ -126,7 +131,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
 
       {selectedIndex !== null && (
         <OverlayContainer>
-          <div role="presentation" className={styles.underlay} onClick={closePreview} {...underlayProps} />
+          <div role="presentation" {...stylex.props(styles.underlay)} onClick={closePreview} {...underlayProps} />
           <FocusScope contain autoFocus restoreFocus>
             {/* convenience method for keyboard users */}
             {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
@@ -136,14 +141,14 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
               {...overlayProps}
               {...dialogProps}
               onKeyDown={handleKeyDown}
-              className={styles.overlay}
+              {...stylex.props(styles.overlay)}
             >
               <IconButton
                 name="times"
                 aria-label={t('carousel.close', 'Close')}
                 size="xl"
                 onClick={closePreview}
-                className={cx(styles.closeButton)}
+                className="gf-carousel-close"
               />
 
               <IconButton
@@ -154,9 +159,9 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
                 data-testid="previous-button"
               />
 
-              <div className={styles.imageContainer} data-testid="carousel-full-image">
+              <div {...stylex.props(styles.imageContainer)} data-testid="carousel-full-image">
                 <img
-                  className={styles.imagePreview}
+                  {...stylex.props(styles.imagePreview)}
                   src={validImages[selectedIndex].path}
                   alt={validImages[selectedIndex].name}
                   onError={() => handleImageError(validImages[selectedIndex].path)}
@@ -178,63 +183,71 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  imageButton: css({
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  // Also resets the native button (the old clearButtonStyles).
+  imageButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
     textAlign: 'left',
-  }),
-  imageContainer: css({
+  },
+  imageContainer: {
     display: 'flex',
     justifyContent: 'center',
-    flex: 1,
-  }),
-  imagePreview: css({
-    borderRadius: theme.shape.radius.lg,
+    flex: '1',
+  },
+  imagePreview: {
+    borderRadius: shape['--gf-shape-radius-lg'],
     maxWidth: '100%',
     maxHeight: '80vh',
     objectFit: 'contain',
-  }),
-  imageGrid: css({
+  },
+  imageGrid: {
     display: 'grid',
     gridTemplateColumns: `repeat(auto-fill, minmax(200px, 1fr))`,
-    gap: theme.spacing(2),
+    gap: `calc(${grid} * 2)`,
     marginBottom: '20px',
-
-    '& img': {
-      width: '100%',
-      height: '150px',
-      objectFit: 'cover',
-      border: theme.colors.border.strong,
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z1,
-    },
-    '& p': {
-      margin: theme.spacing(0.5, 0),
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-    },
-  }),
-  underlay: css({
+  },
+  imageGridImage: {
+    width: '100%',
+    height: '150px',
+    objectFit: 'cover',
+    // `border: <color>` only sets the colour; the style stays none.
+    borderColor: colors['--gf-colors-border-strong'],
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z1'],
+  },
+  imageGridName: {
+    marginTop: `calc(${grid} * 0.5)`,
+    marginRight: 0,
+    marginBottom: `calc(${grid} * 0.5)`,
+    marginLeft: 0,
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-primary'],
+  },
+  underlay: {
     position: 'fixed',
-    zIndex: theme.zIndex.modalBackdrop,
+    zIndex: zIndex.modalBackdrop,
     inset: 0,
-    backgroundColor: theme.components.overlay.background,
-  }),
-  overlay: css({
+    backgroundColor: components['--gf-components-overlay-background'],
+  },
+  overlay: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: grid,
     height: 'fit-content',
     marginBottom: 'auto',
     marginTop: 'auto',
-    padding: theme.spacing(2),
+    paddingTop: `calc(${grid} * 2)`,
+    paddingRight: `calc(${grid} * 2)`,
+    paddingBottom: `calc(${grid} * 2)`,
+    paddingLeft: `calc(${grid} * 2)`,
     position: 'fixed',
     inset: 0,
-    zIndex: theme.zIndex.modal,
-  }),
-  closeButton: css({
-    color: theme.colors.text.primary,
-    position: 'fixed',
-    top: theme.spacing(2),
-    right: theme.spacing(2),
-  }),
+    zIndex: zIndex.modal,
+  },
 });

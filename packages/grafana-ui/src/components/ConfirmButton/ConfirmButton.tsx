@@ -1,11 +1,12 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactElement, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors } from '../../themes/stylex/tokens.stylex';
 import { type ComponentSize } from '../../types/size';
 import { Button, type ButtonVariant } from '../Button/Button';
 
@@ -52,8 +53,6 @@ export const ConfirmButton = ({
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [shouldRestoreFocus, setShouldRestoreFocus] = useState(false);
-  const styles = useStyles2(getStyles);
-
   useEffect(() => {
     if (showConfirm) {
       confirmButtonRef.current?.focus();
@@ -94,19 +93,13 @@ export const ConfirmButton = ({
     }
   };
 
-  const buttonClass = cx(className, styles.mainButton, {
-    [styles.mainButtonHide]: showConfirm,
-  });
-  const confirmButtonClass = cx(styles.confirmButton, {
-    [styles.confirmButtonHide]: !showConfirm,
-  });
-  const confirmButtonContainerClass = cx(styles.confirmButtonContainer, {
-    [styles.confirmButtonContainerHide]: !showConfirm,
-  });
-
   return (
-    <div className={styles.container}>
-      <span className={buttonClass}>
+    <div {...stylex.props(styles.container)}>
+      {/* visibility: hidden already removes the hidden half from the accessibility tree; aria-hidden says so explicitly */}
+      <span
+        {...mergeStylexProps(stylex.props(styles.mainButton, showConfirm && styles.mainButtonHide), { className })}
+        aria-hidden={showConfirm || undefined}
+      >
         {typeof children === 'string' ? (
           <Button disabled={disabled} size={size} fill="text" onClick={onClickButton} ref={mainButtonRef}>
             {children}
@@ -115,8 +108,11 @@ export const ConfirmButton = ({
           React.cloneElement(children, { disabled, onClick: onClickButton, ref: mainButtonRef })
         )}
       </span>
-      <div className={confirmButtonContainerClass}>
-        <span className={confirmButtonClass}>
+      <div
+        {...stylex.props(styles.confirmButtonContainer, !showConfirm && styles.confirmButtonContainerHide)}
+        aria-hidden={!showConfirm || undefined}
+      >
+        <span {...stylex.props(styles.confirmButton, !showConfirm && styles.confirmButtonHide)}>
           <Button size={size} variant={confirmVariant} onClick={onClickConfirm} ref={confirmButtonRef}>
             {confirmText}
           </Button>
@@ -130,69 +126,59 @@ export const ConfirmButton = ({
 };
 ConfirmButton.displayName = 'ConfirmButton';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      alignItems: 'center',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      position: 'relative',
-    }),
-    mainButton: css({
-      opacity: 1,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeOut,
-        }),
-      },
-      zIndex: 2,
-    }),
-    mainButtonHide: css({
-      opacity: 0,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'visibility'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeIn,
-        }),
-      },
-      visibility: 'hidden',
-      zIndex: 0,
-    }),
-    confirmButtonContainer: css({
-      overflow: 'visible',
-      position: 'absolute',
-      pointerEvents: 'all',
-      right: 0,
-    }),
-    confirmButtonContainerHide: css({
-      overflow: 'hidden',
-      pointerEvents: 'none',
-    }),
-    confirmButton: css({
-      alignItems: 'flex-start',
-      background: theme.colors.background.primary,
-      display: 'flex',
-      opacity: 1,
-      transform: 'translateX(0)',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'transform'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeOut,
-        }),
-      },
-      zIndex: 1,
-    }),
-    confirmButtonHide: css({
-      opacity: 0,
-      transform: 'translateX(100%)',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'transform', 'visibility'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeIn,
-        }),
-      },
-      visibility: 'hidden',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    position: 'relative',
+  },
+  mainButton: {
+    opacity: 1,
+    transitionProperty: { default: null, [motion.noPreference]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shortest },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeOut },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+    zIndex: 2,
+  },
+  mainButtonHide: {
+    opacity: 0,
+    transitionProperty: { default: null, [motion.noPreference]: 'opacity, visibility' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shortest },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeIn },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+    visibility: 'hidden',
+    zIndex: 0,
+  },
+  confirmButtonContainer: {
+    overflow: 'visible',
+    position: 'absolute',
+    pointerEvents: 'all',
+    right: 0,
+  },
+  confirmButtonContainerHide: {
+    overflow: 'hidden',
+    pointerEvents: 'none',
+  },
+  confirmButton: {
+    alignItems: 'flex-start',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    display: 'flex',
+    opacity: 1,
+    transform: 'translateX(0)',
+    transitionProperty: { default: null, [motion.noPreference]: 'opacity, transform' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shortest },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeOut },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+    zIndex: 1,
+  },
+  confirmButtonHide: {
+    opacity: 0,
+    transform: 'translateX(100%)',
+    transitionProperty: { default: null, [motion.noPreference]: 'opacity, transform, visibility' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shortest },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeIn },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+    visibility: 'hidden',
+  },
+});

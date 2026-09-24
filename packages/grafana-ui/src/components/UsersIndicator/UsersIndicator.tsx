@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 import { UserIcon } from './UserIcon';
 import { type UserView } from './types';
@@ -23,10 +22,11 @@ export interface UsersIndicatorProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/iconography-usersindicator--docs
  */
 export const UsersIndicator = ({ users, onClick, limit = 4 }: UsersIndicatorProps) => {
-  const styles = useStyles2(getStyles, limit);
   if (!users.length) {
     return null;
   }
+  // The icon stacking follows the limit as passed, before the fallback below.
+  const stackLimit = limit;
   // Make sure limit is never negative
   limit = limit > 0 ? limit : 4;
   const limitReached = users.length > limit;
@@ -36,14 +36,23 @@ export const UsersIndicator = ({ users, onClick, limit = 4 }: UsersIndicatorProp
 
   return (
     <div
-      className={styles.container}
+      {...stylex.props(styles.container)}
       aria-label={t('grafana-ui.users-indicator.container-label', 'Users indicator container')}
     >
       {users.slice(0, limitReached ? limit : limit + 1).map((userView, idx, arr) => (
-        <UserIcon key={userView.user.name} userView={userView} />
+        <UserIcon
+          key={userView.user.name}
+          userView={userView}
+          xstyle={[styles.stacked, idx < stackLimit && styles.zIndex(stackLimit - idx)]}
+        />
       ))}
       {limitReached && (
-        <UserIcon onClick={onClick} userView={{ user: { name: 'Extra users' } }} showTooltip={false}>
+        <UserIcon
+          onClick={onClick}
+          userView={{ user: { name: 'Extra users' } }}
+          showTooltip={false}
+          xstyle={styles.stacked}
+        >
           {tooManyUsers
             ? // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
               '...'
@@ -54,30 +63,17 @@ export const UsersIndicator = ({ users, onClick, limit = 4 }: UsersIndicatorProp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, limit: number) => {
-  return {
-    container: css({
-      display: 'flex',
-      justifyContent: 'center',
-      marginLeft: theme.spacing(1),
-      isolation: 'isolate',
-
-      '& > button': {
-        marginLeft: theme.spacing(-1), // Overlay the elements a bit on top of each other
-
-        // Ensure overlaying user icons are stacked correctly with z-index on each element
-        ...Object.fromEntries(
-          Array.from({ length: limit }).map((_, idx) => [
-            `&:nth-of-type(${idx + 1})`,
-            {
-              zIndex: limit - idx,
-            },
-          ])
-        ),
-      },
-    }),
-    dots: css({
-      marginBottom: '3px',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginLeft: spacing['--gf-spacing-grid-size'],
+    isolation: 'isolate',
+  },
+  // Overlay the icons a bit on top of each other
+  stacked: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+  },
+  // Stacks overlaying icons in order: earlier icons on top
+  zIndex: (zIndex: number) => ({ zIndex }),
+});

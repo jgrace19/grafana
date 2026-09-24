@@ -1,0 +1,9 @@
+/*
+ * StyleX 0.19.1 drops `all`, so the button reset lives here. It's layered so the button's own StyleX styles
+ * (margin, focus) still apply on top.
+ */
+@layer grafana-global {
+  .gf-collapsable-section-button {
+    all: unset;
+  }
+}
