@@ -10,6 +10,8 @@ import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { Spinner } from '../Spinner/Spinner';
 
+import './CollapsableSection.global.css';
+
 export interface Props {
   label: ReactNode;
   isOpen: boolean;
@@ -89,7 +91,7 @@ export const CollapsableSection = ({
         <button
           type="button"
           id={`collapse-button-${id}`}
-          {...stylex.props(styles.button)}
+          className={clsx('gf-collapsable-section-button', stylex.props(styles.button).className)}
           onClick={onClick}
           aria-expanded={isSectionOpen && !loading}
           aria-controls={`collapse-content-${id}`}
@@ -140,7 +142,6 @@ const styles = stylex.create({
   },
   // The header shows the focus ring, so the button itself shows none.
   button: {
-    all: 'unset',
     marginRight: grid,
     outlineStyle: { default: null, ':focus-visible': 'none' },
     outlineOffset: { default: null, ':focus-visible': 'unset' },
