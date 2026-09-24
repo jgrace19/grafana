@@ -1,0 +1,47 @@
+/*
+ * Theme overrides for the OpenLayers controls, which StyleX can't target. Unlayered and loaded before
+ * OpenLayers' own (unlayered) sheets, which win every tie: the <Global> styles these replace sat in Emotion's
+ * style block, which comes before the lazily loaded panel chunk's CSS. Only the declarations OpenLayers
+ * doesn't make take effect, exactly as before.
+ */
+.ol-scale-line {
+  background: var(--gf-colors-border-weak);
+}
+
+.ol-scale-line-inner {
+  border: 1px solid var(--gf-colors-text-primary);
+  border-top: 0;
+  color: var(--gf-colors-text-primary);
+}
+
+.ol-control {
+  background-color: var(--gf-colors-background-primary);
+}
+
+.ol-control:hover {
+  background-color: var(--gf-colors-background-secondary);
+}
+
+.ol-control button {
+  color: var(--gf-colors-secondary-text);
+  background-color: var(--gf-colors-secondary-main);
+}
+
+.ol-control button:hover {
+  color: var(--gf-colors-secondary-text);
+  background-color: var(--gf-colors-secondary-shade);
+}
+
+.ol-control button:focus {
+  color: var(--gf-colors-secondary-text);
+  background-color: var(--gf-colors-secondary-main);
+}
+
+.ol-attribution ul {
+  color: var(--gf-colors-text-primary);
+  text-shadow: none;
+}
+
+.ol-attribution:not(.ol-collapsed) {
+  background-color: var(--gf-colors-background-secondary);
+}

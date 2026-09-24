@@ -1,10 +1,10 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Button, type ComponentSize, Field, Input, Label, Modal, Stack, useStyles2 } from '@grafana/ui';
+import { Button, type ComponentSize, Field, Input, Label, Modal, Stack } from '@grafana/ui';
 import { useCreateFolder } from 'app/api/clients/folder/v1beta1/hooks';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -54,7 +54,6 @@ function FolderCreationModal({
   onClose: () => void;
   onCreate: (folder: Folder) => void;
 }): React.ReactElement {
-  const styles = useStyles2(getStyles);
   const notifyApp = useAppNotification();
   const [title, setTitle] = useState('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
@@ -75,7 +74,7 @@ function FolderCreationModal({
 
   return (
     <Modal
-      className={styles.modal}
+      className={pendingEmotionStyles.modal}
       isOpen
       title={t('alerting.create-new-folder.title-new-folder', 'New folder')}
       onDismiss={onClose}
@@ -116,8 +115,9 @@ function FolderCreationModal({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration
+const pendingEmotionStyles = {
   modal: css({
-    width: `${theme.breakpoints.values.sm}px`,
+    width: '544px',
   }),
-});
+};

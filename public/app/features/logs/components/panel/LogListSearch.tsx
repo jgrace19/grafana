@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ChangeEvent, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type VariableSizeList } from 'react-window';
 
-import { escapeRegex, type GrafanaTheme2, shallowCompare } from '@grafana/data';
+import { escapeRegex, shallowCompare } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, Input, useStyles2 } from '@grafana/ui';
+import { IconButton, Input } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useLogListContext } from './LogListContext';
 import { useLogListSearchContext } from './LogListSearchContext';
@@ -24,7 +26,6 @@ export const LogListSearch = ({ listRef, logs }: Props) => {
   const [currentResult, setCurrentResult] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchUsedRef = useRef(false);
-  const styles = useStyles2(getStyles);
 
   const matches = useMemo(() => {
     if (!search || !searchVisible) {
@@ -118,8 +119,8 @@ export const LogListSearch = ({ listRef, logs }: Props) => {
     search !== '' ? <>{`${currentResult !== null ? currentResult + 1 : 0}/${matches?.length ?? 0}`}</> : undefined;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.wrapper}>
+    <div {...stylex.props(styles.container)}>
+      <div {...stylex.props(styles.wrapper)}>
         <Input
           onChange={handleChange}
           autoFocus
@@ -151,7 +152,7 @@ export const LogListSearch = ({ listRef, logs }: Props) => {
       <IconButton
         onClick={toggleFilterLogs}
         disabled={!matches || !matches.length}
-        className={filterLogs ? styles.controlButtonActive : undefined}
+        className={filterLogs ? stylex.props(styles.controlButtonActive).className : undefined}
         name="filter"
         tooltip={t('logs.log-list-search.filter', 'Filter matching logs')}
       />
@@ -159,34 +160,6 @@ export const LogListSearch = ({ listRef, logs }: Props) => {
     </div>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    background: theme.colors.background.elevated,
-    display: 'flex',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-    zIndex: theme.zIndex.modal,
-    overflow: 'hidden',
-    width: '100%',
-  }),
-  wrapper: css({
-    width: '50%',
-  }),
-  controlButtonActive: css({
-    '&:after': {
-      display: 'block',
-      content: '" "',
-      position: 'absolute',
-      height: 2,
-      borderRadius: theme.shape.radius.default,
-      bottom: 2,
-      backgroundImage: theme.colors.gradients.brandHorizontal,
-      width: '95%',
-      opacity: 1,
-    },
-  }),
-});
 
 function findMatchingLogs(logs: LogListModel[], search: string, displayedFields: string[]) {
   const regex = new RegExp(escapeRegex(search), 'i');
@@ -200,3 +173,31 @@ function findMatchingLogs(logs: LogListModel[], search: string, displayedFields:
   newMatches.forEach((log) => log.setCurrentSearch(search));
   return newMatches;
 }
+
+const styles = stylex.create({
+  container: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
+    zIndex: zIndex.modal,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  wrapper: {
+    width: '50%',
+  },
+  controlButtonActive: {
+    '::after': {
+      display: 'block',
+      content: '" "',
+      position: 'absolute',
+      height: 2,
+      borderRadius: shape['--gf-shape-radius-default'],
+      bottom: 2,
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+      width: '95%',
+      opacity: 1,
+    },
+  },
+});

@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, InlineSwitch, useStyles2 } from '@grafana/ui';
+import { Button, InlineSwitch } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export type Props = {
   wrapLines?: boolean;
@@ -13,17 +13,7 @@ export type Props = {
   onScrollCenterClick: () => void;
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    buttons: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-    }),
-  };
-}
-
 export const LogContextButtons = (props: Props) => {
-  const styles = useStyles2(getStyles);
   const { wrapLines, onChangeWrapLines, onScrollCenterClick } = props;
   const internalOnChangeWrapLines = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
@@ -37,7 +27,7 @@ export const LogContextButtons = (props: Props) => {
   );
 
   return (
-    <div className={styles.buttons}>
+    <div {...stylex.props(styles.buttons)}>
       <InlineSwitch
         showLabel
         value={wrapLines}
@@ -50,3 +40,10 @@ export const LogContextButtons = (props: Props) => {
     </div>
   );
 };
+
+const styles = stylex.create({
+  buttons: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

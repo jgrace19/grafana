@@ -1,12 +1,11 @@
-import { css, cx } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { memo, createRef, useState, useEffect, type JSX } from 'react';
 
 import {
   rangeUtil,
-  type GrafanaTheme2,
   dateTimeFormat,
   timeZoneFormatUserFriendly,
   type TimeOption,
@@ -18,10 +17,10 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { bp, zIndex } from '../../themes/stylex/constants.stylex';
+import { components, spacing, typography, v1 } from '../../themes/stylex/tokens.stylex';
 import { getFeatureToggle } from '../../utils/featureToggle';
 import { ButtonGroup } from '../Button/ButtonGroup';
-import { getModalStyles } from '../Modal/getModalStyles';
 import { getPortalContainer } from '../Portal/Portal';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -145,9 +144,6 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
   );
   const { dialogProps } = useDialog({}, overlayRef);
 
-  const styles = useStyles2(getStyles);
-  const { modalBackdrop } = useStyles2(getModalStyles);
-
   const variant = isSynced ? 'active' : isOnCanvas ? 'canvas' : 'default';
 
   const isFromAfterTo = value?.to?.isBefore(value.from);
@@ -156,7 +152,7 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
   const currentTimeRange = formattedRange(value, timeZone, quickRanges);
 
   return (
-    <ButtonGroup className={styles.container}>
+    <ButtonGroup className={stylex.props(styles.container).className}>
       <ToolbarButton
         variant={variant}
         onClick={onMoveBackward}
@@ -193,9 +189,9 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
       </Tooltip>
       {isOpen && (
         <div data-testid={selectors.components.TimePicker.overlayContent}>
-          <div role="presentation" className={cx(modalBackdrop, styles.backdrop)} {...underlayProps} />
+          <div role="presentation" {...stylex.props(styles.modalBackdrop, styles.backdrop)} {...underlayProps} />
           <FocusScope contain autoFocus restoreFocus>
-            <section className={styles.content} ref={overlayRef} {...overlayProps} {...dialogProps}>
+            <section {...stylex.props(styles.content)} ref={overlayRef} {...overlayProps} {...dialogProps}>
               <TimePickerContent
                 timeZone={timeZone}
                 fiscalYearStartMonth={fiscalYearStartMonth}
@@ -265,7 +261,6 @@ const ZoomOutTooltip = () => {
 };
 
 export const TimePickerTooltip = ({ timeRange, timeZone }: { timeRange: TimeRange; timeZone?: TimeZone }) => {
-  const styles = useStyles2(getLabelStyles);
   const now = Date.now();
 
   // Get timezone info only if timeZone is provided
@@ -280,8 +275,8 @@ export const TimePickerTooltip = ({ timeRange, timeZone }: { timeRange: TimeRang
         </div>
         {dateTimeFormat(timeRange.to, { timeZone })}
       </div>
-      <div className={styles.container}>
-        <span className={styles.utc}>{timeZoneFormatUserFriendly(timeZone)}</span>
+      <div {...stylex.props(labelStyles.container)}>
+        <span {...stylex.props(labelStyles.utc)}>{timeZoneFormatUserFriendly(timeZone)}</span>
         <TimeZoneDescription info={timeZoneInfo} />
       </div>
     </>
@@ -291,16 +286,14 @@ export const TimePickerTooltip = ({ timeRange, timeZone }: { timeRange: TimeRang
 type LabelProps = Pick<TimeRangePickerProps, 'hideText' | 'value' | 'timeZone' | 'quickRanges'>;
 
 export const TimePickerButtonLabel = memo<LabelProps>(({ hideText, value, timeZone, quickRanges }) => {
-  const styles = useStyles2(getLabelStyles);
-
   if (hideText) {
     return null;
   }
 
   return (
-    <span className={styles.container} aria-live="polite" aria-atomic="true">
+    <span {...stylex.props(labelStyles.container)} aria-live="polite" aria-atomic="true">
       <span>{formattedRange(value, timeZone, quickRanges)}</span>
-      <span className={styles.utc}>{rangeUtil.describeTimeRangeAbbreviation(value, timeZone)}</span>
+      <span {...stylex.props(labelStyles.utc)}>{rangeUtil.describeTimeRangeAbbreviation(value, timeZone)}</span>
     </span>
   );
 });
@@ -315,51 +308,46 @@ const formattedRange = (value: TimeRange, timeZone?: TimeZone, quickRanges?: Tim
   return rangeUtil.describeTimeRange(adjustedTimeRange, timeZone, quickRanges);
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      position: 'relative',
-      display: 'flex',
-      verticalAlign: 'middle',
-    }),
-    backdrop: css({
-      display: 'none',
-      [theme.breakpoints.down('sm')]: {
-        display: 'block',
-      },
-    }),
-    content: css({
-      position: 'absolute',
-      right: 0,
-      top: '116%',
-      zIndex: theme.zIndex.dropdown,
+const styles = stylex.create({
+  container: {
+    position: 'relative',
+    display: 'flex',
+    verticalAlign: 'middle',
+  },
+  modalBackdrop: {
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: components['--gf-components-overlay-background'],
+  },
+  backdrop: {
+    display: { default: 'none', [bp.smDown]: 'block' },
+  },
+  content: {
+    position: { default: 'absolute', [bp.smDown]: 'fixed' },
+    right: { default: 0, [bp.smDown]: '50%' },
+    top: { default: '116%', [bp.smDown]: '50%' },
+    zIndex: { default: zIndex.dropdown, [bp.smDown]: zIndex.modal },
+    transform: { default: null, [bp.smDown]: 'translate(50%, -50%)' },
+  },
+});
 
-      [theme.breakpoints.down('sm')]: {
-        position: 'fixed',
-        right: '50%',
-        top: '50%',
-        transform: 'translate(50%, -50%)',
-        zIndex: theme.zIndex.modal,
-      },
-    }),
-  };
-};
-
-const getLabelStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      alignItems: 'center',
-      whiteSpace: 'nowrap',
-      columnGap: theme.spacing(0.5),
-    }),
-    utc: css({
-      color: theme.v1.palette.orange,
-      fontSize: theme.typography.size.sm,
-      paddingLeft: '6px',
-      lineHeight: '28px',
-      verticalAlign: 'bottom',
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-  };
-};
+const labelStyles = stylex.create({
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+    columnGap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  utc: {
+    color: v1['--gf-v1-palette-orange'],
+    fontSize: typography['--gf-typography-size-sm'],
+    paddingLeft: '6px',
+    lineHeight: '28px',
+    verticalAlign: 'bottom',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+});

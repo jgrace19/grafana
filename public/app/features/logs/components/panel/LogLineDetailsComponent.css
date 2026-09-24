@@ -1,0 +1,7 @@
+/*
+ * ControlledCollapse sets its own bottom margin. Deliberately not in a cascade layer: like the Emotion rule it
+ * replaces, it must win over the component's own styles.
+ */
+.gf-log-line-details-collapsable:last-of-type {
+  margin-bottom: 0;
+}

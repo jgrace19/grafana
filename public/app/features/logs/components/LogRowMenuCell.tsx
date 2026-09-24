@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import {
   memo,
   type FocusEvent,
@@ -14,10 +15,11 @@ import { type LogRowContextOptions, type LogRowModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
 import { ClipboardButton, IconButton, type PopoverContent } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 import { handleOpenLogsContextClick } from '../utils';
 
-import { type LogRowStyles } from './getLogRowStyles';
+import { LOGS_COPY_BUTTON_CLASS, LOGS_ROW_MENU_CLASS, logRowStyles } from './getLogRowStyles';
 
 interface Props {
   logText: string;
@@ -34,7 +36,6 @@ interface Props {
   onUnpinLine?: (row: LogRowModel) => void;
   pinLineButtonTooltipTitle?: PopoverContent;
   pinned?: boolean;
-  styles: LogRowStyles;
   mouseIsOver: boolean;
   onBlur: () => void;
   addonBefore?: ReactNode[];
@@ -52,7 +53,6 @@ export const LogRowMenuCell = memo(
     pinned,
     row,
     showContextToggle,
-    styles,
     mouseIsOver,
     onBlur,
     getRowContextQuery,
@@ -104,10 +104,14 @@ export const LogRowMenuCell = memo(
     return (
       // We keep this click listener here to prevent the row from being selected when clicking on the menu.
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-      <span className={`log-row-menu ${styles.rowMenu}`} onClick={onLogRowClick} onBlur={handleBlur}>
+      <span
+        {...mergeStylexProps(stylex.props(logRowStyles.rowMenu), { className: `log-row-menu ${LOGS_ROW_MENU_CLASS}` })}
+        onClick={onLogRowClick}
+        onBlur={handleBlur}
+      >
         {pinned && !mouseIsOver && (
           <IconButton
-            className={styles.unPinButton}
+            className={unPinButtonClassName}
             size="md"
             name="gf-pin"
             onClick={() => onUnpinLine && onUnpinLine(row)}
@@ -132,7 +136,7 @@ export const LogRowMenuCell = memo(
               />
             )}
             <ClipboardButton
-              className={styles.copyLogButton}
+              className={LOGS_COPY_BUTTON_CLASS}
               icon="copy"
               variant="secondary"
               fill="text"
@@ -144,7 +148,7 @@ export const LogRowMenuCell = memo(
             />
             {pinned && onUnpinLine && (
               <IconButton
-                className={styles.unPinButton}
+                className={unPinButtonClassName}
                 size="md"
                 name="gf-pin"
                 onClick={() => onUnpinLine && onUnpinLine(row)}
@@ -156,7 +160,7 @@ export const LogRowMenuCell = memo(
             )}
             {!pinned && onPinLine && (
               <IconButton
-                className={styles.unPinButton}
+                className={unPinButtonClassName}
                 size="md"
                 name="gf-pin"
                 onClick={() => onPinLine && onPinLine(row)}
@@ -206,3 +210,5 @@ function addClickListenersToNode(nodes: ReactNode[], row: LogRowModel) {
 }
 
 LogRowMenuCell.displayName = 'LogRowMenuCell';
+
+const unPinButtonClassName = stylex.props(logRowStyles.unPinButton).className;

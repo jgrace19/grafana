@@ -1,21 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { fromPairs, isEmpty, isEqual } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type DataFrameJSON, type GrafanaTheme2, type TimeRange, rangeUtil } from '@grafana/data';
+import { type DataFrameJSON, type TimeRange, rangeUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import {
-  Alert,
-  Icon,
-  LoadingPlaceholder,
-  RefreshPicker,
-  Stack,
-  Text,
-  TimeRangePicker,
-  Tooltip,
-  useStyles2,
-} from '@grafana/ui';
+import { Alert, Icon, LoadingPlaceholder, RefreshPicker, Stack, Text, TimeRangePicker, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useRunBacktestMutation } from '../../api/backtestApi';
 import { type RuleFormValues } from '../../types/rule-form';
@@ -33,7 +24,6 @@ interface BacktestPanelProps {
 }
 
 export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPanelProps) {
-  const styles = useStyles2(getStyles);
   const [timeRange, setTimeRange] = useState<TimeRange>(
     initialTimeRange || rangeUtil.convertRawToRange({ from: 'now-15m', to: 'now' })
   );
@@ -133,7 +123,7 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
           noIntervalPicker={true}
         />
       </Stack>
-      <div className={styles.scrollableContent}>
+      <div {...stylex.props(styles.scrollableContent)}>
         {isLoading && <LoadingPlaceholder text={t('alerting.backtest.loading', 'Running backtest...')} />}
 
         {errorMessage && (
@@ -151,7 +141,7 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
         )}
 
         {!isLoading && !mutationError && hasResults && (
-          <div className={styles.resultsContainer}>
+          <div {...stylex.props(styles.resultsContainer)}>
             {!isEmpty(commonLabels) && (
               <Stack gap={1} alignItems="center" wrap="wrap">
                 <Stack gap={0.5} alignItems="center" minWidth="fit-content">
@@ -182,19 +172,19 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
     </div>
   );
 }
-const getStyles = (theme: GrafanaTheme2) => ({
-  scrollableContent: css({
-    flex: 1,
+const styles = stylex.create({
+  scrollableContent: {
+    flex: '1',
     display: 'flex',
     flexDirection: 'column',
-    paddingTop: theme.spacing(2),
+    paddingTop: spacing['--gf-spacing-x2'],
     overflow: 'hidden',
-  }),
-  resultsContainer: css({
+  },
+  resultsContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2),
-    flex: 1,
+    gap: spacing['--gf-spacing-x2'],
+    flex: '1',
     overflow: 'hidden',
-  }),
+  },
 });

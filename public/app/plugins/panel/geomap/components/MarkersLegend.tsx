@@ -1,19 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type BaseLayer from 'ol/layer/Base';
 import { useMemo } from 'react';
 import { useObservable } from 'react-use';
 import { of } from 'rxjs';
 
-import {
-  getMinMaxAndDelta,
-  type DataFrame,
-  formattedValueToString,
-  getFieldColorModeForField,
-  type GrafanaTheme2,
-} from '@grafana/data';
+import { getMinMaxAndDelta, type DataFrame, formattedValueToString, getFieldColorModeForField } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2, type VizLegendItem } from '@grafana/ui';
+import { type VizLegendItem } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { ColorScale } from 'app/core/components/ColorScale/ColorScale';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 import { getThresholdItems } from 'app/core/components/TimelineChart/utils';
@@ -31,7 +27,6 @@ export interface MarkersLegendProps {
 
 export function MarkersLegend(props: MarkersLegendProps) {
   const { layerName, styleConfig, layer } = props;
-  const style = useStyles2(getStyles);
 
   const hoverEvent = useObservable(((layer as any)?.__state as MapLayerState)?.mouseEvents ?? of(undefined));
 
@@ -61,14 +56,13 @@ export function MarkersLegend(props: MarkersLegendProps) {
 
   if (color && symbol && !colorField) {
     return (
-      <div className={style.infoWrap}>
-        <div className={style.layerName}>{layerName}</div>
-        <div className={cx(style.layerBody, style.fixedColorContainer)}>
+      <div {...stylex.props(styles.infoWrap)}>
+        <div {...stylex.props(styles.layerName)}>{layerName}</div>
+        <div {...stylex.props(styles.layerBody, styles.fixedColorContainer)}>
           <SanitizedSVG
             src={`${window.__grafana_public_path__}build/${symbol}`}
-            className={style.legendSymbol}
             title={t('geomap.markers-legend.title-symbol', 'Symbol')}
-            style={{ fill: color, opacity: opacity }}
+            {...mergeStylexProps(stylex.props(styles.legendSymbol), { style: { fill: color, opacity: opacity } })}
           />
         </div>
       </div>
@@ -99,9 +93,9 @@ export function MarkersLegend(props: MarkersLegendProps) {
       ? (v: number) => formattedValueToString(colorField.display!(v))
       : (v: number) => `${v}`;
     return (
-      <div className={style.infoWrap}>
-        <div className={style.layerName}>{layerName}</div>
-        <div className={cx(style.layerBody, style.colorScaleWrapper)}>
+      <div {...stylex.props(styles.infoWrap)}>
+        <div {...stylex.props(styles.layerName)}>{layerName}</div>
+        <div {...stylex.props(styles.layerBody, styles.colorScaleWrapper)}>
           <ColorScale
             hoverValue={hoverValue}
             colorPalette={colors}
@@ -122,12 +116,12 @@ export function MarkersLegend(props: MarkersLegendProps) {
 
   const items = getThresholdItems(colorField!.config, config.theme2);
   return (
-    <div className={style.infoWrap}>
-      <div className={style.layerName}>{layerName}</div>
-      <div className={cx(style.layerBody, style.legend)}>
+    <div {...stylex.props(styles.infoWrap)}>
+      <div {...stylex.props(styles.layerName)}>{layerName}</div>
+      <div {...stylex.props(styles.layerBody, styles.legend)}>
         {items.map((item: VizLegendItem, idx: number) => (
-          <div key={`${idx}/${item.label}`} className={style.legendItem}>
-            <i style={{ background: item.color }}></i>
+          <div key={`${idx}/${item.label}`} {...stylex.props(styles.legendItem)}>
+            <i {...mergeStylexProps(stylex.props(styles.legendItemSwatch), { style: { background: item.color } })}></i>
             {item.label}
           </div>
         ))}
@@ -136,55 +130,59 @@ export function MarkersLegend(props: MarkersLegendProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoWrap: css({
+const styles = stylex.create({
+  infoWrap: {
     display: 'flex',
     flexDirection: 'column',
-    background: theme.colors.background.secondary,
-    // eslint-disable-next-line @grafana/no-border-radius-literal
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    // eslint-disable-next-line @grafana/stylex-no-border-radius-literal
     borderRadius: '1px',
-    padding: theme.spacing(1),
-    borderBottom: `2px solid ${theme.colors.border.strong}`,
+    padding: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-strong'],
     minWidth: '150px',
-  }),
-  layerName: css({
-    fontSize: theme.typography.body.fontSize,
-  }),
-  layerBody: css({
+  },
+  layerName: {
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
+  layerBody: {
     paddingLeft: '10px',
-  }),
-  legend: css({
+  },
+  legend: {
     lineHeight: '18px',
     display: 'flex',
     flexDirection: 'column',
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: '5px 10px 0',
-
-    i: {
-      width: '15px',
-      height: '15px',
-      float: 'left',
-      marginRight: '8px',
-      opacity: 0.7,
-      borderRadius: theme.shape.radius.circle,
-    },
-  }),
-  legendItem: css({
-    whiteSpace: 'nowrap',
-  }),
-  fixedColorContainer: css({
-    minWidth: '80px',
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: typography['--gf-typography-body-small-font-size'],
     paddingTop: '5px',
-  }),
-  legendSymbol: css({
+    paddingRight: '10px',
+    paddingBottom: 0,
+    paddingLeft: '10px',
+  },
+  legendItem: {
+    whiteSpace: 'nowrap',
+  },
+  legendItemSwatch: {
+    width: '15px',
+    height: '15px',
+    float: 'left',
+    marginRight: '8px',
+    opacity: 0.7,
+    borderRadius: shape['--gf-shape-radius-circle'],
+  },
+  fixedColorContainer: {
+    minWidth: '80px',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    paddingTop: '5px',
+  },
+  legendSymbol: {
     height: '18px',
     width: '18px',
     margin: 'auto',
-  }),
-  colorScaleWrapper: css({
+  },
+  colorScaleWrapper: {
     minWidth: '200px',
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: typography['--gf-typography-body-small-font-size'],
     paddingTop: '10px',
-  }),
+  },
 });
