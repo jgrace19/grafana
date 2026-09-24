@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
@@ -16,7 +18,6 @@ export function JSONPathEditor({ options, onChange }: Props) {
   const [paths, setPaths] = useState<JSONPath[]>(options);
 
   const tooltips = getTooltips();
-  const style = getStyle();
 
   const addJSONPath = () => {
     paths.push({ path: '' });
@@ -48,7 +49,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
   };
 
   return (
-    <ol className={cx(style.list)}>
+    <ol {...stylex.props(styles.list)}>
       {paths &&
         paths.map((path: JSONPath, key: number) => (
           <li key={key}>
@@ -72,7 +73,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
                   onChange={(event: React.SyntheticEvent<HTMLInputElement>) => onJSONPathChange(event, key, 'alias')}
                 />
               </InlineField>
-              <InlineField className={cx(style.removeIcon)}>
+              <InlineField className={removeIconClassName}>
                 <IconButton
                   onClick={() => removeJSONPath(key)}
                   name={'trash-alt'}
@@ -177,14 +178,14 @@ const getTooltips = () => {
   };
 };
 
-function getStyle() {
-  return {
-    list: css({
-      marginLeft: '20px',
-    }),
-    removeIcon: css({
-      margin: '0 0 0 4px',
-      alignItems: 'center',
-    }),
-  };
-}
+const styles = stylex.create({
+  list: {
+    marginLeft: '20px',
+  },
+});
+
+// stylex: pending InlineField migration: InlineField's own margin and alignItems would beat a StyleX className
+const removeIconClassName = css({
+  margin: '0 0 0 4px',
+  alignItems: 'center',
+});

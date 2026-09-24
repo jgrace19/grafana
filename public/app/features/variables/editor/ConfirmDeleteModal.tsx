@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
 import { css } from '@emotion/css';
 
 import { t } from '@grafana/i18n';
@@ -28,6 +29,7 @@ export function ConfirmDeleteModal({ varName, isOpen = false, onConfirm, onDismi
   );
 }
 
+// stylex: pending Modal migration: Modal's own width and maxWidth would beat a StyleX className
 const styles = {
   modal: css({
     width: 'max-content',

@@ -1,0 +1,5 @@
+/* Overrides IconButton's own StyleX margin and color, so it stays unlayered like the Emotion class it replaces. */
+.gf-organize-fields-toggle {
+  margin: 0 var(--gf-spacing-x1);
+  color: var(--gf-colors-text-secondary);
+}

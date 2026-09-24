@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the overrides below
+import { css } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo } from 'react';
 
 import {
   DataTransformerID,
-  type GrafanaTheme2,
   standardTransformers,
   type TransformerRegistryItem,
   type TransformerUIProps,
@@ -24,7 +25,6 @@ import {
   IconButton,
   Icon,
   FieldValidationMessage,
-  useStyles2,
   Stack,
   InlineLabel,
   Text,
@@ -33,11 +33,14 @@ import {
   InlineFieldRow,
   RadioButtonGroup,
 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { createFieldsOrdererAuto } from '../../../../../packages/grafana-data/src/transformations/transformers/order';
 import darkImage from '../images/dark/organize.svg';
 import lightImage from '../images/light/organize.svg';
 import { getAllFieldNamesFromDataFrames, getDistinctLabels, useAllFieldNamesFromDataFrames } from '../utils';
+
+import './OrganizeFieldsTransformerEditor.css';
 
 interface OrganizeFieldsTransformerEditorProps extends TransformerUIProps<OrganizeFieldsTransformerOptions> {}
 
@@ -242,8 +245,6 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
     [options, onChange, uiOrderByItems]
   );
 
-  const styles = useStyles2(getDraggableStyles);
-
   // Show warning that we only apply the first frame
   if (input.length > 1) {
     return (
@@ -258,7 +259,7 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
 
   return (
     <>
-      <InlineFieldRow className={styles.fieldOrderRadio}>
+      <InlineFieldRow className={stylex.props(styles.fieldOrderRadio).className}>
         <InlineField label={t('transformers.organize-fields-transformer-editor.field-order', 'Field order')}>
           <RadioButtonGroup
             options={[
@@ -282,7 +283,7 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
             {(provided) => {
               return (
                 <>
-                  <div ref={provided.innerRef} className={styles.labelsDraggable} {...provided.droppableProps}>
+                  <div ref={provided.innerRef} {...stylex.props(styles.labelsDraggable)} {...provided.droppableProps}>
                     {uiOrderByItems.map((item, idx) => (
                       <DraggableUIOrderByItem
                         item={item}
@@ -331,13 +332,14 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
   );
 };
 
-const getDraggableStyles = (theme: GrafanaTheme2) => ({
-  fieldOrderRadio: css({
-    marginBottom: theme.spacing(1),
-  }),
-  labelsDraggable: css({
-    marginBottom: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  fieldOrderRadio: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+
+  labelsDraggable: {
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
 });
 
 OrganizeFieldsTransformerEditor.displayName = 'OrganizeFieldsTransformerEditor';
@@ -361,13 +363,11 @@ const DraggableFieldName = ({
   onRenameField,
   isDragDisabled,
 }: DraggableFieldProps) => {
-  const styles = useStyles2(getFieldNameStyles);
-
   return (
     <Draggable draggableId={fieldName} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <Box display="flex" gap={0} marginBottom={0.5} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={styles.flexLabel}>
+          <InlineLabel as="div" className={flexLabelClassName}>
             <Stack gap={0} justifyContent="flex-start" alignItems="center" width="100%">
               {!isDragDisabled && (
                 <span {...provided.dragHandleProps}>
@@ -378,12 +378,12 @@ const DraggableFieldName = ({
                       'Drag and drop to reorder'
                     )}
                     size="lg"
-                    className={styles.draggable}
+                    xstyle={fieldNameStyles.draggable}
                   />
                 </span>
               )}
               <IconButton
-                className={styles.toggle}
+                className="gf-organize-fields-toggle"
                 size="md"
                 name={visible ? 'eye' : 'eye-slash'}
                 onClick={() => onToggleVisibility(fieldName, visible)}
@@ -399,7 +399,7 @@ const DraggableFieldName = ({
             </Stack>
           </InlineLabel>
           <Input
-            className={styles.flexInput}
+            className={flexInputClassName}
             defaultValue={renamedFieldName || ''}
             placeholder={t('transformers.draggable-field-name.rename-placeholder', 'Rename {{fieldName}}', {
               fieldName,
@@ -422,14 +422,13 @@ interface DraggableUIOrderByItemProps {
 }
 
 const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderByItemProps) => {
-  const styles = useStyles2(getFieldNameStyles);
   const draggableId = useId();
 
   return (
     <Draggable draggableId={draggableId} index={index} isDragDisabled={item.order === Order.Off}>
       {(provided) => (
         <Box marginBottom={0.5} display="flex" gap={0} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={styles.flexLabel}>
+          <InlineLabel as="div" className={flexLabelClassName}>
             <Stack gap={3} justifyContent="flex-start" alignItems="center" width="100%">
               <span {...provided.dragHandleProps}>
                 <Icon
@@ -439,7 +438,7 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
                     'Drag and drop to reorder'
                   )}
                   size="lg"
-                  className={cx(styles.draggable, { [styles.disabled]: item.order === Order.Off })}
+                  xstyle={[fieldNameStyles.draggable, item.order === Order.Off && fieldNameStyles.disabled]}
                 />
               </span>
               <Text truncate={true} element="p" variant="bodySmall" weight="bold">
@@ -466,30 +465,29 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
 
 DraggableUIOrderByItem.displayName = 'DraggableUIOrderByItem';
 
-const getFieldNameStyles = (theme: GrafanaTheme2) => ({
-  flexLabel: css({
-    flex: '1 1 0',
-    width: 'auto',
-    overflow: 'hidden',
-  }),
-  flexInput: css({
-    flex: '1 1 0',
-    width: 'auto',
-  }),
-  toggle: css({
-    margin: theme.spacing(0, 1),
-    color: theme.colors.text.secondary,
-  }),
-  draggable: css({
+// stylex: pending InlineLabel migration: InlineLabel's own width and flexShrink would beat a StyleX className
+const flexLabelClassName = css({
+  flex: '1 1 0',
+  width: 'auto',
+  overflow: 'hidden',
+});
+
+// stylex: pending Input migration: Input's own width would beat a StyleX className
+const flexInputClassName = css({
+  flex: '1 1 0',
+  width: 'auto',
+});
+
+const fieldNameStyles = stylex.create({
+  draggable: {
     opacity: 0.4,
-    '&:hover': {
-      color: theme.colors.text.maxContrast,
-    },
-  }),
-  disabled: css({
-    color: theme.colors.text.disabled,
+    color: { default: null, ':hover': colors['--gf-colors-text-max-contrast'] },
+  },
+  // Repeats draggable's :hover color, which this namespace would otherwise replace.
+  disabled: {
+    color: { default: colors['--gf-colors-text-disabled'], ':hover': colors['--gf-colors-text-max-contrast'] },
     pointerEvents: 'none',
-  }),
+  },
 });
 
 const reorderToIndex = (fieldNames: string[], startIndex: number, endIndex: number) => {

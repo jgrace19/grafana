@@ -1,9 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the overrides below
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Button, ButtonSelect, Icon, InlineFieldRow, Input, Select, useStyles2, Stack } from '@grafana/ui';
+import { Button, ButtonSelect, Icon, InlineFieldRow, Input, Select, Stack } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import alertDef, { EvalFunction } from '../../alerting/state/alertDef';
 import { type ClassicCondition, type ReducerType } from '../types';
@@ -24,8 +27,6 @@ const evalOperators = alertDef.evalOperators.map((eo) => ({ label: eo.text, valu
 const evalFunctions = alertDef.evalFunctions.map((ef) => ({ label: ef.text, value: ef.value }));
 
 export const Condition = ({ condition, index, onChange, onRemoveCondition, refIds }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const onEvalOperatorChange = (evalOperator: SelectableValue<string>) => {
     onChange({
       ...condition,
@@ -65,10 +66,6 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
     });
   };
 
-  const buttonWidth = css({
-    width: '75px',
-  });
-
   const isRange =
     condition.evaluator.type === EvalFunction.IsWithinRange ||
     condition.evaluator.type === EvalFunction.IsOutsideRange ||
@@ -80,12 +77,12 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
       <div style={{ flex: 1 }}>
         <InlineFieldRow>
           {index === 0 ? (
-            <div className={cx(styles.button, buttonWidth)}>
+            <div {...stylex.props(styles.button, styles.buttonWidth)}>
               <Trans i18nKey="expressions.condition.when">WHEN</Trans>
             </div>
           ) : (
             <ButtonSelect
-              className={cx(styles.buttonSelectText, buttonWidth)}
+              className={cx(buttonSelectTextClassName, buttonWidthClassName)}
               options={evalOperators}
               onChange={onEvalOperatorChange}
               value={evalOperators.find((ea) => ea.value === condition.operator!.type)}
@@ -97,7 +94,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
             width={20}
             value={reducerFunctions.find((rf) => rf.value === condition.reducer?.type)}
           />
-          <div className={styles.button}>
+          <div {...stylex.props(styles.button)}>
             <Trans i18nKey="expressions.condition.of">OF</Trans>
           </div>
           <Select
@@ -109,7 +106,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
         </InlineFieldRow>
         <InlineFieldRow>
           <ButtonSelect
-            className={styles.buttonSelectText}
+            className={buttonSelectTextClassName}
             options={evalFunctions}
             onChange={onEvalFunctionChange}
             value={evalFunctions.find((ef) => ef.value === condition.evaluator.type)}
@@ -122,7 +119,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
                 onChange={(event) => onEvaluateValueChange(event, 0)}
                 value={condition.evaluator.params[0]}
               />
-              <div className={styles.button}>
+              <div {...stylex.props(styles.button)}>
                 <Trans i18nKey="expressions.condition.to">TO</Trans>
               </div>
               <Input
@@ -149,25 +146,36 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const buttonStyle = css({
-    color: theme.colors.primary.text,
-    fontSize: theme.typography.bodySmall.fontSize,
-  });
-  return {
-    buttonSelectText: buttonStyle,
-    button: cx(
-      css({
-        display: 'flex',
-        alignItems: 'center',
-        borderRadius: theme.shape.radius.default,
-        fontWeight: theme.typography.fontWeightMedium,
-        border: `1px solid ${theme.colors.border.weak}`,
-        whiteSpace: 'nowrap',
-        padding: `0 ${theme.spacing(1)}`,
-        backgroundColor: theme.colors.background.canvas,
-      }),
-      buttonStyle
-    ),
-  };
-};
+// stylex: pending ToolbarButton migration: ButtonSelect's own color and font size would beat a StyleX className
+const buttonSelectTextClassName = css({
+  color: colors['--gf-colors-primary-text'],
+  fontSize: typography['--gf-typography-body-small-font-size'],
+});
+
+// stylex: pending ToolbarButton migration
+const buttonWidthClassName = css({
+  width: '75px',
+});
+
+const styles = stylex.create({
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    borderRadius: shape['--gf-shape-radius-default'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    whiteSpace: 'nowrap',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    color: colors['--gf-colors-primary-text'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  buttonWidth: {
+    width: '75px',
+  },
+});

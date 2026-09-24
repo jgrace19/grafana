@@ -1,18 +1,20 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
+import { css } from '@emotion/css';
 import { useId } from '@react-aria/utils';
 import { useCallback, useState } from 'react';
 import * as React from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { TextArea, useStyles2 } from '@grafana/ui';
+import { TextArea } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { getStyles } from '../../dashboard-scene/settings/variables/components/VariableTextAreaField';
 import { type VariableQueryEditorProps } from '../types';
 
 export const LEGACY_VARIABLE_QUERY_EDITOR_NAME = 'Grafana-LegacyVariableQueryEditor';
 
 export const LegacyVariableQueryEditor = ({ onChange, query }: VariableQueryEditorProps) => {
-  const styles = useStyles2(getStyles);
   const [value, setValue] = useState(query);
 
   const onValueChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
@@ -42,9 +44,23 @@ export const LegacyVariableQueryEditor = ({ onChange, query }: VariableQueryEdit
       required
       data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsQueryInput}
       cols={52}
-      className={styles.textarea}
+      className={textareaClassName}
     />
   );
 };
 
 LegacyVariableQueryEditor.displayName = LEGACY_VARIABLE_QUERY_EDITOR_NAME;
+
+// stylex: pending TextArea migration: TextArea's own padding and width would beat a StyleX className
+const textareaClassName = css({
+  whiteSpace: 'pre-wrap',
+  minHeight: spacing['--gf-spacing-x4'],
+  height: 'auto',
+  overflow: 'auto',
+  padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.75) ${spacing['--gf-spacing-x1']}`,
+  width: 'inherit',
+
+  [bp.smDown]: {
+    width: '100%',
+  },
+});

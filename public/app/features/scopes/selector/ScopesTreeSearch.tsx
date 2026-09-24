@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FilterInput, useStyles2 } from '@grafana/ui';
+import { FilterInput } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type TreeNode } from './types';
 import { useScopeActions } from './useScopeActions';
@@ -29,7 +29,6 @@ export function ScopesTreeSearch({
   'aria-activedescendant': ariaActivedescendant,
 }: ScopesTreeSearchProps) {
   const { filterNode } = useScopeActions();
-  const styles = useStyles2(getStyles);
 
   const [inputState, setInputState] = useState<{ value: string; dirty: boolean }>({
     value: treeNode.query,
@@ -72,7 +71,7 @@ export function ScopesTreeSearch({
       aria-activedescendant={ariaActivedescendant}
       aria-label={searchLabel}
       value={inputState.value}
-      className={styles.input}
+      className={stylex.props(styles.input).className}
       data-testid="scopes-tree-search"
       escapeRegex={false}
       onChange={(value) => {
@@ -89,14 +88,15 @@ export function ScopesTreeSearch({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    input: css({
-      margin: theme.spacing(1, 0),
-      minHeight: theme.spacing(4),
-      height: theme.spacing(4),
-      maxHeight: theme.spacing(4),
-      width: `calc(100% - ${theme.spacing(0.5)})`,
-    }),
-  };
-};
+const styles = stylex.create({
+  input: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x0'],
+    minHeight: spacing['--gf-spacing-x4'],
+    height: spacing['--gf-spacing-x4'],
+    maxHeight: spacing['--gf-spacing-x4'],
+    width: `calc(100% - ${spacing['--gf-spacing-x0-5']})`,
+  },
+});
