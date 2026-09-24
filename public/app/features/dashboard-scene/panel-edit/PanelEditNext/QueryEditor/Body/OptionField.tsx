@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type FocusEvent, type ReactNode } from 'react';
 
@@ -7,6 +6,8 @@ import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { QUERY_OPTION_FIELD_CONFIG } from '../../constants';
 import { type QueryOptionField } from '../types';
+
+import './OptionField.css';
 
 export interface OptionFieldProps {
   field: QueryOptionField;
@@ -50,7 +51,7 @@ export function OptionField({
             autoFocus={!disabled && focusedField === field}
             disabled={disabled}
             aria-label={label}
-            className={inputOverrides.fieldInput}
+            className="gf-query-option-field-input"
           />
         )}
         {hint && <span {...stylex.props(styles.hint)}>{`= ${hint}`}</span>}
@@ -58,15 +59,6 @@ export function OptionField({
     </div>
   );
 }
-
-// stylex: pending Input migration. Overrides the Input wrapper's own width, which is unlayered Emotion and would
-// beat a StyleX class. Input merges it with Emotion's cx. 80px is CONTENT_SIDE_BAR.labelWidth in ../../constants.ts.
-const inputOverrides = {
-  fieldInput: css({
-    width: 80,
-    flexShrink: 0,
-  }),
-};
 
 const styles = stylex.create({
   field: {

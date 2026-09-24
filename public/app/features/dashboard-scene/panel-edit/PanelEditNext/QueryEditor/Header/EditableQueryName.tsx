@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
@@ -134,7 +133,7 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
           data-testid="query-name-input"
         />
         {validationError && (
-          <FieldValidationMessage className={validationMessageOverrides.validationMessage}>
+          <FieldValidationMessage className="gf-editable-query-name-validation">
             {validationError}
           </FieldValidationMessage>
         )}
@@ -163,21 +162,6 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
 function isSidebarCardElement(target: EventTarget | null) {
   return target instanceof HTMLElement && target.closest('[data-query-sidebar-card]') !== null;
 }
-
-// stylex: pending FieldValidationMessage migration. Overrides the message's own position and margin, which are
-// unlayered Emotion and would beat a StyleX class. FieldValidationMessage merges it with Emotion's cx.
-const validationMessageOverrides = {
-  validationMessage: css({
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    marginTop: 'var(--gf-spacing-x0-5)',
-    whiteSpace: 'normal',
-    maxWidth: 'min(360px, 40vw)',
-    // theme.zIndex.tooltip
-    zIndex: 1040,
-  }),
-};
 
 const styles = stylex.create({
   // On hover and focus-visible together, the focus-visible border wins, as the later Emotion rule did.

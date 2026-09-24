@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ChangeEvent, useMemo, useState } from 'react';
 
@@ -14,6 +13,8 @@ import { trackTransformationFilterChanged, trackTransformationSearch } from '../
 import { useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
 
 import { useTransformationSearchAndFilter } from './useTransformationSearchAndFilter';
+
+import './TransformationTypePicker.css';
 
 export function TransformationTypePicker() {
   const { finalizePendingTransformation } = useQueryEditorUIContext();
@@ -56,7 +57,7 @@ export function TransformationTypePicker() {
         <Input
           autoFocus
           data-testid={selectors.components.Transforms.searchInput}
-          className={inputOverrides.searchInput}
+          className="gf-transformation-picker-search"
           value={search}
           placeholder={t(
             'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -122,15 +123,6 @@ export function TransformationTypePicker() {
     </Stack>
   );
 }
-
-// stylex: pending Input migration. Overrides the Input wrapper's own width, which is unlayered Emotion and would
-// beat a StyleX class. Input merges it with Emotion's cx.
-const inputOverrides = {
-  searchInput: css({
-    flexGrow: 1,
-    width: 'initial',
-  }),
-};
 
 const styles = stylex.create({
   searchWrapper: {

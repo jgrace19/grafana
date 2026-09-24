@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { CollapsableSection, Stack, Text } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './SidebarCollapsableHeader.css';
 
 interface SidebarCollapsableHeaderProps {
   label: string;
@@ -44,19 +45,11 @@ export const SidebarCollapsableHeader = ({
       isOpen={isOpen}
       onToggle={onToggle}
       className={stylex.props(styles.collapsableSection).className}
-      contentClassName={collapsableSectionOverrides.contentArea}
+      contentClassName="gf-sidebar-collapsable-content"
     >
       <div {...stylex.props(styles.queryStackCardsContainer)}>{children}</div>
     </CollapsableSection>
   );
-};
-
-// stylex: pending CollapsableSection migration. Overrides the section content's own padding, which is unlayered
-// Emotion and would beat a StyleX class. CollapsableSection merges it with Emotion's cx.
-const collapsableSectionOverrides = {
-  contentArea: css({
-    padding: 0,
-  }),
 };
 
 const styles = stylex.create({

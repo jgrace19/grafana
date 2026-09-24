@@ -10,6 +10,8 @@ import { useQueryEditorUIContext } from '../QueryEditorContext';
 
 import { QueryEditorDetailsSidebar } from './QueryEditorDetailsSidebar';
 
+import './QueryEditorBody.global.css';
+
 export function QueryEditorBody() {
   const { queryOptions } = useQueryEditorUIContext();
   const { isQueryOptionsOpen } = queryOptions;
@@ -34,8 +36,7 @@ export function QueryEditorBody() {
   );
 }
 
-// CSSTransition adds `<prefix>-enter` and `<prefix>-enter-active` (then `-exit`, `-exit-active`) together, so
-// `styles.sidebar` keys its transform on mutually exclusive selectors for those classes.
+// Phase classes are styled in QueryEditorBody.global.css.
 const sidebarTransitionClass = 'gf-query-editor-details-sidebar';
 
 // CONTENT_SIDE_BAR.sidebarTransitionMs in ../../constants.ts
@@ -76,36 +77,5 @@ const styles = stylex.create({
     // CONTENT_SIDE_BAR.width in ../../constants.ts
     width: 500,
     zIndex: zIndex.sidemenu,
-    transform: {
-      default: null,
-      ':is(.gf-query-editor-details-sidebar-enter:not(.gf-query-editor-details-sidebar-enter-active))':
-        'translateX(-100%)',
-      ':is(.gf-query-editor-details-sidebar-enter-active)': 'translateX(0)',
-      ':is(.gf-query-editor-details-sidebar-exit:not(.gf-query-editor-details-sidebar-exit-active))': 'translateX(0)',
-      ':is(.gf-query-editor-details-sidebar-exit-active)': 'translateX(-100%)',
-    },
-    transitionProperty: {
-      default: null,
-      [motion.noPreference]: {
-        default: null,
-        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)': 'transform',
-      },
-    },
-    transitionDuration: {
-      default: null,
-      [motion.noPreference]: {
-        default: null,
-        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)':
-          sidebarTransitionDuration,
-      },
-    },
-    transitionTimingFunction: {
-      default: null,
-      [motion.noPreference]: {
-        default: null,
-        ':is(.gf-query-editor-details-sidebar-enter-active, .gf-query-editor-details-sidebar-exit-active)':
-          easings.easeInOut,
-      },
-    },
   },
 });

@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragStyles, useTheme2 } from '@grafana/ui';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../../edit-pane/shared';
@@ -14,14 +13,15 @@ import { useScrollReflowLimit } from '../useScrollReflowLimit';
 
 import { QUERY_EDITOR_BANNER_DISMISSED_KEY, QUERY_EDITOR_SIDEBAR_SIZE_KEY, SidebarSize } from './constants';
 
+import './hooks.css';
+
 const CONTROLS_ROW_HEIGHT = 'auto';
 const MIN_SIDEBAR_RATIO = 0.1;
 const MAX_SIDEBAR_RATIO = 0.5;
 const MIN_SIDEBAR_PIXELS = 220;
-// stylex: pending DragHandle migration. getDragStyles returns Emotion classes whose click-target size these override;
-// cx merges them after the drag handle class.
-const vizResizerClassName = css({ height: 2, width: '100%' });
-const sidebarResizerClassName = css({ height: '100%', width: 2 });
+// Override the getDragStyles click-target size, see hooks.css.
+const vizResizerClassName = 'gf-panel-editor-viz-resizer';
+const sidebarResizerClassName = 'gf-panel-editor-sidebar-resizer';
 // Pre-mount placeholder — useLayoutEffect replaces this with the responsive default before the first paint.
 const FALLBACK_SIDEBAR_RATIO = 0.25;
 
@@ -50,7 +50,8 @@ export function useRatioResize({
   className,
 }: UseRatioResizeOptions) {
   const [ratio, setRatio] = useState(initialRatio);
-  const styles = useStyles2(getDragStyles, 'middle');
+  const theme = useTheme2();
+  const styles = useMemo(() => getDragStyles(theme, 'middle'), [theme]);
 
   const ratioRef = useRef(ratio);
   const minRatioRef = useRef(minRatio);
@@ -121,7 +122,7 @@ export function useRatioResize({
   // dragHandleHorizontal = a horizontal bar the user drags vertically (row-resize cursor)
   const dragClass = direction === 'horizontal' ? styles.dragHandleVertical : styles.dragHandleHorizontal;
 
-  return { handleRef, ratio, setRatio, className: cx(dragClass, className) };
+  return { handleRef, ratio, setRatio, className: className ? `${dragClass} ${className}` : dragClass };
 }
 
 export function useQueryEditorBanner() {
