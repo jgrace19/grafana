@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
@@ -8,6 +6,8 @@ import { Trans, t } from '@grafana/i18n';
 import { Button, InlineField, InlineFieldRow, IconButton, Input } from '@grafana/ui';
 
 import { type JSONPath } from '../types';
+
+import './JSONPathEditor.css';
 
 interface Props {
   options: JSONPath[];
@@ -73,7 +73,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
                   onChange={(event: React.SyntheticEvent<HTMLInputElement>) => onJSONPathChange(event, key, 'alias')}
                 />
               </InlineField>
-              <InlineField className={removeIconClassName}>
+              <InlineField className="gf-jsonpath-remove">
                 <IconButton
                   onClick={() => removeJSONPath(key)}
                   name={'trash-alt'}
@@ -182,10 +182,4 @@ const styles = stylex.create({
   list: {
     marginLeft: '20px',
   },
-});
-
-// stylex: pending InlineField migration: InlineField's own margin and alignItems would beat a StyleX className
-const removeIconClassName = css({
-  margin: '0 0 0 4px',
-  alignItems: 'center',
 });

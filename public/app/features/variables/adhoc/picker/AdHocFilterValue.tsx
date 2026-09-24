@@ -1,11 +1,10 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
-import { css } from '@emotion/css';
-
 import { type AdHocVariableFilter, type DataSourceRef, type SelectableValue } from '@grafana/data';
 import { SegmentAsync } from '@grafana/ui';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 
 import { getDatasourceSrv } from '../../../plugins/datasource_srv';
+
+import './AdHocFilterValue.css';
 
 interface Props {
   datasource: DataSourceRef;
@@ -31,7 +30,7 @@ export const AdHocFilterValue = ({
   return (
     <div className="gf-form" data-testid="AdHocFilterValue-value-wrapper">
       <SegmentAsync
-        className={segmentClassName}
+        className="gf-adhoc-filter-value"
         disabled={disabled}
         placeholder={placeHolder}
         value={filterValue}
@@ -60,12 +59,3 @@ const fetchFilterValues = async (
   const metrics = Array.isArray(response) ? response : response.data;
   return metrics.map((m) => ({ label: m.text, value: m.text }));
 };
-
-// stylex: pending InlineLabel migration: SegmentAsync's InlineLabel sets its own display and width
-const segmentClassName = css({
-  display: 'block',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  maxWidth: '500px',
-});

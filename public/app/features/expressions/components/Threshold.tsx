@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
-import { css } from '@emotion/css';
 import { type AnyAction } from '@reduxjs/toolkit';
 import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
@@ -25,6 +23,8 @@ import {
   updateThresholdType,
   updateUnloadParams,
 } from './thresholdReducer';
+
+import './Threshold.css';
 
 interface Props {
   labelWidth: number | 'auto';
@@ -224,7 +224,11 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
               >
                 <Stack direction="row" gap={0}>
                   <div {...stylex.props(styles.range)}>
-                    <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom} className={noMarginClassName}>
+                    <InlineField
+                      invalid={Boolean(errorMsgFrom)}
+                      error={errorMsgFrom}
+                      className="gf-threshold-range-field"
+                    >
                       <Input
                         type="number"
                         width={10}
@@ -508,11 +512,6 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
     }
   }
 }
-
-// stylex: pending InlineField migration: InlineField's own margin would beat a StyleX className
-const noMarginClassName = css({
-  margin: 0,
-});
 
 const styles = stylex.create({
   range: {

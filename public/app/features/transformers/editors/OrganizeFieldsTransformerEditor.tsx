@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the overrides below
-import { css } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo } from 'react';
@@ -367,7 +365,7 @@ const DraggableFieldName = ({
     <Draggable draggableId={fieldName} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <Box display="flex" gap={0} marginBottom={0.5} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={flexLabelClassName}>
+          <InlineLabel as="div" className="gf-organize-fields-label">
             <Stack gap={0} justifyContent="flex-start" alignItems="center" width="100%">
               {!isDragDisabled && (
                 <span {...provided.dragHandleProps}>
@@ -399,7 +397,7 @@ const DraggableFieldName = ({
             </Stack>
           </InlineLabel>
           <Input
-            className={flexInputClassName}
+            className="gf-organize-fields-input"
             defaultValue={renamedFieldName || ''}
             placeholder={t('transformers.draggable-field-name.rename-placeholder', 'Rename {{fieldName}}', {
               fieldName,
@@ -428,7 +426,7 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
     <Draggable draggableId={draggableId} index={index} isDragDisabled={item.order === Order.Off}>
       {(provided) => (
         <Box marginBottom={0.5} display="flex" gap={0} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={flexLabelClassName}>
+          <InlineLabel as="div" className="gf-organize-fields-label">
             <Stack gap={3} justifyContent="flex-start" alignItems="center" width="100%">
               <span {...provided.dragHandleProps}>
                 <Icon
@@ -464,19 +462,6 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
 };
 
 DraggableUIOrderByItem.displayName = 'DraggableUIOrderByItem';
-
-// stylex: pending InlineLabel migration: InlineLabel's own width and flexShrink would beat a StyleX className
-const flexLabelClassName = css({
-  flex: '1 1 0',
-  width: 'auto',
-  overflow: 'hidden',
-});
-
-// stylex: pending Input migration: Input's own width would beat a StyleX className
-const flexInputClassName = css({
-  flex: '1 1 0',
-  width: 'auto',
-});
 
 const fieldNameStyles = stylex.create({
   draggable: {

@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the overrides below
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type FormEvent } from 'react';
 
@@ -10,6 +8,8 @@ import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.st
 
 import alertDef, { EvalFunction } from '../../alerting/state/alertDef';
 import { type ClassicCondition, type ReducerType } from '../types';
+
+import './Condition.css';
 
 interface Props {
   condition: ClassicCondition;
@@ -82,7 +82,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
             </div>
           ) : (
             <ButtonSelect
-              className={cx(buttonSelectTextClassName, buttonWidthClassName)}
+              className="gf-condition-select gf-condition-select-operator"
               options={evalOperators}
               onChange={onEvalOperatorChange}
               value={evalOperators.find((ea) => ea.value === condition.operator!.type)}
@@ -106,7 +106,7 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
         </InlineFieldRow>
         <InlineFieldRow>
           <ButtonSelect
-            className={buttonSelectTextClassName}
+            className="gf-condition-select"
             options={evalFunctions}
             onChange={onEvalFunctionChange}
             value={evalFunctions.find((ef) => ef.value === condition.evaluator.type)}
@@ -145,17 +145,6 @@ export const Condition = ({ condition, index, onChange, onRemoveCondition, refId
     </Stack>
   );
 };
-
-// stylex: pending ToolbarButton migration: ButtonSelect's own color and font size would beat a StyleX className
-const buttonSelectTextClassName = css({
-  color: colors['--gf-colors-primary-text'],
-  fontSize: typography['--gf-typography-body-small-font-size'],
-});
-
-// stylex: pending ToolbarButton migration
-const buttonWidthClassName = css({
-  width: '75px',
-});
 
 const styles = stylex.create({
   button: {
