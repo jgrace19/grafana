@@ -68,8 +68,6 @@ public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button backgro
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
 
 public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
-public/app/features/alerting/unified/components/notification-policies/EditDefaultPolicyForm.tsx # stylex: pending Collapse migration: keeps Emotion className overrides that must beat Collapse's own Emotion styles
-public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/AlertManagerRouting.tsx # stylex: pending CollapsableSection migration: keeps Emotion className overrides that must beat CollapsableSection's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/route-settings/RouteSettings.tsx # stylex: pending InlineField and Field migration: keeps Emotion className overrides that must beat InlineField and Field's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/AnnotationsStep.tsx # stylex: pending Field, Input and TextArea migration: keeps Emotion className overrides that must beat Field, Input and TextArea's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
@@ -92,7 +90,6 @@ public/app/features/datasources/components/picker/DataSourceModal.tsx # pending 
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures
 # M1 library-panels, inspector, panel, query
 public/app/features/library-panels/styles.ts # pending Modal migration (U4): library panel modal width override must beat Modal's Emotion width
-public/app/features/alerting/unified/components/import-to-gma/CollapsibleRenameList.tsx # stylex: pending CollapsableSection migration: keeps Emotion className overrides that must beat CollapsableSection's own Emotion styles
 public/app/features/alerting/unified/components/import-to-gma/ConfirmConvertModal.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/import-to-gma/ImportToGMA.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/import-to-gma/Wizard/WizardStep.tsx # stylex: pending FieldSet migration: keeps Emotion className overrides that must beat FieldSet's own Emotion styles

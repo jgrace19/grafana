@@ -1,9 +1,7 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending CollapsableSection migration
-import { css } from '@emotion/css';
 
 import { t } from '@grafana/i18n';
 import { CollapsableSection, Icon, Stack, Text } from '@grafana/ui';
-import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+import './CollapsibleRenameList.css';
 
 interface RenameEntry {
   originalName: string;
@@ -33,8 +31,8 @@ function CollapsibleRenameList({ label, items }: CollapsibleRenameListProps) {
         </Text>
       }
       isOpen={false}
-      className={pendingEmotionStyles.header}
-      contentClassName={pendingEmotionStyles.content}
+      className="gf-alerting-rename-list"
+      contentClassName="gf-alerting-rename-list-content"
     >
       <Stack direction="column" gap={0.5}>
         {items.map(({ originalName, newName }) => (
@@ -83,13 +81,3 @@ export function RenamedResourcesList({ renamedReceivers, renamedTimeIntervals }:
   );
 }
 
-// stylex: pending CollapsableSection migration
-const pendingEmotionStyles = {
-  header: css({
-    fontSize: typography['--gf-typography-body-small-font-size'],
-    padding: 0,
-  }),
-  content: css({
-    padding: `0 0 0 ${spacing['--gf-spacing-x2-5']}`,
-  }),
-};
