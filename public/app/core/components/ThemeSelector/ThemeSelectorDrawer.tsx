@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type ThemeRegistryItem } from '@grafana/data';
+import { type ThemeRegistryItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Drawer, TextLink, useStyles2, useTheme2 } from '@grafana/ui';
+import { Drawer, TextLink, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { changeTheme } from 'app/core/services/theme';
 
 import { ThemeCard } from './ThemeCard';
@@ -14,7 +15,6 @@ interface Props {
 }
 
 export function ThemeSelectorDrawer({ onClose }: Props) {
-  const styles = useStyles2(getStyles);
   const themes = getSelectableThemes();
   const currentTheme = useTheme2();
 
@@ -46,7 +46,7 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
       size="md"
       subtitle={config.feedbackLinksEnabled ? subTitle : undefined}
     >
-      <div className={styles.grid} role="radiogroup">
+      <div {...stylex.props(styles.grid)} role="radiogroup">
         {themes.map((themeOption) => (
           <ThemeCard
             themeOption={themeOption}
@@ -61,13 +61,11 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    grid: css({
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gridAutoRows: `250px`,
-      gap: theme.spacing(2),
-    }),
-  };
-};
+const styles = stylex.create({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gridAutoRows: '250px',
+    gap: spacing['--gf-spacing-x2'],
+  },
+});

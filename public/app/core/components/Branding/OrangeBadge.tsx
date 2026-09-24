@@ -1,42 +1,40 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './OrangeBadge.css';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   text?: string;
   className?: string;
 }
 
-export function OrangeBadge({ text, className, ...htmlProps }: Props) {
-  const styles = useStyles2(getStyles, text);
+export function OrangeBadge({ text, className, style, ...htmlProps }: Props) {
   return (
-    <div className={cx(styles.wrapper, className)} {...htmlProps}>
-      <Icon name="cloud" size="sm" />
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className, style })} {...htmlProps}>
+      <Icon name="cloud" size="sm" className={text === undefined ? 'gf-orange-badge-icon-only' : undefined} />
       {text}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, text: string | undefined) => {
-  return {
-    wrapper: css({
-      display: 'inline-flex',
-      padding: theme.spacing(0.5, 1),
-      borderRadius: theme.shape.radius.pill,
-      background: theme.colors.gradients.brandHorizontal,
-      color: theme.colors.primary.contrastText,
-      fontWeight: theme.typography.fontWeightMedium,
-      gap: theme.spacing(0.5),
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      alignItems: 'center',
-      ...(text === undefined && {
-        svg: {
-          marginRight: 0,
-        },
-      }),
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    display: 'inline-flex',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-pill'],
+    backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+    color: colors['--gf-colors-primary-contrast-text'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    gap: spacing['--gf-spacing-x0-5'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    alignItems: 'center',
+  },
+});

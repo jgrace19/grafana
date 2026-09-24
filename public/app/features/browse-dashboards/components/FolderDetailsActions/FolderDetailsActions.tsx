@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
 import { skipToken } from '@reduxjs/toolkit/query';
+import * as stylex from '@stylexjs/stylex';
 
 import { type OwnerReference as OwnerReferenceType } from '@grafana/api-clients/rtkq/folder/v1beta1';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { LinkButton, Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedFolder, useGetFolderQueryFacade } from 'app/api/clients/folder/v1beta1/hooks';
 import { OwnerReference } from 'app/core/components/OwnerReferences/OwnerReference';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -60,7 +60,6 @@ export const FolderDetailsActions = ({ folderDTO }: { folderDTO?: CombinedFolder
 };
 
 const FolderOwners = ({ ownerReferences }: { ownerReferences?: OwnerReferenceType[] }) => {
-  const styles = useStyles2(getStyles);
   const teamOwnerReferences = ownerReferences?.filter((ref) => ref.kind === 'Team');
   const teamUid = teamOwnerReferences?.at(0)?.uid;
   const { data: team, isLoading: isLoadingTeam } = useGetTeamByUidQuery(teamUid ? { name: teamUid } : skipToken);
@@ -70,7 +69,7 @@ const FolderOwners = ({ ownerReferences }: { ownerReferences?: OwnerReferenceTyp
   }
 
   return (
-    <div className={styles.folderOwnersContainer}>
+    <div {...stylex.props(styles.folderOwnersContainer)}>
       <Text>
         <Trans i18nKey="browse-dashboards.folder-owners.owned-by">Owned by:</Trans>
       </Text>
@@ -79,15 +78,20 @@ const FolderOwners = ({ ownerReferences }: { ownerReferences?: OwnerReferenceTyp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  folderOwnersContainer: css({
+const styles = stylex.create({
+  folderOwnersContainer: {
     display: 'flex',
     flexDirection: 'row',
-    height: theme.spacing(4),
-    lineHeight: theme.spacing(4),
-    padding: `0 ${theme.spacing(2)}`,
-    gap: theme.spacing(1),
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.strong}`,
-  }),
+    height: spacing['--gf-spacing-x4'],
+    lineHeight: spacing['--gf-spacing-x4'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+    gap: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-strong'],
+  },
 });

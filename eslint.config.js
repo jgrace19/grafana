@@ -160,8 +160,23 @@ const stylexMigratedAppFiles = [
   // A1 alerting components
   'public/app/features/alerting/unified/components/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // M2b browse/manage dashboards, search, command palette, playlist, bookmarks, annotations
+  'public/app/features/{annotations,bookmarks,commandPalette,playlist}/**/*.{ts,tsx}',
+  'public/app/features/browse-dashboards/{BrowseDashboardsPage,RecentlyDeletedPage}.tsx',
+  'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell,TagsCell}.tsx',
+  'public/app/features/browse-dashboards/components/FolderDetailsActions/FolderDetailsActions.tsx',
+  'public/app/features/manage-dashboards/components/SnapshotListTableRow.tsx',
+  'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
+  'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
+  'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable,columns}.tsx',
   // D2 dashboard-scene settings
   'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
+  // C1 core: forms, login, folder picker, preferences, theme selector
+  'public/app/core/components/{AccessControl,ForgottenPassword,Form,RolePickerDrawer,SharedPreferences,Theme,ThemeSelector}/*.{ts,tsx}',
+  'public/app/core/components/Branding/{Branding,OrangeBadge}.tsx',
+  'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
+  'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
+  'public/app/core/components/Upgrade/ProBadge.tsx',
 ];
 
 const stylexRestrictedImports = {

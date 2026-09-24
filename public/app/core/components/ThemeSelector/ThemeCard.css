@@ -1,0 +1,7 @@
+/*
+ * RadioButtonDot renders its own label and doesn't set a pointer cursor. Deliberately not in a cascade layer: like
+ * the Emotion rule it replaces, it must win over the label's own styles.
+ */
+.gf-theme-card-header > label {
+  cursor: pointer;
+}
