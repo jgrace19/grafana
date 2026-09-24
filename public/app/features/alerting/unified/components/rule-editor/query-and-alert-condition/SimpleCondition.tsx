@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { produce } from 'immer';
 import { type Dispatch, type FormEvent } from 'react';
 import { type UnknownAction } from 'redux';
 
-import { type GrafanaTheme2, type PanelData, ReducerID, type SelectableValue } from '@grafana/data';
+import { type PanelData, ReducerID, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { InlineField, InlineFieldRow, Input, Select, Stack, Text, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Input, Select, Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { ThresholdSelect } from 'app/features/expressions/components/ThresholdSelect';
 import {
@@ -80,17 +81,15 @@ export const SimpleConditionEditor = ({
     updateThresholdValue(numericValue, index, expressionQueriesList, dispatch);
   };
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.condition.wrapper}>
+    <div {...stylex.props(styles.conditionWrapper)}>
       <Stack direction="column" gap={0} width="100%">
-        <header className={styles.condition.header}>
+        <header {...stylex.props(styles.conditionHeader)}>
           <Text variant="body">
             <Trans i18nKey="alerting.simpleCondition.alertCondition">Alert condition</Trans>
           </Text>
         </header>
-        <InlineFieldRow className={styles.condition.container}>
+        <InlineFieldRow className={stylex.props(styles.conditionContainer).className}>
           {simpleCondition.whenField && (
             <InlineField label={t('alerting.simple-condition-editor.label-when', 'WHEN')}>
               <Select
@@ -232,33 +231,32 @@ export function getSimpleConditionFromExpressions(expressions: Array<AlertQuery<
   };
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonSelectText: css({
-    color: theme.colors.primary.text,
-    fontSize: theme.typography.bodySmall.fontSize,
-    textTransform: 'uppercase',
-    padding: `0 ${theme.spacing(1)}`,
-  }),
-  condition: {
-    wrapper: css({
-      display: 'flex',
-      border: `solid 1px ${theme.colors.border.medium}`,
-      flex: 1,
-      height: 'fit-content',
-      borderRadius: theme.shape.radius.default,
-    }),
-    container: css({
-      display: 'flex',
-      flexDirection: 'row',
-      padding: theme.spacing(1),
-      flex: 1,
-      width: '100%',
-    }),
-    header: css({
-      background: theme.colors.background.secondary,
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-      borderBottom: `solid 1px ${theme.colors.border.weak}`,
-      flex: 1,
-    }),
+const styles = stylex.create({
+  conditionWrapper: {
+    display: 'flex',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    flex: '1',
+    height: 'fit-content',
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  conditionContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: spacing['--gf-spacing-x1'],
+    flex: '1',
+    width: '100%',
+  },
+  conditionHeader: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    flex: '1',
   },
 });

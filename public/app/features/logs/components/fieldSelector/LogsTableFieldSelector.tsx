@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
 import { type DataFrame, store } from '@grafana/data';
@@ -16,7 +17,7 @@ import {
 import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
 import { getSuggestedFieldsFromTable } from './getSuggestedFieldsFromTable';
-import { logsFieldSelectorWrapperStyles } from './styles';
+import { collapsedButtonStyle, logsFieldSelectorWrapperStyles } from './styles';
 
 /**
  * FieldSelector wrapper for the LogsTable visualization.
@@ -115,9 +116,9 @@ export const LogsTableFieldSelector = ({
       toggle={toggle}
     />
   ) : (
-    <div className={logsFieldSelectorWrapperStyles.collapsedButtonContainer}>
+    <div {...stylex.props(logsFieldSelectorWrapperStyles.collapsedButtonContainer)}>
       <IconButton
-        className={logsFieldSelectorWrapperStyles.collapsedButton}
+        style={collapsedButtonStyle}
         onClick={expand}
         name="arrow-from-right"
         tooltip={t('logs.field-selector.expand', 'Expand sidebar')}

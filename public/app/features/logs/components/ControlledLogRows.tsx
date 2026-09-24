@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
 
 import {
@@ -150,13 +150,6 @@ const LogRowsComponent = forwardRef<HTMLDivElement | null, LogRowsComponentProps
       [filterLevels, deduplicatedRows]
     );
 
-    const scrollElementClassName = useMemo(() => {
-      if (ref) {
-        return styles.forwardedScrollableLogRows;
-      }
-      return styles.scrollableLogRows;
-    }, [ref]);
-
     const scrollIntoView = useCallback(
       (element: HTMLElement) => {
         if (scrollIntoViewProp) {
@@ -174,9 +167,12 @@ const LogRowsComponent = forwardRef<HTMLDivElement | null, LogRowsComponentProps
     );
 
     return (
-      <div className={styles.logRowsContainer}>
+      <div {...stylex.props(styles.logRowsContainer)}>
         <LogListControls eventBus={eventBus} />
-        <div ref={scrollElementRef} className={scrollElementClassName}>
+        <div
+          ref={scrollElementRef}
+          {...stylex.props(ref ? styles.forwardedScrollableLogRows : styles.scrollableLogRows)}
+        >
           <InfiniteScroll
             loading={loading}
             loadMoreLogs={loadMoreLogs}
@@ -218,25 +214,20 @@ function handleScrollToEvent(event: ScrollToLogsEvent, scrollElement: HTMLDivEle
   }
 }
 
-const styles = {
-  scrollableLogRows: css({
+const styles = stylex.create({
+  scrollableLogRows: {
     overflowY: 'auto',
     width: '100%',
     maxHeight: '80vh',
-  }),
-  forwardedScrollableLogRows: css({
+  },
+  forwardedScrollableLogRows: {
     overflowY: 'auto',
     width: '100%',
     maxHeight: '100%',
-  }),
-  logRows: css({
-    overflowX: 'scroll',
-    overflowY: 'visible',
-    width: '100%',
-  }),
-  logRowsContainer: css({
+  },
+  logRowsContainer: {
     display: 'flex',
     flexDirection: 'row-reverse',
     height: '100%',
-  }),
-};
+  },
+});

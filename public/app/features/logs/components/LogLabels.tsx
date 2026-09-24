@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
-import { memo, forwardRef, useMemo, useState, type JSX } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, memo, forwardRef, useMemo, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2, type Labels } from '@grafana/data';
+import { type Labels } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getNormalizedFieldName } from './panel/processing';
 
@@ -29,7 +30,6 @@ export const LogLabels = memo(
     displayAll: initialDisplayAll = false,
   }: Props) => {
     const [displayAll, setDisplayAll] = useState<boolean | undefined>(displayMax ? initialDisplayAll : undefined);
-    const styles = useStyles2(getStyles);
     const allLabels = useMemo(
       () =>
         Object.keys(labels)
@@ -44,21 +44,21 @@ export const LogLabels = memo(
 
     if (displayLabels.length === 0 && emptyMessage) {
       return (
-        <span className={styles.logsLabels}>
-          <span className={styles.logsLabel}>{emptyMessage}</span>
+        <span {...stylex.props(styles.logsLabels)}>
+          <span {...stylex.props(styles.logsLabel)}>{emptyMessage}</span>
         </span>
       );
     }
 
     return (
-      <span className={styles.logsLabels}>
+      <span {...stylex.props(styles.logsLabels)}>
         {displayLabels.map((labelValue) => {
           return addTooltip ? (
             <Tooltip content={labelValue} key={labelValue} placement="top">
-              <LogLabel styles={styles}>{labelValue}</LogLabel>
+              <LogLabel>{labelValue}</LogLabel>
             </Tooltip>
           ) : (
-            <LogLabel styles={styles} tooltip={labelValue} key={labelValue}>
+            <LogLabel tooltip={labelValue} key={labelValue}>
               {labelValue}
             </LogLabel>
           );
@@ -68,7 +68,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            className={styles.button}
+            style={buttonStyle}
             aria-label={t('logs.log-labels.expand', 'Expand labels')}
             onClick={() => {
               setDisplayAll(true);
@@ -84,7 +84,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            className={styles.button}
+            style={buttonStyle}
             aria-label={t('logs.log-labels.collapse', 'Collapse labels')}
             onClick={() => {
               setDisplayAll(false);
@@ -105,12 +105,10 @@ interface LogLabelsArrayProps {
 }
 
 export const LogLabelsList = memo(({ labels }: LogLabelsArrayProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <span className={styles.logsLabels}>
+    <span {...stylex.props(styles.logsLabels)}>
       {labels.map((label) => (
-        <LogLabel key={label} styles={styles} tooltip={label}>
+        <LogLabel key={label} tooltip={label}>
           {getNormalizedFieldName(label)}
         </LogLabel>
       ))}
@@ -120,15 +118,14 @@ export const LogLabelsList = memo(({ labels }: LogLabelsArrayProps) => {
 LogLabelsList.displayName = 'LogLabelsList';
 
 interface LogLabelProps {
-  styles: Record<string, string>;
   tooltip?: string;
   children: JSX.Element | string;
 }
 
-const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ styles, tooltip, children }: LogLabelProps, ref) => {
+const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ tooltip, children }: LogLabelProps, ref) => {
   return (
-    <span className={styles.logsLabel} ref={ref}>
-      <span className={styles.logsLabelValue} title={tooltip}>
+    <span {...stylex.props(styles.logsLabel)} ref={ref}>
+      <span {...stylex.props(styles.logsLabelValue)} title={tooltip}>
         {children}
       </span>
     </span>
@@ -136,35 +133,38 @@ const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ styles, tooltip, 
 });
 LogLabel.displayName = 'LogLabel';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    logsLabels: css({
-      display: 'inline-flex',
-      flexWrap: 'wrap',
-      fontSize: theme.typography.size.xs,
-      alignItems: 'center',
-    }),
-    logsLabel: css({
-      label: 'logs-label',
-      display: 'flex',
-      padding: theme.spacing(0, 0.25),
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      margin: theme.spacing(0.125, 0.5, 0, 0),
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      maxHeight: theme.spacing(2),
-    }),
-    logsLabelValue: css({
-      label: 'logs-label__value',
-      display: 'inline-block',
-      maxWidth: theme.spacing(25),
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-    }),
-    button: css({
-      height: theme.spacing(2.75),
-    }),
-  };
-};
+// Button has no xstyle and sets its own height, which a class from another stylex.props() call can't reliably
+// override.
+const buttonStyle: CSSProperties = { height: `calc(${spacing['--gf-spacing-grid-size']} * 2.75)` };
+
+const styles = stylex.create({
+  logsLabels: {
+    display: 'inline-flex',
+    flexWrap: 'wrap',
+    fontSize: typography['--gf-typography-size-xs'],
+    alignItems: 'center',
+  },
+  logsLabel: {
+    display: 'flex',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x0-25'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-25'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.125)`,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: 0,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    maxHeight: spacing['--gf-spacing-x2'],
+  },
+  logsLabelValue: {
+    display: 'inline-block',
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 25)`,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
+});

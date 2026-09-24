@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useTheme2 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ActiveFields } from './ActiveFields';
 import { AvailableFields } from './AvailableFields';
@@ -29,11 +28,8 @@ export const FieldList = ({
   toggle,
   toggleLevel,
 }: Props) => {
-  const theme = useTheme2();
-  const styles = getStyles(theme);
-
   return (
-    <div className={styles.sidebarWrap}>
+    <div {...stylex.props(styles.sidebarWrap)}>
       {/* Sidebar columns */}
       <>
         <ActiveFields
@@ -47,7 +43,7 @@ export const FieldList = ({
           toggleLevel={toggleLevel}
         />
 
-        <div className={styles.columnHeader}>
+        <div {...stylex.props(styles.columnHeader)}>
           <Trans i18nKey="explore.logs-table-multi-select.fields">Fields</Trans>
         </div>
         <AvailableFields activeFields={activeFields} fields={fields} reorder={reorder} toggle={toggle} />
@@ -56,27 +52,25 @@ export const FieldList = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    sidebarWrap: css({
-      overflowY: 'auto',
-      flex: 1,
-      scrollbarWidth: 'thin',
-    }),
-    columnHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.h6.fontSize,
-      background: theme.colors.background.secondary,
-      position: 'sticky',
-      top: 0,
-      left: 0,
-      paddingTop: theme.spacing(0.75),
-      paddingRight: theme.spacing(0.75),
-      paddingBottom: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1.5),
-      zIndex: 3,
-      marginBottom: theme.spacing(2),
-    }),
-  };
-}
+const styles = stylex.create({
+  sidebarWrap: {
+    overflowY: 'auto',
+    flex: '1',
+    scrollbarWidth: 'thin',
+  },
+  columnHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: typography['--gf-typography-h6-font-size'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    position: 'sticky',
+    top: 0,
+    left: 0,
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    zIndex: 3,
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+});

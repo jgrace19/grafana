@@ -1,19 +1,21 @@
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, type ReactNode } from 'react';
 
-import { type LogLineStyles } from './LogLine';
+import { mergeStylexProps } from '@grafana/ui/internal';
+
+import { logLineStyles } from './LogLine';
 
 interface Props {
   children: ReactNode;
   onClick?: () => void;
   style: CSSProperties;
-  styles: LogLineStyles;
 }
 
-export const LogLineMessage = ({ children, onClick, style, styles }: Props) => {
+export const LogLineMessage = ({ children, onClick, style }: Props) => {
   return (
-    <div style={style} className={`${styles.logLine} ${styles.logLineMessage}`}>
+    <div {...mergeStylexProps(stylex.props(logLineStyles.logLine, logLineStyles.logLineMessage), { style })}>
       {onClick ? (
-        <button className={styles.loadMoreButton} onClick={onClick}>
+        <button {...stylex.props(logLineStyles.loadMoreButton)} onClick={onClick}>
           {children}
         </button>
       ) : (

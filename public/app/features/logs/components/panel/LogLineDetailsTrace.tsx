@@ -1,17 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 import { isObservable, lastValueFrom } from 'rxjs';
 
-import {
-  type DataFrame,
-  type DataQueryRequest,
-  type DataSourceApi,
-  type GrafanaTheme2,
-  type TimeRange,
-} from '@grafana/data';
+import { type DataFrame, type DataQueryRequest, type DataSourceApi, type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
-import { Icon, Spinner, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Spinner, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { TraceView } from 'app/features/explore/TraceView/TraceView';
 import { transformDataFrames } from 'app/features/explore/TraceView/utils/transform';
 import { SearchTableType, type TempoQuery } from 'app/plugins/datasource/tempo/dataquery.gen';
@@ -29,7 +24,6 @@ export const LogLineDetailsTrace = ({ timeRange, timeZone, traceRef }: Props) =>
   const [dataSource, setDataSource] = useState<DataSourceApi | null>(null);
   const [dataFrames, setDataFrames] = useState<DataFrame[] | null | undefined>(undefined);
   const { app } = useLogListContext();
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     setDataSource(null);
@@ -96,7 +90,7 @@ export const LogLineDetailsTrace = ({ timeRange, timeZone, traceRef }: Props) =>
         <TraceView dataFrames={dataFrames} traceProp={traceProp} datasource={dataSource} timeRange={timeRange} />
       )}
       {dataFrames === null && (
-        <div className={styles.message}>
+        <div {...stylex.props(styles.message)}>
           <Tooltip
             content={t(
               'logs.log-line-details.trace.error-tooltip',
@@ -109,7 +103,7 @@ export const LogLineDetailsTrace = ({ timeRange, timeZone, traceRef }: Props) =>
         </div>
       )}
       {dataFrames === undefined && (
-        <div className={styles.message}>
+        <div {...stylex.props(styles.message)}>
           <Spinner />
           {t('logs.log-line-details.trace.loading-message', 'Loading trace...')}
         </div>
@@ -118,10 +112,10 @@ export const LogLineDetailsTrace = ({ timeRange, timeZone, traceRef }: Props) =>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  message: css({
+const styles = stylex.create({
+  message: {
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     alignItems: 'center',
-  }),
+  },
 });

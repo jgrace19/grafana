@@ -1,14 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { noop } from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { useAsync } from 'react-use';
 
-import { CoreApp, DataSourcePluginContextProvider, type GrafanaTheme2, LoadingState } from '@grafana/data';
+import { CoreApp, DataSourcePluginContextProvider, LoadingState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type PromQuery } from '@grafana/prometheus';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Alert, Button, useStyles2 } from '@grafana/ui';
+import { Alert, Button } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type LokiQuery } from 'app/plugins/datasource/loki/types';
 
 import { isSupportedExternalRulesSourceType } from '../../utils/datasource';
@@ -29,8 +30,6 @@ export const ExpressionEditor = ({
   dataSourceName,
   showPreviewAlertsButton = true,
 }: ExpressionEditorProps) => {
-  const styles = useStyles2(getStyles);
-
   const { mapToValue, mapToQuery } = useQueryMappers(dataSourceName);
 
   const dataQuery = mapToQuery({ refId: 'A', hide: false }, value);
@@ -100,7 +99,7 @@ export const ExpressionEditor = ({
         />
       </DataSourcePluginContextProvider>
       {showPreviewAlertsButton && (
-        <div className={styles.preview}>
+        <div {...stylex.props(styles.preview)}>
           <Button
             type="button"
             onClick={onRunQueriesClick}
@@ -112,7 +111,8 @@ export const ExpressionEditor = ({
             <Alert
               title={t('alerting.expression-editor.title-alerts-preview', 'Alerts preview')}
               severity="info"
-              className={styles.previewAlert}
+              topSpacing={1}
+              bottomSpacing={1}
             >
               <Trans i18nKey="alerting.expression-editor.there-firing-alerts-query">
                 There are no firing alerts for your query.
@@ -126,14 +126,14 @@ export const ExpressionEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  preview: css({
-    padding: theme.spacing(2, 0),
-    maxWidth: `${theme.breakpoints.values.xl}px`,
-  }),
-  previewAlert: css({
-    margin: theme.spacing(1, 0),
-  }),
+const styles = stylex.create({
+  preview: {
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: 0,
+    maxWidth: '1200px',
+  },
 });
 
 type QueryMappers<T extends DataQuery = DataQuery> = {

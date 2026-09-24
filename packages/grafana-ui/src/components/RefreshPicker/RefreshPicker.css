@@ -1,0 +1,8 @@
+/*
+ * ToolbarButton (no `xstyle`) sets its own border radius. Not in a cascade layer, and the class is doubled, so
+ * this wins over ToolbarButton's rule whether it's Emotion (inserted after this stylesheet) or StyleX.
+ */
+.gf-refresh-picker-interval.gf-refresh-picker-interval {
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+}
