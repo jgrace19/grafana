@@ -312,7 +312,6 @@ export function getFieldOverrideCategories(
 }
 
 function AddOverrideButtonContainer({ children }: { children: React.ReactNode }) {
-  const styles = useStyles2(getBorderTopStyles);
   return <div {...stylex.props(getFieldOverrideElementsStyles.root)}>{children}</div>;
 }
 

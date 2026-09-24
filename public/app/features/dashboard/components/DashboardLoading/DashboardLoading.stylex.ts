@@ -9,8 +9,7 @@ export const dashboardLoadingStyles = stylex.create({
           opacity: '0%',
           alignItems: 'center',
           justifyContent: 'center',
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            animation: `${invisibleToVisible} 0s step-end ${slowStartThreshold} 1 normal forwards`,
+                      animation: `${invisibleToVisible} 0s step-end ${slowStartThreshold} 1 normal forwards`,
           },
   },
   dashboardLoadingText: {

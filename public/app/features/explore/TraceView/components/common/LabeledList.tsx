@@ -12,69 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { type IconName } from '@grafana/data';
+import { Icon } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
-import { autoColor } from '../Theme';
-
-const getStyles = (divider: boolean) => (theme: GrafanaTheme2) => {
-  return {
-    LabeledList: css({
-      label: 'LabeledList',
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      fontSize: theme.typography.size.sm,
-      ...(divider
-        ? {
-            marginRight: '-8px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'flex-end',
-          }
-        : {}),
-    }),
-    LabeledListItem: css({
-      label: 'LabeledListItem',
-      display: 'inline-block',
-      ...(divider
-        ? {
-            borderRight: `1px solid ${autoColor(theme, '#ddd')}`,
-            padding: '0 8px',
-          }
-        : { padding: '0 4px' }),
-    }),
-    LabeledListLabel: css({
-      label: 'LabeledListLabel',
-      color: theme.colors.text.secondary,
-      marginRight: '0.25rem',
-    }),
-    LabeledListValue: css({
-      label: 'LabeledListValue',
-      marginRight: divider ? undefined : '0.55rem',
-      wordWrap: 'break-word',
-      wordBreak: 'break-all',
-    }),
-    LabeledListIcon: css({
-      label: 'LabeledListIcon',
-      marginRight: '0.25rem',
-      marginTop: '-0.1rem',
-    }),
-    LabeledListServiceLine: css({
-      label: 'LabeledListServiceLine',
-      display: 'inline-block',
-      width: '1rem',
-      height: '0.35rem',
-      marginRight: '0.5rem',
-      verticalAlign: 'middle',
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-};
+import { labeledListStyles } from './LabeledList.stylex';
 
 type LabeledListProps = {
   className?: string;
@@ -85,20 +31,28 @@ type LabeledListProps = {
 
 export default function LabeledList(props: LabeledListProps) {
   const { className, divider = false, items, color } = props;
-  const styles = useStyles2(getStyles(divider));
 
   return (
-    <ul className={cx(styles.LabeledList, className)}>
+    <ul
+      {...mergeStylexClassName(
+        stylex.props(labeledListStyles.list, divider && labeledListStyles.listWithDivider),
+        className
+      )}
+    >
       {items.map(({ key, label, value, icon }) => {
         return (
-          // If label is service, create small line on left with color
-          <li className={styles.LabeledListItem} key={`${key}`}>
+          <li
+            {...stylex.props(labeledListStyles.item, divider && labeledListStyles.itemDivider)}
+            key={`${key}`}
+          >
             {label === 'Service:' && (
-              <div className={styles.LabeledListServiceLine} style={{ backgroundColor: color }} />
+              <div {...stylex.props(labeledListStyles.serviceLine)} style={{ backgroundColor: color }} />
             )}
-            {icon && <Icon name={icon} className={styles.LabeledListIcon} size="sm" />}
-            <span className={styles.LabeledListLabel}>{label}</span>
-            <strong className={styles.LabeledListValue}>{value}</strong>
+            {icon && <Icon name={icon} {...stylex.props(labeledListStyles.icon)} size="sm" />}
+            <span {...stylex.props(labeledListStyles.label)}>{label}</span>
+            <strong {...stylex.props(divider ? labeledListStyles.valueDivider : labeledListStyles.value)}>
+              {value}
+            </strong>
           </li>
         );
       })}

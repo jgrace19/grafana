@@ -2,11 +2,12 @@ import * as stylex from '@stylexjs/stylex';
 
 import { grafanaTokens } from '@grafana/ui/unstable';
 
+import { themeSpacing, themeSpacingShorthand } from '../../../../../../core/stylex/spacing';
+
 export const timelineHeaderRowStyles = stylex.create({
   TimelineHeaderRow: {
-    label: 'TimelineHeaderRow',
-          background: autoColor(theme, '#ececec'),
-          borderBottom: `1px solid ${autoColor(theme, '#ccc')}`,
+          background: '#ececec',
+          borderBottom: `1px solid ${'#ccc'}`,
           height: '38px',
           lineHeight: '38px',
           width: '100%',
@@ -14,7 +15,6 @@ export const timelineHeaderRowStyles = stylex.create({
           position: 'relative',
   },
   TimelineHeaderRowTitle: {
-    label: 'TimelineHeaderRowTitle',
           flex: 1,
           overflow: 'hidden',
           margin: 0,
@@ -22,7 +22,6 @@ export const timelineHeaderRowStyles = stylex.create({
           whiteSpace: 'nowrap',
   },
   TimelineHeaderWrapper: {
-    label: 'TimelineHeaderWrapper',
           alignItems: 'center',
           display: 'flex',
           paddingLeft: themeSpacing(1),

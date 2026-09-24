@@ -4,7 +4,6 @@ import { grafanaTokens } from '@grafana/ui/unstable';
 
 export const actionButtonStyles = stylex.create({
   ActionButton: {
-    label: 'ActionButton',
         overflow: 'hidden',
         position: 'relative',
         '::after': {
@@ -16,15 +15,13 @@ export const actionButtonStyles = stylex.create({
           width: '100%',
           height: '100%',
           opacity: 0,
-          [theme.transitions.handleMotion('no-preference')]: {
-            transition: 'all 0.8s',
+                      transition: 'all 0.8s',
           },
         },
         '&:active:after': {
           margin: 0,
           opacity: 0.3,
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            transition: '0s',
+                      transition: '0s',
           },
         },
   },

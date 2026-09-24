@@ -1,4 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { panelEditorStyles } from './PanelEditor.stylex';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -19,7 +23,6 @@ import {
   InlineSwitch,
   ModalsController,
   RadioButtonGroup,
-  stylesFactory,
   type Themeable2,
   ToolbarButton,
   ToolbarButtonRow,
@@ -508,80 +511,25 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
 
 export const PanelEditor = withTheme2(connector(PanelEditorUnconnected));
 
-/*
- * Styles
- */
-export const getStyles = stylesFactory((theme: GrafanaTheme2, props: Props) => {
+/** @deprecated Emotion compat — returns StyleX class names for panel editor layout. */
+export const getStyles = (_theme: GrafanaTheme2, props: Props) => {
   const { uiState } = props;
-  const paneSpacing = theme.spacing(2);
+  const cn = (key: keyof typeof panelEditorStyles, ...extra: stylex.StyleXStyles[]) =>
+    mergeStylexClassName(stylex.props(panelEditorStyles[key], ...extra), undefined).className;
 
   return {
-    wrapper: css({
-      width: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-      display: 'flex',
-      paddingTop: theme.spacing(2),
-    }),
-    verticalSplitPanesWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      position: 'relative',
-    }),
-    mainPaneWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      paddingRight: `${uiState.isPanelOptionsVisible ? 0 : paneSpacing}`,
-    }),
-    variablesWrapper: css({
-      label: 'variablesWrapper',
-      display: 'flex',
-      flexGrow: 1,
-      flexWrap: 'wrap',
-      gap: theme.spacing(1, 2),
-    }),
-    panelWrapper: css({
-      flex: '1 1 0',
-      minHeight: 0,
-      width: '100%',
-      paddingLeft: paneSpacing,
-    }),
-    tabsWrapper: css({
-      height: '100%',
-      width: '100%',
-    }),
-    panelToolbar: css({
-      display: 'flex',
-      padding: `0 0 ${paneSpacing} ${paneSpacing}`,
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    }),
-    angularWarning: css({
-      display: 'flex',
-      height: theme.spacing(4),
-      alignItems: 'center',
-    }),
-    toolbarLeft: css({
-      paddingLeft: theme.spacing(1),
-    }),
-    centeringContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
-      flexDirection: 'column',
-    }),
-    onlyPanel: css({
-      height: '100%',
-      position: 'absolute',
-      overflow: 'hidden',
-      width: '100%',
-    }),
+    wrapper: cn('wrapper'),
+    verticalSplitPanesWrapper: cn('verticalSplitPanesWrapper'),
+    mainPaneWrapper: cn('mainPaneWrapper', !uiState.isPanelOptionsVisible && panelEditorStyles.mainPaneWrapperPadRight),
+    variablesWrapper: cn('variablesWrapper'),
+    panelWrapper: cn('panelWrapper'),
+    tabsWrapper: cn('tabsWrapper'),
+    panelToolbar: cn('panelToolbar'),
+    angularWarning: cn('angularWarning'),
+    toolbarLeft: cn('toolbarLeft'),
+    centeringContainer: cn('centeringContainer'),
+    onlyPanel: cn('onlyPanel'),
   };
-});
+};
 
 type EditorStyles = ReturnType<typeof getStyles>;

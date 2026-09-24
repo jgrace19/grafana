@@ -2,6 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 
 import { grafanaTokens } from '@grafana/ui/unstable';
 
+import { themeSpacing, themeSpacingShorthand } from '../../../../core/stylex/spacing';
+
 export const addLibraryPanelWidgetStyles = stylex.create({
   wrapper: {
     height: '100%',
@@ -16,8 +18,7 @@ export const addLibraryPanelWidgetStyles = stylex.create({
           fontSize: grafanaTokens.typography_fontSize,
           fontWeight: grafanaTokens.typography_fontWeightMedium,
           paddingLeft: `${themeSpacing(1)}`,
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            transition: 'background-color 0.1s ease-in-out',
+                      transition: 'background-color 0.1s ease-in-out',
           },
           cursor: 'move',
     
@@ -39,8 +40,7 @@ export const addLibraryPanelWidgetStyles = stylex.create({
           outlineOffset: '2px',
           overflow: 'hidden',
     
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            animation: `${pulsate} 2s ease infinite`,
+                      animation: `${pulsate} 2s ease infinite`,
           },
   },
 });

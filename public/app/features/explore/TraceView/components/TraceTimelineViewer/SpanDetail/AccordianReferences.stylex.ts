@@ -2,31 +2,29 @@ import * as stylex from '@stylexjs/stylex';
 
 import { grafanaTokens } from '@grafana/ui/unstable';
 
+import { themeSpacing, themeSpacingShorthand } from '../../../../../../core/stylex/spacing';
+
 export const accordianReferencesStyles = stylex.create({
   AccordianReferenceItem: {
-    borderBottom: `1px solid ${autoColor(theme, '#d8d8d8')}`,
+    borderBottom: `1px solid ${'#d8d8d8'}`,
   },
   AccordianKeyValues: {
     marginLeft: '10px',
   },
   AccordianReferences: {
-    label: 'AccordianReferences',
         position: 'relative',
   },
   AccordianReferencesHeader: {
-    label: 'AccordianReferencesHeader',
         color: 'inherit',
         display: 'block',
         padding: '0.25rem 0',
   },
   AccordianReferencesContent: {
-    label: 'AccordianReferencesContent',
-        borderTop: `1px solid ${autoColor(theme, '#d8d8d8')}`,
+        borderTop: `1px solid ${'#d8d8d8'}`,
         padding: '0.5rem 0.5rem 0.25rem 0.5rem',
   },
   AccordianReferencesFooter: {
-    label: 'AccordianReferencesFooter',
-        color: autoColor(theme, '#999'),
+        color: '#999',
   },
   AccordianKeyValuesItem: {
     marginBottom: themeSpacing(0.5),
@@ -66,7 +64,7 @@ export const accordianReferencesStyles = stylex.create({
   debugLabel: {
     margin: '0 5px 0 5px',
         '&::before': {
-          color: autoColor(theme, '#666'),
+          color: '#666',
           content: 'attr(data-label)',
         },
   },

@@ -2,6 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 
 import { grafanaTokens } from '@grafana/ui/unstable';
 
+import { themeSpacing, themeSpacingShorthand } from '../../../../../../core/stylex/spacing';
+
 export const indexStyles = stylex.create({
   card: {
     ':not(:empty)': {
@@ -15,7 +17,6 @@ export const indexStyles = stylex.create({
           padding: '5px',
   },
   header: {
-    label: 'SpanDetailHeader',
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
@@ -24,11 +25,9 @@ export const indexStyles = stylex.create({
           flexDirection: 'column',
   },
   content: {
-    label: 'SpanDetailContent',
           fontSize: grafanaTokens.typography_bodySmall_fontSize,
   },
   listWrapper: {
-    label: 'SpanDetailListWrapper',
           overflow: 'hidden',
           flexGrow: 1,
           display: 'flex',
@@ -38,18 +37,15 @@ export const indexStyles = stylex.create({
     textAlign: 'left',
   },
   spanDetailComponent: {
-    label: 'SpanDetailComponent',
           display: 'flex',
           flexDirection: 'column', // On bigger screens display attributes below service name
   },
   serviceNameAndLinks: {
-    label: 'ServiceNameAndLinks',
           display: 'flex',
           width: '100%',
           marginBottom: themeSpacing(1),
   },
   operationName: {
-    label: 'SpanDetailOperationName',
           margin: 0,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -59,23 +55,19 @@ export const indexStyles = stylex.create({
           flexShrink: 0,
   },
   AccordianWarnings: {
-    label: 'AccordianWarnings',
-          background: autoColor(theme, '#fafafa'),
-          border: `1px solid ${autoColor(theme, '#e4e4e4')}`,
+          background: '#fafafa',
+          border: `1px solid ${'#e4e4e4'}`,
           marginBottom: '0.25rem',
   },
   AccordianWarningsHeader: {
-    label: 'AccordianWarningsHeader',
-          background: autoColor(theme, '#fff7e6'),
+          background: '#fff7e6',
           padding: '0.25rem 0.5rem',
   },
   AccordianWarningsHeaderOpen: {
-    label: 'AccordianWarningsHeaderOpen',
-          borderBottom: `1px solid ${autoColor(theme, '#e8e8e8')}`,
+          borderBottom: `1px solid ${'#e8e8e8'}`,
   },
   AccordianWarningsLabel: {
-    label: 'AccordianWarningsLabel',
-          color: autoColor(theme, '#d36c08'),
+          color: '#d36c08',
   },
   Textarea: {
     wordBreak: 'break-all',
@@ -88,7 +80,6 @@ export const indexStyles = stylex.create({
           marginBottom: themeSpacing(2),
   },
   debugInfo: {
-    label: 'debugInfo',
           display: 'block',
           letterSpacing: '0.25px',
           margin: '0.5em 0 -0.75em',
@@ -96,9 +87,8 @@ export const indexStyles = stylex.create({
           clear: 'both',
   },
   debugLabel: {
-    label: 'debugLabel',
           '&::before': {
-            color: autoColor(theme, '#bbb'),
+            color: '#bbb',
             content: 'attr(data-label)',
           },
   },

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { tableContainerStyles } from './TableContainer.stylex';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
@@ -151,7 +153,7 @@ export class TableContainer extends PureComponent<Props, State> {
           </PanelChrome>
         )}
         {frames && frames.length > 0 && (
-          <div className={css({ display: 'flex', flexDirection: 'column', gap: theme.spacing(1) })}>
+          <div {...stylex.props(tableContainerStyles.framesStack)}>
             {frames.map((data, i) => (
               <PanelChrome
                 key={data.refId || `table-${i}`}

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { deleteDashboardModalStyles } from './DeleteDashboardModal.stylex';
 import { connect, type ConnectedProps } from 'react-redux';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
@@ -55,9 +57,7 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
       isOpen={true}
       title={t('dashboard-settings.provisioned-delete-modal.title', 'Cannot delete provisioned dashboard')}
       onDismiss={hideModal}
-      className={css({
-        width: '500px',
-      })}
+      {...stylex.props(deleteDashboardModalStyles.modal)}
     >
       <Text element="p">
         <Trans i18nKey="dashboard-settings.provisioned-delete-modal.text-1">

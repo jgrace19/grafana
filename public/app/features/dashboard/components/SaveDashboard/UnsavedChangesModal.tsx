@@ -1,5 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
+import { unsavedChangesModalStyles } from './UnsavedChangesModal.stylex';
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
@@ -20,9 +21,7 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
       isOpen={true}
       title={t('dashboard.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className={css({
-        width: '500px',
-      })}
+      {...stylex.props(unsavedChangesModalStyles.modal)}
     >
       <h5>
         <Trans i18nKey="dashboard.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>

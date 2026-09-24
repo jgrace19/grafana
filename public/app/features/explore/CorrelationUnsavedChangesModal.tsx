@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { correlationUnsavedChangesModalStyles } from './CorrelationUnsavedChangesModal.stylex';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
@@ -19,7 +21,7 @@ export const CorrelationUnsavedChangesModal = ({ onSave, onDiscard, onCancel, me
         'Unsaved changes to correlation'
       )}
       onDismiss={onCancel}
-      className={css({ width: '600px' })}
+      {...stylex.props(correlationUnsavedChangesModalStyles.modal)}
     >
       <h5>{message}</h5>
       <Modal.ButtonRow>

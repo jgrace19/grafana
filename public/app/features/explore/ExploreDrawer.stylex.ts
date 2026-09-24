@@ -15,8 +15,7 @@ export const exploreDrawerStyles = stylex.create({
   },
   drawerActive: {
     opacity: 1,
-        [theme.transitions.handleMotion('no-preference')]: {
-          animation: `0.5s ease-out ${drawerSlide(theme)}`,
+                  animation: `0.5s ease-out ${drawerSlide(theme)}`,
         },
   },
 });

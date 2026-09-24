@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 
 import {
   type DataFrame,
@@ -50,7 +50,7 @@ export function TransformationCard({
     }
   }
 
-  const cardClasses = cx(styles.baseCard, { [styles.cardDisabled]: !isApplicable });
+  const cardClasses = clsx(styles.baseCard, { [styles.cardDisabled]: !isApplicable });
   const imageUrl = theme.isDark ? transform.imageDark : transform.imageLight;
   const description = standardTransformersRegistry.getIfExists(transform.id)?.description;
 

@@ -4,7 +4,6 @@ import { grafanaTokens } from '@grafana/ui/unstable';
 
 export const spanBarStyles = stylex.create({
   wrapper: {
-    label: 'wrapper',
           bottom: 0,
           left: 0,
           position: 'absolute',
@@ -14,7 +13,6 @@ export const spanBarStyles = stylex.create({
           zIndex: 0,
   },
   bar: {
-    label: 'bar',
           borderRadius: grafanaTokens.shape_radius_sm,
           minWidth: '2px',
           position: 'absolute',
@@ -22,14 +20,12 @@ export const spanBarStyles = stylex.create({
           top: '30%',
   },
   rpc: {
-    label: 'rpc',
           position: 'absolute',
           top: '35%',
           bottom: '35%',
           zIndex: 1,
   },
   label: {
-    label: 'label',
           color: '#aaa',
           fontSize: '12px',
           fontFamily: "'Helvetica Neue', Helvetica, Arial, sans - serif",
@@ -39,15 +35,14 @@ export const spanBarStyles = stylex.create({
           position: 'absolute',
   },
   logMarker: {
-    label: 'logMarker',
-          backgroundColor: autoColor(theme, '#2c3235'),
+          backgroundColor: '#2c3235',
           cursor: 'pointer',
           height: '60%',
           minWidth: '1px',
           position: 'absolute',
           top: '20%',
           ':hover': {
-            backgroundColor: autoColor(theme, '#464c54'),
+            backgroundColor: '#464c54',
           },
           '&::before, &::after': {
             content: "''",
@@ -67,8 +62,8 @@ export const spanBarStyles = stylex.create({
           height: '11%',
           zIndex: 2,
           overflow: 'hidden',
-          background: autoColor(theme, '#f1f1f1'),
-          borderLeft: `1px solid ${autoColor(theme, '#2c3235')}`,
-          borderRight: `1px solid ${autoColor(theme, '#2c3235')}`,
+          background: '#f1f1f1',
+          borderLeft: `1px solid ${'#2c3235'}`,
+          borderRight: `1px solid ${'#2c3235'}`,
   },
 });

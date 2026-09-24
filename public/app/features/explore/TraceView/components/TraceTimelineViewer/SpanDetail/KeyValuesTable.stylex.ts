@@ -4,8 +4,7 @@ import { grafanaTokens } from '@grafana/ui/unstable';
 
 export const keyValuesTableStyles = stylex.create({
   KeyValueTable: {
-    label: 'KeyValueTable',
-          background: autoColor(theme, '#fff'),
+          background: '#fff',
           maxHeight: '450px',
           overflow: 'auto',
   },
@@ -13,17 +12,15 @@ export const keyValuesTableStyles = stylex.create({
     width: '100%',
   },
   body: {
-    label: 'body',
           verticalAlign: 'baseline',
   },
   row: {
-    label: 'row',
           '& > td': {
             padding: '0 0.5rem',
             height: '30px',
           },
           '&:nth-child(2n) > td': {
-            background: autoColor(theme, '#f5f5f5'),
+            background: '#f5f5f5',
           },
           [`&:not(:hover) .${copyIconClassName}`]: {
             visibility: 'hidden',
@@ -36,17 +33,14 @@ export const keyValuesTableStyles = stylex.create({
           },
   },
   keyColumn: {
-    label: 'keyColumn',
-          color: autoColor(theme, '#888'),
+          color: '#888',
           whiteSpace: 'pre',
           width: '125px',
   },
   copyColumn: {
-    label: 'copyColumn',
           textAlign: 'right',
   },
   linkIcon: {
-    label: 'linkIcon',
           verticalAlign: 'middle',
           fontWeight: 'bold',
   },

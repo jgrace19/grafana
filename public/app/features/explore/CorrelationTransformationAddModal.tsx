@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { correlationTransformationAddModalStyles } from './CorrelationTransformationAddModal.stylex';
 import { useId, useState, useMemo, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useForm, Controller } from 'react-hook-form';
@@ -136,7 +138,7 @@ export const CorrelationTransformationAddModal = ({
           : t('explore.correlation-transformation-add-modal.title-add', 'Add transformation')
       }
       onDismiss={onCancel}
-      className={css({ width: '700px' })}
+      {...stylex.props(correlationTransformationAddModalStyles.modal)}
     >
       <p>
         <Trans i18nKey="explore.correlation-transformation-add-modal.body">

@@ -2,9 +2,10 @@ import * as stylex from '@stylexjs/stylex';
 
 import { grafanaTokens } from '@grafana/ui/unstable';
 
+import { themeSpacing, themeSpacingShorthand } from '../../../core/stylex/spacing';
+
 export const liveLogsStyles = stylex.create({
   logsRowsLive: {
-    label: 'logs-rows-live',
           fontFamily: grafanaTokens.typography_fontFamilyMonospace,
           fontSize: grafanaTokens.typography_bodySmall_fontSize,
           display: 'flex',
@@ -16,11 +17,9 @@ export const liveLogsStyles = stylex.create({
           },
   },
   logsRowFade: {
-    label: 'logs-row-fresh',
           color: grafanaTokens.colors_text_primary,
           backgroundColor: tinycolor(grafanaTokens.colors_info_transparent).setAlpha(0.25).toString(),
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            animation: `${fade} 1s ease-out 1s 1 normal forwards`,
+                      animation: `${fade} 1s ease-out 1s 1 normal forwards`,
           },
   },
   logsRowsIndicator: {

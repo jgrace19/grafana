@@ -4,8 +4,7 @@ import { grafanaTokens } from '@grafana/ui/unstable';
 
 export const indexStyles = stylex.create({
   TraceTimelineViewer: {
-    label: 'TraceTimelineViewer',
-        borderBottom: `1px solid ${autoColor(theme, '#bbb')}`,
+        borderBottom: `1px solid ${'#bbb'}`,
     
         '& .json-markup': {
           lineHeight: '17px',
@@ -18,19 +17,19 @@ export const indexStyles = stylex.create({
         },
     
         '& .json-markup-bool': {
-          color: autoColor(theme, 'firebrick'),
+          color: 'firebrick',
         },
     
         '& .json-markup-string': {
-          color: autoColor(theme, 'teal'),
+          color: 'teal',
         },
     
         '& .json-markup-null': {
-          color: autoColor(theme, 'teal'),
+          color: 'teal',
         },
     
         '& .json-markup-number': {
-          color: autoColor(theme, 'blue', 'black'),
+          color: 'blue',
         },
   },
 });

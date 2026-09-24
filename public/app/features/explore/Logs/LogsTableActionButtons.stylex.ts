@@ -42,8 +42,7 @@ export const logsTableActionButtonsStyles = stylex.create({
           backgroundColor: grafanaTokens.colors_background_primary,
           zIndex: -1,
           opacity: 0,
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            transitionDuration: '0.2s',
+                      transitionDuration: '0.2s',
             transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
             transitionProperty: 'opacity',
           },
