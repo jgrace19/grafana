@@ -117,6 +117,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/utils/skeleton.tsx',
   // U8 chrome
   'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
+  // U7 viz (part 2)
+  'packages/grafana-ui/src/components/{BarGauge,BigValue,ColorPicker,DataLinks,Slider}/**/*.{ts,tsx}',
   // U8 long tail
   'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
   'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
@@ -212,6 +214,13 @@ const stylexMigratedAppFiles = [
 const stylexNotMigratedAppFiles = [
   // Composes Input's Emotion getInputStyles; migrate once Input (U2) is StyleX.
   'public/app/features/scopes/selector/ScopesInput.tsx',
+  // C1 core: notifications, options UI, query rows, splash screen, tags and the rest of core/components
+  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,QueryOperationRow,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
+  'public/app/core/components/CardButton.tsx',
+  'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
+  'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
+  'public/app/core/components/SplashScreenModal/{SplashScreenNav,SplashScreenSlide}.tsx',
+  'public/app/core/components/TagFilter/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

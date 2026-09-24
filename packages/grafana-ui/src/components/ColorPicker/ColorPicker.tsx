@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import {
   type ComponentType,
   createElement,
@@ -8,9 +8,9 @@ import {
   useRef,
 } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
 import { useTheme2 } from '../../themes/ThemeContext';
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { colors, typography } from '../../themes/stylex/tokens.stylex';
 import { closePopover } from '../../utils/closePopover';
 import { Popover } from '../Tooltip/Popover';
 import { PopoverController } from '../Tooltip/PopoverController';
@@ -42,7 +42,6 @@ export const colorPickerFactory = <T extends ColorPickerProps>(
     const { children, onChange, color, id } = props;
     const theme = useTheme2();
     const pickerTriggerRef = useRef<any>(null);
-    const styles = getStyles(theme);
 
     const popoverElement = createElement(
       popover,
@@ -62,7 +61,7 @@ export const colorPickerFactory = <T extends ColorPickerProps>(
                 <Popover
                   {...popperProps}
                   referenceElement={pickerTriggerRef.current}
-                  wrapperClassName={styles.colorPicker}
+                  wrapperClassName={stylex.props(styles.colorPicker).className}
                   onMouseLeave={hidePopper}
                   onMouseEnter={showPopper}
                   onKeyDown={(event) => closePopover(event, hidePopper)}
@@ -102,16 +101,14 @@ export const colorPickerFactory = <T extends ColorPickerProps>(
 export const ColorPicker = colorPickerFactory(ColorPickerPopover, 'ColorPicker');
 export const SeriesColorPicker = colorPickerFactory(SeriesColorPickerPopover, 'SeriesColorPicker');
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    colorPicker: css({
-      position: 'absolute',
-      zIndex: theme.zIndex.tooltip,
-      color: theme.colors.text.primary,
-      maxWidth: '400px',
-      fontSize: theme.typography.size.sm,
-      maxHeight: '100vh',
-      overflow: 'auto',
-    }),
-  };
-};
+const styles = stylex.create({
+  colorPicker: {
+    position: 'absolute',
+    zIndex: zIndex.tooltip,
+    color: colors['--gf-colors-text-primary'],
+    maxWidth: '400px',
+    fontSize: typography['--gf-typography-size-sm'],
+    maxHeight: '100vh',
+    overflow: 'auto',
+  },
+});

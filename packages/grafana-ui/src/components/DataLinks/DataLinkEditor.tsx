@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type ChangeEvent } from 'react';
 
-import { type VariableSuggestion, type GrafanaTheme2, type DataLink } from '@grafana/data';
+import { type VariableSuggestion, type DataLink } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { Field } from '../Forms/Field';
 import { Input } from '../Input/Input';
 import { Switch } from '../Switch/Switch';
@@ -22,8 +22,6 @@ interface DataLinkEditorProps {
 
 export const DataLinkEditor = memo(
   ({ index, value, onChange, suggestions, isLast, showOneClick = false }: DataLinkEditorProps) => {
-    const styles = useStyles2(getStyles);
-
     const onUrlChange = (url: string, callback?: () => void) => {
       onChange(index, { ...value, url }, callback);
     };
@@ -41,7 +39,7 @@ export const DataLinkEditor = memo(
     };
 
     return (
-      <div className={styles.listItem}>
+      <div {...stylex.props(styles.listItem)}>
         <Field label={t('grafana-ui.data-link-editor.title-label', 'Title')}>
           <Input
             id="link-title"
@@ -72,7 +70,7 @@ export const DataLinkEditor = memo(
         )}
 
         {isLast && (
-          <Trans i18nKey="grafana-ui.data-link-editor.info" className={styles.infoText}>
+          <Trans i18nKey="grafana-ui.data-link-editor.info" className={stylex.props(styles.infoText).className}>
             With data links you can reference data variables like series name, labels and values. Type CMD+Space,
             CTRL+Space, or $ to open variable suggestions.
           </Trans>
@@ -84,13 +82,13 @@ export const DataLinkEditor = memo(
 
 DataLinkEditor.displayName = 'DataLinkEditor';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listItem: css({
-    marginBottom: theme.spacing(),
-  }),
-  infoText: css({
-    paddingBottom: theme.spacing(2),
+const styles = stylex.create({
+  listItem: {
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  infoText: {
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
     marginLeft: '66px',
-    color: theme.colors.text.secondary,
-  }),
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

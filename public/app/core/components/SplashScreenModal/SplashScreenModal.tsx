@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, LinkButton, useStyles2 } from '@grafana/ui';
+import { IconButton, LinkButton, useStyles2, useTheme2 } from '@grafana/ui';
 import { ModalBase } from '@grafana/ui/internal';
 import { contextSrv } from 'app/core/services/context_srv';
 
@@ -24,7 +25,8 @@ function resolveCtaUrl(cta: SplashFeatureCta): string {
 
 export function SplashScreenModal() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const modalStyles = useStyles2(getModalStyles);
   const config = getSplashScreenConfig();
   const { shouldShow, dismiss } = useShouldShowSplash(config.version);
 
@@ -81,16 +83,23 @@ export function SplashScreenModal() {
       isOpen
       onDismiss={dismiss}
       aria-label={t('splash-screen.aria-label', "What's new in Grafana")}
-      className={styles.modal}
+      className={modalStyles.modal}
     >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <div className={styles.container} onKeyDown={handleKeyDown}>
+      <div {...stylex.props(styles.container)} onKeyDown={handleKeyDown}>
         <IconButton
           name="times"
           size="lg"
           onClick={dismiss}
           aria-label={t('splash-screen.close', 'Close')}
-          className={styles.closeButton}
+          // IconButton has no `xstyle`; its own position, z-index and colour beat a StyleX class passed as `className`.
+          style={{
+            position: 'absolute',
+            top: theme.spacing(1),
+            right: theme.spacing(1),
+            zIndex: 1,
+            color: theme.colors.text.secondary,
+          }}
         />
         <SplashScreenSlide feature={activeFeature} footer={footer} />
       </div>
@@ -98,7 +107,15 @@ export function SplashScreenModal() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const styles = stylex.create({
+  container: {
+    position: 'relative',
+    height: '100%',
+  },
+});
+
+// stylex: pending Modal migration (U4). Overrides ModalBase's own Emotion size and padding.
+const getModalStyles = (theme: GrafanaTheme2) => ({
   modal: css({
     width: '860px',
     maxWidth: '95vw',
@@ -106,16 +123,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     maxHeight: '85vh',
     padding: 0,
     overflow: 'hidden',
-  }),
-  container: css({
-    position: 'relative',
-    height: '100%',
-  }),
-  closeButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-    color: theme.colors.text.secondary,
   }),
 });

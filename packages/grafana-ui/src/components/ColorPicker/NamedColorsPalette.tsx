@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 import { ColorSwatch } from './ColorSwatch';
 import NamedColorsGroup from './NamedColorsGroup';
@@ -16,7 +16,6 @@ export interface NamedColorsPaletteProps {
 
 export const NamedColorsPalette = ({ color, onChange }: NamedColorsPaletteProps) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const swatches: JSX.Element[] = [];
   for (const hue of theme.visualization.hues) {
@@ -25,8 +24,8 @@ export const NamedColorsPalette = ({ color, onChange }: NamedColorsPaletteProps)
 
   return (
     <>
-      <div className={styles.swatches}>{swatches}</div>
-      <div className={styles.extraColors}>
+      <div {...stylex.props(styles.swatches)}>{swatches}</div>
+      <div {...stylex.props(styles.extraColors)}>
         <ColorSwatch
           isSelected={color === 'transparent'}
           color={'rgba(0,0,0,0)'}
@@ -44,22 +43,19 @@ export const NamedColorsPalette = ({ color, onChange }: NamedColorsPaletteProps)
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    extraColors: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-around',
-      gap: theme.spacing(1),
-      padding: theme.spacing(1, 0),
-    }),
-    swatches: css({
-      display: 'grid',
-      flexGrow: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  extraColors: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingLeft: 0,
+  },
+  swatches: {
+    display: 'grid',
+    flexGrow: 1,
+  },
+});

@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, Icon, Text, useStyles2 } from '@grafana/ui';
+import { Box, Icon, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 
 interface StrongPasswordValidation {
@@ -72,8 +72,6 @@ export const ValidationLabels = ({ strongPasswordValidations, password, pristine
 };
 
 export const ValidationLabel = ({ strongPasswordValidation, password, pristine }: ValidationLabelProps) => {
-  const styles = useStyles2(getStyles);
-
   const { basicAuthStrongPasswordPolicy } = config.auth;
   if (!basicAuthStrongPasswordPolicy) {
     return null;
@@ -85,38 +83,27 @@ export const ValidationLabel = ({ strongPasswordValidation, password, pristine }
   const iconName = result || pristine ? 'check' : 'exclamation-triangle';
   const textColor = result ? 'secondary' : pristine ? 'primary' : 'error';
 
-  let iconClassName = undefined;
-  if (result) {
-    iconClassName = styles.icon.valid;
-  } else if (pristine) {
-    iconClassName = styles.icon.pending;
-  } else {
-    iconClassName = styles.icon.error;
-  }
+  const iconColor = result ? styles.iconValid : pristine ? styles.iconPending : styles.iconError;
 
   return (
     <Box key={message} display={'flex'} alignItems={'center'} marginTop={1}>
-      <Icon className={cx(styles.icon.style, iconClassName)} name={iconName} />
+      <Icon xstyle={[styles.icon, iconColor]} name={iconName} />
       <Text color={textColor}>{message}</Text>
     </Box>
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: {
-      style: css({
-        marginRight: theme.spacing(1),
-      }),
-      valid: css({
-        color: theme.colors.success.text,
-      }),
-      pending: css({
-        color: theme.colors.secondary.text,
-      }),
-      error: css({
-        color: theme.colors.error.text,
-      }),
-    },
-  };
-};
+const styles = stylex.create({
+  icon: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  iconValid: {
+    color: colors['--gf-colors-success-text'],
+  },
+  iconPending: {
+    color: colors['--gf-colors-secondary-text'],
+  },
+  iconError: {
+    color: colors['--gf-colors-error-text'],
+  },
+});

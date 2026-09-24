@@ -1,9 +1,9 @@
 import { action } from '@storybook/addon-actions';
 import { useArgs } from '@storybook/preview-api';
 import { type Meta, type StoryFn } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 import { ColorPicker } from './ColorPicker';
 import mdx from './ColorPicker.mdx';
@@ -44,7 +44,6 @@ export const Basic: StoryFn<typeof ColorPicker> = ({ color, enableNamedColors })
 
 export const CustomTrigger: StoryFn<typeof ColorPicker> = ({ color, enableNamedColors }) => {
   const [, updateArgs] = useArgs();
-  const clearButton = useStyles2(clearButtonStyles);
   return (
     <ColorPicker
       enableNamedColors={enableNamedColors}
@@ -60,8 +59,8 @@ export const CustomTrigger: StoryFn<typeof ColorPicker> = ({ color, enableNamedC
           ref={ref}
           onMouseLeave={hideColorPicker}
           onClick={showColorPicker}
+          className={stylex.props(styles.clearButton).className}
           style={{ color: 'white', backgroundColor: color, padding: '8px' }}
-          className={clearButton}
         >
           Open color picker
         </button>
@@ -71,3 +70,12 @@ export const CustomTrigger: StoryFn<typeof ColorPicker> = ({ color, enableNamedC
 };
 
 export default meta;
+
+const styles = stylex.create({
+  clearButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+  },
+});
