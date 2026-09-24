@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { capitalize, groupBy } from 'lodash';
 import { useEffect, useMemo } from 'react';
 
-import { type DataFrame, type DataFrameJSON, type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type DataFrame, type DataFrameJSON, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Stack, Text, useStyles2, useTheme2 } from '@grafana/ui';
+import { Icon, Stack, Text, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedRule } from 'app/types/unified-alerting';
 import { GrafanaAlertState, mapStateWithReasonToBaseState } from 'app/types/unified-alerting-dto';
 
@@ -205,13 +206,12 @@ interface AnnotationsProps {
   rule: CombinedRule;
 }
 const Annotations = ({ rule }: AnnotationsProps) => {
-  const styles = useStyles2(getStyles);
   const annotations = rule.annotations;
   if (!annotations || Object.keys(annotations).length === 0) {
     return null;
   }
   return (
-    <div className={styles.metadataWrapper}>
+    <div {...stylex.props(styles.metadataWrapper)}>
       {Object.entries(annotations).map(([name, value]) => {
         const capitalizedName = capitalize(name);
         return (
@@ -248,9 +248,8 @@ interface NumberTransitionsProps {
   transitions: number;
 }
 function NumberTransitions({ transitions }: NumberTransitionsProps) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.transitionsNumber}>
+    <div {...stylex.props(styles.transitionsNumber)}>
       <Text variant="body" weight="bold" color="secondary">
         <Trans i18nKey="alerting.central-alert-history.details.number-transitions">
           State transitions for selected period:
@@ -262,20 +261,18 @@ function NumberTransitions({ transitions }: NumberTransitionsProps) {
     </div>
   );
 }
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    metadataWrapper: css({
-      display: 'grid',
-      gridTemplateColumns: 'auto auto',
-      rowGap: theme.spacing(3),
-      columnGap: theme.spacing(12),
-    }),
-    transitionsNumber: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
-      alignItems: 'center',
-      marginTop: theme.spacing(1.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  metadataWrapper: {
+    display: 'grid',
+    gridTemplateColumns: 'auto auto',
+    rowGap: spacing['--gf-spacing-x3'],
+    columnGap: `calc(${spacing['--gf-spacing-grid-size']} * 12)`,
+  },
+  transitionsNumber: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing['--gf-spacing-x0-5'],
+    alignItems: 'center',
+    marginTop: spacing['--gf-spacing-x1-5'],
+  },
+});

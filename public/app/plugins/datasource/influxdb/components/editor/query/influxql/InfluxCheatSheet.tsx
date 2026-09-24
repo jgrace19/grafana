@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 const CHEAT_SHEET_ITEMS = [
   {
@@ -12,14 +11,12 @@ const CHEAT_SHEET_ITEMS = [
 ];
 
 export const InfluxCheatSheet = () => {
-  const styles = useStyles2(getStyles);
-
   return (
     <div>
       <h2>InfluxDB Cheat Sheet</h2>
       {CHEAT_SHEET_ITEMS.map((item) => (
-        <div className={styles.cheatSheetItem} key={item.title}>
-          <div className={styles.cheatSheetItemTitle}>{item.title}</div>
+        <div {...stylex.props(styles.cheatSheetItem)} key={item.title}>
+          <div {...stylex.props(styles.cheatSheetItemTitle)}>{item.title}</div>
           {item.label}
         </div>
       ))}
@@ -27,11 +24,15 @@ export const InfluxCheatSheet = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  cheatSheetItem: css({
-    margin: theme.spacing(3, 0),
-  }),
-  cheatSheetItemTitle: css({
-    fontSize: theme.typography.h3.fontSize,
-  }),
+const styles = stylex.create({
+  cheatSheetItem: {
+    marginTop: spacing['--gf-spacing-x3'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x3'],
+    marginLeft: spacing['--gf-spacing-x0'],
+  },
+
+  cheatSheetItemTitle: {
+    fontSize: typography['--gf-typography-h3-font-size'],
+  },
 });

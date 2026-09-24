@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
 import { SIGV4ConnectionConfig } from '@grafana/aws-sdk';
 import { hasCredentials } from '@grafana/azure-sdk';
-import { type DataSourcePluginOptionsEditorProps, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { AdvancedHttpSettings, ConfigSection, DataSourceDescription } from '@grafana/plugin-ui';
 import { AlertingSettingsOverhaul, type PromOptions, PromSettings } from '@grafana/prometheus';
 import { config } from '@grafana/runtime';
-import { Alert, FieldValidationMessage, TextLink, useTheme2 } from '@grafana/ui';
+import { Alert, FieldValidationMessage, TextLink } from '@grafana/ui';
 
 import { AzureAuthSettings } from './AzureAuthSettings';
 import { type AzurePromDataSourceSettings, setDefaultCredentials, resetCredentials } from './AzureCredentialsConfig';
@@ -28,9 +28,6 @@ export const ConfigEditor = (props: Props) => {
     azureSettingsUI: AzureAuthSettings,
   };
 
-  const theme = useTheme2();
-  const styles = overhaulStyles(theme);
-
   return (
     <>
       {options.access === 'direct' && (
@@ -42,7 +39,7 @@ export const ConfigEditor = (props: Props) => {
         dataSourceName="Prometheus"
         docsLink="https://grafana.com/docs/grafana/latest/datasources/prometheus/configure/"
       />
-      <hr className={`${styles.hrTopSpace} ${styles.hrBottomSpace}`} />
+      <hr {...stylex.props(styles.hrTopSpace, styles.hrBottomSpace)} />
       <DataSourcehttpSettingsOverhaul
         options={options}
         onOptionsChange={onOptionsChange}
@@ -55,12 +52,12 @@ export const ConfigEditor = (props: Props) => {
       />
       <hr />
       <ConfigSection
-        className={styles.advancedSettings}
+        className={stylex.props(styles.advancedSettings).className}
         title="Advanced settings"
         description="Additional settings are optional settings that can be configured for more control over your data source."
       >
         <AdvancedHttpSettings
-          className={styles.advancedHTTPSettingsMargin}
+          className={stylex.props(styles.advancedHTTPSettingsMargin).className}
           config={options}
           onChange={onOptionsChange}
         />
@@ -98,56 +95,20 @@ export const validateInput = (
   }
 };
 
-export function overhaulStyles(theme: GrafanaTheme2) {
-  return {
-    additionalSettings: css({
-      marginBottom: '25px',
-    }),
-    secondaryGrey: css({
-      color: `${theme.colors.secondary.text}`,
-      opacity: '65%',
-    }),
-    inlineError: css({
-      margin: '0px 0px 4px 245px',
-    }),
-    switchField: css({
-      alignItems: 'center',
-    }),
-    sectionHeaderPadding: css({
-      paddingTop: '32px',
-    }),
-    sectionBottomPadding: css({
-      paddingBottom: '28px',
-    }),
-    subsectionText: css({
-      fontSize: '12px',
-    }),
-    hrBottomSpace: css({
-      marginBottom: '56px',
-    }),
-    hrTopSpace: css({
-      marginTop: '50px',
-    }),
-    textUnderline: css({
-      textDecoration: 'underline',
-    }),
-    versionMargin: css({
-      marginBottom: '12px',
-    }),
-    advancedHTTPSettingsMargin: css({
-      margin: '24px 0 8px 0',
-    }),
-    advancedSettings: css({
-      paddingTop: '32px',
-    }),
-    alertingTop: css({
-      marginTop: '40px !important',
-    }),
-    overhaulPageHeading: css({
-      fontWeight: '400',
-    }),
-    container: css({
-      maxwidth: '578',
-    }),
-  };
-}
+const styles = stylex.create({
+  hrBottomSpace: {
+    marginBottom: '56px',
+  },
+  hrTopSpace: {
+    marginTop: '50px',
+  },
+  advancedHTTPSettingsMargin: {
+    marginTop: '24px',
+    marginRight: 0,
+    marginBottom: '8px',
+    marginLeft: 0,
+  },
+  advancedSettings: {
+    paddingTop: '32px',
+  },
+});

@@ -1,5 +1,3 @@
-import { css } from '@emotion/css';
+import './styles.css';
 
-export const paddingRightClass = css({
-  paddingRight: '4px',
-});
+export const paddingRightClass = 'gf-influx-select-padding-right';

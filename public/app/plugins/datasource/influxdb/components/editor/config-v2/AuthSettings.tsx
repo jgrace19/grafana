@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useState } from 'react';
 import { useWindowSize } from 'react-use';
 
@@ -19,7 +19,6 @@ import {
   Label,
   RadioButtonGroup,
   SecretInput,
-  useStyles2,
   Text,
   Stack,
   InlineLabel,
@@ -28,7 +27,7 @@ import {
 import {
   AUTH_RADIO_BUTTON_OPTIONS,
   DB_SETTINGS_LABEL_WIDTH,
-  getInlineLabelStyles,
+  inlineLabelStyles,
   RADIO_BUTTON_OPTIONS,
 } from './constants';
 import {
@@ -49,7 +48,6 @@ type AuthOptionState = {
 
 export const AuthSettings = (props: Props) => {
   const { options, onOptionsChange } = props;
-  const styles = useStyles2(getInlineLabelStyles);
   const { width } = useWindowSize();
 
   const authProps = useMemo(
@@ -133,7 +131,10 @@ export const AuthSettings = (props: Props) => {
   return (
     <Stack direction="column">
       <Box alignItems="center">
-        <InlineField label={<div className={cx(styles.label)}>Auth and TLS/SSL Settings</div>} labelWidth={35}>
+        <InlineField
+          label={<div {...stylex.props(inlineLabelStyles.label)}>Auth and TLS/SSL Settings</div>}
+          labelWidth={35}
+        >
           <InlineSwitch
             data-testid="influxdb-v2-config-auth-settings-toggle"
             value={authenticationSettingsIsOpen}
