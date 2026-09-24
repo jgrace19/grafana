@@ -37,6 +37,9 @@ import { findVizPanelByKey, getVizPanelKeyForPanelId } from '../utils/utils';
 import { DashboardScene } from './DashboardScene';
 
 export const UNCONFIGURED_PANEL_PLUGIN_ID = '__unconfigured-panel';
+// A url() in a dynamic style resolves against the stylesheet, not the document, so the relative asset path is made
+// absolute the way Emotion's inline <style> resolved it.
+const EMPTY_PANEL_BACKGROUND = `url(${new URL(emptyPanelSvg, document.baseURI).href})`;
 const UnconfiguredPanel = new PanelPlugin(UnconfiguredPanelComp);
 
 function hasSavedQueryReadPermissions(): boolean {
@@ -207,7 +210,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
   return (
     <div
       ref={measureRef}
-      {...stylex.props(styles.root, styles.backgroundImage(`url(${emptyPanelSvg})`))}
+      {...stylex.props(styles.root, styles.backgroundImage(EMPTY_PANEL_BACKGROUND))}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsFocused(true)}
