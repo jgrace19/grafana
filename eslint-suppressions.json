@@ -504,11 +504,6 @@
       "count": 1
     }
   },
-  "packages/grafana-ui/src/compat/emotion/cascaderStyles.ts": {
-    "@grafana/no-unreduced-motion": {
-      "count": 17
-    }
-  },
   "packages/grafana-ui/src/components/ColorPicker/ColorPicker.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
