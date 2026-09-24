@@ -38,6 +38,38 @@ yarn storybook:build                                       # -> packages/grafana
 
 A running Grafana caches the asset manifest: restart it after rebuilding the frontend.
 
+## Match the baseline environment (never relax the check)
+
+`diff.mjs` fails on any environment mismatch, so fix the machine rather than the check. The baseline's
+fingerprint is in `manifest.json > environment`: Playwright 1.56.1, Chromium 141.0.7390.37, Node v24.11.0,
+Ubuntu 24.04.4 (linux 6.12.94+ x64), `fontsSha256` `c06afa0c80fbb20c6ec8c521ef2797901104c56a5882b6c72bad7018c99d0362`
+(373 fonts), plus a `harnessSha256` of these scripts.
+
+On the cloud-agent VM image, the only step needed was `npx playwright install chromium`, which downloads the pinned
+Chromium into `~/.cache/ms-playwright`; the OS and fonts already matched. To check a machine before a
+15-minute run:
+
+```bash
+npx playwright --version                                            # Version 1.56.1
+fc-list --format '%{file}|%{family}|%{style}\n' | sort | node -e \
+  "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(require('crypto').createHash('sha256').update(d.trim()).digest('hex')))"
+```
+
+On another image, install the missing font packages until the hash matches. Don't edit these scripts
+locally either: a changed `harnessSha256` shows up in the manifest.
+
+## Decisions already made
+
+- Server timestamps are rewritten to fixed values instead of masked; this satisfies the "no masks on styled
+  chrome" rule.
+- App pages boot at a fixed clock and freeze it right before the first screenshot; this satisfies the
+  frozen-clock rule.
+- The only mask (the Combobox suffix icon in the contact-point / routing-tree selector stories) covers a
+  pre-existing `main` bug: react-inlinesvg sometimes keeps the spinner SVG. Don't fix it as part of the
+  migration.
+- The copy in the migration project store (`internal/visual-baseline/`) is the reference; keep this directory
+  identical to it.
+
 ## Run a slice check
 
 ```bash

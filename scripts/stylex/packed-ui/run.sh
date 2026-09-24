@@ -13,7 +13,11 @@ WORK=${PACKED_UI_WORKDIR:-$(mktemp -d)}
 PACKAGES=(grafana-ui grafana-data grafana-schema grafana-e2e-selectors grafana-i18n)
 
 if [ "${1:-}" != "--skip-build" ]; then
-  yarn nx run-many -t build --projects=@grafana/data,@grafana/schema,@grafana/e2e-selectors,@grafana/i18n
+  # @grafana/schema's build races itself (its rollup copy step runs once per output), so allow retries.
+  for attempt in 1 2 3; do
+    yarn nx run-many -t build --projects=@grafana/data,@grafana/schema,@grafana/e2e-selectors,@grafana/i18n && break
+    [ "$attempt" = 3 ] && exit 1
+  done
   # The StyleX compiler (and its local patch) isn't an nx input, so never reuse a cached @grafana/ui build.
   yarn nx run @grafana/ui:build --skip-nx-cache
 fi
