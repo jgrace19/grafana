@@ -22,5 +22,3 @@ public/app/plugins/datasource/opentsdb/** # decoupled plugin workspace: no plugi
 public/app/plugins/datasource/parca/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet
-
-packages/grafana-ui/src/components/Table/TableNG/Filter/FilterPopup.tsx # stylex: pending Label (U2) and ButtonSelect/ToolbarButton migration: their className overrides stay in Emotion (conventions 3.9)

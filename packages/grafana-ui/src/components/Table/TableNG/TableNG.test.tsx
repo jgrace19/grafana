@@ -700,16 +700,6 @@ describe('TableNG', () => {
         // Check that the pagination summary shows we're on a different page
         // The format appears to be "X - Y of Z rows" where X and Y are the row range
         expect(container).toHaveTextContent(/\d+ - \d+ of 100 rows/);
-
-        // Verify that the pagination summary has changed
-        const paginationSummary = container.querySelector('.paginationSummary, [class*="paginationSummary"]');
-        if (paginationSummary) {
-          const summaryText = paginationSummary.textContent || '';
-          expect(summaryText).toContain('of 100 rows');
-        } else {
-          // If we can't find the pagination summary by class, just check the container text
-          expect(container).toHaveTextContent(/of 100 rows/);
-        }
       }
     });
 

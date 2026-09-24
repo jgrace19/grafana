@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Label and ButtonSelect migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type Dispatch, memo, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -139,7 +137,7 @@ export const FilterPopup = memo(
         ref={containerRef}
       >
         <Stack direction="column">
-          <Stack alignItems="center">{field && <Label className={labelOverride}>{getDisplayName(field)}</Label>}</Stack>
+          <Stack alignItems="center">{field && <Label className="gf-table-ng-filter-label">{getDisplayName(field)}</Label>}</Stack>
 
           <Stack gap={1}>
             <div {...stylex.props(styles.inputContainer)}>
@@ -151,7 +149,7 @@ export const FilterPopup = memo(
                 value={searchFilter}
                 suffix={
                   <ButtonSelect
-                    className={buttonSelectOverride}
+                    className="gf-table-ng-filter-operator"
                     options={operators}
                     onChange={setOperator}
                     value={operator}
@@ -222,15 +220,4 @@ const styles = stylex.create({
   },
 });
 
-// stylex: pending Label and ButtonSelect migration. Their own Emotion styles would beat StyleX classes.
-const labelOverride = css({
-  marginBottom: 0,
-});
-
-const buttonSelectOverride = css({
-  fontSize: 12,
-  '&:hover, &:focus, &:active': {
-    color: colors['--gf-colors-text-primary'],
-    background: 'transparent',
-  },
-});
+// The Label and ButtonSelect overrides are in TableNG.css.
