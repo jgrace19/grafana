@@ -28,5 +28,6 @@ export function ThresholdSelect({ onChange, value }: ThresholdSelectProps) {
 const buttonSelectTextClassName = css({
   color: colors['--gf-colors-primary-text'],
   fontSize: typography['--gf-typography-body-small-font-size'],
+  textTransform: 'uppercase',
   padding: `0 ${spacing['--gf-spacing-x1']}`,
 });
