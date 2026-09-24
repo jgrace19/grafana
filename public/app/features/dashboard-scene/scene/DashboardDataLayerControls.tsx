@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type SceneDataLayerProvider, sceneGraph } from '@grafana/scenes';
-import { useElementSelection, useStyles2 } from '@grafana/ui';
+import { useElementSelection } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { annotationEditActions } from '../settings/annotations/actions';
 
@@ -41,7 +41,6 @@ export function DashboardDataLayerControls({ dashboard, inMenu }: DashboardDataL
 }
 
 export function DataLayerControlEditWrapper({ layer, inMenu }: { layer: SceneDataLayerProvider; inMenu?: boolean }) {
-  const styles = useStyles2(getStyles);
   const { isSelectable } = useElementSelection(layer.state.key);
 
   const onClickEditLayer = useCallback(() => {
@@ -67,20 +66,19 @@ export function DataLayerControlEditWrapper({ layer, inMenu }: { layer: SceneDat
 
   return (
     <ControlActionsPopover isEditable={Boolean(isSelectable)} content={editActions}>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <DataLayerControl layer={layer} inMenu={inMenu} />
       </div>
     </ControlActionsPopover>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    label: 'dashboard-data-layer-controls',
+const styles = stylex.create({
+  container: {
     display: 'inline-flex',
     alignItems: 'center',
     verticalAlign: 'middle',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  }),
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });

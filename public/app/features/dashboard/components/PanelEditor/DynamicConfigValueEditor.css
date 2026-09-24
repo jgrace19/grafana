@@ -1,0 +1,7 @@
+/*
+ * StyleX can't express an adjacent-sibling rule (`when.siblingBefore` matches any later sibling), so this
+ * keeps the Emotion rule it replaces, unlayered and at the same specificity.
+ */
+.gf-dynamic-config-value-editor--collapsible + .dynamicConfigValueEditor--nonCollapsible {
+  margin-top: var(--gf-spacing-x1);
+}

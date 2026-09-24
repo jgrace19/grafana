@@ -1,0 +1,7 @@
+/*
+ * The disabled "Group into tab" item lets its label inherit the disabled text color. The label is rendered by
+ * Menu.Item, so this is plain CSS: unlayered, at the specificity of the Emotion rule it replaces.
+ */
+.gf-canvas-add-actions-disabled-item > div > span {
+  color: inherit;
+}

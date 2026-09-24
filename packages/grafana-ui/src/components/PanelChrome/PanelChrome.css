@@ -1,0 +1,44 @@
+/*
+ * PanelChrome styles elements it doesn't own: the `show-on-hover` / `always-show` hooks that panel header
+ * content (HoverWidget, dashboard header actions, the menu button) opts into, the Text heading of the title,
+ * and the menu Button, which has no StyleX override prop. Deliberately not in a cascade layer: like the
+ * Emotion rules they replace, these must win over the children's own styles, at the same specificity.
+ */
+.gf-panel-container .always-show {
+  background: none;
+}
+
+.gf-panel-container .always-show:focus-visible,
+.gf-panel-container .always-show:hover {
+  background: var(--gf-colors-secondary-shade);
+}
+
+.gf-panel-container .show-on-hover {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.gf-panel-container:focus-visible .show-on-hover,
+.gf-panel-container:hover .show-on-hover {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Only when descendants are focused, otherwise the hover header shows when the panel itself is clicked. */
+.gf-panel-container:focus-within:not(:focus) .show-on-hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+.gf-panel-chrome-title > h2 {
+  min-width: 0;
+}
+
+.gf-panel-chrome-menu {
+  border: none;
+  background: var(--gf-colors-secondary-main);
+}
+
+.gf-panel-chrome-menu:hover {
+  background: var(--gf-colors-secondary-shade);
+}

@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useEffect } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type PanelPlugin, type GrafanaTheme2 } from '@grafana/data';
+import { type PanelPlugin } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -10,7 +10,6 @@ import {
   Tab,
   TabsBar,
   CodeEditor,
-  useStyles2,
   Field,
   InlineSwitch,
   Button,
@@ -34,7 +33,6 @@ interface Props {
 }
 
 export function HelpWizard({ panel, plugin, onClose }: Props) {
-  const styles = useStyles2(getStyles);
   const service = useMemo(() => new SupportSnapshotService(panel), [panel]);
 
   const {
@@ -112,18 +110,29 @@ export function HelpWizard({ panel, plugin, onClose }: Props) {
       {error && <Alert title={error.title}>{error.message}</Alert>}
 
       {currentTab === SnapshotTab.Data && (
-        <div className={styles.code}>
-          <div className={styles.opts}>
-            <Field label={t('dashboard.help-wizard.label-template', 'Template')} className={styles.field}>
+        <div {...stylex.props(styles.code)}>
+          <div {...stylex.props(styles.opts)}>
+            <Field
+              label={t('dashboard.help-wizard.label-template', 'Template')}
+              className={stylex.props(styles.field).className}
+            >
               <Select options={options} value={showMessage} onChange={service.onShowMessageChange} />
             </Field>
 
             {showMessage === ShowMessage.GithubComment ? (
-              <ClipboardButton icon="copy" getText={service.onGetMarkdownForClipboard}>
+              <ClipboardButton
+                icon="copy"
+                getText={service.onGetMarkdownForClipboard}
+                className={stylex.props(styles.optsButton).className}
+              >
                 <Trans i18nKey="dashboard.help-wizard.copy-to-clipboard">Copy to clipboard</Trans>
               </ClipboardButton>
             ) : (
-              <Button icon="download-alt" onClick={service.onDownloadDashboard}>
+              <Button
+                icon="download-alt"
+                onClick={service.onDownloadDashboard}
+                className={stylex.props(styles.optsButton).className}
+              >
                 <Trans i18nKey="dashboard.help-wizard.download-snapshot">Download ({{ snapshotSize }})</Trans>
               </Button>
             )}
@@ -212,23 +221,23 @@ export function HelpWizard({ panel, plugin, onClose }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  code: css({
+const styles = stylex.create({
+  code: {
     flexGrow: 1,
     height: '100%',
     overflow: 'scroll',
-  }),
-  field: css({
+  },
+  field: {
     width: '100%',
-  }),
-  opts: css({
+  },
+  opts: {
     display: 'flex',
     width: '100%',
     flexGrow: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    button: {
-      marginLeft: '8px',
-    },
-  }),
+  },
+  optsButton: {
+    marginLeft: '8px',
+  },
 });

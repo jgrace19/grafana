@@ -1,7 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import {
   type AdHocFiltersVariable,
@@ -9,7 +8,8 @@ import {
   type VariableValueOption,
   type VariableValueSingle,
 } from '@grafana/scenes';
-import { Button, Checkbox, ClickOutsideWrapper, FilterInput, Spinner, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Checkbox, ClickOutsideWrapper, FilterInput, Spinner, Stack } from '@grafana/ui';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   groupByVariable: GroupByVariable | AdHocFiltersVariable;
@@ -32,8 +32,6 @@ export function PanelGroupByActionPopover({
   values,
   onValuesChange,
 }: Props) {
-  const styles = useStyles2(getStyles);
-
   const onCheckedChanged = useCallback(
     (option: VariableValueOption) => (event: React.FormEvent<HTMLInputElement>) => {
       const newValues = event.currentTarget.checked
@@ -103,9 +101,9 @@ export function PanelGroupByActionPopover({
     <ClickOutsideWrapper onClick={onCancel} useCapture={true}>
       {/* This is just blocking click events from bubbeling and should not have a keyboard interaction. */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-      <div className={styles.menuContainer} onClick={(ev) => ev.stopPropagation()}>
+      <div {...stylex.props(styles.menuContainer)} onClick={(ev) => ev.stopPropagation()}>
         <Stack direction="column">
-          <div className={styles.searchContainer}>
+          <div {...stylex.props(styles.searchContainer)}>
             <FilterInput
               placeholder={t('panel-group-by.search-placeholder', 'Search')}
               value={searchValue}
@@ -114,21 +112,21 @@ export function PanelGroupByActionPopover({
             />
           </div>
 
-          <div className={styles.listContainer}>
+          <div {...stylex.props(styles.listContainer)}>
             {isLoading ? (
-              <div className={styles.emptyMessage}>
+              <div {...stylex.props(styles.emptyMessage)}>
                 <Spinner size="sm" inline />
                 &nbsp;
                 <Trans i18nKey="panel-group-by.loading">Loading options</Trans>
               </div>
             ) : options.length === 0 ? (
-              <div className={styles.emptyMessage}>
+              <div {...stylex.props(styles.emptyMessage)}>
                 <Trans i18nKey="panel-group-by.no-options">No options found</Trans>
               </div>
             ) : (
               options.map((option) => {
                 return (
-                  <div key={String(option.value)} className={cx(styles.option)}>
+                  <div key={String(option.value)} {...stylex.props(styles.option)}>
                     <Checkbox value={isChecked(option)} label={option.label} onChange={onCheckedChanged(option)} />
                   </div>
                 );
@@ -150,47 +148,51 @@ export function PanelGroupByActionPopover({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  menuContainer: css({
+const styles = stylex.create({
+  menuContainer: {
     display: 'flex',
     flexDirection: 'column',
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    padding: theme.spacing(2),
-  }),
-  searchContainer: css({
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    padding: spacing['--gf-spacing-x2'],
+  },
+  searchContainer: {
     width: '100%',
-    paddingBottom: theme.spacing(1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  listContainer: css({
-    flex: 1,
+    paddingBottom: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  listContainer: {
+    flex: '1',
     overflow: 'auto',
     minHeight: '100px',
     maxHeight: '300px',
-    padding: theme.spacing(0.5),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  option: css({
+    padding: spacing['--gf-spacing-x0-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  option: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
-    borderRadius: theme.shape.radius.default,
-    '&:hover': {
-      background: theme.colors.background.secondary,
-    },
-    '&:focus-visible': {
-      outline: `2px solid ${theme.colors.primary.border}`,
-      outlineOffset: '-2px',
-    },
-  }),
-  emptyMessage: css({
-    padding: theme.spacing(2),
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-background-secondary'] },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineStyle: { default: null, ':focus-visible': 'solid' },
+    outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-border'] },
+    outlineOffset: { default: null, ':focus-visible': '-2px' },
+  },
+  emptyMessage: {
+    padding: spacing['--gf-spacing-x2'],
     textAlign: 'center',
-    color: theme.colors.text.secondary,
-  }),
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

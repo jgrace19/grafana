@@ -1,0 +1,7 @@
+/*
+ * Override on TabContent, which takes no xstyle and sets its own background. Unlayered, and the doubled class outranks
+ * TabContent's rule (which may be inserted later) like the Emotion className override it replaces.
+ */
+.gf-tab-content.gf-tab-content {
+  background-color: transparent;
+}
