@@ -1,12 +1,14 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type FormEvent, memo } from 'react';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
-import { Checkbox, Portal, useStyles2, useTheme2 } from '@grafana/ui';
-import { getSelectStyles } from '@grafana/ui/internal';
+import { Checkbox, Portal } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { getStyles } from './styles';
+import './RoleMenuGroupOption.css';
+import { optionStyles } from './styles';
 
 interface RoleMenuGroupsOptionProps {
   // display name
@@ -44,16 +46,6 @@ export const RoleMenuGroupOption = memo(
       },
       ref
     ) => {
-      const theme = useTheme2();
-      const styles = getSelectStyles(theme);
-      const customStyles = useStyles2(getStyles);
-
-      const wrapperClassName = cx(
-        styles.option,
-        isFocused && styles.optionFocused,
-        disabled && customStyles.menuOptionDisabled
-      );
-
       const onChangeInternal = (event: FormEvent<HTMLElement>) => {
         if (disabled) {
           return;
@@ -87,24 +79,27 @@ export const RoleMenuGroupOption = memo(
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div
             ref={ref}
-            className={wrapperClassName}
+            {...stylex.props(
+              optionStyles.option,
+              isFocused && optionStyles.optionFocused,
+              disabled && optionStyles.menuOptionDisabled
+            )}
             aria-label={t('role-picker.menu-group-option-aria-label', 'Role picker option')}
             onClick={onClickInternal}
           >
             <Checkbox
               value={isSelected}
-              className={cx(customStyles.menuOptionCheckbox, {
-                [customStyles.checkboxPartiallyChecked]: partiallySelected,
-              })}
+              xstyle={optionStyles.menuOptionCheckbox}
+              className={clsx(partiallySelected && 'gf-role-picker-checkbox-partial')}
               onChange={onChangeInternal}
               disabled={disabled}
             />
-            <div className={cx(styles.optionBody, customStyles.menuOptionBody)}>
+            <div {...stylex.props(optionStyles.optionBody, optionStyles.menuOptionBody)}>
               <span>{name}</span>
-              <span className={customStyles.menuOptionExpand} />
+              <span {...stylex.props(styles.menuOptionExpand)} />
             </div>
             {root && children && (
-              <Portal className={customStyles.subMenuPortal} root={root}>
+              <Portal className="gf-role-picker-submenu-portal" root={root}>
                 {children}
               </Portal>
             )}
@@ -116,3 +111,14 @@ export const RoleMenuGroupOption = memo(
 );
 
 RoleMenuGroupOption.displayName = 'RoleMenuGroupOption';
+
+const styles = stylex.create({
+  menuOptionExpand: {
+    position: 'absolute',
+    right: `calc(${spacing['--gf-spacing-grid-size']} * 2.5)`,
+    color: colors['--gf-colors-text-disabled'],
+    '::after': {
+      content: '">"',
+    },
+  },
+});

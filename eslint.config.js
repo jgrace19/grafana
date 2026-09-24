@@ -210,6 +210,8 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard/components/{PublicDashboard,PublicDashboardNotAvailable,SaveDashboard,ShareModal,SubMenu,TransformationsEditor,VersionHistory}/**/*.{ts,tsx}',
   'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
   'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
+  // Lock-down B: RolePicker, core options slider, Input look-alikes
+  'public/app/core/components/RolePicker/*.{ts,tsx}',
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
