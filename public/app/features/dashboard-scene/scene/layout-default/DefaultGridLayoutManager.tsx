@@ -1,6 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
+import { AppEvents } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
@@ -19,7 +19,8 @@ import {
   type SceneObject,
 } from '@grafana/scenes';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
 import DashboardEmpty from 'app/features/dashboard/dashgrid/DashboardEmpty/DashboardEmpty';
 
@@ -48,7 +49,6 @@ import { useSoloPanelContext } from '../SoloPanelContext';
 import { AutoGridItem } from '../layout-auto-grid/AutoGridItem';
 import { CanvasGridAddActions } from '../layouts-shared/CanvasGridAddActions';
 import { clearClipboard, getDashboardGridItemFromClipboard } from '../layouts-shared/paste';
-import { dashboardCanvasAddButtonHoverStyles } from '../layouts-shared/styles';
 import { type DashboardLayoutGrid } from '../types/DashboardLayoutGrid';
 import { type DashboardLayoutManager } from '../types/DashboardLayoutManager';
 import { type LayoutRegistryItem } from '../types/LayoutRegistryItem';
@@ -57,6 +57,9 @@ import { DashboardGridItem } from './DashboardGridItem';
 import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 import { findSpaceForNewPanel } from './findSpaceForNewPanel';
 import { RowActions } from './row-actions/RowActions';
+
+import '../layouts-shared/canvasControls.global.css';
+import './DefaultGridLayoutManager.css';
 
 interface DefaultGridLayoutManagerState extends SceneObjectState {
   grid: SceneGridLayout;
@@ -659,7 +662,6 @@ function DefaultGridLayoutManagerRenderer({ model }: SceneComponentProps<Default
   const dashboard = useDashboard(model);
   const { isEditing } = dashboard.useState();
   const hasClonedParents = isRepeatCloneOrChildOf(model);
-  const styles = useStyles2(getStyles);
   const showCanvasActions = isEditing && config.featureToggles.dashboardNewLayouts && !hasClonedParents;
   const soloPanelContext = useSoloPanelContext();
 
@@ -676,12 +678,14 @@ function DefaultGridLayoutManagerRenderer({ model }: SceneComponentProps<Default
 
   return (
     <div
-      className={cx(styles.container, isEditing && styles.containerEditing)}
+      {...mergeStylexProps(stylex.props(styles.container), {
+        className: isEditing ? 'gf-default-grid-layout-editing' : undefined,
+      })}
       data-testid={selectors.components.LayoutContainer(getTestIdForLayout(model))}
     >
       {model.state.grid.Component && <model.state.grid.Component model={model.state.grid} />}
       {showCanvasActions && (
-        <div className={styles.actionsWrapper}>
+        <div {...stylex.props(styles.actionsWrapper)}>
           <CanvasGridAddActions layoutManager={model} />
         </div>
       )}
@@ -703,30 +707,16 @@ function SceneGridRowRenderer({ model }: SceneComponentProps<SceneGridRow>) {
   return <OriginalSceneGridRowRenderer model={model} />;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      width: '100%',
-      display: 'flex',
-      flexGrow: 1,
-      flexDirection: 'column',
-    }),
-    containerEditing: css({
-      '&:hover .dashboard-canvas-controls': {
-        opacity: 1,
-      },
-
-      // In editing the add actions should live at the bottom of the grid so we have to
-      // disable flex grow on the SceneGridLayouts first div
-      '> div:first-child': {
-        flexGrow: `0 !important`,
-        minHeight: 1,
-      },
-      ...dashboardCanvasAddButtonHoverStyles,
-    }),
-    actionsWrapper: css({
-      position: 'relative',
-      paddingBottom: theme.spacing(5),
-    }),
-  };
-}
+// While editing, DefaultGridLayoutManager.css and layouts-shared/canvasControls.global.css style the grid children.
+const styles = stylex.create({
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'column',
+  },
+  actionsWrapper: {
+    position: 'relative',
+    paddingBottom: spacing['--gf-spacing-x5'],
+  },
+});

@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { of } from 'rxjs';
 
-import { type GrafanaTheme2, type PluginMeta, PluginType } from '@grafana/data';
+import { type PluginMeta, PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, Spinner, useStyles2 } from '@grafana/ui';
+import { Alert, Spinner } from '@grafana/ui';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 import { SearchResultsTable } from 'app/features/search/page/components/SearchResultsTable';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
@@ -18,8 +18,6 @@ type Props = {
 };
 
 export function PluginUsage({ plugin }: Props) {
-  const styles = useStyles2(getStyles);
-
   const searchQuery = useMemo<SearchQuery>(() => {
     if (plugin.type === PluginType.datasource) {
       return {
@@ -42,8 +40,8 @@ export function PluginUsage({ plugin }: Props) {
   const found = results.value;
   if (found?.totalRows) {
     return (
-      <div className={styles.wrap}>
-        <div className={styles.info}>
+      <div {...stylex.props(styles.wrap)}>
+        <div {...stylex.props(styles.info)}>
           <Trans
             i18nKey="plugins.plugin-usage.num-usages"
             values={{ pluginName: plugin.name, numUsages: found.totalRows }}
@@ -104,14 +102,12 @@ export function PluginUsage({ plugin }: Props) {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrap: css({
-      width: '100%',
-      height: '90%',
-    }),
-    info: css({
-      paddingBottom: '30px',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrap: {
+    width: '100%',
+    height: '90%',
+  },
+  info: {
+    paddingBottom: '30px',
+  },
+});

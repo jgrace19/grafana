@@ -1,10 +1,13 @@
-import { css, cx } from '@emotion/css';
 import { autoUpdate, offset, safePolygon, useFloating, useHover, useInteractions } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import React, { cloneElement, useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Portal, useStyles2 } from '@grafana/ui';
+import { IconButton, Portal } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './ControlActionsPopover.css';
 
 export function ControlActionsPopover({
   isEditable,
@@ -15,7 +18,6 @@ export function ControlActionsPopover({
   content: React.ReactNode;
   children: React.JSX.Element;
 }) {
-  const styles = useStyles2(getStyles);
   const [isOpen, setIsOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -38,7 +40,7 @@ export function ControlActionsPopover({
       {cloneElement(children, { ref: refs.setReference, ...getReferenceProps() })}
       {isOpen && content && (
         <Portal>
-          <div ref={refs.setFloating} style={floatingStyles} className={styles.popover} {...getFloatingProps()}>
+          <div ref={refs.setFloating} {...stylex.props(styles.popover)} style={floatingStyles} {...getFloatingProps()}>
             {content}
           </div>
         </Portal>
@@ -54,8 +56,6 @@ export function ControlEditActions({
   onClickEdit: () => void;
   onClickDelete: () => void;
 }) {
-  const styles = useStyles2(getStyles);
-
   const onClickEditInternal = useCallback(
     (event: React.MouseEvent) => {
       event.stopPropagation();
@@ -72,21 +72,21 @@ export function ControlEditActions({
   );
 
   return (
-    <div className={styles.hoverActions}>
+    <div {...stylex.props(styles.hoverActions)}>
       <IconButton
         name="pen"
         variant="primary"
         size="md"
-        className={cx(styles.action, styles.editAction)}
+        className="gf-control-edit-action gf-control-edit-action--edit"
         onPointerDown={onClickEditInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-edit', 'Edit')}
       />
-      <div className={styles.actionsDivider} />
+      <div {...stylex.props(styles.actionsDivider)} />
       <IconButton
         name="trash-alt"
         variant="destructive"
         size="md"
-        className={cx(styles.action, styles.deleteAction)}
+        className="gf-control-edit-action gf-control-edit-action--delete"
         onPointerDown={onClickDeleteInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-delete', 'Delete')}
       />
@@ -94,45 +94,29 @@ export function ControlEditActions({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  popover: css({
-    zIndex: theme.zIndex.portal,
-  }),
-  hoverActions: css({
+// The IconButton overrides live in ControlActionsPopover.css: they must beat IconButton's own margin and color.
+const styles = stylex.create({
+  popover: {
+    zIndex: zIndex.portal,
+  },
+  hoverActions: {
     display: 'flex',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    gap: theme.spacing(0.75),
-    padding: theme.spacing(1),
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z1,
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    padding: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z1'],
     position: 'relative',
     top: '2px',
-  }),
-  actionsDivider: css({
+  },
+  actionsDivider: {
     width: 1,
     alignSelf: 'stretch',
-    backgroundColor: theme.colors.border.medium,
-  }),
-  action: css({
-    margin: 0,
-    color: theme.colors.text.primary,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: theme.transitions.create(['color'], {
-        duration: theme.transitions.duration.short,
-      }),
-    },
-  }),
-  editAction: css({
-    '&:hover': {
-      color: theme.colors.primary.text,
-    },
-  }),
-  deleteAction: css({
-    '&:hover': {
-      color: theme.colors.error.text,
-    },
-  }),
+    backgroundColor: colors['--gf-colors-border-medium'],
+  },
 });

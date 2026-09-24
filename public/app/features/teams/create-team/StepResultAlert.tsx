@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Alert, type AlertVariant, Icon, Link, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, type AlertVariant, Icon, Link, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface StepResultAlertProps {
   severity: AlertVariant;
@@ -20,16 +20,14 @@ interface ResultCardLink {
  * created.
  */
 export function StepResultAlert({ severity, description, link, help }: StepResultAlertProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Alert severity={severity} title="" aria-label={description}>
       <Stack direction="row" justifyContent={'space-between'}>
         <Text>{description}</Text>
         {link && (
-          <Link href={link.href} className={styles.link}>
+          <Link href={link.href} {...stylex.props(styles.link)}>
             {link.text}
-            <Icon name="external-link-alt" size="md" aria-hidden={true} className={styles.linkIcon} />
+            <Icon name="external-link-alt" size="md" aria-hidden={true} xstyle={styles.linkIcon} />
           </Link>
         )}
       </Stack>
@@ -38,13 +36,14 @@ export function StepResultAlert({ severity, description, link, help }: StepResul
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  link: css({
+const styles = stylex.create({
+  link: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  linkIcon: css({
+    gap: spacing['--gf-spacing-x1'],
+  },
+
+  linkIcon: {
     flexShrink: 0,
-  }),
+  },
 });

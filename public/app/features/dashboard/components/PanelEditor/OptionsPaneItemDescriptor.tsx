@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { Field, Label, useStyles2 } from '@grafana/ui';
+import { Field, Label } from '@grafana/ui';
 
 import { type OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemOverrides } from './OptionsPaneItemOverrides';
@@ -133,9 +132,8 @@ interface OptionPanelLabelProps {
 }
 
 function OptionPaneLabel({ title, description, overrides, addon, htmlFor }: OptionPanelLabelProps) {
-  const styles = useStyles2(getLabelStyles);
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Label description={description} htmlFor={htmlFor}>
         {title}
         {overrides && overrides.length > 0 && <OptionsPaneItemOverrides overrides={overrides} />}
@@ -145,11 +143,9 @@ function OptionPaneLabel({ title, description, overrides, addon, htmlFor }: Opti
   );
 }
 
-function getLabelStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+});

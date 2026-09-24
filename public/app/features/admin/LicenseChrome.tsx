@@ -1,38 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import grafanaIconSvg from 'img/grafana_icon.svg';
 import headerDarkSvg from 'img/licensing/header_dark.svg';
 import headerLightSvg from 'img/licensing/header_light.svg';
 
 const title = { fontWeight: 500, fontSize: '26px', lineHeight: '123%' };
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const backgroundUrl = theme.isDark ? headerDarkSvg : headerLightSvg;
-  const footerBg = theme.isDark ? theme.v1.palette.dark9 : theme.v1.palette.gray6;
-
-  return {
-    container: css({
-      padding: theme.spacing(4),
-      background: theme.components.panel.background,
-    }),
-    footer: css({
-      textAlign: 'center',
-      padding: theme.spacing(2),
-      background: footerBg,
-      borderRadius: theme.shape.radius.lg,
-    }),
-    header: css({
-      height: '137px',
-      padding: theme.spacing(4, 0, 0, 4),
-      position: 'relative',
-      background: `url('${backgroundUrl}') right`,
-      borderRadius: theme.shape.radius.lg,
-    }),
-  };
-};
 
 interface Props {
   header: string;
@@ -42,11 +18,18 @@ interface Props {
 }
 
 export function LicenseChrome({ header, editionNotice, subheader, children }: Props) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const backgroundUrl = theme.isDark ? headerDarkSvg : headerLightSvg;
+  const footerBg = theme.isDark ? theme.v1.palette.dark9 : theme.v1.palette.gray6;
 
   return (
     <>
-      <div className={styles.header}>
+      <div
+        {...mergeStylexProps(stylex.props(styles.header), {
+          // A relative url() in a StyleX dynamic value would resolve against the stylesheet, not the document.
+          style: { backgroundImage: `url('${backgroundUrl}')` },
+        })}
+      >
         <h2 style={title}>{header}</h2>
         {subheader && <h3>{subheader}</h3>}
 
@@ -69,9 +52,9 @@ export function LicenseChrome({ header, editionNotice, subheader, children }: Pr
         </Circle>
       </div>
 
-      <div className={styles.container}>{children}</div>
+      <div {...stylex.props(styles.container)}>{children}</div>
 
-      {editionNotice && <div className={styles.footer}>{editionNotice}</div>}
+      {editionNotice && <div {...stylex.props(styles.footer, styles.footerBackground(footerBg))}>{editionNotice}</div>}
     </>
   );
 }
@@ -99,3 +82,28 @@ export const Circle = ({ size, style, children }: React.PropsWithChildren<Circle
     </div>
   );
 };
+
+const styles = stylex.create({
+  container: {
+    padding: spacing['--gf-spacing-x4'],
+    backgroundColor: components['--gf-components-panel-background'],
+  },
+  footer: {
+    textAlign: 'center',
+    padding: spacing['--gf-spacing-x2'],
+    borderRadius: shape['--gf-shape-radius-lg'],
+  },
+  footerBackground: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  header: {
+    height: '137px',
+    paddingTop: spacing['--gf-spacing-x4'],
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x4'],
+    position: 'relative',
+    backgroundPosition: 'right',
+    borderRadius: shape['--gf-shape-radius-lg'],
+  },
+});

@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
-import { formattedValueToString, type GrafanaTheme2 } from '@grafana/data';
+import { formattedValueToString } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { hoverColor } from '../../themes/mixins';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 
 import { VizLegendSeriesIcon } from './VizLegendSeriesIcon';
 import { type VizLegendItem } from './types';
@@ -38,7 +40,7 @@ export const LegendTableItem = ({
   className,
   readonly,
 }: Props) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   const onMouseOver = useCallback(
     (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FocusEvent<HTMLButtonElement>) => {
@@ -68,9 +70,14 @@ export const LegendTableItem = ({
   );
 
   return (
-    <tr className={cx(styles.row, className)}>
-      <td>
-        <span className={styles.itemWrapper}>
+    <tr
+      {...mergeStylexProps(
+        stylex.props(styles.row, styles.rowHover(hoverColor(theme.colors.background.primary, theme))),
+        { className }
+      )}
+    >
+      <td {...stylex.props(styles.cell)}>
+        <span {...stylex.props(styles.itemWrapper)}>
           <VizLegendSeriesIcon
             color={item.color}
             seriesName={item.fieldName ?? item.label}
@@ -86,11 +93,11 @@ export const LegendTableItem = ({
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             onClick={!readonly ? onClick : undefined}
-            className={cx(styles.label, item.disabled && styles.labelDisabled)}
+            {...stylex.props(styles.label, item.disabled && styles.labelDisabled)}
           >
             {item.label}{' '}
             {item.yAxis === 2 && (
-              <span className={styles.yAxisLabel}>
+              <span {...stylex.props(styles.yAxisLabel)}>
                 <Trans i18nKey="grafana-ui.viz-legend.right-axis-indicator">(right y-axis)</Trans>
               </span>
             )}
@@ -100,7 +107,7 @@ export const LegendTableItem = ({
       {item.getDisplayValues &&
         item.getDisplayValues().map((stat, index) => {
           return (
-            <td className={styles.value} key={`${stat.title}-${index}`}>
+            <td {...stylex.props(styles.cell, styles.value)} key={`${stat.title}-${index}`}>
               {formattedValueToString(stat)}
             </td>
           );
@@ -111,50 +118,48 @@ export const LegendTableItem = ({
 
 LegendTableItem.displayName = 'LegendTableItem';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const rowHoverBg = hoverColor(theme.colors.background.primary, theme);
-
-  return {
-    row: css({
-      label: 'LegendRow',
-      fontSize: theme.v1.typography.size.sm,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      td: {
-        padding: theme.spacing(0.25, 1),
-        whiteSpace: 'nowrap',
-      },
-
-      '&:hover': {
-        background: rowHoverBg,
-      },
-    }),
-    label: css({
-      label: 'LegendLabel',
-      whiteSpace: 'nowrap',
-      background: 'none',
-      border: 'none',
-      fontSize: 'inherit',
-      padding: 0,
-      maxWidth: '600px',
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      userSelect: 'text',
-    }),
-    labelDisabled: css({
-      label: 'LegendLabelDisabled',
-      color: theme.colors.text.disabled,
-    }),
-    itemWrapper: css({
-      display: 'flex',
-      whiteSpace: 'nowrap',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    value: css({
-      textAlign: 'right',
-    }),
-    yAxisLabel: css({
-      color: theme.colors.text.secondary,
-    }),
-  };
-};
+const styles = stylex.create({
+  row: {
+    fontSize: typography['--gf-typography-size-sm'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  rowHover: (hoverBackground: string) => ({
+    backgroundColor: { default: null, ':hover': hoverBackground },
+  }),
+  cell: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    whiteSpace: 'nowrap',
+  },
+  label: {
+    whiteSpace: 'nowrap',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    fontSize: 'inherit',
+    padding: 0,
+    maxWidth: '600px',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    userSelect: 'text',
+  },
+  labelDisabled: {
+    color: colors['--gf-colors-text-disabled'],
+  },
+  itemWrapper: {
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    alignItems: 'center',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  value: {
+    textAlign: 'right',
+  },
+  yAxisLabel: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

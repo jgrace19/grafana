@@ -1,9 +1,8 @@
-// ConfigCard.tsx
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, LoadingPlaceholder, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Icon, LoadingPlaceholder, Stack } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type IrmCardConfiguration } from './ConfigureIRM';
 import { ProgressBar, StepsStatus } from './ProgressBar';
@@ -15,11 +14,9 @@ interface ConfigCardProps {
 }
 
 export function ConfigCard({ config, handleActionClick, isLoading = false }: ConfigCardProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Stack direction={'column'} gap={1} justifyContent={'space-around'}>
-      <div className={styles.cardContent}>
+      <div {...stylex.props(styles.cardContent)}>
         <Stack direction={'column'} gap={1}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
             <div className="fs-unmask">
@@ -63,22 +60,15 @@ export function ConfigCard({ config, handleActionClick, isLoading = false }: Con
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  cardTitle: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  }),
-  cardContent: css({
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(2),
-    borderRadius: theme.shape.radius.default,
+const styles = stylex.create({
+  cardContent: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x2'],
+    borderRadius: shape['--gf-shape-radius-default'],
     height: '100%',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-  }),
+  },
 });

@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Text, useStyles2 } from '@grafana/ui';
+import { Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { MinimalisticPagination } from './MinimalisticPagination';
 
@@ -12,12 +12,11 @@ export interface GenerationHistoryCarouselProps {
 }
 
 export const GenerationHistoryCarousel = ({ history, index, onNavigate }: GenerationHistoryCarouselProps) => {
-  const styles = useStyles2(getStyles);
   const historySize = history.length;
 
   return (
     <>
-      <div className={styles.contentWrapper}>
+      <div {...stylex.props(styles.contentWrapper)}>
         <Text element="p" color="secondary">
           {history[index - 1]}
         </Text>
@@ -27,29 +26,31 @@ export const GenerationHistoryCarousel = ({ history, index, onNavigate }: Genera
         numberOfPages={historySize}
         onNavigate={onNavigate}
         hideWhenSinglePage={false}
-        className={styles.paginationWrapper}
+        xstyle={styles.paginationWrapper}
       />
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  paginationWrapper: css({
+const styles = stylex.create({
+  paginationWrapper: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: 15,
-  }),
-  contentWrapper: css({
+  },
+  contentWrapper: {
     display: 'flex',
     flexBasis: '100%',
     flexGrow: 3,
     whiteSpace: 'pre-wrap',
     maxHeight: 110,
     overflowY: 'scroll',
-    backgroundColor: theme.colors.background.secondary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(1),
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    padding: spacing['--gf-spacing-x1'],
     minHeight: 60,
-  }),
+  },
 });
