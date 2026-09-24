@@ -1,5 +1,0 @@
-/* Input has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX width. */
-.gf-alerting-custom-annotation-input {
-  margin-top: 5px;
-  width: 100%;
-}

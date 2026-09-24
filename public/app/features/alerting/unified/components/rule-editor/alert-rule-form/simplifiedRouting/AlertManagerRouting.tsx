@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 
 import { Trans, t } from '@grafana/i18n';
 import { CollapsableSection, Stack, Text } from '@grafana/ui';
-import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type RuleFormValues } from 'app/features/alerting/unified/types/rule-form';
 import { type AlertManagerDataSource } from 'app/features/alerting/unified/utils/datasource';
 import { DOCS_URL_GROUP_ALERT_NOTIFICATIONS } from 'app/features/alerting/unified/utils/docs';
@@ -14,7 +14,6 @@ import { ContactPointSelector } from './contactPoint/ContactPointSelector';
 import { ActiveTimingFields } from './route-settings/ActiveTimingFields';
 import { MuteTimingFields } from './route-settings/MuteTimingFields';
 import { RoutingSettings } from './route-settings/RouteSettings';
-import './AlertManagerRouting.css';
 
 interface AlertManagerManualRoutingProps {
   alertManager: AlertManagerDataSource;
@@ -55,8 +54,8 @@ export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRo
             'Muting, grouping and timings (optional)'
           )}
           isOpen={hasRouteSettings}
-          className="gf-alerting-am-routing-settings"
-          contentClassName="gf-alerting-am-routing-settings-content"
+          xstyle={styles.routingSettings}
+          contentXstyle={styles.routingSettingsContent}
         >
           <Stack direction="column" gap={1}>
             <Stack direction="row" gap={0.5} alignItems="center">
@@ -99,6 +98,16 @@ export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRo
 }
 
 const styles = stylex.create({
+  routingSettings: {
+    width: 'fit-content',
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
+  routingSettingsContent: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
   firstAlertManagerLine: {
     height: '1px',
     width: spacing['--gf-spacing-x4'],

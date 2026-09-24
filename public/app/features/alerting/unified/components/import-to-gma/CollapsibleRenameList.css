@@ -1,9 +1,0 @@
-/* CollapsableSection has no xstyle. Deliberately not in a cascade layer, so these owned classes win over its StyleX. */
-.gf-alerting-rename-list {
-  font-size: var(--gf-typography-body-small-font-size);
-  padding: 0;
-}
-
-.gf-alerting-rename-list-content {
-  padding: 0 0 0 var(--gf-spacing-x2-5);
-}

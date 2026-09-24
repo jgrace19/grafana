@@ -1,6 +1,8 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { t } from '@grafana/i18n';
 import { CollapsableSection, Icon, Stack, Text } from '@grafana/ui';
-import './CollapsibleRenameList.css';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface RenameEntry {
   originalName: string;
@@ -30,8 +32,8 @@ function CollapsibleRenameList({ label, items }: CollapsibleRenameListProps) {
         </Text>
       }
       isOpen={false}
-      className="gf-alerting-rename-list"
-      contentClassName="gf-alerting-rename-list-content"
+      xstyle={styles.header}
+      contentXstyle={styles.content}
     >
       <Stack direction="column" gap={0.5}>
         {items.map(({ originalName, newName }) => (
@@ -79,3 +81,19 @@ export function RenamedResourcesList({ renamedReceivers, renamedTimeIntervals }:
     </Stack>
   );
 }
+
+const styles = stylex.create({
+  header: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  content: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2-5'],
+  },
+});

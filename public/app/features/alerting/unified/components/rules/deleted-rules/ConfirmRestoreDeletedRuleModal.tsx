@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps } from 'react';
 
@@ -73,7 +71,7 @@ export const ConfirmRestoreDeletedRuleModal = ({
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass={pendingEmotionStyles.modal}
+      modalXstyle={styles.modal}
       confirmButtonVariant={!error ? 'destructive' : 'primary'}
       body={
         <Stack direction="column" gap={2}>
@@ -122,14 +120,10 @@ function RulePreview({ rule }: { rule: RulerRuleDTO }) {
   );
 }
 
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
-    width: '700px',
-  }),
-};
-
 const styles = stylex.create({
+  modal: {
+    width: '700px',
+  },
   content: {
     flexGrow: 1,
     flexShrink: 1,

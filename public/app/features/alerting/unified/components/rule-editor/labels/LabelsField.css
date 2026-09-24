@@ -1,7 +1,0 @@
-/* InlineLabel has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX. */
-.gf-alerting-labels-equal-sign {
-  align-self: flex-start;
-  width: 28px;
-  justify-content: center;
-  margin: 0;
-}

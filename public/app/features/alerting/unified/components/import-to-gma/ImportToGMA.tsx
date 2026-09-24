@@ -6,7 +6,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { Alert, Box, Button, CodeEditor, Icon, Modal, Spinner, Stack, Text } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -52,7 +51,6 @@ import {
   useImportRules,
 } from './useImport';
 import { getRoutingTreeLabel } from './useRoutingTrees';
-import './ImportToGMA.css';
 
 export interface ImportFormValues {
   // Step 1: Alertmanager resources
@@ -727,16 +725,20 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
             <div {...stylex.props(styles.cardContent)}>
               {willImportNotifications ? (
                 <Stack direction="column" gap={1}>
-                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
-                    <Text color="secondary">{t('alerting.import-to-gma.review.source', 'Source')}</Text>
+                  <div {...stylex.props(styles.row)}>
+                    <Text color="secondary" xstyle={styles.reviewLabel}>
+                      {t('alerting.import-to-gma.review.source', 'Source')}
+                    </Text>
                     <Text>
                       {formData.notificationsSource === 'yaml'
                         ? formData.notificationsYamlFile?.name || 'YAML file'
                         : formData.notificationsDatasourceName || 'Data source'}
                     </Text>
                   </div>
-                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
-                    <Text color="secondary">{t('alerting.import-to-gma.review.policy-tree', 'Policy tree')}</Text>
+                  <div {...stylex.props(styles.row)}>
+                    <Text color="secondary" xstyle={styles.reviewLabel}>
+                      {t('alerting.import-to-gma.review.policy-tree', 'Policy tree')}
+                    </Text>
                     <Stack direction="row" gap={1} alignItems="center" wrap="wrap">
                       <Text weight="medium">{formData.policyTreeName}</Text>
                       <PolicyTreeNameHelp />
@@ -783,16 +785,20 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
             <div {...stylex.props(styles.cardContent)}>
               {willImportRules ? (
                 <Stack direction="column" gap={1}>
-                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
-                    <Text color="secondary">{t('alerting.import-to-gma.review.source', 'Source')}</Text>
+                  <div {...stylex.props(styles.row)}>
+                    <Text color="secondary" xstyle={styles.reviewLabel}>
+                      {t('alerting.import-to-gma.review.source', 'Source')}
+                    </Text>
                     <Text>
                       {formData.rulesSource === 'yaml'
                         ? formData.rulesYamlFile?.name || 'YAML file'
                         : formData.rulesDatasourceName || 'Data source'}
                     </Text>
                   </div>
-                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
-                    <Text color="secondary">{t('alerting.import-to-gma.review.routing', 'Notification routing')}</Text>
+                  <div {...stylex.props(styles.row)}>
+                    <Text color="secondary" xstyle={styles.reviewLabel}>
+                      {t('alerting.import-to-gma.review.routing', 'Notification routing')}
+                    </Text>
                     <Text>
                       {formData.selectedRoutingTree
                         ? t('alerting.import-to-gma.review.routing-tree', 'Policy tree: {{name}}', {
@@ -802,10 +808,10 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                     </Text>
                   </div>
                   {(formData.namespace || formData.ruleGroup) && (
-                    <div
-                      {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}
-                    >
-                      <Text color="secondary">{t('alerting.import-to-gma.review.filter', 'Filter')}</Text>
+                    <div {...stylex.props(styles.row)}>
+                      <Text color="secondary" xstyle={styles.reviewLabel}>
+                        {t('alerting.import-to-gma.review.filter', 'Filter')}
+                      </Text>
                       <Text>
                         {formData.namespace &&
                           !formData.ruleGroup &&
@@ -815,15 +821,17 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                     </div>
                   )}
                   {formData.targetFolder && (
-                    <div
-                      {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}
-                    >
-                      <Text color="secondary">{t('alerting.import-to-gma.review.folder', 'Target folder')}</Text>
+                    <div {...stylex.props(styles.row)}>
+                      <Text color="secondary" xstyle={styles.reviewLabel}>
+                        {t('alerting.import-to-gma.review.folder', 'Target folder')}
+                      </Text>
                       <Text>{formData.targetFolder.title}</Text>
                     </div>
                   )}
-                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
-                    <Text color="secondary">{t('alerting.import-to-gma.review.pause', 'Pause rules')}</Text>
+                  <div {...stylex.props(styles.row)}>
+                    <Text color="secondary" xstyle={styles.reviewLabel}>
+                      {t('alerting.import-to-gma.review.pause', 'Pause rules')}
+                    </Text>
                     <Stack direction="row" gap={0.5} alignItems="center">
                       {(formData.pauseAlertingRules || formData.pauseRecordingRules) && <Icon name="pause" size="sm" />}
                       <Text>{getPauseRulesLabel(formData.pauseAlertingRules, formData.pauseRecordingRules)}</Text>
@@ -1021,6 +1029,9 @@ function ConfirmImportModal({ isOpen, importStatus, onConfirm, onDismiss }: Conf
 }
 
 const styles = stylex.create({
+  reviewLabel: {
+    minWidth: '150px',
+  },
   previewModal: {
     width: '900px',
     maxWidth: '90vw',

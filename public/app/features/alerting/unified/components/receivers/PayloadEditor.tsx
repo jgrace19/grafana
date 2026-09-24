@@ -14,7 +14,6 @@ import { AlertInstanceModalSelector } from './AlertInstanceModalSelector';
 import { AlertTemplatePreviewData } from './TemplateData';
 import { TemplateDataTable } from './TemplateDataDocs';
 import { GenerateAlertDataModal } from './form/GenerateAlertDataModal';
-import './TemplateCodeEditor.css';
 
 export const RESET_TO_DEFAULT = 'Reset to defaults';
 
@@ -126,7 +125,7 @@ export function PayloadEditor({
           <AutoSizer>
             {({ width, height }) => (
               <CodeEditor
-                containerStyles="gf-alerting-template-code-editor"
+                containerXstyle={styles.editorContainer}
                 width={width}
                 height={height}
                 language={'json'}
@@ -158,6 +157,10 @@ const AlertTemplateDataTable = () => {
   return <TemplateDataTable dataItems={AlertTemplatePreviewData} />;
 };
 const styles = stylex.create({
+  editorContainer: {
+    width: 'fit-content',
+    borderStyle: 'none',
+  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',

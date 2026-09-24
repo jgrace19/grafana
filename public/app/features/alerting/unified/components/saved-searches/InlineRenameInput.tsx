@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -116,7 +117,7 @@ export function InlineRenameInput({
             disabled={isSubmitting}
             size="md"
             tooltip={t('alerting.saved-searches.rename-button', 'Rename')}
-            style={successIconStyle}
+            xstyle={styles.successIcon}
             variant="secondary"
             onClick={handleSubmit(onSubmit)}
           />
@@ -135,7 +136,8 @@ export function InlineRenameInput({
 // Styles
 // ============================================================================
 
-// IconButton has no xstyle, and its own colour must lose to this one in every state.
-const successIconStyle = {
-  color: colors['--gf-colors-success-main'],
-};
+const styles = stylex.create({
+  successIcon: {
+    color: { default: colors['--gf-colors-success-main'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+  },
+});

@@ -1,15 +1,14 @@
 import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { FieldSet, Stack } from '@grafana/ui';
-import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { FieldSet, Legend, Stack } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { CancelButton } from './CancelButton';
 import { NextButton } from './NextButton';
 import { PreviousButton } from './PreviousButton';
 import { useStepperState } from './StepperState';
 import { type StepKey } from './types';
-import './WizardStep.css';
 
 interface WizardStepProps {
   /** Step identifier */
@@ -91,7 +90,8 @@ export const WizardStep = ({
   };
 
   return (
-    <FieldSet label={label} className="gf-alerting-wizard-step">
+    <FieldSet>
+      {label && <Legend xstyle={styles.legend}>{label}</Legend>}
       {subHeader && <div {...stylex.props(styles.subHeader)}>{subHeader}</div>}
       <div {...stylex.props(styles.content)}>{children}</div>
       <div {...stylex.props(styles.actions)}>
@@ -112,6 +112,11 @@ export const WizardStep = ({
 };
 
 const styles = stylex.create({
+  legend: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    fontSize: typography['--gf-typography-h4-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
   subHeader: {
     color: colors['--gf-colors-text-secondary'],
     marginBottom: spacing['--gf-spacing-x3'],

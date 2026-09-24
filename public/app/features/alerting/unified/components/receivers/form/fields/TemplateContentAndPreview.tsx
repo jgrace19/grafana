@@ -14,7 +14,6 @@ import { TemplateEditor } from '../../TemplateEditor';
 import { TemplatePreview } from '../../TemplatePreview';
 
 import { getUseTemplateText } from './utils';
-import '../../TemplateCodeEditor.css';
 
 export function TemplateContentAndPreview({
   payload,
@@ -47,7 +46,7 @@ export function TemplateContentAndPreview({
               {({ width, height }) => (
                 <TemplateEditor
                   value={templateContent}
-                  containerStyles="gf-alerting-template-code-editor"
+                  containerXstyle={styles.editorContainer}
                   width={width}
                   height={height}
                   readOnly
@@ -74,6 +73,10 @@ export function TemplateContentAndPreview({
 }
 
 const styles = stylex.create({
+  editorContainer: {
+    width: 'fit-content',
+    borderStyle: 'none',
+  },
   mainContainer: {
     display: 'flex',
     flexDirection: 'column',

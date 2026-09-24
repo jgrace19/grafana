@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import './QueryWrapper.css';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
@@ -231,9 +232,11 @@ export const EmptyQueryWrapper = ({ children }: React.PropsWithChildren<{}>) => 
 export function MaxDataPointsOption({
   options,
   onChange,
+  xstyle,
 }: {
   options: AlertQueryOptions;
   onChange: (options: AlertQueryOptions) => void;
+  xstyle?: StyleXStyles;
 }) {
   const value = options.maxDataPoints ?? '';
 
@@ -252,6 +255,7 @@ export function MaxDataPointsOption({
 
   return (
     <InlineField
+      xstyle={xstyle}
       labelWidth={24}
       label={t('alerting.max-data-points-option.label-max-data-points', 'Max data points')}
       tooltip={t(
@@ -274,9 +278,11 @@ export function MaxDataPointsOption({
 export function MinIntervalOption({
   options,
   onChange,
+  xstyle,
 }: {
   options: AlertQueryOptions;
   onChange: (options: AlertQueryOptions) => void;
+  xstyle?: StyleXStyles;
 }) {
   const value = options.minInterval ?? '';
 
@@ -292,6 +298,7 @@ export function MinIntervalOption({
 
   return (
     <InlineField
+      xstyle={xstyle}
       label={t('alerting.min-interval-option.label-interval', 'Interval')}
       labelWidth={24}
       tooltip={
