@@ -1,5 +1,5 @@
 /*
- * Alert is still styled with Emotion, whose runtime rules come after this sheet. The doubled class outranks
+ * Alert is still styled with Emotion, and Emotion's style block can come before or after this sheet depending on the chunk. The doubled class outranks
  * Alert's own class like the Emotion className merge did; the descendant rules target Alert's markup at the
  * specificity of the Emotion rules they replace. Unlayered, all of them keep winning once Alert is StyleX.
  */

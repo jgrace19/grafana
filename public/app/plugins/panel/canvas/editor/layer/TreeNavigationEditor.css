@@ -1,11 +1,13 @@
 /*
  * Styles for the rc-tree layer tree (which ships no CSS of its own) and the moveable control box. Not in a
- * cascade layer: like the <Global> styles they replace, they must win over moveable's injected CSS and over
- * the tree node contents' own styles.
+ * cascade layer, like the <Global> styles they replace: they must win over the tree node contents' own styles.
  */
 
-/* Only while the tree editor is mounted, as when this was a <Global> inside it. */
-:root:has(.rc-tree) .moveable-control-box {
+/*
+ * Only while the tree editor is mounted, as when this was a <Global> inside it. :where() keeps the specificity of
+ * the original rule, which loses to moveable's runtime-injected z-index when that comes later.
+ */
+:where(:root:has(.rc-tree)) .moveable-control-box {
   z-index: 999;
 }
 

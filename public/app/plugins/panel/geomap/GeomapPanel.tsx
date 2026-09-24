@@ -31,10 +31,10 @@ import { type GeomapHoverPayload } from './event';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { DEFAULT_BASEMAP_CONFIG } from './layers/registry';
 import { type Options, type MapViewConfig, TooltipMode } from './panelcfg.gen';
+// Before the OpenLayers sheets, so they win ties as they did over the <Global> styles this replaces.
+import './GeomapPanel.css';
 import 'ol/ol.css';
 import 'ol-ext/dist/ol-ext.css';
-// After the OpenLayers sheets: it overrides them at the same specificity.
-import './GeomapPanel.css';
 import { type ControlsOptions, type MapLayerState } from './types';
 import { getActions } from './utils/actions';
 import { getLayersExtent } from './utils/getLayersExtent';

@@ -1,7 +1,8 @@
 /*
- * Theme overrides for the OpenLayers controls, which StyleX can't target. Not in a cascade layer: OpenLayers'
- * own sheets are unlayered, and these rules win over them by coming after them, like the <Global> styles they
- * replace.
+ * Theme overrides for the OpenLayers controls, which StyleX can't target. Unlayered and loaded before
+ * OpenLayers' own (unlayered) sheets, which win every tie: the <Global> styles these replace sat in Emotion's
+ * style block, which comes before the lazily loaded panel chunk's CSS. Only the declarations OpenLayers
+ * doesn't make take effect, exactly as before.
  */
 .ol-scale-line {
   background: var(--gf-colors-border-weak);

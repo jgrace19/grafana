@@ -1,5 +1,5 @@
 /*
- * InlineField is still styled with Emotion, whose runtime rules come after this sheet and set their own margin.
+ * InlineField is still styled with Emotion and sets its own margin, and Emotion's style block can come before or after this sheet depending on the chunk.
  * The doubled class outranks them like the Emotion className merge did; unlayered, it keeps winning once
  * InlineField is StyleX.
  */
