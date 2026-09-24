@@ -1,0 +1,12 @@
+/*
+ * Segment recolours the InlineLabel it renders. InlineLabel sets its own colour and takes no xstyle, so like the
+ * Emotion classes these replace, the rules are not in a cascade layer; the doubled class out-ranks InlineLabel's
+ * class, which Emotion inserts after this stylesheet.
+ */
+.gf-segment-placeholder.gf-segment-placeholder {
+  color: var(--gf-colors-text-disabled);
+}
+
+.gf-segment-section-label.gf-segment-section-label {
+  color: var(--gf-colors-primary-text);
+}

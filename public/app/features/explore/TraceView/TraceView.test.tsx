@@ -33,10 +33,12 @@ function getTraceView(frames: DataFrame[]) {
 
 function renderTraceView(frames = [frameOld]) {
   const { container, baseElement } = render(getTraceView(frames));
+  // TraceView renders into a `display: contents` element that scopes its colour vars.
+  const root = container.children[0];
 
   return {
-    header: container.children[0],
-    timeline: container.children[1],
+    header: root.children[0],
+    timeline: root.children[1],
     container,
     baseElement,
   };

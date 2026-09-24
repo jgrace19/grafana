@@ -4,6 +4,12 @@ import { type GrafanaTheme2 } from '@grafana/data';
 
 import { stylesFactory } from '../../themes/stylesFactory';
 
+// Frozen Emotion implementation of the Select styles, kept for plugins and app code that style their own
+// elements like Select's. Select itself renders with StyleX. Keep visually in sync with components/Select.
+
+/**
+ * @deprecated Emotion-based compat helper. Select renders with StyleX; this is kept only for existing consumers.
+ */
 export const getSelectStyles = stylesFactory((theme: GrafanaTheme2) => {
   return {
     menu: css({

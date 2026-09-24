@@ -1,13 +1,14 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type HTMLProps, useRef, useState } from 'react';
 import * as React from 'react';
 import { useClickAway } from 'react-use';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { measureText } from '../../utils/measureText';
 import { InlineLabel } from '../Forms/InlineLabel';
 
-import { getSegmentStyles } from './styles';
+import { SEGMENT_PLACEHOLDER_CLASS, segmentStyles } from './styles';
 import { type SegmentProps } from './types';
 import { useExpandableLabel } from './useExpandableLabel';
 
@@ -39,7 +40,6 @@ export function SegmentInput({
   const [value, setValue] = useState<number | string>(initialValue);
   const [inputWidth, setInputWidth] = useState<number>(measureText((initialValue || '').toString(), FONT_SIZE).width);
   const [Label, , expanded, setExpanded] = useExpandableLabel(autofocus, onExpandedChange);
-  const styles = useStyles2(getSegmentStyles);
 
   useClickAway(ref, () => {
     setExpanded(false);
@@ -53,12 +53,10 @@ export function SegmentInput({
         Component={
           Component || (
             <InlineLabel
-              className={cx(
-                styles.segment,
-                {
-                  [styles.queryPlaceholder]: placeholder !== undefined && !value,
-                  [styles.disabled]: disabled,
-                },
+              width="auto"
+              className={clsx(
+                stylex.props(segmentStyles.segment, disabled && segmentStyles.disabled).className,
+                placeholder !== undefined && !value && SEGMENT_PLACEHOLDER_CLASS,
                 className
               )}
             >
@@ -70,10 +68,6 @@ export function SegmentInput({
     );
   }
 
-  const inputWidthStyle = css({
-    width: `${Math.max(inputWidth + 20, 32)}px`,
-  });
-
   return (
     <input
       {...rest}
@@ -81,7 +75,9 @@ export function SegmentInput({
       // this needs to autofocus, but it's ok as it's only rendered by choice
       // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
-      className={cx(`gf-form gf-form-input`, inputWidthStyle)}
+      {...mergeStylexProps(stylex.props(styles.inputWidth(Math.max(inputWidth + 20, 32))), {
+        className: 'gf-form gf-form-input',
+      })}
       value={value}
       placeholder={inputPlaceholder}
       onChange={(item) => {
@@ -102,3 +98,9 @@ export function SegmentInput({
     />
   );
 }
+
+const styles = stylex.create({
+  inputWidth: (width: number) => ({
+    width,
+  }),
+});

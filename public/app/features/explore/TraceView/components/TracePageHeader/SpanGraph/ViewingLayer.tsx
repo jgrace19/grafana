@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { withTheme2, stylesFactory, Button } from '@grafana/ui';
+import { Button } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-import { autoColor } from '../../Theme';
 import {
   type TUpdateViewRangeTimeFunction,
   type ViewRangeTimeUpdate,
   type ViewRange,
 } from '../../TraceTimelineViewer/types';
+import { traceColors } from '../../traceColors.stylex';
 import type TNil from '../../types/TNil';
 import DraggableManager from '../../utils/DraggableManager/DraggableManager';
 import EUpdateTypes from '../../utils/DraggableManager/EUpdateTypes';
@@ -34,69 +33,7 @@ import { type DraggableBounds, type DraggingUpdate } from '../../utils/Draggable
 import GraphTicks from './GraphTicks';
 import Scrubber from './Scrubber';
 
-export const getStyles = stylesFactory((theme: GrafanaTheme2) => {
-  // Need this cause emotion will merge emotion generated classes into single className if used with cx from emotion
-  // package and the selector won't work
-  const ViewingLayerResetZoomHoverClassName = 'JaegerUiComponents__ViewingLayerResetZoomHoverClassName';
-  const ViewingLayerResetZoom = css({
-    label: 'ViewingLayerResetZoom',
-    display: 'none',
-    position: 'absolute',
-    right: '1%',
-    top: '10%',
-    zIndex: 1,
-  });
-
-  return {
-    ViewingLayer: css({
-      label: 'ViewingLayer',
-      cursor: 'vertical-text',
-      position: 'relative',
-      zIndex: 1,
-      [`&:hover > .${ViewingLayerResetZoomHoverClassName}`]: {
-        display: 'unset',
-      },
-    }),
-    ViewingLayerGraph: css({
-      label: 'ViewingLayerGraph',
-      border: `1px solid ${autoColor(theme, '#999')}`,
-      /* need !important here to overcome something from semantic UI */
-      overflow: 'visible !important',
-      position: 'relative',
-      transformOrigin: '0 0',
-      width: '100%',
-    }),
-    ViewingLayerInactive: css({
-      label: 'ViewingLayerInactive',
-      fill: autoColor(theme, 'rgba(214, 214, 214, 0.5)'),
-    }),
-    ViewingLayerCursorGuide: css({
-      label: 'ViewingLayerCursorGuide',
-      stroke: autoColor(theme, '#f44'),
-      strokeWidth: 1,
-    }),
-    ViewingLayerDraggedShift: css({
-      label: 'ViewingLayerDraggedShift',
-      fillOpacity: 0.2,
-    }),
-    ViewingLayerDrag: css({
-      label: 'ViewingLayerDrag',
-      fill: autoColor(theme, '#44f'),
-    }),
-    ViewingLayerFullOverlay: css({
-      label: 'ViewingLayerFullOverlay',
-      bottom: 0,
-      cursor: 'col-resize',
-      left: 0,
-      position: 'fixed',
-      right: 0,
-      top: 0,
-      userSelect: 'none',
-    }),
-    ViewingLayerResetZoom,
-    ViewingLayerResetZoomHoverClassName,
-  };
-});
+import './ViewingLayer.css';
 
 export type ViewingLayerProps = {
   height: number;
@@ -104,7 +41,6 @@ export type ViewingLayerProps = {
   updateViewRangeTime: TUpdateViewRangeTimeFunction;
   updateNextViewRangeTime: (update: ViewRangeTimeUpdate) => void;
   viewRange: ViewRange;
-  theme: GrafanaTheme2;
 };
 
 type ViewingLayerState = {
@@ -311,12 +247,11 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
    * @returns React.Node[]
    */
   _getMarkers(from: number, to: number) {
-    const styles = getStyles(this.props.theme);
     const layout = getNextViewLayout(from, to);
     return [
       <rect
         key="fill"
-        className={cx(styles.ViewingLayerDraggedShift, styles.ViewingLayerDrag)}
+        {...stylex.props(styles.ViewingLayerDraggedShift, styles.ViewingLayerDrag)}
         x={layout.x}
         y="0"
         width={layout.width}
@@ -324,7 +259,7 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
       />,
       <rect
         key="edge"
-        className={cx(styles.ViewingLayerDrag)}
+        {...stylex.props(styles.ViewingLayerDrag)}
         x={layout.leadingX}
         y="0"
         width="1"
@@ -334,7 +269,7 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
   }
 
   render() {
-    const { height, viewRange, numTicks, theme } = this.props;
+    const { height, viewRange, numTicks } = this.props;
     const { preventCursorLine } = this.state;
     const { current, cursor, shiftStart, shiftEnd, reframe } = viewRange.time;
     const haveNextTimeRange = shiftStart != null || shiftEnd != null || reframe != null;
@@ -351,14 +286,19 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
     if (!haveNextTimeRange && cursor != null && !preventCursorLine) {
       cursorPosition = `${cursor * 100}%`;
     }
-    const styles = getStyles(theme);
 
     return (
-      <div aria-hidden className={styles.ViewingLayer} style={{ height }}>
+      <div
+        aria-hidden
+        {...mergeStylexProps(stylex.props(styles.ViewingLayer), {
+          className: 'gf-trace-viewing-layer',
+          style: { height },
+        })}
+      >
         {(viewStart !== 0 || viewEnd !== 1) && (
           <Button
             onClick={this._resetTimeZoomClickHandler}
-            className={cx(styles.ViewingLayerResetZoom, styles.ViewingLayerResetZoomHoverClassName)}
+            className="gf-trace-viewing-layer-reset-zoom"
             type="button"
             variant="secondary"
           >
@@ -367,7 +307,7 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
         )}
         <svg
           height={height}
-          className={styles.ViewingLayerGraph}
+          {...stylex.props(styles.ViewingLayerGraph)}
           ref={this._setRoot}
           onMouseDown={this._draggerReframe.handleMouseDown}
           onMouseLeave={this._draggerReframe.handleMouseLeave}
@@ -379,7 +319,7 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
               y={0}
               height="100%"
               width={`${leftInactive}%`}
-              className={styles.ViewingLayerInactive}
+              {...stylex.props(styles.ViewingLayerInactive)}
               data-testid="left-ViewingLayerInactive"
             />
           )}
@@ -389,14 +329,14 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
               y={0}
               height="100%"
               width={`${rightInactive}%`}
-              className={styles.ViewingLayerInactive}
+              {...stylex.props(styles.ViewingLayerInactive)}
               data-testid="right-ViewingLayerInactive"
             />
           )}
           <GraphTicks numTicks={numTicks} />
           {cursorPosition && (
             <line
-              className={styles.ViewingLayerCursorGuide}
+              {...stylex.props(styles.ViewingLayerCursorGuide)}
               x1={cursorPosition}
               y1="0"
               x2={cursorPosition}
@@ -424,10 +364,49 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
           {reframe != null && this._getMarkers(reframe.anchor, reframe.shift)}
         </svg>
         {/* fullOverlay updates the mouse cursor blocks mouse events */}
-        {haveNextTimeRange && <div className={styles.ViewingLayerFullOverlay} />}
+        {haveNextTimeRange && <div {...stylex.props(styles.ViewingLayerFullOverlay)} />}
       </div>
     );
   }
 }
 
-export default withTheme2(UnthemedViewingLayer);
+export default UnthemedViewingLayer;
+
+const styles = stylex.create({
+  ViewingLayer: {
+    cursor: 'vertical-text',
+    position: 'relative',
+    zIndex: 1,
+  },
+  ViewingLayerGraph: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: traceColors['--gf-trace-999'],
+    overflow: 'visible',
+    position: 'relative',
+    transformOrigin: '0 0',
+    width: '100%',
+  },
+  ViewingLayerInactive: {
+    fill: traceColors['--gf-trace-rgba-214-214-214-0-5'],
+  },
+  ViewingLayerCursorGuide: {
+    stroke: traceColors['--gf-trace-f44'],
+    strokeWidth: 1,
+  },
+  ViewingLayerDraggedShift: {
+    fillOpacity: 0.2,
+  },
+  ViewingLayerDrag: {
+    fill: traceColors['--gf-trace-44f'],
+  },
+  ViewingLayerFullOverlay: {
+    bottom: 0,
+    cursor: 'col-resize',
+    left: 0,
+    position: 'fixed',
+    right: 0,
+    top: 0,
+    userSelect: 'none',
+  },
+});

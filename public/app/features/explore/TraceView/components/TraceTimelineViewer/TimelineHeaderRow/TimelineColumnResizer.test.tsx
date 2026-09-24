@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import { fireEvent, render, screen } from '@testing-library/react';
-import cx from 'classnames';
 
-import TimelineColumnResizer, { getStyles, type TimelineColumnResizerProps } from './TimelineColumnResizer';
+import TimelineColumnResizer, { type TimelineColumnResizerProps } from './TimelineColumnResizer';
 
 const mockOnChange = jest.fn();
 
@@ -40,17 +39,17 @@ describe('<TimelineColumnResizer>', () => {
   });
 
   it('does not render a dragging indicator when not dragging', () => {
-    const styles = getStyles();
-    expect(screen.getByTestId('TimelineColumnResizer--dragger')).toHaveStyle(`right: ${undefined}`);
-    expect(screen.getByTestId('TimelineColumnResizer--dragger')).toHaveClass(styles.dragger);
+    const dragger = screen.getByTestId('TimelineColumnResizer--dragger');
+    expect(dragger.style.left).toBe('50%');
+    expect(dragger.style.right).toBe('');
   });
 
   it('renders a dragging indicator when dragging', () => {
-    const styles = getStyles();
     fireEvent.mouseDown(screen.getByTestId('TimelineColumnResizer--dragger'), { clientX: 0 });
     fireEvent.mouseMove(screen.getByTestId('TimelineColumnResizer--dragger'), { clientX: -5 });
-    expect(screen.getByTestId('TimelineColumnResizer--dragger')).toHaveClass(
-      cx(styles.dragger, styles.draggerDragging, styles.draggerDraggingLeft)
-    );
+    // Dragging left highlights from the dragged position (clamped to min) back to the original position.
+    const dragger = screen.getByTestId('TimelineColumnResizer--dragger');
+    expect(dragger.style.left).toBe('10%');
+    expect(dragger.style.right).toBe('calc(50% - 1px)');
   });
 });

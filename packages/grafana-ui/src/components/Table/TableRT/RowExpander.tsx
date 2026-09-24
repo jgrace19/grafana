@@ -1,5 +1,8 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { t } from '@grafana/i18n';
 
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { Icon } from '../../Icon/Icon';
 import { type GrafanaTableRow } from '../types';
 
@@ -11,8 +14,9 @@ export interface Props {
 }
 
 export function RowExpander({ row, tableStyles }: Props) {
+  const { style, ...toggleProps } = row.getToggleRowExpandedProps();
   return (
-    <div className={tableStyles.expanderCell} {...row.getToggleRowExpandedProps()}>
+    <div {...toggleProps} {...mergeStylexProps(stylex.props(tableStyles.expanderCell), { style })}>
       <Icon
         aria-label={
           row.isExpanded

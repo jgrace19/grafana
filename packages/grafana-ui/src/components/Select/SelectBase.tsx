@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps, useCallback, useEffect, useRef, useState, useImperativeHandle } from 'react';
 import * as React from 'react';
 import {
@@ -14,6 +15,7 @@ import { type SelectableValue, toOption } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
 import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { getPortalContainer } from '../Portal/Portal';
 
@@ -28,7 +30,6 @@ import { SelectOptionGroup } from './SelectOptionGroup';
 import { SelectOptionGroupHeader } from './SelectOptionGroupHeader';
 import { type Props, SingleValue } from './SingleValue';
 import { ValueContainer } from './ValueContainer';
-import { getSelectStyles } from './getSelectStyles';
 import { useCustomSelectStyles } from './resetSelectStyles';
 import { type ActionMeta, type InputActionMeta, type SelectBaseProps, ToggleAllState } from './types';
 import { cleanValue, findSelectedValue, omitDescriptions } from './utils';
@@ -155,7 +156,6 @@ export function SelectBase<T, Rest = {}>({
   ...rest
 }: SelectBaseProps<T> & Rest) {
   const theme = useTheme2();
-  const styles = getSelectStyles(theme);
 
   const reactSelectRef = useRef<HTMLElement & { controlRef: HTMLElement }>(null);
   const [closeToBottom, setCloseToBottom] = useState<boolean>(false);
@@ -353,7 +353,7 @@ export function SelectBase<T, Rest = {}>({
                 name="times"
                 role="button"
                 aria-label={t('grafana-ui.select.clear-value', 'Clear value')}
-                className={styles.singleValueRemove}
+                xstyle={styles.singleValueRemove}
                 tabIndex={0}
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -375,12 +375,12 @@ export function SelectBase<T, Rest = {}>({
             return null;
           },
           LoadingMessage() {
-            return <div className={styles.loadingMessage}>{loadingMessage}</div>;
+            return <div {...stylex.props(styles.loadingMessage)}>{loadingMessage}</div>;
           },
           NoOptionsMessage() {
             return (
               <div
-                className={styles.loadingMessage}
+                {...stylex.props(styles.loadingMessage)}
                 aria-label={t('grafana-ui.select.empty-options', 'No options provided')}
               >
                 {noOptionsMessage}
@@ -461,3 +461,15 @@ function CustomIndicatorsContainer(props: CustomIndicatorsContainerProps) {
 function IndicatorSeparator() {
   return <></>;
 }
+
+const styles = stylex.create({
+  singleValueRemove: {
+    cursor: 'pointer',
+    color: { default: null, ':hover': colors['--gf-colors-text-primary'] },
+  },
+  loadingMessage: {
+    padding: spacing['--gf-spacing-x1'],
+    textAlign: 'center',
+    width: '100%',
+  },
+});

@@ -12,31 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  TextList: css({
-    maxHeight: '450px',
-    overflow: 'auto',
-  }),
-  List: css({
-    width: '100%',
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  }),
-  item: css({
-    padding: '0.25rem 0.5rem',
-    verticalAlign: 'top',
-    '&:nth-child(2n)': {
-      background: theme.colors.background.secondary,
-    },
-  }),
-});
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 type TextListProps = {
   data: string[];
@@ -44,14 +22,13 @@ type TextListProps = {
 
 export default function TextList(props: TextListProps) {
   const { data } = props;
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.TextList)} data-testid="TextList">
-      <ul className={styles.List}>
+    <div {...stylex.props(styles.TextList)} data-testid="TextList">
+      <ul {...stylex.props(styles.List)}>
         {data.map((row, i) => {
           return (
             // `i` is necessary in the key because row.key can repeat
-            <li className={styles.item} key={`${i}`}>
+            <li {...stylex.props(styles.item)} key={`${i}`}>
               {row}
             </li>
           );
@@ -60,3 +37,24 @@ export default function TextList(props: TextListProps) {
     </div>
   );
 }
+
+const styles = stylex.create({
+  TextList: {
+    maxHeight: '450px',
+    overflow: 'auto',
+  },
+  List: {
+    width: '100%',
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  item: {
+    paddingTop: '0.25rem',
+    paddingBottom: '0.25rem',
+    paddingLeft: '0.5rem',
+    paddingRight: '0.5rem',
+    verticalAlign: 'top',
+    backgroundColor: { default: null, ':nth-child(2n)': colors['--gf-colors-background-secondary'] },
+  },
+});
