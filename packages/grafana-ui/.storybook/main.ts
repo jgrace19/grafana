@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import path, { dirname, join } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-webpack5';
 import remarkGfm from 'remark-gfm';
@@ -28,6 +29,9 @@ const alertingComponentsGlobs: StorybookConfig['stories'] = [
 ];
 
 const stories = [...coreComponentsGlobs, ...alertingComponentsGlobs];
+
+const require = createRequire(import.meta.url);
+const { stylexWebpackPlugin } = require('../../../scripts/webpack/stylex.webpack.js');
 
 // Copy the assets required by storybook before starting the storybook server.
 copyAssetsSync();
@@ -124,6 +128,9 @@ const mainConfig: StorybookConfig = {
         config.resolve.conditionNames = ['@grafana-app/source', '...'];
       }
     }
+
+    config.plugins = config.plugins ?? [];
+    config.plugins.push(stylexWebpackPlugin({ dev: process.env.NODE_ENV !== 'production' }));
 
     return config;
   },

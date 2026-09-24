@@ -75,6 +75,7 @@
     "stylex:compare-bundle": "node scripts/stylex-migration/compare-bundle.mjs",
     "stylex:emit-global-css": "node scripts/stylex-migration/run-emit-global-css.mjs",
     "stylex:migrate-components": "node scripts/stylex-migration/run-migrate-all-components.mjs",
+    "stylex:codemod": "node scripts/stylex-migration/codemod.mjs",
     "themes:usage": "eslint . --ignore-pattern '*.test.ts*' --ignore-pattern '*.spec.ts*' --cache --plugin '@grafana' --rule '{ @grafana/theme-token-usage: \"error\" }'",
     "typecheck": "tsc --noEmit && yarn run packages:typecheck",
     "plugins:build-bundled": "echo 'bundled plugins are no longer supported'",

@@ -1,5 +1,6 @@
 // @ts-check
 const emotionPlugin = require('@emotion/eslint-plugin');
+const stylexPlugin = require('@stylexjs/eslint-plugin');
 const restrictedGlobals = require('confusing-browser-globals');
 const importPlugin = require('eslint-plugin-import');
 const jestPlugin = require('eslint-plugin-jest');
@@ -94,6 +95,25 @@ const datavizDefaultImportsRestrictions = [
     importNames: ['cx'],
     message: 'Do not use "cx" from @emotion/css. Instead, use `clsx` and compose together only strings.',
   },
+];
+
+/** Phase 8: ban direct Emotion imports in core code (see docs/stylex-migration/rfc.md). */
+const stylexEmotionImportRestrictions = [
+  {
+    group: ['@emotion/*'],
+    message:
+      'Direct @emotion imports are not allowed in Grafana core. Use StyleX (contribute/style-guides/stylex-migration.md). Plugin-facing Emotion lives in packages/grafana-ui/src/themes/compat and ThemeContext.',
+  },
+];
+
+const stylexEmotionImportIgnores = [
+  '**/themes/compat/**',
+  '**/themes/ThemeContext.tsx',
+  '**/themes/ThemeContext.test.tsx',
+  'public/app/features/plugins/loader/sharedDependencies.ts',
+  '**/themes/GlobalStyles/**',
+  ...commonTestIgnores,
+  ...enterpriseIgnores,
 ];
 
 /**
@@ -221,6 +241,7 @@ module.exports = [
         'error',
         withBaseRestrictedImportsConfig({
           patterns: [
+            ...stylexEmotionImportRestrictions,
             {
               group: ['app/extensions', 'app/extensions/*'],
               message: 'Importing from app/extensions is not allowed',
@@ -302,6 +323,7 @@ module.exports = [
         'error',
         withBaseRestrictedImportsConfig({
           patterns: [
+            ...stylexEmotionImportRestrictions,
             {
               group: ['@grafana/*/internal'],
               message: "'internal' exports are not available in NPM packages because they are not published to NPM",
@@ -327,6 +349,7 @@ module.exports = [
         'error',
         withBaseRestrictedImportsConfig({
           patterns: [
+            ...stylexEmotionImportRestrictions,
             {
               // Duplicated because these rules override the previous grafana/packages-overrides
               group: ['@grafana/*/internal'],
@@ -493,67 +516,6 @@ module.exports = [
     },
   },
 
-  {
-    // custom rule for Table to avoid performance regressions
-    files: ['packages/grafana-ui/src/components/Table/TableNG/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [
-            ...datavizDefaultImportsRestrictions,
-            {
-              group: ['@grafana/data'],
-              importNames: ['getFieldDisplayName'],
-              message:
-                'Using the method inside Table can have performance implications which are unnecessary. Instead, use the local `getDisplayName` from the table utils.',
-            },
-          ],
-        }),
-      ],
-    },
-  },
-
-  {
-    // custom rule for Table to avoid performance regressions
-    files: ['packages/grafana-ui/src/components/Table/TableNG/Cells/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [
-            ...datavizDefaultImportsRestrictions,
-            {
-              group: ['@grafana/data'],
-              importNames: ['getFieldDisplayName'],
-              message:
-                'Using the method inside Table can have performance implications which are unnecessary. Instead, use the local `getDisplayName` from the table utils.',
-            },
-            {
-              group: ['**/themes/ThemeContext'],
-              importNames: ['useStyles2', 'useTheme2'],
-              message:
-                'Do not use "useStyles2" or "useTheme2" in a cell directly. Instead, provide styles to cells via `getDefaultCellStyles` or `getCellSpecificStyles`.',
-            },
-          ],
-        }),
-      ],
-    },
-  },
-
-  // other dataviz panels which should just get our default set of restrictions
-  {
-    files: ['public/app/plugins/panel/state-timeline/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [...datavizDefaultImportsRestrictions],
-        }),
-      ],
-    },
-  },
-
   // Old betterer rules config:
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -656,4 +618,93 @@ module.exports = [
   //     '@grafana/no-plugin-external-import-paths': 'error',
   //   },
   // },
+  {
+    name: 'grafana/stylex-emotion-import-ban',
+    files: ['public/app/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
+    ignores: [
+      ...stylexEmotionImportIgnores,
+      'public/app/**/webpack.config.ts',
+      'public/app/extensions/**/*',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [...stylexEmotionImportRestrictions],
+        }),
+      ],
+    },
+  },
+  {
+    name: 'grafana/stylex-eslint',
+    files: ['**/*.stylex.ts', '**/*.stylex.tsx'],
+    plugins: {
+      '@stylexjs': stylexPlugin,
+    },
+    rules: {
+      '@stylexjs/valid-styles': 'error',
+      '@stylexjs/sort-keys': 'warn',
+      '@stylexjs/enforce-extension': 'error',
+    },
+  },
+  {
+    // custom rule for Table to avoid performance regressions
+    files: ['packages/grafana-ui/src/components/Table/TableNG/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            ...datavizDefaultImportsRestrictions,
+            ...stylexEmotionImportRestrictions,
+            {
+              group: ['@grafana/data'],
+              importNames: ['getFieldDisplayName'],
+              message:
+                'Using the method inside Table can have performance implications which are unnecessary. Instead, use the local `getDisplayName` from the table utils.',
+            },
+          ],
+        }),
+      ],
+    },
+  },
+  {
+    // custom rule for Table to avoid performance regressions
+    files: ['packages/grafana-ui/src/components/Table/TableNG/Cells/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            ...datavizDefaultImportsRestrictions,
+            ...stylexEmotionImportRestrictions,
+            {
+              group: ['@grafana/data'],
+              importNames: ['getFieldDisplayName'],
+              message:
+                'Using the method inside Table can have performance implications which are unnecessary. Instead, use the local `getDisplayName` from the table utils.',
+            },
+            {
+              group: ['**/themes/ThemeContext'],
+              importNames: ['useStyles2', 'useTheme2'],
+              message:
+                'Do not use "useStyles2" or "useTheme2" in a cell directly. Instead, provide styles to cells via `getDefaultCellStyles` or `getCellSpecificStyles`.',
+            },
+          ],
+        }),
+      ],
+    },
+  },
+  // other dataviz panels which should just get our default set of restrictions
+  {
+    files: ['public/app/plugins/panel/state-timeline/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [...datavizDefaultImportsRestrictions, ...stylexEmotionImportRestrictions],
+        }),
+      ],
+    },
+  },
 ];
