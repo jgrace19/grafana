@@ -1,9 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 
-import { type GrafanaTheme2, LoadingState } from '@grafana/data';
+import { LoadingState } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ControlsLabel, dataLayers, type SceneDataLayerProvider } from '@grafana/scenes';
-import { useElementSelection, useStyles2 } from '@grafana/ui';
+import { useElementSelection } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './DataLayerControl.css';
 
 export type Props = {
   layer: SceneDataLayerProvider;
@@ -16,7 +21,6 @@ export function DataLayerControl({ layer, inMenu }: Props) {
   const { data } = layer.useState();
   const { isSelected, isSelectable } = useElementSelection(layer.state.key);
   const showLoading = Boolean(data && data.state === LoadingState.Loading);
-  const styles = useStyles2(getStyles);
 
   const label: string =
     layer instanceof dataLayers.AnnotationsDataLayer && Boolean(layer.state.query.builtIn)
@@ -29,13 +33,14 @@ export function DataLayerControl({ layer, inMenu }: Props) {
   if (inMenu) {
     return (
       <div
-        className={cx(
-          styles.menuContainer,
-          isSelected && 'dashboard-selected-element',
-          isSelectable && !isSelected && 'dashboard-selectable-element'
-        )}
+        {...mergeStylexProps(stylex.props(styles.menuContainer), {
+          className: clsx(
+            isSelected && 'dashboard-selected-element',
+            isSelectable && !isSelected && 'dashboard-selectable-element'
+          ),
+        })}
       >
-        <div className={styles.controlWrapper}>
+        <div {...mergeStylexProps(stylex.props(styles.controlWrapper), { className: 'gf-data-layer-control-wrapper' })}>
           <layer.Component model={layer} />
         </div>
         <ControlsLabel
@@ -46,7 +51,7 @@ export function DataLayerControl({ layer, inMenu }: Props) {
           description={layer.state.description}
           error={layer.state.data?.errors?.[0].message}
           layout={'vertical'}
-          className={cx(styles.menuLabel, isSelectable && styles.labelSelectable)}
+          className={clsx('gf-data-layer-menu-label', stylex.props(isSelectable && styles.labelSelectable).className)}
         />
       </div>
     );
@@ -54,11 +59,12 @@ export function DataLayerControl({ layer, inMenu }: Props) {
 
   return (
     <div
-      className={cx(
-        styles.container,
-        isSelected && 'dashboard-selected-element',
-        isSelectable && !isSelected && 'dashboard-selectable-element'
-      )}
+      {...mergeStylexProps(stylex.props(styles.container), {
+        className: clsx(
+          isSelected && 'dashboard-selected-element',
+          isSelectable && !isSelected && 'dashboard-selectable-element'
+        ),
+      })}
     >
       <ControlsLabel
         htmlFor={isSelectable ? undefined : elementId}
@@ -67,42 +73,29 @@ export function DataLayerControl({ layer, inMenu }: Props) {
         label={label}
         description={layer.state.description}
         error={layer.state.data?.errors?.[0].message}
-        className={cx(isSelectable && styles.labelSelectable)}
+        className={stylex.props(isSelectable && styles.labelSelectable).className}
       />
       <layer.Component model={layer} />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+// The data layer's scenes-rendered child and the ControlsLabel margins are styled in DataLayerControl.css.
+const styles = stylex.create({
+  container: {
     display: 'flex',
     alignItems: 'center',
-  }),
-  menuContainer: css({
+  },
+  menuContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-  }),
-  controlWrapper: css({
-    height: theme.spacing(2),
-    '& > div': {
-      border: 'none',
-      background: 'transparent',
-      paddingRight: theme.spacing(0.5),
-      height: theme.spacing(2),
-      '&:hover': {
-        border: 'none',
-        background: 'transparent',
-      },
-    },
-  }),
-  menuLabel: css({
-    marginTop: 0,
-    marginBottom: 0,
-  }),
-  labelSelectable: css({
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
+  },
+  controlWrapper: {
+    height: spacing['--gf-spacing-x2'],
+  },
+  labelSelectable: {
     cursor: 'pointer',
-  }),
+  },
 });

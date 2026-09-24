@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import { clsx } from 'clsx';
 import { type ReactElement, useCallback } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -52,7 +52,7 @@ export function PanelMenu({
         variant="secondary"
         size="sm"
         data-testid={testId}
-        className={cx(menuButtonClass, dragClassCancel)}
+        className={clsx(menuButtonClass, dragClassCancel)}
       />
     </Dropdown>
   );

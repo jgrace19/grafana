@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { sanitizeUrl } from '@grafana/data/internal';
 import { selectors } from '@grafana/e2e-selectors';
 import { type DashboardLink } from '@grafana/schema';
-import { MenuItem, Tooltip, useElementSelection, useStyles2 } from '@grafana/ui';
+import { MenuItem, Tooltip, useElementSelection } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   DashboardLinkButton,
   DashboardLinksDashboard,
@@ -29,7 +31,6 @@ export interface Props {
 
 export function DashboardLinkRenderer({ link, dashboardUID, inMenu, linkIndex, dashboard }: Props) {
   const linkInfo = getLinkSrv().getAnchorInfo(link);
-  const styles = useStyles2(getStyles);
   const selectionId = linkIndex != null && linkIndex >= 0 ? linkSelectionId(linkIndex) : undefined;
   const { isSelected, isSelectable } = useElementSelection(selectionId);
 
@@ -73,30 +74,29 @@ export function DashboardLinkRenderer({ link, dashboardUID, inMenu, linkIndex, d
     content = link.tooltip ? <Tooltip content={linkInfo.tooltip}>{linkElement}</Tooltip> : linkElement;
   }
 
-  const containerClassName = cx(
-    styles.linkContainer,
-    isSelected && 'dashboard-selected-element',
-    isSelectable && !isSelected && 'dashboard-selectable-element'
-  );
+  const containerProps = mergeStylexProps(stylex.props(styles.linkContainer), {
+    className: clsx(
+      isSelected && 'dashboard-selected-element',
+      isSelectable && !isSelected && 'dashboard-selectable-element'
+    ),
+  });
 
   return (
     <ControlActionsPopover isEditable={Boolean(isSelectable)} content={editActions}>
-      <div className={containerClassName} data-testid={selectors.components.DashboardLinks.container}>
+      <div {...containerProps} data-testid={selectors.components.DashboardLinks.container}>
         {content}
       </div>
     </ControlActionsPopover>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    linkContainer: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      verticalAlign: 'middle',
-      lineHeight: 1,
-      flexWrap: 'wrap',
-      gap: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  linkContainer: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    lineHeight: 1,
+    flexWrap: 'wrap',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

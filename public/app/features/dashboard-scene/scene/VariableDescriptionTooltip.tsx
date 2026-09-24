@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { sanitizeUrl } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 const BARE_LINK_REGEX = /https?:\/\/[^\s<>()]+/gi;
@@ -16,18 +16,20 @@ interface VariableDescriptionTooltipProps {
 }
 
 export function VariableDescriptionTooltip({ description, placement }: VariableDescriptionTooltipProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Tooltip
-      content={<div className={styles.tooltipContent}>{renderDescriptionWithLinks(description, styles.link)}</div>}
+      content={
+        <div {...stylex.props(styles.tooltipContent)}>
+          {renderDescriptionWithLinks(description, stylex.props(styles.link).className ?? '')}
+        </div>
+      }
       placement={placement}
       interactive
     >
       <Icon
         name="info-circle"
         size="sm"
-        className={styles.icon}
+        xstyle={styles.icon}
         aria-label={t('dashboard.variable.description-tooltip', 'Variable description')}
       />
     </Tooltip>
@@ -129,17 +131,17 @@ function getSafeExternalUrl(url: string): string | undefined {
   return sanitizedUrl;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  icon: css({
-    color: theme.colors.text.secondary,
-  }),
-  tooltipContent: css({
-    maxWidth: theme.spacing(40),
+const styles = stylex.create({
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  tooltipContent: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 40)`,
     whiteSpace: 'normal',
     wordBreak: 'break-word',
-  }),
-  link: css({
-    color: theme.colors.primary.text,
+  },
+  link: {
+    color: colors['--gf-colors-primary-text'],
     textDecoration: 'underline',
-  }),
+  },
 });

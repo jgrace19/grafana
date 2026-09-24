@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
 import { DashboardCursorSync, type PanelProps, useDataLinksContext } from '@grafana/data';
@@ -78,7 +79,7 @@ export const StateTimelinePanel = ({
   const enableAnnotationCreation = Boolean(canAddAnnotations && canAddAnnotations());
 
   return (
-    <div className={containerStyles}>
+    <div {...stylex.props(containerStyles.container)}>
       <TimelineChart
         theme={theme}
         frames={paginatedFrames}

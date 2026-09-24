@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 
 import { QuickFeedbackType } from './utils';
 
@@ -11,10 +10,8 @@ interface QuickActionsProps {
 }
 
 export const QuickFeedback = ({ onSuggestionClick, isGenerating }: QuickActionsProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.quickSuggestionsWrapper}>
+    <div {...stylex.props(styles.quickSuggestionsWrapper)}>
       <Button
         onClick={() => onSuggestionClick(QuickFeedbackType.Shorter)}
         size="sm"
@@ -46,10 +43,10 @@ export const QuickFeedback = ({ onSuggestionClick, isGenerating }: QuickActionsP
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  quickSuggestionsWrapper: css({
+const styles = stylex.create({
+  quickSuggestionsWrapper: {
     display: 'flex',
     flexDirection: 'row',
     gap: 8,
-  }),
+  },
 });
