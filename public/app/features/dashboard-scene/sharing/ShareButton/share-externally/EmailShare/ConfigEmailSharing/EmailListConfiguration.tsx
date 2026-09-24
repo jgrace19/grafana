@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Dropdown, Field, Icon, IconButton, Menu, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Dropdown, Field, Icon, IconButton, Menu, Spinner, Stack, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   useReshareAccessToRecipientMutation,
   useDeleteRecipientMutation,
@@ -12,6 +12,8 @@ import {
 import { type PublicDashboard } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 import { type DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
+
+import './EmailListConfiguration.css';
 
 const selectors = e2eSelectors.pages.ShareDashboardModal.PublicDashboard.EmailSharingConfiguration;
 
@@ -37,8 +39,6 @@ const EmailList = ({
   dashboardUid: string;
   publicDashboard: PublicDashboard;
 }) => {
-  const styles = useStyles2(getStyles);
-
   const [deleteEmail, { isLoading: isDeleteLoading }] = useDeleteRecipientMutation();
   const [reshareAccess, { isLoading: isReshareLoading }] = useReshareAccessToRecipientMutation();
 
@@ -55,13 +55,13 @@ const EmailList = ({
   };
 
   return (
-    <table data-testid={selectors.EmailSharingList} className={styles.table}>
+    <table data-testid={selectors.EmailSharingList} {...stylex.props(styles.table)}>
       <tbody>
         {recipients!.map((recipient, idx) => (
-          <tr key={recipient.uid} className={styles.listItem}>
-            <td className={styles.user}>
+          <tr key={recipient.uid} {...stylex.props(styles.listItem)}>
+            <td {...stylex.props(styles.user)}>
               <Stack direction="row" gap={1} alignItems="center">
-                <div className={styles.icon}>
+                <div {...stylex.props(styles.icon)}>
                   <Icon name="user" />
                 </div>
                 <Text>{recipient.recipient}</Text>
@@ -93,7 +93,6 @@ const EmailList = ({
 };
 
 export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScene }) => {
-  const styles = useStyles2(getStyles);
   const { data: publicDashboard } = publicDashboardApi.endpoints?.getPublicDashboard.useQueryState(
     dashboard.state.uid!
   );
@@ -105,10 +104,10 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
         'public-dashboard.email-sharing.recipient-list-description',
         "Only people you've directly invited can access this dashboard"
       )}
-      className={styles.listField}
+      className="gf-email-list-field"
     >
       {!!publicDashboard?.recipients?.length ? (
-        <div className={styles.listContainer}>
+        <div {...stylex.props(styles.listContainer)}>
           <EmailList
             recipients={publicDashboard.recipients}
             dashboardUid={dashboard.state.uid!}
@@ -122,31 +121,37 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listField: css({
-    marginBottom: 0,
-  }),
-  listContainer: css({
+// The Field margin override lives in EmailListConfiguration.css.
+const styles = stylex.create({
+  listContainer: {
     maxHeight: '140px',
     overflowY: 'auto',
-  }),
-  table: css({
+  },
+  table: {
     width: '100%',
-  }),
-  listItem: css({
+  },
+  listItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.75, 1),
-    color: theme.colors.text.secondary,
-  }),
-  user: css({
-    flex: 1,
-  }),
-  icon: css({
-    border: `${theme.spacing(0.25)} solid ${theme.colors.text.secondary}`,
-    padding: theme.spacing(0.125, 0.5),
-    borderRadius: theme.shape.radius.circle,
-    color: theme.colors.text.secondary,
-  }),
+    gap: spacing['--gf-spacing-x0-5'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  user: {
+    flex: '1',
+  },
+  icon: {
+    borderWidth: spacing['--gf-spacing-x0-25'],
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-text-secondary'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.125)`,
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.125)`,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

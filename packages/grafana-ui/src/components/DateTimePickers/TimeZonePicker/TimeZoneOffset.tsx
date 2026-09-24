@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type TimeZone, dateTimeFormat } from '@grafana/data';
+import { type TimeZone, dateTimeFormat } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, shape, typography } from '../../../themes/stylex/tokens.stylex';
 
 interface Props {
   timestamp: number;
@@ -12,7 +13,6 @@ interface Props {
 
 export const TimeZoneOffset = (props: Props) => {
   const { timestamp, timeZone, className } = props;
-  const styles = useStyles2(getStyles);
 
   if (typeof timeZone !== 'string') {
     return null;
@@ -20,7 +20,9 @@ export const TimeZoneOffset = (props: Props) => {
 
   return (
     <>
-      <span className={cx(styles.offset, className)}>{formatUtcOffset(timestamp, timeZone)}</span>
+      <span {...mergeStylexProps(stylex.props(styles.offset), { className })}>
+        {formatUtcOffset(timestamp, timeZone)}
+      </span>
     </>
   );
 };
@@ -34,21 +36,18 @@ export const formatUtcOffset = (timestamp: number, timeZone: TimeZone): string =
   return `UTC${offset}`;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const textBase = css({
+const styles = stylex.create({
+  offset: {
     fontWeight: 'normal',
-    fontSize: theme.typography.size.sm,
-    color: theme.colors.text.secondary,
+    fontSize: typography['--gf-typography-size-sm'],
     whiteSpace: 'normal',
-  });
-
-  return {
-    offset: css(textBase, {
-      color: theme.colors.text.primary,
-      background: theme.colors.background.secondary,
-      padding: '2px 5px',
-      borderRadius: theme.shape.radius.default,
-      marginLeft: '4px',
-    }),
-  };
-};
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: '2px',
+    paddingBottom: '2px',
+    paddingLeft: '5px',
+    paddingRight: '5px',
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginLeft: '4px',
+  },
+});

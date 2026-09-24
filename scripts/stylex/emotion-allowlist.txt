@@ -27,6 +27,8 @@ public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides To
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
+public/app/features/logs/components/panel/LogLineContext.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/height/padding
+public/app/features/logs/components/log-context/LogRowContextModal.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/padding
 public/app/features/admin/UserOrgs.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/overflow
 public/app/features/admin/UserListPublicDashboardPage/DashboardsListModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
 public/app/features/admin/UserListPublicDashboardPage/DeleteUserModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
@@ -51,4 +53,26 @@ public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex:
 public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
+public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx # stylex: pending CollapsableSection migration (U8); overrides of its header, content and icon
+public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx # stylex: pending Label migration (U2); className override of Label max width
+public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.LoginBoxBackground() returns a class name, and BrandingSettings.loginBoxBackground overrides it with one
+public/app/core/components/FormPrompt/FormPrompt.tsx # C1: overrides Modal's own Emotion width; migrate with U4 (Modal)
+public/app/core/components/Login/LoginLayout.tsx # C1: still exports the Emotion getLoginStyles for PublicDashboardNotAvailable (D3); LoginLayout itself is StyleX
+public/app/core/components/Login/LoginServiceButtons.tsx # C1: per-provider colours override Button background and hover; Button has no xstyle
+public/app/core/components/NestedFolderPicker/NestedFolderPicker.tsx # C1: overrides the cursor of Input's own Emotion <input>; migrate with U2 (Input)
+public/app/core/components/NestedFolderPicker/Skeleton.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
+public/app/core/components/NestedFolderPicker/Trigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
+public/app/core/components/RolePicker/** # C1: own styles share elements with getSelectStyles/getInputStyles/Checkbox Emotion classes; needs a dedicated rewrite after U2
+public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
+public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
+
+public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/notification-policies/EditDefaultPolicyForm.tsx # stylex: pending Collapse migration: keeps Emotion className overrides that must beat Collapse's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/AlertManagerRouting.tsx # stylex: pending CollapsableSection migration: keeps Emotion className overrides that must beat CollapsableSection's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/route-settings/RouteSettings.tsx # stylex: pending InlineField and Field migration: keeps Emotion className overrides that must beat InlineField and Field's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/AnnotationsStep.tsx # stylex: pending Field, Input and TextArea migration: keeps Emotion className overrides that must beat Field, Input and TextArea's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.tsx # stylex: pending InlineLabel migration: keeps Emotion className overrides that must beat InlineLabel's own Emotion styles
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type PreferencesSpec as UserPreferencesDTO } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
 import { type ThemeRegistryItem } from '@grafana/data';
@@ -94,14 +94,12 @@ export const getTranslatedThemeName = (theme: ThemeRegistryItem) => {
   }
 };
 
-export const getStyles = () => {
-  return {
-    labelText: css({
-      marginRight: '6px',
-    }),
-    form: css({
-      width: '100%',
-      maxWidth: '600px',
-    }),
-  };
-};
+export const sharedPreferencesStyles = stylex.create({
+  labelText: {
+    marginRight: '6px',
+  },
+  form: {
+    width: '100%',
+    maxWidth: '600px',
+  },
+});

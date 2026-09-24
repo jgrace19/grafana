@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, useStyles2, Text } from '@grafana/ui';
+import { Stack, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 type AddNewSectionProps = {
   title: string;
@@ -10,10 +10,9 @@ type AddNewSectionProps = {
 };
 
 export function AddNewSection({ title, description, children }: AddNewSectionProps) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
+    <div {...stylex.props(styles.section)}>
+      <div {...stylex.props(styles.sectionHeader)}>
         <Text weight="medium">{title}</Text>
         <Text element="p" variant="bodySmall" color="secondary">
           {description || ''}
@@ -26,14 +25,20 @@ export function AddNewSection({ title, description, children }: AddNewSectionPro
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      padding: theme.spacing(2),
-    }),
-    sectionHeader: css({
-      margin: theme.spacing(0, 0, 2, 0),
-    }),
-  };
-}
+const styles = stylex.create({
+  section: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  sectionHeader: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+  },
+});

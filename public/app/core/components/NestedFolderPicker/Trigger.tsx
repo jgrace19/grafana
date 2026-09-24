@@ -80,6 +80,7 @@ function Trigger(
 
 export default forwardRef(Trigger);
 
+// stylex: pending Input migration (U2). Composes the Emotion classes returned by getInputStyles.
 const getStyles = (theme: GrafanaTheme2, invalid = false) => {
   const baseStyles = getInputStyles({ theme, invalid });
 

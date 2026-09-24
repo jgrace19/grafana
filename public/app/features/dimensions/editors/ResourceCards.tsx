@@ -1,11 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type CSSProperties } from 'react';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { areEqual, FixedSizeGrid as Grid } from 'react-window';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors, shadows, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
 import { type ResourceItem } from './FolderPickerTab';
@@ -27,14 +26,13 @@ const MemoizedCell = memo(function Cell(props: CellProps) {
   const { cards, columnCount, onChange, selected } = data;
   const singleColumnIndex = columnIndex + rowIndex * columnCount;
   const card = cards[singleColumnIndex];
-  const styles = useStyles2(getStyles);
 
   return (
     <div style={style}>
       {card && (
         <div
           key={card.value}
-          className={selected === card.value ? cx(styles.card, styles.selected) : styles.card}
+          {...stylex.props(styles.card, selected === card.value && styles.selected)}
           onClick={() => onChange(card.value)}
           onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Enter') {
@@ -45,11 +43,11 @@ const MemoizedCell = memo(function Cell(props: CellProps) {
           tabIndex={0}
         >
           {card.imgUrl.endsWith('.svg') ? (
-            <SanitizedSVG src={card.imgUrl} className={styles.img} />
+            <SanitizedSVG src={card.imgUrl} className={stylex.props(styles.img).className} />
           ) : (
-            <img src={card.imgUrl} alt="" className={styles.img} />
+            <img src={card.imgUrl} alt="" {...stylex.props(styles.img)} />
           )}
-          <span className={styles.text}>{card.label.slice(0, -4)}</span>
+          <span {...stylex.props(styles.text)}>{card.label.slice(0, -4)}</span>
         </div>
       )}
     </div>
@@ -64,7 +62,6 @@ interface CardProps {
 
 export const ResourceCards = (props: CardProps) => {
   const { onChange, cards, value } = props;
-  const styles = useStyles2(getStyles);
 
   return (
     <AutoSizer defaultWidth={680}>
@@ -82,7 +79,7 @@ export const ResourceCards = (props: CardProps) => {
             rowCount={rowCount}
             rowHeight={cardHeight}
             itemData={{ cards, columnCount, onChange, selected: value }}
-            className={styles.grid}
+            className={stylex.props(styles.grid).className}
           >
             {MemoizedCell}
           </Grid>
@@ -92,48 +89,52 @@ export const ResourceCards = (props: CardProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  card: css({
+const styles = stylex.create({
+  card: {
     display: 'inline-block',
     width: '90px',
     height: '90px',
-    margin: '0.75rem',
+    marginTop: '0.75rem',
+    marginRight: '0.75rem',
+    marginBottom: '0.75rem',
     marginLeft: '15px',
     textAlign: 'center',
     cursor: 'pointer',
     position: 'relative',
     backgroundColor: 'transparent',
-    border: '1px solid transparent',
-    borderRadius: theme.shape.radius.default,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    borderRadius: shape['--gf-shape-radius-default'],
     paddingTop: '6px',
-    ':hover': {
-      borderColor: theme.colors.action.hover,
-      boxShadow: theme.shadows.z2,
-    },
-  }),
-  selected: css({
-    border: `2px solid ${theme.colors.primary.main}`,
-    ':hover': {
-      borderColor: theme.colors.primary.main,
-    },
-  }),
-  img: css({
+    boxShadow: { default: null, ':hover': shadows['--gf-shadows-z2'] },
+  },
+  selected: {
+    borderWidth: '2px',
+    borderColor: { default: colors['--gf-colors-primary-main'], ':hover': colors['--gf-colors-primary-main'] },
+  },
+  img: {
     width: '40px',
     height: '40px',
     objectFit: 'cover',
     verticalAlign: 'middle',
-    fill: theme.colors.text.primary,
-  }),
-  text: css({
-    ...theme.typography.h6,
-    color: theme.colors.text.primary,
+    fill: colors['--gf-colors-text-primary'],
+  },
+  text: {
+    fontFamily: typography['--gf-typography-h6-font-family'],
+    fontWeight: typography['--gf-typography-h6-font-weight'],
+    lineHeight: typography['--gf-typography-h6-line-height'],
+    letterSpacing: typography['--gf-typography-h6-letter-spacing'],
+    color: colors['--gf-colors-text-primary'],
     whiteSpace: 'nowrap',
     fontSize: '12px',
     textOverflow: 'ellipsis',
     display: 'block',
     overflow: 'hidden',
-  }),
-  grid: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
+  },
+  grid: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
 });

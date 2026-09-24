@@ -1,5 +1,6 @@
 import 'react-data-grid/lib/styles.css';
 
+import * as stylex from '@stylexjs/stylex';
 import { clsx } from 'clsx';
 import memoize from 'micro-memoize';
 import {
@@ -39,7 +40,8 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { FieldColorModeId, TableCellTooltipPlacement, type TableFooterOptions } from '@grafana/schema';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { getTextColorForBackground as _getTextColorForBackground } from '../../../utils/colors';
 import { Pagination } from '../../Pagination/Pagination';
 import { type PanelContext, usePanelContext } from '../../PanelChrome';
@@ -76,6 +78,8 @@ import {
   getLinkStyles,
   getMaxHeightCellStyles,
   getTooltipStyles,
+  rdgCellMarkerClassName,
+  rdgRowMarkerClassName,
 } from './styles';
 import {
   type CellRootRenderer,
@@ -102,7 +106,6 @@ import {
   getDefaultRowHeight,
   getDisplayName,
   getIsNestedTable,
-  getJustifyContent,
   getSummaryCellTextAlign,
   getVisibleFields,
   IS_SAFARI_26,
@@ -350,7 +353,7 @@ export function TableNG(props: TableNGProps) {
   });
 
   const showPagination = enablePagination && numRows > 0;
-  const styles = useStyles2(getGridStyles, showPagination, transparent);
+  const styles = getGridStyles(theme, showPagination, transparent);
 
   const [scrollToIndex, setScrollToIndex] = useState(initialRowIndex);
   useEffect(() => {
@@ -507,7 +510,7 @@ export function TableNG(props: TableNGProps) {
         const expandedRecords = nestedRows[row.__index]?.final ?? [];
         if (!expandedRecords.length) {
           return (
-            <div className={styles.noDataNested}>
+            <div {...stylex.props(styles.noDataNested)}>
               <Trans i18nKey="grafana-ui.table.nested-table.no-data">No data</Trans>
             </div>
           );
@@ -519,8 +522,9 @@ export function TableNG(props: TableNGProps) {
           <div id={rowId}>
             <DataGrid<TableRow, TableSummaryRow>
               {...commonDataGridProps}
-              className={clsx(styles.grid, styles.gridNested)}
-              headerRowClass={clsx(styles.headerRow, hasNestedHeaders ? '' : styles.displayNone)}
+              className={styles.gridNested.className}
+              style={styles.gridNested.style}
+              headerRowClass={hasNestedHeaders ? styles.headerRow : styles.headerRowHidden}
               headerRowHeight={hasNestedHeaders ? nestedHeaderHeightPx : 0}
               columns={nestedColumns}
               rows={expandedRecords}
@@ -538,10 +542,9 @@ export function TableNG(props: TableNGProps) {
     }),
     [
       styles.cellNested,
-      styles.grid,
       styles.gridNested,
       styles.headerRow,
-      styles.displayNone,
+      styles.headerRowHidden,
       styles.noDataNested,
       data.fields.length,
       commonDataGridProps,
@@ -611,9 +614,8 @@ export function TableNG(props: TableNGProps) {
         // the text-align css property, and for others, we'll use justify-content to align the cell
         // contents with flexbox. We always just get both and provide both when styling the cell.
         const textAlign = getAlignment(field);
-        const justifyContent = getJustifyContent(textAlign);
         const displayName = getDisplayName(field);
-        const headerCellClass = getHeaderCellStyles(theme, justifyContent);
+        const headerCellClass = getHeaderCellStyles(theme, textAlign);
         const CellType = getCellRenderer(field, cellOptions);
 
         const cellInspect = isCellInspectEnabled(field);
@@ -640,8 +642,25 @@ export function TableNG(props: TableNGProps) {
         const defaultCellStyles = getDefaultCellStyles(theme, cellStyleOptions);
         const cellSpecificStyles = getCellSpecificStyles(cellType, field, theme, cellStyleOptions);
         const linkStyles = getLinkStyles(theme, canBeColorized);
-        const cellParentStyles = clsx(defaultCellStyles, linkStyles);
-        const maxHeightClassName = maxRowHeight ? getMaxHeightCellStyles(theme, cellStyleOptions) : undefined;
+        // cell-specific styles go on the cell unless a max-height wrapper inside it clamps the content.
+        const cellSpecificStylesOnCell = maxRowHeight == null ? cellSpecificStyles : undefined;
+        const cellStyleProps = stylex.props(defaultCellStyles, cellSpecificStylesOnCell?.xstyle);
+        const cellClassName = clsx(
+          rdgCellMarkerClassName,
+          cellStyleProps.className,
+          linkStyles,
+          cellSpecificStylesOnCell?.className
+        );
+        const cellInlineStyle = { ...cellStyleProps.style, ...cellSpecificStylesOnCell?.style };
+        const maxHeightWrapperProps = maxRowHeight
+          ? mergeStylexProps(
+              stylex.props(getMaxHeightCellStyles(theme, cellStyleOptions), cellSpecificStyles?.xstyle),
+              {
+                className: cellSpecificStyles?.className,
+                style: cellSpecificStyles?.style,
+              }
+            )
+          : undefined;
         const styleFieldValue = field.config.custom?.styleField;
         const styleField = styleFieldValue ? frame.fields.find(predicateByName(styleFieldValue)) : undefined;
         const styleFieldName = styleField ? getDisplayName(styleField) : undefined;
@@ -666,7 +685,7 @@ export function TableNG(props: TableNGProps) {
             }
           }
 
-          let style: CSSProperties = { ...rowCellStyle };
+          let style: CSSProperties = { ...cellInlineStyle, ...rowCellStyle };
           if (canBeColorized) {
             const value = props.row[props.column.key];
             const displayValue = field.display!(value); // this fires here to get colors, then again to get rendered value?
@@ -677,18 +696,7 @@ export function TableNG(props: TableNGProps) {
             style = { ...style, ...parseStyleJson(props.row[styleFieldName!]) };
           }
 
-          return (
-            <Cell
-              key={key}
-              {...props}
-              className={clsx(
-                props.className,
-                cellParentStyles,
-                cellSpecificStyles != null && maxRowHeight == null ? cellSpecificStyles : ''
-              )}
-              style={style}
-            />
-          );
+          return <Cell key={key} {...props} className={clsx(props.className, cellClassName)} style={style} />;
         };
 
         result.cellRootRenderers[displayName] = renderCellRoot;
@@ -735,8 +743,8 @@ export function TableNG(props: TableNGProps) {
             </>
           );
 
-          if (maxRowHeight != null) {
-            result = <div className={clsx(maxHeightClassName, cellSpecificStyles)}>{result}</div>;
+          if (maxHeightWrapperProps != null) {
+            result = <div {...maxHeightWrapperProps}>{result}</div>;
           }
 
           return result;
@@ -779,12 +787,8 @@ export function TableNG(props: TableNGProps) {
             const tooltipProps = {
               cellOptions: tooltipCellOptions,
               classes: tooltipClasses,
-              className: clsx(
-                tooltipClasses.tooltipContent,
-                tooltipDefaultStyles,
-                tooltipSpecificStyles,
-                tooltipLinkStyles
-              ),
+              contentStyles: [tooltipClasses.tooltipContent, tooltipDefaultStyles, tooltipSpecificStyles?.xstyle],
+              className: clsx(tooltipLinkStyles, tooltipSpecificStyles?.className),
               data: frame,
               disableSanitizeHtml,
               field: tooltipField,
@@ -801,7 +805,7 @@ export function TableNG(props: TableNGProps) {
             renderCellContent = (props: RenderCellProps<TableRow, TableSummaryRow>): JSX.Element => {
               // cached so we don't care about multiple calls.
               const tooltipHeight = rowHeightFn(props.row);
-              let tooltipStyle: CSSProperties = { ...rowCellStyle };
+              let tooltipStyle: CSSProperties = { ...tooltipSpecificStyles?.style, ...rowCellStyle };
               if (tooltipCanBeColorized) {
                 const tooltipDisplayValue = tooltipField.display!(props.row[tooltipDisplayName]);
                 const tooltipCellColorStyles = getCellColorInlineStyles(
@@ -926,7 +930,9 @@ export function TableNG(props: TableNGProps) {
     // pre-calculate renderRow and expandedColumns based on the first nested frame's fields.
     const renderRow = renderRowFactory(firstRowNestedData.fields, panelContext, expandedRows, enableSharedCrosshair);
 
-    const expanderCellRenderer: CellRootRenderer = (key, props) => <Cell key={key} {...props} />;
+    const expanderCellRenderer: CellRootRenderer = (key, props) => (
+      <Cell key={key} {...props} className={clsx(props.className, rdgCellMarkerClassName)} />
+    );
     result.cellRootRenderers[EXPANDED_COLUMN_KEY] = expanderCellRenderer;
 
     // If we have nested frames, we need to add a column for the row expansion
@@ -974,14 +980,15 @@ export function TableNG(props: TableNGProps) {
         {...commonDataGridProps}
         role={hasNestedFrames ? 'treegrid' : 'grid'}
         ref={gridRef}
-        className={styles.grid}
+        className={styles.grid.className}
+        style={styles.grid.style}
         columns={structureRevColumns}
         rows={paginatedRows}
         rowKeyGetter={rowKeyGetter}
         isRowSelectionDisabled={() => initialRowIndex !== undefined}
         selectedRows={selectedRows}
         onSelectedRowsChange={setSelectedRows}
-        headerRowClass={clsx(styles.headerRow, noHeader ? styles.displayNone : '')}
+        headerRowClass={noHeader ? styles.headerRowHidden : styles.headerRow}
         headerRowHeight={headerHeight}
         onCellClick={onCellClick}
         onCellKeyDown={({ column, row }, event) => {
@@ -1007,7 +1014,7 @@ export function TableNG(props: TableNGProps) {
       />
 
       {enablePagination && numRows > 0 && (
-        <div className={styles.paginationContainer}>
+        <div {...stylex.props(styles.paginationContainer)}>
           <Pagination
             className="table-ng-pagination"
             currentPage={page + 1}
@@ -1018,7 +1025,7 @@ export function TableNG(props: TableNGProps) {
             }}
           />
           {!smallPagination && (
-            <div className={styles.paginationSummary}>
+            <div {...stylex.props(styles.paginationSummary)}>
               {/* TODO: once TableRT is deprecated, we can update the localiziation
                     string with the more consistent variable names */}
               <Trans i18nKey="grafana-ui.table.pagination-summary">
@@ -1049,7 +1056,7 @@ export function TableNG(props: TableNGProps) {
   );
 
   if (IS_SAFARI_26) {
-    rendered = <div className={styles.safariWrapper}>{rendered}</div>;
+    rendered = <div {...stylex.props(styles.safariWrapper)}>{rendered}</div>;
   }
 
   return rendered;
@@ -1073,7 +1080,15 @@ const renderRowFactory =
       }
 
       // Add aria-expanded and aria-level to parent rows that have nested data
-      return <Row key={key} aria-level={row.__index + 1} aria-expanded={isExpanded} {...props} />;
+      return (
+        <Row
+          key={key}
+          aria-level={row.__index + 1}
+          aria-expanded={isExpanded}
+          {...props}
+          className={clsx(props.className, rdgRowMarkerClassName)}
+        />
+      );
     }
 
     const handlers: Partial<typeof props> = {};
@@ -1095,5 +1110,5 @@ const renderRowFactory =
       }
     }
 
-    return <Row key={key} {...props} {...handlers} />;
+    return <Row key={key} {...props} {...handlers} className={clsx(props.className, rdgRowMarkerClassName)} />;
   };

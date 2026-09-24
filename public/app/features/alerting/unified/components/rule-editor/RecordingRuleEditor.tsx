@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FC, useCallback, useEffect, useState } from 'react';
 import { useAsync } from 'react-use';
 
-import { CoreApp, type GrafanaTheme2, LoadingState, type PanelData } from '@grafana/data';
+import { CoreApp, LoadingState, type PanelData } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DataSourceType } from 'app/features/alerting/unified/utils/datasource';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 import { QueryErrorAlert } from 'app/features/query/components/QueryErrorAlert';
@@ -37,8 +37,6 @@ export const RecordingRuleEditor: FC<RecordingRuleEditorProps> = ({
     state: LoadingState.NotStarted,
     timeRange: getTimeSrv().timeRange(),
   });
-
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     setData(panelData?.[queries[0]?.refId]);
@@ -127,7 +125,7 @@ export const RecordingRuleEditor: FC<RecordingRuleEditorProps> = ({
       )}
 
       {data && (
-        <div className={styles.vizWrapper}>
+        <div {...stylex.props(styles.vizWrapper)}>
           <VizWrapper data={data} />
         </div>
       )}
@@ -135,8 +133,11 @@ export const RecordingRuleEditor: FC<RecordingRuleEditorProps> = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  vizWrapper: css({
-    margin: theme.spacing(1, 0),
-  }),
+const styles = stylex.create({
+  vizWrapper: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
 });

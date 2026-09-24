@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import {
   type CSSProperties,
   type ReactElement,
@@ -16,7 +18,7 @@ import { t } from '@grafana/i18n';
 import { type TableCellTooltipPlacement } from '@grafana/schema';
 
 import { Popover } from '../../../Tooltip/Popover';
-import { type TableCellOptions } from '../../types';
+import { type TableCellOptions, type TableStyleProps } from '../../types';
 import { type getTooltipStyles } from '../styles';
 import { type TableCellRenderer, type TableCellRendererProps } from '../types';
 
@@ -24,6 +26,8 @@ export interface TableCellTooltipProps {
   cellOptions: TableCellOptions;
   children: ReactElement;
   classes: ReturnType<typeof getTooltipStyles>;
+  /** Styles for the tooltip's content: its StyleX styles plus the classes of the TableNG.css rules. */
+  contentStyles: TableStyleProps;
   className?: string;
   data: DataFrame;
   disableSanitizeHtml?: boolean;
@@ -46,6 +50,7 @@ export const TableCellTooltip = memo(
     cellOptions,
     children,
     classes,
+    contentStyles,
     className,
     data,
     disableSanitizeHtml,
@@ -153,7 +158,7 @@ export const TableCellTooltip = memo(
             show={show}
             placement={placement}
             wrapperClassName={classes.tooltipWrapper}
-            className={className}
+            className={clsx(stylex.props(contentStyles).className, className)}
             style={{ ...style, width, ...(!dynamicHeight && { height }) }}
             referenceElement={cellElement}
             onMouseLeave={onMouseLeave}

@@ -1,14 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, MappingType, type StandardEditorProps, type ValueMapping } from '@grafana/data';
+import { MappingType, type StandardEditorProps, type ValueMapping } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Stack, Icon, ColorPicker, Button, Modal } from '@grafana/ui';
+import { Stack, Icon, ColorPicker, Button, Modal } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { MediaType, ResourceFolderName, ResourcePickerSize } from '../../types';
 import { ResourcePicker } from '../ResourcePicker';
 
 import { buildEditRowModels, editModelToSaveModel, ValueMappingsEditorModal } from './ValueMappingsEditorModal';
+
+import './ValueMappingsEditor.css';
 
 export interface Props extends StandardEditorProps<ValueMapping[]> {
   showIcon?: boolean;
@@ -17,7 +20,6 @@ export interface Props extends StandardEditorProps<ValueMapping[]> {
 export const ValueMappingsEditor = memo((props: Props) => {
   const { value, onChange, item } = props;
 
-  const styles = useStyles2(getStyles);
   const showIconPicker = item.settings?.icon;
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const onCloseEditor = useCallback(() => {
@@ -44,11 +46,11 @@ export const ValueMappingsEditor = memo((props: Props) => {
 
   return (
     <Stack direction="column">
-      <table className={styles.compactTable}>
+      <table {...stylex.props(styles.compactTable)}>
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex.toString()}>
-              <td>
+              <td {...stylex.props(styles.cell)}>
                 {row.type === MappingType.ValueToText && row.key}
                 {row.type === MappingType.RangeToText && (
                   <span>
@@ -58,12 +60,12 @@ export const ValueMappingsEditor = memo((props: Props) => {
                 {row.type === MappingType.RegexToText && row.pattern}
                 {row.type === MappingType.SpecialValue && row.specialMatch}
               </td>
-              <td>
+              <td {...stylex.props(styles.cell)}>
                 <Icon name="arrow-right" />
               </td>
-              <td>{row.result.text}</td>
+              <td {...stylex.props(styles.cell)}>{row.result.text}</td>
               {row.result.color && (
-                <td>
+                <td {...stylex.props(styles.cell)}>
                   <ColorPicker
                     color={row.result.color}
                     onChange={(color) => onChangeColor(color, rowIndex)}
@@ -72,7 +74,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
                 </td>
               )}
               {showIconPicker && row.result.icon && (
-                <td data-testid="iconPicker">
+                <td {...stylex.props(styles.cell)} data-testid="iconPicker">
                   <ResourcePicker
                     onChange={(icon) => onChangeIcon(icon, rowIndex)}
                     value={row.result.icon}
@@ -104,7 +106,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
         isOpen={isEditorOpen}
         title={t('dimensions.value-mappings-editor.title-value-mappings', 'Value mappings')}
         onDismiss={onCloseEditor}
-        className={styles.modal}
+        className="gf-value-mappings-modal"
         closeOnBackdropClick={false}
       >
         <ValueMappingsEditorModal
@@ -120,14 +122,14 @@ export const ValueMappingsEditor = memo((props: Props) => {
 
 ValueMappingsEditor.displayName = 'ValueMappingsEditor';
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '980px',
-  }),
-  compactTable: css({
+const styles = stylex.create({
+  compactTable: {
     width: '100%',
-    'tbody td': {
-      padding: theme.spacing(0.5),
-    },
-  }),
+  },
+  cell: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
 });

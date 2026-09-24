@@ -1332,7 +1332,7 @@
   },
   "public/app/features/alerting/unified/components/rule-editor/CloudEvaluationBehavior.tsx": {
     "@grafana/require-no-margin": {
-      "count": 2
+      "count": 1
     }
   },
   "public/app/features/alerting/unified/components/rule-editor/ExpressionEditor.tsx": {

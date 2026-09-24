@@ -1,13 +1,12 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Draggable, type DraggableProvided, Droppable, type DropResult } from '@hello-pangea/dnd';
-import { useCallback } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Card, IconButton, useStyles2 } from '@grafana/ui';
+import { Card, IconButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useLogDetailsContext } from './LogDetailsContext';
-import { type LogLineDetailsMode } from './LogLineDetails';
 import { useLogListContext } from './LogListContext';
 import { reportInteractionOnce } from './analytics';
 import { getNormalizedFieldName } from './processing';
@@ -92,14 +91,13 @@ const DisplayedField = ({
 }: DraggableDisplayedFieldProps & { provided: DraggableProvided }) => {
   const { displayedFields, onClickHideField } = useLogListContext();
   const { detailsMode } = useLogDetailsContext();
-  const styles = useStyles2(getStyles, detailsMode);
   const nextIndex = index === displayedFields.length - 1 ? 0 : index + 1;
   const prevIndex = index === 0 ? displayedFields.length - 1 : index - 1;
   return (
     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-      <Card noMargin className={styles.fieldCard}>
-        <div className={styles.fieldWrapper}>
-          <div className={styles.field}>{getNormalizedFieldName(field)}</div>
+      <Card noMargin style={detailsMode === 'inline' ? inlineFieldCardStyle : fieldCardStyle}>
+        <div {...stylex.props(styles.fieldWrapper)}>
+          <div {...stylex.props(styles.field)}>{getNormalizedFieldName(field)}</div>
           {displayedFields.length > 1 && (
             <>
               <IconButton
@@ -127,23 +125,26 @@ const DisplayedField = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, detailsMode: LogLineDetailsMode) => ({
-  fieldCard: css({
-    display: 'block',
-    padding: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    width: detailsMode === 'inline' ? '30vw' : undefined,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    wordBreak: 'break-word',
-  }),
-  fieldWrapper: css({
+// Card has no public xstyle and sets its own display, padding and margin, which a class from another stylex.props()
+// call can't reliably override.
+const fieldCardStyle: CSSProperties = {
+  display: 'block',
+  padding: spacing['--gf-spacing-x1'],
+  marginBottom: spacing['--gf-spacing-x1'],
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  wordBreak: 'break-word',
+};
+const inlineFieldCardStyle: CSSProperties = { ...fieldCardStyle, width: '30vw' };
+
+const styles = stylex.create({
+  fieldWrapper: {
     cursor: 'move',
     display: 'flex',
-    gap: theme.spacing(0.5),
+    gap: spacing['--gf-spacing-x0-5'],
     justifyContent: 'space-evenly',
-  }),
-  field: css({
-    flex: 1,
-  }),
+  },
+  field: {
+    flex: '1',
+  },
 });

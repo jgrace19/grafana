@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Badge, Stack } from '@grafana/ui';
+import { Badge, Stack } from '@grafana/ui';
 import { type OrgUser } from 'app/types/user';
 
 import { RolePickerDrawer } from './RolePickerDrawer';
@@ -17,8 +16,7 @@ export interface Props {
 export const RolePickerBadges = ({ disabled, user }: Props) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const { badge, badgeDisabled } = useStyles2(getStyles);
-  const badgeStyle = disabled ? badgeDisabled : badge;
+  const badgeStyle = stylex.props(disabled ? styles.badgeDisabled : styles.badge).className;
 
   const methods = useForm({
     defaultValues: {
@@ -58,13 +56,11 @@ export const RolePickerBadges = ({ disabled, user }: Props) => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    badge: css({
-      cursor: 'pointer',
-    }),
-    badgeDisabled: css({
-      cursor: 'not-allowed',
-    }),
-  };
-}
+const styles = stylex.create({
+  badge: {
+    cursor: 'pointer',
+  },
+  badgeDisabled: {
+    cursor: 'not-allowed',
+  },
+});

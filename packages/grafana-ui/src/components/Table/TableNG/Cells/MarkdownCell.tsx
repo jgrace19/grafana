@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 
 import { renderMarkdown } from '@grafana/data';
 
 import { MaybeWrapWithLink } from '../components/MaybeWrapWithLink';
-import { getActiveCellSelector, isTableCellStylesKeyEqual } from '../styles';
 import { type MarkdownCellProps, type TableCellStyles } from '../types';
 
 export function MarkdownCell({ field, rowIdx, disableSanitizeHtml }: MarkdownCellProps) {
@@ -27,28 +25,11 @@ export function MarkdownCell({ field, rowIdx, disableSanitizeHtml }: MarkdownCel
   );
 }
 
-export const getStyles: TableCellStyles = memoize(
-  (theme, { maxHeight }) =>
-    css({
-      [`&, ${getActiveCellSelector(Boolean(maxHeight))}`]: {
-        whiteSpace: 'normal',
-      },
+// The rules for the rendered markdown are in TableNG.css.
+export const getStyles: TableCellStyles = () => ({ xstyle: styles.markdown, className: 'gf-table-ng-markdown' });
 
-      '.markdown-container': {
-        width: '100%',
-        // for elements like `p`, `h*`, etc. which have an inherent margin,
-        // we want to remove the bottom margin for the last one in the container.
-        '> *:last-child': {
-          marginBottom: 0,
-        },
-      },
-
-      'ol, ul': {
-        paddingLeft: theme.spacing(2.5),
-      },
-      p: {
-        whiteSpace: 'pre-line',
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+const styles = stylex.create({
+  markdown: {
+    whiteSpace: 'normal',
+  },
+});

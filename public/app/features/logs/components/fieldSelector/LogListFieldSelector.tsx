@@ -1,11 +1,12 @@
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { type DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, IconButton, useStyles2 } from '@grafana/ui';
+import { getDragStyles, IconButton, useTheme2 } from '@grafana/ui';
 
 import { useLogListContext } from '../panel/LogListContext';
 import { reportInteractionOnce } from '../panel/analytics';
@@ -14,7 +15,7 @@ import { type LogListModel } from '../panel/processing';
 import { FieldSelector, FIELD_SELECTOR_MIN_WIDTH, getDefaultFieldSelectorWidth } from './FieldSelector';
 import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
-import { logsFieldSelectorWrapperStyles } from './styles';
+import { collapsedButtonStyle, logsFieldSelectorWrapperStyles } from './styles';
 import { getSuggestedFieldsFromLogList } from './suggestedFields';
 
 /**
@@ -39,7 +40,9 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const [sidebarHeight, setSidebarHeight] = useState(220);
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(logOptionsStorageKey));
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
-  const dragStyles = useStyles2(getDragStyles);
+  const theme = useTheme2();
+  // getDragStyles is a @grafana/ui Emotion helper; the resize handle it styles belongs to that package.
+  const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
 
   useLayoutEffect(() => {
     const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -150,9 +153,9 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
           toggleLevel={toggleLevel}
         />
       ) : (
-        <div className={logsFieldSelectorWrapperStyles.collapsedButtonContainer}>
+        <div {...stylex.props(logsFieldSelectorWrapperStyles.collapsedButtonContainer)}>
           <IconButton
-            className={logsFieldSelectorWrapperStyles.collapsedButton}
+            style={collapsedButtonStyle}
             onClick={expand}
             name="arrow-from-right"
             tooltip={t('logs.field-selector.expand', 'Expand sidebar')}

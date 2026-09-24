@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -10,7 +9,8 @@ import {
   type SceneObjectState,
   type VizPanel,
 } from '@grafana/scenes';
-import { Alert, LoadingPlaceholder, Tab, useStyles2 } from '@grafana/ui';
+import { Alert, LoadingPlaceholder, Tab } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { RulesTable } from 'app/features/alerting/unified/components/rules/RulesTable';
 import { usePanelCombinedRules } from 'app/features/alerting/unified/hooks/usePanelCombinedRules';
@@ -62,8 +62,6 @@ export class PanelDataAlertingTab extends SceneObjectBase<PanelDataAlertingTabSt
 }
 
 export function PanelDataAlertingTabRendered({ model }: SceneComponentProps<PanelDataAlertingTab>) {
-  const styles = useStyles2(getStyles);
-
   const { errors, loading, rules } = usePanelCombinedRules({
     dashboardUID: model.getDashboardUID(),
     panelId: model.getLegacyPanelId(),
@@ -108,7 +106,9 @@ export function PanelDataAlertingTabRendered({ model }: SceneComponentProps<Pane
     return (
       <>
         <RulesTable rules={rules} />
-        {canCreateRules && <ScenesNewRuleFromPanelButton className={styles.newButton} panel={panel} />}
+        {canCreateRules && (
+          <ScenesNewRuleFromPanelButton className={stylex.props(styles.newButton).className} panel={panel} />
+        )}
       </>
     );
   }
@@ -117,7 +117,7 @@ export function PanelDataAlertingTabRendered({ model }: SceneComponentProps<Pane
   const dashboard = model.getDashboard();
 
   return (
-    <div className={styles.noRulesWrapper}>
+    <div {...stylex.props(styles.noRulesWrapper)}>
       {!isNew && (
         <>
           <p>
@@ -142,15 +142,15 @@ export function PanelDataAlertingTabRendered({ model }: SceneComponentProps<Pane
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  newButton: css({
-    marginTop: theme.spacing(3),
-  }),
-  noRulesWrapper: css({
-    margin: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  newButton: {
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  noRulesWrapper: {
+    margin: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x3'],
+  },
 });
 interface PanelDataAlertingTabHeaderProps extends PanelDataTabHeaderProps {
   model: PanelDataAlertingTab;

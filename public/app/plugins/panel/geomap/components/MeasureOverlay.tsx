@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type Map from 'ol/Map';
 import { useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import { Button, IconButton, RadioButtonGroup, Select } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type MapMeasure, type MapMeasureOptions, measures } from '../utils/measure';
 
+import './MeasureOverlay.css';
 import { MeasureVectorLayer } from './MeasureVectorLayer';
 
 type Props = {
@@ -19,7 +20,6 @@ type Props = {
 
 export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
   const vector = useRef(new MeasureVectorLayer());
-  const measureStyle = getStyles(config.theme2);
 
   // Menu State Management
   const [firstLoad, setFirstLoad] = useState<boolean>(true);
@@ -67,10 +67,10 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
   }
 
   return (
-    <div className={`${measureStyle.infoWrap} ${!menuActive ? measureStyle.infoWrapClosed : null}`}>
+    <div {...stylex.props(styles.infoWrap, !menuActive && styles.infoWrapClosed)}>
       {menuActive ? (
         <div>
-          <div className={measureStyle.rowGroup}>
+          <div {...stylex.props(styles.rowGroup)}>
             <RadioButtonGroup
               value={options.action}
               options={measures}
@@ -86,7 +86,7 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
             />
             <Button
               aria-label={t('geomap.measure-overlay.aria-label-close', 'Close measure tools')}
-              className={measureStyle.button}
+              className={stylex.props(styles.button).className}
               icon="times"
               variant="secondary"
               size="sm"
@@ -94,7 +94,7 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
             />
           </div>
           <Select
-            className={measureStyle.unitSelect}
+            className={stylex.props(styles.unitSelect).className}
             value={unit.current}
             options={unit.options}
             isSearchable={false}
@@ -107,7 +107,7 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
         </div>
       ) : (
         <IconButton
-          className={measureStyle.icon}
+          className="gf-geomap-measure-icon"
           data-testid={selectors.components.PanelEditor.measureButton}
           name="ruler-combined"
           tooltip={t('geomap.measure-overlay.tooltip-show-measure-tools', 'Show measure tools')}
@@ -119,33 +119,25 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  button: css({
+const styles = stylex.create({
+  button: {
     marginLeft: 'auto',
-  }),
-  icon: css({
-    backgroundColor: theme.colors.secondary.main,
-    display: 'inline-block',
-    height: '19.25px',
-    margin: '1px',
-    width: '19.25px',
-  }),
-  infoWrap: css({
-    color: `${theme.colors.text}`,
-    backgroundColor: theme.colors.background.secondary,
-    // eslint-disable-next-line @grafana/no-border-radius-literal
+  },
+  infoWrap: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    // eslint-disable-next-line @grafana/stylex-no-border-radius-literal
     borderRadius: '4px',
     padding: '2px',
-  }),
-  infoWrapClosed: css({
+  },
+  infoWrapClosed: {
     height: '25.25px',
     width: '25.25px',
-  }),
-  rowGroup: css({
+  },
+  rowGroup: {
     display: 'flex',
     justifyContent: 'flex-end',
-  }),
-  unitSelect: css({
+  },
+  unitSelect: {
     minWidth: '200px',
-  }),
+  },
 });

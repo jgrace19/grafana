@@ -1,24 +1,20 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    empty: css({
-      marginBottom: theme.spacing(2),
-      marginLeft: theme.spacing(1.75),
-      fontSize: theme.typography.fontSize,
-    }),
-  };
-}
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export function EmptyFields() {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.empty}>
+    <div {...stylex.props(styles.empty)}>
       <Trans i18nKey="explore.logs-table-empty-fields.no-fields">No fields</Trans>
     </div>
   );
 }
+
+const styles = stylex.create({
+  empty: {
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.75)`,
+    fontSize: typography['--gf-typography-font-size'],
+  },
+});

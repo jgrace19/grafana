@@ -1,4 +1,4 @@
-import { type FC, type SyntheticEvent } from 'react';
+import { type CSSProperties, type FC, type SyntheticEvent } from 'react';
 import { type CellRendererProps, type Column } from 'react-data-grid';
 
 import {
@@ -17,7 +17,7 @@ import {
 import { type TableCellHeight, type TableFieldOptions } from '@grafana/schema';
 
 import { type TableCellInspectorMode } from '../TableCellInspector';
-import { type TableCellOptions } from '../types';
+import { type TableCellOptions, type TableStyleProps } from '../types';
 
 import { type ApplyFilterResult, type TextAlign } from './utils';
 
@@ -280,7 +280,17 @@ export interface TableCellStyleOptions {
   maxHeight?: number;
 }
 
-export type TableCellStyles = (theme: GrafanaTheme2, options: TableCellStyleOptions) => string;
+/**
+ * Styles a cell renderer adds to its cell, or to the max-height wrapper inside it: StyleX styles, plus a class
+ * for the TableNG.css rules on content the renderer doesn't style itself, plus inline custom properties.
+ */
+export interface TableCellStyleProps {
+  xstyle?: TableStyleProps;
+  className?: string;
+  style?: CSSProperties & Record<`--${string}`, string | number>;
+}
+
+export type TableCellStyles = (theme: GrafanaTheme2, options: TableCellStyleOptions) => TableCellStyleProps;
 
 // Comparator for sorting table values
 export type Comparator = (a: TableCellValue, b: TableCellValue) => number;

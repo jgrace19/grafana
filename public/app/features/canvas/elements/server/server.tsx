@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type LinkModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ColorDimensionConfig, type ScalarDimensionConfig } from '@grafana/schema';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
 import config from 'app/core/config';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
@@ -154,39 +155,52 @@ export const serverItem: CanvasElementItem<ServerConfig, ServerData> = {
   },
 };
 
-export const getServerStyles = (data: ServerData | undefined) => (theme: GrafanaTheme2) => ({
-  bulb: css({
-    '@keyframes blink': {
-      '0%': {
-        fillOpacity: 0,
-      },
-      '50%': {
-        fillOpacity: 1,
-      },
-      '100%': {
-        fillOpacity: 0,
-      },
-    },
-  }),
-  server: css({
-    fill: data?.statusColor ?? 'transparent',
-  }),
-  circle: css({
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      animation: `blink ${data?.blinkRate ? 1 / data.blinkRate : 0}s infinite step-end`,
-    },
-    fill: data?.bulbColor,
+export const getServerProps = (data: ServerData | undefined) => ({
+  server: stylex.props(styles.fill(data?.statusColor ?? 'transparent')),
+  circle: stylex.props(
+    styles.circle,
+    styles.fill(data?.bulbColor ?? null),
+    styles.blinkDuration(`${data?.blinkRate ? 1 / data.blinkRate : 0}s`)
+  ),
+  circleBack: stylex.props(styles.circleBack, styles.fill(outlineColor)),
+  outline: stylex.props(styles.outline, styles.stroke(outlineColor)),
+});
+
+const blink = stylex.keyframes({
+  '0%': {
+    fillOpacity: 0,
+  },
+  '50%': {
+    fillOpacity: 1,
+  },
+  '100%': {
+    fillOpacity: 0,
+  },
+});
+
+const styles = stylex.create({
+  circle: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: blink },
+    animationIterationCount: { default: null, [motion.noPreferenceOrReduce]: 'infinite' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'step-end' },
     stroke: 'none',
+  },
+  blinkDuration: (duration: string) => ({
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: duration },
   }),
-  circleBack: css({
-    fill: outlineColor,
+  circleBack: {
     stroke: 'none',
     opacity: 1,
-  }),
-  outline: css({
-    stroke: outlineColor,
+  },
+  outline: {
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
     strokeWidth: '4px',
+  },
+  fill: (fill: string | null) => ({
+    fill,
+  }),
+  stroke: (stroke: string) => ({
+    stroke,
   }),
 });

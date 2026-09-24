@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import './QueryWrapper.css';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import { type ChangeEvent, useState } from 'react';
@@ -8,7 +9,6 @@ import {
   CoreApp,
   type DataSourceApi,
   type DataSourceInstanceSettings,
-  type GrafanaTheme2,
   LoadingState,
   type PanelData,
   type RelativeTimeRange,
@@ -19,7 +19,9 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { type GraphThresholdsStyleMode, Icon, InlineField, Input, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { type GraphThresholdsStyleMode, Icon, InlineField, Input, Stack, Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { logInfo } from 'app/features/alerting/unified/Analytics';
 import { QueryEditorRow } from 'app/features/query/components/QueryEditorRow';
 import { type AlertDataQuery, type AlertQuery } from 'app/types/unified-alerting-dto';
@@ -82,7 +84,6 @@ export const QueryWrapper = ({
   onSetCondition,
   onChangeQueryOptions,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const [dsInstance, setDsInstance] = useState<DataSourceApi>();
   const defaults = dsInstance?.getDefaultQuery ? dsInstance.getDefaultQuery(CoreApp.UnifiedAlerting) : {};
 
@@ -120,9 +121,8 @@ export const QueryWrapper = ({
   }
 
   function SelectingDataSourceTooltip() {
-    const styles = useStyles2(getStyles);
     return (
-      <div className={styles.dsTooltip}>
+      <div {...stylex.props(styles.dsTooltip)}>
         <Tooltip
           content={
             <Trans i18nKey="alerting.selecting-data-source-tooltip.tooltip-content">
@@ -189,7 +189,7 @@ export const QueryWrapper = ({
 
   return (
     <Stack direction="column" gap={0.5}>
-      <div className={styles.wrapper}>
+      <div {...mergeStylexProps(stylex.props(styles.wrapper), { className: 'gf-alerting-query-wrapper' })}>
         <QueryEditorRow<AlertDataQuery>
           hideRefId={!isAdvancedMode}
           hideActionButtons={!isAdvancedMode}
@@ -221,8 +221,11 @@ export const QueryWrapper = ({
 };
 
 export const EmptyQueryWrapper = ({ children }: React.PropsWithChildren<{}>) => {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.wrapper}>{children}</div>;
+  return (
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className: 'gf-alerting-query-wrapper' })}>
+      {children}
+    </div>
+  );
 };
 
 export function MaxDataPointsOption({
@@ -310,23 +313,18 @@ export function MinIntervalOption({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    label: 'AlertingQueryWrapper',
-    marginBottom: theme.spacing(1),
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-
-    button: {
-      overflow: 'visible',
-    },
-  }),
-  dsTooltip: css({
+const styles = stylex.create({
+  wrapper: {
+    marginBottom: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  dsTooltip: {
     display: 'flex',
     alignItems: 'center',
-    '&:hover': {
-      opacity: 0.85,
-      cursor: 'pointer',
-    },
-  }),
+    opacity: { default: null, ':hover': 0.85 },
+    cursor: { default: null, ':hover': 'pointer' },
+  },
 });

@@ -7,12 +7,10 @@ import { shouldHideSoloPanelLogo, SoloPanelPageLogo } from './SoloPanelPageLogo'
 
 // Mock the theme hook
 const mockUseTheme2 = jest.fn();
-const mockUseStyles2 = jest.fn((fn) => fn({} as GrafanaTheme2));
 
 jest.mock('@grafana/ui', () => ({
   ...jest.requireActual('@grafana/ui'),
   useTheme2: () => mockUseTheme2(),
-  useStyles2: (fn: (theme: GrafanaTheme2) => Record<string, unknown>) => mockUseStyles2(fn),
 }));
 
 // Mock the logo images for dark and light modes
@@ -101,7 +99,6 @@ describe('SoloPanelPageLogo', () => {
       ...mockTheme,
       isDark: false,
     });
-    mockUseStyles2.mockImplementation((fn) => fn(mockTheme));
   });
 
   it('should render the logo component', () => {

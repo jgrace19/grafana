@@ -1,11 +1,10 @@
-import { css, cx } from '@emotion/css';
 import { DragDropContext, Draggable, type DraggableProvided, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Field } from './Field';
 import { type FieldWithStats } from './FieldSelector';
@@ -32,8 +31,6 @@ export const ActiveFields = ({
   toggle,
   toggleLevel,
 }: Props) => {
-  const styles = useStyles2(getLogsFieldsStyles);
-
   const onDragEnd = useCallback(
     (result: DropResult) => {
       if (!result.destination) {
@@ -77,16 +74,16 @@ export const ActiveFields = ({
   return (
     <>
       {logLevelActive !== undefined && toggleLevel && (
-        <div className={styles.columnWrapper}>
+        <div {...stylex.props(logsFieldsStyles.columnWrapper)}>
           <LogLevelField active={Boolean(logLevelActive)} toggle={toggleLevel} />
         </div>
       )}
       {(active.length || suggested.length) && (
         <>
-          <div className={styles.columnHeader}>
+          <div {...stylex.props(logsFieldsStyles.columnHeader)}>
             <Trans i18nKey="explore.logs-table-multi-select.selected-fields">Selected fields</Trans>
             {active.length > 0 && (
-              <button onClick={clear} className={styles.columnHeaderButton}>
+              <button onClick={clear} {...stylex.props(logsFieldsStyles.columnHeaderButton)}>
                 <Trans i18nKey="explore.logs-table-multi-select.reset">Reset</Trans>
               </button>
             )}
@@ -94,7 +91,11 @@ export const ActiveFields = ({
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="order-fields" direction="vertical">
               {(provided) => (
-                <div className={styles.columnWrapper} {...provided.droppableProps} ref={provided.innerRef}>
+                <div
+                  {...stylex.props(logsFieldsStyles.columnWrapper)}
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
                   {active.map((field, index) => (
                     <Draggable
                       draggableId={field.name}
@@ -104,7 +105,7 @@ export const ActiveFields = ({
                     >
                       {(provided: DraggableProvided, snapshot) => (
                         <div
-                          className={cx(styles.wrap, snapshot.isDragging ? styles.dragging : undefined)}
+                          {...stylex.props(logsFieldsStyles.wrap, snapshot.isDragging && logsFieldsStyles.dragging)}
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
@@ -131,12 +132,12 @@ export const ActiveFields = ({
           </DragDropContext>
           {suggested.length > 0 && (
             <>
-              <div className={styles.columnSubHeader}>
+              <div {...stylex.props(logsFieldsStyles.columnSubHeader)}>
                 <Trans i18nKey="explore.logs-table-multi-select.suggested-fields">Suggested</Trans>
               </div>
-              <div className={styles.columnWrapper}>
+              <div {...stylex.props(logsFieldsStyles.columnWrapper)}>
                 {suggested.map((field) => (
-                  <div className={styles.wrap} key={field.name}>
+                  <div {...stylex.props(logsFieldsStyles.wrap)} key={field.name}>
                     <Field field={field} toggle={toggleSelectedField} />
                   </div>
                 ))}
@@ -149,46 +150,51 @@ export const ActiveFields = ({
   );
 };
 
-export function getLogsFieldsStyles(theme: GrafanaTheme2) {
-  return {
-    wrap: css({
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      display: 'flex',
-      background: theme.colors.background.primary,
-    }),
-    dragging: css({
-      background: theme.colors.background.secondary,
-    }),
-    columnHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.h6.fontSize,
-      background: theme.colors.background.secondary,
-      position: 'sticky',
-      top: 0,
-      left: 0,
-      paddingTop: theme.spacing(0.75),
-      paddingRight: theme.spacing(0.75),
-      paddingBottom: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1.5),
-      zIndex: 3,
-      marginBottom: theme.spacing(2),
-    }),
-    columnSubHeader: css({
-      padding: theme.spacing(0, 0, 0.75, 0.5),
-      color: theme.colors.text.secondary,
-    }),
-    columnHeaderButton: css({
-      appearance: 'none',
-      background: 'none',
-      border: 'none',
-      fontSize: theme.typography.pxToRem(11),
-    }),
-    columnWrapper: css({
-      marginBottom: theme.spacing(1.5),
-      // need some space or the outline of the checkbox is cut off
-      paddingLeft: theme.spacing(0.5),
-    }),
-  };
-}
+// theme.typography.pxToRem(11), derived from the 12px bodySmall size so it follows the theme's font sizes.
+const smallFontSize = `calc(${typography['--gf-typography-body-small-font-size']} * 11 / 12)`;
+
+export const logsFieldsStyles = stylex.create({
+  wrap: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    display: 'flex',
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  dragging: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  columnHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: typography['--gf-typography-h6-font-size'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    position: 'sticky',
+    top: 0,
+    left: 0,
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    zIndex: 3,
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  columnSubHeader: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  columnHeaderButton: {
+    appearance: 'none',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    fontSize: smallFontSize,
+  },
+  columnWrapper: {
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    // need some space or the outline of the checkbox is cut off
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+});
