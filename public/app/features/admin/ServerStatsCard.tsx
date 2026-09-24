@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Card, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Card, Icon, Stack, Tooltip } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface StatItem {
@@ -22,9 +20,8 @@ export interface Props {
 }
 
 export const ServerStatsCard = ({ content, footer, isLoading }: Props) => {
-  const pendingStyles = useStyles2(getPendingStyles);
   return (
-    <Card noMargin className={pendingStyles.container}>
+    <Card noMargin style={containerStyle}>
       {content.map((item, index) => (
         <Stack key={index} justifyContent="space-between" alignItems="center">
           <Stack alignItems={'center'}>
@@ -47,15 +44,13 @@ export const ServerStatsCard = ({ content, footer, isLoading }: Props) => {
   );
 };
 
-// stylex: pending Card migration
-const getPendingStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-    padding: theme.spacing(2),
-  }),
-});
+// Card has no xstyle; an inline style wins over its grid layout and padding, like the old className did.
+const containerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--gf-spacing-x2)',
+  padding: 'var(--gf-spacing-x2)',
+} as const;
 
 const styles = stylex.create({
   indent: {
