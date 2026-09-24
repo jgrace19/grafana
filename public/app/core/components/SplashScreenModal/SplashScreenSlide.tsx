@@ -26,7 +26,10 @@ function resolveAccentColor(theme: GrafanaTheme2, key: AccentColorKey): string {
 export function SplashScreenSlide({ feature, footer }: SplashScreenSlideProps) {
   const theme = useTheme2();
   const accentColor = resolveAccentColor(theme, feature.accentColor);
-  const heroBackground = `url(${feature.heroImageUrl}), ${buildHeroGradient(theme, accentColor)}`;
+  // A url() inside a custom property resolves against the stylesheet that uses it, not the document, so the
+  // relative asset path has to be made absolute first.
+  const heroImageUrl = new URL(feature.heroImageUrl, document.baseURI).href;
+  const heroBackground = `url(${heroImageUrl}), ${buildHeroGradient(theme, accentColor)}`;
 
   return (
     <div {...stylex.props(styles.slide)}>
