@@ -1,12 +1,9 @@
-import { css } from '@emotion/css';
 import { type SVGProps, useEffect, useRef } from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
-
 import notFoundSvg from './grot-not-found.svg';
+
+import './GrotNotFound.css';
 
 const MIN_ARM_ROTATION = -20;
 const MAX_ARM_ROTATION = 5;
@@ -20,7 +17,6 @@ export interface Props {
 
 export const GrotNotFound = ({ width = 'auto', height }: Props) => {
   const svgRef = useRef<SVGElement>(null);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -52,20 +48,10 @@ export const GrotNotFound = ({ width = 'auto', height }: Props) => {
     };
   }, []);
 
-  return <SVG innerRef={svgRef} src={notFoundSvg} className={styles.svg} height={height} width={width} />;
+  return <SVG innerRef={svgRef} src={notFoundSvg} className="gf-grot-not-found" height={height} width={width} />;
 };
 
 GrotNotFound.displayName = 'GrotNotFound';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    svg: css({
-      '#grot-not-found-arm, #grot-not-found-magnifier': {
-        transformOrigin: 'center',
-      },
-    }),
-  };
-};
 
 /**
  * Given a start value, end value, and a ratio, return the intermediate value

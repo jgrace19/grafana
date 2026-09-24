@@ -1,19 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CellProps, type HeaderProps } from 'react-table';
 
 import { t, Trans } from '@grafana/i18n';
 
 import { IconButton } from '../../IconButton/IconButton';
 
-const expanderContainerStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  height: '100%',
-});
-
 export function ExpanderCell<K extends object>({ row, __rowID }: CellProps<K, void>) {
   return (
-    <div className={expanderContainerStyles}>
+    <div {...stylex.props(styles.expanderContainer)}>
       <IconButton
         tooltip={t('grafana-ui.interactive-table.expand-row-tooltip', 'Toggle row expanded')}
         // @ts-expect-error react-table doesn't ship with useExpanded types and we can't use declaration merging without affecting the table viz
@@ -40,7 +34,7 @@ export function EmptyExpanderHeader() {
 
 export function ExpanderHeader<K extends object>({ isAllRowsExpanded, toggleAllRowsExpanded }: HeaderProps<K>) {
   return (
-    <div className={expanderContainerStyles}>
+    <div {...stylex.props(styles.expanderContainer)}>
       <IconButton
         aria-label={
           !isAllRowsExpanded
@@ -60,3 +54,11 @@ export function ExpanderHeader<K extends object>({ isAllRowsExpanded, toggleAllR
     </div>
   );
 }
+
+const styles = stylex.create({
+  expanderContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '100%',
+  },
+});

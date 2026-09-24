@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
 import { type SVGProps } from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
 
 import grotCTASvg from './grot-cta.svg';
+
+import './GrotCTA.css';
 
 export interface Props {
   width?: SVGProps<SVGElement>['width'];
@@ -14,19 +13,16 @@ export interface Props {
 }
 
 export const GrotCTA = ({ width = 'auto', height }: Props) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
-  return <SVG src={grotCTASvg} className={styles.svg} height={height} width={width} />;
+  return (
+    <SVG
+      src={grotCTASvg}
+      className={theme.isDark ? 'gf-grot-cta-dark' : 'gf-grot-cta-light'}
+      height={height}
+      width={width}
+    />
+  );
 };
 
 GrotCTA.displayName = 'GrotCTA';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    svg: css({
-      '#grot-cta-cactus-1, #grot-cta-cactus-2': {
-        fill: theme.isDark ? '#58558c' : '#c9c5f4',
-      },
-    }),
-  };
-};
