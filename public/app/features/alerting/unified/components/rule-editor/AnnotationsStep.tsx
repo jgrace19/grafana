@@ -1,6 +1,5 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Field, Input and TextArea migration
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { produce } from 'immer';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
@@ -22,6 +21,7 @@ import { DashboardPicker, type PanelDTO, getVisualPanels } from './DashboardPick
 import { NeedHelpInfo } from './NeedHelpInfo';
 import { RuleEditorSection } from './RuleEditorSection';
 import { type DashboardResponse, useDashboardQuery } from './useDashboardQuery';
+import './AnnotationsStep.css';
 
 const AnnotationsStep = () => {
   const [showPanelSelector, setShowPanelSelector] = useToggle(false);
@@ -169,7 +169,7 @@ const AnnotationsStep = () => {
                     hidden={
                       annotationField.key === Annotation.dashboardUID || annotationField.key === Annotation.panelID
                     }
-                    className={pendingEmotionStyles.field}
+                    className="gf-alerting-annotation-field"
                     invalid={!!errors.annotations?.[index]?.value?.message}
                     error={errors.annotations?.[index]?.value?.message}
                     noMargin
@@ -177,9 +177,10 @@ const AnnotationsStep = () => {
                     <ValueInputComponent
                       data-testid={`annotation-value-${index}`}
                       id={`annotation-${index}`}
-                      className={cx(pendingEmotionStyles.annotationValueInput, {
-                        [pendingEmotionStyles.textarea]: !isUrl,
-                      })}
+                      className={clsx(
+                        'gf-alerting-annotation-value-input',
+                        !isUrl && 'gf-alerting-annotation-value-textarea'
+                      )}
                       {...register(`annotations.${index}.value`)}
                       placeholder={
                         isUrl
@@ -244,20 +245,6 @@ const AnnotationsStep = () => {
       </Stack>
     </RuleEditorSection>
   );
-};
-
-// stylex: pending Field, Input and TextArea migration
-const pendingEmotionStyles = {
-  annotationValueInput: css({
-    width: '394px',
-  }),
-  textarea: css({
-    height: '76px',
-  }),
-  field: css({
-    marginTop: spacing['--gf-spacing-x1'],
-    marginBottom: spacing['--gf-spacing-x0-5'],
-  }),
 };
 
 const styles = stylex.create({

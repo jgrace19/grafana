@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending InlineField migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps, useMemo } from 'react';
 
@@ -10,6 +8,7 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useAlertmanager } from '../state/AlertmanagerContext';
 import { type AlertManagerDataSource, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
+import './AlertManagerPicker.css';
 
 interface Props {
   disabled?: boolean;
@@ -62,7 +61,7 @@ export const AlertManagerPicker = ({ disabled = false }: Props) => {
 
   return (
     <InlineField
-      className={pendingEmotionStyles.field}
+      className="gf-alerting-am-picker-field"
       label={label}
       disabled={isDisabled}
       data-testid="alertmanager-picker"
@@ -98,13 +97,6 @@ const CustomOption = (props: ComponentProps<typeof SelectMenuOptions>) => {
       renderOptionLabel={({ label }) => <div {...stylex.props(styles.optionContent)}>{label}</div>}
     />
   );
-};
-
-// stylex: pending InlineField migration
-const pendingEmotionStyles = {
-  field: css({
-    margin: 0,
-  }),
 };
 
 const styles = stylex.create({

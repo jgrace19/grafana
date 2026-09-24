@@ -1,16 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState, type JSX } from 'react';
 
 import { type OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ScrollContainer, Stack, TextLink, useStyles2, useTheme2 } from '@grafana/ui';
-import { getSelectStyles } from '@grafana/ui/internal';
+import { Button, ScrollContainer, Stack, TextLink } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type Role } from 'app/types/accessControl';
 
 import { BuiltinRoleSelector } from './BuiltinRoleSelector';
 import { RoleMenuGroupsSection } from './RoleMenuGroupsSection';
 import { MENU_MAX_HEIGHT } from './constants';
-import { getStyles } from './styles';
+import { sectionStyles } from './styles';
 
 enum GroupType {
   fixed = 'fixed',
@@ -90,9 +91,6 @@ export const RolePickerMenu = ({
   const [selectedBuiltInRole, setSelectedBuiltInRole] = useState<OrgRole | undefined>(basicRole);
   const [rolesCollection, setRolesCollection] = useState<{ [key: string]: RolesCollectionEntry }>({});
   const subMenuNode = useRef<HTMLDivElement | null>(null);
-  const theme = useTheme2();
-  const styles = getSelectStyles(theme);
-  const customStyles = useStyles2(getStyles);
 
   // Call onSelect() on every selectedOptions change
   useEffect(() => {
@@ -229,26 +227,23 @@ export const RolePickerMenu = ({
 
   return (
     <div
-      className={cx(
-        styles.menu,
-        customStyles.menuWrapper,
-        { [customStyles.menuLeft]: menuLeft },
-        css({
-          top: `${offset.vertical}px`,
-          left: !menuLeft ? `${offset.horizontal}px` : 'unset',
-          right: menuLeft ? `${offset.horizontal}px` : 'unset',
-        })
+      {...stylex.props(
+        styles.menuWrapper,
+        menuLeft && styles.menuLeft,
+        styles.top(offset.vertical),
+        menuLeft ? styles.right(offset.horizontal) : styles.left(offset.horizontal)
       )}
     >
-      <div className={customStyles.menu} aria-label={t('role-picker.menu-aria-label', 'Role picker menu')}>
+      <div {...stylex.props(styles.menu)} aria-label={t('role-picker.menu-aria-label', 'Role picker menu')}>
         <ScrollContainer
           maxHeight={`${MENU_MAX_HEIGHT}px`}
           // NOTE: this is a way to force hiding of the scrollbar
           // the scrollbar makes the mouseEvents drop
           scrollbarWidth="none"
+          paddingTop={1}
         >
           {showBasicRole && (
-            <div className={customStyles.menuSection}>
+            <div {...stylex.props(sectionStyles.menuSection)}>
               <BuiltinRoleSelector
                 value={selectedBuiltInRole}
                 onChange={onSelectedBuiltinRoleChange}
@@ -277,7 +272,7 @@ export const RolePickerMenu = ({
             />
           ))}
         </ScrollContainer>
-        <div className={customStyles.menuButtonRow}>
+        <div {...stylex.props(styles.menuButtonRow)}>
           <Stack justifyContent="flex-end">
             <Button size="sm" fill="text" onClick={onClearInternal} disabled={updateDisabled}>
               <Trans i18nKey="role-picker.menu.clear-button">Clear all</Trans>
@@ -344,3 +339,33 @@ const sortRolesByName = (a: Role, b: Role) => a.name.localeCompare(b.name);
 const capitalize = (s: string): string => {
   return s.slice(0, 1).toUpperCase() + s.slice(1);
 };
+
+// Select's menu look, overridden to position the menu next to the picker.
+const styles = stylex.create({
+  menuWrapper: {
+    backgroundColor: components['--gf-components-dropdown-background'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    display: 'flex',
+    maxHeight: '650px',
+    position: 'absolute',
+    zIndex: zIndex.dropdown,
+    overflow: 'hidden',
+    minWidth: 'auto',
+  },
+  menuLeft: {
+    flexDirection: 'row-reverse',
+  },
+  top: (top: number) => ({ top }),
+  left: (left: number) => ({ left }),
+  right: (right: number) => ({ right }),
+  // ROLE_PICKER_MENU_MIN_WIDTH / ROLE_PICKER_MENU_MAX_WIDTH: stylex.create can't read imported values.
+  menu: {
+    minWidth: '320px',
+    maxWidth: '360px',
+  },
+  menuButtonRow: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+});

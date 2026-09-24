@@ -1,12 +1,12 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type FormEvent } from 'react';
 
 import { t } from '@grafana/i18n';
-import { Checkbox, Icon, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
-import { getSelectStyles } from '@grafana/ui/internal';
+import { Checkbox, Icon, Tooltip } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { type Role } from 'app/types/accessControl';
 
-import { getStyles } from './styles';
+import { optionStyles } from './styles';
 
 interface RoleMenuOptionProps {
   data: Role;
@@ -21,10 +21,6 @@ interface RoleMenuOptionProps {
 
 export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren<RoleMenuOptionProps>>(
   ({ data, isFocused, isSelected, useFilteredDisplayName, disabled, mapped, onChange, hideDescription }, ref) => {
-    const theme = useTheme2();
-    const styles = getSelectStyles(theme);
-    const customStyles = useStyles2(getStyles);
-
     disabled = disabled || mapped;
     let disabledMessage = '';
     if (disabled) {
@@ -33,12 +29,6 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
         disabledMessage = 'Role assignment cannot be removed because the role is mapped through group sync.';
       }
     }
-
-    const wrapperClassName = cx(
-      styles.option,
-      isFocused && styles.optionFocused,
-      disabled && customStyles.menuOptionDisabled
-    );
 
     const onChangeInternal = (event: FormEvent<HTMLElement>) => {
       if (disabled) {
@@ -54,19 +44,25 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
       <div
         ref={ref}
-        className={wrapperClassName}
+        {...stylex.props(
+          optionStyles.option,
+          isFocused && optionStyles.optionFocused,
+          disabled && optionStyles.menuOptionDisabled
+        )}
         aria-label={t('role-picker.menu-option-aria-label', 'Role picker option')}
         onClick={onChangeInternal}
       >
         <Checkbox
           value={isSelected}
-          className={customStyles.menuOptionCheckbox}
+          xstyle={optionStyles.menuOptionCheckbox}
           onChange={onChangeInternal}
           disabled={disabled}
         />
-        <div className={cx(styles.optionBody, customStyles.menuOptionBody)}>
+        <div {...stylex.props(optionStyles.optionBody, optionStyles.menuOptionBody)}>
           <span>{(useFilteredDisplayName && data.filteredDisplayName) || data.displayName || data.name}</span>
-          {!hideDescription && data.description && <div className={styles.optionDescription}>{data.description}</div>}
+          {!hideDescription && data.description && (
+            <div {...stylex.props(optionStyles.optionDescription)}>{data.description}</div>
+          )}
         </div>
         {disabledMessage && (
           <Tooltip content={disabledMessage}>
@@ -75,7 +71,7 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
         )}
         {data.description && (
           <Tooltip content={data.description}>
-            <Icon name="info-circle" className={customStyles.menuOptionInfoSign} />
+            <Icon name="info-circle" xstyle={styles.menuOptionInfoSign} />
           </Tooltip>
         )}
       </div>
@@ -84,3 +80,9 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
 );
 
 RoleMenuOption.displayName = 'RoleMenuOption';
+
+const styles = stylex.create({
+  menuOptionInfoSign: {
+    color: colors['--gf-colors-text-disabled'],
+  },
+});

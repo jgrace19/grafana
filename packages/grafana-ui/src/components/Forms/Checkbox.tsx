@@ -22,7 +22,7 @@ export interface CheckboxProps extends Omit<HTMLProps<HTMLInputElement>, 'value'
   indeterminate?: boolean;
   /** Show an invalid state around the input */
   invalid?: boolean;
-  /** @internal first-party StyleX overrides for the root label, applied last */
+  /** @internal first-party StyleX overrides for the wrapping label */
   xstyle?: stylex.StyleXStyles;
 }
 

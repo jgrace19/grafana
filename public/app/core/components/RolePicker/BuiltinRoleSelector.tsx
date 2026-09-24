@@ -1,9 +1,12 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { OrgRole, type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, RadioButtonList, Tooltip, useStyles2, useTheme2, type PopoverContent } from '@grafana/ui';
+import { Icon, RadioButtonList, Tooltip, type PopoverContent } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 
-import { getStyles } from './styles';
+import { sectionStyles } from './styles';
 
 interface Props {
   value?: OrgRole;
@@ -14,9 +17,6 @@ interface Props {
 }
 
 export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssage, tooltipMessage }: Props) => {
-  const styles = useStyles2(getStyles);
-  const theme = useTheme2();
-
   // Create options dynamically to filter out OrgRole.None when access control is not licensed
   const basicRoleOptions: Array<SelectableValue<OrgRole>> = Object.values(OrgRole)
     .filter((r) => {
@@ -33,8 +33,8 @@ export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssag
 
   return (
     <>
-      <div className={styles.groupHeader}>
-        <span style={{ marginRight: theme.spacing(1) }}>
+      <div {...stylex.props(sectionStyles.groupHeader)}>
+        <span {...stylex.props(styles.label)}>
           <Trans i18nKey="role-picker.built-in.basic-roles">Basic roles</Trans>
         </span>
         {disabled && disabledMesssage && (
@@ -50,7 +50,7 @@ export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssag
       </div>
       <RadioButtonList
         name="Basic Role Selector"
-        className={styles.basicRoleSelector}
+        className={stylex.props(styles.basicRoleSelector).className}
         options={basicRoleOptions}
         value={value}
         onChange={onChange}
@@ -59,3 +59,15 @@ export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssag
     </>
   );
 };
+
+const styles = stylex.create({
+  label: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  basicRoleSelector: {
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+  },
+});

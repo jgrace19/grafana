@@ -1,0 +1,7 @@
+/*
+ * Input has no StyleX override for its <input>. Unlayered, at the specificity of the Emotion descendant rule this
+ * replaces, so it beats Input's base cursor as before.
+ */
+.gf-nested-folder-picker-search input {
+  cursor: default;
+}

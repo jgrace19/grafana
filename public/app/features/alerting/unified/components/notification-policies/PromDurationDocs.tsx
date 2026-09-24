@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { TimeOptions } from '../../types/time';
 
 export function PromDurationDocs() {
-  const styles = useStyles2(getPromDurationStyles);
   return (
     <div>
       <Trans i18nKey="alerting.prom-duration-docs.explanation">
@@ -18,8 +16,8 @@ export function PromDurationDocs() {
         Different units can be combined for more granularity.
       </Trans>
       <hr />
-      <div className={styles.list}>
-        <div className={styles.header}>
+      <div {...stylex.props(styles.list)}>
+        <div {...stylex.props(styles.header)}>
           <div>
             <Trans i18nKey="alerting.prom-duration-docs.symbol">Symbol</Trans>
           </div>
@@ -35,8 +33,8 @@ export function PromDurationDocs() {
         <PromDurationDocsTimeUnit unit={TimeOptions.hours} name="hours" example="4h" />
         <PromDurationDocsTimeUnit unit={TimeOptions.days} name="days" example="3d" />
         <PromDurationDocsTimeUnit unit={TimeOptions.weeks} name="weeks" example="2w" />
-        <div className={styles.examples}>
-          <div>
+        <div {...stylex.props(styles.examples)}>
+          <div {...stylex.props(styles.examplesLabel)}>
             <Trans i18nKey="alerting.prom-duration-docs.multiple-units-combined">Multiple units combined</Trans>
           </div>
           {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
@@ -48,34 +46,34 @@ export function PromDurationDocs() {
 }
 
 function PromDurationDocsTimeUnit({ unit, name, example }: { unit: TimeOptions; name: string; example: string }) {
-  const styles = useStyles2(getPromDurationStyles);
-
   return (
     <>
-      <div className={styles.unit}>{unit}</div>
+      <div {...stylex.props(styles.unit)}>{unit}</div>
       <div>{name}</div>
       <code>{example}</code>
     </>
   );
 }
 
-const getPromDurationStyles = (theme: GrafanaTheme2) => ({
-  unit: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  list: css({
+const styles = stylex.create({
+  unit: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  list: {
     display: 'grid',
     gridTemplateColumns: 'max-content 1fr 2fr',
-    gap: theme.spacing(1, 3),
-  }),
-  header: css({
+    rowGap: spacing['--gf-spacing-x1'],
+    columnGap: spacing['--gf-spacing-x3'],
+  },
+  header: {
     display: 'contents',
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  examples: css({
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  examples: {
     display: 'contents',
-    '& > div': {
-      gridColumn: '1 / span 2',
-    },
-  }),
+  },
+  examplesLabel: {
+    gridColumnStart: 1,
+    gridColumnEnd: 'span 2',
+  },
 });

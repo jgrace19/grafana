@@ -1,19 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, dateMath } from '@grafana/data';
+import { dateMath } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import {
-  Alert,
-  CollapsableSection,
-  Divider,
-  Icon,
-  Link,
-  LinkButton,
-  LoadingPlaceholder,
-  Stack,
-  useStyles2,
-} from '@grafana/ui';
+import { Alert, CollapsableSection, Divider, Icon, Link, LinkButton, LoadingPlaceholder, Stack } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { alertSilencesApi } from 'app/features/alerting/unified/api/alertSilencesApi';
 import { featureDiscoveryApi } from 'app/features/alerting/unified/api/featureDiscoveryApi';
@@ -77,7 +68,6 @@ const SilencesTable = () => {
   const mimirLazyInitError =
     stringifyErrorLike(error).includes('the Alertmanager is not configured') && amFeatures?.lazyConfigInit;
 
-  const styles = useStyles2(getStyles);
   const [queryParams] = useQueryParams();
   const filteredSilencesNotExpired = useFilteredSilences(silences, false);
   const filteredSilencesExpired = useFilteredSilences(silences, true);
@@ -169,9 +159,9 @@ const SilencesTable = () => {
               })}
               isOpen={showExpiredFromUrl}
             >
-              <div className={styles.callout}>
-                <Icon className={styles.calloutIcon} name="info-circle" />
-                <span>
+              <div {...stylex.props(styles.callout)}>
+                <Icon xstyle={[styles.calloutChild, styles.calloutIcon]} name="info-circle" />
+                <span {...stylex.props(styles.calloutChild)}>
                   <Trans i18nKey="silences.table.expired-silences">
                     Expired silences are automatically deleted after 5 days.
                   </Trans>
@@ -260,23 +250,24 @@ const useFilteredSilences = (silences: Silence[], expired = false) => {
   }, [queryParams, silences, expired]);
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  callout: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderTop: `3px solid ${theme.colors.info.border}`,
-    borderRadius: theme.shape.radius.default,
+const styles = stylex.create({
+  callout: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderTopWidth: '3px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-info-border'],
+    borderRadius: shape['--gf-shape-radius-default'],
     height: '62px',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-
-    '& > *': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  calloutIcon: css({
-    color: theme.colors.info.text,
-  }),
+  },
+  calloutChild: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  calloutIcon: {
+    color: colors['--gf-colors-info-text'],
+  },
 });
 
 function useColumns(alertManagerSourceName: string) {

@@ -214,6 +214,12 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
   'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{receivers,contact-points,mute-timings,settings}/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/{notification-policies,silences,alert-groups,import-to-gma}/**/*.{ts,tsx}',
+  // Lock-down B: RolePicker, core options slider, Input look-alikes
+  'public/app/core/components/RolePicker/*.{ts,tsx}',
+  'public/app/core/components/OptionsUI/slider.tsx',
+  'public/app/core/components/NestedFolderPicker/{NestedFolderPicker,Skeleton,Trigger}.tsx',
+  'public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx',
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { type AlertState, type AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
 
@@ -24,8 +24,6 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   const { groupBy = [], queryString, alertState, receivers = [] } = getFiltersFromUrlParams(queryParams);
   const matcherFilterKey = `matcher-${filterKey}`;
 
-  const styles = useStyles2(getStyles);
-
   const clearFilters = () => {
     setQueryParams({
       groupBy: null,
@@ -40,9 +38,9 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   const showClearButton = !!(groupBy.length > 0 || queryString || alertState || receivers.length > 0);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.filterSectionScroll}>
-        <div className={styles.filterSection}>
+    <div {...stylex.props(styles.wrapper)}>
+      <div {...stylex.props(styles.filterSectionScroll)}>
+        <div {...stylex.props(styles.filterSection)}>
           <MatcherFilter
             key={matcherFilterKey}
             defaultQueryString={queryString}
@@ -67,7 +65,7 @@ export const AlertGroupFilter = ({ groups }: Props) => {
         </div>
       </div>
       {showClearButton && (
-        <div className={styles.clearButtonRow}>
+        <div {...stylex.props(styles.clearButtonRow)}>
           <Button size="sm" variant="primary" fill="text" onClick={clearFilters}>
             <Trans i18nKey="alerting.alert-group-filter.clear-filters">Clear filters</Trans>
           </Button>
@@ -77,33 +75,32 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    marginBottom: theme.spacing(3),
-  }),
-  filterSection: css({
+const styles = stylex.create({
+  wrapper: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
+  filterSection: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'nowrap',
     alignItems: 'flex-end',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     width: 'max-content',
     minWidth: '100%',
-    '& > *': {
-      flexShrink: 0,
-    },
-  }),
-  filterSectionScroll: css({
+  },
+  filterSectionScroll: {
     width: '100%',
     overflowX: 'auto',
     overflowY: 'hidden',
-    marginBottom: theme.spacing(1),
-    paddingBottom: theme.spacing(0.5),
-  }),
-  clearButtonRow: css({
+    marginBottom: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+  },
+  clearButtonRow: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginBottom: theme.spacing(2),
-  }),
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });

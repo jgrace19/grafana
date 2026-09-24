@@ -1,11 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, getInputStyles, useTheme2, Text } from '@grafana/ui';
-import { getFocusStyles, getMouseFocusStyles } from '@grafana/ui/internal';
+import { Icon, useTheme2, Text } from '@grafana/ui';
+import { inputBorderStyles, inputInvalidBorderStyles, inputStyles } from '@grafana/ui/internal';
+import { mixins } from '@grafana/ui/stylex/mixins';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { FolderPickerSkeleton } from './Skeleton';
 
@@ -21,8 +22,7 @@ function Trigger(
   ref: React.ForwardedRef<HTMLButtonElement>
 ) {
   const theme = useTheme2();
-
-  const styles = getStyles(theme, invalid);
+  const colorMode = theme.isDark ? 'dark' : 'light';
 
   const handleKeyDown = (event: React.KeyboardEvent<SVGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -35,17 +35,22 @@ function Trigger(
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.inputWrapper}>
+    <div {...stylex.props(inputStyles.wrapper)}>
+      <div {...stylex.props(inputStyles.inputWrapper)}>
         {label ? (
-          <div className={styles.prefix}>
+          <div {...stylex.props(inputStyles.prefixSuffix, inputStyles.prefix, styles.prefix)}>
             <Icon name="folder" />
           </div>
         ) : undefined}
 
         <button
           type="button"
-          className={cx(styles.fakeInput, label ? styles.hasPrefix : undefined)}
+          {...stylex.props(
+            inputStyles.input,
+            invalid ? inputInvalidBorderStyles[colorMode] : inputBorderStyles[colorMode],
+            styles.fakeInput,
+            label ? styles.hasPrefix : undefined
+          )}
           {...rest}
           ref={ref}
         >
@@ -62,7 +67,7 @@ function Trigger(
               role="button"
               tabIndex={0}
               aria-label={t('browse-dashboards.folder-picker.clear-selection', 'Clear selection')}
-              className={styles.clearIcon}
+              xstyle={[mixins.focusRing, mixins.mouseFocusNone, styles.clearIcon]}
               name="times"
               onClick={handleClearSelection}
               onKeyDown={handleKeyDown}
@@ -70,7 +75,7 @@ function Trigger(
           )}
         </button>
 
-        <div className={styles.suffix}>
+        <div {...stylex.props(inputStyles.prefixSuffix, inputStyles.suffix, styles.suffix)}>
           <Icon name="angle-down" />
         </div>
       </div>
@@ -80,64 +85,41 @@ function Trigger(
 
 export default forwardRef(Trigger);
 
-// stylex: pending Input migration (U2). Composes the Emotion classes returned by getInputStyles.
-const getStyles = (theme: GrafanaTheme2, invalid = false) => {
-  const baseStyles = getInputStyles({ theme, invalid });
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
-  return {
-    wrapper: baseStyles.wrapper,
-    inputWrapper: baseStyles.inputWrapper,
-
-    prefix: css([
-      baseStyles.prefix,
-      {
-        pointerEvents: 'none',
-        color: theme.colors.text.primary,
-      },
-    ]),
-
-    suffix: css([
-      baseStyles.suffix,
-      {
-        pointerEvents: 'none',
-      },
-    ]),
-
-    fakeInput: css([
-      baseStyles.input,
-      {
-        textAlign: 'left',
-
-        letterSpacing: 'normal',
-
-        // We want the focus styles to appear only when tabbing through, not when clicking the button
-        // (and when focus is restored after command palette closes)
-        '&:focus': {
-          outline: 'unset',
-          boxShadow: 'unset',
-        },
-
-        '&:focus-visible': getFocusStyles(theme),
-        alignItems: 'center',
-        display: 'flex',
-        flexWrap: 'nowrap',
-        justifyContent: 'space-between',
-        paddingRight: 28,
-      },
-    ]),
-
-    hasPrefix: css({
-      paddingLeft: 28,
-    }),
-
-    clearIcon: css({
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-      '&:focus-visible': getFocusStyles(theme),
-    }),
-  };
-};
+// Input's look on a button. The focus ring only shows when tabbing through, not when clicking the button (and not
+// when focus is restored after the command palette closes).
+const styles = stylex.create({
+  prefix: {
+    pointerEvents: 'none',
+    color: colors['--gf-colors-text-primary'],
+  },
+  suffix: {
+    pointerEvents: 'none',
+  },
+  fakeInput: {
+    textAlign: 'left',
+    letterSpacing: 'normal',
+    // The Emotion styles set no cursor, so a disabled button keeps the global one.
+    cursor: null,
+    boxShadow: {
+      default: null,
+      ':focus': { default: 'unset', ':focus-visible': focusRing },
+    },
+    outlineStyle: { default: null, ':focus': { default: 'none', ':focus-visible': 'dotted' } },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineColor: { default: null, ':focus-visible': 'transparent' },
+    alignItems: 'center',
+    display: 'flex',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    paddingRight: 28,
+  },
+  hasPrefix: {
+    paddingLeft: 28,
+  },
+  clearIcon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    cursor: 'pointer',
+  },
+});

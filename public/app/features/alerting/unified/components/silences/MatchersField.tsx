@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Divider, Field, IconButton, Input, Select, useStyles2 } from '@grafana/ui';
+import { Button, Divider, Field, IconButton, Input, Select } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { alertRuleApi } from 'app/features/alerting/unified/api/alertRuleApi';
 import { MatcherOperator } from 'app/plugins/datasource/alertmanager/types';
 
@@ -18,7 +18,6 @@ interface Props {
 }
 
 const MatchersField = ({ className, required, ruleUid }: Props) => {
-  const styles = useStyles2(getStyles);
   const formApi = useFormContext<SilenceFormFields>();
   const {
     control,
@@ -43,7 +42,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
         required={required}
       >
         <div>
-          <div className={cx(styles.matchers, styles.indent)}>
+          <div {...stylex.props(styles.matchers, styles.indent)}>
             {alertRule && (
               <div>
                 <Field label={t('alerting.matchers-field.label-alert-rule', 'Alert rule')} disabled>
@@ -54,7 +53,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
             )}
             {matchers.map((matcher, index) => {
               return (
-                <div className={styles.row} key={`${matcher.id}`} data-testid="matcher">
+                <div {...stylex.props(styles.row)} key={`${matcher.id}`} data-testid="matcher">
                   <Field
                     label={t('alerting.matchers-field.label-label', 'Label')}
                     invalid={!!errors?.matchers?.[index]?.name}
@@ -72,14 +71,17 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                       id={`matcher-${index}-label`}
                     />
                   </Field>
-                  <Field label={t('alerting.matchers-field.label-operator', 'Operator')}>
+                  <Field
+                    label={t('alerting.matchers-field.label-operator', 'Operator')}
+                    className={stylex.props(styles.rowSibling).className}
+                  >
                     <Controller
                       control={control}
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
                           {...field}
                           onChange={(value) => onChange(value.value)}
-                          className={styles.matcherOptions}
+                          className={stylex.props(styles.matcherOptions).className}
                           options={matcherFieldOptions}
                           aria-label={t('alerting.matchers-field.aria-label-operator', 'operator')}
                           id={`matcher-${index}-operator`}
@@ -96,6 +98,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                     />
                   </Field>
                   <Field
+                    className={stylex.props(styles.rowSibling).className}
                     label={t('alerting.matchers-field.label-value', 'Value')}
                     invalid={!!errors?.matchers?.[index]?.value}
                     error={errors?.matchers?.[index]?.value?.message}
@@ -115,7 +118,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                   {(matchers.length > 1 || !required) && (
                     <IconButton
                       aria-label={t('alerting.matchers-field.aria-label-remove-matcher', 'Remove matcher')}
-                      className={styles.removeButton}
+                      style={removeButtonStyle}
                       name="trash-alt"
                       onClick={() => remove(index)}
                     >
@@ -127,7 +130,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
             })}
           </div>
           <Button
-            className={styles.indent}
+            className={stylex.props(styles.indent).className}
             tooltip={t(
               'alerting.matchers-field.tooltip-refine-which-alert-instances-silenced-selecting',
               'Refine which alert instances are silenced by selecting label matchers'
@@ -148,38 +151,41 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      marginTop: theme.spacing(2),
-    }),
-    row: css({
-      marginTop: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'flex-start',
-      flexDirection: 'row',
-      backgroundColor: theme.colors.background.secondary,
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} 0 ${theme.spacing(1)}`,
-      '& > * + *': {
-        marginLeft: theme.spacing(2),
-      },
-    }),
-    removeButton: css({
-      marginLeft: theme.spacing(1),
-      marginTop: theme.spacing(2.5),
-    }),
-    matcherOptions: css({
-      minWidth: '140px',
-    }),
-    matchers: css({
-      maxWidth: `${theme.breakpoints.values.sm}px`,
-      margin: `${theme.spacing(1)} 0`,
-      paddingTop: theme.spacing(0.5),
-    }),
-    indent: css({
-      marginLeft: theme.spacing(2),
-    }),
-  };
+const styles = stylex.create({
+  row: {
+    marginTop: spacing['--gf-spacing-x1'],
+    display: 'flex',
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  rowSibling: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  matcherOptions: {
+    minWidth: '140px',
+  },
+  matchers: {
+    maxWidth: '544px',
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+    paddingTop: spacing['--gf-spacing-x0-5'],
+  },
+  indent: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+});
+
+// IconButton has no xstyle, and its own margins must lose to these.
+const removeButtonStyle = {
+  marginLeft: spacing['--gf-spacing-x1'],
+  marginTop: spacing['--gf-spacing-x2-5'],
 };
 
 export default MatchersField;
