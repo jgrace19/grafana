@@ -8,6 +8,7 @@ import {
   type TableCellRenderer,
   type TableCellRendererProps,
   type TableCellStyleOptions,
+  type TableCellStyleProps,
   type TableCellStyles,
 } from '../types';
 import { getCellOptions } from '../utils';
@@ -40,7 +41,14 @@ function isCustomCellOptions(options: TableCellOptions): options is TableCustomC
 function mixinAutoCellStyles(fn: TableCellStyles): TableCellStyles {
   return (theme, options) => {
     const styles = fn(theme, options);
-    return clsx(styles, getAutoCellStyles(theme, options));
+    const autoStyles = getAutoCellStyles(theme, options);
+    // The cell type's styles win (JSON keeps `white-space: pre`), as they did whenever an Auto column had
+    // already inserted the Emotion Auto class.
+    return {
+      xstyle: [autoStyles.xstyle, styles.xstyle],
+      className: clsx(styles.className, autoStyles.className) || undefined,
+      style: { ...styles.style, ...autoStyles.style },
+    };
   };
 }
 
@@ -196,7 +204,7 @@ export function getCellSpecificStyles(
   field: Field,
   theme: GrafanaTheme2,
   options: TableCellStyleOptions
-): string | undefined {
+): TableCellStyleProps | undefined {
   if (cellType === TableCellDisplayMode.Auto) {
     return getAutoRendererStyles(theme, options, field);
   }
@@ -208,7 +216,7 @@ export function getAutoRendererStyles(
   theme: GrafanaTheme2,
   options: TableCellStyleOptions,
   field: Field
-): string | undefined {
+): TableCellStyleProps | undefined {
   const impliedDisplayMode = getAutoRendererDisplayMode(field);
   if (impliedDisplayMode !== TableCellDisplayMode.Auto) {
     return CELL_REGISTRY[impliedDisplayMode]?.getStyles?.(theme, options);
