@@ -176,8 +176,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       padding: theme.spacing(0, 1),
     }),
     itemDisabled: css({
-      cursor: 'default',
-
       '&, &:hover': {
         background: theme.colors.action.disabledBackground,
       },
