@@ -1,0 +1,13 @@
+/*
+ * Link styling for jsonMarkup() HTML inside a linked value, which StyleX can't target. `!important` is kept: the
+ * json-markup colour rules (TraceTimelineViewer.global.css) are more specific than `a span`.
+ */
+@layer grafana-global {
+  .gf-trace-key-values-row a span {
+    color: var(--gf-colors-text-link) !important;
+  }
+
+  .gf-trace-key-values-row a:hover span {
+    text-decoration: underline;
+  }
+}

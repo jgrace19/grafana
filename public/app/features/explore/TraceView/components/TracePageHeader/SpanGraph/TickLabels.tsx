@@ -12,26 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 import { formatDuration } from '../../utils/date';
-
-const getStyles = () => ({
-  TickLabels: css({
-    label: 'TickLabels',
-    height: '1rem',
-    position: 'relative',
-  }),
-  TickLabelsLabel: css({
-    label: 'TickLabelsLabel',
-    color: '#717171',
-    fontSize: '0.7rem',
-    position: 'absolute',
-    userSelect: 'none',
-  }),
-});
 
 type TickLabelsProps = {
   numTicks: number;
@@ -40,22 +25,34 @@ type TickLabelsProps = {
 
 export default function TickLabels(props: TickLabelsProps) {
   const { numTicks, duration } = props;
-  const styles = useStyles2(getStyles);
 
   const ticks = [];
   for (let i = 0; i < numTicks + 1; i++) {
     const portion = i / numTicks;
     const style = portion === 1 ? { right: '0%' } : { left: `${portion * 100}%` };
     ticks.push(
-      <div key={portion} className={styles.TickLabelsLabel} style={style} data-testid="tick">
+      <div key={portion} {...mergeStylexProps(stylex.props(styles.TickLabelsLabel), { style })} data-testid="tick">
         {formatDuration(duration * portion)}
       </div>
     );
   }
 
   return (
-    <div className={styles.TickLabels} data-testid="TickLabels">
+    <div {...stylex.props(styles.TickLabels)} data-testid="TickLabels">
       {ticks}
     </div>
   );
 }
+
+const styles = stylex.create({
+  TickLabels: {
+    height: '1rem',
+    position: 'relative',
+  },
+  TickLabelsLabel: {
+    color: '#717171',
+    fontSize: '0.7rem',
+    position: 'absolute',
+    userSelect: 'none',
+  },
+});
