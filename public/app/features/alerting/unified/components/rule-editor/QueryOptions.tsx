@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryOptionsStyles } from './QueryOptions.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2, type RelativeTimeRange, getDefaultRelativeTimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, InlineField, RelativeTimeRangePicker, Toggletip, clearButtonStyles, useStyles2 } from '@grafana/ui';
+import { Icon, InlineField, RelativeTimeRangePicker, Toggletip, clearButtonStyles } from '@grafana/ui';
 import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { TimeRangeLabel } from '../TimeRangeLabel';
@@ -25,7 +25,6 @@ export const QueryOptions = ({
   onChangeQueryOptions,
   index,
 }: QueryOptionsProps) => {
-  const styles = useStyles2(getStyles);
 
   const [showOptions, setShowOptions] = useState(false);
 
@@ -35,7 +34,7 @@ export const QueryOptions = ({
     <>
       <Toggletip
         content={
-          <div className={styles.queryOptions}>
+          <div {...stylex.props(formStyles.queryOptions)}>
             {onChangeTimeRange && (
               <InlineField label={t('alerting.query-options.label-time-range', 'Time Range')}>
                 <RelativeTimeRangePicker
@@ -51,13 +50,13 @@ export const QueryOptions = ({
         closeButton={true}
         placement="bottom-start"
       >
-        <button type="button" className={styles.actionLink} onClick={() => setShowOptions(!showOptions)}>
+        <button type="button" {...stylex.props(formStyles.actionLink)} onClick={() => setShowOptions(!showOptions)}>
           <Trans i18nKey="alerting.query-options.button-options">Options</Trans>{' '}
           {showOptions ? <Icon name="angle-right" /> : <Icon name="angle-down" />}
         </button>
       </Toggletip>
 
-      <div className={styles.staticValues}>
+      <div {...stylex.props(formStyles.staticValues)}>
         <span>
           <TimeRangeLabel relativeTimeRange={query.relativeTimeRange ?? getDefaultRelativeTimeRange()} />
         </span>
@@ -86,28 +85,3 @@ export const QueryOptions = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const clearButton = clearButtonStyles(theme);
-
-  return {
-    queryOptions: css({
-      '> div': {
-        justifyContent: 'space-between',
-      },
-    }),
-
-    staticValues: css({
-      color: theme.colors.text.secondary,
-      marginRight: theme.spacing(1),
-    }),
-
-    actionLink: css(clearButton, {
-      color: theme.colors.text.link,
-      cursor: 'pointer',
-
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-  };
-};

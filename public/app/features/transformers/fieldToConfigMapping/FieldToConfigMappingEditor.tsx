@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { fieldToConfigMappingEditorStyles } from './FieldToConfigMappingEditor.stylex';
 import { capitalize } from 'lodash';
 
 import {
@@ -9,7 +11,7 @@ import {
   type SelectableValue,
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Select, StatsPicker, useStyles2 } from '@grafana/ui';
+import { Select, StatsPicker } from '@grafana/ui';
 
 import {
   configMapHandlers,
@@ -34,7 +36,6 @@ export interface Props {
 }
 
 export function FieldToConfigMappingEditor({ frame, mappings, onChange, withReducers, withNameAndValue }: Props) {
-  const styles = useStyles2(getStyles);
   const rows = getViewModelRows(frame, mappings, withNameAndValue);
   const configProps = configMapHandlers.map((def) => configHandlerToSelectOption(def, false)) as Array<
     SelectableValue<string>
@@ -89,7 +90,7 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
   };
 
   return (
-    <table className={styles.table}>
+    <table {...stylex.props(fieldToConfigMappingEditorStyles.table)}>
       <thead>
         <tr>
           <th>
@@ -115,8 +116,8 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
       <tbody>
         {rows.map((row) => (
           <tr key={row.fieldName}>
-            <td className={styles.labelCell}>{row.fieldName}</td>
-            <td className={styles.selectCell} data-testid={`${row.fieldName}-config-key`}>
+            <td {...stylex.props(fieldToConfigMappingEditorStyles.labelCell)}>{row.fieldName}</td>
+            <td {...stylex.props(fieldToConfigMappingEditorStyles.selectCell)} data-testid={`${row.fieldName}-config-key`}>
               <Select
                 options={configProps}
                 value={row.configOption}
@@ -126,7 +127,7 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
               />
             </td>
             {withReducers && (
-              <td data-testid={`${row.fieldName}-reducer`} className={styles.selectCell}>
+              <td data-testid={`${row.fieldName}-reducer`} {...stylex.props(fieldToConfigMappingEditorStyles.selectCell)}>
                 <StatsPicker
                   stats={[row.reducerId]}
                   defaultStat={row.reducerId}
@@ -135,7 +136,7 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
               </td>
             )}
             {hasAdditionalSettings && (
-              <td data-testid={`${row.fieldName}-handler-arg`} className={styles.selectCell}>
+              <td data-testid={`${row.fieldName}-handler-arg`} {...stylex.props(fieldToConfigMappingEditorStyles.selectCell)}>
                 <FieldConfigMappingHandlerArgumentsEditor
                   handlerKey={row.handlerKey}
                   handlerArguments={row.handlerArguments}
@@ -222,32 +223,3 @@ function configHandlerToSelectOption(
   };
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    marginTop: theme.spacing(1),
-
-    'td, th': {
-      borderRight: `4px solid ${theme.colors.background.primary}`,
-      borderBottom: `4px solid ${theme.colors.background.primary}`,
-      whiteSpace: 'nowrap',
-    },
-    th: {
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.spacing(4),
-      padding: theme.spacing(0, 1),
-    },
-  }),
-  labelCell: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(0, 1),
-    maxWidth: '400px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    minWidth: '140px',
-  }),
-  selectCell: css({
-    padding: 0,
-    minWidth: '161px',
-  }),
-});

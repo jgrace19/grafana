@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationEditorRowStyles } from './TransformationEditorRow.stylex';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import { Trans, t } from '@grafana/i18n';
-import { Field, Icon, IconButton, Input, Label, Select, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Field, Icon, IconButton, Input, Label, Select, Stack, Tooltip } from '@grafana/ui';
 
 import { type FormDTO, getSupportedTransTypeDetails, getTransformOptions } from './types';
 type Props = {
@@ -13,13 +15,6 @@ type Props = {
   remove: (index?: number | number[]) => void;
 };
 
-const getStyles = () => ({
-  // set fixed position from the top instead of centring as the container
-  // may get bigger when the for is invalid
-  removeButton: css({
-    marginTop: '25px',
-  }),
-});
 
 const TransformationEditorRow = (props: Props) => {
   const { index, value: defaultValue, readOnly, remove } = props;
@@ -34,8 +29,6 @@ const TransformationEditorRow = (props: Props) => {
     },
   });
   const typeValue = useWatch({ name: `config.transformations.${index}.type`, control });
-
-  const styles = useStyles2(getStyles);
 
   const transformOptions = getTransformOptions();
 
@@ -206,7 +199,7 @@ const TransformationEditorRow = (props: Props) => {
         />
       </Field>
       {!readOnly && (
-        <div className={styles.removeButton}>
+        <div {...stylex.props(transformationEditorRowStyles.removeButton)}>
           <IconButton
             tooltip={t('correlations.transform-row.remove-tooltip', 'Remove transformation')}
             name="trash-alt"

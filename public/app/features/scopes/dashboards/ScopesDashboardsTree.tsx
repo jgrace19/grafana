@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, urlUtil } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 import { ScopesDashboardsTreeFolderItem } from './ScopesDashboardsTreeFolderItem';
@@ -24,7 +22,7 @@ export function ScopesDashboardsTree({
   onFolderUpdate,
 }: ScopesDashboardsTreeProps) {
   const [queryParams] = useQueryParams();
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   const folderId = folderPath[folderPath.length - 1];
   const folder = folders[folderId];
@@ -70,7 +68,7 @@ export function ScopesDashboardsTree({
       ))}
 
       {/* Separator between regular and subScope sections */}
-      {hasRegularContent && hasSubScopeContent && <hr className={styles.separator} />}
+      {hasRegularContent && hasSubScopeContent && <hr {...stylex.props(scopesDashboardsTreeStyles.separator)} />}
 
       {/* SubScope folders */}
       {subScopeFolders.map(([subFolderId, subFolder]) => (
@@ -87,10 +85,3 @@ export function ScopesDashboardsTree({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  separator: css({
-    border: 'none',
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    margin: theme.spacing(1, 0),
-  }),
-});

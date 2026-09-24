@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { fieldStyles } from './Field.stylex';
 import * as React from 'react';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Checkbox, Icon, useStyles2 } from '@grafana/ui';
+import { Checkbox, Icon } from '@grafana/ui';
 
 import { getNormalizedFieldName } from '../panel/processing';
 
@@ -26,7 +27,6 @@ export function Field({
   toggle,
   showCount = false,
 }: Props): React.JSX.Element | undefined {
-  const styles = useStyles2(getStyles);
 
   const handleChange = useCallback(() => {
     reportInteraction('logs_field_selector_toggle_fields_clicked', {
@@ -37,15 +37,15 @@ export function Field({
 
   return (
     <>
-      <div className={styles.contentWrap}>
+      <div {...stylex.props(fieldStyles.contentWrap)}>
         <Checkbox
-          className={styles.checkboxLabel}
+          {...stylex.props(fieldStyles.checkboxLabel)}
           label={getNormalizedFieldName(field.name)}
           onChange={handleChange}
           checked={active}
         />
         {showCount && (
-          <button className={styles.labelCount} onClick={handleChange}>
+          <button {...stylex.props(fieldStyles.labelCount)} onClick={handleChange}>
             {field.stats.percentOfLinesWithLabel}%
           </button>
         )}
@@ -56,44 +56,10 @@ export function Field({
           title={t('logs.field-selector.title-drag-and-drop-to-reorder', 'Drag and drop to reorder')}
           name="draggabledots"
           size="lg"
-          className={styles.dragIcon}
+          {...stylex.props(fieldStyles.dragIcon)}
         />
       )}
     </>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    dragIcon: css({
-      cursor: 'drag',
-      marginLeft: theme.spacing(1),
-      opacity: 0.4,
-    }),
-    labelCount: css({
-      marginLeft: theme.spacing(0.5),
-      marginRight: theme.spacing(0.5),
-      appearance: 'none',
-      background: 'none',
-      border: 'none',
-      fontSize: theme.typography.pxToRem(11),
-      opacity: 0.6,
-    }),
-    contentWrap: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-    }),
-    // Hide text that overflows, had to select elements within the Checkbox component, so this is a bit fragile
-    checkboxLabel: css({
-      '> span': {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        display: 'block',
-        maxWidth: '100%',
-      },
-    }),
-  };
-}

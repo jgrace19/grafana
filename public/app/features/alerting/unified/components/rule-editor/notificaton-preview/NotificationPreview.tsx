@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { notificationPreviewStyles } from './NotificationPreview.stylex';
 import { Fragment, Suspense, lazy } from 'react';
 import { useEffectOnce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, LoadingPlaceholder, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Button, LoadingPlaceholder, Stack, Text, Tooltip } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { alertRuleApi } from 'app/features/alerting/unified/api/alertRuleApi';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -39,7 +40,6 @@ export const NotificationPreview = ({
   alertUid,
   policyName,
 }: NotificationPreviewProps) => {
-  const styles = useStyles2(getStyles);
 
   const previewRoutingDisabled = !condition || !folder;
 
@@ -139,13 +139,13 @@ export const NotificationPreview = ({
             <Fragment key={alertManagerSource.name}>
               {!singleAlertManagerConfigured && (
                 <Stack direction="row" alignItems="center">
-                  <div className={styles.firstAlertManagerLine} />
-                  <div className={styles.alertManagerName}>
+                  <div {...stylex.props(notificationPreviewStyles.firstAlertManagerLine)} />
+                  <div {...stylex.props(notificationPreviewStyles.alertManagerName)}>
                     <Trans i18nKey="alerting.notification-preview.alertmanager">Alertmanager:</Trans>
-                    <img src={alertManagerSource.imgUrl || undefined} alt="" className={styles.img} />
+                    <img src={alertManagerSource.imgUrl || undefined} alt="" {...stylex.props(notificationPreviewStyles.img)} />
                     {alertManagerSource.name}
                   </div>
-                  <div className={styles.secondAlertManagerLine} />
+                  <div {...stylex.props(notificationPreviewStyles.secondAlertManagerLine)} />
                 </Stack>
               )}
               {alertManagerSource.name === 'grafana' ? (
@@ -197,25 +197,3 @@ function NotificationPreviewGrafanaPermissionCheck({ children }: React.PropsWith
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  firstAlertManagerLine: css({
-    height: '1px',
-    width: theme.spacing(4),
-    backgroundColor: theme.colors.secondary.main,
-  }),
-  alertManagerName: css({
-    width: 'fit-content',
-  }),
-  secondAlertManagerLine: css({
-    height: '1px',
-    width: '100%',
-    flex: 1,
-    backgroundColor: theme.colors.secondary.main,
-  }),
-  img: css({
-    marginLeft: theme.spacing(2),
-    width: theme.spacing(3),
-    height: theme.spacing(3),
-    marginRight: theme.spacing(1),
-  }),
-});

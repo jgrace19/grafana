@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2019 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,31 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { textListStyles } from './TextList.stylex';
 import cx from 'classnames';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  TextList: css({
-    maxHeight: '450px',
-    overflow: 'auto',
-  }),
-  List: css({
-    width: '100%',
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  }),
-  item: css({
-    padding: '0.25rem 0.5rem',
-    verticalAlign: 'top',
-    '&:nth-child(2n)': {
-      background: theme.colors.background.secondary,
-    },
-  }),
-});
 
 type TextListProps = {
   data: string[];
@@ -44,14 +26,13 @@ type TextListProps = {
 
 export default function TextList(props: TextListProps) {
   const { data } = props;
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.TextList)} data-testid="TextList">
-      <ul className={styles.List}>
+    <div {...mergeStylexClassName(stylex.props(textListStyles.TextList, ), undefined)} data-testid="TextList">
+      <ul {...stylex.props(textListStyles.List)}>
         {data.map((row, i) => {
           return (
             // `i` is necessary in the key because row.key can repeat
-            <li className={styles.item} key={`${i}`}>
+            <li {...stylex.props(textListStyles.item)} key={`${i}`}>
               {row}
             </li>
           );

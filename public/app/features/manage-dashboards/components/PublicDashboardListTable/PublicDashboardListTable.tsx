@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { publicDashboardListTableStyles } from './PublicDashboardListTable.stylex';
 import { useMemo, useState } from 'react';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
@@ -14,7 +15,6 @@ import {
   Spinner,
   Switch,
   TextLink,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
@@ -34,7 +34,6 @@ import { type PublicDashboardListResponse } from '../../types';
 import { DeletePublicDashboardButton } from './DeletePublicDashboardButton';
 
 const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const isMobile = useMedia(`(max-width: ${theme.breakpoints.values.sm}px)`);
 
@@ -59,12 +58,12 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
   const translatedPauseSharingText = t('shared-dashboard-list.toggle.pause-sharing-toggle-text', 'Pause access');
   return (
-    <Card noMargin className={styles.card} href={`/d/${pd.dashboardUid}`}>
-      <Card.Heading className={styles.heading}>
+    <Card noMargin {...stylex.props(publicDashboardListTableStyles.card)} href={`/d/${pd.dashboardUid}`}>
+      <Card.Heading {...stylex.props(publicDashboardListTableStyles.heading)}>
         <span>{pd.title}</span>
       </Card.Heading>
-      <CardActions className={styles.actions}>
-        <div className={styles.pauseSwitch}>
+      <CardActions {...stylex.props(publicDashboardListTableStyles.actions)}>
+        <div {...stylex.props(publicDashboardListTableStyles.pauseSwitch)}>
           <Switch
             value={!pd.isEnabled}
             label={translatedPauseSharingText}
@@ -118,8 +117,6 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
 export const PublicDashboardListTable = () => {
   const [page, setPage] = useState(1);
-
-  const styles = useStyles2(getStyles);
   const { data: paginatedPublicDashboards, isLoading, isError } = useListPublicDashboardsQuery(page);
 
   return (
@@ -147,7 +144,7 @@ export const PublicDashboardListTable = () => {
               </EmptyState>
             ) : (
               <>
-                <ul className={styles.list}>
+                <ul {...stylex.props(publicDashboardListTableStyles.list)}>
                   {paginatedPublicDashboards.publicDashboards.map((pd: PublicDashboardListResponse) => (
                     <li key={pd.uid}>
                       <PublicDashboardCard pd={pd} />
@@ -169,50 +166,3 @@ export const PublicDashboardListTable = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  list: css({
-    listStyleType: 'none',
-    marginBottom: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
-  card: css({
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-    },
-  }),
-  heading: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    flex: 1,
-  }),
-  orphanedTitle: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  actions: css({
-    display: 'flex',
-    alignItems: 'center',
-    position: 'relative',
-
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.up('sm')]: {
-      gap: theme.spacing(1),
-    },
-  }),
-  pauseSwitch: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-    fontSize: theme.typography.bodySmall.fontSize,
-    marginBottom: 0,
-    flex: 1,
-
-    [theme.breakpoints.up('sm')]: {
-      paddingRight: theme.spacing(2),
-    },
-  }),
-});

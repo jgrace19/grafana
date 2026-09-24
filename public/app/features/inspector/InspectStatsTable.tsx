@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 
 import {
   FieldType,
@@ -8,7 +7,7 @@ import {
   type QueryResultMetaStat,
   type TimeZone,
 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 interface InspectStatsTableProps {
   timeZone: TimeZone;
@@ -18,22 +17,22 @@ interface InspectStatsTableProps {
 
 export const InspectStatsTable = ({ timeZone, name, stats }: InspectStatsTableProps) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (!stats || !stats.length) {
     return null;
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.heading}>{name}</div>
+    <div {...stylex.props(inspectStatsTableStyles.wrapper)}>
+      <div {...stylex.props(inspectStatsTableStyles.heading)}>{name}</div>
       <table className="filter-table width-30">
         <tbody>
           {stats.map((stat, index) => {
             return (
               <tr key={`${stat.displayName}-${index}`}>
                 <td>{stat.displayName}</td>
-                <td className={styles.cell}>{formatStat(stat, timeZone, theme)}</td>
+                <td {...stylex.props(inspectStatsTableStyles.cell)}>{formatStat(stat, timeZone, theme)}</td>
               </tr>
             );
           })}
@@ -55,15 +54,3 @@ function formatStat(stat: QueryResultMetaStat, timeZone: TimeZone, theme: Grafan
   return formattedValueToString(display(stat.value));
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    fontSize: theme.typography.body.fontSize,
-    marginBottom: theme.spacing(1),
-  }),
-  wrapper: css({
-    paddingBottom: theme.spacing(2),
-  }),
-  cell: css({
-    textAlign: 'right',
-  }),
-});

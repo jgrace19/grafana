@@ -1,14 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { contactPointsFilterStyles } from './ContactPointsFilter.stylex';
 import { useCallback, useState } from 'react';
 import { useDebounce } from 'react-use';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Icon, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Field, Icon, Input, Stack } from '@grafana/ui';
 
 import { useURLSearchParams } from '../../../hooks/useURLSearchParams';
 
 const ContactPointsFilter = () => {
-  const styles = useStyles2(getStyles);
 
   const [searchParams, setSearchParams] = useURLSearchParams();
 
@@ -34,7 +35,7 @@ const ContactPointsFilter = () => {
   return (
     <Stack direction="row" alignItems="end" gap={0.5}>
       <Field
-        className={styles.noBottom}
+        {...stylex.props(contactPointsFilterStyles.noBottom)}
         label={t('alerting.contact-points-filter.label-search-by-name-or-type', 'Search by name or type')}
       >
         <Input
@@ -61,10 +62,5 @@ const ContactPointsFilter = () => {
   );
 };
 
-const getStyles = () => ({
-  noBottom: css({
-    marginBottom: 0,
-  }),
-});
 
 export { ContactPointsFilter };

@@ -1,25 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryLibraryEditingContainerStyles } from './QueryLibraryEditingContainer.stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 interface QueryLibraryEditingContainerProps {
   children: ReactNode;
 }
 
 export function QueryLibraryEditingContainer({ children }: QueryLibraryEditingContainerProps) {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.container}>{children}</div>;
+  return <div {...stylex.props(queryLibraryEditingContainerStyles.container)}>{children}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    border: `2px solid ${theme.colors.primary.main}`,
-    borderTopLeftRadius: 'unset',
-    borderTopRightRadius: 'unset',
-    borderBottomLeftRadius: theme.shape.radius.default,
-    borderBottomRightRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-  }),
-});

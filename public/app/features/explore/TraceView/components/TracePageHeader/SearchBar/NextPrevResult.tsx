@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2018 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { nextPrevResultStyles } from './NextPrevResult.stylex';
 import { get, maxBy, values } from 'lodash';
 import { memo, type Dispatch, type SetStateAction, useEffect, useCallback } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Button, Icon, type PopoverContent, Tooltip, useTheme2 } from '@grafana/ui';
@@ -119,13 +121,13 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
     (content: PopoverContent) => {
       return (
         <Tooltip content={content} placement="top">
-          <span className={styles.tooltip}>
+          <span {...stylex.props(nextPrevResultStyles.tooltip)}>
             <Icon name="info-circle" size="sm" />
           </span>
         </Tooltip>
       );
     },
-    [styles.tooltip]
+    [mergeStylexClassName(stylex.props(nextPrevResultStyles.tooltip), undefined).className]
   );
 
   const getMatchesMetadata = useCallback(
@@ -204,8 +206,8 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
   const depth = get(maxBy(trace.spans, 'depth'), 'depth', 0) + 1;
 
   return (
-    <div className={styles.container}>
-      <div className={buttonEnabled ? styles.buttons : cx(styles.buttons, styles.buttonsDisabled)}>
+    <div {...stylex.props(nextPrevResultStyles.container)}>
+      <div className={buttonEnabled ? mergeStylexClassName(stylex.props(nextPrevResultStyles.buttons), undefined).className : clsx(mergeStylexClassName(stylex.props(nextPrevResultStyles.buttons), undefined).className, mergeStylexClassName(stylex.props(nextPrevResultStyles.buttonsDisabled), undefined).className)}>
         <Button
           aria-label={t('explore.next-prev-result.aria-label-prev', 'Prev result button')}
           variant="secondary"
@@ -228,48 +230,9 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
           tabIndex={buttonEnabled ? 0 : -1}
         />
       </div>
-      <span className={styles.matches}>{getMatchesMetadata(depth, services)}</span>
+      <span {...stylex.props(nextPrevResultStyles.matches)}>{getMatchesMetadata(depth, services)}</span>
     </div>
   );
 });
 
-export const getStyles = (theme: GrafanaTheme2, showSpanFilters: boolean) => {
-  return {
-    container: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    buttons: css({
-      display: 'inline-flex',
-      gap: 1,
-    }),
-    buttonsDisabled: css({
-      cursor: 'not-allowed',
-    }),
-    button: {
-      padding: theme.spacing(0, 1),
-    },
-    iconButton: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    matches: css({
-      textWrap: 'nowrap',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-    tooltip: css({
-      color: '#aaa',
-      marginLeft: theme.spacing(0.5),
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-  };
-};
+export ;

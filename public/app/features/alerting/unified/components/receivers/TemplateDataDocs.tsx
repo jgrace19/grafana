@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { templateDataDocsStyles } from './TemplateDataDocs.stylex';
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Stack, Text, useStyles2 } from '@grafana/ui';
+import { Stack, Text } from '@grafana/ui';
 
 import { PopupCard } from '../HoverCard';
 
@@ -17,7 +18,6 @@ import {
 } from './TemplateData';
 
 export function TemplateDataDocs() {
-  const styles = useStyles2(getTemplateDataDocsStyles);
 
   const AlertTemplateDataTable = (
     <TemplateDataTable
@@ -59,14 +59,14 @@ export function TemplateDataDocs() {
           if (type === '[]Alert') {
             return (
               <PopupCard content={AlertTemplateDataTable}>
-                <div className={styles.interactiveType}>{type}</div>
+                <div {...stylex.props(templateDataDocsStyles.interactiveType)}>{type}</div>
               </PopupCard>
             );
           }
           if (type === 'KeyValue') {
             return (
               <PopupCard content={<KeyValueTemplateDataTable />}>
-                <div className={styles.interactiveType}>{type}</div>
+                <div {...stylex.props(templateDataDocsStyles.interactiveType)}>{type}</div>
               </PopupCard>
             );
           }
@@ -77,11 +77,6 @@ export function TemplateDataDocs() {
   );
 }
 
-const getTemplateDataDocsStyles = (theme: GrafanaTheme2) => ({
-  interactiveType: css({
-    color: theme.colors.text.link,
-  }),
-});
 
 interface TemplateDataTableProps {
   dataItems: TemplateDataItem[];
@@ -90,10 +85,9 @@ interface TemplateDataTableProps {
 }
 
 export function TemplateDataTable({ dataItems, caption, typeRenderer }: TemplateDataTableProps) {
-  const styles = useStyles2(getTemplateDataTableStyles);
 
   return (
-    <table className={styles.table}>
+    <table {...stylex.props(templateDataDocsStyles.table)}>
       {caption && <caption>{caption}</caption>}
       <thead>
         <tr>
@@ -122,7 +116,6 @@ export function TemplateDataTable({ dataItems, caption, typeRenderer }: Template
 }
 
 function KeyValueTemplateDataTable() {
-  const tableStyles = useStyles2(getTemplateDataTableStyles);
 
   return (
     <div>
@@ -132,7 +125,7 @@ function KeyValueTemplateDataTable() {
       <pre>
         <code>{KeyValueCodeSnippet}</code>
       </pre>
-      <table className={tableStyles.table}>
+      <table {...stylex.props(tableStyles.table)}>
         <caption>
           <Trans i18nKey="alerting.key-value-template-data-table.keyvalue-methods">Key-value methods</Trans>
         </caption>
@@ -167,33 +160,4 @@ function KeyValueTemplateDataTable() {
   );
 }
 
-export const getTemplateDataTableStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    borderCollapse: 'collapse',
-    width: '100%',
-
-    caption: {
-      captionSide: 'top',
-    },
-
-    'td, th': {
-      padding: theme.spacing(1, 1),
-    },
-
-    thead: {
-      fontWeight: theme.typography.fontWeightBold,
-    },
-
-    'tbody tr:nth-child(2n + 1)': {
-      backgroundColor: theme.colors.background.secondary,
-    },
-
-    'tbody td:nth-child(1)': {
-      fontWeight: theme.typography.fontWeightBold,
-    },
-
-    'tbody td:nth-child(2)': {
-      fontStyle: 'italic',
-    },
-  }),
-});
+);

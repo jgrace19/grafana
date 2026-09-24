@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsLinksStyles } from './LogLineDetailsLinks.stylex';
 import { memo, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { DataLinkButton, Icon, Toggletip, useStyles2 } from '@grafana/ui';
+import { DataLinkButton, Icon, Toggletip } from '@grafana/ui';
 
 import { type FieldDef } from '../logParser';
 
@@ -22,7 +23,7 @@ interface LogLineDetailsLinksProps {
 
 export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetailsLinksProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
+  const styles = (getFieldsStyles, fontSize);
   const filteredFields = useMemo(() => (search ? filterFields(fields, search) : fields), [fields, search]);
 
   if (!fields.length) {
@@ -32,7 +33,7 @@ export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetails
   }
 
   return (
-    <div className={styles.linksTable}>
+    <div {...stylex.props(logLineDetailsLinksStyles.linksTable)}>
       {filteredFields.map((field, i) => (
         <LogLineDetailsField key={`${field.keys[0]}=${field.values[0]}-${i}`} field={field} log={log} />
       ))}
@@ -41,14 +42,6 @@ export const LogLineDetailsLinks = memo(({ fields, log, search }: LogLineDetails
 });
 LogLineDetailsLinks.displayName = 'LogLineDetailsLinks';
 
-const getFieldsStyles = (theme: GrafanaTheme2, fontSize: LogListFontSize) => ({
-  linksTable: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `fit-content(30%) 1fr`,
-    marginBottom: theme.spacing(1),
-  }),
-});
 
 interface LogLineDetailsFieldProps {
   field: FieldDef;
@@ -59,15 +52,15 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
   const { onPinLine, pinLineButtonTooltipTitle, prettifyJSON } = useLogListContext();
   const { closeDetails } = useLogDetailsContext();
 
-  const styles = useStyles2(getFieldStyles);
+  const styles = (getFieldStyles);
 
   const singleKey = field.keys.length === 1;
   const singleValue = field.values.length === 1;
 
   const tooltip = useMemo(
     () => (
-      <div className={styles.value}>
-        <div className={styles.valueContainer}>
+      <div className={logLineDetailsLinksStyles.value}>
+        <div className={logLineDetailsLinksStyles.valueContainer}>
           {singleValue ? (
             <SingleValue value={field.values[0]} prettifyJSON={prettifyJSON} />
           ) : (
@@ -76,22 +69,22 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
         </div>
       </div>
     ),
-    [field.values, singleValue, styles.value, styles.valueContainer, prettifyJSON]
+    [field.values, singleValue, logLineDetailsLinksStyles.value, logLineDetailsLinksStyles.valueContainer, prettifyJSON]
   );
 
   return (
     <>
-      <div className={styles.label}>
+      <div className={logLineDetailsLinksStyles.label}>
         {singleKey ? field.keys[0] : <MultipleValue values={field.keys} />}
         <Toggletip fitContent content={tooltip}>
           <Icon
             aria-label={t('logs.log-line-details.link-value-tooltip', 'Link value')}
-            className={styles.labelIcon}
+            className={logLineDetailsLinksStyles.labelIcon}
             name="info-circle"
           />
         </Toggletip>
       </div>
-      <div className={styles.links}>
+      <div className={logLineDetailsLinksStyles.links}>
         {field.links?.map((link, i) => {
           if (link.onClick && onPinLine) {
             const originalOnClick = link.onClick;
@@ -106,7 +99,7 @@ export const LogLineDetailsField = ({ field, log }: LogLineDetailsFieldProps) =>
             };
           }
           return (
-            <span key={`${link.title}-${i}`} className={styles.link}>
+            <span key={`${link.title}-${i}`} className={logLineDetailsLinksStyles.link}>
               <DataLinkButton
                 buttonProps={{
                   // Show tooltip message if max number of pinned lines has been reached

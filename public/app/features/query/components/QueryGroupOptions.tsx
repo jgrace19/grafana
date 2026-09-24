@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryGroupOptionsStyles } from './QueryGroupOptions.stylex';
 import React, { useState, type ChangeEvent, type FocusEvent, useCallback } from 'react';
 
 import { rangeUtil, type PanelData, type DataSourceApi, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Input, InlineSwitch, useStyles2, InlineLabel } from '@grafana/ui';
+import { Input, InlineSwitch, InlineLabel } from '@grafana/ui';
 import { QueryOperationRow } from 'app/core/components/QueryOperationRow/QueryOperationRow';
 import { type QueryGroupOptions } from 'app/types/query';
 
@@ -21,8 +24,6 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
   const [isOpen, setIsOpen] = useState(false);
   const [relativeTimeIsValid, setRelativeTimeIsValid] = useState(true);
   const [timeShiftIsValid, setTimeShiftIsValid] = useState(true);
-
-  const styles = useStyles2(getStyles);
 
   const onRelativeTimeChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setTimeRangeFrom(event.target.value);
@@ -232,8 +233,8 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
         />
         {isAuto && (
           <>
-            <span className={cx(styles.noSquish, styles.operator)}>=</span>
-            <span className={cx(styles.noSquish, styles.left)}>
+            <span {...mergeStylexClassName(stylex.props(queryGroupOptionsStyles.noSquish, queryGroupOptionsStyles.operator), undefined)}>=</span>
+            <span {...mergeStylexClassName(stylex.props(queryGroupOptionsStyles.noSquish, queryGroupOptionsStyles.left), undefined)}>
               <Trans i18nKey="query.query-group-options-editor.render-max-data-points-option.width-of-panel">
                 Width of panel
               </Trans>
@@ -251,7 +252,7 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
     return (
       <>
         <InlineLabel
-          className={styles.firstColumn}
+          {...stylex.props(queryGroupOptionsStyles.firstColumn)}
           tooltip={
             <Trans i18nKey="query.query-group-options-editor.render-interval-option.min-interval-tooltip">
               A lower limit for the interval. Recommended to be set to write frequency, for example <code>1m</code> if
@@ -272,7 +273,7 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
           defaultValue={options.minInterval ?? ''}
         />
         <InlineLabel
-          className={styles.firstColumn}
+          {...stylex.props(queryGroupOptionsStyles.firstColumn)}
           tooltip={
             <Trans i18nKey="query.query-group-options-editor.render-interval-option.interval-tooltip">
               The evaluated interval that is sent to data source and is used in <code>$__interval</code> and{' '}
@@ -283,9 +284,9 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
         >
           <Trans i18nKey="query.query-group-options-editor.render-interval-option.interval">Interval</Trans>
         </InlineLabel>
-        <span className={styles.noSquish}>{realInterval}</span>
-        <span className={cx(styles.noSquish, styles.operator)}>=</span>
-        <span className={cx(styles.noSquish, styles.left)}>
+        <span {...stylex.props(queryGroupOptionsStyles.noSquish)}>{realInterval}</span>
+        <span {...mergeStylexClassName(stylex.props(queryGroupOptionsStyles.noSquish, queryGroupOptionsStyles.operator), undefined)}>=</span>
+        <span {...mergeStylexClassName(stylex.props(queryGroupOptionsStyles.noSquish, queryGroupOptionsStyles.left), undefined)}>
           <Trans i18nKey="query.query-group-options-editor.render-interval-option.time-range-max-data-points">
             Time range / max data points
           </Trans>
@@ -309,12 +310,12 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
     return (
       <>
         {
-          <span className={styles.collapsedText}>
+          <span {...stylex.props(queryGroupOptionsStyles.collapsedText)}>
             <Trans i18nKey="query.query-group-options-editor.collapsed-max-data-points">MD = {{ mdDesc }}</Trans>
           </span>
         }
         {
-          <span className={styles.collapsedText}>
+          <span {...stylex.props(queryGroupOptionsStyles.collapsedText)}>
             <Trans i18nKey="query.query-group-options-editor.collapsed-interval">Interval = {{ intervalDesc }}</Trans>
           </span>
         }
@@ -332,7 +333,7 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
       onOpen={onOpenOptions}
       onClose={onCloseOptions}
     >
-      <div className={styles.grid}>
+      <div {...stylex.props(queryGroupOptionsStyles.grid)}>
         {renderMaxDataPointsOption()}
         {renderIntervalOption()}
         {renderCacheTimeoutOption()}
@@ -366,7 +367,7 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
         />
         <InlineLabel
           htmlFor="time-shift-input"
-          className={styles.firstColumn}
+          {...stylex.props(queryGroupOptionsStyles.firstColumn)}
           tooltip={
             <Trans
               i18nKey="query.query-group-options-editor.time-shift-tooltip"
@@ -392,12 +393,12 @@ export const QueryGroupOptionsEditor = React.memo(({ options, dataSource, data, 
         />
         {(timeRangeShift || timeRangeFrom) && (
           <>
-            <InlineLabel htmlFor="hide-time-info-switch" className={styles.firstColumn}>
+            <InlineLabel htmlFor="hide-time-info-switch" {...stylex.props(queryGroupOptionsStyles.firstColumn)}>
               <Trans i18nKey="query.query-group-options-editor.hide-time-info">Hide time info</Trans>
             </InlineLabel>
             <InlineSwitch
               id="hide-time-info-switch"
-              className={styles.left}
+              {...stylex.props(queryGroupOptionsStyles.left)}
               value={timeRangeHide}
               onChange={onToggleTimeOverride}
             />
@@ -418,37 +419,3 @@ function emptyToNull(value: string) {
   return value === '' ? null : value;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    grid: css({
-      display: 'grid',
-      gridTemplateColumns: `auto minmax(5em, 1fr) auto 1fr`,
-      gap: theme.spacing(0.5),
-      gridAutoRows: theme.spacing(4),
-      whiteSpace: 'nowrap',
-    }),
-    firstColumn: css({
-      gridColumn: 1,
-    }),
-    collapsedText: css({
-      marginLeft: theme.spacing(2),
-      fontSize: theme.typography.size.sm,
-      color: theme.colors.text.secondary,
-    }),
-    noSquish: css({
-      display: 'flex',
-      alignItems: 'center',
-      padding: theme.spacing(0, 1),
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.size.sm,
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-    }),
-    left: css({
-      justifySelf: 'left',
-    }),
-    operator: css({
-      color: theme.v1.palette.orange,
-    }),
-  };
-}

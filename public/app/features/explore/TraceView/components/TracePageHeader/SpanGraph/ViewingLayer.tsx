@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { viewingLayerStyles } from './ViewingLayer.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
@@ -38,15 +40,7 @@ export const getStyles = stylesFactory((theme: GrafanaTheme2) => {
   // Need this cause emotion will merge emotion generated classes into single className if used with cx from emotion
   // package and the selector won't work
   const ViewingLayerResetZoomHoverClassName = 'JaegerUiComponents__ViewingLayerResetZoomHoverClassName';
-  const ViewingLayerResetZoom = css({
-    label: 'ViewingLayerResetZoom',
-    display: 'none',
-    position: 'absolute',
-    right: '1%',
-    top: '10%',
-    zIndex: 1,
-  });
-
+  
   return {
     ViewingLayer: css({
       label: 'ViewingLayer',
@@ -311,7 +305,6 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
    * @returns React.Node[]
    */
   _getMarkers(from: number, to: number) {
-    const styles = getStyles(this.props.theme);
     const layout = getNextViewLayout(from, to);
     return [
       <rect
@@ -351,7 +344,6 @@ export class UnthemedViewingLayer extends React.PureComponent<ViewingLayerProps,
     if (!haveNextTimeRange && cursor != null && !preventCursorLine) {
       cursorPosition = `${cursor * 100}%`;
     }
-    const styles = getStyles(theme);
 
     return (
       <div aria-hidden className={styles.ViewingLayer} style={{ height }}>

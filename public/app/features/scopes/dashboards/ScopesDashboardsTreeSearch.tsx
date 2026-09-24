@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { scopesDashboardsTreeSearchStyles } from './ScopesDashboardsTreeSearch.stylex';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FilterInput, useStyles2 } from '@grafana/ui';
+import { FilterInput } from '@grafana/ui';
 
 import { ContextualNavigationPaneToggle } from './ContextualNavigationPaneToggle';
 
@@ -15,7 +16,6 @@ export interface ScopesDashboardsTreeSearchProps {
 }
 
 export function ScopesDashboardsTreeSearch({ disabled, query, onChange }: ScopesDashboardsTreeSearchProps) {
-  const styles = useStyles2(getStyles);
 
   const [inputState, setInputState] = useState<{ value: string; dirty: boolean }>({ value: query, dirty: false });
 
@@ -36,7 +36,7 @@ export function ScopesDashboardsTreeSearch({ disabled, query, onChange }: Scopes
   }, [getDebounceState, inputState, query]);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(scopesDashboardsTreeSearchStyles.container)}>
       <FilterInput
         disabled={disabled}
         placeholder={t('scopes.dashboards.search', 'Search')}
@@ -49,12 +49,4 @@ export function ScopesDashboardsTreeSearch({ disabled, query, onChange }: Scopes
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      flex: '0 1 auto',
-    }),
-  };
-};
+;

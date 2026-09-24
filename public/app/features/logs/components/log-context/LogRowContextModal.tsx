@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logRowContextModalStyles } from './LogRowContextModal.stylex';
 import { partition } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as React from 'react';
@@ -33,92 +36,7 @@ import { LogRows } from '../LogRows';
 
 import { LogContextButtons } from './LogContextButtons';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      width: '85vw',
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-      },
-    }),
-    sticky: css({
-      position: 'sticky',
-      zIndex: 1,
-      top: '-1px',
-      bottom: '-1px',
-    }),
-    entry: css({
-      '& > td': {
-        padding: theme.spacing(1, 0, 1, 0),
-      },
-      background: theme.colors.emphasize(theme.colors.background.secondary),
-
-      '& > table': {
-        marginBottom: 0,
-      },
-
-      '& .log-row-menu': {
-        marginTop: '-6px',
-      },
-    }),
-    datasourceUi: css({
-      paddingBottom: theme.spacing(1.25),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    logRowGroups: css({
-      overflow: 'auto',
-      maxHeight: '75%',
-      alignSelf: 'stretch',
-      display: 'inline-block',
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      '& > table': {
-        minWidth: '100%',
-      },
-    }),
-    flexColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0, 3, 3, 3),
-    }),
-    flexRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      '& > div:last-child': {
-        marginLeft: 'auto',
-      },
-    }),
-    noMarginBottom: css({
-      '& > table': {
-        marginBottom: 0,
-      },
-    }),
-    hidden: css({
-      display: 'none',
-    }),
-    paddingTop: css({
-      paddingTop: theme.spacing(1),
-    }),
-    paddingBottom: css({
-      paddingBottom: theme.spacing(1),
-    }),
-    link: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      ':hover': {
-        color: theme.colors.text.link,
-      },
-    }),
-    loadingCell: css({
-      position: 'sticky',
-      left: '50%',
-      display: 'inline-block',
-      transform: 'translateX(-50%)',
-    }),
-  };
-};
+;
 
 interface LogRowContextModalProps {
   row: LogRowModel;
@@ -495,12 +413,12 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
     <Modal
       isOpen={open}
       title={t('logs.log-row-context-modal.title-log-context', 'Log context')}
-      contentClassName={styles.flexColumn}
-      className={styles.modal}
+      contentClassName={mergeStylexClassName(stylex.props(logRowContextModalStyles.flexColumn), undefined).className}
+      {...stylex.props(logRowContextModalStyles.modal)}
       onDismiss={onClose}
     >
-      {getLogRowContextUi && <div className={styles.datasourceUi}>{getLogRowContextUi(row, updateResults)}</div>}
-      <div className={cx(styles.flexRow, styles.paddingBottom)}>
+      {getLogRowContextUi && <div {...stylex.props(logRowContextModalStyles.datasourceUi)}>{getLogRowContextUi(row, updateResults)}</div>}
+      <div {...mergeStylexClassName(stylex.props(logRowContextModalStyles.flexRow, logRowContextModalStyles.paddingBottom), undefined)}>
         <div>
           <LogContextButtons
             wrapLines={wrapLines}
@@ -509,11 +427,11 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
           />
         </div>
       </div>
-      <div ref={scrollElement} className={styles.logRowGroups}>
+      <div ref={scrollElement} {...stylex.props(logRowContextModalStyles.logRowGroups)}>
         <table>
           <tbody>
             <tr>
-              <td className={styles.loadingCell}>
+              <td {...stylex.props(logRowContextModalStyles.loadingCell)}>
                 {loadingStateAbove !== LoadingState.Done && loadingStateAbove !== LoadingState.Error && (
                   <div ref={aboveLoadingElement}>
                     <LoadingIndicator adjective="newer" />
@@ -534,7 +452,7 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr>
-              <td className={styles.noMarginBottom}>
+              <td {...stylex.props(logRowContextModalStyles.noMarginBottom)}>
                 <LogRows
                   logRows={context.above.rows}
                   dedupStrategy={LogsDedupStrategy.none}
@@ -553,8 +471,8 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr ref={preEntryElement}></tr>
-            <tr ref={entryElement} className={cx(styles.entry, sticky ? styles.sticky : null)} data-testid="entry-row">
-              <td className={styles.noMarginBottom}>
+            <tr ref={entryElement} {...mergeStylexClassName(stylex.props(logRowContextModalStyles.sticky, logRowContextModalStyles.entry, sticky ?  : null), undefined)} data-testid="entry-row">
+              <td {...stylex.props(logRowContextModalStyles.noMarginBottom)}>
                 <LogRows
                   logRows={[row]}
                   dedupStrategy={LogsDedupStrategy.none}
@@ -598,7 +516,7 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr>
-              <td className={styles.loadingCell}>
+              <td {...stylex.props(logRowContextModalStyles.loadingCell)}>
                 {loadingStateBelow !== LoadingState.Done && loadingStateBelow !== LoadingState.Error && (
                   <div ref={belowLoadingElement}>
                     <LoadingIndicator adjective="older" />

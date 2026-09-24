@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { emailSharingConfigurationStyles } from './EmailSharingConfiguration.stylex';
 import { useForm, Controller } from 'react-hook-form';
 import { useWindowSize } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { FieldSet, Button, ButtonGroup, Field, Input, RadioButtonGroup, Spinner, useStyles2 } from '@grafana/ui';
@@ -37,7 +38,6 @@ const EmailList = ({
   dashboardUid: string;
   publicDashboardUid: string;
 }) => {
-  const styles = useStyles2(getStyles);
   const [deleteEmail, { isLoading: isDeleteLoading }] = useDeleteRecipientMutation();
   const [reshareAccess, { isLoading: isReshareLoading }] = useReshareAccessToRecipientMutation();
 
@@ -54,13 +54,13 @@ const EmailList = ({
   };
 
   return (
-    <table className={styles.table} data-testid={selectors.EmailSharingList}>
+    <table {...stylex.props(emailSharingConfigurationStyles.table)} data-testid={selectors.EmailSharingList}>
       <tbody>
         {recipients!.map((recipient, idx) => (
           <tr key={recipient.uid}>
             <td>{recipient.recipient}</td>
             <td>
-              <ButtonGroup className={styles.tableButtonsContainer}>
+              <ButtonGroup {...stylex.props(emailSharingConfigurationStyles.tableButtonsContainer)}>
                 <Button
                   type="button"
                   variant="destructive"
@@ -96,7 +96,6 @@ const EmailList = ({
 
 export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardModel | DashboardScene }) => {
   const { width } = useWindowSize();
-  const styles = useStyles2(getStyles);
 
   const dashboardUid = dashboard instanceof DashboardScene ? dashboard.state.uid : dashboard.uid;
   const { data: publicDashboard } = useGetPublicDashboardQuery(dashboardUid);
@@ -141,10 +140,10 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FieldSet disabled={!hasWritePermissions} data-testid={selectors.Container} className={styles.container}>
+      <FieldSet disabled={!hasWritePermissions} data-testid={selectors.Container} {...stylex.props(emailSharingConfigurationStyles.container)}>
         <Field
           label={t('public-dashboard.config.can-view-dashboard-radio-button-label', 'Can view dashboard')}
-          className={styles.field}
+          {...stylex.props(emailSharingConfigurationStyles.field)}
         >
           <Controller
             name="shareType"
@@ -185,11 +184,11 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
               description={t('public-dashboard.email-sharing.invite-field-desc', 'Invite people by email')}
               error={errors.email?.message}
               invalid={!!errors.email?.message || undefined}
-              className={styles.field}
+              {...stylex.props(emailSharingConfigurationStyles.field)}
             >
-              <div className={styles.emailContainer}>
+              <div {...stylex.props(emailSharingConfigurationStyles.emailContainer)}>
                 <Input
-                  className={styles.emailInput}
+                  {...stylex.props(emailSharingConfigurationStyles.emailInput)}
                   // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
                   placeholder="me@example.com"
                   autoCapitalize="none"
@@ -227,51 +226,3 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    label: 'emailConfigContainer',
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    gap: theme.spacing(3),
-  }),
-  field: css({
-    label: 'field-noMargin',
-    marginBottom: 0,
-  }),
-  emailContainer: css({
-    label: 'emailContainer',
-    display: 'flex',
-    gap: theme.spacing(1),
-  }),
-  emailInput: css({
-    label: 'emailInput',
-    flexGrow: 1,
-  }),
-  table: css({
-    label: 'table',
-    display: 'flex',
-    maxHeight: '220px',
-    overflowY: 'scroll',
-    '& tbody': {
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-    },
-    '& tr': {
-      minHeight: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(0.5, 1),
-
-      ':nth-child(odd)': {
-        background: theme.colors.background.secondary,
-      },
-    },
-  }),
-  tableButtonsContainer: css({
-    display: 'flex',
-    justifyContent: 'end',
-  }),
-});

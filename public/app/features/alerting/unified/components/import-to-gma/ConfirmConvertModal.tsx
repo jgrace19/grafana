@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { confirmConvertModalStyles } from './ConfirmConvertModal.stylex';
 import { isEmpty } from 'lodash';
 import { type ComponentProps, useMemo } from 'react';
 import { useAsync, useToggle } from 'react-use';
 
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Alert, CodeEditor, Collapse, ConfirmModal, Modal, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, CodeEditor, Collapse, ConfirmModal, Modal, Stack, Text } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { stringifyErrorLike } from 'app/features/alerting/unified/utils/misc';
 import { type RulerRuleDTO, type RulerRulesConfigDTO } from 'app/types/unified-alerting-dto';
@@ -71,7 +73,6 @@ const emptyObject = {};
 
 export const ConfirmConversionModal = ({ importPayload, isOpen, onDismiss }: ModalProps) => {
   const appNotification = useAppNotification();
-  const styles = useStyles2(getStyles);
 
   const {
     importSource,
@@ -229,7 +230,7 @@ export const ConfirmConversionModal = ({ importPayload, isOpen, onDismiss }: Mod
       title={title}
       confirmText={confirmText}
       confirmButtonVariant="primary"
-      modalClass={styles.modal}
+      modalClass={confirmConvertModalStyles.modal}
       body={
         <Stack direction="column" gap={2}>
           {!isEmpty(rulesThatMightBeOverwritten) && (
@@ -335,9 +336,8 @@ function isRuleManagedByExternalSystem(rule: RulerRuleDTO): boolean {
 }
 
 function RulesPreview({ rules }: { rules: RulerRulesConfigDTO }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(confirmConvertModalStyles.content)}>
       <CodeEditor
         width="100%"
         height={500}
@@ -356,14 +356,6 @@ function RulesPreview({ rules }: { rules: RulerRulesConfigDTO }) {
   );
 }
 
-const getStyles = () => ({
-  content: css({
-    flex: '1 1 100%',
-  }),
-  modal: css({
-    width: '800px',
-  }),
-});
 
 function TargetFolderNotEmptyWarning({ targetFolderRules }: { targetFolderRules: RulerRulesConfigDTO }) {
   const [showTargetRules, toggleShowTargetRules] = useToggle(false);

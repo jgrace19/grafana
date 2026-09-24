@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { cloudRulesStyles } from './CloudRules.stylex';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, urlUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Badge, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Badge, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type CombinedRuleNamespace } from 'app/types/unified-alerting';
@@ -14,7 +15,8 @@ import { DEFAULT_PER_PAGE_PAGINATION } from '../../../../../core/constants';
 import { AlertingAction, useAlertingAbility } from '../../hooks/useAbilities';
 import { usePagination } from '../../hooks/usePagination';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
-import { getPaginationStyles } from '../../styles/pagination';
+import * as stylex from '@stylexjs/stylex';
+import { paginationStyles } from '../../styles/pagination.stylex';
 import { getRulesDataSources, getRulesSourceUid } from '../../utils/datasource';
 import { isAsyncRequestStatePending } from '../../utils/redux';
 import { createRelativeUrl } from '../../utils/url';
@@ -28,7 +30,6 @@ interface Props {
 }
 
 export const CloudRules = ({ namespaces, expandAll }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const promRules = useUnifiedAlertingSelector((state) => state.promRules);
   const rulesDataSources = useMemo(getRulesDataSources, []);
@@ -57,16 +58,16 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
     contextSrv.hasPermission(AccessControlAction.AlertingProvisioningSetStatus);
 
   return (
-    <section className={styles.wrapper}>
+    <section {...stylex.props(cloudRulesStyles.wrapper)}>
       <Stack gap={2} direction="column">
-        <div className={styles.sectionHeader}>
-          <div className={styles.headerRow}>
+        <div {...stylex.props(cloudRulesStyles.sectionHeader)}>
+          <div {...stylex.props(cloudRulesStyles.headerRow)}>
             <Text element="h2" variant="h5">
               <Trans i18nKey="alerting.list-view.section.dataSourceManaged.title">Data source-managed</Trans>
             </Text>
             {dataSourcesLoading.length ? (
               <LoadingPlaceholder
-                className={styles.loader}
+                {...stylex.props(cloudRulesStyles.loader)}
                 text={t('alerting.list-view.section.loading-rules', 'Loading rules from {{count}} sources', {
                   count: dataSourcesLoading.length,
                 })}
@@ -104,10 +105,10 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
           <Trans i18nKey="alerting.list-view.no-rules">No rules found.</Trans>
         </p>
       )}
-      {!hasSomeResults && hasDataSourcesLoading && <Spinner size="xl" className={styles.spinner} />}
+      {!hasSomeResults && hasDataSourcesLoading && <Spinner size="xl" {...stylex.props(cloudRulesStyles.spinner)} />}
 
       <Pagination
-        className={styles.pagination}
+        {...stylex.props(cloudRulesStyles.pagination)}
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -117,30 +118,6 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loader: css({
-    marginBottom: 0,
-  }),
-  sectionHeader: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-  }),
-  wrapper: css({
-    marginBottom: theme.spacing(4),
-  }),
-  spinner: css({
-    textAlign: 'center',
-    padding: theme.spacing(2),
-  }),
-  pagination: getPaginationStyles(theme),
-  headerRow: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: theme.spacing(1),
-  }),
-});
 
 export function CreateRecordingRuleButton() {
   const [createCloudRuleSupported, createCloudRuleAllowed] = useAlertingAbility(AlertingAction.CreateExternalAlertRule);

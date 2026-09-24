@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { resourcePickerPopoverStyles } from './ResourcePickerPopover.stylex';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
 import { useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 
 import { type MediaType, PickerTabType, type ResourceFolderName } from '../types';
 
@@ -29,7 +30,6 @@ interface ErrorResponse {
 }
 export const ResourcePickerPopover = (props: Props) => {
   const { value, onChange, mediaType, folderName, maxFiles, hidePopper } = props;
-  const styles = useStyles2(getStyles);
 
   const onClose = () => {
     onChange(value);
@@ -48,7 +48,7 @@ export const ResourcePickerPopover = (props: Props) => {
   const [error, setError] = useState<ErrorResponse>({ message: '' });
 
   const getTabClassName = (tabName: PickerTabType) => {
-    return `${styles.resourcePickerPopoverTab} ${activePicker === tabName && styles.resourcePickerPopoverActiveTab}`;
+    return `${resourcePickerPopoverStyles.resourcePickerPopoverTab} ${activePicker === tabName && resourcePickerPopoverStyles.resourcePickerPopoverActiveTab}`;
   };
 
   const renderFolderPicker = () => (
@@ -88,8 +88,8 @@ export const ResourcePickerPopover = (props: Props) => {
   return (
     <FocusScope contain autoFocus restoreFocus>
       <section ref={ref} {...overlayProps} {...dialogProps}>
-        <div className={styles.resourcePickerPopover}>
-          <div className={styles.resourcePickerPopoverTabs}>
+        <div {...stylex.props(resourcePickerPopoverStyles.resourcePickerPopover)}>
+          <div {...stylex.props(resourcePickerPopoverStyles.resourcePickerPopoverTabs)}>
             <button
               className={getTabClassName(PickerTabType.Folder)}
               onClick={() => setActivePicker(PickerTabType.Folder)}
@@ -100,9 +100,9 @@ export const ResourcePickerPopover = (props: Props) => {
               <Trans i18nKey="dimensions.resource-picker-popover.url">URL</Trans>
             </button>
           </div>
-          <div className={styles.resourcePickerPopoverContent}>
+          <div {...stylex.props(resourcePickerPopoverStyles.resourcePickerPopoverContent)}>
             {renderPicker()}
-            <div className={styles.buttonRow}>
+            <div {...stylex.props(resourcePickerPopoverStyles.buttonRow)}>
               <Button variant={'secondary'} onClick={() => onClose()} fill="outline">
                 <Trans i18nKey="dimensions.resource-picker-popover.cancel">Cancel</Trans>
               </Button>
@@ -146,54 +146,3 @@ export const ResourcePickerPopover = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  resourcePickerPopover: css({
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  resourcePickerPopoverTab: css({
-    width: '50%',
-    textAlign: 'center',
-    padding: theme.spacing(1, 0),
-    background: theme.colors.background.secondary,
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    cursor: 'pointer',
-    border: 'none',
-
-    '&:focus:not(:focus-visible)': {
-      outline: 'none',
-      boxShadow: 'none',
-    },
-
-    ':focus-visible': {
-      position: 'relative',
-    },
-  }),
-  resourcePickerPopoverActiveTab: css({
-    color: theme.colors.text.primary,
-    fontWeight: theme.typography.fontWeightMedium,
-    background: theme.colors.background.primary,
-  }),
-  resourcePickerPopoverContent: css({
-    width: '315px',
-    fontSize: theme.typography.bodySmall.fontSize,
-    minHeight: '184px',
-    padding: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  resourcePickerPopoverTabs: css({
-    display: 'flex',
-    width: '100%',
-    borderRadius: `${theme.shape.radius.default} ${theme.shape.radius.default} 0 0`,
-  }),
-  buttonRow: css({
-    display: 'flex',
-    justifyContent: 'center',
-    gap: theme.spacing(2),
-    padding: theme.spacing(1),
-  }),
-});

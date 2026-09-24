@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,65 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spanTreeOffsetStyles } from './SpanTreeOffset.stylex';
 import cx from 'classnames';
 import { get as _get } from 'lodash';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Icon, stylesFactory, withTheme2 } from '@grafana/ui';
 
 import { autoColor } from '../Theme';
 import { type TraceSpan } from '../types/trace';
 import spanAncestorIds from '../utils/span-ancestor-ids';
 
-export const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  SpanTreeOffset: css({
-    label: 'SpanTreeOffset',
-    color: autoColor(theme, '#000'),
-    position: 'relative',
-  }),
-  SpanTreeOffsetParent: css({
-    label: 'SpanTreeOffsetParent',
-    '&:hover': {
-      cursor: 'pointer',
-    },
-  }),
-  indentGuide: css({
-    label: 'indentGuide',
-    /* The size of the indentGuide is based off of the iconWrapper */
-    paddingRight: '1rem',
-    height: '100%',
-    display: 'inline-flex',
-    [theme.transitions.handleMotion('no-preference')]: {
-      transition: 'padding 300ms ease-out',
-    },
-    '&::before': {
-      content: '""',
-      paddingLeft: '1px',
-      backgroundColor: autoColor(theme, 'lightgrey'),
-    },
-  }),
-  indentGuideActive: css({
-    label: 'indentGuideActive',
-    '&::before': {
-      backgroundColor: autoColor(theme, '#777'),
-    },
-  }),
-  indentGuideThin: css({
-    paddingRight: '0.3rem',
-  }),
-  iconWrapper: css({
-    label: 'iconWrapper',
-    position: 'absolute',
-    right: 0,
-    height: '100%',
-    paddingTop: '1px',
-    width: '1rem',
-    textAlign: 'center',
-  }),
-}));
-
+export 
 export type TProps = {
   childrenVisible?: boolean;
   onClick?: () => void;
@@ -162,16 +118,15 @@ const UnthemedSpanTreeOffset = React.memo<TProps>((props) => {
     ) : (
       <Icon name={'angle-right'} data-testid="icon-arrow-right" size={'sm'} />
     ));
-  const styles = getStyles(theme);
 
   return (
-    <span className={cx(styles.SpanTreeOffset, { [styles.SpanTreeOffsetParent]: hasChildren })} {...wrapperProps}>
+    <span {...mergeStylexClassName(stylex.props(spanTreeOffsetStyles.SpanTreeOffset, , { [mergeStylexClassName(stylex.props(spanTreeOffsetStyles.SpanTreeOffsetParent), undefined).className]: hasChildren }), undefined)} {...wrapperProps}>
       {ancestorIds.map((ancestorId, index) => (
         <span
           key={ancestorId}
-          className={cx(styles.indentGuide, {
-            [styles.indentGuideActive]: hoverIndentGuideIds.has(ancestorId),
-            [styles.indentGuideThin]:
+          className={clsx(mergeStylexClassName(stylex.props(spanTreeOffsetStyles.indentGuide), undefined).className, {
+            [mergeStylexClassName(stylex.props(spanTreeOffsetStyles.indentGuideActive), undefined).className]: hoverIndentGuideIds.has(ancestorId),
+            [mergeStylexClassName(stylex.props(spanTreeOffsetStyles.indentGuideThin), undefined).className]:
               index !== ancestorIds.length - 1 && ancestorId !== 'root' && !visibleSpanIds.includes(ancestorId),
           })}
           data-ancestor-id={ancestorId}
@@ -181,7 +136,7 @@ const UnthemedSpanTreeOffset = React.memo<TProps>((props) => {
         />
       ))}
       <span
-        className={cx(styles.iconWrapper, 'icon-wrapper')}
+        {...mergeStylexClassName(stylex.props(spanTreeOffsetStyles.iconWrapper, , 'icon-wrapper'), undefined)}
         onMouseEnter={(event) => icon && handleMouseEnter(event, spanID)}
         onMouseLeave={(event) => icon && handleMouseLeave(event, spanID)}
         data-testid="icon-wrapper"

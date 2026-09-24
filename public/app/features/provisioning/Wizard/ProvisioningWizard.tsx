@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { provisioningWizardStyles } from './ProvisioningWizard.stylex';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom-v5-compat';
@@ -6,7 +8,7 @@ import { useNavigate } from 'react-router-dom-v5-compat';
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getAppEvents } from '@grafana/runtime';
-import { Box, ConfirmModal, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Box, ConfirmModal, Stack, Text, TextLink } from '@grafana/ui';
 import { type RepositoryViewList } from 'app/api/clients/provisioning/v0alpha1';
 import { FormPrompt } from 'app/core/components/FormPrompt/FormPrompt';
 
@@ -39,7 +41,6 @@ export const ProvisioningWizard = memo(function ProvisioningWizard({
   settingsData?: RepositoryViewList;
 }) {
   const navigate = useNavigate();
-  const styles = useStyles2(getStyles);
 
   const { stepStatusInfo, setStepStatusInfo, isStepSuccess, isStepRunning, hasStepError, hasStepWarning } =
     useStepStatus();
@@ -200,9 +201,9 @@ export const ProvisioningWizard = memo(function ProvisioningWizard({
       <Stack gap={6} direction="row" alignItems="flex-start">
         <>
           <Stepper steps={wizardSteps} activeStep={activeStep} visitedSteps={completedSteps} />
-          <div className={styles.divider} />
+          <div {...stylex.props(provisioningWizardStyles.divider)} />
         </>
-        <form onSubmit={handleSubmit(onFormSubmit)} className={styles.form}>
+        <form onSubmit={handleSubmit(onFormSubmit)} {...stylex.props(provisioningWizardStyles.form)}>
           <FormPrompt
             onDiscard={onDiscard}
             confirmRedirect={isDirty && !['authType', 'connection', 'finish'].includes(activeStep) && !isCancelling}
@@ -225,7 +226,7 @@ export const ProvisioningWizard = memo(function ProvisioningWizard({
             )}
             {isStepSuccess && 'success' in stepStatusInfo && <ProvisioningAlert success={stepStatusInfo.success} />}
 
-            <div className={styles.content}>
+            <div {...stylex.props(provisioningWizardStyles.content)}>
               <WizardStepContent
                 activeStep={activeStep}
                 settingsData={settingsData}
@@ -264,24 +265,3 @@ export const ProvisioningWizard = memo(function ProvisioningWizard({
   );
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  form: css({
-    maxWidth: '900px',
-    flexGrow: 1,
-  }),
-  divider: css({
-    width: 1,
-    alignSelf: 'stretch',
-    backgroundColor: theme.colors.border.weak,
-
-    marginBottom: theme.spacing(13), // align with the button row
-  }),
-  stepperSpacer: css({
-    width: 201, // Stepper width (200px) + divider width (1px)
-  }),
-  content: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    paddingBottom: theme.spacing(4),
-    marginBottom: theme.spacing(4),
-  }),
-});

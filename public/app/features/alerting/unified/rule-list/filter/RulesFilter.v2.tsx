@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { rulesFilter.v2Styles } from './RulesFilter.v2.stylex';
 import { useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Box, FilterInput, Icon, Label, Stack, useStyles2 } from '@grafana/ui';
+import { Box, FilterInput, Icon, Label, Stack } from '@grafana/ui';
 
 import { trackAlertRuleFilterEvent, trackRulesSearchInputCleared } from '../../Analytics';
 import { PopupCard } from '../../components/HoverCard';
@@ -138,7 +138,6 @@ export default function RulesFilter({ viewMode, onViewModeChange }: RulesFilterP
 }
 
 function SearchQueryHelp() {
-  const styles = useStyles2(helpStyles);
 
   return (
     <div>
@@ -148,7 +147,7 @@ function SearchQueryHelp() {
         </Trans>
       </div>
       <hr />
-      <div className={styles.grid}>
+      <div {...stylex.props(formStyles.grid)}>
         <div>
           <Trans i18nKey="alerting.search-query-help.filter-type">Filter type</Trans>
         </div>
@@ -190,25 +189,12 @@ function SearchQueryHelp() {
 }
 
 function HelpRow({ title, expr }: { title: string; expr: string }) {
-  const styles = useStyles2(helpStyles);
 
   return (
     <>
       <div>{title}</div>
-      <code className={styles.code}>{expr}</code>
+      <code {...stylex.props(formStyles.code)}>{expr}</code>
     </>
   );
 }
 
-const helpStyles = (theme: GrafanaTheme2) => ({
-  grid: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content auto',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-  }),
-  code: css({
-    display: 'block',
-    textAlign: 'center',
-  }),
-});

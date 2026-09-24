@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { usePublicDashboardConfigStyles } from './usePublicDashboardConfig.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2  } from '@grafana/ui';
 import grafanaTextLogoDarkSvg from 'img/grafana_text_logo_dark.svg';
 import grafanaTextLogoLightSvg from 'img/grafana_text_logo_light.svg';
 
@@ -20,7 +21,6 @@ export interface PublicDashboardCfg {
 }
 const useGetConfig = (cfg?: PublicDashboardCfg) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const { footerHide, footerText, footerLink, footerLogo, headerLogoHide } = cfg || {
     footerHide: false,
@@ -32,7 +32,7 @@ const useGetConfig = (cfg?: PublicDashboardCfg) => {
 
   return {
     footerHide,
-    footerText: <span className={styles.text}>{footerText}</span>,
+    footerText: <span {...stylex.props(usePublicDashboardConfigStyles.text)}>{footerText}</span>,
     footerLogo:
       footerLogo === GRAFANA_LOGO_DEFAULT_VALUE
         ? theme.isDark
@@ -49,9 +49,3 @@ export function setPublicDashboardConfigFn(cfg: PublicDashboardCfg) {
   useGetPublicDashboardConfig = (): PublicDashboardCfg => useGetConfig(cfg);
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  text: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.body.fontSize,
-  }),
-});

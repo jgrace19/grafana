@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { mathStyles } from './Math.stylex';
 import { type ChangeEvent } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, InlineField, InlineLabel, TextArea, Toggletip, useStyles2, Stack, TextLink } from '@grafana/ui';
+import { Icon, InlineField, InlineLabel, TextArea, Toggletip, Stack, TextLink } from '@grafana/ui';
 
 import { type ExpressionQuery } from '../types';
 
@@ -24,8 +25,6 @@ export const Math = ({ labelWidth, onChange, query, onRunQuery }: Props) => {
     onChange({ ...query, expression: event.target.value });
   };
 
-  const styles = useStyles2(getStyles);
-
   const executeQuery = () => {
     if (query.expression) {
       onRunQuery();
@@ -40,7 +39,7 @@ export const Math = ({ labelWidth, onChange, query, onRunQuery }: Props) => {
             <Toggletip
               fitContent
               content={
-                <div className={styles.documentationContainer}>
+                <div {...stylex.props(mathStyles.documentationContainer)}>
                   <div>
                     <Trans
                       i18nKey="expressions.math.run-math-operations"
@@ -59,10 +58,10 @@ export const Math = ({ labelWidth, onChange, query, onRunQuery }: Props) => {
                       Example: <code>{'{{example}}'}</code>
                     </Trans>
                   </div>
-                  <header className={styles.documentationHeader}>
+                  <header {...stylex.props(mathStyles.documentationHeader)}>
                     <Trans i18nKey="expressions.math.available-math-functions">Available math functions</Trans>
                   </header>
-                  <div className={styles.documentationFunctions}>
+                  <div {...stylex.props(mathStyles.documentationFunctions)}>
                     <DocumentedFunction
                       name="abs"
                       description={t(
@@ -158,7 +157,7 @@ export const Math = ({ labelWidth, onChange, query, onRunQuery }: Props) => {
               closeButton={true}
               placement="bottom-start"
             >
-              <div className={styles.info}>
+              <div {...stylex.props(mathStyles.info)}>
                 <Trans i18nKey="expressions.math.tooltip-trigger">Expression</Trans> <Icon name="info-circle" />
               </div>
             </Toggletip>
@@ -186,42 +185,16 @@ interface DocumentedFunctionProps {
   description: React.ReactNode;
 }
 const DocumentedFunction = ({ name, description }: DocumentedFunctionProps) => {
-  const styles = useStyles2(getDocumentedFunctionStyles);
+  const styles = (getDocumentedFunctionStyles);
 
   return (
     <>
-      <span className={styles.name}>{name}</span>
-      <span className={styles.description}>{description}</span>
+      <span className={mathStyles.name}>{name}</span>
+      <span className={mathStyles.description}>{description}</span>
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  documentationHeader: css({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: theme.typography.h5.fontWeight,
-  }),
-  documentationContainer: css({
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-
-    padding: theme.spacing(1, 2),
-  }),
-  documentationFunctions: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content auto',
-    columnGap: theme.spacing(2),
-  }),
-  info: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    cursor: 'pointer',
-    gap: theme.spacing(1),
-  }),
-});
 
 const getDocumentedFunctionStyles = (theme: GrafanaTheme2) => ({
   name: css({

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { cardGridStyles } from './CardGrid.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { featureEnabled } from '@grafana/runtime';
-import { Badge, Card, Grid, Stack, useStyles2 } from '@grafana/ui';
+import { Badge, Card, Grid, Stack } from '@grafana/ui';
 import { PluginDeprecatedBadge } from 'app/features/plugins/admin/components/Badges/PluginDeprecatedBadge';
 import { PluginDisabledBadge } from 'app/features/plugins/admin/components/Badges/PluginDisabledBadge';
 import { PluginInstalledBadge } from 'app/features/plugins/admin/components/Badges/PluginInstallBadge';
@@ -13,43 +14,9 @@ import { getBadgeColor } from 'app/features/plugins/admin/components/Badges/shar
 import { isPluginUpdatable } from 'app/features/plugins/admin/helpers';
 import { type CatalogPlugin } from 'app/features/plugins/admin/types';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: 'inherit',
-  }),
-  figure: css({
-    width: 'inherit',
-    marginRight: '0px',
-    '> img': {
-      width: theme.spacing(7),
-    },
-  }),
-  meta: css({
-    marginTop: '6px',
-    position: 'relative',
-  }),
-  description: css({
-    margin: '0px',
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  card: css({
-    gridTemplateAreas: `
-        "Figure   Heading   Actions"
-        "Figure Description Actions"
-        "Figure    Meta     Actions"
-        "Figure     -       Actions"`,
-  }),
-  logo: css({
-    marginRight: theme.spacing(3),
-    marginLeft: theme.spacing(1),
-    width: theme.spacing(7),
-    maxHeight: theme.spacing(7),
-  }),
-});
 
 function PluginEnterpriseBadgeWithoutSignature() {
-  const customBadgeStyles = useStyles2(getBadgeColor);
+  const customBadgeStyles = (getBadgeColor);
 
   if (featureEnabled('enterprise.plugins')) {
     return <Badge text={t('get-enterprise.title', 'Enterprise')} color="blue" />;
@@ -78,7 +45,6 @@ export interface CardGridProps {
 }
 
 export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Grid gap={1.5} minColumnWidth={44}>
@@ -86,7 +52,7 @@ export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
         <Card
           key={item.id}
           noMargin
-          className={styles.card}
+          {...stylex.props(cardGridStyles.card)}
           href={item.url}
           onClick={(e) => {
             if (onClickItem) {
@@ -94,12 +60,12 @@ export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
             }
           }}
         >
-          <Card.Heading className={styles.heading}>{item.name}</Card.Heading>
+          <Card.Heading {...stylex.props(cardGridStyles.heading)}>{item.name}</Card.Heading>
 
-          <Card.Figure align="center" className={styles.figure}>
-            <img className={styles.logo} src={item.logo} alt="" />
+          <Card.Figure align="center" {...stylex.props(cardGridStyles.figure)}>
+            <img {...stylex.props(cardGridStyles.logo)} src={item.logo} alt="" />
           </Card.Figure>
-          <Card.Meta className={styles.meta}>
+          <Card.Meta {...stylex.props(cardGridStyles.meta)}>
             <Stack height="auto" wrap="wrap">
               {item.isEnterprise && <PluginEnterpriseBadgeWithoutSignature />}
               {item.isDeprecated && <PluginDeprecatedBadge />}

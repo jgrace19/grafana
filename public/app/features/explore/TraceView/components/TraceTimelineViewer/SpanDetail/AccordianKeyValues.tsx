@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { accordianKeyValuesStyles } from './AccordianKeyValues.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type TraceKeyValuePair } from '@grafana/data';
 import { Counter, Icon, useStyles2 } from '@grafana/ui';
 
 import { autoColor } from '../../Theme';
@@ -27,60 +29,7 @@ import KeyValuesTable, { type KeyValuesTableLink } from './KeyValuesTable';
 
 import { alignIcon } from '.';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      textOverflow: 'ellipsis',
-    }),
-    header: css({
-      label: 'header',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      padding: '0.25em 0.1em',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    headerLabel: css({
-      width: '120px',
-      display: 'inline-block',
-    }),
-    headerEmpty: css({
-      label: 'headerEmpty',
-      background: 'none',
-      cursor: 'initial',
-    }),
-    headerHighContrast: css({
-      label: 'headerHighContrast',
-      '&:hover': {
-        background: autoColor(theme, '#ddd'),
-      },
-    }),
-    emptyIcon: css({
-      label: 'emptyIcon',
-      color: autoColor(theme, '#aaa'),
-    }),
-    summary: css({
-      label: 'summary',
-      display: 'inline',
-      listStyle: 'none',
-      padding: 0,
-    }),
-    summaryItem: css({
-      label: 'summaryItem',
-      display: 'inline',
-      paddingRight: '0.5rem',
-      '&:last-child': {
-        paddingRight: 0,
-        borderRight: 'none',
-      },
-    }),
-    summaryLabel: css({
-      label: 'summaryLabel',
-      color: autoColor(theme, '#777'),
-      paddingRight: '0.5rem',
-    }),
-  };
-};
+export ;
 
 export type AccordianKeyValuesProps = {
   className?: string | TNil;
@@ -103,18 +52,17 @@ interface KeyValuesSummaryProps {
 
 // export for tests
 export function KeyValuesSummary({ data = null }: KeyValuesSummaryProps) {
-  const styles = useStyles2(getStyles);
 
   if (!Array.isArray(data) || !data.length) {
     return null;
   }
 
   return (
-    <ul className={styles.summary}>
+    <ul {...stylex.props(accordianKeyValuesStyles.summary)}>
       {data.map((item, i) => (
         // `i` is necessary in the key because item.key can repeat
-        <li className={styles.summaryItem} key={`${item.key}-${i}`}>
-          <span className={styles.summaryLabel}>{item.key}</span>
+        <li {...stylex.props(accordianKeyValuesStyles.summaryItem)} key={`${item.key}-${i}`}>
+          <span {...stylex.props(accordianKeyValuesStyles.summaryLabel)}>{item.key}</span>
           {String(item.value)}
         </li>
       ))}
@@ -137,8 +85,7 @@ export default function AccordianKeyValues({
   onToggle = null,
 }: AccordianKeyValuesProps) {
   const isEmpty = (!Array.isArray(data) || !data.length) && !logName;
-  const styles = useStyles2(getStyles);
-  const iconCls = cx(alignIcon, { [styles.emptyIcon]: isEmpty });
+  const iconCls = clsx(alignIcon, { [mergeStylexClassName(stylex.props(accordianKeyValuesStyles.emptyIcon), undefined).className]: isEmpty });
   let arrow: React.ReactNode | null = null;
   let headerProps: {} | null = null;
   const tableFields = logName ? [{ key: 'event name', value: logName }, ...data] : data;
@@ -158,17 +105,17 @@ export default function AccordianKeyValues({
   const showDataSummaryFields = showSummary && data.length > 0 && !isOpen;
 
   return (
-    <div className={cx(className, styles.container)}>
+    <div {...mergeStylexClassName(stylex.props(accordianKeyValuesStyles.container, className, ), undefined)}>
       <div
-        className={cx(styles.header, {
-          [styles.headerEmpty]: isEmpty,
-          [styles.headerHighContrast]: highContrast && !isEmpty,
-        })}
+        {...mergeStylexClassName(stylex.props(accordianKeyValuesStyles.header, , {
+          [mergeStylexClassName(stylex.props(accordianKeyValuesStyles.headerEmpty), undefined).className]: isEmpty,
+          [mergeStylexClassName(stylex.props(accordianKeyValuesStyles.headerHighContrast), undefined).className]: highContrast && !isEmpty,
+        }), undefined)}
         {...headerProps}
         data-testid="AccordianKeyValues--header"
       >
         {arrow}
-        <strong data-test={markers.LABEL} className={styles.headerLabel}>
+        <strong data-test={markers.LABEL} {...stylex.props(accordianKeyValuesStyles.headerLabel)}>
           {label}
           {showCountBadge ? <Counter value={data.length} variant="secondary" /> : null}
         </strong>

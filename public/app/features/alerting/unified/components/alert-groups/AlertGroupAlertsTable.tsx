@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertGroupAlertsTableStyles } from './AlertGroupAlertsTable.stylex';
 import { useMemo } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 import { type AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { type DynamicTableColumnProps, type DynamicTableItemProps } from '../DynamicTable';
@@ -22,7 +22,6 @@ type AlertGroupAlertsTableColumnProps = DynamicTableColumnProps<AlertmanagerAler
 type AlertGroupAlertsTableItemProps = DynamicTableItemProps<AlertmanagerAlert>;
 
 export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const columns = useMemo(
     (): AlertGroupAlertsTableColumnProps[] => [
@@ -33,7 +32,7 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
         renderCell: ({ data: alert }) => (
           <>
             <AmAlertStateTag state={alert.status.state} />
-            <span className={styles.duration}>
+            <span {...stylex.props(alertGroupAlertsTableStyles.duration)}>
               <Trans
                 i18nKey="alerting.alert-group-alerts-table.duration"
                 values={{
@@ -71,7 +70,7 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
   );
 
   return (
-    <div className={styles.tableWrapper} data-testid="alert-group-table">
+    <div {...stylex.props(alertGroupAlertsTableStyles.tableWrapper)} data-testid="alert-group-table">
       <DynamicTableWithGuidelines
         cols={columns}
         items={items}
@@ -84,15 +83,3 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tableWrapper: css({
-    marginTop: theme.spacing(3),
-    [theme.breakpoints.up('md')]: {
-      marginLeft: theme.spacing(4.5),
-    },
-  }),
-  duration: css({
-    marginLeft: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-});

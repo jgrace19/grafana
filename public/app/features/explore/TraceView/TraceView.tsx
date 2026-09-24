@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { traceViewStyles } from './TraceView.stylex';
 import { type RefObject, useMemo, useState } from 'react';
 import { useToggle } from 'react-use';
 
@@ -21,7 +23,6 @@ import { Trans, t } from '@grafana/i18n';
 import { getTraceToLogsOptions, type TraceToMetricsData, type TraceToProfilesData } from '@grafana/o11y-ds-frontend';
 import { getTemplateSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
 import { type TempoQuery } from '@grafana-plugins/tempo/types';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getTimeZone } from 'app/features/profile/state/selectors';
@@ -44,16 +45,6 @@ import { useHoverIndentGuide } from './useHoverIndentGuide';
 import { useSearch } from './useSearch';
 import { useViewRange } from './useViewRange';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  noDataMsg: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-    placeItems: 'center',
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-});
 
 type Props = {
   dataFrames: DataFrame[];
@@ -110,8 +101,6 @@ export function TraceView(props: Props) {
   const [headerHeight, setHeaderHeight] = useState(100);
   const [traceFlameGraphs, setTraceFlameGraphs] = useState<TraceFlameGraphs>({});
   const [redrawListView, setRedrawListView] = useState({});
-
-  const styles = useStyles2(getStyles);
 
   /**
    * Keeps state of resizable name column width
@@ -254,7 +243,7 @@ export function TraceView(props: Props) {
           />
         </>
       ) : (
-        <div className={styles.noDataMsg}>
+        <div {...stylex.props(traceViewStyles.noDataMsg)}>
           <Trans i18nKey="explore.trace-view.no-data">No data</Trans>
         </div>
       )}

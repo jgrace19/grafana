@@ -1,16 +1,22 @@
 import pluralize from 'pluralize';
 
-import { useStyles2 } from '@grafana/ui';
 import { type AlertState, type AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
 
-import { getNotificationsTextColors } from '../../styles/notifications';
+import * as stylex from '@stylexjs/stylex';
+import { notificationsStyles } from '../../styles/notifications.stylex';
+import { AlertState } from 'app/plugins/datasource/alertmanager/types';
+
+const notificationStateStyle = {
+  [AlertState.Active]: notificationsStyles.AlertState_Active,
+  [AlertState.Suppressed]: notificationsStyles.AlertState_Suppressed,
+  [AlertState.Unprocessed]: notificationsStyles.AlertState_Unprocessed,
+} as const;
 
 interface Props {
   group: AlertmanagerGroup;
 }
 
 export const AlertGroupHeader = ({ group }: Props) => {
-  const textStyles = useStyles2(getNotificationsTextColors);
   const total = group.alerts.length;
   const countByStatus = group.alerts.reduce(
     (statusObj, alert) => {
@@ -31,7 +37,7 @@ export const AlertGroupHeader = ({ group }: Props) => {
         return (
           <span
             key={`${JSON.stringify(group.labels)}-notifications-${index}`}
-            className={textStyles[state as AlertState]}
+            {...stylex.props(notificationStateStyle[state as AlertState])}
           >
             {index > 0 && ', '}
             {`${count} ${state}`}

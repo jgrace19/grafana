@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsComponentStyles } from './LogLineDetailsComponent.stylex';
 import { camelCase, groupBy } from 'lodash';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -12,7 +14,7 @@ import {
 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
-import { Box, ControlledCollapse, useStyles2 } from '@grafana/ui';
+import { Box, ControlledCollapse } from '@grafana/ui';
 
 import { getLabelTypeFromRow } from '../../utils';
 import { useAttributesExtensionLinks } from '../LogDetails';
@@ -42,7 +44,6 @@ export const LogLineDetailsComponent = memo(
       useLogListContext();
 
     const [ds, setDs] = useState<DataSourceApi | null | undefined>(undefined);
-    const styles = useStyles2(getStyles);
 
     const extensionLinks = useAttributesExtensionLinks(log, timeRange);
 
@@ -167,9 +168,9 @@ export const LogLineDetailsComponent = memo(
     }
 
     return (
-      <div className={styles.componentWrapper}>
+      <div {...stylex.props(logLineDetailsComponentStyles.componentWrapper)}>
         <ControlledCollapse
-          className={styles.collapsable}
+          {...stylex.props(logLineDetailsComponentStyles.collapsable)}
           label={t('logs.log-line-details.log-line-section', 'Log line')}
           isOpen={logLineOpen}
           onToggle={(isOpen: boolean) => handleToggle('logLineOpen', isOpen)}
@@ -187,7 +188,7 @@ export const LogLineDetailsComponent = memo(
         )}
         {allLinks.length > 0 && (
           <ControlledCollapse
-            className={styles.collapsable}
+            {...stylex.props(logLineDetailsComponentStyles.collapsable)}
             label={t('logs.log-line-details.links-section', 'Links')}
             isOpen={linksOpen}
             onToggle={(isOpen: boolean) => handleToggle('linksOpen', isOpen)}
@@ -207,7 +208,7 @@ export const LogLineDetailsComponent = memo(
         {labelGroups.map((group) =>
           group === '' ? (
             <ControlledCollapse
-              className={styles.collapsable}
+              {...stylex.props(logLineDetailsComponentStyles.collapsable)}
               key={'fields'}
               label={t('logs.log-line-details.fields-section', 'Fields')}
               isOpen={fieldsOpen}
@@ -218,7 +219,7 @@ export const LogLineDetailsComponent = memo(
             </ControlledCollapse>
           ) : (
             <ControlledCollapse
-              className={styles.collapsable}
+              {...stylex.props(logLineDetailsComponentStyles.collapsable)}
               key={group}
               label={group}
               isOpen={store.getBool(`${logOptionsStorageKey}.log-details.${groupOptionName(group)}`, true)}
@@ -230,7 +231,7 @@ export const LogLineDetailsComponent = memo(
         )}
         {!labelGroups.length && fieldsWithoutLinks.length > 0 && (
           <ControlledCollapse
-            className={styles.collapsable}
+            {...stylex.props(logLineDetailsComponentStyles.collapsable)}
             key={'fields'}
             label={t('logs.log-line-details.fields-section', 'Fields')}
             isOpen={fieldsOpen}
@@ -254,13 +255,3 @@ function groupOptionName(group: string) {
   return `${camelCase(group)}Open`;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapsable: css({
-    '&:last-of-type': {
-      marginBottom: 0,
-    },
-  }),
-  componentWrapper: css({
-    padding: theme.spacing(0, 1, 1, 1),
-  }),
-});

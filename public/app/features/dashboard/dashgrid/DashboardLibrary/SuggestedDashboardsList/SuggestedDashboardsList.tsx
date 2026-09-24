@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { suggestedDashboardsListStyles } from './SuggestedDashboardsList.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FilterInput, Grid, Pagination, Stack, useStyles2 } from '@grafana/ui';
@@ -66,7 +67,6 @@ export const SuggestedDashboardsList = ({
   onShowMapping,
   onDismiss,
 }: SuggestedDashboardsListProps) => {
-  const styles = useStyles2(getStyles);
   const { sourceEntryPoint, eventLocation } = useTrackingContext();
   const isSuggestedDashboardsAssistantButtonEnabled = useBooleanFlagValue('suggestedDashboardsAssistantButton', false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -490,7 +490,7 @@ export const SuggestedDashboardsList = ({
         value={searchQuery}
         onChange={setSearchQuery}
       />
-      <div className={styles.resultsContainer}>
+      <div {...stylex.props(suggestedDashboardsListStyles.resultsContainer)}>
         {showLoading ? (
           <Grid gap={4} columns={{ xs: 1, sm: 2, lg: 3 }}>
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
@@ -520,29 +520,10 @@ export const SuggestedDashboardsList = ({
           currentPage={currentPage}
           numberOfPages={totalPages}
           onNavigate={(page) => setCurrentPage(page)}
-          className={styles.pagination}
+          {...stylex.props(suggestedDashboardsListStyles.pagination)}
         />
       )}
     </Stack>
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    resultsContainer: css({
-      width: '100%',
-      overflow: 'auto',
-      paddingBottom: theme.spacing(2),
-    }),
-    pagination: css({
-      position: 'sticky',
-      bottom: 0,
-      backgroundColor: theme.colors.background.primary,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 2,
-      paddingTop: theme.spacing(2),
-    }),
-  };
-}

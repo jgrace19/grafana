@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { tracePageSearchBarStyles } from './TracePageSearchBar.stylex';
 import { memo, type Dispatch, type SetStateAction } from 'react';
 
-import { type GrafanaTheme2, type TraceSearchProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { InlineSwitch, useStyles2 } from '@grafana/ui';
 
@@ -47,10 +48,9 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
     datasourceType,
     showSpanFilters,
   } = props;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.controls}>
+    <div {...stylex.props(tracePageSearchBarStyles.controls)}>
       <NextPrevResult
         trace={trace}
         spanFilterMatches={spanFilterMatches}
@@ -65,7 +65,7 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
         value={!search.matchesOnly}
         label={t('explore.show-all-spans', 'Show all spans')}
         disabled={!spanFilterMatches?.size}
-        className={styles.switch}
+        {...stylex.props(tracePageSearchBarStyles.switch)}
         onChange={(e) => {
           setShowSpanFilterMatchesOnly(!search.matchesOnly);
         }}
@@ -74,26 +74,4 @@ export default memo(function TracePageSearchBar(props: TracePageSearchBarProps) 
   );
 });
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    controls: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    switch: css({
-      flexDirection: 'row-reverse',
-      gap: theme.spacing(0.5),
-
-      label: {
-        padding: 0,
-        fontSize: theme.typography.bodySmall.fontSize,
-      },
-    }),
-    clearMatchesButton: css({
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-  };
-};
+export ;

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { configureIRMStyles } from './ConfigureIRM.stylex';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { type IconName, Text, useStyles2 } from '@grafana/ui';
+import { type IconName, Text } from '@grafana/ui';
 import { useURLSearchParams } from 'app/features/alerting/unified/hooks/useURLSearchParams';
 import { getFirstCompatibleDataSource } from 'app/features/alerting/unified/utils/datasource';
 import { DATASOURCES_ROUTES } from 'app/features/datasources/constants';
@@ -41,7 +42,6 @@ function useGetDataSourceConfiguration(): DataSourceConfigurationData {
 }
 
 export function ConfigureIRM() {
-  const styles = useStyles2(getStyles);
   const navigate = useNavigate();
 
   // get all the configuration data
@@ -106,7 +106,7 @@ export function ConfigureIRM() {
       <Text element="h4" variant="h4">
         <Trans i18nKey="gops.configure-irm.configure">Configure</Trans>
       </Text>
-      <section className={styles.container}>
+      <section {...stylex.props(configureIRMStyles.container)}>
         {configuration.map((config) => (
           <ConfigCard
             key={config.id}
@@ -131,11 +131,3 @@ export function ConfigureIRM() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: 0,
-    display: 'grid',
-    gap: theme.spacing(3),
-    gridTemplateColumns: ' 1fr 1fr',
-  }),
-});

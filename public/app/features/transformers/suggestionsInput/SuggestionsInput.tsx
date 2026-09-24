@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { suggestionsInputStyles } from './SuggestionsInput.stylex';
 import { autoUpdate, useFloating } from '@floating-ui/react';
 import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type VariableSuggestion } from '@grafana/data';
 import {
   FieldValidationMessage,
   floatingUtils,
@@ -36,23 +37,7 @@ interface SuggestionsInputProps {
   autoFocus?: boolean;
 }
 
-const getStyles = (theme: GrafanaTheme2, inputHeight: number) => {
-  return {
-    suggestionsWrapper: css({
-      boxShadow: theme.shadows.z2,
-    }),
-    errorTooltip: css({
-      position: 'absolute',
-      top: inputHeight + ERROR_TOOLTIP_OFFSET + 'px',
-      zIndex: theme.zIndex.tooltip,
-    }),
-    inputWrapper: css({
-      position: 'relative',
-    }),
-    // Wrapper with child selector needed.
-    // When classnames are applied to the same element as the wrapper, it causes the suggestions to stop working
-  };
-};
+;
 
 export const SuggestionsInput = ({
   value = '',
@@ -190,10 +175,10 @@ export const SuggestionsInput = ({
   };
 
   return (
-    <div className={styles.inputWrapper} style={style ?? {}}>
+    <div {...stylex.props(suggestionsInputStyles.inputWrapper)} style={style ?? {}}>
       {showingSuggestions && (
         <Portal>
-          <div ref={refs.setFloating} style={floatingStyles} className={styles.suggestionsWrapper}>
+          <div ref={refs.setFloating} style={floatingStyles} {...stylex.props(suggestionsInputStyles.suggestionsWrapper)}>
             <ScrollContainer
               maxHeight="300px"
               onScroll={(event) => setScrollTop(event.currentTarget.scrollTop ?? 0)}
@@ -215,7 +200,7 @@ export const SuggestionsInput = ({
         </Portal>
       )}
       {invalid && error && (
-        <div className={styles.errorTooltip}>
+        <div {...stylex.props(suggestionsInputStyles.errorTooltip)}>
           <FieldValidationMessage>{error}</FieldValidationMessage>
         </div>
       )}

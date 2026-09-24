@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { searchResultsTableClassNames, searchResultsTableStyles } from './SearchResultsTable.stylex';
 import { useEffect, useMemo, useRef, useCallback, useState, type CSSProperties } from 'react';
 import * as React from 'react';
 import { useTable, type Column, type TableOptions, type Cell } from 'react-table';
@@ -11,7 +13,7 @@ import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { TableCellHeight } from '@grafana/schema';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 import { useTableStyles, TableCell } from '@grafana/ui/internal';
 import { useCustomFlexLayout } from 'app/features/browse-dashboards/components/customFlexTableLayout';
 
@@ -56,8 +58,7 @@ export const SearchResultsTable = React.memo(
     keyboardEvents,
     trackingSource,
   }: SearchResultsProps) => {
-    const styles = useStyles2(getStyles);
-    const columnStyles = useStyles2(getColumnStyles);
+    const columnStyles = useMemo(() => searchResultsTableClassNames(), []);
     const tableStyles = useTableStyles(useTheme2(), TableCellHeight.Sm);
     const infiniteLoaderRef = useRef<InfiniteLoader>(null);
     const [listEl, setListEl] = useState<FixedSizeList | null>(null);
@@ -149,9 +150,9 @@ export const SearchResultsTable = React.memo(
         prepareRow(row);
 
         const url = response.view.fields.url?.values[rowIndex];
-        let className = styles.rowContainer;
+        let className = searchResultsTableStyles.rowContainer;
         if (rowIndex === highlightIndex.y) {
-          className += ' ' + styles.selectedRow;
+          className += ' ' + searchResultsTableStyles.selectedRow;
         }
         const { key, ...rowProps } = row.getRowProps({ style });
 
@@ -207,7 +208,7 @@ export const SearchResultsTable = React.memo(
 
     if (!rows.length) {
       return (
-        <div className={styles.noData}>
+        <div {...stylex.props(searchResultsTableStyles.noData)}>
           <Trans i18nKey="search.search-results-table.no-data">No values</Trans>
         </div>
       );
@@ -225,11 +226,11 @@ export const SearchResultsTable = React.memo(
           });
 
           return (
-            <div key={key} {...headerGroupProps} className={styles.headerRow}>
+            <div key={key} {...headerGroupProps} {...stylex.props(searchResultsTableStyles.headerRow)}>
               {headerGroup.headers.map((column) => {
                 const { key, ...headerProps } = column.getHeaderProps();
                 return (
-                  <div key={key} {...headerProps} role="columnheader" className={styles.headerCell}>
+                  <div key={key} {...headerProps} role="columnheader" {...stylex.props(searchResultsTableStyles.headerCell)}>
                     {column.render('Header')}
                   </div>
                 );
@@ -269,108 +270,4 @@ export const SearchResultsTable = React.memo(
 );
 SearchResultsTable.displayName = 'SearchResultsTable';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const rowHoverBg = theme.colors.action.hover;
 
-  return {
-    noData: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-    }),
-    headerCell: css({
-      alignItems: 'center',
-      display: 'flex',
-      overflo: 'hidden',
-      padding: theme.spacing(1),
-    }),
-    headerRow: css({
-      backgroundColor: theme.colors.background.secondary,
-      display: 'flex',
-      gap: theme.spacing(1),
-      height: `${ROW_HEIGHT}px`,
-    }),
-    selectedRow: css({
-      backgroundColor: rowHoverBg,
-      boxShadow: `inset 3px 0px ${theme.colors.primary.border}`,
-    }),
-    rowContainer: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      height: `${ROW_HEIGHT}px`,
-      label: 'row',
-      '&:hover': {
-        backgroundColor: rowHoverBg,
-      },
-
-      "&:not(:hover) div[role='cell']": {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      },
-    }),
-  };
-};
-
-// CSS for columns from react table
-const getColumnStyles = (theme: GrafanaTheme2) => {
-  return {
-    cell: css({
-      padding: theme.spacing(1),
-      overflow: 'hidden', // Required so flex children can do text-overflow: ellipsis
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    nameCellStyle: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-    }),
-    typeCell: css({
-      gap: theme.spacing(0.5),
-    }),
-    typeIcon: css({
-      fill: theme.colors.text.secondary,
-    }),
-    datasourceItem: css({
-      span: {
-        '&:hover': {
-          color: theme.colors.text.link,
-        },
-      },
-    }),
-    missingTitleText: css({
-      color: theme.colors.text.disabled,
-      fontStyle: 'italic',
-    }),
-    invalidDatasourceItem: css({
-      color: theme.colors.error.main,
-      textDecoration: 'line-through',
-    }),
-    locationContainer: css({
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: theme.spacing(1),
-      // No overflow:hidden here — it would clip the focus ring (box-shadow) from child <a> elements.
-      // The parent cell already clips the container width. Each locationItem handles its own truncation.
-    }),
-    locationItem: css({
-      alignItems: 'center',
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: '4px',
-      overflow: 'hidden',
-    }),
-    explainItem: css({
-      cursor: 'pointer',
-    }),
-    tagList: css({
-      justifyContent: 'flex-start',
-      flexWrap: 'nowrap',
-    }),
-  };
-};

@@ -1,8 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, InfoBox, Portal, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, InfoBox, Portal, useTheme2 } from '@grafana/ui';
 import { getModalStyles } from '@grafana/ui/internal';
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
 }
 
 export const TokenRevokedModal = (props: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   const theme = useTheme2();
 
   const modalStyles = getModalStyles(theme);
@@ -30,9 +29,9 @@ export const TokenRevokedModal = (props: Props) => {
             'You have been automatically signed out'
           )}
           severity="warning"
-          className={styles.infobox}
+          {...stylex.props(tokenRevokedModalStyles.infobox)}
         >
-          <div className={styles.text}>
+          <div {...stylex.props(tokenRevokedModalStyles.text)}>
             <p>
               <Trans
                 i18nKey="users.token-revoked-modal.auto-revoked"
@@ -55,20 +54,8 @@ export const TokenRevokedModal = (props: Props) => {
           </Button>
         </InfoBox>
       </div>
-      <div className={cx(modalStyles.modalBackdrop, styles.backdrop)} />
+      <div {...mergeStylexClassName(stylex.props(tokenRevokedModalStyles.backdrop, modalStyles.modalBackdrop, ), undefined)} />
     </Portal>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infobox: css({
-    marginBottom: 0,
-  }),
-  text: css({
-    margin: theme.spacing(1, 0, 2),
-  }),
-  backdrop: css({
-    backgroundColor: theme.colors.background.canvas,
-    opacity: 0.8,
-  }),
-});

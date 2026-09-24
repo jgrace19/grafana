@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { upgradePageStyles } from './UpgradePage.stylex';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { type GrafanaTheme2, type NavModel } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type StoreState } from 'app/types/store';
 import checkmarkSvg from 'img/licensing/checkmark.svg';
@@ -43,15 +44,14 @@ interface UpgradeInfoProps {
 }
 
 export const UpgradeInfo = ({ editionNotice }: UpgradeInfoProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <>
-      <h2 className={styles.title}>
+      <h2 {...stylex.props(upgradePageStyles.title)}>
         <Trans i18nKey="admin.upgrade-info.title">Enterprise license</Trans>
       </h2>
       <LicenseChrome header="Grafana Enterprise" subheader="Get your free trial" editionNotice={editionNotice}>
-        <div className={styles.column}>
+        <div {...stylex.props(upgradePageStyles.column)}>
           <FeatureInfo />
           <ServiceInfo />
         </div>
@@ -60,23 +60,7 @@ export const UpgradeInfo = ({ editionNotice }: UpgradeInfoProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    column: css({
-      display: 'grid',
-      gridTemplateColumns: '100%',
-      columnGap: '20px',
-      rowGap: '40px',
-
-      '@media (min-width: 1050px)': {
-        gridTemplateColumns: '50% 50%',
-      },
-    }),
-    title: css({
-      margin: theme.spacing(4, 0),
-    }),
-  };
-};
+;
 
 const GetEnterprise = () => {
   return (

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { visualizationCardGridStyles } from './VisualizationCardGrid.stylex';
 import { Fragment, type ReactNode, useMemo } from 'react';
 import { useMeasure } from 'react-use';
 
@@ -9,7 +11,7 @@ import {
   type PanelPluginVisualizationSuggestion,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Text, useStyles2 } from '@grafana/ui';
+import { Text } from '@grafana/ui';
 import { MIN_MULTI_COLUMN_SIZE } from 'app/features/panel/suggestions/constants';
 
 import { VisualizationSuggestionCard } from './VisualizationSuggestionCard';
@@ -42,7 +44,7 @@ export function VisualizationCardGrid({
   maxCardWidth,
   getBadge,
 }: Props) {
-  const styles = useStyles2(getStyles, minColumnWidth, maxCardWidth);
+  const styles = (getStyles, minColumnWidth, maxCardWidth);
   const [firstCardRef, { width }] = useMeasure<HTMLDivElement>();
 
   const itemIndexMap = useMemo(() => {
@@ -72,7 +74,7 @@ export function VisualizationCardGrid({
     return (
       <div
         key={itemKey}
-        className={styles.cardContainer}
+        {...stylex.props(visualizationCardGridStyles.cardContainer)}
         tabIndex={0}
         role="button"
         onKeyDown={(ev) => {
@@ -97,12 +99,12 @@ export function VisualizationCardGrid({
 
   if (groups) {
     return (
-      <div className={styles.grid}>
+      <div {...stylex.props(visualizationCardGridStyles.grid)}>
         {groups.map((group, groupIndex) => (
           <Fragment key={group.meta?.id || `unknown-viz-type-${groupIndex}`}>
-            <div className={styles.vizTypeHeader}>
+            <div {...stylex.props(visualizationCardGridStyles.vizTypeHeader)}>
               <Text variant="body" weight="medium">
-                {group.meta?.info && <img className={styles.vizTypeLogo} src={group.meta.info.logos.small} alt="" />}
+                {group.meta?.info && <img {...stylex.props(visualizationCardGridStyles.vizTypeLogo)} src={group.meta.info.logos.small} alt="" />}
                 {group.meta?.name ||
                   t('panel.visualization-suggestions.unknown-viz-type', 'Unknown visualization type')}
               </Text>
@@ -114,36 +116,6 @@ export function VisualizationCardGrid({
     );
   }
 
-  return <div className={styles.grid}>{items?.map((item, index) => renderCard(item, index === 0))}</div>;
+  return <div {...stylex.props(visualizationCardGridStyles.grid)}>{items?.map((item, index) => renderCard(item, index === 0))}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2, minColumnWidth = MIN_MULTI_COLUMN_SIZE, maxCardWidth?: number) => ({
-  grid: css({
-    display: 'grid',
-    gridGap: theme.spacing(1),
-    gridTemplateColumns: `repeat(auto-fill, minmax(${minColumnWidth}px, 1fr))`,
-    marginBottom: theme.spacing(1),
-  }),
-  cardContainer: css({
-    position: 'relative',
-    width: '100%',
-    maxWidth: maxCardWidth,
-    justifySelf: 'start',
-  }),
-  vizTypeHeader: css({
-    gridColumn: '1 / -1',
-    marginBottom: theme.spacing(0.5),
-    marginTop: theme.spacing(2),
-    '&:first-of-type': {
-      marginTop: 0,
-    },
-  }),
-  vizTypeLogo: css({
-    filter: 'grayscale(100%)',
-    maxHeight: `${theme.typography.body.lineHeight}em`,
-    width: `${theme.typography.body.lineHeight}em`,
-    alignItems: 'center',
-    display: 'inline-block',
-    marginRight: theme.spacing(1),
-  }),
-});

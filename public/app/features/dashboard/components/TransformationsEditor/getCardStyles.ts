@@ -1,34 +1,21 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2 } from '@grafana/data';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
-export const getCardStyles = (theme: GrafanaTheme2, fullWidth?: boolean) => ({
-  baseCard: css({
-    maxWidth: fullWidth ? 'none' : '200px',
-    width: fullWidth ? '100%' : 'auto',
-    marginBottom: 0,
-  }),
-  image: css({
-    display: 'block',
-    maxWidth: '100%',
-    marginTop: theme.spacing(2),
-  }),
-  cardDisabled: css({
-    backgroundColor: theme.colors.action.disabledBackground,
-    img: {
-      filter: 'grayscale(100%)',
-      opacity: 0.33,
-    },
-  }),
-  applicableInfoButton: css({
-    position: 'absolute',
-    bottom: theme.spacing(1),
-    right: theme.spacing(1),
-  }),
-  tagsWrapper: css({
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: theme.spacing(0.5),
-    marginTop: theme.spacing(0.5),
-  }),
+import { getCardStylesStyles } from './getCardStyles.stylex';
+
+/** @deprecated Emotion compat — use getCardStylesStyles with StyleX in new code. */
+export const getCardStyles = (_theme: GrafanaTheme2, fullWidth?: boolean) => ({
+  baseCard: mergeStylexClassName(
+    stylex.props(getCardStylesStyles.baseCard, fullWidth && getCardStylesStyles.baseCardFullWidth),
+    undefined
+  ).className,
+  image: mergeStylexClassName(stylex.props(getCardStylesStyles.image), undefined).className,
+  cardDisabled: mergeStylexClassName(stylex.props(getCardStylesStyles.cardDisabled), undefined).className,
+  applicableInfoButton: mergeStylexClassName(
+    stylex.props(getCardStylesStyles.applicableInfoButton),
+    undefined
+  ).className,
+  tagsWrapper: mergeStylexClassName(stylex.props(getCardStylesStyles.tagsWrapper), undefined).className,
 });

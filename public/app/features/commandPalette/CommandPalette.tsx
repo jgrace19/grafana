@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { commandPaletteStyles } from './CommandPalette.stylex';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
@@ -6,11 +9,10 @@ import { KBarAnimator, KBarPortal, KBarPositioner, VisualState, useKBar, ActionI
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { OpenAssistantButton, useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { EmptyState, Icon, LoadingBar, useStyles2 } from '@grafana/ui';
+import { EmptyState, Icon, LoadingBar } from '@grafana/ui';
 
 import { KBarResults } from './KBarResults';
 import { KBarSearch } from './KBarSearch';
@@ -37,7 +39,7 @@ export function CommandPalette() {
  */
 function CommandPaletteContents() {
   const lateralSpace = getCommandPalettePosition();
-  const styles = useStyles2(getSearchStyles, lateralSpace);
+  const styles = (getSearchStyles, lateralSpace);
 
   const { query, searchQuery, currentRootActionId } = useKBar((state) => ({
     showing: state.visualState === VisualState.showing,
@@ -72,23 +74,23 @@ function CommandPaletteContents() {
   }, []);
 
   return (
-    <KBarPositioner className={styles.positioner}>
-      <KBarAnimator className={styles.animator}>
+    <KBarPositioner {...stylex.props(commandPaletteStyles.positioner)}>
+      <KBarAnimator {...stylex.props(commandPaletteStyles.animator)}>
         <FocusScope contain autoFocus restoreFocus>
           <div {...overlayProps} {...dialogProps}>
-            <div className={styles.searchContainer}>
-              <Icon name="search" size="md" className={styles.searchIcon} />
+            <div {...stylex.props(commandPaletteStyles.searchContainer)}>
+              <Icon name="search" size="md" {...stylex.props(commandPaletteStyles.searchIcon)} />
               <AncestorBreadcrumbs />
               <KBarSearch
                 defaultPlaceholder={t('command-palette.search-box.placeholder', 'Search or jump to...')}
-                className={styles.search}
+                {...stylex.props(commandPaletteStyles.search)}
               />
-              <div className={styles.loadingBarContainer}>
+              <div {...stylex.props(commandPaletteStyles.loadingBarContainer)}>
                 {isFetchingSearchResults && <LoadingBar width={500} delay={0} />}
               </div>
             </div>
-            {scopesRow ? <div className={styles.searchContainer}>{scopesRow}</div> : null}
-            <div className={styles.resultsContainer}>
+            {scopesRow ? <div {...stylex.props(commandPaletteStyles.searchContainer)}>{scopesRow}</div> : null}
+            <div {...stylex.props(commandPaletteStyles.resultsContainer)}>
               <RenderResults
                 isFetchingSearchResults={isFetchingSearchResults}
                 searchResults={searchResults}
@@ -110,7 +112,7 @@ function CommandPaletteContents() {
  */
 function AncestorBreadcrumbs() {
   const lateralSpace = getCommandPalettePosition();
-  const styles = useStyles2(getSearchStyles, lateralSpace);
+  const styles = (getSearchStyles, lateralSpace);
 
   const { actions, currentRootActionId } = useKBar((state) => ({
     actions: state.actions,
@@ -124,7 +126,7 @@ function AncestorBreadcrumbs() {
 
   return (
     ancestorActions.length > 0 && (
-      <span className={styles.breadcrumbs}>
+      <span {...stylex.props(commandPaletteStyles.breadcrumbs)}>
         {ancestorActions.map((action, index) => (
           <React.Fragment key={action.id || index}>{action.name}&nbsp;/&nbsp;</React.Fragment>
         ))}
@@ -144,7 +146,7 @@ const RenderResults = ({ isFetchingSearchResults, searchResults, searchQuery }: 
   const { query } = useKBar();
   const { isAvailable: isAssistantAvailable } = useAssistant();
   const lateralSpace = getCommandPalettePosition();
-  const styles = useStyles2(getSearchStyles, lateralSpace);
+  const styles = (getSearchStyles, lateralSpace);
 
   const dashboardsSectionTitle = t('command-palette.section.dashboard-search-results', 'Dashboards');
   const foldersSectionTitle = t('command-palette.section.folder-search-results', 'Folders');
@@ -203,7 +205,7 @@ const RenderResults = ({ isFetchingSearchResults, searchResults, searchQuery }: 
 
         const renderedItem =
           typeof item === 'string' ? (
-            <div className={cx(styles.sectionHeader, isFirst && styles.sectionHeaderFirst)}>{item}</div>
+            <div {...mergeStylexClassName(stylex.props(commandPaletteStyles.sectionHeader, isFirst && commandPaletteStyles.sectionHeaderFirst), undefined)}>{item}</div>
           ) : (
             <ResultItem action={item} active={active} currentRootActionId={rootActionId!} />
           );
@@ -222,115 +224,4 @@ const getCommandPalettePosition = () => {
   return lateralSpace;
 };
 
-const getSearchStyles = (theme: GrafanaTheme2, lateralSpace: number) => {
-  return {
-    positioner: css({
-      zIndex: theme.zIndex.portal,
-      marginTop: '0px',
-      paddingTop: '4px !important',
-      '&::before': {
-        content: '""',
-        position: 'fixed',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        background: theme.components.overlay.background,
-      },
-    }),
-    animator: css({
-      width: '100%',
-      maxWidth: theme.breakpoints.values.md,
-      background: theme.colors.background.primary,
-      color: theme.colors.text.primary,
-      borderRadius: theme.shape.radius.lg,
-      border: `1px solid ${theme.colors.border.weak}`,
-      overflow: 'hidden',
-      boxShadow: theme.shadows.z3,
-      [theme.breakpoints.up('lg')]: {
-        position: 'fixed',
-        right: lateralSpace,
-        left: lateralSpace,
-        maxWidth: 'unset',
-        width: 'unset',
-      },
-    }),
-    loadingBarContainer: css({
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
-    }),
-    searchContainer: css({
-      alignItems: 'center',
-      background: theme.components.input.background,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      padding: theme.spacing(1, 2),
-      position: 'relative',
-      justifyContent: 'space-between',
-    }),
-    search: css({
-      fontSize: theme.typography.fontSize,
-      width: '100%',
-      boxSizing: 'border-box',
-      outline: 'none',
-      border: 'none',
-      color: theme.components.input.text,
-    }),
-    spinner: css({
-      height: '22px',
-    }),
-    resultsContainer: css({
-      paddingBottom: theme.spacing(1),
-    }),
-    sectionHeader: css({
-      padding: theme.spacing(1.5, 2, 2, 2),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.secondary,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      marginTop: theme.spacing(1),
-    }),
-    sectionHeaderFirst: css({
-      paddingBottom: theme.spacing(1),
-      borderTop: 'none',
-      marginTop: 0,
-    }),
-    breadcrumbs: css({
-      label: 'breadcrumbs',
-      fontSize: theme.typography.body.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.body.lineHeight,
-      color: theme.colors.text.primary,
-      display: 'flex',
-      alignItems: 'center',
-      whiteSpace: 'nowrap',
-    }),
-    scopesText: css({
-      label: 'scopesText',
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      color: theme.colors.text.secondary,
-    }),
-    searchIcon: css({
-      marginRight: theme.spacing(1),
-    }),
-    selectedScope: css({
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0, 0.5),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      color: theme.colors.text.secondary,
-      display: 'inline-flex',
-      alignItems: 'center',
-      position: 'relative',
-      border: `1px solid ${theme.colors.background.secondary}`,
-      whiteSpace: 'nowrap',
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-};
+;

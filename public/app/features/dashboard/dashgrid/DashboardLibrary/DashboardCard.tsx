@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardCardStyles } from './DashboardCard.stylex';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import { createAssistantContextItem, useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Badge, Box, Button, Card, IconButton, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
@@ -62,7 +64,6 @@ function DashboardCardComponent({
   onCompatibilityCheck,
   showAssistantButton,
 }: Props) {
-  const styles = useStyles2(getStyles);
   const isCompatibilityAppEnabled = config.featureToggles.dashboardValidatorApp;
 
   const detailsButton = details && (
@@ -102,7 +103,7 @@ function DashboardCardComponent({
   const hasCompatActions = isCompatibilityAppEnabled && showCompatibilityBadge && onCompatibilityCheck;
 
   return (
-    <Card className={styles.card} noMargin>
+    <Card {...stylex.props(dashboardCardStyles.card)} noMargin>
       <Card.Heading className={styles.title}>
         <span className={styles.titleWithInfo} role="group" aria-label={title}>
           <span className={styles.titleText}>{title}</span>
@@ -114,11 +115,11 @@ function DashboardCardComponent({
           <img
             src={imageUrl}
             alt={title}
-            className={cx(
-              isLogo ? styles.logo : styles.thumbnail,
+            {...mergeStylexClassName(stylex.props(dashboardCardStyles.thumbnail, 
+              isLogo ? styles.logo : ,
               dimThumbnail && showDatasourceProvidedBadge && styles.dimmedImage,
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
-            )}
+            ), undefined)}
             onError={(e) => {
               console.error('Failed to load image for:', title, 'URL:', imageUrl);
               e.currentTarget.style.display = 'none';
@@ -180,7 +181,7 @@ function DashboardCardComponent({
         <div title={dashboard.description}>
           <Card.Description
             data-testid="dashboard-card-description"
-            className={cx(styles.description, { [styles.noDescription]: !dashboard.description })}
+            className={clsx(styles.description, { [styles.noDescription]: !dashboard.description })}
           >
             {dashboard.description || t('dashboard-library.dashboard-card.no-description', 'No description available')}
           </Card.Description>
@@ -437,10 +438,9 @@ const DashboardCardSkeleton: SkeletonComponent<DashboardCardSkeletonProps> = ({
   rootProps,
   showCompatibilityBadge,
 }) => {
-  const styles = useStyles2(getSkeletonStyles);
   return (
-    <div className={styles.card} style={rootProps.style}>
-      <Skeleton containerClassName={styles.thumbnail} height="100%" />
+    <div {...stylex.props(dashboardCardStyles.card)} style={rootProps.style}>
+      <Skeleton containerClassName={mergeStylexClassName(stylex.props(dashboardCardStyles.thumbnail), undefined).className} height="100%" />
       <Skeleton height={22} width="70%" />
       <Skeleton height={19} width="90%" />
       {showCompatibilityBadge && <Skeleton height={33} width={100} />}
@@ -448,26 +448,5 @@ const DashboardCardSkeleton: SkeletonComponent<DashboardCardSkeletonProps> = ({
   );
 };
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  card: css({
-    width: '350px',
-    border: `1px solid ${theme.colors.border.strong}`,
-    borderRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-    padding: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.75),
-    lineHeight: 1,
-  }),
-  thumbnail: css({
-    display: 'block',
-    width: '100%',
-    aspectRatio: '16/9',
-    borderRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-    lineHeight: 1,
-  }),
-});
 
 export const DashboardCard = attachSkeleton(DashboardCardComponent, DashboardCardSkeleton);

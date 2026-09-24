@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { scalarDimensionEditorStyles } from './ScalarDimensionEditor.stylex';
 import { useCallback, useId, useMemo } from 'react';
 
 import { FieldType, type GrafanaTheme2, type SelectableValue, type StandardEditorProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ScalarDimensionMode, type ScalarDimensionConfig } from '@grafana/schema';
-import { InlineField, InlineFieldRow, RadioButtonGroup, Combobox, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, RadioButtonGroup, Combobox } from '@grafana/ui';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '@grafana/ui/internal';
 import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
@@ -51,8 +53,6 @@ export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props)
     firstItem: fixedValueOption,
     fieldType: FieldType.number,
   });
-
-  const styles = useStyles2(getStyles);
 
   const onSelectChange = useCallback(
     (selection: SelectableValue<string>) => {
@@ -116,7 +116,7 @@ export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props)
           noOptionsMessage={t('dimensions.scalar-dimension-editor.noOptionsMessage-no-fields-found', 'No fields found')}
         />
       </div>
-      <div className={styles.range}>
+      <div {...stylex.props(scalarDimensionEditorStyles.range)}>
         {isFixed && (
           <InlineFieldRow>
             <InlineField
@@ -139,8 +139,3 @@ export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props)
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  range: css({
-    paddingTop: theme.spacing(1),
-  }),
-});

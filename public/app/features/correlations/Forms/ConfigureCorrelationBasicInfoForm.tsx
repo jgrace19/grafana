@@ -1,26 +1,19 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { configureCorrelationBasicInfoFormStyles } from './ConfigureCorrelationBasicInfoForm.stylex';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Field, FieldSet, Input, TextArea, useStyles2 } from '@grafana/ui';
+import { Field, FieldSet, Input, TextArea } from '@grafana/ui';
 
 import { useCorrelationsFormContext } from './correlationsFormContext';
 import { type FormDTO } from './types';
 import { getInputId } from './utils';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  label: css({
-    maxWidth: theme.spacing(80),
-  }),
-  description: css({
-    maxWidth: theme.spacing(80),
-  }),
-});
 
 export const ConfigureCorrelationBasicInfoForm = () => {
   const { register, formState } = useFormContext<FormDTO>();
-  const styles = useStyles2(getStyles);
   const { correlation, readOnly } = useCorrelationsFormContext();
 
   return (
@@ -36,7 +29,7 @@ export const ConfigureCorrelationBasicInfoForm = () => {
             'correlations.basic-info-form.label-description',
             'This name will be used as the label for the correlation. This will show as button text, a menu item, or hover text on a link.'
           )}
-          className={styles.label}
+          {...stylex.props(configureCorrelationBasicInfoFormStyles.label)}
           invalid={!!formState.errors.label}
           error={formState.errors.label?.message}
         >
@@ -60,7 +53,7 @@ export const ConfigureCorrelationBasicInfoForm = () => {
             'Optional description with more information about the link'
           )}
           // the Field component automatically adds margin to itself, so we are forced to workaround it by overriding  its styles
-          className={cx(styles.description)}
+          {...mergeStylexClassName(stylex.props(configureCorrelationBasicInfoFormStyles.description, ), undefined)}
         >
           <TextArea id={getInputId('description', correlation)} {...register('description')} readOnly={readOnly} />
         </Field>

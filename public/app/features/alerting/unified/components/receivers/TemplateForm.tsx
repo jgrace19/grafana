@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { templateFormStyles } from './TemplateForm.stylex';
 import { addMinutes, subDays, subHours } from 'date-fns';
 import { type Location } from 'history';
 import { useRef, useState } from 'react';
@@ -6,7 +8,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useToggle } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, isFetchError, locationService } from '@grafana/runtime';
 import {
@@ -22,8 +23,7 @@ import {
   Menu,
   Stack,
   Text,
-  useSplitter,
-  useStyles2,
+  useSplitter
 } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -96,7 +96,6 @@ export const isDuplicating = (location: Location) => location.pathname.endsWith(
  * └───────────────────┘└───────────┘
  */
 export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const appNotification = useAppNotification();
 
@@ -203,7 +202,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
         <form
           onSubmit={handleSubmit(submit)}
           ref={formRef}
-          className={styles.form}
+          {...stylex.props(formStyles.form)}
           aria-label={t('alerting.template-form.aria-label-template-form', 'Template form')}
         >
           {/* error message */}
@@ -240,7 +239,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
           )}
 
           {/* name field for the template */}
-          <FieldSet disabled={isProvisioned} className={styles.fieldset}>
+          <FieldSet disabled={isProvisioned} {...stylex.props(formStyles.fieldset)}>
             <Stack direction="column" gap={1} alignItems="stretch" minHeight="100%">
               {/* name and save buttons */}
               <Stack direction="row" alignItems="center">
@@ -282,14 +281,14 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
               </Stack>
 
               {/* editor layout */}
-              <div {...rowSplitter.containerProps} className={styles.contentContainer}>
+              <div {...rowSplitter.containerProps} {...stylex.props(formStyles.contentContainer)}>
                 <div {...rowSplitter.primaryProps}>
                   {/* template content and payload editor column – full height and half-width */}
-                  <div {...columnSplitter.containerProps} className={styles.contentField}>
+                  <div {...columnSplitter.containerProps} {...stylex.props(formStyles.contentField)}>
                     {/* template editor */}
                     <div {...columnSplitter.primaryProps}>
                       {/* primaryProps will set "minHeight: min-content;" so we have to make sure to apply minHeight to the child */}
-                      <div className={cx(styles.flexColumn, styles.containerWithBorderAndRadius, styles.minEditorSize)}>
+                      <div {...mergeStylexClassName(stylex.props(formStyles.flexColumn), stylex.props(formStyles.containerWithBorderAndRadius), stylex.props(formStyles.minEditorSize))}>
                         <div>
                           <EditorColumnHeader
                             label={t('alerting.template-form.label-template-group', 'Template group')}
@@ -351,7 +350,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                               <TemplateEditor
                                 value={getValues('content')}
                                 onBlur={(value) => setValue('content', value)}
-                                containerStyles={styles.editorContainer}
+                                containerStyles={stylex.props(formStyles.editorContainer)}
                                 width={width}
                                 height={height}
                               />
@@ -367,10 +366,10 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                         <div {...columnSplitter.secondaryProps}>
                           <div
                             className={cx(
-                              styles.containerWithBorderAndRadius,
-                              styles.minEditorSize,
-                              styles.payloadEditor,
-                              styles.flexFull
+                              stylex.props(formStyles.containerWithBorderAndRadius),
+                              stylex.props(formStyles.minEditorSize),
+                              stylex.props(formStyles.payloadEditor),
+                              stylex.props(formStyles.flexFull)
                             )}
                           >
                             <PayloadEditor
@@ -396,7 +395,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                       templateContent={watch('content')}
                       setPayloadFormatError={setPayloadFormatError}
                       payloadFormatError={payloadFormatError}
-                      className={cx(styles.templatePreview, styles.minEditorSize)}
+                      {...mergeStylexClassName(stylex.props(formStyles.templatePreview), stylex.props(formStyles.minEditorSize))}
                       aiGeneratedTemplate={aiGeneratedTemplate}
                       setAiGeneratedTemplate={setAiGeneratedTemplate}
                     />
@@ -421,7 +420,6 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
 };
 
 function TemplatingBasics() {
-  const styles = useStyles2(getStyles);
 
   const intro = t(
     'alerting.templates.help.intro',
@@ -453,7 +451,7 @@ For detailed information about notification templates, refer to our documentatio
           <Trans i18nKey="alerting.templates.editor.auto-complete">
             For auto-completion of common templating code, type the following keywords in the content editor:
           </Trans>
-          <div className={styles.code}>
+          <div {...stylex.props(formStyles.code)}>
             {Object.values(snippets)
               .map((s) => s.label)
               .join(', ')}
@@ -473,79 +471,6 @@ function TemplatingCheatSheet() {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  const narrowScreenQuery = theme.breakpoints.down('md');
-
-  return {
-    flexFull: css({
-      flex: 1,
-    }),
-    minEditorSize: css({
-      minHeight: 300,
-      minWidth: 300,
-    }),
-    payloadEditor: css({
-      minHeight: 0,
-    }),
-    containerWithBorderAndRadius: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.colors.border.medium}`,
-    }),
-    flexColumn: css({
-      display: 'flex',
-      flex: 1,
-      flexDirection: 'column',
-    }),
-    form: css({
-      label: 'template-form',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    fieldset: css({
-      label: 'template-fieldset',
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    label: css({
-      margin: 0,
-    }),
-    contentContainer: css({
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'row',
-    }),
-    contentField: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: 1,
-      marginBottom: 0,
-    }),
-    templatePreview: css({
-      flex: 1,
-      display: 'flex',
-    }),
-    templatePayload: css({
-      flex: 1,
-    }),
-    editorContainer: css({
-      width: 'fit-content',
-      border: 'none',
-    }),
-    payloadCollapseButton: css({
-      backgroundColor: theme.colors.info.transparent,
-      margin: 0,
-      [narrowScreenQuery]: {
-        display: 'none',
-      },
-    }),
-    code: css({
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-  };
-};
 
 const defaultPayload: TestTemplateAlert[] = [
   {

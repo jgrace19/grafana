@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { genericRowStyles } from './GenericRow.stylex';
 import { type ReactNode, useEffect } from 'react';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack } from '@grafana/ui';
 
 import { Spacer } from '../../components/Spacer';
 import { useWorkbenchContext } from '../WorkbenchContext';
@@ -46,7 +48,6 @@ export const GenericRow = ({
   showIndentBorder = false,
   expandable = true,
 }: GenericRowProps) => {
-  const styles = useStyles2(getStyles);
   const { expandGeneration, collapseGeneration } = useWorkbenchContext();
 
   const hasChildren = Boolean(children);
@@ -86,13 +87,13 @@ export const GenericRow = ({
     <>
       <div
         className={cx(
-          styles.groupItemWrapper(width, depth, showIndentBorder),
-          depth > 0 && styles.indented(depth),
-          depth > 0 && showIndentBorder && styles.indentBorder
+          stylex.props(formStyles.groupItemWrapper)(width, depth, showIndentBorder),
+          depth > 0 && stylex.props(formStyles.indented)(depth),
+          depth > 0 && showIndentBorder && stylex.props(formStyles.indentBorder)
         )}
       >
-        <div className={cx(styles.leftColumn, styles.column, leftColumnClassName)}>
-          <div className={styles.columnContent}>
+        <div {...mergeStylexClassName(stylex.props(formStyles.leftColumn), stylex.props(formStyles.column), leftColumnClassName)}>
+          <div {...stylex.props(genericRowStyles.columnContent)}>
             <LeftCell
               title={title}
               metadata={metadata}
@@ -102,8 +103,8 @@ export const GenericRow = ({
             />
           </div>
         </div>
-        <div className={cx(styles.rightColumnWrapper, styles.column, rightColumnClassName)}>
-          {content && <div className={styles.columnContent}>{content}</div>}
+        <div {...mergeStylexClassName(stylex.props(formStyles.rightColumnWrapper), stylex.props(formStyles.column), rightColumnClassName)}>
+          {content && <div {...stylex.props(genericRowStyles.columnContent)}>{content}</div>}
         </div>
       </div>
       {showChildContent ? children : null}
@@ -120,7 +121,6 @@ interface LeftCellProps {
 }
 
 const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onToggle }: LeftCellProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
@@ -128,13 +128,13 @@ const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onTog
         <IconButton
           name={isOpen ? 'angle-down' : 'angle-right'}
           onClick={onToggle}
-          className={styles.dropdownIcon}
+          {...stylex.props(genericRowStyles.dropdownIcon)}
           variant="secondary"
           size="md"
           aria-label={t('alerting.group-wrapper.toggle', 'Toggle group')}
         />
       ) : (
-        <div className={styles.chevronPlaceholder} />
+        <div {...stylex.props(genericRowStyles.chevronPlaceholder)} />
       )}
       <Stack direction="column" alignItems="flex-start" gap={0} flex={1}>
         <Stack direction="row" alignItems="center" gap={1} width="100%">
@@ -148,48 +148,3 @@ const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onTog
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    dropdownIcon: css({
-      alignSelf: 'flex-start',
-      marginTop: theme.spacing(0.5),
-    }),
-    column: css({
-      display: 'flex',
-      position: 'relative',
-      flexBasis: 0,
-    }),
-    leftColumn: css({
-      overflow: 'hidden',
-    }),
-    rightColumnWrapper: css({
-      minWidth: 'min-content',
-      flexGrow: 1,
-    }),
-    columnContent: css({
-      padding: 5,
-      width: '100%',
-    }),
-    groupItemWrapper: (width: number, depth: number, showIndentBorder: boolean) => {
-      const offsetPx =
-        depth > 0 ? depth * 2 * theme.spacing.gridSize + (showIndentBorder ? theme.spacing.gridSize : 0) : 0;
-      return css({
-        display: 'grid',
-        gridTemplateColumns: `${Math.max(0, width - offsetPx)}px auto`,
-        gap: theme.spacing(2),
-      });
-    },
-    indented: (depth: number) =>
-      css({
-        marginLeft: theme.spacing(depth * 2),
-      }),
-    indentBorder: css({
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      paddingLeft: theme.spacing(1),
-    }),
-    chevronPlaceholder: css({
-      width: CHEVRON_WIDTH_PX,
-      flexShrink: 0,
-    }),
-  };
-};

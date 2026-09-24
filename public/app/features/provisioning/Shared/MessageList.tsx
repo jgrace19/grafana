@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { messageListStyles } from './MessageList.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Text, useStyles2 } from '@grafana/ui';
+import { Box, Text } from '@grafana/ui';
 
 interface MessageListProps {
   messages: string[];
@@ -11,7 +13,6 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, variant }: MessageListProps) {
-  const styles = useStyles2(getStyles);
   const [showFull, setShowFull] = useState(false);
   const hasMultipleMessages = messages.length > 1;
 
@@ -27,8 +28,8 @@ export function MessageList({ messages, variant }: MessageListProps) {
 
   return (
     <>
-      <div className={cx(styles.messageListWrapper, { [styles.messageListWrapperExpanded]: showFull })}>
-        <ul className={styles.messageList}>
+      <div {...mergeStylexClassName(stylex.props(messageListStyles.messageListWrapper, { ...(showFull  ? stylex.props(messageListStyles.messageListWrapperExpanded) : {}) }), undefined)}>
+        <ul {...stylex.props(messageListStyles.messageList)}>
           {displayMessages.map((msg, index) => (
             <li key={index}>
               {variant ? <Text variant={variant}>{msg}</Text> : msg}
@@ -41,7 +42,7 @@ export function MessageList({ messages, variant }: MessageListProps) {
                   </span>
                   <button
                     type="button"
-                    className={cx(styles.showMore, styles.showMoreInline)}
+                    {...mergeStylexClassName(stylex.props(messageListStyles.showMore, messageListStyles.showMoreInline), undefined)}
                     onClick={handleExpand}
                     aria-expanded={false}
                   >
@@ -55,7 +56,7 @@ export function MessageList({ messages, variant }: MessageListProps) {
       </div>
       {showFull && hasMultipleMessages && (
         <Box paddingLeft={3} paddingTop={0.5}>
-          <button type="button" className={styles.showMore} onClick={handleCollapse} aria-expanded={true}>
+          <button type="button" {...stylex.props(messageListStyles.showMore)} onClick={handleCollapse} aria-expanded={true}>
             <Trans i18nKey="provisioning.message.show-less">show less</Trans>
           </button>
         </Box>
@@ -64,35 +65,3 @@ export function MessageList({ messages, variant }: MessageListProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  messageListWrapper: css({
-    overflow: 'hidden',
-    maxHeight: '200px',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: theme.transitions.create('max-height', {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.easeInOut,
-      }),
-    },
-  }),
-  messageListWrapperExpanded: css({
-    maxHeight: '9999px',
-  }),
-  messageList: css({
-    margin: 0,
-    paddingLeft: theme.spacing(3),
-    listStyle: 'disc',
-  }),
-  showMore: css({
-    backgroundColor: 'transparent',
-    border: 'none',
-    padding: 0,
-    margin: 0,
-    textDecoration: 'underline',
-    cursor: 'pointer',
-    color: theme.colors.text.primary,
-  }),
-  showMoreInline: css({
-    marginLeft: theme.spacing(0.5),
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { correlationsPageStyles } from './CorrelationsPage.stylex';
 import { negate } from 'lodash';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -17,7 +19,6 @@ import {
   Button,
   DeleteButton,
   LoadingPlaceholder,
-  useStyles2,
   Alert,
   InteractiveTable,
   type Column,
@@ -269,27 +270,16 @@ function ExpendedRow({ correlation: { source, ...correlation }, readOnly, onUpda
   return <EditCorrelationFormWrapper correlation={corr} onUpdated={onUpdated} readOnly={readOnly} />;
 }
 
-const getDatasourceCellStyles = (theme: GrafanaTheme2) => ({
-  root: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  dsLogo: css({
-    marginRight: theme.spacing(),
-    height: '16px',
-    width: '16px',
-  }),
-});
 
 const DataSourceCell = memo(
   function DataSourceCell({ cell: { value } }: CellProps<CorrelationData, DataSourceInstanceSettings>) {
-    const styles = useStyles2(getDatasourceCellStyles);
+    const styles = (getDatasourceCellStyles);
 
     return (
-      <span className={styles.root}>
+      <span {...stylex.props(correlationsPageStyles.root)}>
         {value?.name !== undefined && (
           <>
-            <img src={value.meta.info.logos.small} alt="" className={styles.dsLogo} />
+            <img src={value.meta.info.logos.small} alt="" {...stylex.props(correlationsPageStyles.dsLogo)} />
             {value.name}
           </>
         )}

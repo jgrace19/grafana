@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelHeaderCornerStyles } from './PanelHeaderCorner.stylex';
 import { useCallback, type JSX } from 'react';
 
 import {
@@ -30,7 +33,6 @@ export interface Props {
 }
 
 export function PanelHeaderCorner({ panel, links, error }: Props) {
-  const styles = useStyles2(getContentStyles);
 
   const getInfoMode = useCallback(() => {
     if (error) {
@@ -53,11 +55,11 @@ export function PanelHeaderCorner({ panel, links, error }: Props) {
     const linksList = links && links.getLinks(panel.replaceVariables);
 
     return (
-      <div className={styles.content}>
+      <div {...stylex.props(panelHeaderCornerStyles.content)}>
         <div dangerouslySetInnerHTML={{ __html: markedInterpolatedMarkdown }} />
 
         {linksList && linksList.length > 0 && (
-          <ul className={styles.cornerLinks}>
+          <ul {...stylex.props(panelHeaderCornerStyles.cornerLinks)}>
             {linksList.map((link, idx) => {
               return (
                 <li key={idx}>
@@ -111,17 +113,16 @@ interface PanelInfoCornerProps {
 function PanelInfoCorner({ infoMode, content, onClick }: PanelInfoCornerProps) {
   const theme = infoMode === InfoMode.Error ? 'error' : 'info';
   const ariaLabel = selectors.components.Panels.Panel.headerCornerInfo(infoMode.toLowerCase());
-  const styles = useStyles2(getStyles);
 
   return (
     <Tooltip content={content} placement="top-start" theme={theme} interactive>
-      <button type="button" className={styles.infoCorner} onClick={onClick} aria-label={ariaLabel}>
+      <button type="button" {...stylex.props(panelHeaderCornerStyles.infoCorner)} onClick={onClick} aria-label={ariaLabel}>
         <Icon
           name={iconMap[infoMode]}
           size={infoMode === InfoMode.Links ? 'sm' : 'lg'}
-          className={cx(styles.icon, { [styles.iconLinks]: infoMode === InfoMode.Links })}
+          {...mergeStylexClassName(stylex.props(panelHeaderCornerStyles.icon, , { [mergeStylexClassName(stylex.props(panelHeaderCornerStyles.iconLinks), undefined).className]: infoMode === InfoMode.Links }), undefined)}
         />
-        <span className={cx(styles.inner, { [styles.error]: infoMode === InfoMode.Error })} />
+        <span {...mergeStylexClassName(stylex.props(panelHeaderCornerStyles.inner, , { [mergeStylexClassName(stylex.props(panelHeaderCornerStyles.error), undefined).className]: infoMode === InfoMode.Error }), undefined)} />
       </button>
     </Tooltip>
   );
@@ -133,61 +134,5 @@ const iconMap: Record<InfoMode, IconName> = {
   [InfoMode.Links]: 'external-link-alt',
 };
 
-const getContentStyles = (theme: GrafanaTheme2) => ({
-  content: css({
-    overflow: 'auto',
 
-    code: {
-      whiteSpace: 'normal',
-      wordWrap: 'break-word',
-    },
-
-    'pre > code': {
-      display: 'block',
-    },
-  }),
-  cornerLinks: css({
-    listStyle: 'none',
-    paddingLeft: 0,
-  }),
-});
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      zIndex: 2,
-      fill: theme.colors.text.maxContrast,
-    }),
-    iconLinks: css({
-      left: theme.spacing(0.5),
-      top: theme.spacing(0.25),
-    }),
-    inner: css({
-      width: 0,
-      height: 0,
-      position: 'absolute',
-      left: 0,
-      bottom: 0,
-      borderBottom: `${theme.spacing(4)} solid transparent`,
-      borderLeft: `${theme.spacing(4)} solid ${theme.colors.background.secondary}`,
-    }),
-    error: css({
-      borderLeftColor: theme.colors.error.main,
-    }),
-    infoCorner: css({
-      background: 'none',
-      border: 'none',
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      width: theme.spacing(4),
-      height: theme.spacing(4),
-      zIndex: 3,
-    }),
-  };
-};
+;

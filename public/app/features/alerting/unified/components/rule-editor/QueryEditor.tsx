@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type PanelData } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { QueryRows } from './QueryRows';
@@ -27,10 +25,9 @@ export const QueryEditor = ({
   condition,
   onSetCondition,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(queryEditorStyles.container)}>
       <QueryRows
         data={panelData}
         queries={queries}
@@ -45,9 +42,3 @@ export const QueryEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    backgroundColor: theme.colors.background.primary,
-    height: '100%',
-  }),
-});

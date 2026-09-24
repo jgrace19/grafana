@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { instanceRowStyles } from './InstanceRow.stylex';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -14,8 +16,7 @@ import {
   LegendDisplayMode,
   StackingMode,
   Text,
-  TooltipDisplayMode,
-  useStyles2,
+  TooltipDisplayMode
 } from '@grafana/ui';
 
 import { overrideToFixedColor } from '../../home/Insights';
@@ -72,7 +73,6 @@ export function InstanceRow({
   ruleUID,
   depth = 0,
 }: InstanceRowProps) {
-  const styles = useStyles2(getStyles);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleDrawerOpen = useCallback(() => {
@@ -101,7 +101,7 @@ export function InstanceRow({
         width={leftColumnWidth}
         title={
           isEmpty(instance.labels) ? (
-            <div className={styles.wrapper}>
+            <div {...stylex.props(instanceRowStyles.wrapper)}>
               <Text color="secondary" variant="bodySmall">
                 <Trans i18nKey="alerting.triage.no-labels">No labels</Trans>
               </Text>
@@ -155,12 +155,3 @@ export function InstanceRow({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      minHeight: theme.spacing(2.5),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-  };
-};

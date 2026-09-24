@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { createTeamStyles } from './CreateTeam.stylex';
 import { type JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2, locationUtil, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Button, Checkbox, Field, FieldSet, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Checkbox, Field, FieldSet, Input, Stack } from '@grafana/ui';
 
 import { Page } from '../../../core/components/Page/Page';
 import { TeamRolePicker } from '../../../core/components/RolePicker/TeamRolePicker';
@@ -26,7 +27,6 @@ const pageNav: NavModelItem = {
 
 const CreateTeam = (): JSX.Element => {
   const currentOrgId = contextSrv.user.orgId;
-  const styles = useStyles2(getStyles);
 
   const [pendingRoles, setPendingRoles] = useState<Role[]>([]);
   const [autocreateTeamFolder, setAutocreateTeamFolder] = useState(false);
@@ -127,7 +127,7 @@ const CreateTeam = (): JSX.Element => {
           <Button type="submit" variant="primary" disabled={formDisabled}>
             <Trans i18nKey="teams.create-team.create">Create</Trans>
           </Button>
-          <div className={styles.statusSection}>
+          <div {...stylex.props(createTeamStyles.statusSection)}>
             <Stack direction="column" gap={2}>
               {/* Report team creation progress */}
               <Stack direction="column" gap={1}>
@@ -164,10 +164,5 @@ const CreateTeam = (): JSX.Element => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  statusSection: css({
-    marginTop: theme.spacing(2),
-  }),
-});
 
 export default CreateTeam;

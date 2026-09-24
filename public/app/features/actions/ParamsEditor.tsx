@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { paramsEditorStyles } from './ParamsEditor.stylex';
 import { useEffect, useState } from 'react';
 
 import { contentTypeOptions, type GrafanaTheme2, type VariableSuggestion } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Input, Stack, Select, useStyles2 } from '@grafana/ui';
+import { IconButton, Input, Stack, Select } from '@grafana/ui';
 
 import { SuggestionsInput } from '../transformers/suggestionsInput/SuggestionsInput';
 
@@ -15,7 +17,6 @@ interface Props {
 }
 
 export const ParamsEditor = ({ value, onChange, suggestions, contentTypeHeader = false }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const headersContentType = value.find(([key, value]) => key === 'Content-Type');
 
@@ -112,7 +113,7 @@ export const ParamsEditor = ({ value, onChange, suggestions, contentTypeHeader =
       </Stack>
 
       {contentTypeHeader && (
-        <div className={styles.extraHeader}>
+        <div {...stylex.props(paramsEditorStyles.extraHeader)}>
           <Stack direction="row">
             <Input value={'Content-Type'} disabled />
             <Select
@@ -127,10 +128,3 @@ export const ParamsEditor = ({ value, onChange, suggestions, contentTypeHeader =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  extraHeader: css({
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    maxWidth: 673,
-  }),
-});

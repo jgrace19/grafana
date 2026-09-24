@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleConditionSectionStyles } from './RuleConditionSection.stylex';
 import { useCallback, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, ReducerID, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   Combobox,
@@ -13,8 +14,7 @@ import {
   Input,
   Stack,
   Text,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { ThresholdSelect } from 'app/features/expressions/components/ThresholdSelect';
 import { ToLabel } from 'app/features/expressions/components/ToLabel';
@@ -32,7 +32,6 @@ const DEFAULT_SIMPLE_CONDITION: SimpleCondition = {
 };
 
 export function RuleConditionSection() {
-  const base = useStyles2(getStyles);
   const { watch, setValue, getValues } = useFormContext<RuleFormValues>();
   const evaluateFor = watch('evaluateFor') || '0s';
 
@@ -190,14 +189,3 @@ export function RuleConditionSection() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({ width: '100%' }),
-    sectionHeaderRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    }),
-  };
-}

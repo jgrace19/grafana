@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { labelsFieldStyles } from './LabelsField.stylex';
 import { type FC, useCallback, useMemo } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, type ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Button, type ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text } from '@grafana/ui';
 
 import { labelsApi } from '../../../api/labelsApi';
 import { usePluginBridge } from '../../../hooks/usePluginBridge';
@@ -66,7 +68,6 @@ export interface LabelsSubFormProps {
 }
 
 export function LabelsSubForm({ dataSourceName, onClose, initialLabels }: LabelsSubFormProps) {
-  const styles = useStyles2(getStyles);
   const { watch } = useFormContext<RuleFormValues>();
 
   const type = watch('type') ?? RuleFormType.grafana;
@@ -98,7 +99,7 @@ export function LabelsSubForm({ dataSourceName, onClose, initialLabels }: Labels
             <Space v={2} />
             <LabelsInRule labels={formAPI.watch('labelsInSubform')} />
             <Space v={1} />
-            <div className={styles.confirmButton}>
+            <div {...stylex.props(labelsFieldStyles.confirmButton)}>
               <Button type="button" variant="secondary" onClick={onCancel}>
                 <Trans i18nKey="alerting.common.cancel">Cancel</Trans>
               </Button>
@@ -217,7 +218,6 @@ export interface LabelsWithSuggestionsProps {
 }
 
 export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsProps) {
-  const styles = useStyles2(getStyles);
   const {
     control,
     watch,
@@ -251,10 +251,10 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
         const asyncValuesLoader = createAsyncValuesLoader(currentKey);
 
         return (
-          <div key={field.id} className={cx(styles.flexRow, styles.centerAlignRow)}>
+          <div key={field.id} {...mergeStylexClassName(stylex.props(formStyles.flexRow), stylex.props(formStyles.centerAlignRow))}>
             <Field
               noMargin
-              className={styles.labelInput}
+              {...stylex.props(labelsFieldStyles.labelInput)}
               invalid={Boolean(errors.labelsInSubform?.[index]?.key?.message)}
               error={errors.labelsInSubform?.[index]?.key?.message}
               data-testid={`labelsInSubform-key-${index}`}
@@ -285,10 +285,10 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
                 }}
               />
             </Field>
-            <InlineLabel className={styles.equalSign}>=</InlineLabel>
+            <InlineLabel {...stylex.props(labelsFieldStyles.equalSign)}>=</InlineLabel>
             <Field
               noMargin
-              className={styles.labelInput}
+              {...stylex.props(labelsFieldStyles.labelInput)}
               invalid={Boolean(errors.labelsInSubform?.[index]?.value?.message)}
               error={errors.labelsInSubform?.[index]?.value?.message}
               data-testid={`labelsInSubform-value-${index}`}
@@ -326,7 +326,6 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
 }
 
 export const LabelsWithoutSuggestions: FC = () => {
-  const styles = useStyles2(getStyles);
   const {
     register,
     control,
@@ -345,10 +344,10 @@ export const LabelsWithoutSuggestions: FC = () => {
       {fields.map((field, index) => {
         return (
           <div key={field.id}>
-            <div className={cx(styles.flexRow, styles.centerAlignRow)} data-testid="alertlabel-input-wrapper">
+            <div {...mergeStylexClassName(stylex.props(formStyles.flexRow), stylex.props(formStyles.centerAlignRow))} data-testid="alertlabel-input-wrapper">
               <Field
                 noMargin
-                className={styles.labelInput}
+                {...stylex.props(labelsFieldStyles.labelInput)}
                 invalid={!!errors.labels?.[index]?.key?.message}
                 error={errors.labels?.[index]?.key?.message}
               >
@@ -364,10 +363,10 @@ export const LabelsWithoutSuggestions: FC = () => {
                   defaultValue={field.key}
                 />
               </Field>
-              <InlineLabel className={styles.equalSign}>=</InlineLabel>
+              <InlineLabel {...stylex.props(labelsFieldStyles.equalSign)}>=</InlineLabel>
               <Field
                 noMargin
-                className={styles.labelInput}
+                {...stylex.props(labelsFieldStyles.labelInput)}
                 invalid={!!errors.labels?.[index]?.value?.message}
                 error={errors.labels?.[index]?.value?.message}
               >
@@ -440,38 +439,5 @@ function getDescriptionText() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    flexColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    flexRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-    }),
-    centerAlignRow: css({
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-    }),
-    equalSign: css({
-      alignSelf: 'flex-start',
-      width: '28px',
-      justifyContent: 'center',
-      margin: 0,
-    }),
-    labelInput: css({
-      width: '215px',
-      margin: 0,
-    }),
-    confirmButton: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(1),
-      marginLeft: 'auto',
-    }),
-  };
-};
 
 export default LabelsField;

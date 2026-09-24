@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { redirectToRuleViewerStyles } from './RedirectToRuleViewer.stylex';
 import { type JSX, useMemo } from 'react';
 import { Navigate } from 'react-router-dom-v5-compat';
 import { useLocation } from 'react-use';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, isFetchError } from '@grafana/runtime';
-import { Alert, Card, Icon, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { Alert, Card, Icon, LoadingPlaceholder } from '@grafana/ui';
 
 import { RuleViewerLayout } from './components/rule-viewer/RuleViewerLayout';
 import { useCloudCombinedRulesMatching } from './hooks/useCombinedRule';
@@ -45,7 +46,6 @@ function useRuleFindParams() {
 }
 
 export function RedirectToRuleViewer(): JSX.Element | null {
-  const styles = useStyles2(getStyles);
 
   const { name, sourceName, namespace, group } = useRuleFindParams();
   const {
@@ -69,7 +69,7 @@ export function RedirectToRuleViewer(): JSX.Element | null {
           )}
         >
           {isFetchError(error) && (
-            <details className={styles.errorMessage}>
+            <details {...stylex.props(redirectToRuleViewerStyles.errorMessage)}>
               {error.message}
               <br />
               {/* {!!error?.stack && error.stack} */}
@@ -94,7 +94,7 @@ export function RedirectToRuleViewer(): JSX.Element | null {
     return (
       <RuleViewerLayout title={pageTitle}>
         <Alert title={t('alerting.redirect-to-rule-viewer.title-could-not-view-rule', 'Could not view rule')}>
-          <details className={styles.errorMessage}>{`Could not find data source with name: ${sourceName}.`}</details>
+          <details {...stylex.props(redirectToRuleViewerStyles.errorMessage)}>{`Could not find data source with name: ${sourceName}.`}</details>
         </Alert>
       </RuleViewerLayout>
     );
@@ -111,8 +111,8 @@ export function RedirectToRuleViewer(): JSX.Element | null {
       <RuleViewerLayout title={pageTitle}>
         <div data-testid="no-rules">
           <Trans i18nKey="alerting.redirect-to-rule-viewer.no-rules-found" values={{ sourceName, name }}>
-            No rules in <span className={styles.param}>{'{{sourceName}}'}</span> matched the name{' '}
-            <span className={styles.param}>{'{{name}}'}</span>
+            No rules in <span {...stylex.props(redirectToRuleViewerStyles.param)}>{'{{sourceName}}'}</span> matched the name{' '}
+            <span {...stylex.props(redirectToRuleViewerStyles.param)}>{'{{name}}'}</span>
           </Trans>
         </div>
       </RuleViewerLayout>
@@ -123,18 +123,18 @@ export function RedirectToRuleViewer(): JSX.Element | null {
     <RuleViewerLayout title={pageTitle}>
       <div>
         <Trans i18nKey="alerting.redirect-to-rule-viewer.several-rules-found" values={{ sourceName, name }}>
-          Several rules in <span className={styles.param}>{'{{sourceName}}'}</span> matched the name{' '}
-          <span className={styles.param}>{'{{name}}'}</span>, please select the rule you want to view.
+          Several rules in <span {...stylex.props(redirectToRuleViewerStyles.param)}>{'{{sourceName}}'}</span> matched the name{' '}
+          <span {...stylex.props(redirectToRuleViewerStyles.param)}>{'{{name}}'}</span>, please select the rule you want to view.
         </Trans>
       </div>
-      <div className={styles.rules}>
+      <div {...stylex.props(redirectToRuleViewerStyles.rules)}>
         {rules.map((rule, index) => {
           return (
             <Card noMargin key={`${rule.name}-${index}`} href={createViewLink(rulesSource, rule, '/alerting/list')}>
               <Card.Heading>{rule.name}</Card.Heading>
               <Card.Meta separator={''}>
                 <Icon name="folder" />
-                <span className={styles.namespace}>{`${rule.namespace.name} / ${rule.group.name}`}</span>
+                <span {...stylex.props(redirectToRuleViewerStyles.namespace)}>{`${rule.namespace.name} / ${rule.group.name}`}</span>
               </Card.Meta>
               <Card.Tags>
                 <AlertLabels labels={rule.labels} />
@@ -147,22 +147,5 @@ export function RedirectToRuleViewer(): JSX.Element | null {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    param: css({
-      fontStyle: 'italic',
-      color: theme.colors.text.secondary,
-    }),
-    rules: css({
-      marginTop: theme.spacing(2),
-    }),
-    namespace: css({
-      marginLeft: theme.spacing(1),
-    }),
-    errorMessage: css({
-      whiteSpace: 'pre-wrap',
-    }),
-  };
-}
 
 export default withPageErrorBoundary(RedirectToRuleViewer);

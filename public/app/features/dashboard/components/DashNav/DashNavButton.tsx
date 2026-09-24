@@ -1,10 +1,11 @@
 // Libraries
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashNavButtonStyles } from './DashNavButton.stylex';
 import { type MouseEvent } from 'react';
 import * as React from 'react';
 
 // Components
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type IconName, type IconType, type IconSize, IconButton, useStyles2 } from '@grafana/ui';
 
 interface Props {
@@ -18,10 +19,9 @@ interface Props {
 }
 
 export const DashNavButton = ({ icon, iconType, iconSize, tooltip, onClick, children }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.noBorderContainer}>
+    <div {...stylex.props(dashNavButtonStyles.noBorderContainer)}>
       {icon && (
         <IconButton
           name={icon}
@@ -37,9 +37,3 @@ export const DashNavButton = ({ icon, iconType, iconSize, tooltip, onClick, chil
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  noBorderContainer: css({
-    padding: `0 ${theme.spacing(0.5)}`,
-    display: 'flex',
-  }),
-});

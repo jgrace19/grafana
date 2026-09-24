@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { resultItemStyles } from './ResultItem.stylex';
 import { type ActionId, type ActionImpl } from 'kbar';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
 import { ManagerKind } from 'app/features/apiserver/types';
 
 export const ResultItem = React.forwardRef(
@@ -34,7 +36,7 @@ export const ResultItem = React.forwardRef(
       return action.ancestors.slice(index + 1);
     }, [action.ancestors, currentRootActionId]);
 
-    const styles = useStyles2(getResultItemStyles);
+    const styles = (getResultItemStyles);
 
     // type assertion needed because kbar's ActionImpl copies all properties from the input Action object at runtime,
     // but its TS type doesn't reflect custom properties like managedBy or url.
@@ -55,23 +57,23 @@ export const ResultItem = React.forwardRef(
     }
 
     return (
-      <div ref={ref} className={cx(styles.row, active && styles.activeRow)}>
-        <div className={styles.actionContainer}>
+      <div ref={ref} {...mergeStylexClassName(stylex.props(resultItemStyles.row, active && resultItemStyles.activeRow), undefined)}>
+        <div {...stylex.props(resultItemStyles.actionContainer)}>
           {action.icon}
-          <div className={styles.textContainer}>
+          <div {...stylex.props(resultItemStyles.textContainer)}>
             {ancestors.map((ancestor) => (
               <React.Fragment key={ancestor.id}>
                 {!hasCommandOrLink(ancestor) && (
                   <>
-                    <span className={styles.breadcrumbAncestor}>{ancestor.name}</span>
-                    <span className={styles.breadcrumbSeparator}>&rsaquo;</span>
+                    <span {...stylex.props(resultItemStyles.breadcrumbAncestor)}>{ancestor.name}</span>
+                    <span {...stylex.props(resultItemStyles.breadcrumbSeparator)}>&rsaquo;</span>
                   </>
                 )}
               </React.Fragment>
             ))}
             <span>{name}</span>
           </div>
-          {action.subtitle && <span className={styles.subtitleText}>{action.subtitle}</span>}
+          {action.subtitle && <span {...stylex.props(resultItemStyles.subtitleText)}>{action.subtitle}</span>}
           {showProvisionedBadge && (
             <Badge
               color="purple"
@@ -88,65 +90,4 @@ export const ResultItem = React.forwardRef(
 
 ResultItem.displayName = 'ResultItem';
 
-const getResultItemStyles = (theme: GrafanaTheme2) => {
-  return {
-    row: css({
-      padding: theme.spacing(1, 2),
-      display: 'flex',
-      alightItems: 'center',
-      justifyContent: 'space-between',
-      cursor: 'pointer',
-      position: 'relative',
-      borderRadius: theme.shape.radius.default,
-      margin: theme.spacing(0, 1),
-    }),
-    activeRow: css({
-      color: theme.colors.text.maxContrast,
-      background: theme.colors.emphasize(theme.colors.background.primary, 0.03),
-      '&:before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: theme.spacing(0.5),
-        borderRadius: theme.shape.radius.default,
-        backgroundImage: theme.colors.gradients.brandVertical,
-      },
-    }),
-    actionContainer: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      alignItems: 'baseline',
-      fontSize: theme.typography.fontSize,
-      width: '100%',
-    }),
-    textContainer: css({
-      display: 'block',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    breadcrumbAncestor: css({
-      color: theme.colors.text.secondary,
-    }),
-    breadcrumbSeparator: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    }),
-    subtitleText: css({
-      ...theme.typography.bodySmall,
-      color: theme.colors.text.secondary,
-      display: 'block',
-      flexBasis: '20%',
-      flexGrow: 1,
-      flexShrink: 0,
-      maxWidth: 'fit-content',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+;

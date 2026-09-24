@@ -1,4 +1,7 @@
-import { css, cx, keyframes } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { liveLogsStyles } from './LiveLogs.stylex';
 import { PureComponent } from 'react';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
@@ -14,51 +17,6 @@ import { sortLogRows } from '../../logs/utils';
 import { ElapsedTime } from '../ElapsedTime';
 import { filterLogRowsByIndex } from '../state/utils';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const fade = keyframes({
-    from: {
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-    },
-    to: {
-      backgroundColor: 'transparent',
-    },
-  });
-
-  return {
-    logsRowsLive: css({
-      label: 'logs-rows-live',
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-      display: 'flex',
-      flexFlow: 'column nowrap',
-      height: '60vh',
-      overflowY: 'scroll',
-      ':first-child': {
-        marginTop: 'auto !important',
-      },
-    }),
-    logsRowFade: css({
-      label: 'logs-row-fresh',
-      color: theme.colors.text.primary,
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${fade} 1s ease-out 1s 1 normal forwards`,
-      },
-    }),
-    logsRowsIndicator: css({
-      fontSize: theme.typography.h6.fontSize,
-      paddingTop: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    button: css({
-      marginRight: theme.spacing(1),
-    }),
-    fullWidth: css({
-      width: '100%',
-    }),
-  };
-};
 
 export interface Props extends Themeable2 {
   logRows?: LogRowModel[];
@@ -131,20 +89,19 @@ class LiveLogs extends PureComponent<Props, State> {
 
   render() {
     const { theme, timeZone, onPause, onResume, onClear, isPaused } = this.props;
-    const styles = getStyles(theme);
     const { logsRow, logsRowLocalTime, logsRowMessage } = getLogRowStyles(theme);
 
     return (
       <div>
-        <table className={styles.fullWidth}>
+        <table {...stylex.props(liveLogsStyles.fullWidth)}>
           <tbody
             onScroll={isPaused ? undefined : this.onScroll}
-            className={styles.logsRowsLive}
+            {...stylex.props(liveLogsStyles.logsRowsLive)}
             ref={this.scrollContainerRef}
           >
             {this.rowsToRender().map((row: LogRowModel) => {
               return (
-                <tr className={cx(logsRow, styles.logsRowFade)} key={row.uid}>
+                <tr {...mergeStylexClassName(stylex.props(liveLogsStyles.logsRowFade, logsRow, ), undefined)} key={row.uid}>
                   <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
                   <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
                 </tr>
@@ -163,19 +120,19 @@ class LiveLogs extends PureComponent<Props, State> {
             />
           </tbody>
         </table>
-        <div className={styles.logsRowsIndicator}>
+        <div {...stylex.props(liveLogsStyles.logsRowsIndicator)}>
           <Button
             icon={isPaused ? 'play' : 'pause'}
             variant="secondary"
             onClick={isPaused ? onResume : onPause}
-            className={styles.button}
+            {...stylex.props(liveLogsStyles.button)}
           >
             {isPaused ? t('explore.live-logs.resume', 'Resume') : t('explore.live-logs.pause', 'Pause')}
           </Button>
-          <Button icon="trash-alt" variant="secondary" onClick={onClear} className={styles.button}>
+          <Button icon="trash-alt" variant="secondary" onClick={onClear} {...stylex.props(liveLogsStyles.button)}>
             <Trans i18nKey="explore.live-logs.clear-logs">Clear logs</Trans>
           </Button>
-          <Button icon="square-shape" variant="secondary" onClick={this.props.stopLive} className={styles.button}>
+          <Button icon="square-shape" variant="secondary" onClick={this.props.stopLive} {...stylex.props(liveLogsStyles.button)}>
             <Trans i18nKey="explore.live-logs.exit-live-mode">Exit live mode</Trans>
           </Button>
           {isPaused ||

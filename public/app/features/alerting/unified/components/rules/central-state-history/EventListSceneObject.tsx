@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { eventListSceneObjectStyles } from './EventListSceneObject.stylex';
 import { type ReactElement, useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 import { useMeasure } from 'react-use';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type IconName, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   CustomVariable,
@@ -16,7 +18,7 @@ import {
   type VariableValue,
   sceneGraph,
 } from '@grafana/scenes';
-import { Alert, Icon, LoadingBar, Pagination, Stack, Text, Tooltip, useStyles2, withErrorBoundary } from '@grafana/ui';
+import { Alert, Icon, LoadingBar, Pagination, Stack, Text, Tooltip, withErrorBoundary } from '@grafana/ui';
 import {
   type GrafanaAlertStateWithReason,
   isAlertStateWithReason,
@@ -153,14 +155,13 @@ interface HistoryLogEventsProps {
 }
 function HistoryLogEvents({ logRecords, addFilter, timeRange, hideAlertRuleColumn }: HistoryLogEventsProps) {
   const { page, pageItems, numberOfPages, onPageChange } = usePagination(logRecords, 1, PAGE_SIZE);
-  const styles = useStyles2(getStyles);
 
   return (
     <Stack direction="column" gap={0}>
-      <div className={styles.headerContainer}>
+      <div {...stylex.props(eventListSceneObjectStyles.headerContainer)}>
         <ListHeader hideAlertRuleColumn={hideAlertRuleColumn} />
 
-        <div className={styles.triageButtonContainer}>
+        <div {...stylex.props(eventListSceneObjectStyles.triageButtonContainer)}>
           <AITriageButtonComponent logRecords={logRecords} timeRange={timeRange} />
         </div>
       </div>
@@ -184,27 +185,26 @@ function HistoryLogEvents({ logRecords, addFilter, timeRange, hideAlertRuleColum
 }
 
 function ListHeader({ hideAlertRuleColumn }: { hideAlertRuleColumn?: boolean }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.mainHeader}>
-      <div className={styles.timeCol}>
+    <div {...stylex.props(eventListSceneObjectStyles.mainHeader)}>
+      <div {...stylex.props(eventListSceneObjectStyles.timeCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.timestamp">Timestamp</Trans>
         </Text>
       </div>
-      <div className={styles.transitionCol}>
+      <div {...stylex.props(eventListSceneObjectStyles.transitionCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.state">State</Trans>
         </Text>
       </div>
       {!hideAlertRuleColumn && (
-        <div className={styles.alertNameCol}>
+        <div {...stylex.props(eventListSceneObjectStyles.alertNameCol)}>
           <Text variant="body">
             <Trans i18nKey="alerting.central-alert-history.details.header.alert-rule">Alert rule</Trans>
           </Text>
         </div>
       )}
-      <div className={styles.labelsCol}>
+      <div {...stylex.props(eventListSceneObjectStyles.labelsCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.instance">Instance</Trans>
         </Text>
@@ -220,7 +220,6 @@ interface EventRowProps {
   hideAlertRuleColumn?: boolean;
 }
 function EventRow({ record, addFilter, timeRange, hideAlertRuleColumn }: EventRowProps) {
-  const styles = useStyles2(getStyles);
   const [isCollapsed, setIsCollapsed] = useState(true);
   function onLabelClick([value, label]: [string | undefined, string | undefined]) {
     if (label && value) {
@@ -231,34 +230,34 @@ function EventRow({ record, addFilter, timeRange, hideAlertRuleColumn }: EventRo
   return (
     <Stack direction="column" gap={0}>
       <div
-        className={cx(styles.header, isCollapsed ? styles.collapsedHeader : styles.notCollapsedHeader)}
+        {...mergeStylexClassName(stylex.props(formStyles.header), isCollapsed ? stylex.props(formStyles.collapsedHeader) : stylex.props(formStyles.notCollapsedHeader))}
         data-testid="event-row-header"
       >
         <CollapseToggle
           size="sm"
-          className={styles.collapseToggle}
+          {...stylex.props(eventListSceneObjectStyles.collapseToggle)}
           isCollapsed={isCollapsed}
           onToggle={setIsCollapsed}
         />
         <Stack gap={0.5} direction={'row'} alignItems={'center'}>
-          <div className={styles.timeCol}>
+          <div {...stylex.props(eventListSceneObjectStyles.timeCol)}>
             <Timestamp time={record.timestamp} />
           </div>
-          <div className={styles.transitionCol}>
+          <div {...stylex.props(eventListSceneObjectStyles.transitionCol)}>
             <EventTransition previous={record.line.previous} current={record.line.current} addFilter={addFilter} />
           </div>
           {!hideAlertRuleColumn && (
-            <div className={styles.alertNameCol}>
+            <div {...stylex.props(eventListSceneObjectStyles.alertNameCol)}>
               {record.line.labels ? <AlertRuleName labels={record.line.labels} ruleUID={record.line.ruleUID} /> : null}
             </div>
           )}
-          <div className={styles.labelsCol}>
+          <div {...stylex.props(eventListSceneObjectStyles.labelsCol)}>
             <AlertLabels labels={record.line.labels ?? {}} size="xs" onClick={onLabelClick} />
           </div>
         </Stack>
       </div>
       {!isCollapsed && (
-        <div className={styles.expandedRow}>
+        <div {...stylex.props(eventListSceneObjectStyles.expandedRow)}>
           <EventDetails record={record} addFilter={addFilter} timeRange={timeRange} />
         </div>
       )}
@@ -271,7 +270,6 @@ interface AlertRuleNameProps {
   ruleUID?: string;
 }
 function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
-  const styles = useStyles2(getStyles);
   const { pathname, search } = useLocation();
   const returnTo = `${pathname}${search}`;
   const alertRuleName = labels.alertname;
@@ -288,7 +286,7 @@ function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
   });
   return (
     <Tooltip content={alertRuleName ?? ''}>
-      <a href={ruleViewUrl} className={styles.alertName}>
+      <a href={ruleViewUrl} {...stylex.props(eventListSceneObjectStyles.alertName)}>
         {alertRuleName}
       </a>
     </Tooltip>
@@ -337,7 +335,6 @@ interface EventStateProps {
   type: 'from' | 'to';
 }
 export function EventState({ state, showLabel = false, addFilter, type }: EventStateProps) {
-  const styles = useStyles2(getStyles);
 
   const toolTip = t('alerting.central-alert-history.details.no-recognized-state', 'No recognized state');
   if (!isGrafanaAlertState(state) && !isAlertStateWithReason(state)) {
@@ -347,7 +344,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
         tooltipContent={toolTip}
         labelText={<Trans i18nKey="alerting.central-alert-history.details.unknown-event-state">Unknown</Trans>}
         showLabel={showLabel}
-        iconColor={styles.warningColor}
+        iconColor={stylex.props(formStyles.warningColor)}
       />
     );
   }
@@ -365,37 +362,37 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
   const stateConfig: StateConfigMap = {
     Normal: {
       iconName: 'check-circle',
-      iconColor: Boolean(reason) ? styles.warningColor : styles.normalColor,
+      iconColor: Boolean(reason) ? stylex.props(formStyles.warningColor) : stylex.props(formStyles.normalColor),
       tooltipContent: Boolean(reason) ? `Normal (${reason})` : 'Normal',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.normal">Normal</Trans>,
     },
     Alerting: {
       iconName: 'exclamation-circle',
-      iconColor: styles.alertingColor,
+      iconColor: stylex.props(formStyles.alertingColor),
       tooltipContent: 'Alerting',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.alerting">Alerting</Trans>,
     },
     NoData: {
       iconName: 'exclamation-triangle',
-      iconColor: styles.warningColor,
+      iconColor: stylex.props(formStyles.warningColor),
       tooltipContent: 'Insufficient data',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.no-data">No data</Trans>,
     },
     Error: {
       iconName: 'exclamation-circle',
       tooltipContent: 'Error',
-      iconColor: styles.warningColor,
+      iconColor: stylex.props(formStyles.warningColor),
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.error">Error</Trans>,
     },
     Pending: {
       iconName: 'circle',
-      iconColor: styles.warningColor,
+      iconColor: stylex.props(formStyles.warningColor),
       tooltipContent: Boolean(reason) ? `Pending (${reason})` : 'Pending',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.pending">Pending</Trans>,
     },
     Recovering: {
       iconName: 'circle',
-      iconColor: styles.warningColor,
+      iconColor: stylex.props(formStyles.warningColor),
       tooltipContent: Boolean(reason) ? `Recovering (${reason})` : 'Recovering',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.recovering">Recovering</Trans>,
     },
@@ -413,7 +410,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
           onStateClick();
         }
       }}
-      className={styles.state}
+      {...stylex.props(eventListSceneObjectStyles.state)}
       role="button"
       tabIndex={0}
     >
@@ -446,105 +443,6 @@ const Timestamp = ({ time }: TimestampProps) => {
 
 export default withErrorBoundary(HistoryEventsList, { style: 'page' });
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      flexWrap: 'nowrap',
-      '&:hover': {
-        backgroundColor: theme.components.table.rowHoverBackground,
-      },
-    }),
-    collapsedHeader: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    notCollapsedHeader: css({
-      borderBottom: 'none',
-    }),
-
-    collapseToggle: css({
-      background: 'none',
-      border: 'none',
-      marginTop: `-${theme.spacing(1)}`,
-      marginBottom: `-${theme.spacing(1)}`,
-
-      svg: {
-        marginBottom: 0,
-      },
-    }),
-    normalColor: css({
-      fill: theme.colors.success.text,
-    }),
-    warningColor: css({
-      fill: theme.colors.warning.text,
-    }),
-    alertingColor: css({
-      fill: theme.colors.error.text,
-    }),
-    timeCol: css({
-      width: '150px',
-    }),
-    transitionCol: css({
-      width: '80px',
-    }),
-    alertNameCol: css({
-      width: '300px',
-    }),
-    labelsCol: css({
-      display: 'flex',
-      overflow: 'hidden',
-      alignItems: 'center',
-      paddingRight: theme.spacing(2),
-      flex: 1,
-    }),
-    alertName: css({
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: 'block',
-      color: theme.colors.text.link,
-    }),
-    expandedRow: css({
-      padding: theme.spacing(2),
-      marginLeft: theme.spacing(2),
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-    colorIcon: css({
-      color: theme.colors.primary.text,
-      '&:hover': {
-        opacity: 0.8,
-      },
-    }),
-    state: css({
-      '&:hover': {
-        opacity: 0.8,
-        cursor: 'pointer',
-      },
-    }),
-    mainHeader: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      marginLeft: '30px',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      gap: theme.spacing(0.5),
-    }),
-    headerContainer: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    triageButtonContainer: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-    }),
-  };
-};
 
 /**
  * This is a scene object that displays a list of history events.

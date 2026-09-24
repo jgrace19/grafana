@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { promDurationDocsStyles } from './PromDurationDocs.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import { TimeOptions } from '../../types/time';
 
 export function PromDurationDocs() {
-  const styles = useStyles2(getPromDurationStyles);
   return (
     <div>
       <Trans i18nKey="alerting.prom-duration-docs.explanation">
@@ -18,8 +16,8 @@ export function PromDurationDocs() {
         Different units can be combined for more granularity.
       </Trans>
       <hr />
-      <div className={styles.list}>
-        <div className={styles.header}>
+      <div {...stylex.props(formStyles.list)}>
+        <div {...stylex.props(formStyles.header)}>
           <div>
             <Trans i18nKey="alerting.prom-duration-docs.symbol">Symbol</Trans>
           </div>
@@ -35,7 +33,7 @@ export function PromDurationDocs() {
         <PromDurationDocsTimeUnit unit={TimeOptions.hours} name="hours" example="4h" />
         <PromDurationDocsTimeUnit unit={TimeOptions.days} name="days" example="3d" />
         <PromDurationDocsTimeUnit unit={TimeOptions.weeks} name="weeks" example="2w" />
-        <div className={styles.examples}>
+        <div {...stylex.props(formStyles.examples)}>
           <div>
             <Trans i18nKey="alerting.prom-duration-docs.multiple-units-combined">Multiple units combined</Trans>
           </div>
@@ -48,34 +46,13 @@ export function PromDurationDocs() {
 }
 
 function PromDurationDocsTimeUnit({ unit, name, example }: { unit: TimeOptions; name: string; example: string }) {
-  const styles = useStyles2(getPromDurationStyles);
 
   return (
     <>
-      <div className={styles.unit}>{unit}</div>
+      <div {...stylex.props(formStyles.unit)}>{unit}</div>
       <div>{name}</div>
       <code>{example}</code>
     </>
   );
 }
 
-const getPromDurationStyles = (theme: GrafanaTheme2) => ({
-  unit: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  list: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content 1fr 2fr',
-    gap: theme.spacing(1, 3),
-  }),
-  header: css({
-    display: 'contents',
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  examples: css({
-    display: 'contents',
-    '& > div': {
-      gridColumn: '1 / span 2',
-    },
-  }),
-});

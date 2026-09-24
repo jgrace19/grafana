@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 
 import { type DateTimeInput, type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 
 import { type PanelModelWithLibraryPanel } from '../../types';
 
@@ -12,7 +11,7 @@ interface Props {
 }
 
 export const LibraryPanelInformation = ({ panel, formatDate }: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   const meta = panel.libraryPanel?.meta;
   if (!meta) {
@@ -20,13 +19,13 @@ export const LibraryPanelInformation = ({ panel, formatDate }: Props) => {
   }
 
   return (
-    <div className={styles.info}>
-      <div className={styles.libraryPanelInfo}>
+    <div {...stylex.props(libraryPanelInfoStyles.info)}>
+      <div {...stylex.props(libraryPanelInfoStyles.libraryPanelInfo)}>
         <Trans i18nKey="library-panels.library-panel-info.usage-count" count={meta.connectedDashboards}>
           Used on {'{{count}}'} dashboards
         </Trans>
       </div>
-      <div className={styles.libraryPanelInfo}>
+      <div {...stylex.props(libraryPanelInfoStyles.libraryPanelInfo)}>
         <Trans
           i18nKey="library-panels.library-panel-info.last-edited"
           values={{ timeAgo: formatDate?.(meta.updated, 'L') ?? meta.updated }}
@@ -37,7 +36,7 @@ export const LibraryPanelInformation = ({ panel, formatDate }: Props) => {
                   <img
                     width="22"
                     height="22"
-                    className={styles.userAvatar}
+                    {...stylex.props(libraryPanelInfoStyles.userAvatar)}
                     src={meta.updatedBy.avatarUrl}
                     alt={`Avatar for ${meta.updatedBy.name}`}
                   />
@@ -55,22 +54,4 @@ export const LibraryPanelInformation = ({ panel, formatDate }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    info: css({
-      lineHeight: 1,
-    }),
-    libraryPanelInfo: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    userAvatar: css({
-      borderRadius: theme.shape.radius.circle,
-      boxSizing: 'content-box',
-      width: '22px',
-      height: '22px',
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-};
+;

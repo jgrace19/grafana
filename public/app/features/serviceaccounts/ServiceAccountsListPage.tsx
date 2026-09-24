@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { serviceAccountsListPageStyles } from './ServiceAccountsListPage.stylex';
 import { useEffect, useState, type JSX } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2, type OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   ConfirmModal,
@@ -13,7 +14,6 @@ import {
   EmptyState,
   Box,
   Stack,
-  useStyles2,
   TextLink,
 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
@@ -91,7 +91,6 @@ export const ServiceAccountsListPageUnconnected = ({
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [newToken, setNewToken] = useState('');
   const [currentServiceAccount, setCurrentServiceAccount] = useState<ServiceAccountDTO | null>(null);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     fetchServiceAccounts({ withLoadingIndicator: true });
@@ -205,7 +204,7 @@ export const ServiceAccountsListPageUnconnected = ({
         <Stack justifyContent="space-between" wrap="wrap">
           <InlineField grow>
             <FilterInput
-              className={styles.filterInput}
+              {...stylex.props(serviceAccountsListPageStyles.filterInput)}
               placeholder={t(
                 'serviceaccounts.service-accounts-list-page-unconnected.placeholder-search-service-account-by-name',
                 'Search service account by name'
@@ -327,11 +326,6 @@ export const ServiceAccountsListPageUnconnected = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  filterInput: css({
-    maxWidth: theme.spacing(50),
-  }),
-});
 
 const ServiceAccountsListPage = connector(ServiceAccountsListPageUnconnected);
 export default ServiceAccountsListPage;

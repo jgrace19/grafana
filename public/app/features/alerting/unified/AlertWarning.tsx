@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertWarningStyles } from './AlertWarning.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Alert, LinkButton, useStyles2 } from '@grafana/ui';
+import { Alert, LinkButton } from '@grafana/ui';
 
 interface AlertWarningProps {
   title: string;
@@ -11,7 +12,7 @@ interface AlertWarningProps {
 }
 export function AlertWarning({ title, children }: AlertWarningProps) {
   return (
-    <Alert className={useStyles2(warningStyles).warning} severity="warning" title={title}>
+    <Alert {...stylex.props(alertWarningStyles.warning)} severity="warning" title={title}>
       <p>{children}</p>
       <LinkButton href="alerting/list">
         <Trans i18nKey="alerting.alert-warning.to-rule-list">To rule list</Trans>
@@ -20,8 +21,3 @@ export function AlertWarning({ title, children }: AlertWarningProps) {
   );
 }
 
-const warningStyles = (theme: GrafanaTheme2) => ({
-  warning: css({
-    margin: theme.spacing(4),
-  }),
-});

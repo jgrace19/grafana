@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardRowStyles } from './DashboardRow.stylex';
 import { indexOf } from 'lodash';
 import { Component } from 'react';
 import { type Unsubscribable } from 'rxjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
@@ -104,18 +106,17 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
     const panels = count === 1 ? 'panel' : 'panels';
     const canEdit = this.props.dashboard.meta.canEdit === true;
     const collapsed = this.props.panel.collapsed;
-    const styles = getStyles(this.props.theme);
 
     return (
       <div
-        className={cx(styles.dashboardRow, {
-          [styles.dashboardRowCollapsed]: collapsed,
-        })}
+        {...mergeStylexClassName(stylex.props(dashboardRowStyles.dashboardRow, , {
+          [mergeStylexClassName(stylex.props(dashboardRowStyles.dashboardRowCollapsed), undefined).className]: collapsed,
+        }), undefined)}
         data-testid="dashboard-row-container"
       >
         <button
           aria-expanded={!collapsed}
-          className={cx(styles.title, 'pointer')}
+          {...mergeStylexClassName(stylex.props(dashboardRowStyles.title, , 'pointer'), undefined)}
           type="button"
           data-testid={selectors.components.DashboardRow.title(title)}
           onClick={this.onToggle}
@@ -123,9 +124,9 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
           <Icon name={collapsed ? 'angle-right' : 'angle-down'} />
           {title}
           <span
-            className={cx(styles.count, {
-              [styles.countCollapsed]: collapsed,
-            })}
+            {...mergeStylexClassName(stylex.props(dashboardRowStyles.count, , {
+              [mergeStylexClassName(stylex.props(dashboardRowStyles.countCollapsed), undefined).className]: collapsed,
+            }), undefined)}
           >
             ({count} {panels})
           </span>
@@ -156,9 +157,9 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
           /* this is just to provide a better experience for mouse users */
           /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */
           <div
-            className={cx({
-              [styles.toggleTargetCollapsed]: collapsed,
-            })}
+            {...mergeStylexClassName(stylex.props(dashboardRowStyles.toggleTargetCollapsed, {
+              []: collapsed,
+            }), undefined)}
             onClick={this.onToggle}
           >
             &nbsp;
@@ -167,9 +168,9 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
         {canEdit && (
           <div
             data-testid="dashboard-row-drag"
-            className={cx(styles.dragHandle, 'grid-drag-handle', {
-              [styles.dragHandleCollapsed]: collapsed,
-            })}
+            {...mergeStylexClassName(stylex.props(dashboardRowStyles.dragHandle, , 'grid-drag-handle', {
+              [mergeStylexClassName(stylex.props(dashboardRowStyles.dragHandleCollapsed), undefined).className]: collapsed,
+            }), undefined)}
           />
         )}
       </div>
@@ -179,87 +180,3 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
 
 export const DashboardRow = withTheme2(UnthemedDashboardRow);
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const dragHandle = theme.name === 'dark' ? grabDarkSvg : grabLightSvg;
-  const actions = css({
-    color: theme.colors.text.secondary,
-    opacity: 0,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: '200ms opacity ease-in 200ms',
-    },
-
-    button: {
-      color: theme.colors.text.secondary,
-      paddingLeft: theme.spacing(2),
-      background: 'transparent',
-      border: 'none',
-
-      '&:hover': {
-        color: theme.colors.text.maxContrast,
-      },
-    },
-  });
-
-  return {
-    dashboardRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      height: '100%',
-
-      '&:hover, &:focus-within': {
-        [`.${actions}`]: {
-          opacity: 1,
-        },
-      },
-    }),
-    dashboardRowCollapsed: css({
-      background: theme.components.panel.background,
-    }),
-    toggleTargetCollapsed: css({
-      flex: 1,
-      cursor: 'pointer',
-      marginRight: '15px',
-    }),
-    title: css({
-      flexGrow: 0,
-      fontSize: theme.typography.h5.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-      background: 'transparent',
-      border: 'none',
-
-      '.fa': {
-        color: theme.colors.text.secondary,
-        fontSize: theme.typography.size.xs,
-        padding: theme.spacing(0, 1),
-      },
-    }),
-    actions,
-    count: css({
-      paddingLeft: theme.spacing(2),
-      color: theme.colors.text.secondary,
-      fontStyle: 'italic',
-      fontSize: theme.typography.size.sm,
-      fontWeight: 'normal',
-      display: 'none',
-    }),
-    countCollapsed: css({
-      display: 'inline-block',
-    }),
-    dragHandle: css({
-      cursor: 'move',
-      width: '16px',
-      height: '100%',
-      background: `url("${dragHandle}") no-repeat 50% 50%`,
-      backgroundSize: '8px',
-      visibility: 'hidden',
-      position: 'absolute',
-      top: 0,
-      right: 0,
-    }),
-    dragHandleCollapsed: css({
-      visibility: 'visible',
-      opacity: 1,
-    }),
-  };
-};

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { matchersStyles } from './Matchers.stylex';
 import { take, takeRight, uniqueId } from 'lodash';
 import { type FC } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, getTagColorsFromName, useStyles2 } from '@grafana/ui';
+import { Stack, getTagColorsFromName } from '@grafana/ui';
 import { type ObjectMatcher } from 'app/plugins/datasource/alertmanager/types';
 
 import { type MatcherFormatter, matcherFormatter } from '../../utils/matchers';
@@ -13,7 +14,6 @@ type MatchersProps = { matchers: ObjectMatcher[]; formatter?: MatcherFormatter }
 
 // renders the first N number of matchers
 const Matchers: FC<MatchersProps> = ({ matchers, formatter = 'default' }) => {
-  const styles = useStyles2(getStyles);
 
   const NUM_MATCHERS = 5;
 
@@ -39,7 +39,7 @@ const Matchers: FC<MatchersProps> = ({ matchers, formatter = 'default' }) => {
           }
         >
           <span>
-            <div className={styles.metadata}>{`and ${rest.length} more`}</div>
+            <div {...stylex.props(matchersStyles.metadata)}>{`and ${rest.length} more`}</div>
           </span>
         </PopupCard>
       )}
@@ -53,40 +53,9 @@ interface MatcherBadgeProps {
 }
 
 export const MatcherBadge: FC<MatcherBadgeProps> = ({ matcher, formatter = 'default' }) => {
-  const styles = useStyles2(getStyles);
 
-  return <div className={styles.matcher(matcher[0]).wrapper}>{matcherFormatter[formatter](matcher)}</div>;
+  return <div className={matchersStyles.matcher(matcher[0]).wrapper}>{matcherFormatter[formatter](matcher)}</div>;
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  matcher: (label: string) => {
-    const { color, borderColor } = getTagColorsFromName(label);
-
-    return {
-      wrapper: css({
-        color: '#fff',
-        background: color,
-        padding: `${theme.spacing(0.33)} ${theme.spacing(0.66)}`,
-        fontSize: theme.typography.bodySmall.fontSize,
-
-        border: `solid 1px ${borderColor}`,
-        borderRadius: theme.shape.borderRadius(2),
-
-        // Ensure we preserve whitespace, as otherwise it's not noticeable _at all_
-        // when rendering the matcher, and is only noticeable when editing
-        whiteSpace: 'pre',
-
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-      }),
-    };
-  },
-  metadata: css({
-    color: theme.colors.text.secondary,
-
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.bodySmall.fontWeight,
-  }),
-});
 
 export { Matchers };

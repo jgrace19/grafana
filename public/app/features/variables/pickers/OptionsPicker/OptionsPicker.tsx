@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionsPickerStyles } from './OptionsPicker.stylex';
 import { type ComponentType, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -121,7 +123,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       const styles = getStyles();
 
       return (
-        <div className={styles.variableLinkWrapper} data-testid={selectors.components.Variables.variableLinkWrapper}>
+        <div {...stylex.props(optionsPickerStyles.variableLinkWrapper)} data-testid={selectors.components.Variables.variableLinkWrapper}>
           {showOptions ? this.renderOptions(picker) : this.renderLink(variable)}
         </div>
       );
@@ -179,9 +181,3 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   return OptionsPicker;
 };
 
-const getStyles = () => ({
-  variableLinkWrapper: css({
-    display: 'inline-block',
-    position: 'relative',
-  }),
-});

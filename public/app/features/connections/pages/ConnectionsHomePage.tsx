@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, type IconName, isIconName } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { useSelector } from 'app/types/store';
 
@@ -23,7 +21,7 @@ function resolveIcon(metaIcon: IconName | undefined, navIcon: string | undefined
 }
 
 export default function ConnectionsHomePage() {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   const isOnPrem = !config.pluginAdminExternalManageEnabled;
   const cardMetadata = getConnectionsCardMetadata(isOnPrem);
@@ -49,11 +47,11 @@ export default function ConnectionsHomePage() {
       }}
     >
       <Page.Contents>
-        <div className={styles.centeredContainer}>
-          <h1 className={styles.mainTitle}>
+        <div {...stylex.props(connectionsHomePageStyles.centeredContainer)}>
+          <h1 {...stylex.props(connectionsHomePageStyles.mainTitle)}>
             <Trans i18nKey="connections.connections-home-page.welcome-to-connections">Welcome to Connections</Trans>
           </h1>
-          <p className={styles.subTitle}>
+          <p {...stylex.props(connectionsHomePageStyles.subTitle)}>
             {isOnPrem ? (
               <Trans i18nKey="connections.oss.connections-home-page.subtitle">
                 Manage your data source connections in one place. Use this page to add a new data source or manage your
@@ -67,7 +65,7 @@ export default function ConnectionsHomePage() {
             )}
           </p>
           {cardsData.length > 0 && (
-            <section className={styles.cardsSection}>
+            <section {...stylex.props(connectionsHomePageStyles.cardsSection)}>
               {cardsData.map((child, index) => (
                 <PageCard
                   key={child.id ?? index}
@@ -86,41 +84,3 @@ export default function ConnectionsHomePage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainTitle: css({
-    textAlign: 'left',
-    [theme.breakpoints.up('sm')]: {
-      textAlign: 'center',
-    },
-  }),
-  subTitle: css({
-    color: theme.colors.text.secondary,
-    textAlign: 'left',
-    [theme.breakpoints.up('sm')]: {
-      textAlign: 'center',
-      maxWidth: theme.spacing(119),
-    },
-  }),
-  cardsSection: css({
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      justifyContent: 'center',
-      paddingTop: theme.spacing(6),
-      paddingBottom: theme.spacing(6),
-    },
-  }),
-  centeredContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    [theme.breakpoints.up('sm')]: {
-      alignItems: 'center',
-    },
-  }),
-});

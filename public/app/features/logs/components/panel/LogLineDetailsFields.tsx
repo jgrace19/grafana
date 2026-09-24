@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsFieldsStyles } from './LogLineDetailsFields.stylex';
 import { isEqual } from 'lodash';
 import { parse, stringify } from 'lossless-json';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -14,7 +16,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { ClipboardButton, DataLinkButton, IconButton, type IconSize, useStyles2 } from '@grafana/ui';
+import { ClipboardButton, DataLinkButton, IconButton, type IconSize } from '@grafana/ui';
 
 import { logRowToSingleRowDataFrame } from '../../logsModel';
 import { calculateLogsLabelStats, calculateStats } from '../../utils';
@@ -37,7 +39,7 @@ interface LogLineDetailsFieldsProps {
 
 export const LogLineDetailsFields = memo(({ disableActions, fields, log, logs, search }: LogLineDetailsFieldsProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
+  const styles = (getFieldsStyles, fontSize);
   const getLogs = useCallback(() => logs, [logs]);
   const filteredFields = useMemo(() => (search ? filterFields(fields, search) : fields), [fields, search]);
 
@@ -48,7 +50,7 @@ export const LogLineDetailsFields = memo(({ disableActions, fields, log, logs, s
   }
 
   return (
-    <div className={disableActions ? styles.fieldsTableNoActions : styles.fieldsTable}>
+    <div className={disableActions ? logLineDetailsFieldsStyles.fieldsTableNoActions : logLineDetailsFieldsStyles.fieldsTable}>
       {filteredFields.map((field, i) => (
         <LogLineDetailsField
           key={`${field.keys[0]}=${field.values[0]}-${i}`}
@@ -85,7 +87,7 @@ interface LogLineDetailsLabelFieldsProps {
 
 export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLineDetailsLabelFieldsProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
+  const styles = (getFieldsStyles, fontSize);
   const getLogs = useCallback(() => logs, [logs]);
   const filteredFields = useMemo(() => (search ? filterLabels(fields, search) : fields), [fields, search]);
 
@@ -96,7 +98,7 @@ export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLine
   }
 
   return (
-    <div className={styles.fieldsTable}>
+    <div {...stylex.props(logLineDetailsFieldsStyles.fieldsTable)}>
       {filteredFields.map((field, i) => (
         <LogLineDetailsField
           key={`${field.key}=${field.value}-${i}`}
@@ -112,18 +114,6 @@ export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLine
   );
 };
 
-const getFieldsStyles = (theme: GrafanaTheme2, fontSize: LogListFontSize) => ({
-  fieldsTable: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `${fontSize === 'small' ? theme.spacing(10) : theme.spacing(11.5)} fit-content(30%) 1fr`,
-  }),
-  fieldsTableNoActions: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `auto 1fr`,
-  }),
-});
 
 interface LogLineDetailsFieldProps {
   keys: string[];
@@ -165,7 +155,7 @@ export const LogLineDetailsField = ({
   } = useLogListContext();
   const { closeDetails } = useLogDetailsContext();
 
-  const styles = useStyles2(getFieldStyles);
+  const styles = (getFieldStyles);
 
   const getStats = useCallback(() => {
     if (isLabel) {
@@ -276,10 +266,10 @@ export const LogLineDetailsField = ({
 
   return (
     <>
-      <div className={styles.row}>
+      <div className={logLineDetailsFieldsStyles.row}>
         {!disableActions && (
-          <div className={styles.actions}>
-            <div className={styles.actionIcons}>
+          <div className={logLineDetailsFieldsStyles.actions}>
+            <div className={logLineDetailsFieldsStyles.actionIcons}>
               {onClickFilterLabel && fieldSupportsFilters && (
                 <AsyncIconButton
                   name="search-plus"
@@ -329,18 +319,18 @@ export const LogLineDetailsField = ({
                 name="signal"
                 size={fontSize === 'small' ? 'sm' : undefined}
                 tooltip={t('logs.log-line-details.fields.adhoc-statistics', 'Ad-hoc statistics')}
-                className={styles.statsIcon}
+                className={logLineDetailsFieldsStyles.statsIcon}
                 disabled={!singleKey}
                 onClick={showStats}
               />
             </div>
           </div>
         )}
-        <div className={styles.label}>
+        <div className={logLineDetailsFieldsStyles.label}>
           {singleKey ? getNormalizedFieldName(keys[0]) : <MultipleValue values={keys} />}
         </div>
-        <div className={styles.value}>
-          <div className={styles.valueContainer}>
+        <div className={logLineDetailsFieldsStyles.value}>
+          <div className={logLineDetailsFieldsStyles.valueContainer}>
             {singleValue ? (
               <SingleValue value={values[0]} prettifyJSON={prettifyJSON} />
             ) : (
@@ -363,8 +353,8 @@ export const LogLineDetailsField = ({
           };
         }
         return (
-          <div className={styles.row} key={`${link.title}-${i}`}>
-            <div className={disableActions ? styles.linkNoActions : styles.link}>
+          <div className={logLineDetailsFieldsStyles.row} key={`${link.title}-${i}`}>
+            <div className={disableActions ? logLineDetailsFieldsStyles.linkNoActions : logLineDetailsFieldsStyles.link}>
               <DataLinkButton
                 buttonProps={{
                   // Show tooltip message if max number of pinned lines has been reached
@@ -383,10 +373,10 @@ export const LogLineDetailsField = ({
         );
       })}
       {showFieldsStats && fieldStats && (
-        <div className={styles.row}>
-          <div className={disableActions ? undefined : styles.statsColumn}>
+        <div className={logLineDetailsFieldsStyles.row}>
+          <div className={disableActions ? undefined : logLineDetailsFieldsStyles.statsColumn}>
             <LogLabelStats
-              className={styles.stats}
+              className={logLineDetailsFieldsStyles.stats}
               stats={fieldStats}
               label={keys[0]}
               value={values[0]}
@@ -460,9 +450,9 @@ const getFieldStyles = (theme: GrafanaTheme2) => ({
 });
 
 const ClipboardButtonWrapper = ({ value }: { value: string }) => {
-  const styles = useStyles2(getClipboardButtonStyles);
+  const styles = (getClipboardButtonStyles);
   return (
-    <div className={styles.button}>
+    <div className={logLineDetailsFieldsStyles.button}>
       <ClipboardButton
         getText={() => value}
         aria-label={t('logs.log-line-details.fields.copy-value-to-clipboard', 'Copy value to clipboard')}

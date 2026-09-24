@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleDefinitionSectionStyles } from './RuleDefinitionSection.stylex';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Field, Input, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Field, Input, Stack, Text } from '@grafana/ui';
 
 import { type RuleFormValues } from '../types/rule-form';
 import { GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
@@ -18,7 +19,6 @@ import { LabelsFieldInFormV2 } from './rule-editor/labels/LabelsFieldInFormV2';
  * Rule definition section (name, folder, labels) for the alert rule drawer. Drawer only supports GMA.
  */
 export function RuleDefinitionSection() {
-  const styles = useStyles2(getStyles);
   const {
     register,
     formState: { errors },
@@ -28,8 +28,8 @@ export function RuleDefinitionSection() {
   const [showLabelsEditor, setShowLabelsEditor] = useState(false);
 
   return (
-    <section className={styles.section} aria-labelledby="rule-definition-section-heading">
-      <div className={styles.sectionHeaderRow}>
+    <section {...stylex.props(ruleDefinitionSectionStyles.section)} aria-labelledby="rule-definition-section-heading">
+      <div {...stylex.props(ruleDefinitionSectionStyles.sectionHeaderRow)}>
         <Text element="h3" variant="h4" id="rule-definition-section-heading">
           {`1. `}
           <Trans i18nKey="alerting.simplified.rule-definition">Rule Definition</Trans>
@@ -86,14 +86,3 @@ export function RuleDefinitionSection() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({ width: '100%' }),
-    sectionHeaderRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    }),
-  };
-}

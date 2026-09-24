@@ -1,5 +1,8 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelHeaderTitleItemsStyles } from './PanelHeaderTitleItems.stylex';
 import {
   AlertState,
   type DataLink,
@@ -30,17 +33,16 @@ export interface Props {
 
 export function PanelHeaderTitleItems(props: Props) {
   const { alertState, data, panelId, onShowPanelLinks, panelLinks } = props;
-  const styles = useStyles2(getStyles);
 
   // panel health
   const alertStateItem = (
     <Tooltip content={alertState ?? 'unknown'}>
       <PanelChrome.TitleItem
-        className={cx({
-          [styles.ok]: alertState === AlertState.OK,
-          [styles.pending]: alertState === AlertState.Pending || alertState === AlertState.Recovering,
-          [styles.alerting]: alertState === AlertState.Alerting,
-        })}
+        {...mergeStylexClassName(stylex.props(panelHeaderTitleItemsStyles.ok, {
+          []: alertState === AlertState.OK,
+          [mergeStylexClassName(stylex.props(panelHeaderTitleItemsStyles.pending), undefined).className]: alertState === AlertState.Pending || alertState === AlertState.Recovering,
+          [mergeStylexClassName(stylex.props(panelHeaderTitleItemsStyles.alerting), undefined).className]: alertState === AlertState.Alerting,
+        }), undefined)}
       >
         <Icon name={alertState === 'alerting' ? 'heart-break' : 'heart'} size="md" />
       </PanelChrome.TitleItem>
@@ -51,7 +53,7 @@ export function PanelHeaderTitleItems(props: Props) {
     <>
       {data.request && data.request.timeInfo && (
         <Tooltip content={<TimePickerTooltip timeRange={data.request?.range} timeZone={data.request?.timezone} />}>
-          <PanelChrome.TitleItem className={styles.timeshift}>
+          <PanelChrome.TitleItem {...stylex.props(panelHeaderTitleItemsStyles.timeshift)}>
             <Icon name="clock-nine" size="md" /> {data.request?.timeInfo}
           </PanelChrome.TitleItem>
         </Tooltip>
@@ -72,37 +74,4 @@ export function PanelHeaderTitleItems(props: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    ok: css({
-      color: theme.colors.success.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.success.text, 0.03),
-      },
-    }),
-    pending: css({
-      color: theme.colors.warning.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.warning.text, 0.03),
-      },
-    }),
-    alerting: css({
-      color: theme.colors.error.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.error.text, 0.03),
-      },
-    }),
-    timeshift: css({
-      color: theme.colors.text.link,
-      gap: theme.spacing(0.5),
-      whiteSpace: 'nowrap',
-
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.text.link, 0.03),
-      },
-    }),
-    angularNotice: css({
-      color: theme.colors.warning.text,
-    }),
-  };
-};
+;

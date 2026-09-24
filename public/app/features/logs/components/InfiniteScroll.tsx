@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, type MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { type AbsoluteTimeRange, CoreApp, type LogRowModel, type TimeRange, rangeUtil } from '@grafana/data';
@@ -9,6 +9,7 @@ import { LogsSortOrder, type TimeZone } from '@grafana/schema';
 import { Button, Icon } from '@grafana/ui';
 
 import { LoadingIndicator } from './LoadingIndicator';
+import { infiniteScrollStyles } from './InfiniteScroll.stylex';
 
 export type Props = {
   app?: CoreApp;
@@ -171,8 +172,8 @@ export const InfiniteScroll = ({
       {upperLoading && <LoadingIndicator adjective={sortOrder === LogsSortOrder.Descending ? 'newer' : 'older'} />}
       {!hideTopMessage && upperOutOfRange && outOfRangeMessage}
       {sortOrder === LogsSortOrder.Ascending && app === CoreApp.Explore && loadMoreLogs && (
-        <Button className={styles.navButton} variant="secondary" onClick={loadOlderLogs} disabled={loading}>
-          <div className={styles.navButtonContent}>
+        <Button {...stylex.props(infiniteScrollStyles.navButton)} variant="secondary" onClick={loadOlderLogs} disabled={loading}>
+          <div {...stylex.props(infiniteScrollStyles.navButtonContent)}>
             <Icon name="angle-up" size="lg" />
             <Trans i18nKey="logs.infinite-scroll.older-logs">Older logs</Trans>
           </div>
@@ -185,35 +186,8 @@ export const InfiniteScroll = ({
   );
 };
 
-const styles = {
-  messageContainer: css({
-    textAlign: 'center',
-    padding: 0.25,
-  }),
-  navButton: css({
-    width: '58px',
-    height: '68px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    lineHeight: '1',
-    position: 'absolute',
-    top: 0,
-    right: -3,
-    zIndex: 1,
-  }),
-  navButtonContent: css({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    whiteSpace: 'normal',
-  }),
-};
-
 const outOfRangeMessage = (
-  <div className={styles.messageContainer} data-testid="end-of-range">
+  <div {...stylex.props(infiniteScrollStyles.messageContainer)} data-testid="end-of-range">
     <Trans i18nKey="logs.out-of-range-message.end-of-the-selected-time-range">End of the selected time range.</Trans>
   </div>
 );

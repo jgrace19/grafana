@@ -1,4 +1,6 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableEditorEditorStyles } from './VariableEditorEditor.stylex';
 import { type FormEvent, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -249,7 +251,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props, State>
                 <Trans i18nKey="variables.variable-editor-editor-un-connected.run-query">Run query</Trans>
                 {loading && (
                   <Icon
-                    className={styles.spin}
+                    {...stylex.props(variableEditorEditorStyles.spin)}
                     name={prefersReducedMotion ? 'hourglass' : 'sync'}
                     size="sm"
                     style={{ marginLeft: '2px' }}
@@ -288,12 +290,4 @@ const spin = keyframes({
   },
 });
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spin: css({
-      [theme.transitions.handleMotion('no-preference')]: {
-        animation: `${spin} 3s linear infinite`,
-      },
-    }),
-  };
-};
+;

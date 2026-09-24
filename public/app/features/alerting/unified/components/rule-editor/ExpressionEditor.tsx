@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { expressionEditorStyles } from './ExpressionEditor.stylex';
 import { noop } from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { useAsync } from 'react-use';
@@ -8,7 +10,7 @@ import { Trans, t } from '@grafana/i18n';
 import { type PromQuery } from '@grafana/prometheus';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Alert, Button, useStyles2 } from '@grafana/ui';
+import { Alert, Button } from '@grafana/ui';
 import { type LokiQuery } from 'app/plugins/datasource/loki/types';
 
 import { isSupportedExternalRulesSourceType } from '../../utils/datasource';
@@ -29,7 +31,6 @@ export const ExpressionEditor = ({
   dataSourceName,
   showPreviewAlertsButton = true,
 }: ExpressionEditorProps) => {
-  const styles = useStyles2(getStyles);
 
   const { mapToValue, mapToQuery } = useQueryMappers(dataSourceName);
 
@@ -100,7 +101,7 @@ export const ExpressionEditor = ({
         />
       </DataSourcePluginContextProvider>
       {showPreviewAlertsButton && (
-        <div className={styles.preview}>
+        <div {...stylex.props(expressionEditorStyles.preview)}>
           <Button
             type="button"
             onClick={onRunQueriesClick}
@@ -112,7 +113,7 @@ export const ExpressionEditor = ({
             <Alert
               title={t('alerting.expression-editor.title-alerts-preview', 'Alerts preview')}
               severity="info"
-              className={styles.previewAlert}
+              {...stylex.props(expressionEditorStyles.previewAlert)}
             >
               <Trans i18nKey="alerting.expression-editor.there-firing-alerts-query">
                 There are no firing alerts for your query.
@@ -126,15 +127,6 @@ export const ExpressionEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  preview: css({
-    padding: theme.spacing(2, 0),
-    maxWidth: `${theme.breakpoints.values.xl}px`,
-  }),
-  previewAlert: css({
-    margin: theme.spacing(1, 0),
-  }),
-});
 
 type QueryMappers<T extends DataQuery = DataQuery> = {
   mapToValue: (query: T) => string;

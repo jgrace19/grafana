@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { muteTimingTimeIntervalStyles } from './MuteTimingTimeInterval.stylex';
 import { concat, uniq, upperFirst, without } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, FieldSet, Icon, InlineSwitch, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Field, FieldSet, Icon, InlineSwitch, Input, Stack } from '@grafana/ui';
 
 import { useAlertmanager } from '../../state/AlertmanagerContext';
 import { type MuteTimingFields } from '../../types/mute-timing-form';
@@ -15,7 +17,6 @@ import { MuteTimingTimeRange } from './MuteTimingTimeRange';
 import { TimezoneSelect } from './timezones';
 
 export const MuteTimingTimeInterval = () => {
-  const styles = useStyles2(getStyles);
   const { formState, register, setValue } = useFormContext<MuteTimingFields>();
   const {
     fields: timeIntervals,
@@ -46,7 +47,7 @@ export const MuteTimingTimeInterval = () => {
             register(`time_intervals.${timeIntervalIndex}.location`);
 
             return (
-              <div key={timeInterval.id} className={styles.timeIntervalSection}>
+              <div key={timeInterval.id} {...stylex.props(muteTimingTimeIntervalStyles.timeIntervalSection)}>
                 <MuteTimingTimeRange intervalIndex={timeIntervalIndex} />
                 <Field
                   label={t('alerting.mute-timing-time-interval.label-location', 'Location')}
@@ -176,7 +177,7 @@ export const MuteTimingTimeInterval = () => {
         <Button
           type="button"
           variant="secondary"
-          className={styles.removeTimeIntervalButton}
+          {...stylex.props(muteTimingTimeIntervalStyles.removeTimeIntervalButton)}
           onClick={() => {
             addTimeInterval(defaultTimeInterval);
           }}
@@ -236,7 +237,6 @@ function parseWeekdayRange(input: string): string[] {
 }
 
 const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
-  const styles = useStyles2(getStyles);
   const defaultValues = parseDays(defaultValue);
   const [selectedDays, setSelectedDays] = useState<string[]>(defaultValues);
 
@@ -254,7 +254,7 @@ const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
     <div data-testid="mute-timing-weekdays">
       <Stack gap={1}>
         {DAYS_OF_THE_WEEK.map((day) => {
-          const style = cx(styles.dayOfTheWeek, selectedDays.includes(day) && 'selected');
+          const style = cx(muteTimingTimeIntervalStyles.dayOfTheWeek, selectedDays.includes(day) && 'selected');
           const abbreviated = day.slice(0, 3);
 
           return (
@@ -268,33 +268,3 @@ const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  input: css({
-    width: '400px',
-  }),
-  timeIntervalSection: css({
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(2),
-  }),
-  removeTimeIntervalButton: css({
-    marginTop: theme.spacing(2),
-  }),
-  dayOfTheWeek: css({
-    cursor: 'pointer',
-    userSelect: 'none',
-    padding: `${theme.spacing(1)} ${theme.spacing(3)}`,
-
-    border: `solid 1px ${theme.colors.border.medium}`,
-    background: 'none',
-    borderRadius: theme.shape.radius.default,
-
-    color: theme.colors.text.secondary,
-
-    '&.selected': {
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.primary.text,
-      borderColor: theme.colors.primary.border,
-      background: theme.colors.primary.transparent,
-    },
-  }),
-});

@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { t } from '@grafana/i18n';
-import { Badge, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Badge, Icon, Tooltip } from '@grafana/ui';
 import { type UpdatedBy } from 'app/types/unified-alerting-dto';
 
 import { getSpecialUidsDisplayMap } from './versions-utils';
@@ -9,7 +9,6 @@ import { getSpecialUidsDisplayMap } from './versions-utils';
 export const UpdatedByUser = ({ user }: { user: UpdatedBy | null | undefined }) => {
   const unknown = t('alerting.alertVersionHistory.unknown', 'Unknown');
   const SPECIAL_UID_MAP = getSpecialUidsDisplayMap();
-  const styles = useStyles2(getStyles);
 
   const unknownCase = (
     <Tooltip
@@ -19,7 +18,7 @@ export const UpdatedByUser = ({ user }: { user: UpdatedBy | null | undefined }) 
       )}
     >
       <span>
-        <span className={styles.underline}>{unknown} </span>
+        <span {...stylex.props(updatedByStyles.underline)}>{unknown} </span>
         <Icon name="question-circle" />
       </span>
     </Tooltip>
@@ -33,7 +32,7 @@ export const UpdatedByUser = ({ user }: { user: UpdatedBy | null | undefined }) 
       <Tooltip content={specialCase.tooltipContent}>
         <span>
           <Badge
-            className={styles.badge}
+            {...stylex.props(updatedByStyles.badge)}
             text={specialCase.name}
             color={specialCase.badgeColor}
             icon={specialCase.icon}
@@ -51,13 +50,3 @@ export const UpdatedByUser = ({ user }: { user: UpdatedBy | null | undefined }) 
   return unknownCase;
 };
 
-const getStyles = () => {
-  return {
-    badge: css({ cursor: 'help' }),
-    underline: css({
-      textDecoration: 'underline dotted',
-      textUnderlineOffset: '5px',
-      cursor: 'help',
-    }),
-  };
-};

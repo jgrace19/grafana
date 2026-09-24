@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 import { type ReactNode, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 import { ContactPointSelector as GrafanaManagedContactPointSelector } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   Badge,
@@ -15,8 +13,7 @@ import {
   MultiSelect,
   Select,
   Stack,
-  Switch,
-  useStyles2,
+  Switch
 } from '@grafana/ui';
 import MuteTimingsSelector from 'app/features/alerting/unified/components/alertmanager-entities/MuteTimingsSelector';
 import { ExternalAlertmanagerContactPointSelector } from 'app/features/alerting/unified/components/notification-policies/ContactPointSelector';
@@ -39,7 +36,9 @@ import {
 } from '../../utils/amroutes';
 
 import { PromDurationInput } from './PromDurationInput';
-import { getFormStyles } from './formStyles';
+import * as stylex from '@stylexjs/stylex';
+import { editNotificationPolicyFormStyles } from './EditNotificationPolicyForm.stylex';
+import { formStyles } from './stylex.props(formStyles.stylex)';
 import { routeTimingsFields } from './routeTimingsFields';
 
 export interface AmRoutesExpandedFormProps {
@@ -50,8 +49,6 @@ export interface AmRoutesExpandedFormProps {
 }
 
 export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults }: AmRoutesExpandedFormProps) => {
-  const styles = useStyles2(getStyles);
-  const formStyles = useStyles2(getFormStyles);
   const { selectedAlertmanager, isGrafanaAlertmanager } = useAlertmanager();
   const [, canSeeMuteTimings] = useAlertmanagerAbility(AlertmanagerAction.ViewTimeInterval);
   const [groupByOptions, setGroupByOptions] = useState(stringsToSelectableValues(route?.group_by));
@@ -95,7 +92,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
         {fields.length === 0 && (
           <Badge
             color="orange"
-            className={styles.noMatchersWarning}
+            {...stylex.props(formStyles.noMatchersWarning)}
             icon="exclamation-triangle"
             text={t(
               'alerting.am-routes-expanded-form.badge-no-matchers',
@@ -104,7 +101,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
           />
         )}
         {fields.length > 0 && (
-          <div className={styles.matchersContainer}>
+          <div {...stylex.props(formStyles.matchersContainer)}>
             {fields.map((field, index) => {
               return (
                 <Stack direction="row" key={field.id} alignItems="center">
@@ -125,7 +122,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
                           {...field}
-                          className={styles.matchersOperator}
+                          {...stylex.props(formStyles.matchersOperator)}
                           onChange={(value) => onChange(value?.value)}
                           options={matcherFieldOptions}
                           aria-label={t('alerting.am-routes-expanded-form.aria-label-operator', 'Operator')}
@@ -166,7 +163,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
           </div>
         )}
         <Button
-          className={styles.addMatcherBtn}
+          {...stylex.props(formStyles.addMatcherBtn)}
           icon="plus"
           onClick={() => append(emptyArrayFieldMatcher)}
           variant="secondary"
@@ -195,7 +192,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
               <ExternalAlertmanagerContactPointSelector
                 selectProps={{
                   ...field,
-                  className: formStyles.input,
+                  className: stylex.props(formStyles.input),
                   onChange: (value) => handleContactPointSelect(value.value?.name, onChange),
                   isClearable: true,
                 }}
@@ -242,7 +239,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                   {...field}
                   invalid={Boolean(error)}
                   allowCustomValue
-                  className={formStyles.input}
+                  {...stylex.props(formStyles.input)}
                   onCreateOption={(opt: string) => {
                     setGroupByOptions((opts) => [...opts, stringToSelectableValue(opt)]);
                     setValue('groupBy', [...(field.value || []), opt]);
@@ -272,7 +269,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
             <PromDurationInput
               {...register('groupWaitValue', { validate: promDurationValidator })}
               aria-label={routeTimingsFields.groupWait.ariaLabel}
-              className={formStyles.promDurationInput}
+              {...stylex.props(formStyles.promDurationInput)}
             />
           </Field>
           <Field
@@ -284,7 +281,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
             <PromDurationInput
               {...register('groupIntervalValue', { validate: promDurationValidator })}
               aria-label={routeTimingsFields.groupInterval.ariaLabel}
-              className={formStyles.promDurationInput}
+              {...stylex.props(formStyles.promDurationInput)}
             />
           </Field>
           <Field
@@ -301,7 +298,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                 },
               })}
               aria-label={routeTimingsFields.repeatInterval.ariaLabel}
-              className={formStyles.promDurationInput}
+              {...stylex.props(formStyles.promDurationInput)}
             />
           </Field>
         </>
@@ -359,25 +356,3 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const commonSpacing = theme.spacing(3.5);
-
-  return {
-    addMatcherBtn: css({
-      marginBottom: commonSpacing,
-    }),
-    matchersContainer: css({
-      backgroundColor: theme.colors.background.secondary,
-      padding: `${theme.spacing(1.5)} ${theme.spacing(2)}`,
-      paddingBottom: 0,
-      width: 'fit-content',
-    }),
-    matchersOperator: css({
-      minWidth: '120px',
-    }),
-    noMatchersWarning: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};

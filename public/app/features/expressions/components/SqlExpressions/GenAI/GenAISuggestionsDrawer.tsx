@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, renderMarkdown } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { CodeEditor, Drawer, useStyles2, Stack, Button, Card, Text, ClipboardButton } from '@grafana/ui';
+import { CodeEditor, Drawer, Stack, Button, Card, Text, ClipboardButton } from '@grafana/ui';
 
 import { parseSuggestion } from './utils';
 
@@ -19,7 +17,7 @@ export const GenAISuggestionsDrawer = ({
   onClose,
   suggestions,
 }: AISuggestionsDrawerProps) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (!isOpen) {
     return null;
@@ -31,30 +29,30 @@ export const GenAISuggestionsDrawer = ({
       size="lg"
       title={<Trans i18nKey="sql-expressions.sql-suggestion-history">SQL Suggestion History</Trans>}
     >
-      <div className={styles.content} data-testid="suggestions-drawer">
+      <div {...stylex.props(genAISuggestionsDrawerStyles.content)} data-testid="suggestions-drawer">
         <Stack direction="column" gap={3}>
-          <div className={styles.timelineContainer}>
+          <div {...stylex.props(genAISuggestionsDrawerStyles.timelineContainer)}>
             {/* Vertical timeline line */}
-            <div className={styles.timelineLine} />
+            <div {...stylex.props(genAISuggestionsDrawerStyles.timelineLine)} />
 
-            <div className={styles.suggestionsList}>
+            <div {...stylex.props(genAISuggestionsDrawerStyles.suggestionsList)}>
               {suggestions.map((suggestion, index) => {
                 const parsedSuggestion = parseSuggestion(suggestion);
                 const isLatest = index === 0;
 
                 return (
-                  <div key={index} className={styles.timelineItem}>
+                  <div key={index} {...stylex.props(genAISuggestionsDrawerStyles.timelineItem)}>
                     {/* Timeline node */}
                     <div
                       className={`${styles.timelineNode} ${isLatest ? styles.timelineNodeActive : styles.timelineNodeInactive}`}
                     />
-                    <Card noMargin key={index} className={isLatest ? styles.latestSuggestion : ''}>
-                      <div className={styles.suggestionContent}>
+                    <Card noMargin key={index} {...mergeStylexClassName(isLatest  ? stylex.props(genAISuggestionsDrawerStyles.latestSuggestion) : {}, undefined)}>
+                      <div {...stylex.props(genAISuggestionsDrawerStyles.suggestionContent)}>
                         {parsedSuggestion.map(({ type, content, language }, partIndex) => (
-                          <div key={partIndex} className={styles.suggestionPart}>
+                          <div key={partIndex} {...stylex.props(genAISuggestionsDrawerStyles.suggestionPart)}>
                             {type === 'code' ? (
-                              <div className={styles.codeBlock}>
-                                <div className={styles.codeHeader}>
+                              <div {...stylex.props(genAISuggestionsDrawerStyles.codeBlock)}>
+                                <div {...stylex.props(genAISuggestionsDrawerStyles.codeHeader)}>
                                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                                     <Text variant="bodySmall" weight="bold">
                                       <Trans
@@ -129,109 +127,3 @@ export const GenAISuggestionsDrawer = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  content: css({
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  emptyState: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    textAlign: 'center',
-    gap: theme.spacing(2),
-  }),
-  timelineContainer: css({
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'auto',
-    flex: 1,
-    paddingLeft: theme.spacing(4.5), // Space for timeline line and nodes
-  }),
-  timelineLine: css({
-    position: 'absolute',
-    // Offset the 2px width of the timeline line
-    left: `calc(${theme.spacing(1)} + 2px)`,
-    top: theme.spacing(1),
-    bottom: 0,
-    width: '2px',
-    backgroundColor: theme.colors.border.strong,
-    zIndex: 1,
-  }),
-  suggestionsList: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-    position: 'relative',
-  }),
-  timelineItem: css({
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: theme.spacing(2),
-  }),
-  timelineNode: css({
-    position: 'absolute',
-    left: theme.spacing(-4.5), // Position on the timeline line
-    top: theme.spacing(1), // Align with card content
-    width: theme.spacing(3),
-    height: theme.spacing(3),
-    borderRadius: theme.shape.radius.pill,
-    border: `2px solid ${theme.colors.primary.main}`,
-    backgroundColor: theme.colors.background.primary,
-    zIndex: 2,
-    flexShrink: 0,
-  }),
-  timelineNodeActive: css({
-    backgroundColor: theme.colors.primary.main, // Filled circle for current/latest
-    boxShadow: `0 0 0 4px ${theme.colors.background.primary}`, // White ring around filled circle
-  }),
-  timelineNodeInactive: css({
-    backgroundColor: theme.colors.background.primary, // Empty circle for others
-    boxShadow: `0 0 0 4px ${theme.colors.background.primary}`, // White ring around filled circle
-  }),
-  latestSuggestion: css({
-    border: `2px solid ${theme.colors.primary.main}`,
-    position: 'relative',
-    '&::before': {
-      content: '"Latest"',
-      position: 'absolute',
-      top: theme.spacing(-0.5),
-      right: theme.spacing(1),
-      backgroundColor: theme.colors.primary.main,
-      color: theme.colors.primary.contrastText,
-      padding: theme.spacing(0.25, 1),
-      borderRadius: theme.shape.radius.default,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-  }),
-  suggestionContent: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1.5),
-    width: '100%',
-    overflowX: 'auto',
-  }),
-  suggestionPart: css({
-    display: 'block',
-    width: '100%',
-  }),
-  codeBlock: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-    marginBottom: theme.spacing(1),
-    width: '100%',
-    minWidth: '600px',
-  }),
-  codeHeader: css({
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(1, 1.5),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-});

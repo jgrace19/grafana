@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { timelineColumnResizerStyles } from './TimelineColumnResizer.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
@@ -20,78 +23,7 @@ import type TNil from '../../types/TNil';
 import DraggableManager from '../../utils/DraggableManager/DraggableManager';
 import { type DraggableBounds, type DraggingUpdate } from '../../utils/DraggableManager/types';
 
-export const getStyles = () => ({
-  TimelineColumnResizer: css({
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  }),
-  wrapper: css({
-    bottom: 0,
-    position: 'absolute',
-    top: 0,
-  }),
-  dragger: css({
-    borderLeft: '2px solid transparent',
-    cursor: 'col-resize',
-    height: '5000px',
-    marginLeft: '-1px',
-    position: 'absolute',
-    top: 0,
-    width: '1px',
-    zIndex: 10,
-    '&:hover': {
-      borderLeft: '2px solid rgba(0, 0, 0, 0.3)',
-    },
-    '&::before': {
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      left: '-8px',
-      right: 0,
-      content: '" "',
-    },
-  }),
-  draggerDragging: css({
-    background: 'rgba(136, 0, 136, 0.05)',
-    width: 'unset',
-    '&::before': {
-      left: -2000,
-      right: -2000,
-    },
-  }),
-  draggerDraggingLeft: css({
-    borderLeft: '2px solid #808',
-    borderRight: '1px solid #999',
-  }),
-  draggerDraggingRight: css({
-    borderLeft: '1px solid #999',
-    borderRight: '2px solid #808',
-  }),
-  gripIcon: css({
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    '&::before, &::after': {
-      borderRight: '1px solid #ccc',
-      content: '" "',
-      height: '9px',
-      position: 'absolute',
-      right: '9px',
-      top: '25px',
-    },
-    '&::after': {
-      right: '5px',
-    },
-  }),
-  gripIconDragging: css({
-    '&::before, &::after': {
-      borderRight: '1px solid rgba(136, 0, 136, 0.5)',
-    },
-  }),
-});
-
+export 
 export type TimelineColumnResizerProps = {
   min: number;
   max: number;
@@ -168,7 +100,6 @@ export default class TimelineColumnResizer extends React.PureComponent<
     const gripStyle = { left };
     let isDraggingLeft = false;
     let isDraggingRight = false;
-    const styles = getStyles();
 
     if (this._dragManager.isDragging() && this._rootElm && dragPosition != null) {
       isDraggingLeft = dragPosition < position;
@@ -188,20 +119,20 @@ export default class TimelineColumnResizer extends React.PureComponent<
 
     const isDragging = isDraggingLeft || isDraggingRight;
     return (
-      <div className={styles.TimelineColumnResizer} ref={this._setRootElm} data-testid="TimelineColumnResizer">
+      <div {...stylex.props(timelineColumnResizerStyles.TimelineColumnResizer)} ref={this._setRootElm} data-testid="TimelineColumnResizer">
         <div
-          className={cx(styles.gripIcon, isDragging && styles.gripIconDragging)}
+          {...mergeStylexClassName(stylex.props(timelineColumnResizerStyles.gripIcon, , isDragging && mergeStylexClassName(stylex.props(timelineColumnResizerStyles.gripIconDragging), undefined).className), undefined)}
           style={gripStyle}
           data-testid="TimelineColumnResizer--gripIcon"
         />
         <div
           aria-hidden
-          className={cx(
-            styles.dragger,
-            isDragging && styles.draggerDragging,
-            isDraggingRight && styles.draggerDraggingRight,
-            isDraggingLeft && styles.draggerDraggingLeft
-          )}
+          {...mergeStylexClassName(stylex.props(timelineColumnResizerStyles.dragger, 
+            ,
+            isDragging && mergeStylexClassName(stylex.props(timelineColumnResizerStyles.draggerDragging), undefined).className,
+            isDraggingRight && mergeStylexClassName(stylex.props(timelineColumnResizerStyles.draggerDraggingRight), undefined).className,
+            isDraggingLeft && mergeStylexClassName(stylex.props(timelineColumnResizerStyles.draggerDraggingLeft), undefined).className
+          ), undefined)}
           onMouseDown={this._dragManager.handleMouseDown}
           style={draggerStyle}
           data-testid="TimelineColumnResizer--dragger"

@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sharePublicDashboardStyles } from './SharePublicDashboard.stylex';
 import { Trans } from '@grafana/i18n';
 import { Spinner, useStyles2 } from '@grafana/ui';
 import { useGetPublicDashboardQuery } from 'app/features/dashboard/api/publicDashboardApi';
@@ -17,13 +18,12 @@ import { useGetUnsupportedDataSources } from './useGetUnsupportedDataSources';
 interface Props extends ShareModalTabProps {}
 
 export const Loader = () => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <HorizontalGroup className={styles.loadingContainer}>
+    <HorizontalGroup {...stylex.props(sharePublicDashboardStyles.loadingContainer)}>
       <>
         <Trans i18nKey="dashboard.share-public-dashboard-loader.loading-configuration">Loading configuration</Trans>
-        <Spinner size="lg" className={styles.spinner} />
+        <Spinner size="lg" {...stylex.props(sharePublicDashboardStyles.spinner)} />
       </>
     </HorizontalGroup>
   );
@@ -48,14 +48,3 @@ export const SharePublicDashboard = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadingContainer: css({
-    height: '280px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing(1),
-  }),
-  spinner: css({
-    marginBottom: theme.spacing(0),
-  }),
-});

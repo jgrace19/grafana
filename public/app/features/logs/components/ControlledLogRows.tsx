@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { controlledLogRowsStyles } from './ControlledLogRows.stylex';
 import { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
 
 import {
@@ -152,9 +154,9 @@ const LogRowsComponent = forwardRef<HTMLDivElement | null, LogRowsComponentProps
 
     const scrollElementClassName = useMemo(() => {
       if (ref) {
-        return styles.forwardedScrollableLogRows;
+        return mergeStylexClassName(stylex.props(controlledLogRowsStyles.forwardedScrollableLogRows), undefined).className;
       }
-      return styles.scrollableLogRows;
+      return mergeStylexClassName(stylex.props(controlledLogRowsStyles.scrollableLogRows), undefined).className;
     }, [ref]);
 
     const scrollIntoView = useCallback(
@@ -174,7 +176,7 @@ const LogRowsComponent = forwardRef<HTMLDivElement | null, LogRowsComponentProps
     );
 
     return (
-      <div className={styles.logRowsContainer}>
+      <div {...stylex.props(controlledLogRowsStyles.logRowsContainer)}>
         <LogListControls eventBus={eventBus} />
         <div ref={scrollElementRef} className={scrollElementClassName}>
           <InfiniteScroll
@@ -218,25 +220,3 @@ function handleScrollToEvent(event: ScrollToLogsEvent, scrollElement: HTMLDivEle
   }
 }
 
-const styles = {
-  scrollableLogRows: css({
-    overflowY: 'auto',
-    width: '100%',
-    maxHeight: '80vh',
-  }),
-  forwardedScrollableLogRows: css({
-    overflowY: 'auto',
-    width: '100%',
-    maxHeight: '100%',
-  }),
-  logRows: css({
-    overflowX: 'scroll',
-    overflowY: 'visible',
-    width: '100%',
-  }),
-  logRowsContainer: css({
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    height: '100%',
-  }),
-};

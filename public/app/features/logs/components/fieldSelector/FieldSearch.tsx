@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { fieldSearchStyles } from './FieldSearch.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, IconButton, Input, useStyles2 } from '@grafana/ui';
+import { Field, IconButton, Input } from '@grafana/ui';
 
 interface Props {
   collapse(): void;
@@ -12,17 +13,16 @@ interface Props {
 }
 
 export function FieldSearch({ collapse, onChange, value }: Props) {
-  const styles = useStyles2(getStyles);
   return (
     <>
       <IconButton
-        className={styles.iconExpanded}
+        {...stylex.props(fieldSearchStyles.iconExpanded)}
         onClick={collapse}
         name="arrow-from-right"
         tooltip={t('logs.field-selector.collapse', 'Collapse sidebar')}
         size="sm"
       />
-      <Field noMargin className={styles.searchWrap}>
+      <Field noMargin {...stylex.props(fieldSearchStyles.searchWrap)}>
         <Input
           value={value}
           type="text"
@@ -43,19 +43,3 @@ export function FieldSearch({ collapse, onChange, value }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    iconExpanded: css({
-      position: 'absolute',
-      right: theme.spacing(0.2),
-      top: theme.spacing(1),
-      svg: {
-        transform: 'rotate(-180deg)',
-      },
-    }),
-    searchWrap: css({
-      padding: `${theme.spacing(0.4)} 0 ${theme.spacing(0.4)} ${theme.spacing(0.4)}`,
-      marginBottom: theme.spacing(2),
-    }),
-  };
-}

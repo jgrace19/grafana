@@ -1,14 +1,12 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ConfirmModal, useStyles2 } from '@grafana/ui';
+import { ConfirmModal, } from '@grafana/ui';
 
 const Body = () => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
-    <p className={styles.description}>
+    <p {...stylex.props(deletePublicDashboardModalStyles.description)}>
       {t(
         'shared-dashboard.delete-modal.revoke-body-text',
         'Are you sure you want to revoke this access? The dashboard can no longer be shared.'
@@ -37,11 +35,3 @@ export const DeletePublicDashboardModal = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  title: css({
-    marginBottom: theme.spacing(1),
-  }),
-  description: css({
-    fontSize: theme.typography.body.fontSize,
-  }),
-});

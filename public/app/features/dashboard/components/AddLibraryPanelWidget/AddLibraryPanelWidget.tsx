@@ -1,8 +1,10 @@
-import { css, cx, keyframes } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { addLibraryPanelWidgetStyles } from './AddLibraryPanelWidget.stylex';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type LibraryPanel } from '@grafana/schema';
 import { IconButton, useStyles2 } from '@grafana/ui';
@@ -38,12 +40,10 @@ export const AddLibraryPanelWidget = ({ panel, dashboard }: Props) => {
     dashboard.removePanel(panel);
   };
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.callToAction}>
-        <div className={cx(styles.headerRow, 'grid-drag-handle')}>
+    <div {...stylex.props(addLibraryPanelWidgetStyles.wrapper)}>
+      <div {...stylex.props(addLibraryPanelWidgetStyles.callToAction)}>
+        <div {...mergeStylexClassName(stylex.props(addLibraryPanelWidgetStyles.headerRow, , 'grid-drag-handle'), undefined)}>
           <span>
             <Trans i18nKey="library-panel.add-widget.title">Add panel from panel library</Trans>
           </span>
@@ -64,62 +64,3 @@ export const AddLibraryPanelWidget = ({ panel, dashboard }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const pulsate = keyframes({
-    '0%': {
-      boxShadow: `0 0 0 2px ${theme.colors.background.canvas}, 0 0 0px 4px ${theme.colors.primary.main}`,
-    },
-    '50%': {
-      boxShadow: `0 0 0 2px ${theme.components.dashboard.background}, 0 0 0px 4px ${tinycolor(theme.colors.primary.main)
-        .darken(20)
-        .toHexString()}`,
-    },
-    '100%': {
-      boxShadow: `0 0 0 2px ${theme.components.dashboard.background}, 0 0 0px 4px  ${theme.colors.primary.main}`,
-    },
-  });
-
-  return {
-    // wrapper is used to make sure box-shadow animation isn't cut off in dashboard page
-    wrapper: css({
-      height: '100%',
-      paddingTop: `${theme.spacing(0.5)}`,
-    }),
-    headerRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      height: '38px',
-      flexShrink: 0,
-      width: '100%',
-      fontSize: theme.typography.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingLeft: `${theme.spacing(1)}`,
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'background-color 0.1s ease-in-out',
-      },
-      cursor: 'move',
-
-      '&:hover': {
-        background: `${theme.colors.background.secondary}`,
-      },
-    }),
-    callToAction: css({
-      backgroundColor: theme.components.panel.background,
-      border: `1px solid ${theme.components.panel.borderColor}`,
-      borderRadius: theme.shape.radius.default,
-      display: 'flex',
-      flex: '1 1 0',
-      flexDirection: 'column',
-      height: '100%',
-      position: 'relative',
-      width: '100%',
-      outline: '2px dotted transparent',
-      outlineOffset: '2px',
-      overflow: 'hidden',
-
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${pulsate} 2s ease infinite`,
-      },
-    }),
-  };
-};

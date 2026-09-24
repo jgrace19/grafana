@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsVolumePanelStyles } from './LogsVolumePanel.stylex';
 import { identity } from 'lodash';
 import * as React from 'react';
 
@@ -14,7 +16,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type TimeZone } from '@grafana/schema';
-import { Icon, type SeriesVisibilityChangeMode, Tooltip, TooltipDisplayMode, useStyles2, useTheme2 } from '@grafana/ui';
+import { Icon, type SeriesVisibilityChangeMode, Tooltip, TooltipDisplayMode, useTheme2 } from '@grafana/ui';
 
 import { getLogsVolumeDataSourceInfo, isLogsVolumeLimited } from '../../logs/utils';
 import { ExploreGraph } from '../Graph/ExploreGraph';
@@ -47,7 +49,6 @@ export function LogsVolumePanel(props: Props) {
     toggleLegendRef,
   } = props;
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const spacing = parseInt(theme.spacing(2).slice(0, -2), 10);
   const height = 150;
@@ -73,14 +74,14 @@ export function LogsVolumePanel(props: Props) {
       <>
         {extraInfoComponent}
         <Tooltip content={t('explore.logs-volume-panel.content-streaming', 'Streaming')}>
-          <Icon name="circle-mono" size="md" className={styles.streaming} data-testid="logs-volume-streaming" />
+          <Icon name="circle-mono" size="md" {...stylex.props(logsVolumePanelStyles.streaming)} data-testid="logs-volume-streaming" />
         </Tooltip>
       </>
     );
   }
 
   return (
-    <div style={{ height }} className={styles.contentContainer}>
+    <div style={{ height }} {...stylex.props(logsVolumePanelStyles.contentContainer)}>
       <ExploreGraph
         toggleLegendRef={toggleLegendRef}
         vizLegendOverrides={{
@@ -102,30 +103,9 @@ export function LogsVolumePanel(props: Props) {
         eventBus={props.eventBus}
         annotations={props.annotations}
       />
-      {extraInfoComponent && <div className={styles.extraInfoContainer}>{extraInfoComponent}</div>}
+      {extraInfoComponent && <div {...stylex.props(logsVolumePanelStyles.extraInfoContainer)}>{extraInfoComponent}</div>}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    extraInfoContainer: css({
-      display: 'flex',
-      justifyContent: 'end',
-      position: 'absolute',
-      right: '5px',
-      top: '-10px',
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    contentContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-    }),
-    streaming: css({
-      color: theme.colors.success.text,
-    }),
-  };
-};
+;

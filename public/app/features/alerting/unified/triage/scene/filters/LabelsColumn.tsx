@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { labelsColumnStyles } from './LabelsColumn.stylex';
 import { useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { useQueryRunner, useSceneContext } from '@grafana/scenes-react';
-import { Button, FilterInput, Icon, LoadingBar, ScrollContainer, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, FilterInput, Icon, LoadingBar, ScrollContainer, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { COMBINED_FILTER_LABEL_KEYS } from '../../constants';
 import { countInstances } from '../SummaryStats';
@@ -31,17 +33,16 @@ const COLLAPSED_WIDTH = 36;
 const SKELETON_ROW_COUNT = 6;
 
 function LabelsSkeleton() {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.skeletonList}>
+    <div {...stylex.props(labelsColumnStyles.skeletonList)}>
       {Array.from({ length: SKELETON_ROW_COUNT }, (_, i) => (
-        <div key={i} className={styles.skeletonRow}>
+        <div key={i} {...stylex.props(labelsColumnStyles.skeletonRow)}>
           <Skeleton width={16} height={16} />
-          <span className={styles.skeletonName}>
+          <span {...stylex.props(labelsColumnStyles.skeletonName)}>
             <Skeleton width="100%" height={16} />
           </span>
-          <div className={styles.skeletonBadges}>
+          <div {...stylex.props(labelsColumnStyles.skeletonBadges)}>
             <Skeleton width={22} height={16} />
             <Skeleton width={22} height={16} />
           </div>
@@ -61,7 +62,6 @@ export function LabelsColumn() {
   const isSubsequentLoad = isLoading && labels.length > 0;
   const [open, toggleOpen] = useToggle(true);
   const [labelFilter, setLabelFilter] = useState('');
-  const styles = useStyles2(getStyles);
   const activeSeverityValue = useRegexFilterValue('severity');
   const activeSidebarFilterValues: Record<SidebarFilterKey, string | undefined> = {
     alertname: useFilterValue('alertname'),
@@ -79,8 +79,8 @@ export function LabelsColumn() {
   const { hasActiveFilters, clearAllFilters } = useClearAllFilters();
 
   return (
-    <div className={cx(styles.column, !open && styles.columnCollapsed)}>
-      <div className={styles.collapseButtonRow}>
+    <div className={cx(labelsColumnStyles.column, !open && labelsColumnStyles.columnCollapsed)}>
+      <div {...stylex.props(labelsColumnStyles.collapseButtonRow)}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Tooltip
             content={
@@ -91,7 +91,7 @@ export function LabelsColumn() {
             placement="right"
           >
             <button
-              className={styles.collapseButton}
+              {...stylex.props(labelsColumnStyles.collapseButton)}
               onClick={toggleOpen}
               aria-label={
                 open
@@ -111,37 +111,37 @@ export function LabelsColumn() {
       </div>
       {open && (
         <ScrollContainer scrollbarWidth="thin">
-          <div className={styles.inner}>
-            <div className={styles.section}>
+          <div {...stylex.props(labelsColumnStyles.inner)}>
+            <div {...stylex.props(labelsColumnStyles.section)}>
               <Text weight="medium" variant="bodySmall" color="secondary">
                 <Trans i18nKey="alerting.triage.state-filter-title">State</Trans>
               </Text>
               <StateFilter />
             </div>
-            <div className={styles.divider} />
+            <div {...stylex.props(labelsColumnStyles.divider)} />
             {showSeverityFilter && (
               <>
-                <div className={styles.section}>
+                <div {...stylex.props(labelsColumnStyles.section)}>
                   <Text weight="medium" variant="bodySmall" color="secondary">
                     <Trans i18nKey="alerting.triage.severity-filter-title">Severity</Trans>
                   </Text>
                   <SeverityFilter labels={labels} />
                 </div>
-                <div className={styles.divider} />
+                <div {...stylex.props(labelsColumnStyles.divider)} />
               </>
             )}
             {visibleSidebarFilters.map(({ key, labelI18nKey, defaultLabel, values, activeValue }) => (
               <div key={key}>
-                <div className={styles.section}>
+                <div {...stylex.props(labelsColumnStyles.section)}>
                   <Text weight="medium" variant="bodySmall" color="secondary">
                     {t(labelI18nKey, defaultLabel)}
                   </Text>
                   <SidebarFilterGroup filterKey={key} values={values} activeValue={activeValue} />
                 </div>
-                <div className={styles.divider} />
+                <div {...stylex.props(labelsColumnStyles.divider)} />
               </div>
             ))}
-            <div className={styles.labelsSectionHeader}>
+            <div {...stylex.props(labelsColumnStyles.labelsSectionHeader)}>
               <Text weight="medium" variant="bodySmall" color="secondary">
                 <Trans i18nKey="alerting.triage.labels-column-title">Labels</Trans>
               </Text>
@@ -150,10 +150,10 @@ export function LabelsColumn() {
                 value={labelFilter}
                 onChange={setLabelFilter}
                 aria-label={t('alerting.triage.filter-labels', 'Filter labels')}
-                className={styles.labelFilterInput}
+                {...stylex.props(labelsColumnStyles.labelFilterInput)}
               />
             </div>
-            <div className={styles.loadingBar}>{isSubsequentLoad && <LoadingBar width={LABELS_COLUMN_WIDTH} />}</div>
+            <div {...stylex.props(labelsColumnStyles.loadingBar)}>{isSubsequentLoad && <LoadingBar width={LABELS_COLUMN_WIDTH} />}</div>
             {isFirstLoad && <LabelsSkeleton />}
             {!isFirstLoad && labels.length > 0 && <AllLabelsContent allLabels={labels} labelFilter={labelFilter} />}
           </div>
@@ -164,7 +164,6 @@ export function LabelsColumn() {
 }
 
 function StateFilter() {
-  const styles = useStyles2(getStyles);
   const sceneContext = useSceneContext();
   const activeState = useFilterValue('alertstate');
   const counts = useInstanceCounts();
@@ -180,24 +179,24 @@ function StateFilter() {
   return (
     <Stack direction="column" gap={0.5}>
       <button
-        className={cx(styles.stateButton, activeState === 'firing' && styles.stateButtonActive)}
+        className={cx(labelsColumnStyles.stateButton, activeState === 'firing' && labelsColumnStyles.stateButtonActive)}
         onClick={() => toggle('firing')}
       >
-        <Icon name="exclamation-circle" size="sm" className={styles.firingIcon} />
-        <span className={styles.stateLabel}>
+        <Icon name="exclamation-circle" size="sm" {...stylex.props(labelsColumnStyles.firingIcon)} />
+        <span {...stylex.props(labelsColumnStyles.stateLabel)}>
           <Trans i18nKey="alerting.triage.state-firing">Firing</Trans>
         </span>
-        {counts !== undefined && <span className={styles.stateCount}>{counts.firing}</span>}
+        {counts !== undefined && <span {...stylex.props(labelsColumnStyles.stateCount)}>{counts.firing}</span>}
       </button>
       <button
-        className={cx(styles.stateButton, activeState === 'pending' && styles.stateButtonActive)}
+        className={cx(labelsColumnStyles.stateButton, activeState === 'pending' && labelsColumnStyles.stateButtonActive)}
         onClick={() => toggle('pending')}
       >
-        <Icon name="circle" size="sm" className={styles.pendingIcon} />
-        <span className={styles.stateLabel}>
+        <Icon name="circle" size="sm" {...stylex.props(labelsColumnStyles.pendingIcon)} />
+        <span {...stylex.props(labelsColumnStyles.stateLabel)}>
           <Trans i18nKey="alerting.triage.state-pending">Pending</Trans>
         </span>
-        {counts !== undefined && <span className={styles.stateCount}>{counts.pending}</span>}
+        {counts !== undefined && <span {...stylex.props(labelsColumnStyles.stateCount)}>{counts.pending}</span>}
       </button>
     </Stack>
   );
@@ -230,7 +229,6 @@ function SidebarFilterGroup({
   values: SidebarFilterValue[];
   activeValue: string | undefined;
 }) {
-  const styles = useStyles2(getStyles);
   const sceneContext = useSceneContext();
 
   return (
@@ -240,7 +238,7 @@ function SidebarFilterGroup({
         return (
           <button
             key={value.value}
-            className={cx(styles.stateButton, isActive && styles.stateButtonActive)}
+            className={cx(labelsColumnStyles.stateButton, isActive && labelsColumnStyles.stateButtonActive)}
             onClick={() => {
               if (isActive) {
                 removeFilter(sceneContext, filterKey);
@@ -249,8 +247,8 @@ function SidebarFilterGroup({
               }
             }}
           >
-            <span className={styles.stateLabel}>{value.value}</span>
-            <span className={styles.stateCount}>{value.firing + value.pending}</span>
+            <span {...stylex.props(labelsColumnStyles.stateLabel)}>{value.value}</span>
+            <span {...stylex.props(labelsColumnStyles.stateCount)}>{value.firing + value.pending}</span>
           </button>
         );
       })}
@@ -324,133 +322,3 @@ export function useInstanceCounts(): { firing: number; pending: number } | undef
   return countInstances(instanceFrame);
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  column: css({
-    width: LABELS_COLUMN_WIDTH,
-    minWidth: LABELS_COLUMN_WIDTH,
-    maxWidth: LABELS_COLUMN_WIDTH,
-    marginRight: theme.spacing(2),
-    borderRight: `1px solid ${theme.colors.border.weak}`,
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  columnCollapsed: css({
-    width: COLLAPSED_WIDTH,
-    minWidth: COLLAPSED_WIDTH,
-    maxWidth: COLLAPSED_WIDTH,
-    borderRight: 'none',
-  }),
-  collapseButtonRow: css({
-    padding: theme.spacing(0.5),
-    flexShrink: 0,
-  }),
-  collapseButton: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 24,
-    height: 24,
-    padding: 0,
-    background: 'none',
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    cursor: 'pointer',
-    color: theme.colors.text.secondary,
-    flexShrink: 0,
-    '&:hover': {
-      background: theme.colors.action.hover,
-      color: theme.colors.text.primary,
-    },
-  }),
-  inner: css({
-    display: 'flex',
-    flexDirection: 'column',
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(1),
-  }),
-  section: css({
-    padding: theme.spacing(1, 1.5),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.75),
-    flexShrink: 0,
-  }),
-  divider: css({
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    flexShrink: 0,
-  }),
-  labelsSectionHeader: css({
-    padding: theme.spacing(1, 0, 1, 1.5),
-    flexShrink: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.75),
-  }),
-  labelFilterInput: css({
-    width: '100%',
-  }),
-  loadingBar: css({
-    // Keep a constant row height to avoid layout shifts during loading.
-    height: 1,
-    overflow: 'hidden',
-  }),
-  skeletonList: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1, 1.5),
-  }),
-  skeletonRow: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.75),
-  }),
-  skeletonName: css({
-    flex: 1,
-    minWidth: 0,
-  }),
-  skeletonBadges: css({
-    display: 'flex',
-    gap: theme.spacing(0.5),
-    marginLeft: 'auto',
-    flexShrink: 0,
-  }),
-  stateButton: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    width: '100%',
-    padding: theme.spacing(0.5, 0.75),
-    background: 'none',
-    border: `1px solid transparent`,
-    borderRadius: theme.shape.radius.default,
-    cursor: 'pointer',
-    color: theme.colors.text.secondary,
-    textAlign: 'left',
-    '&:hover': {
-      background: theme.colors.action.hover,
-    },
-  }),
-  stateButtonActive: css({
-    background: theme.colors.action.selected,
-  }),
-  stateLabel: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  firingIcon: css({
-    color: theme.colors.error.text,
-    flexShrink: 0,
-  }),
-  pendingIcon: css({
-    color: theme.colors.warning.text,
-    flexShrink: 0,
-  }),
-  stateCount: css({
-    marginLeft: 'auto',
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    fontVariantNumeric: 'tabular-nums',
-  }),
-});

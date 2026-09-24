@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { recentlyViewedDashboardsStyles } from './RecentlyViewedDashboards.stylex';
 import { useEffect, useState } from 'react';
 import { useAsyncRetry } from 'react-use';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, CollapsableSection, Grid, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Button, CollapsableSection, Grid, Spinner, Stack, Text } from '@grafana/ui';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useDashboardLocationInfo } from 'app/features/search/hooks/useDashboardLocationInfo';
@@ -18,7 +19,6 @@ const MAX_RECENT = 5;
 const recentDashboardsKey = `dashboard_impressions-${contextSrv.user.orgId}`;
 
 export function RecentlyViewedDashboards() {
-  const styles = useStyles2(getStyles);
   const isMediumScreen = !useMediaQueryMinWidth('md');
   const [isOpen, setIsOpen] = useState(!isMediumScreen); // Default to closed on small screens
 
@@ -71,8 +71,8 @@ export function RecentlyViewedDashboards() {
       // passing empty function to disable controlled mode, we only want to control isOpen when click on title
       // this avoid entire header section being clickable which can be confusing with the Clear history button
       onToggle={() => {}}
-      className={styles.title}
-      contentClassName={styles.content}
+      {...stylex.props(recentlyViewedDashboardsStyles.title)}
+      contentClassName={mergeStylexClassName(stylex.props(recentlyViewedDashboardsStyles.content), undefined).className}
     >
       {error && (
         <>
@@ -89,10 +89,10 @@ export function RecentlyViewedDashboards() {
       {loading && <Spinner />}
 
       {!loading && recentDashboards.length > 0 && (
-        <ul className={styles.list}>
+        <ul {...stylex.props(recentlyViewedDashboardsStyles.list)}>
           <Grid columns={{ xs: 1, sm: 2, md: 3, lg: 5 }} gap={2}>
             {recentDashboards.map((dash, idx) => (
-              <li key={dash.uid} className={styles.listItem}>
+              <li key={dash.uid} {...stylex.props(recentlyViewedDashboardsStyles.listItem)}>
                 <DashListItem
                   order={idx + 1}
                   key={dash.uid}
@@ -112,34 +112,4 @@ export function RecentlyViewedDashboards() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    title: css({
-      cursor: 'default',
-      '& [id^="collapse-button-"] svg': {
-        color: theme.colors.primary.text,
-      },
-      h3: {
-        background: `linear-gradient(90deg, ${theme.colors.primary.shade} 0%, ${theme.colors.primary.text} 100%)`,
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        color: 'transparent',
-        cursor: 'pointer',
-      },
-      padding: 0,
-    }),
-    content: css({
-      paddingTop: theme.spacing(0),
-    }),
-    list: css({
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      display: 'grid',
-      gap: theme.spacing(2),
-    }),
-    listItem: css({
-      margin: 0,
-    }),
-  };
-};
+;

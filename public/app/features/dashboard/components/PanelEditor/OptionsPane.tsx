@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionsPaneStyles } from './OptionsPane.stylex';
 import { selectors } from '@grafana/e2e-selectors';
-import { useStyles2 } from '@grafana/ui';
 import { useSelector } from 'app/types/store';
 
 import { OptionsPaneOptions } from './OptionsPaneOptions';
@@ -20,18 +20,17 @@ export const OptionsPane = ({
   dashboard,
   instanceState,
 }: OptionPaneRenderProps) => {
-  const styles = useStyles2(getStyles);
   const isVizPickerOpen = useSelector((state) => state.panelEditor.isVizPickerOpen);
   const { data } = usePanelLatestData(panel, { withTransforms: true, withFieldConfig: false }, true);
 
   return (
-    <div className={styles.wrapper} data-testid={selectors.components.PanelEditor.OptionsPane.content}>
+    <div {...stylex.props(optionsPaneStyles.wrapper)} data-testid={selectors.components.PanelEditor.OptionsPane.content}>
       {!isVizPickerOpen && (
         <>
-          <div className={styles.vizButtonWrapper}>
+          <div {...stylex.props(optionsPaneStyles.vizButtonWrapper)}>
             <VisualizationButton panel={panel} />
           </div>
-          <div className={styles.optionsWrapper}>
+          <div {...stylex.props(optionsPaneStyles.optionsWrapper)}>
             <OptionsPaneOptions
               panel={panel}
               dashboard={dashboard}
@@ -50,42 +49,4 @@ export const OptionsPane = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      height: '100%',
-      width: '100%',
-      display: 'flex',
-      flex: '1 1 0',
-      flexDirection: 'column',
-      padding: 0,
-    }),
-    optionsWrapper: css({
-      flexGrow: 1,
-      minHeight: 0,
-    }),
-    vizButtonWrapper: css({
-      padding: `0 ${theme.spacing(2, 2)} 0`,
-    }),
-    legacyOptions: css({
-      label: 'legacy-options',
-      '.panel-options-grid': {
-        display: 'flex',
-        flexDirection: 'column',
-      },
-      '.panel-options-group': {
-        marginBottom: 0,
-      },
-      '.panel-options-group__body': {
-        padding: `${theme.spacing(2)} 0`,
-      },
-      '.section': {
-        display: 'block',
-        margin: `${theme.spacing(2)} 0`,
-        '&:first-child': {
-          marginTop: 0,
-        },
-      },
-    }),
-  };
-};
+;

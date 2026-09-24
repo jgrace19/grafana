@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceListStyles } from './DataSourceList.stylex';
 import { useMemo } from 'react';
 import * as React from 'react';
 import { type Observable } from 'rxjs';
@@ -12,7 +15,6 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { type FavoriteDatasources, getTemplateSrv } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 import { useDatasources, useRecentlyUsedDataSources } from '../../hooks';
 
@@ -62,7 +64,6 @@ export interface DataSourceListProps {
 }
 
 export function DataSourceList(props: DataSourceListProps) {
-  const styles = useStyles2(getStyles);
 
   const {
     className,
@@ -90,8 +91,8 @@ export function DataSourceList(props: DataSourceListProps) {
   };
 
   return (
-    <div className={cx(className, styles.container)} data-testid={selectors.components.DataSourcePicker.dataSourceList}>
-      {sortedDataSources.length === 0 && <EmptyState className={styles.emptyState} onClickCTA={onClickEmptyStateCTA} />}
+    <div {...mergeStylexClassName(stylex.props(dataSourceListStyles.container, className, ), undefined)} data-testid={selectors.components.DataSourcePicker.dataSourceList}>
+      {sortedDataSources.length === 0 && <EmptyState {...stylex.props(dataSourceListStyles.emptyState)} onClickCTA={onClickEmptyStateCTA} />}
       {sortedDataSources.length > 0 && shouldVirtualize && <VirtualizedList {...sharedProps} />}
       {sortedDataSources.length > 0 && !shouldVirtualize && <StaticList {...sharedProps} />}
     </div>
@@ -137,10 +138,10 @@ function useSortedDataSources(
 }
 
 function EmptyState({ className, onClickCTA }: { className?: string; onClickCTA?: () => void }) {
-  const styles = useStyles2(getEmptyStateStyles);
+  const styles = (getEmptyStateStyles);
   return (
-    <div className={cx(className, styles.container)}>
-      <p className={styles.message}>
+    <div {...mergeStylexClassName(stylex.props(dataSourceListStyles.container, className, ), undefined)}>
+      <p className={dataSourceListStyles.message}>
         <Trans i18nKey="data-source-picker.list.no-data-source-message">No data sources found</Trans>
       </p>
       <AddNewDataSourceButton onClick={onClickCTA} />
@@ -171,19 +172,3 @@ function getDataSourceVariableIDs() {
     .map((v) => `\${${v.id}}`);
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0.5),
-      '[data-selecteditem="true"]': {
-        backgroundColor: theme.colors.action.focus,
-      },
-    }),
-    emptyState: css({
-      height: '100%',
-      flex: 1,
-    }),
-  };
-}

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rectangleStyles } from './rectangle.stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
 import { TextDimensionEditor } from 'app/features/dimensions/editors/TextDimensionEditor';
@@ -18,32 +18,17 @@ import {
 import { Align, type TextConfig, type TextData, VAlign } from '../types';
 
 const RectangleDisplay = memo<CanvasElementProps<TextConfig, TextData>>(({ data }) => {
-  const styles = useStyles2(getStyles, data);
+  const styles = (getStyles, data);
 
   return (
-    <div className={styles.container}>
-      <span className={styles.span}>{data?.text}</span>
+    <div {...stylex.props(rectangleStyles.container)}>
+      <span {...stylex.props(rectangleStyles.span)}>{data?.text}</span>
     </div>
   );
 });
 
 RectangleDisplay.displayName = 'RectangleDisplay';
 
-const getStyles = (theme: GrafanaTheme2, data: TextData | undefined) => ({
-  container: css({
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    display: 'table',
-  }),
-  span: css({
-    display: 'table-cell',
-    verticalAlign: data?.valign,
-    textAlign: data?.align,
-    fontSize: `${data?.size}px`,
-    color: data?.color,
-  }),
-});
 
 export const rectangleItem: CanvasElementItem<TextConfig, TextData> = {
   id: 'rectangle',

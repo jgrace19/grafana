@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationFilterStyles } from './TransformationFilter.stylex';
 import { useMemo } from 'react';
 
 import { type DataFrame, type DataTransformerConfig, type GrafanaTheme2 } from '@grafana/data';
@@ -17,7 +19,6 @@ interface TransformationFilterProps {
 }
 
 export const TransformationFilter = ({ index, annotations, config, onChange, data }: TransformationFilterProps) => {
-  const styles = useStyles2(getStyles);
 
   const opts = useMemo(() => {
     return {
@@ -33,7 +34,7 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
   }, [data, annotations?.length, config.topic]);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(transformationFilterStyles.wrapper)}>
       <Field label={t('dashboard.transformation-filter.label-apply-transformation-to', 'Apply transformation to')}>
         <>
           {opts.showTopic && (
@@ -42,7 +43,7 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
               options={opts.source}
               value={opts.source.find((v) => v.value === config.topic)}
               placeholder={opts.source[0].label}
-              className={styles.padded}
+              {...stylex.props(transformationFilterStyles.padded)}
               onChange={(option) => {
                 onChange(index, {
                   ...config,
@@ -64,20 +65,3 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const borderRadius = theme.shape.radius.default;
-
-  return {
-    wrapper: css({
-      padding: theme.spacing(2),
-      border: `2px solid ${theme.colors.background.secondary}`,
-      borderTop: `none`,
-      borderRadius: `0 0 ${borderRadius} ${borderRadius}`,
-      position: `relative`,
-      top: `-4px`,
-    }),
-    padded: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};

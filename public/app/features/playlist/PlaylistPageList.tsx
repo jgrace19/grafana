@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 
 import { type Playlist } from '../../api/clients/playlist/v1';
@@ -15,11 +13,11 @@ interface Props {
 }
 
 const PlaylistPageListComponent = ({ playlists, setStartPlaylist, setPlaylistToDelete }: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   return (
-    <ul className={styles.list}>
+    <ul {...stylex.props(playlistPageListStyles.list)}>
       {playlists.map((playlist) => (
-        <li className={styles.listItem} key={playlist.metadata?.name}>
+        <li {...stylex.props(playlistPageListStyles.listItem)} key={playlist.metadata?.name}>
           <PlaylistCard
             playlist={playlist}
             setStartPlaylist={setStartPlaylist}
@@ -32,9 +30,9 @@ const PlaylistPageListComponent = ({ playlists, setStartPlaylist, setPlaylistToD
 };
 
 const PlaylistPageListSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   return (
-    <div data-testid="playlist-page-list-skeleton" className={styles.list} {...rootProps}>
+    <div data-testid="playlist-page-list-skeleton" {...stylex.props(playlistPageListStyles.list)} {...rootProps}>
       <PlaylistCard.Skeleton />
       <PlaylistCard.Skeleton />
       <PlaylistCard.Skeleton />
@@ -44,14 +42,3 @@ const PlaylistPageListSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 export const PlaylistPageList = attachSkeleton(PlaylistPageListComponent, PlaylistPageListSkeleton);
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    list: css({
-      display: 'grid',
-      gap: theme.spacing(1),
-    }),
-    listItem: css({
-      listStyle: 'none',
-    }),
-  };
-}

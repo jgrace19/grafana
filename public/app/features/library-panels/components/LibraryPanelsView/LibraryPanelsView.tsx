@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { libraryPanelsViewStyles } from './LibraryPanelsView.stylex';
 import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2, LoadingState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { EmptyState, Pagination, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { EmptyState, Pagination, Stack, TextLink } from '@grafana/ui';
 
 import { type LibraryElementDTO } from '../../types';
 import { LibraryPanelCard } from '../LibraryPanelCard/LibraryPanelCard';
@@ -33,7 +34,7 @@ export const LibraryPanelsView = ({
   currentPanelId: currentPanel,
   perPage: propsPerPage = 40,
 }: LibraryPanelViewProps) => {
-  const styles = useStyles2(getPanelViewStyles);
+  const styles = (getPanelViewStyles);
   const [{ libraryPanels, page, perPage, numberOfPages, loadingState, currentPanelId }, dispatch] = useReducer(
     libraryPanelsViewReducer,
     {
@@ -138,7 +139,7 @@ export const LibraryPanelsView = ({
         ))
       )}
       {libraryPanels.length ? (
-        <div className={styles.pagination}>
+        <div {...stylex.props(libraryPanelsViewStyles.pagination)}>
           <Pagination
             currentPage={page}
             numberOfPages={numberOfPages}
@@ -151,11 +152,4 @@ export const LibraryPanelsView = ({
   );
 };
 
-const getPanelViewStyles = (theme: GrafanaTheme2) => {
-  return {
-    pagination: css({
-      alignSelf: 'center',
-      marginTop: theme.spacing(1),
-    }),
-  };
-};
+;

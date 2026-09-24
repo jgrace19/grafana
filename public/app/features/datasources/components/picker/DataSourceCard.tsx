@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
 import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { Card, Icon, TagList, useTheme2 } from '@grafana/ui';
@@ -29,16 +29,16 @@ export function DataSourceCard({
       key={ds.uid}
       noMargin
       onClick={onClick}
-      className={cx(styles.card, selected ? styles.selected : undefined)}
+      {...mergeStylexClassName(stylex.props(dataSourceCardStyles.card, , selected ? styles.selected : undefined), undefined)}
       {...htmlProps}
     >
-      <Card.Heading className={styles.heading}>
-        <div className={styles.headingContent}>
-          <span className={styles.name}>
+      <Card.Heading {...stylex.props(dataSourceCardStyles.heading)}>
+        <div {...stylex.props(dataSourceCardStyles.headingContent)}>
+          <span {...stylex.props(dataSourceCardStyles.name)}>
             {ds.name} {ds.isDefault ? <TagList tags={['default']} /> : null}
           </span>
-          <div className={styles.rightSection}>
-            <small className={styles.type}>{description || ds.meta.name}</small>
+          <div {...stylex.props(dataSourceCardStyles.rightSection)}>
+            <small {...stylex.props(dataSourceCardStyles.type)}>{description || ds.meta.name}</small>
             {onToggleFavorite && !ds.meta.builtIn && (
               <Icon
                 key={(isFavorite ? 'favorite' : 'star') + '-' + ds.uid}
@@ -47,13 +47,13 @@ export function DataSourceCard({
                   e.stopPropagation();
                   onToggleFavorite(ds);
                 }}
-                className={styles.favoriteButton}
+                {...stylex.props(dataSourceCardStyles.favoriteButton)}
               />
             )}
           </div>
         </div>
       </Card.Heading>
-      <Card.Figure className={styles.logo}>
+      <Card.Figure {...stylex.props(dataSourceCardStyles.logo)}>
         <img src={ds.meta.info.logos.small || undefined} alt={`${ds.meta.name} Logo`} />
       </Card.Figure>
     </Card>
@@ -61,113 +61,3 @@ export function DataSourceCard({
 }
 
 // Get styles for the component
-function getStyles(theme: GrafanaTheme2, builtIn = false) {
-  return {
-    card: css({
-      cursor: 'pointer',
-      backgroundColor: 'transparent',
-      padding: theme.spacing(1),
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'none',
-      },
-
-      '&:hover': {
-        backgroundColor: theme.colors.action.hover,
-      },
-    }),
-    heading: css({
-      width: '100%',
-      overflow: 'hidden',
-      // This is needed to enable ellipsis when text overflows
-      '> button': {
-        width: '100%',
-      },
-    }),
-    headingContent: css({
-      color: theme.colors.text.secondary,
-      width: '100%',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      justifyContent: 'space-between',
-      columnGap: theme.spacing(1),
-      alignItems: 'center',
-
-      [theme.breakpoints.down('sm')]: {
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gridTemplateRows: 'repeat(2, 1fr)',
-      },
-    }),
-    rightSection: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      minWidth: 0,
-      flex: 1,
-      justifyContent: 'flex-end',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: 'flex-start',
-      },
-    }),
-    logo: css({
-      width: '32px',
-      height: '32px',
-      padding: theme.spacing(0, 1),
-      display: 'flex',
-      alignItems: 'center',
-
-      '> img': {
-        maxHeight: '100%',
-        minWidth: '24px',
-        filter: `invert(${builtIn && theme.isLight ? 1 : 0})`,
-      },
-    }),
-    name: css({
-      color: theme.colors.text.primary,
-      display: 'flex',
-      gap: theme.spacing(2),
-    }),
-    type: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    favoriteButton: css({
-      flexShrink: 0,
-      pointerEvents: 'auto',
-      zIndex: 1,
-    }),
-    separator: css({
-      margin: theme.spacing(0, 1),
-      color: theme.colors.border.weak,
-    }),
-    selected: css({
-      background: theme.colors.action.selected,
-
-      '&::before': {
-        backgroundImage: theme.colors.gradients.brandVertical,
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        width: theme.spacing(0.5),
-        left: 0,
-      },
-    }),
-    meta: css({
-      display: 'block',
-      overflowWrap: 'unset',
-      whiteSpace: 'nowrap',
-      width: '100%',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    }),
-  };
-}

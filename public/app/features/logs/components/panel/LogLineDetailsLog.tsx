@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsLogStyles } from './LogLineDetailsLog.stylex';
 import { memo, useMemo } from 'react';
 
-import { useStyles2 } from '@grafana/ui';
 
 import { LogMessageAnsi } from '../LogMessageAnsi';
 
@@ -24,8 +25,8 @@ export const LogLineDetailsLog = memo(({ log: originalLog, syntaxHighlighting }:
   }, [originalLog]);
 
   return (
-    <div className={styles.logLineWrapper}>
-      <div className={`${logStyles.logLine} ${fontSize === 'small' ? logStyles.fontSizeSmall : ''} ${styles.noHover}`}>
+    <div {...stylex.props(logLineDetailsLogStyles.logLineWrapper)}>
+      <div className={`${logStyles.logLine} ${fontSize === 'small' ? logStyles.fontSizeSmall : ''} ${mergeStylexClassName(stylex.props(logLineDetailsLogStyles.noHover), undefined).className}`}>
         <div className={logStyles.wrappedLogLine}>
           {log.hasAnsi ? (
             <span className="field no-highlighting">
@@ -49,13 +50,3 @@ export const LogLineDetailsLog = memo(({ log: originalLog, syntaxHighlighting }:
 
 LogLineDetailsLog.displayName = 'LogLineDetailsLog';
 
-const styles = {
-  logLineWrapper: css({
-    maxHeight: '50vh',
-    overflow: 'auto',
-  }),
-  noHover: css({
-    // Disable hover style
-    pointerEvents: 'none',
-  }),
-};

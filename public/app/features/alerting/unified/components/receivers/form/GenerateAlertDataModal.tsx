@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { generateAlertDataModalStyles } from './GenerateAlertDataModal.stylex';
 import { addDays, subDays } from 'date-fns';
 import { uniqueId } from 'lodash';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Card, Modal, RadioButtonGroup, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Card, Modal, RadioButtonGroup, Stack } from '@grafana/ui';
 import { type TestTemplateAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { type KeyValueField } from '../../../api/templateApi';
@@ -32,7 +33,6 @@ const defaultValues: FormFields = {
 };
 
 export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const [alerts, setAlerts] = useState<TestTemplateAlert[]>([]);
 
@@ -104,17 +104,17 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
         >
           <Card noMargin>
             <Stack direction="column" gap={1}>
-              <div className={styles.section}>
+              <div {...stylex.props(generateAlertDataModalStyles.section)}>
                 <AnnotationsStep />
               </div>
-              <div className={styles.section}>
+              <div {...stylex.props(generateAlertDataModalStyles.section)}>
                 <LabelsField />
               </div>
-              <div className={styles.flexWrapper}>
+              <div {...stylex.props(generateAlertDataModalStyles.flexWrapper)}>
                 <RadioButtonGroup value={status} options={alertOptions} onChange={(value) => setStatus(value)} />
                 <Button
                   onClick={onAdd}
-                  className={styles.onAddButton}
+                  {...stylex.props(generateAlertDataModalStyles.onAddButton)}
                   icon="plus-circle"
                   type="button"
                   variant="secondary"
@@ -125,7 +125,7 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
               </div>
             </Stack>
           </Card>
-          <div className={styles.onSubmitWrapper} />
+          <div {...stylex.props(generateAlertDataModalStyles.onSubmitWrapper)} />
           {alerts.length > 0 && (
             <Stack direction="column" gap={1}>
               <h5>
@@ -134,14 +134,14 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
                   Review alert data to add to the payload:
                 </Trans>
               </h5>
-              <pre className={styles.result} data-testid="payloadJSON">
+              <pre {...stylex.props(generateAlertDataModalStyles.result)} data-testid="payloadJSON">
                 {JSON.stringify(alerts, null, 2)}
               </pre>
             </Stack>
           )}
-          <div className={styles.onSubmitWrapper}>
+          <div {...stylex.props(generateAlertDataModalStyles.onSubmitWrapper)}>
             <Modal.ButtonRow>
-              <Button onClick={onSubmit} disabled={alerts.length === 0} className={styles.onSubmitButton}>
+              <Button onClick={onSubmit} disabled={alerts.length === 0} {...stylex.props(generateAlertDataModalStyles.onSubmitButton)}>
                 <Trans i18nKey="alerting.generate-alert-data-modal.add-alert-data-to-payload">
                   Add alert data to payload
                 </Trans>
@@ -154,32 +154,3 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  section: css({
-    marginBottom: theme.spacing(2),
-  }),
-  onAddButton: css({
-    flex: 'none',
-    width: 'fit-content',
-    paddingRight: theme.spacing(1),
-    marginLeft: 'auto',
-  }),
-  flexWrapper: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  }),
-  onSubmitWrapper: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'flex-end',
-  }),
-  onSubmitButton: css({
-    marginLeft: theme.spacing(2),
-  }),
-  result: css({
-    width: '570px',
-    height: '363px',
-  }),
-});

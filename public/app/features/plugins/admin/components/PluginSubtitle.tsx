@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pluginSubtitleStyles } from './PluginSubtitle.stylex';
 import { Fragment, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Alert, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Stack } from '@grafana/ui';
 
 import { InstallControlsWarning } from '../components/InstallControls/InstallControlsWarning';
 import { getLatestCompatibleVersion, hasInstallControlWarning } from '../helpers';
@@ -23,7 +24,6 @@ export const registerPluginSubtitleExtension = (extension: PluginSubtitleExtensi
 
 export const PluginSubtitle = ({ plugin }: Props) => {
   const isRemotePluginsAvailable = useIsRemotePluginsAvailable();
-  const styles = useStyles2(getStyles);
   const { error: errorInstalling } = useInstallStatus();
   if (!plugin) {
     return null;
@@ -36,7 +36,7 @@ export const PluginSubtitle = ({ plugin }: Props) => {
     : PluginStatus.INSTALL;
 
   return (
-    <div className={styles.subtitle}>
+    <div {...stylex.props(pluginSubtitleStyles.subtitle)}>
       {errorInstalling && (
         <Alert title={'message' in errorInstalling ? errorInstalling.message : ''}>
           {typeof errorInstalling === 'string' ? errorInstalling : errorInstalling.error}
@@ -61,6 +61,4 @@ export const PluginSubtitle = ({ plugin }: Props) => {
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return { subtitle: css({ display: 'flex', flexDirection: 'column', gap: theme.spacing(1) }) };
-};
+export ;

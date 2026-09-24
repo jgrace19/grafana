@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, type LinkModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ScalarDimensionConfig } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ScalarDimensionEditor } from 'app/features/dimensions/editors/ScalarDimensionEditor';
 
@@ -19,7 +17,7 @@ interface WindTurbineConfig {
 }
 
 const WindTurbineDisplay = ({ data }: CanvasElementProps<WindTurbineConfig, WindTurbineData>) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   const windTurbineAnimation = `spin ${data?.rpm ? 60 / Math.abs(data.rpm) : 0}s linear infinite`;
 
@@ -55,7 +53,7 @@ const WindTurbineDisplay = ({ data }: CanvasElementProps<WindTurbineConfig, Wind
           <circle id="nacelle" fill="#e6e6e6" cx="36.54" cy="12" r="11.93" />
           <circle id="gearbox" fill="none" stroke="#d0d6d7" strokeWidth="2.75" cx="36.538" cy="11.999" r="5.8" />
         </g>
-        <g className={styles.blade} style={{ animation: windTurbineAnimation }}>
+        <g {...stylex.props(windTurbineStyles.blade)} style={{ animation: windTurbineAnimation }}>
           <use id="blade1" href="#blade" x="83.24" y="0" />
           <use id="blade2" href="#blade" x="83.24" y="0" transform="rotate(120 94.663 94.663)" />
           <use id="blade3" href="#blade" x="83.24" y="0" transform="rotate(-120 94.663 94.663)" />
@@ -117,17 +115,3 @@ export const windTurbineItem: CanvasElementItem = {
   },
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  blade: css({
-    transformOrigin: '94.663px 94.663px',
-    transform: 'rotate(15deg)',
-    '@keyframes spin': {
-      from: {
-        transform: 'rotate(0deg)',
-      },
-      to: {
-        transform: 'rotate(360deg)',
-      },
-    },
-  }),
-});

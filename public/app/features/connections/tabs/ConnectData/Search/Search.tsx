@@ -1,23 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { searchStyles } from './Search.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { useChromeHeaderHeight } from '@grafana/runtime';
-import { Icon, Input, useStyles2 } from '@grafana/ui';
+import { Icon, Input } from '@grafana/ui';
 
-const getStyles = (theme: GrafanaTheme2, headerHeight: number) => ({
-  searchContainer: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-
-    position: 'sticky',
-    top: headerHeight,
-    backgroundColor: theme.colors.background.primary,
-    zIndex: 2,
-    padding: theme.spacing(2, 0),
-  }),
-});
 
 export interface Props {
   onChange: (e: React.FormEvent<HTMLInputElement>) => void;
@@ -26,12 +15,12 @@ export interface Props {
 
 export const Search = ({ onChange, value }: Props) => {
   const chromeHeaderHeight = useChromeHeaderHeight();
-  const styles = useStyles2(getStyles, chromeHeaderHeight ?? 0);
+  const styles = (getStyles, chromeHeaderHeight ?? 0);
 
   const placeholder = t('connections.search.placeholder', 'Search all');
 
   return (
-    <div className={styles.searchContainer}>
+    <div {...stylex.props(searchStyles.searchContainer)}>
       <Input
         value={value}
         onChange={onChange}

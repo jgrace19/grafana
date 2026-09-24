@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { fieldSelectorStyles } from './FieldSelector.stylex';
 import { startTransition, useCallback, useMemo, useState } from 'react';
 
 import { fuzzySearch, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { defaultOptions } from 'app/plugins/panel/logstable/panelcfg.gen';
 
 import { reportInteractionOnce } from '../panel/analytics';
@@ -49,7 +50,6 @@ export const FieldSelector = ({
   toggleLevel,
 }: FieldSelectorProps) => {
   const [searchValue, setSearchValue] = useState<string>('');
-  const styles = useStyles2(getStyles);
 
   const onSearchInputChange = useCallback((e?: React.FormEvent<HTMLInputElement>) => {
     if (e === undefined) {
@@ -85,7 +85,7 @@ export const FieldSelector = ({
   }, [searchValue, suggestedFields]);
 
   return (
-    <section className={styles.sidebar}>
+    <section {...stylex.props(fieldSelectorStyles.sidebar)}>
       <FieldSearch collapse={collapse} onChange={onSearchInputChange} value={searchValue} />
       <FieldList
         activeFields={activeFields}
@@ -101,15 +101,3 @@ export const FieldSelector = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    sidebar: css({
-      fontSize: theme.typography.pxToRem(11),
-      paddingRight: theme.spacing(3),
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-    }),
-  };
-}

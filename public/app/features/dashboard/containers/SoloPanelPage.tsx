@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { soloPanelPageStyles } from './SoloPanelPage.stylex';
 import { useCallback, useEffect, useState } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { useParams } from 'react-router-dom-v5-compat';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, useStyles2 } from '@grafana/ui';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -97,7 +98,6 @@ export interface SoloPanelProps extends State {
 }
 
 export const SoloPanel = ({ dashboard, notFound, panel, panelId, timezone }: SoloPanelProps) => {
-  const styles = useStyles2(getStyles);
 
   if (notFound) {
     return (
@@ -117,7 +117,7 @@ export const SoloPanel = ({ dashboard, notFound, panel, panelId, timezone }: Sol
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(soloPanelPageStyles.container)}>
       <AutoSizer>
         {({ width, height }) => {
           if (width === 0) {
@@ -145,15 +145,3 @@ export const SoloPanel = ({ dashboard, notFound, panel, panelId, timezone }: Sol
 
 export default connector(SoloPanelPage);
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'fixed',
-    bottom: 0,
-    right: 0,
-    margin: 0,
-    left: 0,
-    top: 0,
-    width: '100%',
-    height: '100%',
-  }),
-});

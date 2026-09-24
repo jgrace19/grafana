@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spanDetailRowStyles } from './SpanDetailRow.stylex';
 import React from 'react';
 
 import { type CoreApp, type GrafanaTheme2, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2 } from '@grafana/ui';
+import { withTheme2 } from '@grafana/ui';
 
 import { type SpanLinkFunc } from '../types/links';
 import { type TraceSpan, type TraceSpanReference } from '../types/trace';
@@ -28,60 +30,6 @@ import type DetailState from './SpanDetail/DetailState';
 import SpanTreeOffset from './SpanTreeOffset';
 import TimelineRow from './TimelineRow';
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => {
-  return {
-    expandedAccent: css({
-      cursor: 'pointer',
-      height: '100%',
-      overflow: 'hidden',
-      position: 'absolute',
-      width: '100%',
-      '&::before': {
-        borderLeft: '1px solid',
-        pointerEvents: 'none',
-        width: '1000px',
-      },
-      '&::after': {
-        borderRight: '1000px solid',
-        borderColor: 'inherit',
-        cursor: 'pointer',
-        opacity: 0.2,
-      },
-
-      /* border-color inherit must come AFTER other border declarations for accent */
-      '&::before, &::after': {
-        borderColor: 'inherit',
-        content: '" "',
-        position: 'absolute',
-        height: '100%',
-      },
-
-      '&:hover::after': {
-        opacity: 0.35,
-      },
-    }),
-    infoWrapper: css({
-      label: 'infoWrapper',
-      padding: '0.75rem',
-    }),
-    cell: css({
-      label: 'cell',
-      display: 'flex !important',
-      width: '100% !important',
-    }),
-    indentSpacer: css({
-      label: 'indentSpacer',
-      flex: 'none',
-    }),
-    detailWrapper: css({
-      label: 'detailWrapper',
-      flex: '1',
-      minWidth: 0,
-      backgroundColor: theme.colors.background.canvas,
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-});
 
 export type SpanDetailRowProps = {
   color: string;
@@ -154,12 +102,10 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
     visibleSpanIds,
   } = props;
 
-  const styles = getStyles(theme);
-
   return (
     <TimelineRow>
-      <TimelineRow.Cell width={1} className={styles.cell}>
-        <div className={styles.indentSpacer}>
+      <TimelineRow.Cell width={1} {...stylex.props(spanDetailRowStyles.cell)}>
+        <div {...stylex.props(spanDetailRowStyles.indentSpacer)}>
           <SpanTreeOffset
             span={span}
             showChildrenIcon={false}
@@ -170,8 +116,8 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
             removeLastIndentGuide={true}
           />
         </div>
-        <div className={styles.detailWrapper}>
-          <div className={styles.infoWrapper} style={{ borderTopColor: color }}>
+        <div {...stylex.props(spanDetailRowStyles.detailWrapper)}>
+          <div {...stylex.props(spanDetailRowStyles.infoWrapper)} style={{ borderTopColor: color }}>
             <SpanDetail
               color={color}
               detailState={detailState}

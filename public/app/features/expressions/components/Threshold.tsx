@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { thresholdStyles } from './Threshold.stylex';
 import { type AnyAction } from '@reduxjs/toolkit';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { type FormEvent, useEffect, useReducer } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { InlineField, InlineFieldRow, InlineSwitch, Input, Select, Stack, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, InlineSwitch, Input, Select, Stack } from '@grafana/ui';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 
 import { type ClassicCondition, type ExpressionQuery, thresholdFunctions } from '../types';
@@ -50,7 +51,6 @@ const defaultEvaluator: ClassicCondition = {
 };
 
 export const Threshold = ({ labelWidth, onChange, refIds, query, onError, useHysteresis = false }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const initialExpression = { ...query, conditions: query.conditions?.length ? query.conditions : [defaultEvaluator] };
 
@@ -143,7 +143,7 @@ export const Threshold = ({ labelWidth, onChange, refIds, query, onError, useHys
     };
 
     return (
-      <div className={styles.hysteresis}>
+      <div {...stylex.props(thresholdStyles.hysteresis)}>
         {/* This is to enhance the user experience for mouse users.
         The onBlur event in RecoveryThresholdRow inputs triggers validations,
         but we want to skip them when the switch is clicked as this click should inmount this component.
@@ -158,7 +158,7 @@ export const Threshold = ({ labelWidth, onChange, refIds, query, onError, useHys
             label={t('alerting.rule-form.threshold.recovery.title', 'Custom recovery threshold')}
             value={hasHysteresis}
             onChange={onHysteresisCheckChange}
-            className={styles.switch}
+            {...stylex.props(thresholdStyles.switch)}
           />
         </div>
 
@@ -185,7 +185,6 @@ interface RecoveryThresholdRowProps {
 }
 
 function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnblur }: RecoveryThresholdRowProps) {
-  const styles = useStyles2(getStyles);
 
   const onUnloadValueChange = (event: FormEvent<HTMLInputElement>, paramIndex: number) => {
     const newValue = parseFloat(event.currentTarget.value);
@@ -215,7 +214,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
       case EvalFunction.IsWithinRange:
         if (condition.evaluator.type === EvalFunction.IsWithinRange) {
           return (
-            <InlineFieldRow className={styles.hysteresis}>
+            <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
               <InlineField
                 label={t(
                   'alerting.rule-form.threshold.recovery.stop-alerting-outside-range',
@@ -224,8 +223,8 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
                 labelWidth={'auto'}
               >
                 <Stack direction="row" gap={0}>
-                  <div className={styles.range}>
-                    <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom} className={styles.noMargin}>
+                  <div {...stylex.props(thresholdStyles.range)}>
+                    <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom} {...stylex.props(thresholdStyles.noMargin)}>
                       <Input
                         type="number"
                         width={10}
@@ -235,7 +234,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
                     </InlineField>
                   </div>
                   <ToLabel />
-                  <div className={styles.range}>
+                  <div {...stylex.props(thresholdStyles.range)}>
                     <InlineField invalid={Boolean(errorMsgTo)} error={errorMsgTo}>
                       <Input
                         type="number"
@@ -252,7 +251,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         }
       case EvalFunction.IsOutsideRange:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-inside-range',
@@ -261,7 +260,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
               labelWidth={'auto'}
             >
               <Stack direction="row" gap={0}>
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom}>
                     <Input
                       type="number"
@@ -273,7 +272,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
                 </div>
 
                 <ToLabel />
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgTo)} error={errorMsgTo}>
                     <Input
                       type="number"
@@ -289,7 +288,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsOutsideRangeIncluded:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-inside-range',
@@ -298,7 +297,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
               labelWidth={'auto'}
             >
               <Stack direction="row" gap={0}>
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom}>
                     <Input
                       type="number"
@@ -309,7 +308,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
                   </InlineField>
                 </div>
                 <ToLabel />
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgTo)} error={errorMsgTo}>
                     <Input
                       type="number"
@@ -325,7 +324,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsWithinRangeIncluded:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-outside-range',
@@ -334,7 +333,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
               labelWidth={'auto'}
             >
               <Stack direction="row" gap={0}>
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgFrom)} error={errorMsgFrom}>
                     <Input
                       type="number"
@@ -345,7 +344,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
                   </InlineField>
                 </div>
                 <ToLabel />
-                <div className={styles.range}>
+                <div {...stylex.props(thresholdStyles.range)}>
                   <InlineField invalid={Boolean(errorMsgTo)} error={errorMsgTo}>
                     <Input
                       type="number"
@@ -368,7 +367,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
     switch (condition.evaluator.type) {
       case EvalFunction.IsAbove:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-bellow',
@@ -391,7 +390,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsBelow:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-above',
@@ -414,7 +413,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsEqual:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-equal',
@@ -437,7 +436,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsNotEqual:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-not-equal',
@@ -460,7 +459,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsGreaterThanEqual:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-less',
@@ -483,7 +482,7 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
         );
       case EvalFunction.IsLessThanEqual:
         return (
-          <InlineFieldRow className={styles.hysteresis}>
+          <InlineFieldRow {...stylex.props(thresholdStyles.hysteresis)}>
             <InlineField
               label={t(
                 'alerting.rule-form.threshold.recovery.stop-alerting-more',
@@ -510,17 +509,3 @@ function RecoveryThresholdRow({ isRange, condition, onError, dispatch, allowOnbl
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  range: css({
-    width: 'min-content',
-  }),
-  hysteresis: css({
-    marginTop: theme.spacing(2),
-  }),
-  switch: css({
-    paddingLeft: theme.spacing(1),
-  }),
-  noMargin: css({
-    margin: 0,
-  }),
-});

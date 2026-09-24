@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { channelSubFormStyles } from './ChannelSubForm.stylex';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { type JSX, useEffect, useMemo } from 'react';
 import { Controller, type FieldErrors, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Badge, Button, Field, Select, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Button, Field, Select, Stack, Text } from '@grafana/ui';
 import { type NotificationChannelOption } from 'app/features/alerting/unified/types/alerting';
 
 import {
@@ -63,7 +64,6 @@ export function ChannelSubForm<R extends ChannelValues>({
   canEditProtectedFields,
   customValidators = {},
 }: Props<R>): JSX.Element {
-  const styles = useStyles2(getStyles);
   const { control, watch, register, trigger, formState, setValue, getValues } =
     useFormContext<ReceiverFormValues<CloudChannelValues | GrafanaChannelValues>>();
 
@@ -240,8 +240,8 @@ export function ChannelSubForm<R extends ChannelValues>({
 
   const contactPointTypeInputId = `contact-point-type-${pathPrefix}`;
   return (
-    <div className={styles.wrapper} data-testid="item-container">
-      <div className={styles.topRow}>
+    <div {...stylex.props(channelSubFormStyles.wrapper)} data-testid="item-container">
+      <div {...stylex.props(channelSubFormStyles.topRow)}>
         <div>
           <Field
             label={t('alerting.channel-sub-form.label-integration', 'Integration')}
@@ -291,7 +291,7 @@ export function ChannelSubForm<R extends ChannelValues>({
             </Stack>
           </Field>
         </div>
-        <div className={styles.buttons}>
+        <div {...stylex.props(channelSubFormStyles.buttons)}>
           {isTestable && onTest && isTestAvailable && (
             <Button size="xs" variant="secondary" type="button" onClick={() => handleTest()} icon="message">
               <Trans i18nKey="alerting.channel-sub-form.test">Test</Trans>
@@ -322,7 +322,7 @@ export function ChannelSubForm<R extends ChannelValues>({
         </div>
       </div>
       {notifier && (
-        <div className={styles.innerContent}>
+        <div {...stylex.props(channelSubFormStyles.innerContent)}>
           {showTelegramWarning && (
             <Alert
               title={t(
@@ -394,27 +394,3 @@ function getDefaultNotifierSettings(notifier: Notifier): Record<string, string> 
   return defaultSettings;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttons: css({
-    '& > * + *': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  innerContent: css({
-    maxWidth: '536px',
-  }),
-  wrapper: css({
-    margin: theme.spacing(2, 0),
-    padding: theme.spacing(1),
-    border: `solid 1px ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-  topRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  }),
-  channelSettingsHeader: css({
-    marginTop: theme.spacing(2),
-  }),
-});

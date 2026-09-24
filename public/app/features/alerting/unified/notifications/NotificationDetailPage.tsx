@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { notificationDetailPageStyles } from './NotificationDetailPage.stylex';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom-v5-compat';
 
@@ -9,9 +11,8 @@ import {
   useCreateNotificationqueryMutation,
   useCreateNotificationsqueryalertsMutation,
 } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, LoadingPlaceholder, TabContent, useStyles2 } from '@grafana/ui';
+import { Alert, LoadingPlaceholder, TabContent } from '@grafana/ui';
 import { type PageInfoItem } from 'app/core/components/Page/types';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
@@ -180,7 +181,6 @@ function NotificationDetail({
   onRelatedCountChange,
   onHeaderDataChange,
 }: NotificationDetailProps) {
-  const styles = useStyles2(getStyles);
   const [notification, setNotification] = useState<NotificationEntry | null | undefined>(undefined);
   const [relatedNotifications, setRelatedNotifications] = useState<NotificationEntry[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
@@ -339,15 +339,15 @@ function NotificationDetail({
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(notificationDetailPageStyles.container)}>
       {notification.error && (
         <Alert title={t('alerting.notification-detail.error-title-banner', 'Delivery error')} severity="error">
           {notification.error}
         </Alert>
       )}
 
-      <div className={styles.layout}>
-        <div className={styles.main}>
+      <div {...stylex.props(notificationDetailPageStyles.layout)}>
+        <div {...stylex.props(notificationDetailPageStyles.main)}>
           <TabContent>
             {activeTab === ActiveTab.Overview && (
               <OverviewSection alerts={alerts} groupLabels={notification.groupLabels} isLoading={isLoadingAlerts} />
@@ -365,7 +365,7 @@ function NotificationDetail({
           </TabContent>
         </div>
 
-        <aside className={styles.sidebar}>
+        <aside {...stylex.props(notificationDetailPageStyles.sidebar)}>
           <NotificationDetailSidebar notification={notification} />
         </aside>
       </div>
@@ -373,38 +373,5 @@ function NotificationDetail({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  layout: css({
-    display: 'grid',
-    gridTemplateColumns: '1fr 320px',
-    gap: theme.spacing(3),
-    alignItems: 'start',
-
-    [theme.breakpoints.down('lg')]: {
-      gridTemplateColumns: '1fr',
-    },
-  }),
-  main: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  sidebar: css({
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
-    paddingLeft: theme.spacing(3),
-
-    [theme.breakpoints.down('lg')]: {
-      borderLeft: 'none',
-      paddingLeft: 0,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      paddingTop: theme.spacing(3),
-    },
-  }),
-});
 
 export default withPageErrorBoundary(NotificationDetailPage);

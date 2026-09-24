@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pluginActionsStyles } from './PluginActions.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2, PluginErrorCode } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Icon, Stack } from '@grafana/ui';
 
 import { GetStartedWithPlugin } from '../components/GetStartedWithPlugin/GetStartedWithPlugin';
 import { InstallControlsButton } from '../components/InstallControls/InstallControlsButton';
@@ -22,7 +23,6 @@ interface Props {
 }
 
 export const PluginActions = ({ plugin }: Props) => {
-  const styles = useStyles2(getStyles);
   const isRemotePluginsAvailable = useIsRemotePluginsAvailable();
   const latestCompatibleVersion = getLatestCompatibleVersion(plugin?.details?.versions);
   const [needReload, setNeedReload] = useState(false);
@@ -52,7 +52,7 @@ export const PluginActions = ({ plugin }: Props) => {
       {needReload && (
         <Stack alignItems="center">
           <Icon name="exclamation-triangle" />
-          <span className={styles.message}>
+          <span {...stylex.props(pluginActionsStyles.message)}>
             <Trans i18nKey="plugins.plugin-actions.refresh-changes">Refresh the page to see the changes</Trans>
           </span>
         </Stack>
@@ -61,13 +61,7 @@ export const PluginActions = ({ plugin }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    message: css({
-      color: theme.colors.text.secondary,
-    }),
-  };
-};
+;
 
 function getAngularPluginStatus(plugin: CatalogPlugin, latestCompatibleVersion: Version | undefined): PluginStatus {
   if (!plugin.isInstalled) {

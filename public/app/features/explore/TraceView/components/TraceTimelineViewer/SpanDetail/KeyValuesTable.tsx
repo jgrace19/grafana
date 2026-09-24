@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { keyValuesTableStyles } from './KeyValuesTable.stylex';
 import cx from 'classnames';
 import DOMPurify from 'dompurify';
 import { type PropsWithChildren } from 'react';
 
-import { type GrafanaTheme2, type PluginExtensionLink, type TraceKeyValuePair } from '@grafana/data';
 import { Icon, useStyles2 } from '@grafana/ui';
 
 import { autoColor } from '../../Theme';
@@ -28,60 +30,7 @@ import jsonMarkup from './jsonMarkup';
 
 const copyIconClassName = 'copyIcon';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    KeyValueTable: css({
-      label: 'KeyValueTable',
-      background: autoColor(theme, '#fff'),
-      maxHeight: '450px',
-      overflow: 'auto',
-    }),
-    table: css({
-      width: '100%',
-    }),
-    body: css({
-      label: 'body',
-      verticalAlign: 'baseline',
-    }),
-    row: css({
-      label: 'row',
-      '& > td': {
-        padding: '0 0.5rem',
-        height: '30px',
-      },
-      '&:nth-child(2n) > td': {
-        background: autoColor(theme, '#f5f5f5'),
-      },
-      [`&:not(:hover) .${copyIconClassName}`]: {
-        visibility: 'hidden',
-      },
-      'a span': {
-        color: `${theme.colors.text.link} !important`,
-      },
-      'a:hover span': {
-        textDecoration: 'underline',
-      },
-    }),
-    keyColumn: css({
-      label: 'keyColumn',
-      color: autoColor(theme, '#888'),
-      whiteSpace: 'pre',
-      width: '125px',
-    }),
-    copyColumn: css({
-      label: 'copyColumn',
-      textAlign: 'right',
-    }),
-    linkIcon: css({
-      label: 'linkIcon',
-      verticalAlign: 'middle',
-      fontWeight: 'bold',
-    }),
-    jsonTable: css({
-      display: 'inline-block',
-    }),
-  };
-};
+export ;
 
 const jsonObjectOrArrayStartRegex = /^(\[|\{)/;
 
@@ -121,11 +70,10 @@ export type KeyValuesTableProps = {
 
 export default function KeyValuesTable(props: KeyValuesTableProps) {
   const { data, linksGetter, onlyValues } = props;
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.KeyValueTable)} data-testid="KeyValueTable">
-      <table className={styles.table}>
-        <tbody className={styles.body}>
+    <div {...mergeStylexClassName(stylex.props(keyValuesTableStyles.KeyValueTable, ), undefined)} data-testid="KeyValueTable">
+      <table {...stylex.props(keyValuesTableStyles.table)}>
+        <tbody {...stylex.props(keyValuesTableStyles.body)}>
           {data.map((row, i) => {
             let html = '';
             if (row.type === 'code') {
@@ -137,7 +85,7 @@ export default function KeyValuesTable(props: KeyValuesTableProps) {
             }
 
             const jsonTable = (
-              <div className={styles.jsonTable} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
+              <div {...stylex.props(keyValuesTableStyles.jsonTable)} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
             );
             const links = linksGetter?.(data, i);
             let valueMarkup;
@@ -153,14 +101,14 @@ export default function KeyValuesTable(props: KeyValuesTableProps) {
             }
             return (
               // `i` is necessary in the key because row.key can repeat
-              <tr className={styles.row} key={`${row.key}-${i}`}>
+              <tr {...stylex.props(keyValuesTableStyles.row)} key={`${row.key}-${i}`}>
                 {!onlyValues && (
-                  <td className={styles.keyColumn} data-testid="KeyValueTable--keyColumn">
+                  <td {...stylex.props(keyValuesTableStyles.keyColumn)} data-testid="KeyValueTable--keyColumn">
                     {row.key}
                   </td>
                 )}
                 <td>{valueMarkup}</td>
-                <td className={styles.copyColumn}>
+                <td {...stylex.props(keyValuesTableStyles.copyColumn)}>
                   <CopyIcon
                     className={copyIconClassName}
                     copyText={row.type === 'code' || row.type === 'text' ? row.value : JSON.stringify(row, null, 2)}

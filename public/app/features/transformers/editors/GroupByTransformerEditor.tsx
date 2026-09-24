@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { groupByTransformerEditorStyles } from './GroupByTransformerEditor.stylex';
 import { useCallback } from 'react';
 
 import {
@@ -115,9 +117,9 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
   ];
 
   return (
-    <InlineField className={styles.label} label={fieldName} grow shrink>
+    <InlineField {...stylex.props(groupByTransformerEditorStyles.label)} label={fieldName} grow shrink>
       <Stack gap={0.5} direction="row">
-        <div className={styles.operation}>
+        <div {...stylex.props(groupByTransformerEditorStyles.operation)}>
           <Combobox
             options={options}
             value={config?.operation}
@@ -145,20 +147,7 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    label: css({
-      label: {
-        minWidth: theme.spacing(32),
-      },
-    }),
-    operation: css({
-      flexShrink: 0,
-      height: '100%',
-      width: theme.spacing(24),
-    }),
-  };
-};
+;
 
 export const getGroupByTransformRegistryItem: () => TransformerRegistryItem<GroupByTransformerOptions> = () => ({
   id: DataTransformerID.groupBy,

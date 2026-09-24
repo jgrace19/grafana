@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spanBarSettingsStyles } from './SpanBarSettings.stylex';
 import {
   type DataSourceJsonData,
   type DataSourcePluginOptionsEditorProps,
@@ -27,13 +29,12 @@ export const TAG = 'Tag';
 interface Props extends DataSourcePluginOptionsEditorProps<SpanBarOptionsData> {}
 
 export default function SpanBarSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
 
   const selectOptions = [NONE, DURATION, TAG].map(toOption);
 
   return (
     <div className={css({ width: '100%' })}>
-      <InlineFieldRow className={styles.row}>
+      <InlineFieldRow {...stylex.props(spanBarSettingsStyles.row)}>
         <InlineField
           label={t('explore.span-bar-settings.label-label', 'Label')}
           labelWidth={26}
@@ -58,7 +59,7 @@ export default function SpanBarSettings({ options, onOptionsChange }: Props) {
         </InlineField>
       </InlineFieldRow>
       {options.jsonData.spanBar?.type === TAG && (
-        <InlineFieldRow className={styles.row}>
+        <InlineFieldRow {...stylex.props(spanBarSettingsStyles.row)}>
           <InlineField
             label={t('explore.span-bar-settings.label-tag-key', 'Tag key')}
             labelWidth={26}
@@ -109,14 +110,3 @@ export const SpanBarSection = ({ options, onOptionsChange }: DataSourcePluginOpt
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    label: 'infoText',
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-});

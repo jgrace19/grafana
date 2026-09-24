@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { configFromQueryTransformerEditorStyles } from './ConfigFromQueryTransformerEditor.stylex';
 import { useMemo } from 'react';
 
 import {
@@ -11,7 +13,7 @@ import {
   TransformerCategory,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { fieldMatchersUI, InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
+import { fieldMatchersUI, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 
 import { FieldToConfigMappingEditor } from '../fieldToConfigMapping/FieldToConfigMappingEditor';
 import darkImage from '../images/dark/configFromData.svg';
@@ -22,7 +24,6 @@ import { getConfigFromDataTransformer, type ConfigFromQueryTransformOptions } fr
 export interface Props extends TransformerUIProps<ConfigFromQueryTransformOptions> {}
 
 export function ConfigFromQueryTransformerEditor({ input, onChange, options }: Props) {
-  const styles = useStyles2(getStyles);
 
   const refIds = input
     .map((x) => x.refId)
@@ -73,7 +74,7 @@ export function ConfigFromQueryTransformerEditor({ input, onChange, options }: P
         <InlineField
           label={t('transformers.config-from-query-transformer-editor.label-apply-to-options', 'Apply to options')}
           labelWidth={20}
-          className={styles.matcherOptions}
+          {...stylex.props(configFromQueryTransformerEditorStyles.matcherOptions)}
         >
           <matcherUI.component
             id={matcherUI.id}
@@ -115,8 +116,3 @@ export const getConfigFromQueryTransformRegistryItem: () => TransformerRegistryI
     };
   };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  matcherOptions: css({
-    minWidth: '404px',
-  }),
-});

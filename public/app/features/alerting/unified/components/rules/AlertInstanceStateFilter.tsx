@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertInstanceStateFilterStyles } from './AlertInstanceStateFilter.stylex';
 import { capitalize } from 'lodash';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Label, RadioButtonGroup, Tag, useStyles2 } from '@grafana/ui';
+import { Label, RadioButtonGroup, Tag } from '@grafana/ui';
 import { GrafanaAlertState, PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
 export type InstanceStateFilter =
@@ -27,12 +28,11 @@ export const AlertInstanceStateFilter = ({
   filterType,
   itemPerStateStats,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const getOptionComponent = (state: InstanceStateFilter) => {
     return function InstanceStateCounter() {
       return itemPerStateStats && itemPerStateStats[state] ? (
-        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} className={styles.tag} />
+        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} {...stylex.props(alertInstanceStateFilterStyles.tag)} />
       ) : null;
     };
   };
@@ -71,14 +71,3 @@ export const AlertInstanceStateFilter = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    tag: css({
-      fontSize: '11px',
-      fontWeight: 'normal',
-      padding: theme.spacing(0.25, 0.5),
-      verticalAlign: 'middle',
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-}

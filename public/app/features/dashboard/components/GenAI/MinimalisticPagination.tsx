@@ -1,6 +1,8 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { minimalisticPaginationStyles } from './MinimalisticPagination.stylex';
 import { Trans, t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
@@ -19,14 +21,13 @@ export const MinimalisticPagination = ({
   hideWhenSinglePage,
   className,
 }: MinimalisticPaginationProps) => {
-  const styles = useStyles2(getStyles);
 
   if (hideWhenSinglePage && numberOfPages <= 1) {
     return null;
   }
 
   return (
-    <div className={cx(styles.wrapper, className)}>
+    <div {...mergeStylexClassName(stylex.props(minimalisticPaginationStyles.wrapper, , className), undefined)}>
       <IconButton
         name="angle-left"
         size="md"
@@ -48,11 +49,3 @@ export const MinimalisticPagination = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 16,
-    userSelect: 'none',
-  }),
-});

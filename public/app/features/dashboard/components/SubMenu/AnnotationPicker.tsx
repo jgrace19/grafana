@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { annotationPickerStyles } from './AnnotationPicker.stylex';
 import { useEffect, useState, type JSX } from 'react';
 
 import { type AnnotationQuery, type EventBus, type GrafanaTheme2 } from '@grafana/data';
@@ -17,7 +19,6 @@ export interface AnnotationPickerProps {
 
 export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: AnnotationPickerProps): JSX.Element => {
   const [loading, setLoading] = useState(false);
-  const styles = useStyles2(getStyles);
   const onCancel = () => getDashboardQueryRunner().cancel(annotation);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
   });
 
   return (
-    <div key={annotation.name} className={styles.annotation}>
+    <div key={annotation.name} {...stylex.props(annotationPickerStyles.annotation)}>
       <InlineFieldRow>
         <InlineField
           label={annotation.name}
@@ -58,7 +59,7 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
             data-testid={selectors.pages.Dashboard.SubMenu.Annotations.annotationToggle(annotation.name)}
           />
         </InlineField>
-        <div className={styles.indicator}>
+        <div {...stylex.props(annotationPickerStyles.indicator)}>
           <LoadingIndicator loading={loading} onCancel={onCancel} />
         </div>
       </InlineFieldRow>
@@ -66,22 +67,3 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    annotation: css({
-      display: 'inline-block',
-      marginRight: theme.spacing(1),
-      '.fa-caret-down': {
-        fontSize: '75%',
-        paddingLeft: theme.spacing(1),
-      },
-      '.gf-form-inline .gf-form': {
-        marginBottom: 0,
-      },
-    }),
-    indicator: css({
-      alignSelf: 'center',
-      padding: `0 ${theme.spacing(0.5)}`,
-    }),
-  };
-}

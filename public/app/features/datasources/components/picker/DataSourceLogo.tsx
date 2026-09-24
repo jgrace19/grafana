@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
 
 import { type DataSourceInstanceSettings, type DataSourceJsonData, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 export interface DataSourceLogoProps {
   dataSource: DataSourceInstanceSettings<DataSourceJsonData> | undefined;
@@ -19,7 +18,7 @@ export function DataSourceLogo(props: DataSourceLogoProps) {
 
   return (
     <img
-      className={styles.pickerDSLogo}
+      {...stylex.props(dataSourceLogoStyles.pickerDSLogo)}
       alt={`${dataSource.meta.name} logo`}
       src={dataSource.meta.info.logos.small || undefined}
     ></img>
@@ -27,16 +26,7 @@ export function DataSourceLogo(props: DataSourceLogoProps) {
 }
 
 export function DataSourceLogoPlaceHolder() {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.pickerDSLogo}></div>;
+  const styles = (getStyles);
+  return <div {...stylex.props(dataSourceLogoStyles.pickerDSLogo)}></div>;
 }
 
-function getStyles(theme: GrafanaTheme2, builtIn = false, size = 20) {
-  return {
-    pickerDSLogo: css({
-      height: size,
-      width: size,
-      filter: `invert(${builtIn && theme.isLight ? 1 : 0})`,
-    }),
-  };
-}

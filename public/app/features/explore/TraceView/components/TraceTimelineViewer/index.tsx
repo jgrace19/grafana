@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { indexStyles } from './index.stylex';
 import { PureComponent, type RefObject } from 'react';
 
 import { type CoreApp, type GrafanaTheme2, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
 import { type SpanBarOptions, type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2 } from '@grafana/ui';
+import { withTheme2 } from '@grafana/ui';
 
 import { autoColor } from '../Theme';
 import { merge as mergeShortcuts } from '../keyboard-shortcuts';
@@ -33,38 +35,6 @@ import TimelineHeaderRow from './TimelineHeaderRow/TimelineHeaderRow';
 import VirtualizedTraceView from './VirtualizedTraceView';
 import { type TUpdateViewRangeTimeFunction, type ViewRange, type ViewRangeTimeUpdate } from './types';
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  TraceTimelineViewer: css({
-    label: 'TraceTimelineViewer',
-    borderBottom: `1px solid ${autoColor(theme, '#bbb')}`,
-
-    '& .json-markup': {
-      lineHeight: '17px',
-      fontFamily: 'monospace',
-      whiteSpace: 'pre-wrap',
-    },
-
-    '& .json-markup-key': {
-      fontWeight: 'bold',
-    },
-
-    '& .json-markup-bool': {
-      color: autoColor(theme, 'firebrick'),
-    },
-
-    '& .json-markup-string': {
-      color: autoColor(theme, 'teal'),
-    },
-
-    '& .json-markup-null': {
-      color: autoColor(theme, 'teal'),
-    },
-
-    '& .json-markup-number': {
-      color: autoColor(theme, 'blue', 'black'),
-    },
-  }),
-}));
 
 export type TProps = {
   findMatchesIDs: Set<string> | TNil;
@@ -192,11 +162,10 @@ export class UnthemedTraceTimelineViewer extends PureComponent<TProps, State> {
       ...rest
     } = this.props;
     const { trace } = rest;
-    const styles = getStyles(theme);
 
     return (
       <div
-        className={styles.TraceTimelineViewer}
+        {...stylex.props(indexStyles.TraceTimelineViewer)}
         ref={(ref) => {
           if (ref) {
             this.setState({ height: ref.getBoundingClientRect().height });

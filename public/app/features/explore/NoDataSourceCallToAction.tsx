@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { noDataSourceCallToActionStyles } from './NoDataSourceCallToAction.stylex';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
@@ -6,16 +8,8 @@ import { LinkButton, CallToActionCard, Icon, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 
-function getCardStyles(theme: GrafanaTheme2) {
-  return css({
-    maxWidth: `${theme.breakpoints.values.lg}px`,
-    marginTop: theme.spacing(2),
-    alignSelf: 'center',
-  });
-}
 
 export const NoDataSourceCallToAction = () => {
-  const cardStyles = useStyles2(getCardStyles);
 
   const canCreateDataSource =
     contextSrv.hasPermission(AccessControlAction.DataSourcesCreate) &&
@@ -49,5 +43,5 @@ export const NoDataSourceCallToAction = () => {
     </LinkButton>
   );
 
-  return <CallToActionCard callToActionElement={ctaElement} className={cardStyles} footer={footer} message={message} />;
+  return <CallToActionCard callToActionElement={ctaElement} {...stylex.props(noDataSourceCallToActionStyles.root)} footer={footer} message={message} />;
 };

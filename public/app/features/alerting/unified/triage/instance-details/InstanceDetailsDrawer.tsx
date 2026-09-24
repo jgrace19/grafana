@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { instanceDetailsDrawerStyles } from './InstanceDetailsDrawer.stylex';
 import { orderBy } from 'lodash';
 import { Fragment, useMemo } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2, type Labels } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, isFetchError } from '@grafana/runtime';
 import { TimeRangePicker, useTimeRange } from '@grafana/scenes-react';
@@ -16,8 +16,7 @@ import {
   LoadingPlaceholder,
   Stack,
   Text,
-  TextLink,
-  useStyles2,
+  TextLink
 } from '@grafana/ui';
 import { type AlertQuery, GrafanaAlertState, type GrafanaRuleDefinition } from 'app/types/unified-alerting-dto';
 
@@ -282,11 +281,10 @@ function InstanceStateTransitions({
   records: LogRecord[];
   maxItems?: number;
 }) {
-  const styles = useStyles2(stateTransitionStyles);
   const sortedRecords = orderBy(records, (r) => r.timestamp, 'desc').slice(0, maxItems);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(formStyles.container)}>
       {sortedRecords.map((record, index) => (
         <Fragment key={`${record.timestamp}-${index}`}>
           <Text color="secondary" variant="bodySmall">
@@ -301,15 +299,6 @@ function InstanceStateTransitions({
   );
 }
 
-const stateTransitionStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content max-content max-content max-content',
-    gap: theme.spacing(1, 2),
-    alignItems: 'center',
-    padding: theme.spacing(1, 0),
-  }),
-});
 
 interface ErrorContentProps {
   error: unknown;

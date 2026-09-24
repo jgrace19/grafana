@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { userSessionsStyles } from './UserSessions.stylex';
 import { memo } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, LoadingPlaceholder, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Button, Icon, LoadingPlaceholder, ScrollContainer } from '@grafana/ui';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 import { formatDate } from 'app/core/internationalization/dates';
 import { type UserSession } from 'app/types/user';
@@ -15,14 +17,13 @@ interface Props {
 }
 
 const UserSessions = memo<Props>(({ isLoading, sessions, revokeUserSession }) => {
-  const styles = useStyles2(getStyles);
 
   if (isLoading) {
     return <LoadingPlaceholder text={<Trans i18nKey="user-sessions.loading">Loading sessions...</Trans>} />;
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(userSessionsStyles.wrapper)}>
       {sessions.length > 0 && (
         <>
           <h3 className="page-sub-heading">
@@ -98,10 +99,5 @@ const UserSessions = memo<Props>(({ isLoading, sessions, revokeUserSession }) =>
 
 UserSessions.displayName = 'UserSessions';
 
-const getStyles = () => ({
-  wrapper: css({
-    maxWidth: '100%',
-  }),
-});
 
 export default UserSessions;

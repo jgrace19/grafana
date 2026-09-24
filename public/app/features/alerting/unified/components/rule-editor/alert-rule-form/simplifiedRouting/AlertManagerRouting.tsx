@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertManagerRoutingStyles } from './AlertManagerRouting.stylex';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { CollapsableSection, Stack, Text, useStyles2 } from '@grafana/ui';
+import { CollapsableSection, Stack, Text } from '@grafana/ui';
 import { type RuleFormValues } from 'app/features/alerting/unified/types/rule-form';
 import { type AlertManagerDataSource } from 'app/features/alerting/unified/utils/datasource';
 import { DOCS_URL_GROUP_ALERT_NOTIFICATIONS } from 'app/features/alerting/unified/utils/docs';
@@ -20,7 +21,6 @@ interface AlertManagerManualRoutingProps {
 }
 
 export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRoutingProps) {
-  const styles = useStyles2(getStyles);
 
   const alertManagerName = alertManager.name;
 
@@ -34,13 +34,13 @@ export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRo
   return (
     <Stack direction="column">
       <Stack direction="row" alignItems="center">
-        <div className={styles.firstAlertManagerLine} />
-        <div className={styles.alertManagerName}>
+        <div {...stylex.props(alertManagerRoutingStyles.firstAlertManagerLine)} />
+        <div {...stylex.props(alertManagerRoutingStyles.alertManagerName)}>
           <Trans i18nKey="alerting.rule-form.simple-routing.alertmanager-label">Alertmanager:</Trans>
-          <img src={alertManager.imgUrl} alt="Alert manager logo" className={styles.img} />
+          <img src={alertManager.imgUrl} alt="Alert manager logo" {...stylex.props(alertManagerRoutingStyles.img)} />
           {alertManagerName}
         </div>
-        <div className={styles.secondAlertManagerLine} />
+        <div {...stylex.props(alertManagerRoutingStyles.secondAlertManagerLine)} />
       </Stack>
       <Stack direction="row" gap={1} alignItems="center">
         <ContactPointSelector alertManager={alertManagerName} />
@@ -49,15 +49,15 @@ export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRo
         we can show the contact point details here when it's selected but we currently don't have a
         way to summarize the details from the ContactPoint type in @grafana/alerting
       */}
-      <div className={styles.routingSection}>
+      <div {...stylex.props(alertManagerRoutingStyles.routingSection)}>
         <CollapsableSection
           label={t(
             'alerting.alert-manager-manual-routing.label-muting-grouping-and-timings-optional',
             'Muting, grouping and timings (optional)'
           )}
           isOpen={hasRouteSettings}
-          className={styles.collapsableSection}
-          contentClassName={styles.collapsableSectionContent}
+          {...stylex.props(alertManagerRoutingStyles.collapsableSection)}
+          contentClassName={alertManagerRoutingStyles.collapsableSectionContent}
         >
           <Stack direction="column" gap={1}>
             <Stack direction="row" gap={0.5} alignItems="center">
@@ -99,41 +99,3 @@ export function AlertManagerManualRouting({ alertManager }: AlertManagerManualRo
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  firstAlertManagerLine: css({
-    height: 1,
-    width: theme.spacing(4),
-    backgroundColor: theme.colors.secondary.main,
-  }),
-  alertManagerName: css({
-    width: 'fit-content',
-  }),
-  secondAlertManagerLine: css({
-    height: '1px',
-    width: '100%',
-    flex: 1,
-    backgroundColor: theme.colors.secondary.main,
-  }),
-  img: css({
-    marginLeft: theme.spacing(2),
-    width: theme.spacing(3),
-    height: theme.spacing(3),
-    marginRight: theme.spacing(1),
-  }),
-  collapsableSection: css({
-    width: 'fit-content',
-    fontSize: theme.typography.body.fontSize,
-  }),
-  collapsableSectionContent: css({
-    padding: '0',
-  }),
-  routingSection: css({
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: theme.breakpoints.values.xl,
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-    marginTop: theme.spacing(2),
-  }),
-});

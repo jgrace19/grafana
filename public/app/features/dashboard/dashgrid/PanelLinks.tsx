@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelLinksStyles } from './PanelLinks.stylex';
 import type { JSX } from 'react';
 
 import { type DataLink, type GrafanaTheme2, type LinkModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Dropdown, Icon, Menu, ToolbarButton, useStyles2, PanelChrome } from '@grafana/ui';
+import { Dropdown, Icon, Menu, ToolbarButton, PanelChrome } from '@grafana/ui';
 
 interface Props {
   panelLinks: DataLink[];
@@ -11,7 +13,6 @@ interface Props {
 }
 
 export function PanelLinks({ panelLinks, onShowPanelLinks }: Props) {
-  const styles = useStyles2(getStyles);
 
   const getLinksContent = (): JSX.Element => {
     const interpolatedLinks = onShowPanelLinks();
@@ -43,21 +44,11 @@ export function PanelLinks({ panelLinks, onShowPanelLinks }: Props) {
           icon="external-link-alt"
           iconSize="md"
           aria-label={t('dashboard.panel-links.aria-label-panel-links', 'Panel links')}
-          className={styles.menuTrigger}
+          {...stylex.props(panelLinksStyles.menuTrigger)}
         />
       </Dropdown>
     );
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    menuTrigger: css({
-      height: '100%',
-      background: 'inherit',
-      border: 'none',
-      borderRadius: `${theme.shape.radius.default}`,
-      cursor: 'context-menu',
-    }),
-  };
-};
+;

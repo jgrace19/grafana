@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { addCorrelationFormStyles } from './AddCorrelationForm.stylex';
 import { useEffect } from 'react';
 
 import { useCreateCorrelationMutation } from '@grafana/api-clients/rtkq/correlations/v0alpha1';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { PanelContainer, useStyles2 } from '@grafana/ui';
+import { PanelContainer } from '@grafana/ui';
 import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
 
 import { Wizard } from '../components/Wizard/Wizard';
@@ -18,16 +19,6 @@ import { CorrelationFormNavigation } from './CorrelationFormNavigation';
 import { CorrelationsFormContextProvider } from './correlationsFormContext';
 import { type FormDTO } from './types';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  panelContainer: css({
-    position: 'relative',
-    padding: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-  }),
-  infoBox: css({
-    marginTop: '20px', // give space for close button
-  }),
-});
 
 interface Props {
   onClose: () => void;
@@ -43,7 +34,6 @@ export const AddCorrelationFormWrapper = ({ onClose, onCreated }: Props) => {
 };
 
 export const AddCorrelationFormAppPlatform = ({ onClose, onCreated }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const [createCorrelation, { data, isLoading, isError }] = useCreateCorrelationMutation();
 
@@ -68,7 +58,7 @@ export const AddCorrelationFormAppPlatform = ({ onClose, onCreated }: Props) => 
   };
 
   return (
-    <PanelContainer className={styles.panelContainer}>
+    <PanelContainer {...stylex.props(addCorrelationFormStyles.panelContainer)}>
       <CloseButton onClick={onClose} />
       <CorrelationsFormContextProvider data={{ loading: isLoading, readOnly: false, correlation: undefined }}>
         <Wizard<FormDTO>
@@ -83,7 +73,6 @@ export const AddCorrelationFormAppPlatform = ({ onClose, onCreated }: Props) => 
 };
 
 export const AddCorrelationFormLegacy = ({ onClose, onCreated }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const {
     create: { execute, loading, error, value },
@@ -98,7 +87,7 @@ export const AddCorrelationFormLegacy = ({ onClose, onCreated }: Props) => {
   const defaultValues: Partial<FormDTO> = { type: 'query', config: { target: {}, field: '' } };
 
   return (
-    <PanelContainer className={styles.panelContainer}>
+    <PanelContainer {...stylex.props(addCorrelationFormStyles.panelContainer)}>
       <CloseButton onClick={onClose} />
       <CorrelationsFormContextProvider data={{ loading, readOnly: false, correlation: undefined }}>
         <Wizard<FormDTO>

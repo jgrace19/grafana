@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Drawer, Dropdown, Icon, LinkButton, Menu, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Drawer, Dropdown, Icon, LinkButton, Menu, Stack, Text, Tooltip, } from '@grafana/ui';
 import { type RelativeUrl, createRelativeUrl } from 'app/features/alerting/unified/utils/url';
 
 import { type SectionDto, type SectionDtoStep, type SectionsDto, type StepButtonDto } from '../irmHooks';
@@ -50,9 +48,9 @@ interface SectionProps {
   section: SectionDto;
 }
 function Section({ section }: SectionProps) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(essentialsStyles.wrapper)}>
       <Text element="h4">
         <span className="fs-unmask">{section.title}</span>
       </Text>
@@ -191,16 +189,4 @@ function ProgressStatus({ stepsDone, totalStepsToDo }: { stepsDone: number; tota
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      margin: theme.spacing(2, 0),
-      padding: theme.spacing(2),
-      border: `1px solid ${theme.colors.border.medium}`,
-      borderRadius: theme.shape.radius.default,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-    }),
-  };
-};
+;

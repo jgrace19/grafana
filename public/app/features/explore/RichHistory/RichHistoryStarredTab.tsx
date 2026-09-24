@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { richHistoryStarredTabStyles } from './RichHistoryStarredTab.stylex';
 import { useEffect } from 'react';
 import { useAsync } from 'react-use';
 
 import { type DataSourceApi, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
-import { useStyles2, Select, MultiSelect, FilterInput, Button } from '@grafana/ui';
+import { Select, MultiSelect, FilterInput, Button  } from '@grafana/ui';
 import { createDatasourcesList } from 'app/core/utils/richHistory';
 import { SortOrder, type RichHistorySearchFilters, type RichHistorySettings } from 'app/core/utils/richHistoryTypes';
 import { type RichHistoryQuery } from 'app/types/explore';
@@ -27,43 +29,7 @@ export interface RichHistoryStarredTabProps {
   richHistorySettings: RichHistorySettings;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-    }),
-    containerContent: css({
-      width: '100%',
-    }),
-    selectors: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    }),
-    multiselect: css({
-      width: '100%',
-      marginBottom: theme.spacing(1),
-    }),
-    filterInput: css({
-      marginBottom: theme.spacing(1),
-    }),
-    sort: css({
-      width: '170px',
-    }),
-    footer: css({
-      height: '60px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontWeight: theme.typography.fontWeightLight,
-      fontSize: theme.typography.bodySmall.fontSize,
-      a: {
-        fontWeight: theme.typography.fontWeightMedium,
-        marginLeft: theme.spacing(0.25),
-      },
-    }),
-  };
-};
+;
 
 export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
   const {
@@ -76,8 +42,6 @@ export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
     loading,
     richHistorySearchFilters,
   } = props;
-
-  const styles = useStyles2(getStyles);
   const exploreActiveDS = useSelector(selectExploreDSMaps);
 
   const listOfDatasources = createDatasourcesList();
@@ -138,12 +102,12 @@ export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
   const sortOrderOptions = getSortOrderOptions();
 
   return (
-    <div className={styles.container}>
-      <div className={styles.containerContent}>
-        <div className={styles.selectors}>
+    <div {...stylex.props(richHistoryStarredTabStyles.container)}>
+      <div {...stylex.props(richHistoryStarredTabStyles.containerContent)}>
+        <div {...stylex.props(richHistoryStarredTabStyles.selectors)}>
           {!richHistorySettings.activeDatasourcesOnly && (
             <MultiSelect
-              className={styles.multiselect}
+              {...stylex.props(richHistoryStarredTabStyles.multiselect)}
               options={listOfDatasources.map((ds) => {
                 return { value: ds.name, label: ds.name };
               })}
@@ -161,7 +125,7 @@ export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
               }}
             />
           )}
-          <div className={styles.filterInput}>
+          <div {...stylex.props(richHistoryStarredTabStyles.filterInput)}>
             <FilterInput
               escapeRegex={false}
               placeholder={t('explore.rich-history-starred-tab.search-queries-placeholder', 'Search queries')}
@@ -171,7 +135,7 @@ export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
           </div>
           <div
             aria-label={t('explore.rich-history-starred-tab.sort-queries-aria-label', 'Sort queries')}
-            className={styles.sort}
+            {...stylex.props(richHistoryStarredTabStyles.sort)}
           >
             <Select
               value={sortOrderOptions.filter((order) => order.value === richHistorySearchFilters.sortOrder)}
@@ -204,7 +168,7 @@ export function RichHistoryStarredTab(props: RichHistoryStarredTabProps) {
             />
           </div>
         ) : null}
-        <div className={styles.footer}>
+        <div {...stylex.props(richHistoryStarredTabStyles.footer)}>
           {!config.queryHistoryEnabled
             ? t(
                 'explore.rich-history-starred-tab.local-history-message',

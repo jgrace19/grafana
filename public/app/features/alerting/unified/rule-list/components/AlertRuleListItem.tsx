@@ -1,11 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertRuleListItemStyles } from './AlertRuleListItem.stylex';
 import pluralize from 'pluralize';
 import { type ReactNode, forwardRef, memo, useEffect, useId } from 'react';
 
 import { AlertLabels, StateIcon } from '@grafana/alerting/unstable';
 import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Stack, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Stack, Text, TextLink, Tooltip } from '@grafana/ui';
 import {
   type Rule,
   type RuleGroupIdentifierV2,
@@ -364,12 +367,11 @@ const QuerySourceIcons = memo(function QuerySourceIcons({ queriedDatasourceUIDs 
 });
 
 function RuleLabels({ labels }: { labels: Labels }) {
-  const styles = useStyles2(getStyles);
 
   return (
     <Tooltip
       content={
-        <div className={styles.ruleLabels.tooltip}>
+        <div className={alertRuleListItemStyles.ruleLabels.tooltip}>
           <AlertLabels labels={labels} size="sm" />
         </div>
       }
@@ -431,7 +433,6 @@ interface UnknownRuleListItemProps {
 }
 
 export const UnknownRuleListItem = ({ ruleName, groupIdentifier, ruleDefinition }: UnknownRuleListItemProps) => {
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     const { namespace, groupName } = groupIdentifier;
@@ -447,7 +448,7 @@ export const UnknownRuleListItem = ({ ruleName, groupIdentifier, ruleDefinition 
   return (
     <Alert
       title={t('alerting.unknown-rule-list-item.title-unknown-rule-type', 'Unknown rule type')}
-      className={styles.resetMargin}
+      {...stylex.props(alertRuleListItemStyles.resetMargin)}
     >
       <details>
         <summary>
@@ -461,27 +462,6 @@ export const UnknownRuleListItem = ({ ruleName, groupIdentifier, ruleDefinition 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alertListItemContainer: css({
-    position: 'relative',
-    listStyle: 'none',
-    background: theme.colors.background.primary,
-
-    borderBottom: `solid 1px ${theme.colors.border.weak}`,
-    padding: theme.spacing(1, 1, 1, 1.5),
-  }),
-  resetMargin: css({
-    margin: 0,
-  }),
-  ruleLabels: {
-    tooltip: css({
-      padding: theme.spacing(1),
-    }),
-    text: css({
-      cursor: 'pointer',
-    }),
-  },
-});
 
 export type RuleListItemCommonProps = Pick<
   AlertRuleListItemProps,
@@ -493,13 +473,13 @@ interface DataSourceLogoProps {
 }
 
 const DataSourceLogo = forwardRef<HTMLImageElement, DataSourceLogoProps>(({ dataSource }, ref) => {
-  const styles = useStyles2(dataSourceLogoStyles);
+  const styles = (dataSourceLogoStyles);
 
   return (
     <img
       ref={ref}
-      className={cx(styles.logo, {
-        [styles.filter]: dataSource.meta.builtIn,
+      className={cx(alertRuleListItemStyles.logo, {
+        [alertRuleListItemStyles.filter]: dataSource.meta.builtIn,
       })}
       alt={`${dataSource.meta.name} logo`}
       src={dataSource.meta.info.logos.small}
@@ -508,13 +488,3 @@ const DataSourceLogo = forwardRef<HTMLImageElement, DataSourceLogoProps>(({ data
 });
 DataSourceLogo.displayName = 'DataSourceLogo';
 
-const dataSourceLogoStyles = (theme: GrafanaTheme2) => ({
-  logo: css({
-    height: '12px',
-    width: '12px',
-    borderRadius: theme.shape.radius.default,
-  }),
-  filter: css({
-    filter: `invert(${theme.isLight ? 1 : 0})`,
-  }),
-});

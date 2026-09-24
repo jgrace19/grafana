@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spatialTransformerEditorStyles } from './SpatialTransformerEditor.stylex';
 import { useEffect } from 'react';
 
 import {
@@ -151,9 +153,9 @@ export const SetGeometryTransformerEditor = (props: Props) => {
       <div>
         {pane.categories.map((c) => {
           return (
-            <div key={c.props.id} className={styles.wrap}>
+            <div key={c.props.id} {...stylex.props(spatialTransformerEditorStyles.wrap)}>
               <h5>{c.props.title}</h5>
-              <div className={styles.item}>{c.items.map((s) => s.renderElement())}</div>
+              <div {...stylex.props(spatialTransformerEditorStyles.item)}>{c.items.map((s) => s.renderElement())}</div>
             </div>
           );
         })}
@@ -162,17 +164,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrap: css({
-      marginBottom: '20px',
-    }),
-    item: css({
-      borderLeft: `4px solid ${theme.colors.border.strong}`,
-      paddingLeft: '10px',
-    }),
-  };
-};
+;
 
 export const getSpatialTransformRegistryItem: () => TransformerRegistryItem<SpatialTransformOptions> = () => {
   const spatialTransformer = getSpatialTransformer();

@@ -1,55 +1,9 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Modal, Icon, Button, TextLink } from '@grafana/ui';
+import { Modal, Icon, Button, TextLink } from '@grafana/ui';
 
 import { type CardGridItem } from '../CardGrid/CardGrid';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '500px',
-  }),
-  modalContent: css({
-    overflow: 'visible',
-    color: theme.colors.text.secondary,
-
-    a: {
-      color: theme.colors.text.link,
-    },
-  }),
-  description: css({
-    marginBottom: theme.spacing(2),
-  }),
-  bottomSection: css({
-    display: 'flex',
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    paddingTop: theme.spacing(3),
-    marginTop: theme.spacing(3),
-  }),
-  actionsSection: css({
-    display: 'flex',
-    justifyContent: 'end',
-    marginTop: theme.spacing(3),
-  }),
-  warningIcon: css({
-    color: theme.colors.warning.main,
-    paddingRight: theme.spacing(),
-    marginTop: theme.spacing(0.25),
-  }),
-  header: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  headerTitle: css({
-    margin: 0,
-  }),
-  headerLogo: css({
-    marginRight: theme.spacing(2),
-    width: '32px',
-    height: '32px',
-  }),
-});
 
 export type NoAccessModalProps = {
   item: CardGridItem;
@@ -58,11 +12,11 @@ export type NoAccessModalProps = {
 };
 
 export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
     <Modal
-      className={styles.modal}
+      {...stylex.props(noAccessModalStyles.modal)}
       contentClassName={styles.modalContent}
       title={<NoAccessModalHeader item={item} />}
       ariaLabel={item.name}
@@ -71,7 +25,7 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
     >
       <div>
         <div>
-          {item.description && <div className={styles.description}>{item.description}</div>}
+          {item.description && <div {...stylex.props(noAccessModalStyles.description)}>{item.description}</div>}
           <div>
             <Trans i18nKey="connections.no-access-modal.links">Links</Trans>
             <br />
@@ -80,8 +34,8 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
             </TextLink>
           </div>
         </div>
-        <div className={styles.bottomSection}>
-          <div className={styles.warningIcon}>
+        <div {...stylex.props(noAccessModalStyles.bottomSection)}>
+          <div {...stylex.props(noAccessModalStyles.warningIcon)}>
             <Icon name="exclamation-triangle" />
           </div>
           <div>
@@ -98,7 +52,7 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
             </p>
           </div>
         </div>
-        <div className={styles.actionsSection}>
+        <div {...stylex.props(noAccessModalStyles.actionsSection)}>
           <Button onClick={onDismiss}>
             <Trans i18nKey="connections.no-access-modal.okay">Okay</Trans>
           </Button>
@@ -109,12 +63,12 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
 }
 
 export function NoAccessModalHeader({ item }: { item: CardGridItem }) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   return (
     <div>
-      <div className={styles.header}>
-        {item.logo && <img className={styles.headerLogo} src={item.logo} alt={`logo of ${item.name}`} />}
-        <h4 className={styles.headerTitle}>{item.name}</h4>
+      <div {...stylex.props(noAccessModalStyles.header)}>
+        {item.logo && <img {...stylex.props(noAccessModalStyles.headerLogo)} src={item.logo} alt={`logo of ${item.name}`} />}
+        <h4 {...stylex.props(noAccessModalStyles.headerTitle)}>{item.name}</h4>
       </div>
     </div>
   );

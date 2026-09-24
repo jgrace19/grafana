@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleTypeStyles } from './RuleType.stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Card, useStyles2 } from '@grafana/ui';
+import { Card } from '@grafana/ui';
 
 import { type RuleFormType } from '../../../types/rule-form';
 
@@ -22,11 +24,10 @@ export interface SharedProps {
 
 const RuleType = (props: Props) => {
   const { name, description, image, selected = false, value, onClick, disabled = false } = props;
-  const styles = useStyles2(getStyles);
 
   const cardStyles = cx({
-    [styles.wrapper]: true,
-    [styles.disabled]: disabled,
+    [ruleTypeStyles.wrapper]: true,
+    [ruleTypeStyles.disabled]: disabled,
   });
 
   return (
@@ -40,15 +41,5 @@ const RuleType = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    width: '380px',
-    cursor: 'pointer',
-    userSelect: 'none',
-  }),
-  disabled: css({
-    opacity: '0.5',
-  }),
-});
 
 export { RuleType };

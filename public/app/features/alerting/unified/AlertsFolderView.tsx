@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertsFolderViewStyles } from './AlertsFolderView.stylex';
 import { orderBy } from 'lodash';
 import { useState } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Card, FilterInput, Icon, Pagination, Select, Stack, TagList, useStyles2 } from '@grafana/ui';
+import { Card, FilterInput, Icon, Pagination, Select, Stack, TagList } from '@grafana/ui';
 import { DEFAULT_PER_PAGE_PAGINATION } from 'app/core/constants';
 import { getQueryParamValue } from 'app/core/utils/query';
 import { type FolderDTO } from 'app/types/folders';
@@ -34,7 +35,6 @@ const sortOptions: Array<SelectableValue<SortOrder>> = [
 ];
 
 export const AlertsFolderView = ({ folder, rules }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const onTagClick = (tagName: string) => {
     const matchersString = combineMatcherStrings(labelFilter, tagName);
@@ -50,7 +50,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
   const { page, numberOfPages, onPageChange, pageItems } = usePagination(filteredRules, 1, DEFAULT_PER_PAGE_PAGINATION);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(alertsFolderViewStyles.container)}>
       <Stack direction="column" gap={3}>
         <FilterInput
           value={nameFilter}
@@ -78,7 +78,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               'alerting.alerts-folder-view.label-filter-placeholder-search-alerts-by-labels',
               'Search alerts by labels'
             )}
-            className={styles.filterLabelsInput}
+            {...stylex.props(alertsFolderViewStyles.filterLabelsInput)}
             data-testid="label-filter"
           />
         </Stack>
@@ -89,7 +89,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               key={grafana_alert.uid}
               noMargin
               href={createGrafanaRuleViewLink(grafana_alert)}
-              className={styles.card}
+              {...stylex.props(alertsFolderViewStyles.card)}
               data-testid="alert-card-row"
             >
               <Card.Heading>{grafana_alert.title}</Card.Heading>
@@ -108,11 +108,11 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
           ))}
         </Stack>
         {hasNoResults && (
-          <div className={styles.noResults}>
+          <div {...stylex.props(alertsFolderViewStyles.noResults)}>
             <Trans i18nKey="alerting.alerts-folder-view.no-alert-rules-found">No alert rules found</Trans>
           </div>
         )}
-        <div className={styles.pagination}>
+        <div {...stylex.props(alertsFolderViewStyles.pagination)}>
           <Pagination
             currentPage={page}
             numberOfPages={numberOfPages}
@@ -195,25 +195,3 @@ function createGrafanaRuleViewLink(ruleDefinition: GrafanaRuleDefinition): strin
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    padding: theme.spacing(1),
-  }),
-  card: css({
-    gridTemplateColumns: 'auto 1fr 2fr',
-  }),
-  pagination: css({
-    alignSelf: 'center',
-  }),
-  filterLabelsInput: css({
-    flex: 1,
-    width: 'auto',
-    minWidth: '240px',
-  }),
-  noResults: css({
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.lg,
-    fontStyle: 'italic',
-  }),
-});

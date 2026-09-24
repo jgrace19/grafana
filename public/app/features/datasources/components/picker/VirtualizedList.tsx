@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { virtualizedListStyles } from './VirtualizedList.stylex';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useCallback, useRef } from 'react';
 import type * as React from 'react';
@@ -6,7 +8,6 @@ import type { Observable } from 'rxjs';
 
 import type { DataSourceInstanceSettings, DataSourceRef, GrafanaTheme2 } from '@grafana/data';
 import type { FavoriteDatasources } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 import { useKeyboardNavigatableList } from '../../hooks';
 
@@ -36,7 +37,6 @@ export function VirtualizedList({
   pushRecentlyUsedDataSource,
   scrollRef,
 }: VirtualizedListProps) {
-  const styles = useStyles2(getStyles);
 
   const rowVirtualizer = useVirtualizer({
     count: sortedDataSources.length,
@@ -71,13 +71,13 @@ export function VirtualizedList({
   });
 
   return (
-    <div className={styles.virtualizedContainer} style={{ height: rowVirtualizer.getTotalSize() }}>
+    <div {...stylex.props(virtualizedListStyles.virtualizedContainer)} style={{ height: rowVirtualizer.getTotalSize() }}>
       {rowVirtualizer.getVirtualItems().map((virtualRow) => {
         const ds = sortedDataSources[virtualRow.index];
         return (
           <div
             key={ds.uid}
-            className={styles.virtualizedItem}
+            {...stylex.props(virtualizedListStyles.virtualizedItem)}
             style={{
               height: virtualRow.size,
               transform: `translateY(${virtualRow.start}px)`,
@@ -99,17 +99,3 @@ export function VirtualizedList({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    virtualizedContainer: css({
-      width: '100%',
-      position: 'relative',
-    }),
-    virtualizedItem: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-    }),
-  };
-}

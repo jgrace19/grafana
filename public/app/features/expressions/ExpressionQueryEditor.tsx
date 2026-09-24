@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { expressionQueryEditorStyles } from './ExpressionQueryEditor.stylex';
 import { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 
 import { type DataSourceApi, FeatureState, type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, FeatureBadge, IconButton, InlineField, type PopoverContent, useStyles2 } from '@grafana/ui';
+import { Button, FeatureBadge, IconButton, InlineField, type PopoverContent } from '@grafana/ui';
 
 import { ClassicConditions } from './components/ClassicConditions';
 import { ExpressionTypeDropdown } from './components/ExpressionTypeDropdown';
@@ -98,8 +100,6 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
   const { query, queries, onRunQuery, onChange, app } = props;
   const { getCachedExpression, setCachedExpression } = useExpressionsCache();
 
-  const styles = useStyles2(getStyles);
-
   useEffect(() => {
     setCachedExpression(query.type, query.expression);
   }, [query.expression, query.type, setCachedExpression]);
@@ -153,7 +153,7 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
 
   return (
     <div>
-      <div className={styles.operationRow}>
+      <div {...stylex.props(expressionQueryEditorStyles.operationRow)}>
         <InlineField
           label={t('expressions.expression-query-editor.label-operation', 'Operation')}
           labelWidth={labelWidth}
@@ -164,7 +164,7 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
             </Button>
           </ExpressionTypeDropdown>
         </InlineField>
-        <div className={styles.fieldContainer}>
+        <div {...stylex.props(expressionQueryEditorStyles.fieldContainer)}>
           {featureState && <FeatureBadge featureState={featureState} />}
           {helperText && <IconButton name="info-circle" tooltip={helperText} />}
         </div>
@@ -174,16 +174,3 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  operationRow: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  fieldContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(0.5), // Align with the select field
-  }),
-});

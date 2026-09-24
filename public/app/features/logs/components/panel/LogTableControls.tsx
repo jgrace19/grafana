@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logTableControlsStyles } from './LogTableControls.stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2, LogsSortOrder, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Dropdown, Menu } from '@grafana/ui';
 
 import { DownloadFormat } from '../../utils';
 
@@ -33,7 +35,7 @@ export const LogTableControls = ({
   onWrapTextClick,
   wrapText,
 }: Props) => {
-  const styles = useStyles2(getStyles, controlsExpanded);
+  const styles = (getStyles, controlsExpanded);
 
   const onExpandControlsClick = useCallback(() => {
     reportInteraction('logs_log_list_controls_expand_controls_clicked');
@@ -84,11 +86,11 @@ export const LogTableControls = ({
   );
 
   return (
-    <div className={styles.navContainer}>
+    <div {...stylex.props(logTableControlsStyles.navContainer)}>
       <LogListControlsOption
         expanded={controlsExpanded}
         name="arrow-from-right"
-        className={cx(styles.controlButton, styles.controlsExpandedButton)}
+        {...mergeStylexClassName(stylex.props(logTableControlsStyles.controlsExpandedButton, logTableControlsStyles.controlButton, ), undefined)}
         variant="secondary"
         onClick={onExpandControlsClick}
         label={
@@ -105,7 +107,7 @@ export const LogTableControls = ({
       <LogListControlsOption
         expanded={controlsExpanded}
         name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
-        className={styles.controlButton}
+        {...stylex.props(logTableControlsStyles.controlButton)}
         onClick={onSortOrderClick}
         label={
           sortOrder === LogsSortOrder.Descending
@@ -123,7 +125,7 @@ export const LogTableControls = ({
       <LogListControlsOption
         expanded={controlsExpanded}
         name="wrap-text"
-        className={wrapText ? styles.controlButtonActive : styles.controlButton}
+        className={wrapText ? logTableControlsStyles.controlButtonActive : logTableControlsStyles.controlButton}
         aria-pressed={wrapText}
         onClick={onWrapTextClick}
         tooltip={
@@ -140,12 +142,12 @@ export const LogTableControls = ({
 
       {!config.exploreHideLogsDownload && (
         <>
-          <div className={styles.divider} />
+          <div {...stylex.props(logTableControlsStyles.divider)} />
           <Dropdown overlay={downloadMenu} placement="auto-end">
             <LogListControlsOption
               expanded={controlsExpanded}
               name="download-alt"
-              className={styles.controlButton}
+              {...stylex.props(logTableControlsStyles.controlButton)}
               label={t('logs.logs-controls.download', 'Download logs')}
               tooltip={t('logs.logs-controls.tooltip.download', 'Download')}
               size="lg"
@@ -157,51 +159,4 @@ export const LogTableControls = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, controlsExpanded: boolean) => {
-  return {
-    navContainer: css({
-      height: '100%',
-      display: 'flex',
-      flex: '1 0 auto',
-      gap: theme.spacing(3),
-      flexDirection: 'column',
-      justifyContent: 'flex-start',
-      width: controlsExpanded ? CONTROLS_WIDTH_EXPANDED : LOG_LIST_CONTROLS_WIDTH,
-      paddingTop: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1),
-      borderLeft: `solid 1px ${theme.colors.border.medium}`,
-      minWidth: theme.spacing(4),
-      backgroundColor: theme.colors.background.primary,
-    }),
-    controlsExpandedButton: css({
-      transform: !controlsExpanded ? 'rotate(180deg)' : '',
-    }),
-    controlButton: css({
-      margin: 0,
-      color: theme.colors.text.secondary,
-      height: theme.spacing(2),
-    }),
-    controlButtonActive: css({
-      margin: 0,
-      color: theme.colors.text.secondary,
-      height: theme.spacing(2),
-      '&:after': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        height: 2,
-        borderRadius: theme.shape.radius.default,
-        bottom: theme.spacing(-1),
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-        width: theme.spacing(2.25),
-        opacity: 1,
-      },
-    }),
-    divider: css({
-      borderTop: `solid 1px ${theme.colors.border.medium}`,
-      height: 1,
-      marginTop: theme.spacing(-0.25),
-      marginBottom: theme.spacing(-1.75),
-    }),
-  };
-};
+;

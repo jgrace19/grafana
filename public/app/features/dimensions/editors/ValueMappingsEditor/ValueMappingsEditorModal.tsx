@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { valueMappingsEditorModalStyles } from './ValueMappingsEditorModal.stylex';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { uniqueId } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -11,7 +13,7 @@ import {
   type ValueMapping,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Modal, ValuePicker, Button } from '@grafana/ui';
+import { Modal, ValuePicker, Button  } from '@grafana/ui';
 
 import { ValueMappingEditRow, type ValueMappingEditRowModel } from './ValueMappingEditRow';
 
@@ -23,7 +25,6 @@ export interface Props {
 }
 
 export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPicker }: Props) {
-  const styles = useStyles2(getStyles);
   const [rows, updateRows] = useState<ValueMappingEditRowModel[]>([]);
 
   useEffect(() => {
@@ -120,8 +121,8 @@ export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPic
 
   return (
     <>
-      <div className={styles.tableWrap}>
-        <table className={styles.editTable}>
+      <div {...stylex.props(valueMappingsEditorModalStyles.tableWrap)}>
+        <table {...stylex.props(valueMappingsEditorModalStyles.editTable)}>
           <thead>
             <tr>
               <th style={{ width: '1%' }}></th>
@@ -190,29 +191,7 @@ export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPic
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  tableWrap: css({
-    minHeight: '40px',
-  }),
-
-  editTable: css({
-    width: '100%',
-    marginBottom: theme.spacing(2),
-
-    'thead th': {
-      textAlign: 'center',
-    },
-
-    'tbody tr:hover': {
-      background: theme.colors.action.hover,
-    },
-
-    ' th, td': {
-      padding: theme.spacing(1),
-    },
-  }),
-});
-
+export 
 function getRowUniqueId(): string {
   return uniqueId('mapping-');
 }

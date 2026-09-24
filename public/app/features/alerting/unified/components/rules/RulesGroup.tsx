@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rulesGroupStyles } from './RulesGroup.stylex';
 import React, { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Badge, Icon, Spinner, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Badge, Icon, Spinner, Stack, Tooltip } from '@grafana/ui';
 import { type CombinedRuleGroup, type CombinedRuleNamespace, type RulesSource } from 'app/types/unified-alerting';
 
 import { useFolder } from '../../hooks/useFolder';
@@ -37,8 +38,6 @@ export const RulesGroup = React.memo(({ group, namespace, expandAll, viewMode }:
   const { rulesSource } = namespace;
   const rulesSourceName = getRulesSourceName(rulesSource);
   const rulerRulesLoaded = useIsRulesLoading(rulesSource);
-
-  const styles = useStyles2(getStyles);
 
   const [isExporting, setIsExporting] = useState<'folder' | undefined>(undefined);
   const [isCollapsed, setIsCollapsed] = useState(!expandAll);
@@ -176,11 +175,11 @@ export const RulesGroup = React.memo(({ group, namespace, expandAll, viewMode }:
   }
 
   return (
-    <div className={styles.wrapper} data-testid="rule-group">
-      <div className={styles.header} data-testid="rule-group-header">
+    <div {...stylex.props(rulesGroupStyles.wrapper)} data-testid="rule-group">
+      <div {...stylex.props(rulesGroupStyles.header)} data-testid="rule-group-header">
         <CollapseToggle
           size="sm"
-          className={styles.collapseToggle}
+          {...stylex.props(rulesGroupStyles.collapseToggle)}
           isCollapsed={isCollapsed}
           onToggle={setIsCollapsed}
           data-testid={selectors.components.AlertRules.groupToggle}
@@ -189,27 +188,27 @@ export const RulesGroup = React.memo(({ group, namespace, expandAll, viewMode }:
         <CloudSourceLogo rulesSource={rulesSource} />
         {
           // eslint-disable-next-line
-          <div className={styles.groupName} onClick={() => setIsCollapsed(!isCollapsed)}>
+          <div {...stylex.props(rulesGroupStyles.groupName)} onClick={() => setIsCollapsed(!isCollapsed)}>
             {isFederated && <Badge color="purple" text={t('alerting.rules-group.text-federated', 'Federated')} />}{' '}
             {groupName}
           </div>
         }
-        <div className={styles.spacer} />
-        <div className={styles.headerStats}>
+        <div {...stylex.props(rulesGroupStyles.spacer)} />
+        <div {...stylex.props(rulesGroupStyles.headerStats)}>
           <RuleGroupStats group={group} />
         </div>
         {isProvisioned && (
           <>
-            <div className={styles.actionsSeparator}>|</div>
-            <div className={styles.actionIcons}>
+            <div {...stylex.props(rulesGroupStyles.actionsSeparator)}>|</div>
+            <div {...stylex.props(rulesGroupStyles.actionIcons)}>
               <Badge color="purple" text={t('alerting.rules-group.text-provisioned', 'Provisioned')} />
             </div>
           </>
         )}
         {!!actionIcons.length && (
           <>
-            <div className={styles.actionsSeparator}>|</div>
-            <div className={styles.actionIcons}>
+            <div {...stylex.props(rulesGroupStyles.actionsSeparator)}>|</div>
+            <div {...stylex.props(rulesGroupStyles.actionIcons)}>
               <Stack gap={0.5}>{actionIcons}</Stack>
             </div>
           </>
@@ -218,7 +217,7 @@ export const RulesGroup = React.memo(({ group, namespace, expandAll, viewMode }:
       {!isCollapsed && (
         <RulesTable
           showSummaryColumn={true}
-          className={styles.rulesTable}
+          {...stylex.props(rulesGroupStyles.rulesTable)}
           showGuidelines={true}
           showNextEvaluationColumn={Boolean(group.interval)}
           rules={group.rules}
@@ -237,12 +236,11 @@ RulesGroup.displayName = 'RulesGroup';
 // The Tooltip component is expensive to render and the rulesSource doesn't change often
 // so memoization seems to bring a lot of benefit here
 const CloudSourceLogo = React.memo(({ rulesSource }: { rulesSource: RulesSource | string }) => {
-  const styles = useStyles2(getStyles);
 
   if (isCloudRulesSource(rulesSource)) {
     return (
       <Tooltip content={rulesSource.name} placement="top">
-        <img alt={rulesSource.meta.name} className={styles.dataSourceIcon} src={rulesSource.meta.info.logos.small} />
+        <img alt={rulesSource.meta.name} {...stylex.props(rulesGroupStyles.dataSourceIcon)} src={rulesSource.meta.info.logos.small} />
       </Tooltip>
     );
   }
@@ -260,79 +258,3 @@ const FolderIcon = React.memo(({ isCollapsed }: { isCollapsed: boolean }) => {
 
 FolderIcon.displayName = 'FolderIcon';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({}),
-    header: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      flexWrap: 'nowrap',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-
-      '&:hover': {
-        backgroundColor: theme.components.table.rowHoverBackground,
-      },
-    }),
-    headerStats: css({
-      flexShrink: 0,
-
-      span: {
-        verticalAlign: 'middle',
-      },
-
-      [theme.breakpoints.down('sm')]: {
-        order: 2,
-        width: '100%',
-        paddingLeft: theme.spacing(1),
-      },
-    }),
-    groupName: css({
-      marginLeft: theme.spacing(1),
-      marginBottom: 0,
-      cursor: 'pointer',
-
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    }),
-    spacer: css({
-      flex: 1,
-    }),
-    collapseToggle: css({
-      background: 'none',
-      border: 'none',
-      marginTop: `-${theme.spacing(1)}`,
-      marginBottom: `-${theme.spacing(1)}`,
-
-      svg: {
-        marginBottom: 0,
-      },
-    }),
-    dataSourceIcon: css({
-      width: theme.spacing(2),
-      height: theme.spacing(2),
-      marginLeft: theme.spacing(2),
-    }),
-    dataSourceOrigin: css({
-      marginRight: '1em',
-      color: theme.colors.text.disabled,
-    }),
-    actionsSeparator: css({
-      margin: `0 ${theme.spacing(2)}`,
-    }),
-    actionIcons: css({
-      width: '120px',
-      alignItems: 'center',
-
-      flexShrink: 0,
-    }),
-    rulesTable: css({
-      margin: theme.spacing(2, 0),
-    }),
-    rotate90: css({
-      transform: 'rotate(90deg)',
-    }),
-  };
-};

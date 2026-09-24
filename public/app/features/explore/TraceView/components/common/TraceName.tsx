@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { traceNameStyles } from './TraceName.stylex';
 import cx from 'classnames';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { FALLBACK_TRACE_NAME } from '../constants';
 import type TNil from '../types/TNil';
 
 import BreakableText from './BreakableText';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    TraceName: css({
-      label: 'TraceName',
-      fontSize: theme.typography.size.lg,
-    }),
-  };
-};
+;
 
 type Props = {
   className?: string;
@@ -39,8 +33,7 @@ type Props = {
 
 export default function TraceName(props: Props) {
   const { className, traceName } = props;
-  const styles = useStyles2(getStyles);
   const text = String(traceName || FALLBACK_TRACE_NAME);
   const title = <BreakableText text={text} />;
-  return <span className={cx(styles.TraceName, className)}>{title}</span>;
+  return <span {...mergeStylexClassName(stylex.props(traceNameStyles.TraceName, , className), undefined)}>{title}</span>;
 }

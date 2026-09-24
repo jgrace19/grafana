@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardPageStyles } from './DashboardPage.stylex';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
@@ -87,41 +90,6 @@ export interface State {
   sectionNav?: NavModel;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  fullScreenPanel: css({
-    '.react-grid-layout': {
-      height: 'auto !important',
-      // eslint-disable-next-line @grafana/no-unreduced-motion
-      transitionProperty: 'none',
-    },
-    '.react-grid-item': {
-      display: 'none !important',
-      // eslint-disable-next-line @grafana/no-unreduced-motion
-      transitionProperty: 'none !important',
-
-      '&--fullscreen': {
-        display: 'block !important',
-        // can't avoid type assertion here due to !important
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        position: 'unset !important' as 'unset',
-        transform: 'translate(0px, 0px) !important',
-      },
-    },
-
-    // Disable grid interaction indicators in fullscreen panels
-    '.panel-header:hover': {
-      backgroundColor: 'inherit',
-    },
-
-    '.panel-title-container': {
-      cursor: 'pointer',
-    },
-
-    '.react-resizable-handle': {
-      display: 'none',
-    },
-  }),
-});
 
 export class UnthemedDashboardPage extends PureComponent<Props, State> {
   declare context: GrafanaContextType;
@@ -365,7 +333,6 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
 
     const { editPanel, viewPanel, pageNav, sectionNav } = this.state;
     const kioskMode = getKioskMode(this.props.queryParams);
-    const styles = getStyles(theme);
 
     if (!dashboard || !pageNav || !sectionNav) {
       return <DashboardLoading initPhase={this.props.initPhase} />;
@@ -376,8 +343,8 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
 
     const showToolbar = kioskMode !== KioskMode.Full && !queryParams.editview && !initError;
 
-    const pageClassName = cx({
-      [styles.fullScreenPanel]: Boolean(viewPanel),
+    const pageClassName = clsx({
+      [mergeStylexClassName(stylex.props(dashboardPageStyles.fullScreenPanel), undefined).className]: Boolean(viewPanel),
       'page-hidden': Boolean(queryParams.editview || editPanel),
     });
 

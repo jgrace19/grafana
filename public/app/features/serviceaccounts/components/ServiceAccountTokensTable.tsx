@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { serviceAccountTokensTableStyles } from './ServiceAccountTokensTable.stylex';
 import type { JSX } from 'react';
 
 import { dateTimeFormat, type GrafanaTheme2, type TimeZone, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { DeleteButton, Icon, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { DeleteButton, Icon, Tooltip, useTheme2 } from '@grafana/ui';
 import { type ApiKey } from 'app/types/apiKeys';
 
 interface Props {
@@ -19,7 +22,7 @@ export const ServiceAccountTokensTable = ({ tokens, timeZone, tokenActionsDisabl
   const styles = getStyles(theme);
 
   return (
-    <table className={cx(styles.section, 'filter-table')}>
+    <table {...mergeStylexClassName(stylex.props(serviceAccountTokensTableStyles.section, 'filter-table'), undefined)}>
       <thead>
         <tr>
           <th>
@@ -41,7 +44,7 @@ export const ServiceAccountTokensTable = ({ tokens, timeZone, tokenActionsDisabl
       <tbody>
         {tokens.map((key) => {
           return (
-            <tr key={key.id} className={styles.tableRow(key.hasExpired || key.isRevoked)}>
+            <tr key={key.id} className={serviceAccountTokensTableStyles.tableRow(key.hasExpired || key.isRevoked)}>
               <td>{key.name}</td>
               <td>
                 <TokenExpiration timeZone={timeZone} token={key} />
@@ -90,19 +93,18 @@ function formatSecondsLeftUntilExpiration(secondsUntilExpiration: number): strin
 }
 
 const TokenRevoked = () => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <span className={styles.hasExpired}>
+    <span {...stylex.props(serviceAccountTokensTableStyles.hasExpired)}>
       <Trans i18nKey="serviceaccounts.token-revoked.revoked-label">Revoked</Trans>
-      <span className={styles.tooltipContainer}>
+      <span {...stylex.props(serviceAccountTokensTableStyles.tooltipContainer)}>
         <Tooltip
           content={t(
             'serviceaccounts.token-revoked.content-token-publicly-exposed-please-rotate',
             'This token has been publicly exposed. Please rotate this token'
           )}
         >
-          <Icon name="exclamation-triangle" className={styles.toolTipIcon} />
+          <Icon name="exclamation-triangle" {...stylex.props(serviceAccountTokensTableStyles.toolTipIcon)} />
         </Tooltip>
       </span>
     </span>
@@ -115,31 +117,30 @@ interface TokenExpirationProps {
 }
 
 const TokenExpiration = ({ timeZone, token }: TokenExpirationProps) => {
-  const styles = useStyles2(getStyles);
 
   if (!token.expiration) {
     return (
-      <span className={styles.neverExpire}>
+      <span {...stylex.props(serviceAccountTokensTableStyles.neverExpire)}>
         <Trans i18nKey="serviceaccounts.token-expiration.never">Never</Trans>
       </span>
     );
   }
   if (token.secondsUntilExpiration) {
     return (
-      <span className={styles.secondsUntilExpiration} title={formatDate(timeZone, token.expiration)}>
+      <span {...stylex.props(serviceAccountTokensTableStyles.secondsUntilExpiration)} title={formatDate(timeZone, token.expiration)}>
         {formatSecondsLeftUntilExpiration(token.secondsUntilExpiration)}
       </span>
     );
   }
   if (token.hasExpired) {
     return (
-      <span className={styles.hasExpired} title={formatDate(timeZone, token.expiration)}>
+      <span {...stylex.props(serviceAccountTokensTableStyles.hasExpired)} title={formatDate(timeZone, token.expiration)}>
         <Trans i18nKey="serviceaccounts.token-expiration.expired-label">Expired</Trans>
-        <span className={styles.tooltipContainer}>
+        <span {...stylex.props(serviceAccountTokensTableStyles.tooltipContainer)}>
           <Tooltip
             content={t('serviceaccounts.token-expiration.content-this-token-has-expired', 'This token has expired')}
           >
-            <Icon name="exclamation-triangle" className={styles.toolTipIcon} />
+            <Icon name="exclamation-triangle" {...stylex.props(serviceAccountTokensTableStyles.toolTipIcon)} />
           </Tooltip>
         </span>
       </span>
@@ -148,27 +149,3 @@ const TokenExpiration = ({ timeZone, token }: TokenExpirationProps) => {
   return <span>{formatDate(timeZone, token.expiration)}</span>;
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tableRow: (hasExpired: boolean | undefined) =>
-    css({
-      color: hasExpired ? theme.colors.text.secondary : theme.colors.text.primary,
-    }),
-  tooltipContainer: css({
-    marginLeft: theme.spacing(1),
-  }),
-  toolTipIcon: css({
-    color: theme.colors.error.text,
-  }),
-  secondsUntilExpiration: css({
-    color: theme.colors.warning.text,
-  }),
-  hasExpired: css({
-    color: theme.colors.error.text,
-  }),
-  neverExpire: css({
-    color: theme.colors.text.secondary,
-  }),
-  section: css({
-    marginBottom: theme.spacing(4),
-  }),
-});

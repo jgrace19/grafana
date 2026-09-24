@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
 import { type GrafanaTheme2 } from '@grafana/data/';
 import { t, Trans } from '@grafana/i18n';
-import { Badge, Card, Grid, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Badge, Card, Grid, Text, TextLink, } from '@grafana/ui';
 import { type Repository, type RepositorySpec } from 'app/api/clients/provisioning/v0alpha1';
 
 import { MessageList } from '../Shared/MessageList';
@@ -13,7 +13,7 @@ import { formatTimestamp } from '../utils/time';
 import { SyncRepository } from './SyncRepository';
 
 export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   const status = repo.status;
   const statusColor = getStatusColor(status?.sync.state);
   const statusIcon = getStatusIcon(status?.sync.state);
@@ -30,7 +30,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
   const { url: lastCommitUrl, hasUrl } = getRepoCommitUrl(repo.spec, status?.sync.lastRef);
 
   return (
-    <Card noMargin className={styles.card}>
+    <Card noMargin {...stylex.props(repositoryPullStatusCardStyles.card)}>
       <Card.Heading>
         <Trans i18nKey="provisioning.repository-overview.pull-status">Pull status</Trans>
       </Card.Heading>
@@ -40,7 +40,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
           <Text color="secondary">
             <Trans i18nKey="provisioning.repository-overview.status">Status:</Trans>
           </Text>
-          <div className={styles.spanTwo}>
+          <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
             <Badge icon={statusIcon} color={statusColor} text={status?.sync.state ?? 'N/A'} />
           </div>
 
@@ -48,19 +48,19 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
           <Text color="secondary">
             <Trans i18nKey="provisioning.repository-overview.job-id">Job ID:</Trans>
           </Text>
-          <div className={styles.spanTwo}>
+          <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
             <Text variant="body">{status?.sync.job ?? 'N/A'}</Text>
           </div>
 
           <div
-            className={cx(styles.historicalData, { [styles.historicalDataOverlay]: isWorking })}
+            {...mergeStylexClassName(stylex.props(repositoryPullStatusCardStyles.historicalData, , { ...(isWorking  ? stylex.props(repositoryPullStatusCardStyles.historicalDataOverlay) : {}) }), undefined)}
             aria-busy={isWorking}
           >
             {/* Last Ref */}
             <Text color="secondary">
               <Trans i18nKey="provisioning.repository-overview.last-ref">Last Ref:</Trans>
             </Text>
-            <div className={styles.spanTwo}>
+            <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
               {hasUrl && lastCommitUrl ? (
                 <TextLink href={lastCommitUrl} external>
                   {status?.sync.lastRef
@@ -79,7 +79,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
             <Text color="secondary">
               <Trans i18nKey="provisioning.repository-overview.finished">Last successful pull:</Trans>
             </Text>
-            <div className={styles.spanTwo}>
+            <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
               <Text variant="body">{formatTimestamp(status?.sync.finished)}</Text>
             </div>
 
@@ -88,7 +88,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
                 <Text color="secondary">
                   <Trans i18nKey="provisioning.repository-overview.messages">Messages:</Trans>
                 </Text>
-                <div className={styles.spanTwo}>
+                <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
                   <MessageList messages={status.sync.message} variant="body" />
                 </div>
               </>
@@ -101,7 +101,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
               <Text color="secondary">
                 <Trans i18nKey="provisioning.repository-overview.repo-url">Repository URL:</Trans>
               </Text>
-              <div className={styles.spanTwo}>
+              <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
                 {repoHref ? (
                   <TextLink href={repoHref} external>
                     {formatRepoUrl(repoUrl)}
@@ -119,7 +119,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
               <Text color="secondary">
                 <Trans i18nKey="provisioning.repository-overview.branch">Branch:</Trans>
               </Text>
-              <div className={styles.spanTwo}>
+              <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
                 <Text variant="body">{branch}</Text>
               </div>
             </>
@@ -131,45 +131,21 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
               <Text color="secondary">
                 <Trans i18nKey="provisioning.repository-overview.path">Path:</Trans>
               </Text>
-              <div className={styles.spanTwo}>
+              <div {...stylex.props(repositoryPullStatusCardStyles.spanTwo)}>
                 <Text variant="body">{path}</Text>
               </div>
             </>
           )}
         </Grid>
       </Card.Description>
-      <Card.Actions className={styles.actions}>
+      <Card.Actions {...stylex.props(repositoryPullStatusCardStyles.actions)}>
         <SyncRepository repository={repo} />
       </Card.Actions>
     </Card>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    actions: css({
-      marginTop: 'auto',
-      paddingTop: theme.spacing(1),
-    }),
-    spanTwo: css({
-      gridColumn: 'span 2',
-    }),
-    historicalData: css({
-      gridColumn: '1 / -1',
-      display: 'grid',
-      gridTemplateColumns: 'subgrid',
-      gap: theme.spacing(1),
-    }),
-    historicalDataOverlay: css({
-      opacity: 0.6,
-    }),
-  };
-};
+;
 
 function getRemoteConfig(spec?: RepositorySpec) {
   switch (spec?.type) {

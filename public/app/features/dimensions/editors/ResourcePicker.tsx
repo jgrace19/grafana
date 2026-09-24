@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { resourcePickerStyles } from './ResourcePicker.stylex';
 import { useRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import {
   Button,
@@ -12,7 +13,6 @@ import {
   LinkButton,
   Popover,
   PopoverController,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
 import { closePopover } from '@grafana/ui/internal';
@@ -39,8 +39,6 @@ interface Props {
 
 export const ResourcePicker = (props: Props) => {
   const { value, src, name, placeholder, onChange, onClear, mediaType, folderName, size, color, maxFiles } = props;
-
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   const pickerTriggerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +66,7 @@ export const ResourcePicker = (props: Props) => {
 
   const renderSmallResourcePicker = () => {
     if (value && sanitizedSrc) {
-      return <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />;
+      return <SanitizedSVG src={sanitizedSrc} {...stylex.props(resourcePickerStyles.icon)} style={{ ...colorStyle }} />;
     } else {
       return (
         <LinkButton variant="primary" fill="text" size="sm">
@@ -85,7 +83,7 @@ export const ResourcePicker = (props: Props) => {
           value={getDisplayName(src, name)}
           placeholder={placeholder}
           readOnly={true}
-          prefix={sanitizedSrc && <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
+          prefix={sanitizedSrc && <SanitizedSVG src={sanitizedSrc} {...stylex.props(resourcePickerStyles.icon)} style={{ ...colorStyle }} />}
           suffix={
             <Button
               aria-label={t('dimensions.resource-picker.aria-label-clear-value', 'Clear value')}
@@ -120,7 +118,7 @@ export const ResourcePicker = (props: Props) => {
 
             <div
               ref={pickerTriggerRef}
-              className={styles.pointer}
+              {...stylex.props(resourcePickerStyles.pointer)}
               onClick={showPopper}
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === 'Enter') {
@@ -151,17 +149,3 @@ function getDisplayName(src?: string, name?: string): string | undefined {
   return name;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  pointer: css({
-    cursor: 'pointer',
-    'input[readonly]': {
-      cursor: 'pointer',
-    },
-  }),
-  icon: css({
-    verticalAlign: 'middle',
-    display: 'inline-block',
-    fill: 'currentColor',
-    width: '25px',
-  }),
-});

@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 
 import {
   type DataFrame,
@@ -9,7 +8,7 @@ import {
   type LinkModel,
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink, } from '@grafana/ui';
 import { renderValue } from 'app/plugins/panel/geomap/utils/uiUtils';
 import { getDataLinks } from 'app/plugins/panel/status-history/utils';
 
@@ -63,7 +62,7 @@ export function getDisplayValuesAndLinks(data: DataFrame, rowIndex: number, colu
 }
 
 export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) => {
-  const styles = useStyles2(getStyles, padding);
+  const styles = (getStyles, padding);
 
   if (!data || rowIndex == null) {
     return null;
@@ -78,13 +77,13 @@ export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) =>
   const { displayValues, links } = dispValuesAndLinks;
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(dataHoverViewStyles.wrapper)}>
       {header && (
-        <div className={styles.header}>
-          <span className={styles.title}>{header}</span>
+        <div {...stylex.props(dataHoverViewStyles.header)}>
+          <span {...stylex.props(dataHoverViewStyles.title)}>{header}</span>
         </div>
       )}
-      <table className={styles.infoWrap}>
+      <table {...stylex.props(dataHoverViewStyles.infoWrap)}>
         <tbody>
           {displayValues.map((displayValue, i) => (
             <tr key={`${i}/${rowIndex}`}>
@@ -110,46 +109,4 @@ export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) =>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, padding = 0) => {
-  return {
-    wrapper: css({
-      padding: `${padding}px`,
-      background: theme.components.tooltip.background,
-      borderRadius: theme.shape.borderRadius(2),
-    }),
-    header: css({
-      background: theme.colors.background.secondary,
-      alignItems: 'center',
-      alignContent: 'center',
-      display: 'flex',
-      paddingBottom: theme.spacing(1),
-    }),
-    title: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      overflow: 'hidden',
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      flexGrow: 1,
-    }),
-    infoWrap: css({
-      padding: theme.spacing(1),
-      background: 'transparent',
-      border: 'none',
-      th: {
-        fontWeight: theme.typography.fontWeightMedium,
-        padding: theme.spacing(0.25, 2, 0.25, 0),
-      },
-
-      tr: {
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
-        '&:last-child': {
-          borderBottom: 'none',
-        },
-      },
-    }),
-    link: css({
-      color: theme.colors.text.link,
-    }),
-  };
-};
+;

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsNavigationStyles } from './LogsNavigation.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo, useCallback } from 'react';
 
-import { type GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button, Icon, useTheme2 } from '@grafana/ui';
@@ -26,10 +27,10 @@ function LogsNavigation({ logsSortOrder, scrollToTopLogs }: Props) {
   }, [scrollToTopLogs]);
 
   return (
-    <div className={styles.navContainer}>
+    <div {...stylex.props(logsNavigationStyles.navContainer)}>
       <Button
         data-testid="scrollToTop"
-        className={styles.scrollToTopButton}
+        {...stylex.props(logsNavigationStyles.scrollToTopButton)}
         variant="secondary"
         onClick={onScrollToTopClick}
         title={t('logs.logs-navigation.scroll-top', 'Scroll to top')}
@@ -42,38 +43,3 @@ function LogsNavigation({ logsSortOrder, scrollToTopLogs }: Props) {
 
 export default memo(LogsNavigation);
 
-const getStyles = (theme: GrafanaTheme2, oldestLogsFirst: boolean, newLogsPanelEnabled: boolean) => {
-  const navContainerHeight = `calc(100vh - 2*${theme.spacing(2)} - 2*${getChromeHeaderLevelHeight()}px)`;
-
-  return {
-    navContainer: css({
-      maxHeight: navContainerHeight,
-      width: oldestLogsFirst && !newLogsPanelEnabled ? '58px' : 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'flex-end',
-      position: 'sticky',
-      top: theme.spacing(2),
-      right: 0,
-    }),
-    scrollToBottomButton: css({
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'absolute',
-      top: 0,
-    }),
-    scrollToTopButton: css({
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: theme.spacing(1),
-    }),
-  };
-};

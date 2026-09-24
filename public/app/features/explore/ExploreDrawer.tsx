@@ -1,11 +1,13 @@
+import clsx from 'clsx';
 // Libraries
-import { css, cx, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { exploreDrawerStyles } from './ExploreDrawer.stylex';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import * as React from 'react';
 
 // Services & Utils
-import { type GrafanaTheme2 } from '@grafana/data';
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragStyles, useTheme2 } from '@grafana/ui';
 
 export interface Props {
   children: React.ReactNode;
@@ -16,14 +18,13 @@ export interface Props {
 export function ExploreDrawer(props: Props) {
   const { children, onResize, initialHeight } = props;
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const dragStyles = getDragStyles(theme);
 
   const height = initialHeight || `${theme.components.horizontalDrawer.defaultHeight}px`;
 
   return (
     <Resizable
-      className={cx(styles.fixed, styles.container, styles.drawerActive)}
+      {...mergeStylexClassName(stylex.props(exploreDrawerStyles.fixed, , mergeStylexClassName(stylex.props(exploreDrawerStyles.container), undefined).className, mergeStylexClassName(stylex.props(exploreDrawerStyles.drawerActive), undefined).className), undefined)}
       defaultSize={{ width: '100%', height }}
       handleClasses={{ top: dragStyles.dragHandleHorizontal }}
       enable={{
@@ -54,22 +55,3 @@ const drawerSlide = (theme: GrafanaTheme2) => keyframes`
   }
 `;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  // @ts-expect-error csstype doesn't allow !important. see https://github.com/frenic/csstype/issues/114
-  fixed: css({
-    position: 'absolute !important',
-  }),
-  container: css({
-    bottom: 0,
-    background: theme.colors.background.primary,
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
-    zIndex: theme.zIndex.navbarFixed,
-  }),
-  drawerActive: css({
-    opacity: 1,
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `0.5s ease-out ${drawerSlide(theme)}`,
-    },
-  }),
-});

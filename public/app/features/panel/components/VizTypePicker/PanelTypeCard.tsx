@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelTypeCardStyles } from './PanelTypeCard.stylex';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, isUnsignedPluginSignature, type PanelPluginMeta, PluginState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { IconButton, PluginSignatureBadge, useStyles2 } from '@grafana/ui';
+import { IconButton, PluginSignatureBadge } from '@grafana/ui';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
@@ -35,13 +37,12 @@ const PanelTypeCardComponent = ({
   children,
   tabIndex = 0,
 }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
 
   const isDisabled = disabled || plugin.state === PluginState.deprecated;
   const cssClass = cx({
-    [styles.item]: true,
-    [styles.itemDisabled]: isDisabled,
-    [styles.current]: isCurrent,
+    [panelTypeCardStyles.item]: true,
+    [panelTypeCardStyles.itemDisabled]: isDisabled,
+    [panelTypeCardStyles.current]: isCurrent,
   });
 
   return (
@@ -66,18 +67,18 @@ const PanelTypeCardComponent = ({
       }
     >
       <img
-        className={cx(styles.img, { [styles.disabled]: isDisabled })}
+        className={cx(panelTypeCardStyles.img, { [panelTypeCardStyles.disabled]: isDisabled })}
         src={plugin.info.logos.small || undefined}
         alt=""
       />
 
-      <div className={cx(styles.itemContent, { [styles.disabled]: isDisabled })}>
-        <div className={styles.name}>{title}</div>
-        {description ? <span className={styles.description}>{description}</span> : null}
+      <div className={cx(panelTypeCardStyles.itemContent, { [panelTypeCardStyles.disabled]: isDisabled })}>
+        <div className={panelTypeCardStyles.name}>{title}</div>
+        {description ? <span className={panelTypeCardStyles.description}>{description}</span> : null}
         {children}
       </div>
       {showBadge && (
-        <div className={cx(styles.badge, { [styles.disabled]: isDisabled })}>
+        <div className={cx(panelTypeCardStyles.badge, { [panelTypeCardStyles.disabled]: isDisabled })}>
           <PanelPluginBadge plugin={plugin} />
         </div>
       )}
@@ -88,7 +89,7 @@ const PanelTypeCardComponent = ({
             e.stopPropagation();
             onDelete();
           }}
-          className={styles.deleteButton}
+          {...stylex.props(panelTypeCardStyles.deleteButton)}
           aria-label={t(
             'panel.panel-type-card.aria-label-delete-button-on-panel-type-card',
             'Delete button on panel type card'
@@ -112,21 +113,20 @@ const PanelTypeCardSkeleton: SkeletonComponent<React.PropsWithChildren<SkeletonP
   hasDelete,
   rootProps,
 }) => {
-  const styles = useStyles2(getStyles);
-  const skeletonStyles = useStyles2(getSkeletonStyles);
+  const skeletonStyles = (getSkeletonStyles);
   return (
-    <div className={styles.item} {...rootProps}>
-      <Skeleton className={cx(styles.img, skeletonStyles.image)} width={IMAGE_SIZE} height={IMAGE_SIZE} />
+    <div className={panelTypeCardStyles.item} {...rootProps}>
+      <Skeleton className={cx(panelTypeCardStyles.img, skeletonStyles.image)} width={IMAGE_SIZE} height={IMAGE_SIZE} />
 
-      <div className={styles.itemContent}>
-        <div className={styles.name}>
+      <div className={panelTypeCardStyles.itemContent}>
+        <div className={panelTypeCardStyles.name}>
           <Skeleton width={160} />
         </div>
-        {hasDescription ? <Skeleton containerClassName={styles.description} width={80} /> : null}
+        {hasDescription ? <Skeleton containerClassName={mergeStylexClassName(stylex.props(panelTypeCardStyles.description), undefined).className} width={80} /> : null}
         {children}
       </div>
       {hasDelete && (
-        <Skeleton containerClassName={cx(styles.deleteButton, skeletonStyles.deleteButton)} width={16} height={16} />
+        <Skeleton containerClassName={cx(panelTypeCardStyles.deleteButton, skeletonStyles.deleteButton)} width={16} height={16} />
       )}
     </div>
   );
@@ -134,16 +134,7 @@ const PanelTypeCardSkeleton: SkeletonComponent<React.PropsWithChildren<SkeletonP
 
 export const PanelTypeCard = attachSkeleton(PanelTypeCardComponent, PanelTypeCardSkeleton);
 
-const getSkeletonStyles = () => {
-  return {
-    deleteButton: css({
-      lineHeight: 1,
-    }),
-    image: css({
-      lineHeight: 1,
-    }),
-  };
-};
+;
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sceneStyles } from './scene.stylex';
 import type InfiniteViewer from 'infinite-viewer';
 import type Moveable from 'moveable';
 import { type CSSProperties } from 'react';
@@ -407,9 +409,9 @@ export class Scene {
     );
 
     return config.featureToggles.canvasPanelPanZoom ? (
-      <div className={this.styles.viewer} ref={this.setViewerRef} key={this.revId} data-testid="canvas-scene-wrapper">
+      <div className={this.sceneStyles.viewer} ref={this.setViewerRef} key={this.revId} data-testid="canvas-scene-wrapper">
         <div
-          className={this.styles.viewport}
+          className={this.sceneStyles.viewport}
           ref={this.setViewportRef}
           key={this.revId}
           data-testid="canvas-scene-pan-zoom"
@@ -420,7 +422,7 @@ export class Scene {
     ) : (
       <div
         key={this.revId}
-        className={this.styles.wrap}
+        className={this.sceneStyles.wrap}
         style={this.style}
         ref={this.setRef}
         data-testid="canvas-scene"
@@ -431,21 +433,3 @@ export class Scene {
   }
 }
 
-const getStyles = () => ({
-  wrap: css({
-    overflow: 'hidden',
-    position: 'relative',
-  }),
-  selected: css({
-    zIndex: '999 !important',
-  }),
-  viewer: css({
-    overflow: 'hidden',
-    width: '100%',
-    height: '100%',
-  }),
-  viewport: css({
-    width: '100%',
-    height: '100%',
-  }),
-});

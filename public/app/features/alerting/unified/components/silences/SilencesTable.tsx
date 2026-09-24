@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { silencesTableStyles } from './SilencesTable.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, dateMath } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   Alert,
@@ -12,8 +13,7 @@ import {
   LinkButton,
   LoadingPlaceholder,
   Stack,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { alertSilencesApi } from 'app/features/alerting/unified/api/alertSilencesApi';
 import { featureDiscoveryApi } from 'app/features/alerting/unified/api/featureDiscoveryApi';
@@ -76,8 +76,6 @@ const SilencesTable = () => {
 
   const mimirLazyInitError =
     stringifyErrorLike(error).includes('the Alertmanager is not configured') && amFeatures?.lazyConfigInit;
-
-  const styles = useStyles2(getStyles);
   const [queryParams] = useQueryParams();
   const filteredSilencesNotExpired = useFilteredSilences(silences, false);
   const filteredSilencesExpired = useFilteredSilences(silences, true);
@@ -169,8 +167,8 @@ const SilencesTable = () => {
               })}
               isOpen={showExpiredFromUrl}
             >
-              <div className={styles.callout}>
-                <Icon className={styles.calloutIcon} name="info-circle" />
+              <div {...stylex.props(silencesTableStyles.callout)}>
+                <Icon {...stylex.props(silencesTableStyles.calloutIcon)} name="info-circle" />
                 <span>
                   <Trans i18nKey="silences.table.expired-silences">
                     Expired silences are automatically deleted after 5 days.
@@ -260,24 +258,6 @@ const useFilteredSilences = (silences: Silence[], expired = false) => {
   }, [queryParams, silences, expired]);
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  callout: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderTop: `3px solid ${theme.colors.info.border}`,
-    borderRadius: theme.shape.radius.default,
-    height: '62px',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    '& > *': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  calloutIcon: css({
-    color: theme.colors.info.text,
-  }),
-});
 
 function useColumns(alertManagerSourceName: string) {
   const [updateSupported, updateAllowed] = useAlertmanagerAbility(AlertmanagerAction.UpdateSilence);

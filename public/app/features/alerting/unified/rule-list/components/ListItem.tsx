@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { listItemStyles } from './ListItem.stylex';
 import React, { type AriaAttributes, type ReactNode } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, Text, useStyles2 } from '@grafana/ui';
+import { Stack, Text } from '@grafana/ui';
 
 interface ListItemProps extends AriaAttributes {
   icon?: ReactNode;
@@ -16,12 +17,11 @@ interface ListItemProps extends AriaAttributes {
 }
 
 export const ListItem = (props: ListItemProps) => {
-  const styles = useStyles2(getStyles);
   const { icon = null, title, description, meta, metaRight, actions, 'data-testid': testId, ...ariaAttributes } = props;
 
   return (
     <li
-      className={styles.alertListItemContainer}
+      {...stylex.props(listItemStyles.alertListItemContainer)}
       role="treeitem"
       aria-selected="false"
       data-testid={testId}
@@ -29,13 +29,13 @@ export const ListItem = (props: ListItemProps) => {
     >
       <Stack direction="row" alignItems="start" gap={1} wrap={false}>
         {/* icon */}
-        <span className={styles.statusIcon}>{icon}</span>
+        <span {...stylex.props(listItemStyles.statusIcon)}>{icon}</span>
 
         <Stack direction="column" gap={0.5} flex="1" minWidth={0}>
           {/* title */}
           <Stack direction="column" gap={0}>
-            <div className={styles.textOverflow}>{title}</div>
-            <div className={styles.textOverflow}>{description}</div>
+            <div {...stylex.props(listItemStyles.textOverflow)}>{title}</div>
+            <div {...stylex.props(listItemStyles.textOverflow)}>{description}</div>
           </Stack>
 
           {/* metadata */}
@@ -76,25 +76,3 @@ const Separator = () => (
   </Text>
 );
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alertListItemContainer: css({
-    listStyle: 'none',
-    position: 'relative',
-
-    padding: theme.spacing(1),
-
-    '&:hover': {
-      background: theme.colors.action.hover,
-      borderRadius: theme.shape.radius.default,
-    },
-  }),
-  textOverflow: css({
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    color: 'inherit',
-  }),
-  // this will line up the icon with the title of the rule
-  statusIcon: css({
-    marginTop: theme.spacing(0.5),
-  }),
-});

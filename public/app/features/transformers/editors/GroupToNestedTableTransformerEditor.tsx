@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { groupToNestedTableTransformerEditorStyles } from './GroupToNestedTableTransformerEditor.stylex';
 import { useCallback, useId } from 'react';
 
 import {
@@ -152,9 +154,9 @@ export const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }:
   ];
 
   return (
-    <InlineField className={styles.label} label={fieldName} grow shrink htmlFor={id}>
+    <InlineField {...stylex.props(groupToNestedTableTransformerEditorStyles.label)} label={fieldName} grow shrink htmlFor={id}>
       <Stack gap={0.5} direction="row" wrap={false}>
-        <div className={styles.operation}>
+        <div {...stylex.props(groupToNestedTableTransformerEditorStyles.operation)}>
           <Select
             inputId={id}
             options={options}
@@ -181,18 +183,7 @@ export const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }:
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    label: css({
-      minWidth: theme.spacing(32),
-    }),
-    operation: css({
-      flexShrink: 0,
-      height: '100%',
-      width: theme.spacing(24),
-    }),
-  };
-};
+;
 
 export const getGroupToNestedTableTransformRegistryItem: () => TransformerRegistryItem<GroupByTransformerOptions> =
   () => ({

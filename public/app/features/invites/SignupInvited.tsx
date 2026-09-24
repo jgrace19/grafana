@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { signupInvitedStyles } from './SignupInvited.stylex';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getBackendSrv } from '@grafana/runtime';
-import { Button, Field, Input, useStyles2 } from '@grafana/ui';
+import { Button, Field, Input } from '@grafana/ui';
 import { Form } from 'app/core/components/Form/Form';
 import { Page } from 'app/core/components/Page/Page';
 import { getConfig } from 'app/core/config';
@@ -38,7 +40,6 @@ export const SignupInvitedPage = () => {
   const [initFormModel, setInitFormModel] = useState<FormModel>();
   const [greeting, setGreeting] = useState<string>();
   const [invitedBy, setInvitedBy] = useState<string>();
-  const styles = useStyles2(getStyles);
 
   useAsync(async () => {
     const invite = await getBackendSrv().get(`/api/user/invite/${code}`);
@@ -72,7 +73,7 @@ export const SignupInvitedPage = () => {
             : t('invites.signup-invited-page.greeting-default', 'Hello there.')}
         </h3>
 
-        <div className={cx('modal-tagline', styles.tagline)}>
+        <div {...mergeStylexClassName(stylex.props(signupInvitedStyles.tagline, 'modal-tagline', ), undefined)}>
           {invitedBy ? (
             <Trans
               i18nKey="invites.signup-invited-page.custom-has-invited-you"
@@ -158,10 +159,5 @@ export const SignupInvitedPage = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tagline: css({
-    paddingBottom: theme.spacing(3),
-  }),
-});
 
 export default SignupInvitedPage;

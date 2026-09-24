@@ -2,14 +2,15 @@ import { Fragment, useState } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
 import { logError } from '@grafana/runtime';
-import { Badge, ConfirmModal, Tooltip, useStyles2 } from '@grafana/ui';
+import { Badge, ConfirmModal, Tooltip } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { CodeText } from 'app/features/alerting/unified/components/common/TextVariants';
 import { GRAFANA_RULES_SOURCE_NAME } from 'app/features/alerting/unified/utils/datasource';
 
 import { Authorize } from '../../components/Authorize';
 import { AlertmanagerAction } from '../../hooks/useAbilities';
-import { getAlertTableStyles } from '../../styles/table';
+import * as stylex from '@stylexjs/stylex';
+import { tableStyles } from '../../styles/table.stylex';
 import { isProvisionedResource } from '../../utils/k8s/utils';
 import { makeAMLink, stringifyErrorLike } from '../../utils/misc';
 import { CollapseToggle } from '../CollapseToggle';
@@ -34,8 +35,6 @@ export const TemplatesTable = ({ alertManagerName, templates }: Props) => {
   const appNotification = useAppNotification();
   const [deleteTemplate] = useDeleteNotificationTemplate({ alertmanager: alertManagerName });
 
-  const tableStyles = useStyles2(getAlertTableStyles);
-
   const [templateToDelete, setTemplateToDelete] = useState<NotificationTemplate | undefined>();
 
   const onDeleteTemplate = async () => {
@@ -55,9 +54,9 @@ export const TemplatesTable = ({ alertManagerName, templates }: Props) => {
 
   return (
     <>
-      <table className={tableStyles.table} data-testid="templates-table">
+      <table {...stylex.props(tableStyles.table)} data-testid="templates-table">
         <colgroup>
-          <col className={tableStyles.colExpand} />
+          <col {...stylex.props(tableStyles.colExpand)} />
           <col />
           <col />
         </colgroup>
@@ -82,7 +81,7 @@ export const TemplatesTable = ({ alertManagerName, templates }: Props) => {
         </thead>
         <tbody>
           {!templates.length && (
-            <tr className={tableStyles.evenRow}>
+            <tr {...stylex.props(tableStyles.evenRow)}>
               <td colSpan={3}>
                 <Trans i18nKey="alerting.templates-table.no-templates-defined">No templates defined.</Trans>
               </td>
@@ -126,7 +125,6 @@ interface TemplateRowProps {
 }
 
 function TemplateRow({ notificationTemplate, idx, alertManagerName, onDeleteClick }: TemplateRowProps) {
-  const tableStyles = useStyles2(getAlertTableStyles);
   const isGrafanaAlertmanager = alertManagerName === GRAFANA_RULES_SOURCE_NAME;
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -174,7 +172,7 @@ function TemplateRow({ notificationTemplate, idx, alertManagerName, onDeleteClic
             </Tooltip>
           )}
         </td>
-        <td className={tableStyles.actionsCell}>
+        <td {...stylex.props(tableStyles.actionsCell)}>
           {isProvisioned && (
             <ActionIcon
               to={makeAMLink(`/alerting/notifications/templates/${encodeURIComponent(uid)}/edit`, alertManagerName)}

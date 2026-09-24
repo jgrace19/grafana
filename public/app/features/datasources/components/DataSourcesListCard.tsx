@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourcesListCardStyles } from './DataSourcesListCard.stylex';
 import Skeleton from 'react-loading-skeleton';
 
 import { type DataSourceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Card, LinkButton, Stack, Tag, useStyles2 } from '@grafana/ui';
+import { Card, LinkButton, Stack, Tag } from '@grafana/ui';
 
 import { ROUTES } from '../../connections/constants';
 import { type DatasourceFailureDetails } from '../../connections/hooks/useDatasourceAdvisorChecks';
@@ -23,13 +25,12 @@ export interface Props {
 
 export function DataSourcesListCard({ dataSource, hasWriteRights, hasExploreRights, failure }: Props) {
   const dsLink = config.appSubUrl + ROUTES.DataSourcesEdit.replace(/:uid/gi, dataSource.uid);
-  const styles = useStyles2(getStyles);
 
   return (
     <Card noMargin href={hasWriteRights ? dsLink : undefined}>
       <Card.Heading>{dataSource.name}</Card.Heading>
       <Card.Figure>
-        <img src={dataSource.typeLogoUrl} alt="" height="40px" width="40px" className={styles.logo} />
+        <img src={dataSource.typeLogoUrl} alt="" height="40px" width="40px" className={dataSourcesListCardStyles.logo} />
       </Card.Figure>
       <Card.Meta>
         {[
@@ -51,7 +52,7 @@ export function DataSourcesListCard({ dataSource, hasWriteRights, hasExploreRigh
             icon="compass"
             fill="outline"
             variant="secondary"
-            className={styles.button}
+            {...stylex.props(dataSourcesListCardStyles.button)}
             href={constructDataSourceExploreUrl(dataSource)}
             onClick={() => {
               trackExploreClicked({
@@ -71,7 +72,7 @@ export function DataSourcesListCard({ dataSource, hasWriteRights, hasExploreRigh
 }
 
 function DataSourcesListCardSkeleton({ hasExploreRights }: Pick<Props, 'hasExploreRights'>) {
-  const skeletonStyles = useStyles2(getSkeletonStyles);
+  const skeletonStyles = (getSkeletonStyles);
   return (
     <Card noMargin>
       <Card.Heading>
@@ -97,16 +98,7 @@ function DataSourcesListCardSkeleton({ hasExploreRights }: Pick<Props, 'hasExplo
 
 DataSourcesListCard.Skeleton = DataSourcesListCardSkeleton;
 
-const getSkeletonStyles = () => {
-  return {
-    button: css({
-      lineHeight: 1,
-    }),
-    figure: css({
-      lineHeight: 1,
-    }),
-  };
-};
+;
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {

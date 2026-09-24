@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsStyles } from './Logs.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { capitalize, groupBy } from 'lodash';
 import * as React from 'react';
@@ -882,7 +885,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
           displayedFields={displayedFields}
         />
       )}
-      <div className={styles.logsVolumePanel}>
+      <div {...stylex.props(logsStyles.logsVolumePanel)}>
         <PanelChrome
           title={t('explore.unthemed-logs.title-logs-volume', 'Logs volume')}
           collapsible
@@ -919,9 +922,9 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
         title={t('explore.unthemed-logs.title-logs', 'Logs')}
         actions={
           <>
-            <div className={styles.visualisationType}>
+            <div {...stylex.props(logsStyles.visualisationType)}>
               <RadioButtonGroup
-                className={styles.visualisationTypeRadio}
+                {...stylex.props(logsStyles.visualisationTypeRadio)}
                 options={[
                   {
                     label: t('explore.unthemed-logs.label.logs', 'Logs'),
@@ -949,65 +952,65 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
         }
         loadingState={loading ? LoadingState.Loading : LoadingState.Done}
       >
-        <div className={styles.stickyNavigation}>
+        <div {...stylex.props(logsStyles.stickyNavigation)}>
           {visualisationType !== 'table' && !newLogsPanelEnabled && !logsPanelControlsEnabled && (
-            <div className={styles.logOptions}>
+            <div {...stylex.props(logsStyles.logOptions)}>
               <InlineFieldRow>
                 <InlineField
                   label={t('explore.unthemed-logs.label-time', 'Time')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                 >
                   <InlineSwitch
                     value={showTime}
                     onChange={onChangeShowTime}
-                    className={styles.horizontalInlineSwitch}
+                    {...stylex.props(logsStyles.horizontalInlineSwitch)}
                     transparent
                     id={`show-time_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-unique-labels', 'Unique labels')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                 >
                   <InlineSwitch
                     value={showLabels}
                     onChange={onChangeLabels}
-                    className={styles.horizontalInlineSwitch}
+                    {...stylex.props(logsStyles.horizontalInlineSwitch)}
                     transparent
                     id={`unique-labels_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-wrap-lines', 'Wrap lines')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                 >
                   <InlineSwitch
                     value={wrapLogMessage}
                     onChange={onChangeWrapLogMessage}
-                    className={styles.horizontalInlineSwitch}
+                    {...stylex.props(logsStyles.horizontalInlineSwitch)}
                     transparent
                     id={`wrap-lines_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-prettify-json', 'Prettify JSON')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                 >
                   <InlineSwitch
                     value={prettifyLogMessage}
                     onChange={onChangePrettifyLogMessage}
-                    className={styles.horizontalInlineSwitch}
+                    {...stylex.props(logsStyles.horizontalInlineSwitch)}
                     transparent
                     id={`prettify_${exploreId}`}
                   />
                 </InlineField>
                 <InlineField
                   label={t('explore.unthemed-logs.label-deduplication', 'Deduplication')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                 >
                   <RadioButtonGroup
@@ -1018,7 +1021,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
                     }))}
                     value={dedupStrategy}
                     onChange={onChangeDedup}
-                    className={styles.radioButtons}
+                    {...stylex.props(logsStyles.radioButtons)}
                   />
                 </InlineField>
               </InlineFieldRow>
@@ -1026,7 +1029,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
               <div>
                 <InlineField
                   label={t('explore.unthemed-logs.label-display-results', 'Display results')}
-                  className={styles.horizontalInlineLabel}
+                  {...stylex.props(logsStyles.horizontalInlineLabel)}
                   transparent
                   disabled={isFlipping || loading}
                 >
@@ -1051,7 +1054,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
                     ]}
                     value={logsSortOrder}
                     onChange={onChangeLogsSortOrder}
-                    className={styles.radioButtons}
+                    {...stylex.props(logsStyles.radioButtons)}
                   />
                 </InlineField>
               </div>
@@ -1069,9 +1072,9 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
             visualisationType={visualisationType}
           />
         </div>
-        <div className={cx(styles.logsSection, visualisationType === 'table' ? styles.logsTable : undefined)}>
+        <div {...mergeStylexClassName(stylex.props(logsStyles.logsSection, , visualisationType === 'table' ? mergeStylexClassName(stylex.props(logsStyles.logsTable), undefined).className : undefined), undefined)}>
           {!enableNewLogsTable && !logsPanelControlsEnabled && visualisationType === 'table' && hasData && (
-            <div className={styles.logRows} data-testid="logRowsTable">
+            <div {...stylex.props(logsStyles.logRows)} data-testid="logRowsTable">
               <LogsTableWrap
                 logsSortOrder={logsSortOrder}
                 range={props.range}
@@ -1152,7 +1155,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
             logsPanelControlsEnabled &&
             (visualisationType === 'logs' || !enableNewLogsTable) &&
             hasData && (
-              <div className={styles.controlledLogRowsWrapper} data-testid="logRows">
+              <div {...stylex.props(logsStyles.controlledLogRowsWrapper)} data-testid="logRows">
                 <ControlledLogRows
                   ref={logsContainerRef}
                   logsTableFrames={props.logsFrames}
@@ -1207,7 +1210,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
             )}
           {!logsPanelControlsEnabled && !newLogsPanelEnabled && visualisationType === 'logs' && hasData && (
             <>
-              <div className={styles.scrollableLogRows} data-testid="logRows" ref={logsContainerRef}>
+              <div {...stylex.props(logsStyles.scrollableLogRows)} data-testid="logRows" ref={logsContainerRef}>
                 <InfiniteScroll
                   loading={loading}
                   loadMoreLogs={infiniteScrollAvailable ? loadMoreLogs : undefined}
@@ -1260,7 +1263,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
             </>
           )}
           {newLogsPanelEnabled && visualisationType === 'logs' && (
-            <div data-testid="logRows" ref={logsContainerRef} className={styles.logRowsWrapper}>
+            <div data-testid="logRows" ref={logsContainerRef} {...stylex.props(logsStyles.logRowsWrapper)}>
               {logsContainerRef.current && hasData && (
                 <LogList
                   app={CoreApp.Explore}
@@ -1308,20 +1311,20 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
           )}
         </div>
         {!loading && !hasData && !scanning && (
-          <div className={styles.noDataWrapper}>
-            <div className={styles.noData}>
+          <div {...stylex.props(logsStyles.noDataWrapper)}>
+            <div {...stylex.props(logsStyles.noData)}>
               <Trans i18nKey="explore.logs.no-logs-found">No logs found.</Trans>
-              <Button size="sm" variant="secondary" className={styles.scanButton} onClick={onClickScan}>
+              <Button size="sm" variant="secondary" {...stylex.props(logsStyles.scanButton)} onClick={onClickScan}>
                 <Trans i18nKey="explore.logs.scan-for-older-logs">Scan for older logs</Trans>
               </Button>
             </div>
           </div>
         )}
         {scanning && (
-          <div className={styles.noDataWrapper}>
-            <div className={styles.noData}>
+          <div {...stylex.props(logsStyles.noDataWrapper)}>
+            <div {...stylex.props(logsStyles.noData)}>
               <span>{scanText}</span>
-              <Button size="sm" variant="secondary" className={styles.scanButton} onClick={onClickStopScan}>
+              <Button size="sm" variant="secondary" {...stylex.props(logsStyles.scanButton)} onClick={onClickStopScan}>
                 <Trans i18nKey="explore.logs.stop-scan">Stop scan</Trans>
               </Button>
             </div>
@@ -1334,88 +1337,7 @@ const UnthemedLogs: React.FunctionComponent<Props> = (props: Props) => {
 
 export const Logs = withTheme2(UnthemedLogs);
 
-const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean, tableHeight: number) => {
-  return {
-    noDataWrapper: css({
-      display: 'flex',
-      justifyContent: 'center',
-      width: '100%',
-      paddingBottom: theme.spacing(2),
-    }),
-    noData: css({
-      display: 'inline-block',
-    }),
-    scanButton: css({
-      marginLeft: theme.spacing(1),
-    }),
-    logOptions: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'baseline',
-      flexWrap: 'wrap',
-      backgroundColor: theme.colors.background.primary,
-      padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-      borderRadius: theme.shape.radius.default,
-      margin: `${theme.spacing(0, 0, 1)}`,
-      border: `1px solid ${theme.colors.border.medium}`,
-    }),
-    headerButton: css({
-      margin: `${theme.spacing(0.5, 0, 0, 1)}`,
-    }),
-    horizontalInlineLabel: css({
-      '& > label': {
-        marginRight: '0',
-      },
-    }),
-    horizontalInlineSwitch: css({
-      padding: `0 ${theme.spacing(1)} 0 0`,
-    }),
-    radioButtons: css({
-      margin: '0',
-    }),
-    logsSection: css({
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      position: 'relative',
-    }),
-    logsTable: css({
-      maxHeight: `${tableHeight}px`,
-    }),
-    scrollableLogRows: css({
-      overflowY: 'scroll',
-      width: '100%',
-      maxHeight: '80vh',
-    }),
-    logRows: css({
-      overflowX: `${wrapLogMessage ? 'unset' : 'scroll'}`,
-      overflowY: 'visible',
-      width: '100%',
-    }),
-    controlledLogRowsWrapper: css({
-      width: '100%',
-      maxHeight: '80vh',
-    }),
-    logRowsWrapper: css({
-      width: '100%',
-    }),
-    visualisationType: css({
-      display: 'flex',
-      flex: '1',
-      justifyContent: 'flex-end',
-    }),
-    visualisationTypeRadio: css({
-      margin: `0 0 0 ${theme.spacing(1)}`,
-    }),
-    stickyNavigation: css({
-      overflow: 'visible',
-      marginBottom: '0px',
-    }),
-    logsVolumePanel: css({
-      marginBottom: theme.spacing(1.5),
-    }),
-  };
-};
+;
 
 const dedupRows = (logRows: LogRowModel[], dedupStrategy: LogsDedupStrategy) => {
   const dedupedRows = dedupLogRows(logRows, dedupStrategy);

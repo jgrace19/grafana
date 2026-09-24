@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertManagerPickerStyles } from './AlertManagerPicker.stylex';
 import { type ComponentProps, useMemo } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { InlineField, Select, SelectMenuOptions, useStyles2 } from '@grafana/ui';
+import { InlineField, Select, SelectMenuOptions } from '@grafana/ui';
 
 import { useAlertmanager } from '../state/AlertmanagerContext';
 import { type AlertManagerDataSource, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
@@ -21,7 +22,6 @@ function getAlertManagerLabel(alertManager: AlertManagerDataSource) {
 }
 
 export const AlertManagerPicker = ({ disabled = false }: Props) => {
-  const styles = useStyles2(getStyles);
   const { selectedAlertmanager, availableAlertManagers, setSelectedAlertmanager } = useAlertmanager();
 
   const options = useMemo(() => {
@@ -59,7 +59,7 @@ export const AlertManagerPicker = ({ disabled = false }: Props) => {
   const label = isDisabled ? 'Alertmanager' : 'Choose Alertmanager';
 
   return (
-    <InlineField className={styles.field} label={label} disabled={isDisabled} data-testid="alertmanager-picker">
+    <InlineField {...stylex.props(alertManagerPickerStyles.field)} label={label} disabled={isDisabled} data-testid="alertmanager-picker">
       <Select
         aria-label={label}
         width={29}
@@ -83,26 +83,14 @@ export const AlertManagerPicker = ({ disabled = false }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  field: css({
-    margin: 0,
-  }),
-  optionContent: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    whiteSpace: 'pre-line',
-  }),
-});
 
 // custom option that overwrites the default "white-space: nowrap" for Alertmanager names that are really long
 const CustomOption = (props: ComponentProps<typeof SelectMenuOptions>) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <SelectMenuOptions
       {...props}
-      renderOptionLabel={({ label }) => <div className={styles.optionContent}>{label}</div>}
+      renderOptionLabel={({ label }) => <div {...stylex.props(alertManagerPickerStyles.optionContent)}>{label}</div>}
     />
   );
 };

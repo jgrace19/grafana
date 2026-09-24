@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AlertState, type AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -19,7 +18,6 @@ interface AmNotificationsAlertDetailsProps {
 }
 
 export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsAlertDetailsProps) => {
-  const styles = useStyles2(getStyles);
 
   // For Grafana Managed alerts the Generator URL redirects to the alert rule edit page, so update permission is required
   // For external alert manager the Generator URL redirects to an external service which we don't control
@@ -30,7 +28,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
 
   return (
     <>
-      <div className={styles.actionsRow}>
+      <div {...stylex.props(alertDetailsStyles.actionsRow)}>
         {alert.status.state === AlertState.Suppressed && (
           <Authorize actions={[AlertmanagerAction.CreateSilence, AlertmanagerAction.UpdateSilence]}>
             <LinkButton
@@ -38,7 +36,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
                 '/alerting/silences',
                 alertManagerSourceName
               )}&silenceIds=${alert.status.silencedBy.join(',')}`}
-              className={styles.button}
+              {...stylex.props(alertDetailsStyles.button)}
               icon={'bell'}
               size={'sm'}
             >
@@ -50,7 +48,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
           <Authorize actions={[AlertmanagerAction.CreateSilence]}>
             <LinkButton
               href={makeLabelBasedSilenceLink(alertManagerSourceName, alert.labels)}
-              className={styles.button}
+              {...stylex.props(alertDetailsStyles.button)}
               icon={'bell-slash'}
               size={'sm'}
             >
@@ -59,7 +57,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
           </Authorize>
         )}
         {isSeeSourceButtonEnabled && alert.generatorURL && (
-          <LinkButton className={styles.button} href={alert.generatorURL} icon={'chart-line'} size={'sm'}>
+          <LinkButton {...stylex.props(alertDetailsStyles.button)} href={alert.generatorURL} icon={'chart-line'} size={'sm'}>
             {isGrafanaSource
               ? t('alerting.alert-details.button-see-rule', 'See alert rule')
               : t('alerting.alert-details.button-see-source', 'See source')}
@@ -69,7 +67,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
       {Object.entries(alert.annotations).map(([annotationKey, annotationValue]) => (
         <AnnotationDetailsField key={annotationKey} annotationKey={annotationKey} value={annotationValue} />
       ))}
-      <div className={styles.receivers}>
+      <div {...stylex.props(alertDetailsStyles.receivers)}>
         <Trans
           i18nKey="alerting.alert-details.receivers-list"
           values={{
@@ -86,17 +84,3 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  button: css({
-    '& + &': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  actionsRow: css({
-    padding: `${theme.spacing(2, 0)} !important`,
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-  }),
-  receivers: css({
-    padding: theme.spacing(1, 0),
-  }),
-});

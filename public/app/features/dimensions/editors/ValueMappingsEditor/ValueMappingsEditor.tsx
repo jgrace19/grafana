@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { valueMappingsEditorStyles } from './ValueMappingsEditor.stylex';
 import { memo, useCallback, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, MappingType, type StandardEditorProps, type ValueMapping } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Stack, Icon, ColorPicker, Button, Modal } from '@grafana/ui';
+import { Stack, Icon, ColorPicker, Button, Modal  } from '@grafana/ui';
 
 import { MediaType, ResourceFolderName, ResourcePickerSize } from '../../types';
 import { ResourcePicker } from '../ResourcePicker';
@@ -16,8 +17,6 @@ export interface Props extends StandardEditorProps<ValueMapping[]> {
 
 export const ValueMappingsEditor = memo((props: Props) => {
   const { value, onChange, item } = props;
-
-  const styles = useStyles2(getStyles);
   const showIconPicker = item.settings?.icon;
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const onCloseEditor = useCallback(() => {
@@ -44,7 +43,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
 
   return (
     <Stack direction="column">
-      <table className={styles.compactTable}>
+      <table {...stylex.props(valueMappingsEditorStyles.compactTable)}>
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex.toString()}>
@@ -104,7 +103,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
         isOpen={isEditorOpen}
         title={t('dimensions.value-mappings-editor.title-value-mappings', 'Value mappings')}
         onDismiss={onCloseEditor}
-        className={styles.modal}
+        {...stylex.props(valueMappingsEditorStyles.modal)}
         closeOnBackdropClick={false}
       >
         <ValueMappingsEditorModal
@@ -120,14 +119,4 @@ export const ValueMappingsEditor = memo((props: Props) => {
 
 ValueMappingsEditor.displayName = 'ValueMappingsEditor';
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '980px',
-  }),
-  compactTable: css({
-    width: '100%',
-    'tbody td': {
-      padding: theme.spacing(0.5),
-    },
-  }),
-});
+export 

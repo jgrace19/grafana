@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { confirmRestoreDeletedRuleModalStyles } from './ConfirmRestoreDeletedRuleModal.stylex';
 import { type ComponentProps } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Alert, CodeEditor, ConfirmModal, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, CodeEditor, ConfirmModal, Stack } from '@grafana/ui';
 import { useGetFolderQueryFacade } from 'app/api/clients/folder/v1beta1/hooks';
 import { getMessageFromError } from 'app/core/utils/errors';
 import { useAsync } from 'app/features/alerting/unified/hooks/useAsync';
@@ -44,8 +46,6 @@ export const ConfirmRestoreDeletedRuleModal = ({
     ? t('alerting.deleted-rules.restore-modal.confirm', 'Yes, restore deleted rule')
     : 'Manually restore the rule';
 
-  const styles = useStyles2(getStyles);
-
   async function onRestoreConfirm() {
     if (!ruleToRestore) {
       return;
@@ -73,7 +73,7 @@ export const ConfirmRestoreDeletedRuleModal = ({
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass={styles.modal}
+      modalClass={confirmRestoreDeletedRuleModalStyles.modal}
       confirmButtonVariant={!error ? 'destructive' : 'primary'}
       body={
         <Stack direction="column" gap={2}>
@@ -102,9 +102,8 @@ export const ConfirmRestoreDeletedRuleModal = ({
 };
 
 function RulePreview({ rule }: { rule: RulerRuleDTO }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(confirmRestoreDeletedRuleModalStyles.content)}>
       <CodeEditor
         width="100%"
         height={600}
@@ -123,14 +122,6 @@ function RulePreview({ rule }: { rule: RulerRuleDTO }) {
   );
 }
 
-const getStyles = () => ({
-  content: css({
-    flex: '1 1 100%',
-  }),
-  modal: css({
-    width: '700px',
-  }),
-});
 
 export function useRestoreDeletedRule() {
   const [addRuleToRuleGroup] = useAddRuleToRuleGroup();

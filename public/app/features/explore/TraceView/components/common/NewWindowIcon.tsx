@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2018 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { newWindowIconStyles } from './NewWindowIcon.stylex';
 import cx from 'classnames';
 
 import { Icon, useStyles2 } from '@grafana/ui';
 
-export const getStyles = () => {
-  return {
-    NewWindowIconLarge: css({
-      label: 'NewWindowIconLarge',
-      fontSize: '1.5em',
-    }),
-  };
-};
 
 type Props = {
   isLarge?: boolean;
@@ -32,7 +27,6 @@ type Props = {
 };
 
 export default function NewWindowIcon({ isLarge = false, className }: Props) {
-  const styles = useStyles2(getStyles);
-  const cls = cx({ [styles.NewWindowIconLarge]: isLarge }, className);
+  const cls = clsx({ [mergeStylexClassName(stylex.props(newWindowIconStyles.NewWindowIconLarge), undefined).className]: isLarge }, className);
   return <Icon className={cls} name={'anchor'} />;
 }

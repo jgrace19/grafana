@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logListStyles } from './LogList.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { debounce } from 'lodash';
 import { type Grammar } from 'prismjs';
@@ -20,7 +22,7 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { ConfirmModal, Icon, type PopoverContent, useStyles2, useTheme2 } from '@grafana/ui';
+import { ConfirmModal, Icon, type PopoverContent, useTheme2 } from '@grafana/ui';
 import { PopoverMenu } from 'app/features/explore/Logs/PopoverMenu';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
 
@@ -323,7 +325,7 @@ const LogListComponent = ({
       wrapLogMessage,
     ]
   );
-  const styles = useStyles2(getStyles, dimensions, displayedFields, { unwrappedColumns });
+  const styles = (getStyles, dimensions, displayedFields, { unwrappedColumns });
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
   const widthContainer = wrapperRef.current ?? containerElement;
   const {
@@ -493,7 +495,7 @@ const LogListComponent = ({
   }
 
   return (
-    <div className={styles.logListContainer}>
+    <div {...stylex.props(logListStyles.logListContainer)}>
       {showControls && <LogListControls logLevels={logLevels} eventBus={eventBus} />}
       {detailsMode === 'sidebar' && showDetails.length > 0 && (
         <LogLineDetails
@@ -506,7 +508,7 @@ const LogListComponent = ({
           showFieldSelector={showFieldSelector}
         />
       )}
-      <div className={styles.logListWrapper} ref={wrapperRef}>
+      <div {...stylex.props(logListStyles.logListWrapper)} ref={wrapperRef}>
         {popoverState.selection && popoverState.selectedRow && (
           <PopoverMenu
             close={closePopoverMenu}
@@ -529,7 +531,7 @@ const LogListComponent = ({
                   You are about to disable the logs filter menu. To re-enable it, select text in a log line while
                   holding the alt key.
                 </Trans>
-                <div className={styles.shortcut}>
+                <div {...stylex.props(logListStyles.shortcut)}>
                   <Icon name="keyboard" />
                   <Trans i18nKey="logs.log-rows.disable-popover-message.shortcut">alt+select to enable again</Trans>
                 </div>
@@ -560,7 +562,7 @@ const LogListComponent = ({
         >
           {({ getItemKey, itemCount, onItemsRendered, Renderer }) => (
             <VariableSizeList
-              className={styles.logList}
+              {...stylex.props(logListStyles.logList)}
               height={listHeight}
               itemCount={itemCount}
               itemSize={getLogLineSize.bind(null, virtualization, filteredLogs, widthContainer, displayedFields, {
@@ -591,43 +593,6 @@ const LogListComponent = ({
   );
 };
 
-function getStyles(
-  theme: GrafanaTheme2,
-  dimensions: LogFieldDimension[],
-  displayedFields: string[] = [],
-  { unwrappedColumns }: { unwrappedColumns: boolean }
-) {
-  return {
-    logList: css({
-      '& .unwrapped-log-line': {
-        display: 'grid',
-        gridTemplateColumns: getGridTemplateColumns(dimensions, displayedFields, unwrappedColumns),
-        '& .field': {
-          overflow: 'hidden',
-        },
-      },
-    }),
-    logListContainer: css({
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      // Minimum width to prevent rendering issues and a sausage-like logs panel.
-      minWidth: theme.spacing(35),
-    }),
-    logListWrapper: css({
-      position: 'relative',
-      width: '100%',
-    }),
-    shortcut: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      color: theme.colors.text.secondary,
-      opacity: 0.7,
-      fontSize: theme.typography.bodySmall.fontSize,
-      marginTop: theme.spacing(1),
-    }),
-  };
-}
 
 function handleScrollToEvent(event: ScrollToLogsEvent, logs: LogListModel[], list: VariableSizeList | null) {
   if (event.payload.scrollTo === 'top') {

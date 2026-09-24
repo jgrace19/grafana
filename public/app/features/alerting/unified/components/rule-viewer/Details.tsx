@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { detailsStyles } from './Details.stylex';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { isEmpty, isUndefined } from 'lodash';
 import { Fragment } from 'react/jsx-runtime';
 
-import { type GrafanaTheme2, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Icon, Link, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Icon, Link, Stack, Text, TextLink } from '@grafana/ui';
 import { useDatasource } from 'app/features/datasources/hooks';
 import { type CombinedRule } from 'app/types/unified-alerting';
 import { type GrafanaAlertingRuleDefinition, type RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
@@ -49,7 +50,6 @@ interface DetailsProps {
 }
 
 export const Details = ({ rule }: DetailsProps) => {
-  const styles = useStyles2(getStyles);
 
   const pendingPeriod = usePendingPeriod(rule);
   const keepFiringFor = rulerRuleType.grafana.alertingRule(rule.rulerRule) ? rule.rulerRule.keep_firing_for : undefined;
@@ -100,7 +100,7 @@ export const Details = ({ rule }: DetailsProps) => {
     </Stack>
   );
   return (
-    <div className={styles.metadata}>
+    <div {...stylex.props(detailsStyles.metadata)}>
       <DetailGroup>
         <DetailText id="rule-type" label={t('alerting.alert.rule-type', 'Rule type')} value={determinedRuleType} />
         {rulerRuleType.grafana.rule(rule.rulerRule) && (
@@ -394,12 +394,3 @@ const NotificationSettings = ({ rulerRule }: NotificationSettingsProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  metadata: css({
-    display: 'grid',
-    gap: theme.spacing(4),
-    gridTemplateColumns: '1fr',
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-  }),
-});

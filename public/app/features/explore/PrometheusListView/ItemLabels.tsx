@@ -1,26 +1,13 @@
-import { css } from '@emotion/css';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { itemLabelsStyles } from './ItemLabels.stylex';
 import { type Field, type GrafanaTheme2 } from '@grafana/data';
 import { InstantQueryRefIdIndex } from '@grafana/prometheus';
-import { useStyles2 } from '@grafana/ui';
 
 import { rawListItemColumnWidth } from './RawListItem';
 
-const getItemLabelsStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  return {
-    valueNavigation: css({
-      width: rawListItemColumnWidth,
-      fontWeight: 'bold',
-    }),
-    valueNavigationWrapper: css({
-      display: 'flex',
-      justifyContent: 'flex-end',
-    }),
-    itemLabelsWrap: css({
-      borderBottom: expanded ? `1px solid ${theme.colors.border.medium}` : '',
-    }),
-  };
-};
+;
 
 export const formatValueName = (name: string): string => {
   if (name.includes(InstantQueryRefIdIndex)) {
@@ -30,13 +17,12 @@ export const formatValueName = (name: string): string => {
 };
 
 export const ItemLabels = ({ valueLabels, expanded }: { valueLabels: Field[]; expanded: boolean }) => {
-  const styles = useStyles2(getItemLabelsStyles, expanded);
 
   return (
-    <div className={styles.itemLabelsWrap}>
-      <div className={styles.valueNavigationWrapper}>
+    <div {...stylex.props(itemLabelsStyles.itemLabelsWrap)}>
+      <div {...stylex.props(itemLabelsStyles.valueNavigationWrapper)}>
         {valueLabels.map((value, index) => (
-          <span className={styles.valueNavigation} key={value.name}>
+          <span {...stylex.props(itemLabelsStyles.valueNavigation)} key={value.name}>
             {formatValueName(value.name)}
           </span>
         ))}

@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2019 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { copyIconStyles } from './CopyIcon.stylex';
 import cx from 'classnames';
 import { useState } from 'react';
 
 import { t } from '@grafana/i18n';
 import { Button, type IconName, Tooltip, useStyles2 } from '@grafana/ui';
 
-const getStyles = () => ({
-  CopyIcon: css({
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: 'inherit',
-    overflow: 'hidden',
-    '&:focus': {
-      backgroundColor: 'rgba(255, 255, 255, 0.25)',
-      color: 'inherit',
-    },
-  }),
-});
 
 type PropsType = {
   className?: string;
@@ -40,7 +31,6 @@ type PropsType = {
 };
 
 export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: PropsType) {
-  const styles = useStyles2(getStyles);
 
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -53,7 +43,7 @@ export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: Prop
     <Tooltip content={hasCopied ? t('explore.trace-view.tooltip-copy-icon', 'Copied') : tooltipTitle}>
       <Button
         aria-label={t('explore.trace-view.aria-label-copy', 'Copy to clipboard')}
-        className={cx(styles.CopyIcon)}
+        {...mergeStylexClassName(stylex.props(copyIconStyles.CopyIcon, ), undefined)}
         type="button"
         icon={icon}
         onClick={handleClick}

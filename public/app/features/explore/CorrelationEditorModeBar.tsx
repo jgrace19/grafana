@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { correlationEditorModeBarStyles } from './CorrelationEditorModeBar.stylex';
 import { useEffect, useState } from 'react';
 import { useBeforeUnload, useUnmount } from 'react-use';
 
-import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
@@ -21,7 +22,6 @@ import { selectCorrelationDetails, selectIsHelperShowing } from './state/selecto
 
 export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, ExploreItemState]> }) => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
   const correlationDetails = useSelector(selectCorrelationDetails);
   const isHelperShowing = useSelector(selectIsHelperShowing);
   const [saveMessage, setSaveMessage] = useState<string | undefined>(undefined); // undefined means do not show
@@ -230,7 +230,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
           message={saveMessage}
         />
       )}
-      <div className={styles.correlationEditorTop}>
+      <div {...stylex.props(correlationEditorModeBarStyles.correlationEditorTop)}>
         <Stack gap={2} justifyContent="flex-end" alignItems="center">
           <Tooltip
             content={t(
@@ -238,13 +238,13 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
               'Correlations editor in Explore is an experimental feature.'
             )}
           >
-            <Icon className={styles.iconColor} name="info-circle" size="xl" />
+            <Icon {...stylex.props(correlationEditorModeBarStyles.iconColor)} name="info-circle" size="xl" />
           </Tooltip>
           <Button
             variant="secondary"
             disabled={!correlationDetails?.canSave}
             fill="outline"
-            className={correlationDetails?.canSave ? styles.buttonColor : styles.disabledButtonColor}
+            className={correlationDetails?.canSave ? mergeStylexClassName(stylex.props(correlationEditorModeBarStyles.buttonColor), undefined).className : mergeStylexClassName(stylex.props(correlationEditorModeBarStyles.disabledButtonColor), undefined).className}
             onClick={() => {
               saveCorrelationPostAction(true);
             }}
@@ -254,7 +254,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
           <Button
             variant="secondary"
             fill="outline"
-            className={styles.buttonColor}
+            {...stylex.props(correlationEditorModeBarStyles.buttonColor)}
             icon="times"
             onClick={() => {
               dispatch(changeCorrelationEditorDetails({ isExiting: true }));
@@ -269,35 +269,3 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const contrastColor = theme.colors.getContrastText(theme.colors.primary.main);
-  const lighterBackgroundColor = colorManipulator.lighten(theme.colors.primary.main, 0.1);
-  const darkerBackgroundColor = colorManipulator.darken(theme.colors.primary.main, 0.2);
-
-  const disabledColor = colorManipulator.darken(contrastColor, 0.2);
-
-  return {
-    correlationEditorTop: css({
-      backgroundColor: theme.colors.primary.main,
-      marginTop: '3px',
-      padding: theme.spacing(1),
-    }),
-    iconColor: css({
-      color: contrastColor,
-    }),
-    buttonColor: css({
-      color: contrastColor,
-      borderColor: contrastColor,
-      '&:hover': {
-        color: contrastColor,
-        borderColor: contrastColor,
-        backgroundColor: lighterBackgroundColor,
-      },
-    }),
-    // important needed to override disabled state styling
-    disabledButtonColor: css({
-      color: `${disabledColor} !important`,
-      backgroundColor: `${darkerBackgroundColor} !important`,
-    }),
-  };
-};

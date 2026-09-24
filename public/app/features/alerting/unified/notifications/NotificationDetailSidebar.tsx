@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { notificationDetailSidebarStyles } from './NotificationDetailSidebar.stylex';
 import { useState } from 'react';
 
 import { type CreateNotificationqueryNotificationEntry } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Collapse, Icon, type IconName, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Collapse, Icon, type IconName, Stack, Text } from '@grafana/ui';
 import { receiverTypeNames } from 'app/plugins/datasource/alertmanager/consts';
 
 import { DetailText } from '../components/common/DetailText';
@@ -19,13 +20,12 @@ interface NotificationDetailSidebarProps {
 }
 
 export function NotificationDetailSidebar({ notification }: NotificationDetailSidebarProps) {
-  const styles = useStyles2(getStyles);
   const isError = notification.outcome === 'error';
   const integrationIcon: IconName = INTEGRATION_ICONS[notification.integration] || 'bell';
   const [isMoreDetailsOpen, setIsMoreDetailsOpen] = useState(false);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(notificationDetailSidebarStyles.container)}>
       <DetailText
         id="delivery-outcome"
         label={t('alerting.notification-detail.sidebar-delivery-outcome', 'Delivery outcome')}
@@ -33,7 +33,7 @@ export function NotificationDetailSidebar({ notification }: NotificationDetailSi
           <Stack direction="row" gap={0.5} alignItems="center">
             <Icon
               name={isError ? 'exclamation-circle' : 'check-circle'}
-              className={isError ? styles.errorIcon : styles.successIcon}
+              className={isError ? notificationDetailSidebarStyles.errorIcon : notificationDetailSidebarStyles.successIcon}
               size="sm"
             />
             <Text>
@@ -89,9 +89,9 @@ export function NotificationDetailSidebar({ notification }: NotificationDetailSi
         label={t('alerting.notification-detail.more-details-heading', 'More details')}
         isOpen={isMoreDetailsOpen}
         onToggle={setIsMoreDetailsOpen}
-        className={styles.collapse}
+        {...stylex.props(notificationDetailSidebarStyles.collapse)}
       >
-        <div className={styles.moreDetails}>
+        <div {...stylex.props(notificationDetailSidebarStyles.moreDetails)}>
           <DetailText
             id="uuid"
             label={t('alerting.notification-detail.field-uuid', 'UUID')}
@@ -126,7 +126,7 @@ export function NotificationDetailSidebar({ notification }: NotificationDetailSi
           <DetailText
             id="group-key"
             label={t('alerting.notification-detail.field-group-key', 'Group key')}
-            value={<code className={styles.groupKey}>{notification.groupKey}</code>}
+            value={<code {...stylex.props(notificationDetailSidebarStyles.groupKey)}>{notification.groupKey}</code>}
           />
         </div>
       </Collapse>
@@ -134,35 +134,3 @@ export function NotificationDetailSidebar({ notification }: NotificationDetailSi
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gap: theme.spacing(3),
-    gridTemplateColumns: '1fr',
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-  }),
-  successIcon: css({
-    color: theme.colors.success.text,
-  }),
-  errorIcon: css({
-    color: theme.colors.error.text,
-  }),
-  collapse: css({
-    marginTop: theme.spacing(-1),
-  }),
-  moreDetails: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  groupKey: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    backgroundColor: theme.colors.background.canvas,
-    padding: `${theme.spacing(0.25)} ${theme.spacing(0.5)}`,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-    wordBreak: 'break-all',
-  }),
-});

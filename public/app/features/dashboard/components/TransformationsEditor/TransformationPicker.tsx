@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationPickerStyles } from './TransformationPicker.stylex';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode } from 'react';
 
 import { DocsId, type GrafanaTheme2, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
@@ -104,11 +106,10 @@ interface TransformationCardProps {
 }
 
 function TransformationCard({ transform, onClick }: TransformationCardProps) {
-  const styles = useStyles2(getStyles);
   return (
     <Card
       noMargin
-      className={styles.card}
+      {...stylex.props(transformationPickerStyles.card)}
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={onClick}
     >
@@ -123,11 +124,3 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    card: css({
-      margin: '0',
-      padding: `${theme.spacing(1)}`,
-    }),
-  };
-}

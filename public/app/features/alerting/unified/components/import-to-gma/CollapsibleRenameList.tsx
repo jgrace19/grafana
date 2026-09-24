@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { CollapsableSection, Icon, Stack, Text, useStyles2 } from '@grafana/ui';
+import { CollapsableSection, Icon, Stack, Text } from '@grafana/ui';
 
 interface RenameEntry {
   originalName: string;
@@ -20,7 +19,6 @@ interface CollapsibleRenameListProps {
  * Collapsible list showing resources that will be renamed during import.
  */
 function CollapsibleRenameList({ label, items }: CollapsibleRenameListProps) {
-  const styles = useStyles2(getStyles);
 
   if (items.length === 0) {
     return null;
@@ -34,8 +32,8 @@ function CollapsibleRenameList({ label, items }: CollapsibleRenameListProps) {
         </Text>
       }
       isOpen={false}
-      className={styles.header}
-      contentClassName={styles.content}
+      {...stylex.props(collapsibleRenameListStyles.header)}
+      contentClassName={stylex.props(formStyles.content)}
     >
       <Stack direction="column" gap={0.5}>
         {items.map(({ originalName, newName }) => (
@@ -84,12 +82,3 @@ export function RenamedResourcesList({ renamedReceivers, renamedTimeIntervals }:
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: 0,
-  }),
-  content: css({
-    padding: `0 0 0 ${theme.spacing(2.5)}`,
-  }),
-});

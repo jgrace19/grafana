@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Badge, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Badge, LinkButton, Stack, Text } from '@grafana/ui';
 
 import { createRelativeUrl, isRelativeUrl } from '../utils/url';
 
@@ -62,7 +61,6 @@ export function AlertEnrichments({ enrichments }: AlertEnrichmentsProps) {
 }
 
 function EnrichmentItemView({ item }: { item: EnrichmentItem }) {
-  const styles = useStyles2(getStyles);
 
   // LinkButton renders an <a> tag so we need createRelativeUrl for subpath support
   const sanitizedLink = item.exploreLink ? textUtil.sanitizeUrl(item.exploreLink) : undefined;
@@ -77,7 +75,7 @@ function EnrichmentItemView({ item }: { item: EnrichmentItem }) {
 
   if (item.type === 'logs') {
     return (
-      <div className={styles.enrichmentItem}>
+      <div {...stylex.props(alertEnrichmentsStyles.enrichmentItem)}>
         <Stack direction="column" gap={0.5}>
           <Stack direction="row" gap={1} alignItems="center" justifyContent="space-between">
             <Badge color="blue" icon="gf-logs" text={t('alerting.notification-history.enrichment-type-logs', 'logs')} />
@@ -88,7 +86,7 @@ function EnrichmentItemView({ item }: { item: EnrichmentItem }) {
             )}
           </Stack>
           {item.lines && item.lines.length > 0 ? (
-            <pre className={styles.logLines}>
+            <pre {...stylex.props(alertEnrichmentsStyles.logLines)}>
               {item.lines.map((line, i) => (
                 <div key={i}>{line.trimEnd()}</div>
               ))}
@@ -106,24 +104,3 @@ function EnrichmentItemView({ item }: { item: EnrichmentItem }) {
   return <Badge color="purple" text={item.type} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  enrichmentItem: css({
-    padding: theme.spacing(1),
-    backgroundColor: theme.colors.background.canvas,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  logLines: css({
-    margin: 0,
-    padding: theme.spacing(1),
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    lineHeight: theme.typography.body.lineHeight,
-    overflowX: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-all',
-  }),
-});

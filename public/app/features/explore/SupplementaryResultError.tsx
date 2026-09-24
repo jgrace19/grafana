@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { supplementaryResultErrorStyles } from './SupplementaryResultError.stylex';
 import { type ReactNode, useCallback, useState } from 'react';
 
 import { type DataQueryError, type GrafanaTheme2 } from '@grafana/data';
@@ -26,7 +28,6 @@ export function SupplementaryResultError(props: Props) {
   const message = props.message ?? error?.message ?? error?.data?.message ?? '';
   const showButton = typeof message === 'string' && message.length > SHORT_ERROR_MESSAGE_LIMIT;
   const theme = useTheme2();
-  const styles = getStyles(theme);
 
   const dismiss = useCallback(() => {
     setDismissed(true);
@@ -39,10 +40,10 @@ export function SupplementaryResultError(props: Props) {
   }
 
   return (
-    <div className={styles.supplementaryErrorContainer}>
+    <div {...stylex.props(supplementaryResultErrorStyles.supplementaryErrorContainer)}>
       <Alert title={title} severity={severity} onRemove={handleRemove}>
         {showButton ? (
-          <div className={styles.messageWrapper}>
+          <div {...stylex.props(supplementaryResultErrorStyles.messageWrapper)}>
             {!isOpen ? (
               <Button
                 variant="secondary"
@@ -58,7 +59,7 @@ export function SupplementaryResultError(props: Props) {
             )}
           </div>
         ) : (
-          <div className={`${styles.messageWrapper} ${styles.suggestedActionWrapper}`}>
+          <div className={`${mergeStylexClassName(stylex.props(supplementaryResultErrorStyles.messageWrapper), undefined).className} ${mergeStylexClassName(stylex.props(supplementaryResultErrorStyles.suggestedActionWrapper), undefined).className}`}>
             {message}
             {suggestedAction && onSuggestedAction && (
               <Button variant="primary" size="xs" onClick={onSuggestedAction}>
@@ -72,27 +73,4 @@ export function SupplementaryResultError(props: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    supplementaryErrorContainer: css({
-      width: '60%',
-      minWidth: `${theme.breakpoints.values.sm}px`,
-      maxWidth: `${theme.breakpoints.values.md}px`,
-      margin: '0 auto',
-    }),
-    messageWrapper: css({
-      minHeight: theme.spacing(3),
-      ['ul']: {
-        paddingLeft: theme.spacing(2),
-      },
-      ['button']: {
-        position: 'absolute',
-        bottom: theme.spacing(2),
-        right: theme.spacing(2),
-      },
-    }),
-    suggestedActionWrapper: css({
-      paddingBottom: theme.spacing(5),
-    }),
-  };
-};
+;

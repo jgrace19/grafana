@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableEditorListStyles } from './VariableEditorList.stylex';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { type ReactElement } from 'react';
 
@@ -6,7 +8,7 @@ import { type TypedVariableModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, useStyles2, Stack, EmptyState, TextLink } from '@grafana/ui';
+import { Button, Stack, EmptyState, TextLink } from '@grafana/ui';
 
 import { VariablesDependenciesButton } from '../inspect/VariablesDependenciesButton';
 import { type UsagesToNetwork, type VariableUsageTree } from '../inspect/types';
@@ -35,7 +37,6 @@ export function VariableEditorList({
   onDelete,
   onDuplicate,
 }: Props): ReactElement {
-  const styles = useStyles2(getStyles);
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !result.source) {
       return;
@@ -52,7 +53,7 @@ export function VariableEditorList({
 
         {variables.length > 0 && (
           <Stack direction="column" gap={4}>
-            <div className={styles.tableContainer}>
+            <div {...stylex.props(variableEditorListStyles.tableContainer)}>
               <table
                 className="filter-table filter-table--hover"
                 data-testid={selectors.pages.Dashboard.Settings.Variables.List.table}
@@ -146,9 +147,3 @@ function EmptyVariablesList({ onAdd }: { onAdd: () => void }): ReactElement {
   );
 }
 
-const getStyles = () => ({
-  tableContainer: css({
-    overflow: 'scroll',
-    width: '100%',
-  }),
-});

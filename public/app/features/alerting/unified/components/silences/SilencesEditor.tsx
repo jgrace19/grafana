@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { silencesEditorStyles } from './SilencesEditor.stylex';
 import { pickBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -25,8 +27,7 @@ import {
   LoadingPlaceholder,
   Stack,
   TextArea,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { type SilenceCreatedResponse, alertSilencesApi } from 'app/features/alerting/unified/api/alertSilencesApi';
 import { MATCHER_ALERT_RULE_UID } from 'app/features/alerting/unified/utils/constants';
 import { GRAFANA_RULES_SOURCE_NAME, getDatasourceAPIUid } from 'app/features/alerting/unified/utils/datasource';
@@ -151,7 +152,6 @@ export const SilencesEditor = ({
 
   const [createSilence, { isLoading }] = alertSilencesApi.endpoints.createSilence.useMutation();
   const formAPI = useForm({ defaultValues: formValues });
-  const styles = useStyles2(getStyles);
 
   const { register, handleSubmit, formState, watch, setValue, clearErrors } = formAPI;
 
@@ -222,8 +222,8 @@ export const SilencesEditor = ({
   return (
     <FormProvider {...formAPI}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldSet className={styles.formContainer}>
-          <div className={styles.silencePeriod}>
+        <FieldSet {...stylex.props(silencesEditorStyles.formContainer)}>
+          <div {...stylex.props(silencesEditorStyles.silencePeriod)}>
             <SilencePeriod />
             <Field
               label={t('alerting.silences-editor.label-duration', 'Duration')}
@@ -307,22 +307,6 @@ export const SilencesEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  formContainer: css({
-    maxWidth: theme.breakpoints.values.md,
-  }),
-  alertRule: css({
-    paddingBottom: theme.spacing(2),
-  }),
-  silencePeriod: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: theme.spacing(1),
-    maxWidth: theme.breakpoints.values.sm,
-    paddingTop: theme.spacing(2),
-  }),
-});
 
 function ExistingSilenceEditorPage() {
   const pageNav = {

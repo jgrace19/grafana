@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { noRulesCTAStyles } from './NoRulesCTA.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Dropdown, EmptyState, LinkButton, Menu, MenuItem, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Dropdown, EmptyState, LinkButton, Menu, MenuItem, Stack, Text, TextLink } from '@grafana/ui';
 
 import { RuleFormType, type RuleFormValues } from '../../types/rule-form';
 import { useRulesAccess } from '../../utils/accessControlHooks';
@@ -136,14 +136,13 @@ export function GrafanaNoRulesCTA() {
 }
 
 export function CloudNoRulesCTA({ dataSourceName }: { dataSourceName: string }) {
-  const styles = useStyles2(getCloudNoRulesStyles);
   const { canCreateCloudRules } = useRulesAccess();
 
   const newAlertingRuleUrl = getNewDataSourceRuleUrl(dataSourceName, RuleFormType.cloudAlerting);
   const newRecordingRuleUrl = getNewDataSourceRuleUrl(dataSourceName, RuleFormType.cloudRecording);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(formStyles.container)}>
       <Text variant="h5">
         <Trans i18nKey="alerting.list-view.empty.ds-no-rules">This data source has no rules configured</Trans>
       </Text>
@@ -182,13 +181,3 @@ function getNewDataSourceRuleUrl(
   return createRelativeUrl(`/alerting/new/${urlRuleType}`, { defaults: JSON.stringify(formDefaults) });
 }
 
-const getCloudNoRulesStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing(2, 1),
-  }),
-});

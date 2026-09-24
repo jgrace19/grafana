@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { actionRowStyles } from './ActionRow.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { type FormEvent } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, Checkbox, Stack, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Button, Checkbox, Stack, RadioButtonGroup } from '@grafana/ui';
 import { SortPicker } from 'app/core/components/Select/SortPicker';
 import { TagFilter, type TermCount } from 'app/core/components/TagFilter/TagFilter';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -73,7 +74,6 @@ export const ActionRow = ({
   onCreatedByChange,
   onOwnerReferenceChange,
 }: ActionRowProps) => {
-  const styles = useStyles2(getStyles);
 
   const layout = getValidQueryLayout(state);
   const isCreatedByMeSearchFilterEnabled = useBooleanFlagValue('createdByMeSearchFilter', false);
@@ -104,7 +104,7 @@ export const ActionRow = ({
         )}
 
         {showStarredFilter && (
-          <div className={styles.checkboxWrapper}>
+          <div {...stylex.props(actionRowStyles.checkboxWrapper)}>
             <Checkbox
               label={t('search.actions.starred', 'Starred')}
               onChange={onStarredFilterChange}
@@ -113,7 +113,7 @@ export const ActionRow = ({
           </div>
         )}
         {showCreatedByMeSearchFilter && onCreatedByChange && (
-          <div className={styles.checkboxWrapper}>
+          <div {...stylex.props(actionRowStyles.checkboxWrapper)}>
             <Checkbox
               label={t('search.actions.created-by-me', 'Created by me')}
               // Make sure the checkbox is checked if the createdBy is the current user
@@ -161,12 +161,4 @@ export const ActionRow = ({
 
 ActionRow.displayName = 'ActionRow';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    checkboxWrapper: css({
-      label: {
-        lineHeight: '1.2',
-      },
-    }),
-  };
-};
+export ;

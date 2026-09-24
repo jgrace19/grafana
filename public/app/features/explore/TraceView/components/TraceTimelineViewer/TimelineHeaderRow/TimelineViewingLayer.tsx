@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { timelineViewingLayerStyles } from './TimelineViewingLayer.stylex';
 import * as React from 'react';
 
-import { stylesFactory } from '@grafana/ui';
 
 import type TNil from '../../types/TNil';
 import DraggableManager from '../../utils/DraggableManager/DraggableManager';
@@ -23,62 +24,6 @@ import { type DraggableBounds, type DraggingUpdate } from '../../utils/Draggable
 import { type TUpdateViewRangeTimeFunction, type ViewRangeTime, type ViewRangeTimeUpdate } from '../types';
 
 // exported for testing
-export const getStyles = stylesFactory(() => {
-  return {
-    TimelineViewingLayer: css({
-      label: 'TimelineViewingLayer',
-      bottom: 0,
-      cursor: 'vertical-text',
-      left: 0,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-    }),
-    TimelineViewingLayerCursorGuide: css({
-      label: 'TimelineViewingLayerCursorGuide',
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      width: '1px',
-      backgroundColor: 'red',
-    }),
-    TimelineViewingLayerDragged: css({
-      label: 'TimelineViewingLayerDragged',
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-    }),
-    TimelineViewingLayerDraggedDraggingLeft: css({
-      label: 'TimelineViewingLayerDraggedDraggingLeft',
-      borderLeft: '1px solid',
-    }),
-    TimelineViewingLayerDraggedDraggingRight: css({
-      label: 'TimelineViewingLayerDraggedDraggingRight',
-      borderRight: '1px solid',
-    }),
-    TimelineViewingLayerDraggedShiftDrag: css({
-      label: 'TimelineViewingLayerDraggedShiftDrag',
-      backgroundColor: 'rgba(68, 68, 255, 0.2)',
-      borderColor: '#44f',
-    }),
-    TimelineViewingLayerDraggedReframeDrag: css({
-      label: 'TimelineViewingLayerDraggedReframeDrag',
-      backgroundColor: 'rgba(255, 68, 68, 0.2)',
-      borderColor: '#f44',
-    }),
-    TimelineViewingLayerFullOverlay: css({
-      label: 'TimelineViewingLayerFullOverlay',
-      bottom: 0,
-      cursor: 'col-resize',
-      left: 0,
-      position: 'fixed',
-      right: 0,
-      top: 0,
-      userSelect: 'none',
-    }),
-  };
-});
 
 export type TimelineViewingLayerProps = {
   /**
@@ -159,7 +104,6 @@ function getMarkers(viewStart: number, viewEnd: number, from: number, to: number
     return null;
   }
   const { isDraggingLeft, left, width } = layout;
-  const styles = getStyles();
   const cls = cx({
     [styles.TimelineViewingLayerDraggedDraggingRight]: !isDraggingLeft,
     [styles.TimelineViewingLayerDraggedReframeDrag]: !isShift,
@@ -257,11 +201,10 @@ export default class TimelineViewingLayer extends React.PureComponent<TimelineVi
     if (!haveNextTimeRange && cursor != null && cursor >= viewStart && cursor <= viewEnd) {
       cusrorPosition = `${mapToViewSubRange(viewStart, viewEnd, cursor) * 100}%`;
     }
-    const styles = getStyles();
     return (
       <div
         aria-hidden
-        className={styles.TimelineViewingLayer}
+        {...stylex.props(timelineViewingLayerStyles.TimelineViewingLayer)}
         ref={this._setRoot}
         onMouseDown={this._draggerReframe.handleMouseDown}
         onMouseLeave={this._draggerReframe.handleMouseLeave}
@@ -270,7 +213,7 @@ export default class TimelineViewingLayer extends React.PureComponent<TimelineVi
       >
         {cusrorPosition != null && (
           <div
-            className={styles.TimelineViewingLayerCursorGuide}
+            {...stylex.props(timelineViewingLayerStyles.TimelineViewingLayerCursorGuide)}
             style={{ left: cusrorPosition }}
             data-testid="TimelineViewingLayer--cursorGuide"
           />

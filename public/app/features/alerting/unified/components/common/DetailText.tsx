@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { detailTextStyles } from './DetailText.stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, ClipboardButton, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Box, ClipboardButton, Stack, Text, Tooltip } from '@grafana/ui';
 
 type DetailTextProps = {
   id: string;
@@ -29,16 +30,9 @@ type ConditionalProps =
   | { showCopyButton?: never; copyValue?: never };
 
 const Value = ({ children }: { children: React.ReactNode }) => {
-  const styles = useStyles2(getStyles);
-  return <span className={styles.value}>{children}</span>;
+  return <span {...stylex.props(detailTextStyles.value)}>{children}</span>;
 };
 
-const getStyles = (_theme: GrafanaTheme2) => ({
-  value: css({
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-  }),
-});
 
 export const DetailText = ({
   id,

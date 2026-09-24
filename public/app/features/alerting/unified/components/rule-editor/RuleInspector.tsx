@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { ruleInspectorStyles } from './RuleInspector.stylex';
 import { dump, load } from 'js-yaml';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, CodeEditor, Drawer, Icon, Tab, TabsBar, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, CodeEditor, Drawer, Icon, Tab, TabsBar, TextLink, Tooltip } from '@grafana/ui';
 
 import { type RulerRuleDTO } from '../../../../../types/unified-alerting-dto';
 import { type RuleFormValues } from '../../types/rule-form';
@@ -27,7 +27,6 @@ const cloudRulesTabs = [{ label: 'Yaml', value: 'yaml' }];
 export const RuleInspector = ({ onClose }: Props) => {
   const [activeTab, setActiveTab] = useState('yaml');
   const { setValue } = useFormContext<RuleFormValues>();
-  const styles = useStyles2(drawerStyles);
 
   const onApply = (formValues: RuleFormValues) => {
     // Need to loop through all values and set them individually
@@ -43,7 +42,7 @@ export const RuleInspector = ({ onClose }: Props) => {
     <Drawer
       title={t('alerting.rule-inspector.title-inspect-alert-rule', 'Inspect Alert rule')}
       subtitle={
-        <div className={styles.subtitle}>
+        <div {...stylex.props(formStyles.subtitle)}>
           <RuleInspectorTabs tabs={cloudRulesTabs} setActiveTab={setActiveTab} activeTab={activeTab} />
         </div>
       }
@@ -83,7 +82,6 @@ interface YamlTabProps {
 }
 
 const InspectorYamlTab = ({ onSubmit }: YamlTabProps) => {
-  const styles = useStyles2(yamlTabStyle);
   const { getValues } = useFormContext<RuleFormValues>();
 
   const yamlValues = formValuesToRulerRuleDTO(getValues());
@@ -99,7 +97,7 @@ const InspectorYamlTab = ({ onSubmit }: YamlTabProps) => {
 
   return (
     <>
-      <div className={styles.applyButton}>
+      <div {...stylex.props(formStyles.applyButton)}>
         <Button type="button" onClick={onApply}>
           <Trans i18nKey="alerting.inspector-yaml-tab.apply">Apply</Trans>
         </Button>
@@ -108,7 +106,7 @@ const InspectorYamlTab = ({ onSubmit }: YamlTabProps) => {
         </Tooltip>
       </div>
 
-      <div className={styles.content}>
+      <div {...stylex.props(formStyles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor
@@ -154,27 +152,4 @@ function rulerRuleToRuleFormValues(rulerRule: RulerRuleDTO): Partial<RuleFormVal
   return {};
 }
 
-export const yamlTabStyle = (theme: GrafanaTheme2) => ({
-  content: css({
-    flexGrow: 1,
-    height: '100%',
-    paddingBottom: '16px',
-    marginBottom: theme.spacing(2),
-  }),
-  applyButton: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexGrow: 0,
-    marginBottom: theme.spacing(2),
-  }),
-});
 
-export const drawerStyles = () => ({
-  subtitle: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  }),
-});

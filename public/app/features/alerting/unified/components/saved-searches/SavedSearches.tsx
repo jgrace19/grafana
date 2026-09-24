@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 /**
  * SavedSearches Component
  *
@@ -45,12 +46,10 @@
  * ```
  */
 
-import { css } from '@emotion/css';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Box, Button, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Button, Spinner, Stack, Text } from '@grafana/ui';
 
 import { PopupCard } from '../HoverCard';
 
@@ -177,7 +176,6 @@ export function SavedSearches({
   className,
   getHref = defaultGetHref,
 }: SavedSearchesProps) {
-  const styles = useStyles2(getStyles);
 
   // Centralized state management via reducer
   const [state, dispatch] = useReducer(dropdownReducer, initialState);
@@ -331,7 +329,7 @@ export function SavedSearches({
   const content = (
     <div
       ref={dialogRef}
-      className={styles.dropdown}
+      {...stylex.props(savedSearchesStyles.dropdown)}
       role="dialog"
       aria-label={t('alerting.saved-searches.dropdown-aria-label', 'Saved searches')}
       tabIndex={-1}
@@ -438,7 +436,6 @@ function ListMode({
   menuPortalRoot,
   getHref,
 }: ListModeProps) {
-  const styles = useStyles2(getStyles);
 
   // Derived states from activeAction
   const isSaveMode = typeof activeAction === 'object' && activeAction.type === 'saving';
@@ -459,7 +456,7 @@ function ListMode({
       {/* Stop propagation to prevent Dropdown from closing when interacting with save form */}
       {isSaveMode ? (
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-        <div className={styles.item} onClick={(e) => e.stopPropagation()}>
+        <div {...stylex.props(savedSearchesStyles.item)} onClick={(e) => e.stopPropagation()}>
           <InlineSaveInput onSave={onSaveComplete} onCancel={onCancelSave} savedSearches={savedSearches} />
         </div>
       ) : (
@@ -488,7 +485,7 @@ function ListMode({
       ) : (
         <Stack direction="column" gap={0.5}>
           <div
-            className={styles.list}
+            {...stylex.props(savedSearchesStyles.list)}
             role="list"
             aria-label={t('alerting.saved-searches.list-aria-label', 'Saved searches list')}
           >
@@ -546,22 +543,3 @@ function EmptyState() {
 // Styles
 // ============================================================================
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    dropdown: css({
-      width: '320px',
-      padding: theme.spacing(0.5),
-    }),
-    list: css({
-      maxHeight: '300px',
-      overflowY: 'auto',
-    }),
-    item: css({
-      padding: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      '&:hover': {
-        backgroundColor: theme.colors.action.hover,
-      },
-    }),
-  };
-}

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spanLinksStyles } from './SpanLinks.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
-import { useStyles2, MenuItem, Icon, ContextMenu, useTheme2 } from '@grafana/ui';
+import { MenuItem, Icon, ContextMenu, useTheme2  } from '@grafana/ui';
 
 import { type SpanLinkDef } from '../types/links';
 
@@ -45,7 +46,7 @@ const renderMenuItems = (
       }
       url={link.href}
       target={link.target}
-      className={styles.menuItem}
+      {...stylex.props(spanLinksStyles.menuItem)}
     />
   ));
 };
@@ -59,7 +60,7 @@ export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) 
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div data-testid="SpanLinksMenu" className={styles.wrapper}>
+    <div data-testid="SpanLinksMenu" {...stylex.props(spanLinksStyles.wrapper)}>
       <button
         onClick={(e) => {
           setIsMenuOpen(true);
@@ -68,9 +69,9 @@ export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) 
             y: e.clientY,
           });
         }}
-        className={styles.button}
+        {...stylex.props(spanLinksStyles.button)}
       >
-        <Icon name="link" className={styles.icon} />
+        <Icon name="link" {...stylex.props(spanLinksStyles.icon)} />
       </button>
 
       {isMenuOpen ? (
@@ -86,24 +87,3 @@ export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, color: string) => ({
-  wrapper: css({
-    border: 'none',
-    borderBottom: `2px solid ${color}CF`,
-    paddingInline: '4px',
-  }),
-  button: css({
-    background: 'transparent',
-    border: 'none',
-    padding: 0,
-  }),
-  icon: css({
-    background: 'transparent',
-    border: 'none',
-    padding: 0,
-  }),
-  menuItem: css({
-    maxWidth: '60ch',
-    overflow: 'hidden',
-  }),
-});

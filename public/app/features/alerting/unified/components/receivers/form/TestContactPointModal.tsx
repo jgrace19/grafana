@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { testContactPointModalStyles } from './TestContactPointModal.stylex';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, Label, Modal, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Label, Modal, RadioButtonGroup } from '@grafana/ui';
 import {
   type GrafanaManagedContactPoint,
   type GrafanaManagedReceiverConfig,
@@ -59,7 +60,6 @@ export const TestContactPointModal = ({
   const [notificationType, setNotificationType] = useState<NotificationType>(NotificationType.predefined);
   const [testError, setTestError] = useState<unknown>(null);
   const [testSuccess, setTestSuccess] = useState(false);
-  const styles = useStyles2(getStyles);
   const formMethods = useForm<FormFields>({ defaultValues, mode: 'onBlur' });
   const {
     testChannel,
@@ -122,7 +122,7 @@ export const TestContactPointModal = ({
         />
       )}
 
-      <div className={styles.section}>
+      <div {...stylex.props(testContactPointModalStyles.section)}>
         <Label>
           <Trans i18nKey="alerting.test-contact-point-modal.notification-message">Notification message</Trans>
         </Label>
@@ -136,7 +136,7 @@ export const TestContactPointModal = ({
       <FormProvider {...formMethods}>
         <form onSubmit={formMethods.handleSubmit(onSubmit)}>
           {notificationType === NotificationType.predefined && (
-            <div className={styles.section}>
+            <div {...stylex.props(testContactPointModalStyles.section)}>
               <Trans i18nKey="alerting.test-contact-point-modal.predefined-notification-message">
                 You will send a test notification that uses a predefined alert. If you have defined a custom template or
                 message, for better results switch to <strong>custom</strong> notification message, from above.
@@ -145,16 +145,16 @@ export const TestContactPointModal = ({
           )}
           {notificationType === NotificationType.custom && (
             <>
-              <div className={styles.section}>
+              <div {...stylex.props(testContactPointModalStyles.section)}>
                 <Trans i18nKey="alerting.test-contact-point-modal.custom-notification-message">
                   You will send a test notification that uses the annotations defined below. This is a good option if
                   you use custom templates and messages.
                 </Trans>
               </div>
-              <div className={styles.section}>
+              <div {...stylex.props(testContactPointModalStyles.section)}>
                 <AnnotationsStep />
               </div>
-              <div className={styles.section}>
+              <div {...stylex.props(testContactPointModalStyles.section)}>
                 <LabelsField />
               </div>
             </>
@@ -171,14 +171,3 @@ export const TestContactPointModal = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  flexRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing(1),
-  }),
-  section: css({
-    marginBottom: theme.spacing(2),
-  }),
-});

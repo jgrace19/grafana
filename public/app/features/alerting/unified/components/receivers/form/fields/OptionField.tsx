@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionFieldStyles } from './OptionField.stylex';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   Checkbox,
@@ -16,8 +17,7 @@ import {
   Stack,
   TextArea,
   Tooltip,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import {
   type NotificationChannelOption,
   type NotificationChannelSecureFields,
@@ -161,7 +161,6 @@ const OptionInput: FC<Props & { id: string }> = ({
   secureFields = {},
   getOptionMeta,
 }) => {
-  const styles = useStyles2(getStyles);
   const { control, register, setValue } = useFormContext();
 
   const optionMeta = getOptionMeta?.(option);
@@ -184,7 +183,7 @@ const OptionInput: FC<Props & { id: string }> = ({
           id={id}
           readOnly={readOnly}
           disabled={readOnly}
-          className={styles.checkbox}
+          {...stylex.props(optionFieldStyles.checkbox)}
           {...register(name)}
           label={option.label}
           description={option.description}
@@ -247,7 +246,7 @@ const OptionInput: FC<Props & { id: string }> = ({
     case 'radio':
       return (
         <>
-          <legend className={styles.legend}>{option.label}</legend>
+          <legend {...stylex.props(optionFieldStyles.legend)}>{option.label}</legend>
           <Controller
             render={({ field: { ref, ...field } }) => (
               <RadioButtonList disabled={readOnly} options={option.selectOptions ?? []} {...field} />
@@ -323,14 +322,6 @@ const OptionInput: FC<Props & { id: string }> = ({
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  checkbox: css({
-    height: 'auto', // native checkbox has fixed height which does not take into account description
-  }),
-  legend: css({
-    fontSize: theme.typography.h6.fontSize,
-  }),
-});
 
 const validateOption = (value: string, validationRule: string, required: boolean) => {
   if (value === '' && !required) {

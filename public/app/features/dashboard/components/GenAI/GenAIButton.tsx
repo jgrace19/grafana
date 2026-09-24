@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { genAIButtonStyles } from './GenAIButton.stylex';
 import { useCallback, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type llm } from '@grafana/llm';
-import { Button, Spinner, useStyles2, Tooltip, Toggletip, Text, Stack } from '@grafana/ui';
+import { Button, Spinner, Tooltip, Toggletip, Text, Stack } from '@grafana/ui';
 
 import { GenAIHistory } from './GenAIHistory';
 import { StreamStatus, TIMEOUT, useLLMStream } from './hooks';
@@ -57,7 +58,6 @@ export const GenAIButton = ({
   onHistoryChange,
   timeout = TIMEOUT,
 }: GenAIButtonProps) => {
-  const styles = useStyles2(getStyles);
 
   const [history, setHistory] = useState<string[]>([]);
   const unshiftHistoryEntry = useCallback(
@@ -214,7 +214,7 @@ export const GenAIButton = ({
 
   return (
     <Stack direction="row" gap={0.5} alignItems="center">
-      {isGenerating && <Spinner size="sm" className={styles.spinner} />}
+      {isGenerating && <Spinner size="sm" {...stylex.props(genAIButtonStyles.spinner)} />}
       {isFirstHistoryEntry ? (
         <Tooltip show={showTooltip} interactive content={tooltipContent}>
           {button}
@@ -226,8 +226,3 @@ export const GenAIButton = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  spinner: css({
-    color: theme.colors.text.link,
-  }),
-});

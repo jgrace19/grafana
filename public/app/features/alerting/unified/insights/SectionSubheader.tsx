@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sectionSubheaderStyles } from './SectionSubheader.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { type DataSourceInformation } from '../home/Insights';
 
@@ -12,20 +12,12 @@ export function SectionSubheader({
   children,
   datasources,
 }: React.PropsWithChildren<{ datasources?: DataSourceInformation[] }>) {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(sectionSubheaderStyles.container)}>
       {children}
       {datasources && <DataSourcesInfo datasources={datasources} />}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  }),
-});

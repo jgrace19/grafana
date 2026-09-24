@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { routeSettingsStyles } from './RouteSettings.stylex';
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Field, FieldValidationMessage, InlineField, MultiSelect, Stack, Switch, Text, useStyles2 } from '@grafana/ui';
+import { Field, FieldValidationMessage, InlineField, MultiSelect, Stack, Switch, Text } from '@grafana/ui';
 import { type RuleFormValues } from 'app/features/alerting/unified/types/rule-form';
 import {
   commonGroupByOptions,
@@ -13,7 +14,8 @@ import {
   stringsToSelectableValues,
 } from 'app/features/alerting/unified/utils/amroutes';
 
-import { getFormStyles } from '../../../../notification-policies/formStyles';
+import * as stylex from '@stylexjs/stylex';
+import { formStyles } from '../../../../notification-policies/stylex.props(formStyles.stylex)';
 import { TIMING_OPTIONS_DEFAULTS } from '../../../../notification-policies/timingOptions';
 
 import { RouteTimings } from './RouteTimings';
@@ -31,7 +33,6 @@ export interface RoutingSettingsProps {
   alertManager: string;
 }
 export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
-  const formStyles = useStyles2(getFormStyles);
   const {
     control,
     watch,
@@ -44,8 +45,6 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
   const overrideGrouping = watch(`contactPoints.${alertManager}.overrideGrouping`);
   const overrideTimings = watch(`contactPoints.${alertManager}.overrideTimings`);
   const groupBy = watch(`contactPoints.${alertManager}.groupBy`);
-
-  const styles = useStyles2(getStyles);
 
   // Set default groupBy values when override grouping is enabled and field is empty
   useEffect(() => {
@@ -62,7 +61,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-grouping', 'Override grouping')}
           transparent={true}
-          className={styles.switchElement}
+          {...stylex.props(routeSettingsStyles.switchElement)}
         >
           <Switch id="override-grouping-toggle" {...register(`contactPoints.${alertManager}.overrideGrouping`)} />
         </InlineField>
@@ -87,7 +86,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
           )}
           {...register(`contactPoints.${alertManager}.groupBy`)}
           invalid={!!errors.contactPoints?.[alertManager]?.groupBy}
-          className={styles.optionalContent}
+          {...stylex.props(routeSettingsStyles.optionalContent)}
         >
           <Controller
             render={({ field: { onChange, ref, ...field }, fieldState: { error } }) => {
@@ -99,7 +98,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
                     aria-label={t('alerting.routing-settings.aria-label-group-by', 'Group by')}
                     {...field}
                     allowCustomValue
-                    className={formStyles.input}
+                    {...stylex.props(formStyles.input)}
                     onCreateOption={(opt: string) => {
                       setGroupByOptions((opts) => [...opts, stringToSelectableValue(opt)]);
 
@@ -171,7 +170,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-timings', 'Override timings')}
           transparent={true}
-          className={styles.switchElement}
+          {...stylex.props(routeSettingsStyles.switchElement)}
         >
           <Switch id="override-timings-toggle" {...register(`contactPoints.${alertManager}.overrideTimings`)} />
         </InlineField>
@@ -192,7 +191,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         )}
       </Stack>
       {overrideTimings && (
-        <div className={styles.optionalContent}>
+        <div {...stylex.props(routeSettingsStyles.optionalContent)}>
           <RouteTimings alertManager={alertManager} />
         </div>
       )}
@@ -200,14 +199,3 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  switchElement: css({
-    flexFlow: 'row-reverse',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-  }),
-  optionalContent: css({
-    marginLeft: '49px',
-    marginBottom: theme.spacing(1),
-  }),
-});

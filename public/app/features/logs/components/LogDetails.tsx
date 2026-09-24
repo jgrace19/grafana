@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { memo, useMemo } from 'react';
 
 import {
@@ -142,7 +142,7 @@ export const LogDetails = memo(
       : `${levelStyles.logsRowLevelColor} ${styles.logsRowLevel} ${styles.logsRowLevelDetails}`;
 
     return (
-      <tr className={cx(className, styles.logDetails)}>
+      <tr className={clsx(className, styles.logDetails)}>
         {showDuplicates && <td />}
         <td className={levelClassName} aria-label={t('logs.un-themed-log-details.aria-label-log-level', 'Log level')} />
         <td colSpan={4}>

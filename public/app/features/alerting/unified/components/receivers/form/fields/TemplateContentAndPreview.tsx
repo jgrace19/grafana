@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { templateContentAndPreviewStyles } from './TemplateContentAndPreview.stylex';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, useStyles2 } from '@grafana/ui';
+import { Box } from '@grafana/ui';
 import { useAlertmanager } from 'app/features/alerting/unified/state/AlertmanagerContext';
 import { GRAFANA_RULES_SOURCE_NAME } from 'app/features/alerting/unified/utils/datasource';
 
@@ -29,25 +31,24 @@ export function TemplateContentAndPreview({
   className?: string;
   templateContent: string;
 }) {
-  const styles = useStyles2(getStyles);
 
   const { selectedAlertmanager } = useAlertmanager();
 
   const isGrafanaAlertManager = selectedAlertmanager === GRAFANA_RULES_SOURCE_NAME;
 
   return (
-    <div className={cx(className, styles.mainContainer)}>
-      <div className={styles.container}>
+    <div {...mergeStylexClassName(stylex.props(templateContentAndPreviewStyles.mainContainer), className)}>
+      <div {...stylex.props(templateContentAndPreviewStyles.container)}>
         <EditorColumnHeader
           label={t('alerting.template-content-and-preview.label-template-content', 'Template content')}
         />
         <Box flex={1}>
-          <div className={styles.viewerContainer({ height: 400 })}>
+          <div className={templateContentAndPreviewStyles.viewerContainer({ height: 400 })}>
             <AutoSizer>
               {({ width, height }) => (
                 <TemplateEditor
                   value={templateContent}
-                  containerStyles={styles.editorContainer}
+                  containerStyles={templateContentAndPreviewStyles.editorContainer}
                   width={width}
                   height={height}
                   readOnly
@@ -66,42 +67,10 @@ export function TemplateContentAndPreview({
           templateContent={getUseTemplateText(templateName)}
           setPayloadFormatError={setPayloadFormatError}
           payloadFormatError={payloadFormatError}
-          className={cx(styles.templatePreview, styles.minEditorSize)}
+          className={cx(templateContentAndPreviewStyles.templatePreview, templateContentAndPreviewStyles.minEditorSize)}
         />
       )}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  container: css({
-    label: 'template-preview-container',
-    display: 'flex',
-    flexDirection: 'column',
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
-  templatePreview: css({
-    flex: 1,
-    display: 'flex',
-  }),
-  minEditorSize: css({
-    minHeight: 300,
-    minWidth: 300,
-  }),
-  viewerContainer: ({ height }: { height: number | string }) =>
-    css({
-      height,
-      overflow: 'auto',
-      backgroundColor: theme.colors.background.primary,
-    }),
-  editorContainer: css({
-    width: 'fit-content',
-    border: 'none',
-  }),
-});

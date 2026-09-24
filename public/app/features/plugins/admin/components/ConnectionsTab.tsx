@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { EmptyState, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { EmptyState, Stack, TextLink, } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type ViewProps } from 'app/features/datasources/components/DataSourcesList';
 import { DataSourcesListCard } from 'app/features/datasources/components/DataSourcesListCard';
@@ -51,7 +49,7 @@ export function ConnectionsList({
   hasExploreRights,
   plugin,
 }: ListProps) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (!isLoading && dataSourcesCount === 0) {
     return (
@@ -93,17 +91,9 @@ export function ConnectionsList({
           </TextLink>
         </Trans>
       </span>
-      <ul className={styles.list}>{getDataSourcesList()}</ul>
+      <ul {...stylex.props(connectionsTabStyles.list)}>{getDataSourcesList()}</ul>
     </Stack>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    list: css({
-      listStyle: 'none',
-      display: 'grid',
-      gap: theme.spacing(1),
-    }),
-  };
-};
+;

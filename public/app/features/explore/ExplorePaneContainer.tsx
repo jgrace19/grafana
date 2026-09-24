@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { explorePaneContainerStyles } from './ExplorePaneContainer.stylex';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
@@ -11,13 +13,6 @@ import Explore from './Explore';
 import ExploreQueryInspector from './ExploreQueryInspector';
 import { getExploreItemSelector } from './state/selectors';
 
-const containerStyles = css({
-  label: 'explorePaneContainer',
-  display: 'flex',
-  flexDirection: 'column',
-  minWidth: '600px',
-  height: '100%',
-});
 
 interface Props {
   exploreId: string;
@@ -44,7 +39,7 @@ function ExplorePaneContainerUnconnected({ exploreId }: Props) {
   }, []);
 
   return (
-    <div className={containerStyles} ref={ref} data-testid={selectors.pages.Explore.General.container}>
+    <div {...stylex.props(explorePaneContainerStyles.containerStyles)} ref={ref} data-testid={selectors.pages.Explore.General.container}>
       <Explore
         exploreId={exploreId}
         eventBus={eventBus.current}

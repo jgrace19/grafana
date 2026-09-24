@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationEditorStyles } from './TransformationEditor.stylex';
 import { createElement, useMemo } from 'react';
 
 import {
@@ -9,7 +11,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, JSONFormatter, useStyles2, Drawer } from '@grafana/ui';
+import { Icon, JSONFormatter, Drawer } from '@grafana/ui';
 
 import { type TransformationsEditorTransformation } from './types';
 
@@ -34,7 +36,6 @@ export const TransformationEditor = ({
   onChange,
   toggleShowDebug,
 }: TransformationEditorProps) => {
-  const styles = useStyles2(getStyles);
   const config = useMemo(() => configs[index], [configs, index]);
 
   const editor = useMemo(
@@ -62,25 +63,25 @@ export const TransformationEditor = ({
           onClose={toggleShowDebug}
         >
           <div
-            className={styles.debugWrapper}
+            {...stylex.props(transformationEditorStyles.debugWrapper)}
             data-testid={selectors.components.TransformTab.transformationEditorDebugger(uiConfig.name)}
           >
-            <div className={styles.debug}>
-              <div className={styles.debugTitle}>
+            <div {...stylex.props(transformationEditorStyles.debug)}>
+              <div {...stylex.props(transformationEditorStyles.debugTitle)}>
                 <Trans i18nKey="dashboard.transformation-editor.input-data">Input data</Trans>
               </div>
-              <div className={styles.debugJson}>
+              <div {...stylex.props(transformationEditorStyles.debugJson)}>
                 <JSONFormatter json={input} />
               </div>
             </div>
-            <div className={styles.debugSeparator}>
+            <div {...stylex.props(transformationEditorStyles.debugSeparator)}>
               <Icon name="arrow-right" />
             </div>
-            <div className={styles.debug}>
-              <div className={styles.debugTitle}>
+            <div {...stylex.props(transformationEditorStyles.debug)}>
+              <div {...stylex.props(transformationEditorStyles.debugTitle)}>
                 <Trans i18nKey="dashboard.transformation-editor.output-data">Output data</Trans>
               </div>
-              <div className={styles.debugJson}>{output && <JSONFormatter json={output} />}</div>
+              <div {...stylex.props(transformationEditorStyles.debugJson)}>{output && <JSONFormatter json={output} />}</div>
             </div>
           </div>
         </Drawer>
@@ -89,48 +90,4 @@ export const TransformationEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    debugWrapper: css({
-      display: 'flex',
-      flexDirection: 'row',
-    }),
-    debugSeparator: css({
-      width: '48px',
-      minHeight: '300px',
-      display: 'flex',
-      alignItems: 'center',
-      alignSelf: 'stretch',
-      justifyContent: 'center',
-      margin: `0 ${theme.spacing(0.5)}`,
-      color: theme.colors.primary.text,
-    }),
-    debugTitle: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(0.25)}`,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.primary,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      flexGrow: 0,
-      flexShrink: 1,
-    }),
-    debug: css({
-      marginTop: theme.spacing(1),
-      padding: `0 ${theme.spacing(1, 1, 1)}`,
-      border: `1px solid ${theme.colors.border.weak}`,
-      background: `${theme.isLight ? theme.v1.palette.white : theme.v1.palette.gray05}`,
-      borderRadius: theme.shape.radius.default,
-      width: '100%',
-      minHeight: '300px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignSelf: 'stretch',
-    }),
-    debugJson: css({
-      flexGrow: 1,
-      height: '100%',
-      overflow: 'hidden',
-      padding: theme.spacing(0.5),
-    }),
-  };
-};
+;

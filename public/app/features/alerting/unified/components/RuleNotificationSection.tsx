@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleNotificationSectionStyles } from './RuleNotificationSection.stylex';
 import { useCallback, useId, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { notificationsAPIv0alpha1 } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -19,8 +20,7 @@ import {
   Text,
   TextArea,
   TextLink,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 
 import { type RuleFormValues } from '../types/rule-form';
@@ -79,7 +79,6 @@ function sanitizeRunbookUrl(value: string): string {
 }
 
 export function RuleNotificationSection() {
-  const styles = useStyles2(getStyles);
   const notifyApp = useAppNotification();
 
   const { watch, setValue } = useFormContext<RuleFormValues>();
@@ -133,8 +132,8 @@ export function RuleNotificationSection() {
   const multiplePoliciesEnabled = config.featureToggles.alertingMultiplePolicies ?? false;
 
   return (
-    <section className={styles.section} aria-labelledby="notification-section-heading">
-      <div className={styles.sectionHeaderRow}>
+    <section {...stylex.props(ruleNotificationSectionStyles.section)} aria-labelledby="notification-section-heading">
+      <div {...stylex.props(ruleNotificationSectionStyles.sectionHeaderRow)}>
         <Text element="h3" variant="h4" id="notification-section-heading">
           {`3. `}
           <Trans i18nKey="alerting.simplified.notification.title">Notification</Trans>
@@ -147,7 +146,7 @@ export function RuleNotificationSection() {
             <Stack direction="column" gap={1}>
               <Stack direction="row" alignItems="end" justifyContent="space-between" gap={1}>
                 <Label>{t('alerting.simplified.notification.recipient.label', 'Recipient')}</Label>
-                <div className={styles.manualRoutingInline}>
+                <div {...stylex.props(ruleNotificationSectionStyles.manualRoutingInline)}>
                   <RadioButtonGroup
                     size="sm"
                     options={[
@@ -193,14 +192,14 @@ export function RuleNotificationSection() {
               </Text>
             </Stack>
             {useNotificationPolicy ? (
-              <div className={styles.contentTopSpacer}>
+              <div {...stylex.props(ruleNotificationSectionStyles.contentTopSpacer)}>
                 <Stack direction="column" gap={2}>
                   {multiplePoliciesEnabled && <PolicyTreeSelector />}
                   <NeedHelpInfoForNotificationPolicy />
                 </Stack>
               </div>
             ) : (
-              <div className={styles.contentTopSpacer}>
+              <div {...stylex.props(ruleNotificationSectionStyles.contentTopSpacer)}>
                 <Stack direction="row" gap={1} alignItems="center">
                   <Combobox<ComboboxOption<string>['value']>
                     options={options}
@@ -318,7 +317,7 @@ export function RuleNotificationSection() {
                 aria-describedby={runbookUrlError ? runbookUrlErrorId : undefined}
               />
               {runbookUrlError && (
-                <div id={runbookUrlErrorId} role="alert" className={styles.runbookUrlError}>
+                <div id={runbookUrlErrorId} role="alert" {...stylex.props(ruleNotificationSectionStyles.runbookUrlError)}>
                   <FieldValidationMessage>{runbookUrlError}</FieldValidationMessage>
                 </div>
               )}
@@ -330,25 +329,3 @@ export function RuleNotificationSection() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({ width: '100%' }),
-    sectionHeaderRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    }),
-    contentTopSpacer: css({ marginTop: theme.spacing(0.5) }),
-    manualRoutingInline: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      whiteSpace: 'nowrap',
-      maxWidth: '100%',
-    }),
-    runbookUrlError: css({
-      marginTop: theme.spacing(0.5),
-    }),
-  };
-}

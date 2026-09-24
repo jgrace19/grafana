@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardLinksDashboardStyles } from './DashboardLinksDashboard.stylex';
 import { forwardRef } from 'react';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2, type ScopedVars } from '@grafana/data';
 import { sanitize, sanitizeUrl } from '@grafana/data/internal';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
@@ -27,7 +29,6 @@ interface DashboardLinksMenuProps {
 }
 
 function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
-  const styles = useStyles2(getStyles);
   const resolvedLinks = useResolvedLinks({ dashboardUID, link });
 
   if (!resolvedLinks || resolvedLinks.length === 0) {
@@ -43,7 +44,7 @@ function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
 
   return (
     <Menu>
-      <div className={styles.dropdown}>
+      <div {...stylex.props(dashboardLinksDashboardStyles.dropdown)}>
         <ScrollContainer maxHeight="inherit">
           {resolvedLinks.map((resolvedLink, index) => {
             return (
@@ -70,11 +71,10 @@ function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
 export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props) => {
   const { title } = linkInfo;
   const resolvedLinks = useResolvedLinks({ link, dashboardUID });
-  const styles = useStyles2(getStyles);
 
   if (link.asDropdown) {
     return (
-      <div className={styles.linkContainer}>
+      <div {...stylex.props(dashboardLinksDashboardStyles.linkContainer)}>
         <Dropdown overlay={<DashboardLinksMenu link={link} dashboardUID={dashboardUID} />}>
           <DashboardLinkButton
             data-placement="bottom"
@@ -85,7 +85,7 @@ export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props)
             variant="secondary"
             data-testid={selectors.components.DashboardLinks.dropDown}
           >
-            <Icon aria-hidden name="bars" className={styles.iconMargin} />
+            <Icon aria-hidden name="bars" {...stylex.props(dashboardLinksDashboardStyles.iconMargin)} />
             <span>{title}</span>
           </DashboardLinkButton>
         </Dropdown>
@@ -98,7 +98,7 @@ export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props)
       {resolvedLinks.length > 0 &&
         resolvedLinks.map((resolvedLink, index) => {
           return (
-            <div key={`dashlinks-list-item-${resolvedLink.uid}-${index}`} className={styles.linkContainer}>
+            <div key={`dashlinks-list-item-${resolvedLink.uid}-${index}`} {...stylex.props(dashboardLinksDashboardStyles.linkContainer)}>
               <DashboardLinkButton
                 icon="apps"
                 variant="secondary"
@@ -160,40 +160,15 @@ export function resolveLinks(
   return hits;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    iconMargin: css({
-      marginRight: theme.spacing(0.5),
-    }),
-    dropdown: css({
-      maxWidth: 'max(30vw, 300px)',
-      maxHeight: '70vh',
-    }),
-    button: css({
-      color: theme.colors.text.primary,
-    }),
-    dashButton: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-    linkContainer: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      verticalAlign: 'middle',
-    }),
-  };
-}
 
 export const DashboardLinkButton = forwardRef<unknown, ButtonLinkProps>(({ className, ...otherProps }, ref) => {
-  const styles = useStyles2(getStyles);
   const Component = otherProps.href ? LinkButton : Button;
   return (
     <Component
       {...otherProps}
       variant="secondary"
       fill="outline"
-      className={cx(className, styles.dashButton)}
+      {...mergeStylexClassName(stylex.props(dashboardLinksDashboardStyles.dashButton, className, ), undefined)}
       ref={ref as any}
     />
   );

@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,44 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ticksStyles } from './Ticks.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { autoColor } from '../Theme';
 import type TNil from '../types/TNil';
 import { formatDuration } from '../utils/date';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  Ticks: css({
-    label: 'Ticks',
-    pointerEvents: 'none',
-  }),
-  TicksTick: css({
-    label: 'TicksTick',
-    position: 'absolute',
-    height: '100%',
-    width: '1px',
-    background: autoColor(theme, '#d8d8d8'),
-    '&:last-child': {
-      width: 0,
-    },
-  }),
-  TicksTickLabel: css({
-    label: 'TicksTickLabel',
-    left: '0.25rem',
-    position: 'absolute',
-    whiteSpace: 'nowrap',
-  }),
-  TicksTickLabelEndAnchor: css({
-    label: 'TicksTickLabelEndAnchor',
-    left: 'initial',
-    right: '0.25rem',
-  }),
-});
 
 type TicksProps = {
   endTime?: number | TNil;
@@ -68,7 +42,6 @@ export default function Ticks({ endTime = null, numTicks, showLabels = null, sta
       labels.push(formatDuration(durationAtTick));
     }
   }
-  const styles = useStyles2(getStyles);
   const ticks: React.ReactNode[] = [];
   for (let i = 0; i < numTicks; i++) {
     const portion = i / (numTicks - 1);
@@ -76,18 +49,18 @@ export default function Ticks({ endTime = null, numTicks, showLabels = null, sta
       <div
         data-testid="TicksID"
         key={portion}
-        className={styles.TicksTick}
+        {...stylex.props(ticksStyles.TicksTick)}
         style={{
           left: `${portion * 100}%`,
         }}
       >
         {labels && (
-          <span className={cx(styles.TicksTickLabel, { [styles.TicksTickLabelEndAnchor]: portion >= 1 })}>
+          <span {...mergeStylexClassName(stylex.props(ticksStyles.Ticks, TickLabel, { [mergeStylexClassName(stylex.props(ticksStyles.TicksTickLabelEndAnchor), undefined).className]: portion >= 1 }), undefined)}>
             {labels[i]}
           </span>
         )}
       </div>
     );
   }
-  return <div className={styles.Ticks}>{ticks}</div>;
+  return <div {...stylex.props(ticksStyles.Ticks)}>{ticks}</div>;
 }

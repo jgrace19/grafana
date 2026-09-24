@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { traceViewContainerStyles } from './TraceViewContainer.stylex';
 import { useMemo } from 'react';
 
 import { type DataFrame, DataLinksContext, type SplitOpen, type TimeRange } from '@grafana/data';
@@ -27,7 +29,6 @@ export function TraceViewContainer(props: Props) {
   const datasource = useSelector(
     (state: StoreState) => state.explore.panes[props.exploreId]?.datasourceInstance ?? undefined
   );
-  const styles = useStyles2(getStyles);
   const dataLinkPostProcessor = useExploreDataLinkPostProcessor(splitOpenFn, timeRange);
 
   if (!traceProp) {
@@ -35,7 +36,7 @@ export function TraceViewContainer(props: Props) {
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(traceViewContainerStyles.container)}>
       <PanelChrome padding="none" title={t('explore.trace-view-container.title-trace', 'Trace')}>
         <DataLinksContext.Provider value={{ dataLinkPostProcessor }}>
           <TraceView
@@ -53,17 +54,4 @@ export function TraceViewContainer(props: Props) {
   );
 }
 
-const getStyles = () => {
-  return {
-    container: css({
-      '& > section': {
-        /* 
-        The PanelChrome component sets the overflow property, which prevents the Trace View header from 
-        being sticky by creating a new scrolling ancestor.
-        This is a workaround to allow the header to be sticky.
-        */
-        overflow: 'initial',
-      },
-    }),
-  };
-};
+;

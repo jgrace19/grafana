@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer, } from '@grafana/ui';
 
 import { ScopesTreeItem } from './ScopesTreeItem';
 import { isNodeSelectable } from './scopesTreeUtils';
@@ -30,7 +28,7 @@ export function ScopesTreeItemList({
   highlightedId,
   id,
 }: Props) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (items.length === 0) {
     return null;
@@ -82,12 +80,4 @@ export function ScopesTreeItemList({
   return children;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    expandedContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      maxHeight: '100%',
-    }),
-  };
-};
+;

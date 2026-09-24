@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,64 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { scrubberStyles } from './Scrubber.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
-import { useStyles2 } from '@grafana/ui';
 
-export const getStyles = () => ({
-  ScrubberHandleExpansion: cx(
-    css({
-      label: 'ScrubberHandleExpansion',
-      cursor: 'col-resize',
-      fillOpacity: 0,
-      fill: '#44f',
-    }),
-    'scrubber-handle-expansion'
-  ),
-  ScrubberHandle: cx(
-    css({
-      label: 'ScrubberHandle',
-      cursor: 'col-resize',
-      fill: '#555',
-    }),
-    'scrubber-handle'
-  ),
-  ScrubberLine: cx(
-    css({
-      label: 'ScrubberLine',
-      pointerEvents: 'none',
-      stroke: '#555',
-    }),
-    'scrubber-line'
-  ),
-  ScrubberDragging: css({
-    label: 'ScrubberDragging',
-    '& .scrubber-handle-expansion': {
-      fillOpacity: 1,
-    },
-    '& .scrubber-handle': {
-      fill: '#44f',
-    },
-    '& > .scrubber-line': {
-      stroke: '#44f',
-    },
-  }),
-  ScrubberHandles: css({
-    label: 'ScrubberHandles',
-    '&:hover > .scrubber-handle-expansion': {
-      fillOpacity: 1,
-    },
-    '&:hover > .scrubber-handle': {
-      fill: '#44f',
-    },
-    '&:hover + .scrubber.line': {
-      stroke: '#44f',
-    },
-  }),
-});
-
+export 
 export type ScrubberProps = {
   isDragging: boolean;
   position: number;
@@ -80,13 +31,12 @@ export type ScrubberProps = {
 
 export default function Scrubber({ isDragging, onMouseDown, onMouseEnter, onMouseLeave, position }: ScrubberProps) {
   const xPercent = `${position * 100}%`;
-  const styles = useStyles2(getStyles);
-  const className = cx({ [styles.ScrubberDragging]: isDragging });
+  const className = clsx({ [mergeStylexClassName(stylex.props(scrubberStyles.ScrubberDragging), undefined).className]: isDragging });
   return (
     <g className={className} data-testid="scrubber-component">
       <g
         data-testid="scrubber-component-g"
-        className={styles.ScrubberHandles}
+        {...stylex.props(scrubberStyles.ScrubberHandles)}
         onMouseDown={onMouseDown}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}

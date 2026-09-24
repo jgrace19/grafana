@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logListControlsStyles } from './LogListControls.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { capitalize } from 'lodash';
 import { type MouseEvent, useCallback, useMemo } from 'react';
@@ -15,7 +18,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Dropdown, Menu } from '@grafana/ui';
 
 import { type LogsVisualisationType } from '../../../explore/Logs/constants';
 import { DownloadFormat } from '../../utils';
@@ -82,7 +85,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
   } = useLogListContext();
   const { hideSearch, searchVisible, showSearch } = useLogListSearchContext();
 
-  const styles = useStyles2(getStyles, controlsExpanded);
+  const styles = (getStyles, controlsExpanded);
 
   const onScrollToTopClick = useCallback(() => {
     reportInteraction('logs_log_list_controls_scroll_top_clicked');
@@ -200,7 +203,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
         {DEDUP_OPTIONS.map((option) => (
           <Menu.Item
             key={option}
-            className={dedupStrategy === option ? styles.menuItemActive : undefined}
+            className={dedupStrategy === option ? logListControlsStyles.menuItemActive : undefined}
             description={LogsDedupDescription[option]}
             label={capitalize(option)}
             onClick={() => {
@@ -213,7 +216,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
         ))}
       </Menu>
     ),
-    [dedupStrategy, setDedupStrategy, styles.menuItemActive]
+    [dedupStrategy, setDedupStrategy, logListControlsStyles.menuItemActive]
   );
 
   const filterLevelsMenu = useMemo(
@@ -221,21 +224,21 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
       <Menu>
         <Menu.Item
           key={'all'}
-          className={filterLevels.length === 0 ? styles.menuItemActive : undefined}
+          className={filterLevels.length === 0 ? logListControlsStyles.menuItemActive : undefined}
           label={t('logs.logs-controls.display-level-all', 'All levels')}
           onClick={() => onFilterLevelClick()}
         />
         {logLevels.map((level) => (
           <Menu.Item
             key={level}
-            className={filterLevels.includes(level) ? styles.menuItemActive : undefined}
+            className={filterLevels.includes(level) ? logListControlsStyles.menuItemActive : undefined}
             label={capitalize(level)}
             onClick={() => onFilterLevelClick(level)}
           />
         ))}
       </Menu>
     ),
-    [filterLevels, logLevels, onFilterLevelClick, styles.menuItemActive]
+    [filterLevels, logLevels, onFilterLevelClick, logListControlsStyles.menuItemActive]
   );
 
   const downloadMenu = useMemo(
@@ -276,12 +279,12 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
   const inDashboard = app === CoreApp.Dashboard || app === CoreApp.PanelEditor || app === CoreApp.PanelViewer;
 
   return (
-    <div className={styles.navContainer}>
+    <div className={logListControlsStyles.navContainer}>
       <>
         <LogListControlsOption
           expanded={controlsExpanded}
           name="arrow-from-right"
-          className={cx(styles.controlButton, styles.controlsExpandedButton)}
+          className={cx(logListControlsStyles.controlButton, logListControlsStyles.controlsExpandedButton)}
           variant="secondary"
           onClick={onExpandControlsClick}
           label={
@@ -298,7 +301,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           <LogListControlsOption
             expanded={controlsExpanded}
             name="arrow-down"
-            className={styles.controlButton}
+            className={logListControlsStyles.controlButton}
             variant="secondary"
             onClick={onScrollToBottomClick}
             tooltip={t('logs.logs-controls.scroll-bottom', 'Scroll to bottom')}
@@ -311,7 +314,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           <LogListControlsOption
             expanded={controlsExpanded}
             name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
-            className={styles.controlButton}
+            className={logListControlsStyles.controlButton}
             onClick={onSortOrderClick}
             label={
               sortOrder === LogsSortOrder.Descending
@@ -327,12 +330,12 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           />
           {visualisationType === 'logs' && (
             <>
-              <div className={styles.divider} />
+              <div className={logListControlsStyles.divider} />
               {newLogsPanelEnabled && (
                 <LogListControlsOption
                   expanded={controlsExpanded}
                   name={'search'}
-                  className={searchVisible ? styles.controlButtonActive : styles.controlButton}
+                  className={searchVisible ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={searchVisible ? hideSearch : showSearch}
                   label={
                     searchVisible
@@ -352,7 +355,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name={'filter'}
                   className={
-                    dedupStrategy !== LogsDedupStrategy.none ? styles.controlButtonActive : styles.controlButton
+                    dedupStrategy !== LogsDedupStrategy.none ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton
                   }
                   tooltip={t('logs.logs-controls.deduplication', 'Deduplication')}
                   size="lg"
@@ -363,14 +366,14 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name={'gf-logs'}
                   className={
-                    filterLevels && filterLevels.length > 0 ? styles.controlButtonActive : styles.controlButton
+                    filterLevels && filterLevels.length > 0 ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton
                   }
                   label={t('logs.logs-controls.filter-levels', 'Filter levels')}
                   tooltip={t('logs.logs-controls.tooltip.filter-level', 'Filter logs result by level')}
                   size="lg"
                 />
               </Dropdown>
-              <div className={styles.divider} />
+              <div className={logListControlsStyles.divider} />
               {newLogsPanelEnabled ? (
                 <TimestampResolutionButton expanded={controlsExpanded} />
               ) : (
@@ -378,7 +381,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name="clock-nine"
                   aria-pressed={showTime}
-                  className={showTime ? styles.controlButtonActive : styles.controlButton}
+                  className={showTime ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={onShowTimestampsClick}
                   tooltip={
                     showTime
@@ -394,7 +397,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name="tag-alt"
                   aria-pressed={showUniqueLabels}
-                  className={showUniqueLabels ? styles.controlButtonActive : styles.controlButton}
+                  className={showUniqueLabels ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={onShowUniqueLabelsClick}
                   tooltip={
                     showUniqueLabels
@@ -410,7 +413,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                 <LogListControlsOption
                   expanded={controlsExpanded}
                   name="wrap-text"
-                  className={wrapLogMessage ? styles.controlButtonActive : styles.controlButton}
+                  className={wrapLogMessage ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   aria-pressed={wrapLogMessage}
                   onClick={onWrapLogMessageClick}
                   tooltip={
@@ -427,7 +430,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   disabled={wrapLogMessage}
                   name="columns"
                   aria-pressed={unwrappedColumns}
-                  className={unwrappedColumns ? styles.controlButtonActive : styles.controlButton}
+                  className={unwrappedColumns ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={onSetUnwrappedColumnsClick}
                   label={
                     wrapLogMessage
@@ -454,7 +457,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name="brackets-curly"
                   aria-pressed={prettifyJSON}
-                  className={prettifyJSON ? styles.controlButtonActive : styles.controlButton}
+                  className={prettifyJSON ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={onSetPrettifyJSONClick}
                   tooltip={
                     prettifyJSON
@@ -468,7 +471,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                 <LogListControlsOption
                   expanded={controlsExpanded}
                   name="brackets-curly"
-                  className={syntaxHighlighting ? styles.controlButtonActive : styles.controlButton}
+                  className={syntaxHighlighting ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   aria-pressed={syntaxHighlighting}
                   onClick={onSyntaxHightlightingClick}
                   label={
@@ -488,7 +491,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                 <LogListControlsOption
                   expanded={controlsExpanded}
                   name="text-fields"
-                  className={fontSize === 'small' ? styles.controlButtonActive : styles.controlButton}
+                  className={fontSize === 'small' ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   aria-pressed={Boolean(fontSize)}
                   onClick={onFontSizeClick}
                   label={
@@ -509,7 +512,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
                   expanded={controlsExpanded}
                   name="enter"
                   aria-pressed={forceEscape}
-                  className={forceEscape ? styles.controlButtonActive : styles.controlButton}
+                  className={forceEscape ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
                   onClick={onForceEscapeClick}
                   label={
                     forceEscape
@@ -531,12 +534,12 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           )}
           {!config.exploreHideLogsDownload && (
             <>
-              <div className={styles.divider} />
+              <div className={logListControlsStyles.divider} />
               <Dropdown overlay={downloadMenu} placement="auto-end">
                 <LogListControlsOption
                   expanded={controlsExpanded}
                   name="download-alt"
-                  className={styles.controlButton}
+                  className={logListControlsStyles.controlButton}
                   label={t('logs.logs-controls.download', 'Download logs')}
                   tooltip={t('logs.logs-controls.tooltip.download', 'Download')}
                   size="lg"
@@ -551,7 +554,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
             <LogListControlsOption
               expanded={controlsExpanded}
               name={'search'}
-              className={searchVisible ? styles.controlButtonActive : styles.controlButton}
+              className={searchVisible ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
               onClick={searchVisible ? hideSearch : showSearch}
               label={
                 searchVisible
@@ -570,7 +573,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
             <LogListControlsOption
               expanded={controlsExpanded}
               name={'gf-logs'}
-              className={filterLevels && filterLevels.length > 0 ? styles.controlButtonActive : styles.controlButton}
+              className={filterLevels && filterLevels.length > 0 ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
               label={t('logs.logs-controls.filter-levels', 'Filter levels')}
               tooltip={t('logs.logs-controls.tooltip.filter-level', 'Filter logs result by level')}
               size="lg"
@@ -581,7 +584,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
               expanded={controlsExpanded}
               name="enter"
               aria-pressed={forceEscape}
-              className={forceEscape ? styles.controlButtonActive : styles.controlButton}
+              className={forceEscape ? logListControlsStyles.controlButtonActive : logListControlsStyles.controlButton}
               onClick={onForceEscapeClick}
               label={
                 forceEscape
@@ -607,7 +610,7 @@ export const LogListControls = ({ eventBus, logLevels = FILTER_LEVELS, visualisa
           expanded={controlsExpanded}
           name="arrow-up"
           data-testid="scrollToTop"
-          className={styles.scrollToTopButton}
+          className={logListControlsStyles.scrollToTopButton}
           variant="secondary"
           onClick={onScrollToTopClick}
           tooltip={t('logs.logs-controls.scroll-top', 'Scroll to top')}
@@ -623,7 +626,7 @@ interface LogSelectOptionProps {
 }
 
 const TimestampResolutionButton = ({ expanded }: LogSelectOptionProps) => {
-  const styles = useStyles2(getWrapButtonStyles, expanded);
+  const styles = (getWrapButtonStyles, expanded);
   const { setTimestampResolution, setShowTime, showTime, timestampResolution } = useLogListContext();
 
   const hide = useCallback(() => {
@@ -656,22 +659,22 @@ const TimestampResolutionButton = ({ expanded }: LogSelectOptionProps) => {
       <Menu>
         <Menu.Item
           label={t('logs.logs-controls.timestamp.hide', 'Hide timestamps')}
-          className={!showTime ? styles.menuItemActive : undefined}
+          className={!showTime ? logListControlsStyles.menuItemActive : undefined}
           onClick={hide}
         />
         <Menu.Item
           label={t('logs.logs-controls.timestamp.milliseconds', 'Show millisecond timestamps')}
-          className={showTime && timestampResolution === 'ms' ? styles.menuItemActive : undefined}
+          className={showTime && timestampResolution === 'ms' ? logListControlsStyles.menuItemActive : undefined}
           onClick={showMs}
         />
         <Menu.Item
           label={t('logs.logs-controls.timestamp.nanoseconds', 'Show nanosecond timestamps')}
-          className={showTime && timestampResolution === 'ns' ? styles.menuItemActive : undefined}
+          className={showTime && timestampResolution === 'ns' ? logListControlsStyles.menuItemActive : undefined}
           onClick={showNs}
         />
       </Menu>
     ),
-    [hide, showMs, showNs, showTime, styles.menuItemActive, timestampResolution]
+    [hide, showMs, showNs, showTime, logListControlsStyles.menuItemActive, timestampResolution]
   );
 
   const labelText = !showTime
@@ -699,7 +702,7 @@ const TimestampResolutionButton = ({ expanded }: LogSelectOptionProps) => {
   );
 };
 const WrapLogMessageButton = ({ expanded }: LogSelectOptionProps) => {
-  const styles = useStyles2(getWrapButtonStyles, expanded);
+  const styles = (getWrapButtonStyles, expanded);
   const { prettifyJSON, setPrettifyJSON, setWrapLogMessage, wrapLogMessage } = useLogListContext();
 
   /**
@@ -744,22 +747,22 @@ const WrapLogMessageButton = ({ expanded }: LogSelectOptionProps) => {
       <Menu>
         <Menu.Item
           label={t('logs.logs-controls.line-wrapping.hide', 'Disable line wrapping')}
-          className={!wrapLogMessage ? styles.menuItemActive : undefined}
+          className={!wrapLogMessage ? logListControlsStyles.menuItemActive : undefined}
           onClick={disable}
         />
         <Menu.Item
           label={t('logs.logs-controls.line-wrapping.enable', 'Enable line wrapping')}
-          className={wrapLogMessage && !prettifyJSON ? styles.menuItemActive : undefined}
+          className={wrapLogMessage && !prettifyJSON ? logListControlsStyles.menuItemActive : undefined}
           onClick={wrap}
         />
         <Menu.Item
           label={t('logs.logs-controls.line-wrapping.enable-prettify', 'Enable line wrapping and prettify JSON')}
-          className={wrapLogMessage && prettifyJSON ? styles.menuItemActive : undefined}
+          className={wrapLogMessage && prettifyJSON ? logListControlsStyles.menuItemActive : undefined}
           onClick={wrapAndPrettify}
         />
       </Menu>
     ),
-    [disable, prettifyJSON, styles.menuItemActive, wrap, wrapAndPrettify, wrapLogMessage]
+    [disable, prettifyJSON, logListControlsStyles.menuItemActive, wrap, wrapAndPrettify, wrapLogMessage]
   );
 
   const wrapStateText = !wrapLogMessage
@@ -784,21 +787,7 @@ const WrapLogMessageButton = ({ expanded }: LogSelectOptionProps) => {
   );
 };
 
-const getWrapButtonStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  return {
-    menuItemActive: css({
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        top: theme.spacing(0.5),
-        height: `calc(100% - ${theme.spacing(1)})`,
-        width: '2px',
-        backgroundColor: theme.colors.warning.main,
-      },
-    }),
-  };
-};
+;
 
 export const CONTROLS_WIDTH_EXPANDED = 176;
 

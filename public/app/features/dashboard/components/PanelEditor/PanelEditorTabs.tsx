@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelEditorTabsStyles } from './PanelEditorTabs.stylex';
 import { memo, useCallback, useEffect } from 'react';
 import { Subscription } from 'rxjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Tab, TabContent, TabsBar, toIconName, useForceUpdate, useStyles2 } from '@grafana/ui';
 import { PanelAlertTab } from 'app/features/alerting/unified/PanelAlertTab';
@@ -25,7 +26,6 @@ interface PanelEditorTabsProps {
 
 export const PanelEditorTabs = memo(({ panel, dashboard, tabs, onChangeTab }: PanelEditorTabsProps) => {
   const forceUpdate = useForceUpdate();
-  const styles = useStyles2(getStyles);
 
   const instrumentedOnChangeTab = useCallback(
     (tab: PanelEditorTab) => {
@@ -56,8 +56,8 @@ export const PanelEditorTabs = memo(({ panel, dashboard, tabs, onChangeTab }: Pa
   const alertingEnabled = config.unifiedAlertingEnabled;
 
   return (
-    <div className={styles.wrapper}>
-      <TabsBar className={styles.tabBar} hideBorder>
+    <div {...stylex.props(panelEditorTabsStyles.wrapper)}>
+      <TabsBar {...stylex.props(panelEditorTabsStyles.tabBar)} hideBorder>
         {tabs.map((tab) => {
           if (tab.id === PanelEditorTabId.Alert && alertingEnabled) {
             return (
@@ -84,7 +84,7 @@ export const PanelEditorTabs = memo(({ panel, dashboard, tabs, onChangeTab }: Pa
           );
         })}
       </TabsBar>
-      <TabContent className={styles.tabContent}>
+      <TabContent {...stylex.props(panelEditorTabsStyles.tabContent)}>
         {activeTab.id === PanelEditorTabId.Query && <PanelEditorQueries panel={panel} queries={panel.targets} />}
         {activeTab.id === PanelEditorTabId.Alert && <PanelAlertTabContent panel={panel} dashboard={dashboard} />}
         {activeTab.id === PanelEditorTabId.Transform && <TransformationsEditor panel={panel} />}
@@ -109,27 +109,4 @@ function getCounter(panel: PanelModel, tab: PanelEditorTab) {
   return null;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-    }),
-    tabBar: css({
-      paddingLeft: theme.spacing(2),
-    }),
-    tabContent: css({
-      padding: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      flex: 1,
-      minHeight: 0,
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.components.panel.borderColor}`,
-      borderLeft: 'none',
-      borderBottom: 'none',
-      borderTopRightRadius: theme.shape.borderRadius(1.5),
-    }),
-  };
-};
+;

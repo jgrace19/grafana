@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { versionListStyles } from './VersionList.stylex';
 import { useEffect, useState, useMemo } from 'react';
 import { major, compare, lte } from 'semver';
 
 import { dateTimeFormatTimeAgo, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2, Badge } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
 
 import { getLatestCompatibleVersion, shouldDisablePluginInstall } from '../helpers';
 import { type CatalogPlugin, PluginUpdateStrategy, type Version } from '../types';
@@ -17,7 +19,6 @@ interface Props {
 }
 
 export const VersionList = ({ plugin }: Props) => {
-  const styles = useStyles2(getStyles);
   const pluginId = plugin.id;
   const versions = useMemo(() => plugin.details?.versions ?? [], [plugin.details?.versions]);
   const installedVersion = plugin.installedVersion;
@@ -53,7 +54,7 @@ export const VersionList = ({ plugin }: Props) => {
   };
 
   return (
-    <table className={styles.table}>
+    <table {...stylex.props(versionListStyles.table)}>
       <thead>
         <tr>
           <th>
@@ -89,7 +90,7 @@ export const VersionList = ({ plugin }: Props) => {
             <tr key={version.version}>
               {/* Version number */}
               {isInstalledVersion ? (
-                <td className={styles.currentVersion}>
+                <td {...stylex.props(versionListStyles.currentVersion)}>
                   <Trans i18nKey="plugins.version-list.installed-version" values={{ versionNumber: version.version }}>
                     {'{{versionNumber}}'} (installed version)
                   </Trans>
@@ -137,11 +138,11 @@ export const VersionList = ({ plugin }: Props) => {
               </td>
 
               {/* Latest release date */}
-              <td className={isInstalledVersion ? styles.currentVersion : ''}>
+              <td {...mergeStylexClassName(isInstalledVersion  ? stylex.props(versionListStyles.currentVersion) : {}, undefined)}>
                 {dateTimeFormatTimeAgo(version.updatedAt || version.createdAt)}
               </td>
               {/* Dependency */}
-              <td className={isInstalledVersion ? styles.currentVersion : ''}>{version.grafanaDependency || 'N/A'}</td>
+              <td {...mergeStylexClassName(isInstalledVersion  ? stylex.props(versionListStyles.currentVersion) : {}, undefined)}>{version.grafanaDependency || 'N/A'}</td>
             </tr>
           );
         })}
@@ -150,56 +151,6 @@ export const VersionList = ({ plugin }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({ padding: theme.spacing(2, 4, 3) }),
-  currentVersion: css({ fontWeight: theme.typography.fontWeightBold }),
-  spinner: css({ marginLeft: theme.spacing(1) }),
-  badge: css({ marginLeft: theme.spacing(1) }),
-  table: css({
-    tableLayout: 'fixed',
-    width: '100%',
-    'td, th': { padding: `${theme.spacing()} 0` },
-    th: { fontSize: theme.typography.h5.fontSize },
-    td: { wordBreak: 'break-word' },
-    'tbody tr:nth-child(odd)': { background: theme.colors.emphasize(theme.colors.background.primary, 0.02) },
-
-    // Display table as cards on narrow screens
-    [theme.breakpoints.down('md')]: {
-      tableLayout: 'auto',
-      thead: { display: 'none' },
-      tbody: { display: 'block' },
-      'tbody tr': {
-        display: 'block',
-        marginBottom: theme.spacing(2),
-        padding: theme.spacing(2),
-        background: theme.colors.background.primary,
-        border: `1px solid ${theme.colors.border.weak}`,
-        borderRadius: theme.shape.radius.default,
-        boxShadow: theme.shadows.z1,
-      },
-      'tbody td': {
-        display: 'block',
-        padding: `${theme.spacing(0.5)} 0`,
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
-        textAlign: 'left',
-        '&:last-child': { borderBottom: 'none' },
-        '&:before': {
-          content: 'attr(data-label)',
-          display: 'inline-block',
-          fontWeight: theme.typography.fontWeightMedium,
-          color: theme.colors.text.secondary,
-          fontSize: theme.typography.size.sm,
-          marginRight: theme.spacing(1),
-          minWidth: '120px',
-        },
-      },
-      'tbody td:nth-child(1)': { '&:before': { content: '"Version:"' } },
-      'tbody td:nth-child(2)': { '&:before': { content: '"Action:"' } },
-      'tbody td:nth-child(3)': { '&:before': { content: '"Release date:"' } },
-      'tbody td:nth-child(4)': { '&:before': { content: '"Dependency:"' } },
-    },
-  }),
-});
 
 interface ShouldDisableVersionInstallationArgs {
   version: Version;

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { flameGraphExploreContainerStyles } from './FlameGraphExploreContainer.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 
 import { type DataFrame, type GrafanaTheme2, CoreApp } from '@grafana/data';
 import { FlameGraph } from '@grafana/flamegraph';
 import { config, reportInteraction } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 interface Props {
   dataFrames: DataFrame[];
@@ -23,7 +24,7 @@ export const FlameGraphExploreContainer = (props: Props) => {
   const enableNewUI = useBooleanFlagValue('flameGraphWithCallTree', false);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(flameGraphExploreContainerStyles.container)}>
       <FlameGraph
         data={props.dataFrames[0]}
         stickyHeader={true}
@@ -38,12 +39,3 @@ export const FlameGraphExploreContainer = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    background: theme.colors.background.primary,
-    display: 'flow-root',
-    padding: theme.spacing(0, 1, 1, 1),
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-});

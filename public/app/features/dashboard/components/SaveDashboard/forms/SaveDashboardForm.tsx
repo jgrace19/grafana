@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { saveDashboardFormStyles } from './SaveDashboardForm.stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
-import { Button, Checkbox, TextArea, useStyles2, Stack } from '@grafana/ui';
+import { Button, Checkbox, TextArea, Stack } from '@grafana/ui';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { type SaveDashboardResponseDTO } from 'app/types/dashboard';
 
@@ -43,7 +44,6 @@ export const SaveDashboardForm = ({
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(options.message);
-  const styles = useStyles2(getStyles);
 
   return (
     <form
@@ -96,7 +96,7 @@ export const SaveDashboardForm = ({
             data-testid={selectors.pages.SaveDashboardModal.saveVariables}
           />
         )}
-        <div className={styles.message}>
+        <div {...stylex.props(saveDashboardFormStyles.message)}>
           {config.featureToggles.aiGeneratedDashboardChanges && (
             <GenAIDashboardChangesButton
               dashboard={dashboard}
@@ -153,13 +153,3 @@ export const SaveDashboardForm = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    message: css({
-      display: 'flex',
-      alignItems: 'end',
-      flexDirection: 'column',
-      width: '100%',
-    }),
-  };
-}

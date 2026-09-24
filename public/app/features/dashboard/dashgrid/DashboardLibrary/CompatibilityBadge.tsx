@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { compatibilityBadgeStyles } from './CompatibilityBadge.stylex';
 import { t, Trans } from '@grafana/i18n';
 import { Badge, Button, Spinner, Tooltip, useStyles2 } from '@grafana/ui';
 
@@ -41,7 +42,6 @@ const NOT_SUPPORTED_CODES = ['datasource_wrong_type', 'unsupported_dashboard_ver
  * - error: Shows error badge with retry option
  */
 export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBadgeProps) => {
-  const styles = useStyles2(getStyles);
   const isLoading = state.status === 'loading';
 
   if (state.status === 'idle' || state.status === 'loading') {
@@ -66,24 +66,24 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
           }}
           aria-label={buttonText}
           data-testid={isLoading ? 'compatibility-badge-loading' : undefined}
-          className={styles.button}
+          {...stylex.props(compatibilityBadgeStyles.button)}
           icon="info-circle"
           size="sm"
         >
           {buttonText}
-          {isLoading && <Spinner size="xs" inline className={styles.spinner} />}
+          {isLoading && <Spinner size="xs" inline {...stylex.props(compatibilityBadgeStyles.spinner)} />}
         </Button>
       </Tooltip>
     );
   }
 
   if (state.status === 'error') {
-    const tooltipContent = getErrorTooltip(state.errorCode, styles.tooltipLink);
+    const tooltipContent = getErrorTooltip(state.errorCode, mergeStylexClassName(stylex.props(compatibilityBadgeStyles.tooltipLink), undefined).className);
 
     return (
       <Tooltip interactive={true} content={tooltipContent}>
         <span
-          className={styles.badgeWrapper}
+          {...stylex.props(compatibilityBadgeStyles.badgeWrapper)}
           onClick={(e) => {
             e.stopPropagation();
             onRetry?.();
@@ -102,7 +102,7 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
             text={t('dashboard-library.compatibility-badge.error-text', 'Error')}
             icon="exclamation-circle"
             color="red"
-            className={styles.clickableBadge}
+            {...stylex.props(compatibilityBadgeStyles.clickableBadge)}
           />
         </span>
       </Tooltip>
@@ -118,7 +118,7 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
 
     return (
       <Tooltip interactive={true} content={tooltipContent}>
-        <span className={styles.badgeWrapper} data-testid="compatibility-badge-success">
+        <span {...stylex.props(compatibilityBadgeStyles.badgeWrapper)} data-testid="compatibility-badge-success">
           <Badge
             text={t('dashboard-library.compatibility-badge.score-text', '{{score}}% compatible', {
               score: state.score,
@@ -217,33 +217,3 @@ function getErrorTooltip(errorCode: string | undefined, linkClassName: string) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    button: css({
-      minWidth: theme.spacing(12),
-      justifyContent: 'center',
-    }),
-    spinner: css({
-      marginLeft: theme.spacing(1),
-    }),
-    badgeWrapper: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-    }),
-    clickableBadge: css({
-      paddingTop: theme.spacing(0.8),
-      paddingBottom: theme.spacing(0.8),
-      cursor: 'pointer',
-      '&:hover': {
-        opacity: 0.8,
-      },
-    }),
-    tooltipLink: css({
-      color: theme.colors.text.link,
-      textDecoration: 'underline',
-      '&:hover': {
-        textDecoration: 'none',
-      },
-    }),
-  };
-}

@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { enterpriseAuthFeaturesCardStyles } from './EnterpriseAuthFeaturesCard.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { GrafanaEdition } from '@grafana/data/internal';
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Text, Stack, useStyles2, Button, LinkButton } from '@grafana/ui';
+import { Text, Stack, Button, LinkButton } from '@grafana/ui';
 import { CloudEnterpriseBadge } from 'app/core/components/Branding/CloudEnterpriseBadge';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -15,7 +16,6 @@ export interface Props {
 }
 
 export function EnterpriseAuthFeaturesCard({ page }: Props) {
-  const styles = useStyles2(getStyles);
   const helpFlags = contextSrv.user.helpFlags1;
   const HELP_FLAG_ENTERPRISE_AUTH = 0x0004;
   const [isDismissed, setDismissed] = useState<boolean>(Boolean(helpFlags & HELP_FLAG_ENTERPRISE_AUTH));
@@ -35,7 +35,7 @@ export function EnterpriseAuthFeaturesCard({ page }: Props) {
   }
 
   return (
-    <div className={styles.box}>
+    <div {...stylex.props(enterpriseAuthFeaturesCardStyles.box)}>
       <Stack direction="row" alignItems="center" justifyContent={'space-between'}>
         <CloudEnterpriseBadge />
         <Button
@@ -72,37 +72,6 @@ export function EnterpriseAuthFeaturesCard({ page }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    cloudBadge: css({
-      display: 'flex',
-      alignItems: 'center',
-      background: theme.colors.gradients.brandHorizontal,
-      color: theme.colors.primary.contrastText,
-      padding: theme.spacing(0.5, 1),
-      borderRadius: theme.shape.radius.pill,
-      fontSize: theme.typography.bodySmall.fontSize,
-      gap: theme.spacing(1),
-    }),
-    box: css({
-      padding: theme.spacing(3),
-      border: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1.5),
-      borderRadius: theme.shape.radius.lg,
-      marginTop: theme.spacing(3),
-      strong: {
-        color: theme.colors.text.primary,
-      },
-    }),
-    icon: css({
-      position: 'relative',
-      top: -1,
-    }),
-  };
-}
 
 export function isOpenSourceBuildOrUnlicenced() {
   if (config.buildInfo.edition === GrafanaEdition.OpenSource) {

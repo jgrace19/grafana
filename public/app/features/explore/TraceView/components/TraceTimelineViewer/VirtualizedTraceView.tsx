@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { virtualizedTraceViewStyles } from './VirtualizedTraceView.stylex';
 import { isEqual } from 'lodash';
 import memoizeOne from 'memoize-one';
 import * as React from 'react';
@@ -23,7 +25,7 @@ import { t } from '@grafana/i18n';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2, ToolbarButton } from '@grafana/ui';
+import { withTheme2, ToolbarButton } from '@grafana/ui';
 
 import { PEER_SERVICE } from '../constants/tag-keys';
 import { type SpanBarOptions } from '../settings/SpanBarSettings';
@@ -48,26 +50,6 @@ import {
   type ViewedBoundsFunctionType,
 } from './utils';
 
-const getStyles = stylesFactory(() => ({
-  rowsWrapper: css({
-    width: '100%',
-  }),
-  row: css({
-    width: '100%',
-  }),
-  scrollToTopButton: css({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '40px',
-    height: '40px',
-    position: 'absolute',
-    bottom: '30px',
-    right: '30px',
-    zIndex: 1,
-  }),
-}));
 
 type RowState = {
   isDetail: boolean;
@@ -482,10 +464,8 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
       }
       return each.spanId === spanID;
     });
-
-    const styles = getStyles();
     return (
-      <div className={styles.row} key={key} style={style} {...attrs}>
+      <div {...stylex.props(virtualizedTraceViewStyles.row)} key={key} style={style} {...attrs}>
         <SpanBarRow
           clippingLeft={this.getClipping().left}
           clippingRight={this.getClipping().right}
@@ -559,7 +539,6 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
       return null;
     }
     const color = getColorByKey(serviceColorKey, theme);
-    const styles = getStyles();
 
     return (
       <div className={cx(styles.row, 'span-detail-row')} key={key} style={{ ...style, zIndex: 1 }} {...attrs}>
@@ -624,7 +603,6 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
   });
 
   render() {
-    const styles = getStyles();
     const { scrollElement, redrawListView } = this.props;
 
     return (
@@ -645,7 +623,7 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
         />
         {this.props.topOfViewRef && ( // only for panel as explore uses content outline to scroll to top
           <ToolbarButton
-            className={styles.scrollToTopButton}
+            {...stylex.props(virtualizedTraceViewStyles.scrollToTopButton)}
             onClick={this.scrollToTop}
             tooltip={t('explore.unthemed-virtualized-trace-view.title-scroll-to-top', 'Scroll to top')}
             icon="arrow-up"

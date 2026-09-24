@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { grafanaGroupLoaderStyles } from './GrafanaGroupLoader.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Alert, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Stack } from '@grafana/ui';
 import { type GrafanaRuleGroupIdentifier } from 'app/types/unified-alerting';
 
 import { prometheusApi } from '../api/prometheusApi';
@@ -37,7 +38,6 @@ export function GrafanaGroupLoader({
   namespaceName,
   expectedRulesCount = 3, // 3 is a random number. Usually we get the number of rules from Prometheus response
 }: GrafanaGroupLoaderProps) {
-  const styles = useStyles2(getStyles);
 
   const { data: promResponse, isLoading: isPromResponseLoading } = useGetGrafanaGroupsQuery(
     {
@@ -97,7 +97,7 @@ export function GrafanaGroupLoader({
         );
       })}
       {hasMore && (
-        <li aria-selected="false" role="treeitem" className={styles.loadMoreWrapper}>
+        <li aria-selected="false" role="treeitem" {...stylex.props(grafanaGroupLoaderStyles.loadMoreWrapper)}>
           <LoadMoreButton onClick={loadMore} />
         </li>
       )}
@@ -105,9 +105,3 @@ export function GrafanaGroupLoader({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadMoreWrapper: css({
-    listStyle: 'none',
-    paddingTop: theme.spacing(1),
-  }),
-});

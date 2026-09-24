@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { annotationResultMapperStyles } from './AnnotationResultMapper.stylex';
 import { memo, useState, useEffect, useCallback } from 'react';
 
 import {
@@ -13,7 +15,7 @@ import {
   type GrafanaTheme2,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Select, Tooltip, Icon, useStyles2, Label } from '@grafana/ui';
+import { Select, Tooltip, Icon, Label } from '@grafana/ui';
 
 import { getAnnotationEventNames, type AnnotationFieldInfo } from '../standardAnnotationSupport';
 import { type AnnotationQueryResponse } from '../types';
@@ -25,7 +27,6 @@ interface Props {
 }
 
 export const AnnotationFieldMapper = memo(({ response, mappings, change }: Props) => {
-  const styles = useStyles2(getStyles);
   const [fieldNames, setFieldNames] = useState<Array<SelectableValue<string>>>([]);
 
   useEffect(() => {
@@ -137,7 +138,7 @@ export const AnnotationFieldMapper = memo(({ response, mappings, change }: Props
               isClearable
             />
           </td>
-          <td className={styles.valueCell}>
+          <td {...stylex.props(annotationResultMapperStyles.valueCell)}>
             {value ? (
               <Tooltip content={value}>
                 <span>{value}</span>
@@ -149,7 +150,7 @@ export const AnnotationFieldMapper = memo(({ response, mappings, change }: Props
         </tr>
       );
     },
-    [fieldNames, onFieldNameChange, styles.valueCell]
+    [fieldNames, onFieldNameChange, annotationResultMapperStyles.valueCell]
   );
 
   const first = response?.events?.[0];
@@ -181,11 +182,3 @@ export const AnnotationFieldMapper = memo(({ response, mappings, change }: Props
 
 AnnotationFieldMapper.displayName = 'AnnotationFieldMapper';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  valueCell: css({
-    maxWidth: 200,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  }),
-});

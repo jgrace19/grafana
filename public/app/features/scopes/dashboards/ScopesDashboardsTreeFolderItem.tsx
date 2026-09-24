@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton, Spinner, } from '@grafana/ui';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -24,16 +22,16 @@ export function ScopesDashboardsTreeFolderItem({
   folders,
   onFolderUpdate,
 }: ScopesDashboardsTreeFolderItemProps) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   // get scopesselector service
   const scopesSelectorService = useScopesServices()?.scopesSelectorService ?? undefined;
   const scopesDashboardsService = useScopesServices()?.scopesDashboardsService ?? undefined;
   return (
-    <div className={styles.container} role="treeitem" aria-selected={folder.expanded}>
-      <div className={styles.row}>
+    <div {...stylex.props(scopesDashboardsTreeFolderItemStyles.container)} role="treeitem" aria-selected={folder.expanded}>
+      <div {...stylex.props(scopesDashboardsTreeFolderItemStyles.row)}>
         <button
-          className={styles.expand}
+          {...stylex.props(scopesDashboardsTreeFolderItemStyles.expand)}
           data-testid={`scopes-dashboards-${folder.title}-expand`}
           aria-label={
             folder.expanded ? t('scopes.dashboards.collapse', 'Collapse') : t('scopes.dashboards.expand', 'Expand')
@@ -42,15 +40,15 @@ export function ScopesDashboardsTreeFolderItem({
             onFolderUpdate(folderPath, !folder.expanded);
           }}
         >
-          <Icon name={!folder.expanded ? 'angle-right' : 'angle-down'} className={styles.icon} />
+          <Icon name={!folder.expanded ? 'angle-right' : 'angle-down'} {...stylex.props(scopesDashboardsTreeFolderItemStyles.icon)} />
 
-          <span className={styles.titleContainer}>{folder.title}</span>
-          {folder.loading && <Spinner inline size="sm" className={styles.loadingIcon} />}
+          <span {...stylex.props(scopesDashboardsTreeFolderItemStyles.titleContainer)}>{folder.title}</span>
+          {folder.loading && <Spinner inline size="sm" {...stylex.props(scopesDashboardsTreeFolderItemStyles.loadingIcon)} />}
         </button>
 
         {folder.subScopeName && !folder.disableSubScopeSelection && (
           <IconButton
-            className={styles.exchangeIcon}
+            {...stylex.props(scopesDashboardsTreeFolderItemStyles.exchangeIcon)}
             tooltip={t('scopes.dashboards.exchange', 'Change root scope to {{scope}}', {
               scope: folder.subScopeName || '',
             })}
@@ -83,7 +81,7 @@ export function ScopesDashboardsTreeFolderItem({
       </div>
 
       {folder.expanded && (
-        <div className={styles.children}>
+        <div {...stylex.props(scopesDashboardsTreeFolderItemStyles.children)}>
           <ScopesDashboardsTree
             subScopePath={subScopePath}
             subScope={folder.subScopeName}
@@ -97,53 +95,4 @@ export function ScopesDashboardsTreeFolderItem({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0.5, 0),
-    }),
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: theme.spacing(1),
-      width: '100%',
-    }),
-    expand: css({
-      alignItems: 'flex-start',
-      background: 'none',
-      border: 0,
-      display: 'flex',
-      gap: theme.spacing(1),
-      margin: 0,
-      padding: 0,
-      textAlign: 'left',
-      wordBreak: 'break-word',
-      flex: 1,
-    }),
-    icon: css({
-      marginTop: theme.spacing(0.25),
-    }),
-    titleContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      flex: 1,
-    }),
-    exchangeIcon: css({
-      opacity: 0.7,
-      flexShrink: 0,
-      marginTop: theme.spacing(0.25),
-    }),
-    loadingIcon: css({
-      flexShrink: 0,
-      marginLeft: theme.spacing(0.5),
-      marginTop: theme.spacing(0.25),
-    }),
-    children: css({
-      paddingLeft: theme.spacing(2),
-      marginLeft: theme.spacing(1),
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-};
+;

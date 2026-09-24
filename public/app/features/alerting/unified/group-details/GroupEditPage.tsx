@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { groupEditPageStyles } from './GroupEditPage.stylex';
 import { produce } from 'immer';
 import { useCallback, useEffect, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
@@ -15,7 +16,6 @@ import {
   Input,
   LinkButton,
   Stack,
-  useStyles2,
   withErrorBoundary,
 } from '@grafana/ui';
 import { EntityNotFound } from 'app/core/components/PageNotFound/EntityNotFound';
@@ -172,7 +172,6 @@ interface GroupEditFormData {
 }
 
 function GroupEditForm({ rulerGroup, groupIdentifier }: GroupEditFormProps) {
-  const styles = useStyles2(getStyles);
   const appInfo = useAppNotification();
   const { returnTo } = useReturnTo(groups.detailsPageLinkFromGroupIdentifier(groupIdentifier));
   const { folder } = useFolder(groupIdentifier.groupOrigin === 'grafana' ? groupIdentifier.namespace.uid : '');
@@ -256,7 +255,7 @@ function GroupEditForm({ rulerGroup, groupIdentifier }: GroupEditFormProps) {
             required
             invalid={!!errors.namespace}
             error={errors.namespace?.message}
-            className={styles.input}
+            {...stylex.props(groupEditPageStyles.input)}
           >
             <Input
               id="namespace"
@@ -276,7 +275,7 @@ function GroupEditForm({ rulerGroup, groupIdentifier }: GroupEditFormProps) {
           required
           invalid={!!errors.name}
           error={errors.name?.message}
-          className={styles.input}
+          {...stylex.props(groupEditPageStyles.input)}
         >
           <Input
             id="group-name"
@@ -290,14 +289,14 @@ function GroupEditForm({ rulerGroup, groupIdentifier }: GroupEditFormProps) {
           description={t('alerting.group-edit.form.interval-description', 'How often is the group evaluated')}
           invalid={!!errors.interval}
           error={errors.interval?.message}
-          className={styles.input}
+          {...stylex.props(groupEditPageStyles.input)}
           htmlFor="interval"
         >
           <>
             <Input
               id="interval"
               {...register('interval', evaluateEveryValidationOptions(rulerGroup.rules))}
-              className={styles.intervalInput}
+              {...stylex.props(groupEditPageStyles.intervalInput)}
             />
             <EvaluationGroupQuickPick
               currentInterval={getValues('interval')}
@@ -345,14 +344,6 @@ function GroupEditForm({ rulerGroup, groupIdentifier }: GroupEditFormProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  intervalInput: css({
-    marginBottom: theme.spacing(0.5),
-  }),
-  input: css({
-    maxWidth: '600px',
-  }),
-});
 
 function setMatchingGroupPageUrl(groupIdentifier: RuleGroupIdentifierV2) {
   if (groupIdentifier.groupOrigin === 'datasource') {

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { templateDashboardModalStyles } from './TemplateDashboardModal.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
@@ -40,8 +41,6 @@ export const TemplateDashboardModal = () => {
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
 
   const testDataSource = getDataSourceSrv().getList({ type: 'grafana-testdata-datasource' })[0];
-
-  const styles = useStyles2(getStyles);
 
   const onClose = () => {
     searchParams.delete('templateDashboards');
@@ -130,11 +129,11 @@ export const TemplateDashboardModal = () => {
     <Modal
       isOpen={isOpen}
       onDismiss={onClose}
-      className={styles.modal}
+      {...stylex.props(templateDashboardModalStyles.modal)}
       title={t('dashboard-library.template-dashboard-modal.title', 'Start a dashboard from a template')}
-      contentClassName={styles.modalContent}
+      contentClassName={mergeStylexClassName(stylex.props(templateDashboardModalStyles.modalContent), undefined).className}
     >
-      <div className={styles.stickyHeader}>
+      <div {...stylex.props(templateDashboardModalStyles.stickyHeader)}>
         <Text element="p">
           <Trans i18nKey="dashboard-library.template-dashboard-modal.description">
             Get started with Grafana templates using sample data. Connect your data to power them with real metrics.
@@ -179,22 +178,3 @@ export const TemplateDashboardModal = () => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    modal: css({
-      width: '1200px',
-    }),
-    stickyHeader: css({
-      position: 'sticky',
-      top: 0,
-      zIndex: 2,
-      backgroundColor: theme.colors.background.primary,
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-    }),
-    modalContent: css({
-      paddingTop: 0,
-      height: '100%',
-    }),
-  };
-}

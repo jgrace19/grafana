@@ -1,7 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
 
 import { useStepperState } from './StepperState';
 import { getWizardSteps } from './constants';
@@ -15,7 +15,6 @@ import { type StepKey, StepState } from './types';
  * - Pending: number
  */
 export const Stepper = () => {
-  const styles = useStyles2(getStyles);
   const { activeStep, setActiveStep, setVisitedStep, visitedSteps, isStepCompleted, isStepSkipped, hasStepErrors } =
     useStepperState();
 
@@ -48,7 +47,7 @@ export const Stepper = () => {
   };
 
   return (
-    <ol className={styles.container}>
+    <ol {...stylex.props(stepperStyles.container)}>
       {steps.map((step, index) => {
         const isLast = step.id === lastStep.id;
         const isActive = step.id === activeStep;
@@ -67,29 +66,29 @@ export const Stepper = () => {
         const showSkipped = isSkipped && !isActive;
         const showNumber = !showWarning && !showSuccess && !showSkipped;
 
-        const itemStyles = cx(styles.item, {
-          [styles.active]: isActive,
+        const itemStyles = cx(stylex.props(formStyles.item), {
+          [stylex.props(formStyles.active)]: isActive,
         });
 
         return (
           <li key={step.id} className={itemStyles}>
             <button
               type="button"
-              className={cx(styles.stepButton, {
-                [styles.stepButtonDisabled]: !canNavigate,
+              {...mergeStylexClassName(stylex.props(formStyles.stepButton), {
+                [stylex.props(formStyles.stepButtonDisabled)]: !canNavigate,
               })}
               onClick={() => handleStepClick(step.id)}
               disabled={!canNavigate}
             >
-              <span className={styles.indicator}>
-                {showWarning && <Icon name="exclamation-triangle" className={styles.warningIcon} />}
-                {showSuccess && <Icon name="check" className={styles.successIcon} />}
-                {showSkipped && <Icon name="minus" className={styles.skippedIcon} />}
+              <span {...stylex.props(stepperStyles.indicator)}>
+                {showWarning && <Icon name="exclamation-triangle" {...stylex.props(stepperStyles.warningIcon)} />}
+                {showSuccess && <Icon name="check" {...stylex.props(stepperStyles.successIcon)} />}
+                {showSkipped && <Icon name="minus" {...stylex.props(stepperStyles.skippedIcon)} />}
                 {showNumber && <span>{index + 1}</span>}
               </span>
-              <span className={styles.stepName}>{step.name}</span>
+              <span {...stylex.props(stepperStyles.stepName)}>{step.name}</span>
             </button>
-            {!isLast && <div className={styles.divider} />}
+            {!isLast && <div {...stylex.props(stepperStyles.divider)} />}
           </li>
         );
       })}
@@ -97,71 +96,3 @@ export const Stepper = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    listStyle: 'none',
-    margin: 0,
-    padding: 0,
-    paddingRight: theme.spacing(4),
-    borderRight: `1px solid ${theme.colors.border.weak}`,
-    minWidth: '220px',
-  }),
-  item: css({
-    position: 'relative',
-    color: theme.colors.text.secondary,
-  }),
-  active: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.text.maxContrast,
-  }),
-  stepButton: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(0.5, 0),
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    textAlign: 'left',
-    color: 'inherit',
-    fontWeight: 'inherit',
-    fontSize: theme.typography.body.fontSize,
-    width: '100%',
-
-    '&:hover:not(:disabled)': {
-      color: theme.colors.text.link,
-    },
-  }),
-  stepButtonDisabled: css({
-    cursor: 'not-allowed',
-    opacity: 0.5,
-
-    '&:hover': {
-      color: 'inherit',
-    },
-  }),
-  indicator: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: theme.spacing(2),
-    flexShrink: 0,
-  }),
-  stepName: css({
-    // Inherits styles from parent
-  }),
-  warningIcon: css({
-    color: theme.colors.warning.text,
-  }),
-  successIcon: css({
-    color: theme.colors.success.text,
-  }),
-  skippedIcon: css({
-    color: theme.colors.text.secondary,
-  }),
-  divider: css({
-    height: theme.spacing(2),
-    borderLeft: `1px dotted ${theme.colors.text.secondary}`,
-    marginLeft: theme.spacing(1),
-  }),
-});

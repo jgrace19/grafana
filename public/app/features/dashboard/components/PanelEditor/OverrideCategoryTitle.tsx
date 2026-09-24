@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { overrideCategoryTitleStyles } from './OverrideCategoryTitle.stylex';
 import { type FieldConfigOptionsRegistry, type GrafanaTheme2, type ConfigOverrideRule } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Button, Stack, Icon, useStyles2 } from '@grafana/ui';
@@ -21,7 +23,6 @@ export const OverrideCategoryTitle = ({
   override,
   onOverrideRemove,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const properties = override.properties.map((p) => registry.getIfExists(p.id)).filter((prop) => !!prop);
   const propertyNames = properties.map((p) => p?.name).join(', ');
@@ -41,8 +42,8 @@ export const OverrideCategoryTitle = ({
         />
       </Stack>
       {!isExpanded && (
-        <div className={styles.overrideDetails}>
-          <div className={styles.options} title={matcherOptions}>
+        <div {...stylex.props(overrideCategoryTitleStyles.overrideDetails)}>
+          <div {...stylex.props(overrideCategoryTitleStyles.options)} title={matcherOptions}>
             {matcherOptions} <Icon name="angle-right" /> {propertyNames}
           </div>
         </div>
@@ -53,25 +54,4 @@ export const OverrideCategoryTitle = ({
 
 OverrideCategoryTitle.displayName = 'OverrideTitle';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    matcherUi: css({
-      padding: theme.spacing(1),
-    }),
-    propertyPickerWrapper: css({
-      marginTop: theme.spacing(2),
-    }),
-    overrideDetails: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightRegular,
-    }),
-    options: css({
-      overflow: 'hidden',
-      paddingRight: theme.spacing(4),
-    }),
-    unknownLabel: css({
-      marginBottom: 0,
-    }),
-  };
-};
+;

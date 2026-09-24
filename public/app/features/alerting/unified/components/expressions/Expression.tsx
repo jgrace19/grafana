@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { expressionStyles } from './Expression.stylex';
 import { uniqueId } from 'lodash';
 import { type FC, Suspense, lazy, useCallback, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -13,7 +16,7 @@ import {
   isTimeSeriesFrames,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, AutoSizeInput, Button, IconButton, Stack, Text, clearButtonStyles, useStyles2 } from '@grafana/ui';
+import { Alert, AutoSizeInput, Button, IconButton, Stack, Text, clearButtonStyles } from '@grafana/ui';
 import { ClassicConditions } from 'app/features/expressions/components/ClassicConditions';
 import { Math } from 'app/features/expressions/components/Math';
 import { Reduce } from 'app/features/expressions/components/Reduce';
@@ -68,7 +71,6 @@ export const Expression: FC<ExpressionProps> = ({
   onRemoveExpression,
   onChangeQuery,
 }) => {
-  const styles = useStyles2(getStyles);
 
   const queryType = query?.type;
 
@@ -165,13 +167,13 @@ export const Expression: FC<ExpressionProps> = ({
   return (
     <div
       className={cx(
-        styles.expression.wrapper,
-        alertCondition && styles.expression.alertCondition,
-        queryType === ExpressionQueryType.classic && styles.expression.classic,
-        queryType !== ExpressionQueryType.classic && styles.expression.nonClassic
+        expressionStyles.expression.wrapper,
+        alertCondition && expressionStyles.expression.alertCondition,
+        queryType === ExpressionQueryType.classic && expressionStyles.expression.classic,
+        queryType !== ExpressionQueryType.classic && expressionStyles.expression.nonClassic
       )}
     >
-      <div className={styles.expression.stack}>
+      <div className={expressionStyles.expression.stack}>
         <Header
           refId={query.refId}
           queryType={queryType}
@@ -181,7 +183,7 @@ export const Expression: FC<ExpressionProps> = ({
           query={query}
           alertCondition={alertCondition}
         />
-        <div className={styles.expression.body}>
+        <div className={expressionStyles.expression.body}>
           {error && (
             <Alert title={t('alerting.expression.title-expression-failed', 'Expression failed')} severity="error">
               {error.message}
@@ -192,7 +194,7 @@ export const Expression: FC<ExpressionProps> = ({
               {warning.message}
             </Alert>
           )}
-          <div className={styles.expression.description}>{selectedExpressionDescription}</div>
+          <div className={expressionStyles.expression.description}>{selectedExpressionDescription}</div>
           {renderExpressionType(query)}
         </div>
         {hasResults && (
@@ -203,7 +205,7 @@ export const Expression: FC<ExpressionProps> = ({
               isRecordingRule={isGrafanaRecordingRule}
             />
             {!isGrafanaRecordingRule && (
-              <div className={styles.footer}>
+              <div {...stylex.props(expressionStyles.footer)}>
                 <Stack direction="row" alignItems="center">
                   <Spacer />
 
@@ -231,7 +233,6 @@ interface ExpressionResultProps {
 export const PAGE_SIZE = 20;
 export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCondition, isRecordingRule = false }) => {
   const { pageItems, previousPage, nextPage, numberOfPages, pageStart, pageEnd } = usePagination(series, 1, PAGE_SIZE);
-  const styles = useStyles2(getStyles);
 
   // sometimes we receive results where every value is just "null" when noData occurs
   const emptyResults = isEmptySeries(series);
@@ -240,7 +241,7 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
   const shouldShowPagination = numberOfPages > 1;
 
   return (
-    <div className={styles.expression.results}>
+    <div className={expressionStyles.expression.results}>
       {!emptyResults && isTimeSeriesResults && (
         <div>
           {pageItems.map((frame, index) => (
@@ -266,12 +267,12 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
           />
         ))}
       {emptyResults && (
-        <div className={cx(styles.expression.noData, styles.mutedText)}>
+        <div className={cx(expressionStyles.expression.noData, expressionStyles.mutedText)}>
           <Trans i18nKey="alerting.expression-result.no-data">No data</Trans>
         </div>
       )}
       {shouldShowPagination && (
-        <div className={styles.pagination.wrapper} data-testid="paginate-expression">
+        <div className={expressionStyles.pagination.wrapper} data-testid="paginate-expression">
           <Stack>
             <Button
               variant="secondary"
@@ -282,7 +283,7 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
               aria-label={t('alerting.expression-result.aria-label-previouspage', 'previous-page')}
             />
             <Spacer />
-            <span className={styles.mutedText}>
+            <span {...stylex.props(expressionStyles.mutedText)}>
               <Trans
                 i18nKey="alerting.expression-result.page-counter"
                 values={{ pageStart, pageEnd, numPages: series.length }}
@@ -312,7 +313,7 @@ export const PreviewSummary: FC<{ firing: number; normal: number; isCondition: b
   isCondition,
   seriesCount,
 }) => {
-  const { mutedText } = useStyles2(getStyles);
+  const { mutedText } = (getStyles);
 
   if (seriesCount === 0) {
     return (
@@ -363,8 +364,7 @@ const Header: FC<HeaderProps> = ({
   alertCondition,
   query,
 }) => {
-  const styles = useStyles2(getStyles);
-  const clearButton = useStyles2(clearButtonStyles);
+  const clearButton = (clearButtonStyles);
   /**
    * There are 3 edit modes:
    *
@@ -378,12 +378,12 @@ const Header: FC<HeaderProps> = ({
   const editingRefId = editing && editMode === 'refId';
 
   return (
-    <header className={styles.header.wrapper}>
+    <header className={expressionStyles.header.wrapper}>
       <Stack direction="row" gap={0.5} alignItems="center">
         <Stack direction="row" gap={1} alignItems="center">
           {!editingRefId && (
-            <button type="button" className={cx(clearButton, styles.editable)} onClick={() => setEditMode('refId')}>
-              <div className={styles.expression.refId}>{refId}</div>
+            <button type="button" className={cx(clearButton, expressionStyles.editable)} onClick={() => setEditMode('refId')}>
+              <div className={expressionStyles.expression.refId}>{refId}</div>
             </button>
           )}
           {editingRefId && (
@@ -409,7 +409,7 @@ const Header: FC<HeaderProps> = ({
         <IconButton
           name="trash-alt"
           variant="secondary"
-          className={styles.mutedIcon}
+          {...stylex.props(expressionStyles.mutedIcon)}
           onClick={onRemoveExpression}
           tooltip={t('alerting.header.tooltip-remove', 'Remove expression "{{refId}}"', { refId })}
         />
@@ -430,7 +430,6 @@ const Quote = () => <span>&quot;</span>;
 const Equals = () => <span>{'='}</span>;
 
 function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProps) {
-  const styles = useStyles2(getStyles);
 
   const name = getSeriesName(frame) || 'Series ' + index;
   const value = getSeriesValue(frame);
@@ -445,19 +444,19 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
   const shouldRenderSumary = !isRecordingRule;
 
   return (
-    <div className={styles.expression.resultsRow}>
+    <div className={expressionStyles.expression.resultsRow}>
       <Stack direction="row" gap={1} alignItems="center">
-        <div className={styles.expression.resultLabel} title={title}>
+        <div className={expressionStyles.expression.resultLabel} title={title}>
           <Text variant="code">
             {hasLabels ? (
               <>
                 <OpeningBracket />
                 {labels.map(([key, value], index) => (
                   <Text variant="body" key={uniqueId()}>
-                    <span className={styles.expression.labelKey}>{key}</span>
+                    <span className={expressionStyles.expression.labelKey}>{key}</span>
                     <Equals />
                     <Quote />
-                    <span className={styles.expression.labelValue}>{value}</span>
+                    <span className={expressionStyles.expression.labelValue}>{value}</span>
                     <Quote />
                     {index < labels.length - 1 && <span>, </span>}
                   </Text>
@@ -465,11 +464,11 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
                 <ClosingBracket />
               </>
             ) : (
-              <span className={styles.expression.labelKey}>{title}</span>
+              <span className={expressionStyles.expression.labelKey}>{title}</span>
             )}
           </Text>
         </div>
-        <div className={styles.expression.resultValue}>{formatSeriesValue(value)}</div>
+        <div className={expressionStyles.expression.resultValue}>{formatSeriesValue(value)}</div>
         {shouldRenderSumary && (
           <>
             {showFiring && <AlertStateTag state={PromAlertingRuleState.Firing} size="sm" />}
@@ -482,7 +481,6 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
 }
 interface TimeseriesRowProps extends Omit<FrameProps, 'isRecordingRule'> {}
 const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, index }) => {
-  const styles = useStyles2(getStyles);
 
   const valueField = frame.fields[1]; // field 0 is "time", field 1 is "value"
 
@@ -496,17 +494,17 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
   const getValueFromIndex = (index: number) => frame.fields[1].values[index];
 
   return (
-    <div className={styles.expression.resultsRow}>
+    <div className={expressionStyles.expression.resultsRow}>
       <Stack direction="row" alignItems="center">
-        <span className={cx(styles.mutedText, styles.expression.resultLabel)} title={name}>
+        <span className={cx(expressionStyles.mutedText, expressionStyles.expression.resultLabel)} title={name}>
           {name}
         </span>
-        <div className={styles.expression.resultValue}>
+        <div className={expressionStyles.expression.resultValue}>
           <PopupCard
             placement="right"
-            wrapperClassName={styles.timeseriesTableWrapper}
+            wrapperClassName={expressionStyles.timeseriesTableWrapper}
             content={
-              <table className={styles.timeseriesTable}>
+              <table {...stylex.props(expressionStyles.timeseriesTable)}>
                 <thead>
                   <tr>
                     <th>
@@ -520,8 +518,8 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
                 <tbody>
                   {timestamps.map((_, index) => (
                     <tr key={index}>
-                      <td className={styles.mutedText}>{dateTimeFormat(getTimestampFromIndex(index))}</td>
-                      <td className={styles.expression.resultValue}>{getValueFromIndex(index)}</td>
+                      <td {...stylex.props(expressionStyles.mutedText)}>{dateTimeFormat(getTimestampFromIndex(index))}</td>
+                      <td className={expressionStyles.expression.resultValue}>{getValueFromIndex(index)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -538,162 +536,3 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  expression: {
-    wrapper: css({
-      display: 'flex',
-      border: `solid 1px ${theme.colors.border.medium}`,
-      flex: 1,
-      flexBasis: '400px',
-      borderRadius: theme.shape.radius.default,
-      overflow: 'hidden',
-    }),
-    stack: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexWrap: 'nowrap',
-      gap: 0,
-      width: '100%',
-      minWidth: '0', // this one is important to prevent text overflow
-    }),
-    classic: css({
-      maxWidth: '100%',
-    }),
-    nonClassic: css({
-      maxWidth: '640px',
-    }),
-    alertCondition: css({}),
-    body: css({
-      padding: theme.spacing(1),
-      flex: 1,
-    }),
-    description: css({
-      marginBottom: theme.spacing(1),
-      fontSize: theme.typography.size.xs,
-      color: theme.colors.text.secondary,
-    }),
-    refId: css({
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.primary.text,
-    }),
-    results: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexWrap: 'nowrap',
-
-      borderTop: `solid 1px ${theme.colors.border.medium}`,
-    }),
-    noResults: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    resultsRow: css({
-      padding: `${theme.spacing(0.75)} ${theme.spacing(1)}`,
-
-      '&:nth-child(odd)': {
-        backgroundColor: theme.colors.background.secondary,
-      },
-
-      '&:hover': {
-        backgroundColor: theme.colors.background.canvas,
-      },
-    }),
-    labelKey: css({
-      color: theme.isDark ? '#73bf69' : '#56a64b',
-    }),
-    labelValue: css({
-      color: theme.isDark ? '#ce9178' : '#a31515',
-    }),
-    resultValue: css({
-      textAlign: 'right',
-    }),
-    resultLabel: css({
-      flex: 1,
-      overflowX: 'auto',
-
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-    }),
-    noData: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing(),
-    }),
-  },
-  mutedText: css({
-    color: theme.colors.text.secondary,
-    fontSize: '0.9em',
-
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  }),
-  header: {
-    wrapper: css({
-      background: theme.colors.background.secondary,
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-      borderBottom: `solid 1px ${theme.colors.border.weak}`,
-    }),
-  },
-  footer: css({
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(1),
-    borderTop: `solid 1px ${theme.colors.border.weak}`,
-  }),
-  draggableIcon: css({
-    cursor: 'grab',
-  }),
-  mutedIcon: css({
-    color: theme.colors.text.secondary,
-  }),
-  editable: css({
-    padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    cursor: 'pointer',
-  }),
-  timeseriesTableWrapper: css({
-    maxHeight: '500px',
-
-    overflowY: 'scroll',
-  }),
-  timeseriesTable: css({
-    tableLayout: 'auto',
-
-    width: '100%',
-    height: '100%',
-
-    'td, th': {
-      padding: theme.spacing(1),
-    },
-
-    td: {
-      background: theme.colors.background.primary,
-    },
-
-    th: {
-      background: theme.colors.background.secondary,
-    },
-
-    tr: {
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-
-      '&:last-of-type': {
-        borderBottom: 'none',
-      },
-    },
-  }),
-  pagination: {
-    wrapper: css({
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      padding: theme.spacing(),
-    }),
-  },
-});

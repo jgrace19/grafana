@@ -1,38 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { licenseChromeStyles } from './LicenseChrome.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 import grafanaIconSvg from 'img/grafana_icon.svg';
 import headerDarkSvg from 'img/licensing/header_dark.svg';
 import headerLightSvg from 'img/licensing/header_light.svg';
 
 const title = { fontWeight: 500, fontSize: '26px', lineHeight: '123%' };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const backgroundUrl = theme.isDark ? headerDarkSvg : headerLightSvg;
-  const footerBg = theme.isDark ? theme.v1.palette.dark9 : theme.v1.palette.gray6;
-
-  return {
-    container: css({
-      padding: theme.spacing(4),
-      background: theme.components.panel.background,
-    }),
-    footer: css({
-      textAlign: 'center',
-      padding: theme.spacing(2),
-      background: footerBg,
-      borderRadius: theme.shape.radius.lg,
-    }),
-    header: css({
-      height: '137px',
-      padding: theme.spacing(4, 0, 0, 4),
-      position: 'relative',
-      background: `url('${backgroundUrl}') right`,
-      borderRadius: theme.shape.radius.lg,
-    }),
-  };
-};
 
 interface Props {
   header: string;
@@ -42,11 +19,10 @@ interface Props {
 }
 
 export function LicenseChrome({ header, editionNotice, subheader, children }: Props) {
-  const styles = useStyles2(getStyles);
 
   return (
     <>
-      <div className={styles.header}>
+      <div {...stylex.props(licenseChromeStyles.header)}>
         <h2 style={title}>{header}</h2>
         {subheader && <h3>{subheader}</h3>}
 
@@ -69,9 +45,9 @@ export function LicenseChrome({ header, editionNotice, subheader, children }: Pr
         </Circle>
       </div>
 
-      <div className={styles.container}>{children}</div>
+      <div {...stylex.props(licenseChromeStyles.container)}>{children}</div>
 
-      {editionNotice && <div className={styles.footer}>{editionNotice}</div>}
+      {editionNotice && <div {...stylex.props(licenseChromeStyles.footer)}>{editionNotice}</div>}
     </>
   );
 }

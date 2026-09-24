@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Box, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Box, Stack, TextLink, } from '@grafana/ui';
 
 import { InfoItem } from '../../shared/InfoItem';
 
 export const MigrationStepsPane = () => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
     <Box alignItems="flex-start" display="flex" direction="column" gap={2}>
@@ -20,7 +18,7 @@ export const MigrationStepsPane = () => {
           <Trans i18nKey="migrate-to-cloud.get-started.body">
             The migration process must be started from your self-managed Grafana instance.
           </Trans>
-          <ol className={styles.list}>
+          <ol {...stylex.props(migrationStepsPaneStyles.list)}>
             <li>
               <Trans i18nKey="migrate-to-cloud.get-started.step-1">
                 Log in to your self-managed instance and navigate to Administration &gt; General &gt; Migrate to Grafana
@@ -69,8 +67,3 @@ export const MigrationStepsPane = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  list: css({
-    padding: 'revert',
-  }),
-});

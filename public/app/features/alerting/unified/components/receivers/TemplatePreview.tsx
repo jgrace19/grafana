@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { templatePreviewStyles } from './TemplatePreview.stylex';
 import { compact, uniqueId } from 'lodash';
 import * as React from 'react';
 import type { JSX } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Box, Button, CodeEditor, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Button, CodeEditor } from '@grafana/ui';
 
 import {
   type TemplatePreviewErrors,
@@ -38,7 +40,6 @@ export function TemplatePreview({
   aiGeneratedTemplate?: boolean;
   setAiGeneratedTemplate?: (aiGeneratedTemplate: boolean) => void;
 }) {
-  const styles = useStyles2(getStyles);
 
   const {
     data,
@@ -50,7 +51,7 @@ export function TemplatePreview({
   const previewToRender = getPreviewResults(previewError, payloadFormatError, data);
 
   return (
-    <div className={cx(styles.container, className)}>
+    <div {...mergeStylexClassName(stylex.props(templatePreviewStyles.container), className)}>
       <EditorColumnHeader
         label={t('alerting.template-preview.label-preview', 'Preview')}
         actions={
@@ -69,12 +70,12 @@ export function TemplatePreview({
           </Button>
         }
       />
-      <div className={styles.viewer.feedbackContainer}>
+      <div className={templatePreviewStyles.viewer.feedbackContainer}>
         <AIFeedbackButtonComponent origin="template" shouldShowFeedbackButton={Boolean(aiGeneratedTemplate)} />
       </div>
       <Box flex={1}>
         <AutoSizer disableWidth>
-          {({ height }) => <div className={styles.viewerContainer({ height })}>{previewToRender}</div>}
+          {({ height }) => <div className={templatePreviewStyles.viewerContainer({ height })}>{previewToRender}</div>}
         </AutoSizer>
       </Box>
     </div>
@@ -82,7 +83,6 @@ export function TemplatePreview({
 }
 
 function PreviewResultViewer({ previews }: { previews: TemplatePreviewResult[] }) {
-  const styles = useStyles2(getStyles);
   // If there is only one template, we don't need to show the name
   const singleTemplate = previews.length === 1;
 
@@ -96,19 +96,19 @@ function PreviewResultViewer({ previews }: { previews: TemplatePreviewResult[] }
   };
 
   return (
-    <ul className={styles.viewer.container} data-testid="template-preview">
+    <ul className={templatePreviewStyles.viewer.container} data-testid="template-preview">
       {previews.map((preview) => {
         const language = isValidJson(preview.text) ? 'json' : 'plaintext';
         return (
-          <li className={styles.viewer.box} key={preview.name}>
+          <li className={templatePreviewStyles.viewer.box} key={preview.name}>
             {singleTemplate ? null : (
-              <header className={styles.viewer.header}>
+              <header className={templatePreviewStyles.viewer.header}>
                 {preview.name}
-                <div className={styles.viewer.language}>{language}</div>
+                <div className={templatePreviewStyles.viewer.language}>{language}</div>
               </header>
             )}
             <CodeEditor
-              containerStyles={styles.editorContainer}
+              containerStyles={templatePreviewStyles.editorContainer}
               language={language}
               showLineNumbers={false}
               showMiniMap={false}
@@ -133,70 +133,6 @@ function PreviewErrorViewer({ errors }: { errors: TemplatePreviewErrors[] }) {
   ));
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    label: 'template-preview-container',
-    display: 'flex',
-    flexDirection: 'column',
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
-  editorContainer: css({
-    width: '100%',
-    height: '100%',
-    border: 'none',
-  }),
-  viewerContainer: ({ height }: { height: number }) =>
-    css({
-      height,
-      overflow: 'auto',
-      backgroundColor: theme.colors.background.primary,
-    }),
-  viewer: {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: 'inherit',
-    }),
-    box: css({
-      display: 'flex',
-      flexDirection: 'column',
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      height: 'inherit',
-    }),
-    header: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.bodySmall.fontSize,
-      padding: theme.spacing(1, 2),
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-    language: css({
-      marginLeft: 'auto',
-      fontStyle: 'italic',
-    }),
-    errorText: css({
-      color: theme.colors.error.text,
-    }),
-    feedbackContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      backgroundColor: theme.colors.background.secondary,
-      minHeight: 'auto',
-    }),
-    emptyState: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  },
-});
 
 export function getPreviewResults(
   previewError: unknown | undefined,
@@ -206,7 +142,6 @@ export function getPreviewResults(
   // ERRORS IN JSON OR IN REQUEST (endpoint not available, for example)
   const previewErrorRequest = previewError ? stringifyErrorLike(previewError) : undefined;
   const errorToRender = payloadFormatError || previewErrorRequest;
-  const styles = useStyles2(getStyles);
 
   //PREVIEW : RESULTS AND ERRORS
   const previewResponseResults = data?.results ?? [];
@@ -223,7 +158,7 @@ export function getPreviewResults(
       {previewResponseErrors && <PreviewErrorViewer errors={previewResponseErrors} />}
       {previewResponseResults.length > 0 && <PreviewResultViewer previews={previewResponseResults} />}
       {!hasContent && (
-        <div className={styles.viewer.emptyState}>
+        <div className={templatePreviewStyles.viewer.emptyState}>
           <Trans i18nKey="alerting.template-preview.empty-state">Add template content to see preview</Trans>
         </div>
       )}

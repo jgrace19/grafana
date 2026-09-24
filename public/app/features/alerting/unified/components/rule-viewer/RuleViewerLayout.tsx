@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleViewerLayoutStyles } from './RuleViewerLayout.stylex';
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type PageProps } from 'app/core/components/Page/types';
 
@@ -23,12 +23,11 @@ const defaultPageNav: Partial<NavModelItem> = {
 
 export function RuleViewerLayout(props: Props): JSX.Element | null {
   const { wrapInContent = true, children, title, renderTitle } = props;
-  const styles = useStyles2(getPageStyles);
 
   return (
     <Page pageNav={{ ...defaultPageNav, text: title }} renderTitle={renderTitle} navId={getAlertRulesNavId()}>
       <Page.Contents>
-        <div className={styles.content}>{wrapInContent ? <RuleViewerLayoutContent {...props} /> : children}</div>
+        <div {...stylex.props(ruleViewerLayoutStyles.content)}>{wrapInContent ? <RuleViewerLayoutContent {...props} /> : children}</div>
       </Page.Contents>
     </Page>
   );
@@ -40,17 +39,10 @@ type ContentProps = {
 };
 
 export function RuleViewerLayoutContent({ children, padding = 2 }: ContentProps): JSX.Element | null {
-  const styles = useStyles2(getContentStyles(padding));
-  return <div className={styles.wrapper}>{children}</div>;
+  const styles =(getContentStyles(padding));
+  return <div {...stylex.props(ruleViewerLayoutStyles.wrapper)}>{children}</div>;
 }
 
-const getPageStyles = (theme: GrafanaTheme2) => {
-  return {
-    content: css({
-      maxWidth: `${theme.breakpoints.values.xxl}px`,
-    }),
-  };
-};
 
 const getContentStyles = (padding: number) => (theme: GrafanaTheme2) => {
   return {

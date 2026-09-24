@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { groupAndNamespaceFieldsStyles } from './GroupAndNamespaceFields.stylex';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, VirtualizedSelect, useStyles2 } from '@grafana/ui';
+import { Field, VirtualizedSelect } from '@grafana/ui';
 
 import { type RuleFormValues } from '../../types/rule-form';
 
@@ -21,8 +22,6 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
     formState: { errors },
     setValue,
   } = useFormContext<RuleFormValues>();
-
-  const style = useStyles2(getStyle);
   const { namespaceGroups, isLoading } = useGetNameSpacesByDatasourceName(rulesSourceName);
 
   const namespace = watch('namespace');
@@ -42,7 +41,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
   );
 
   return (
-    <div className={style.flexRow}>
+    <div {...stylex.props(groupAndNamespaceFieldsStyles.flexRow)}>
       <Field
         data-testid="namespace-picker"
         label={t('alerting.group-and-namespace-fields.namespace-picker-label-namespace', 'Namespace')}
@@ -58,7 +57,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
             <VirtualizedSelect
               {...field}
               allowCustomValue
-              className={style.input}
+              {...stylex.props(groupAndNamespaceFieldsStyles.input)}
               onChange={(value) => {
                 setValue('group', ''); //reset if namespace changes
                 onChange(value.value);
@@ -96,7 +95,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
               onChange={(value) => {
                 setValue('group', value.value ?? '');
               }}
-              className={style.input}
+              {...stylex.props(groupAndNamespaceFieldsStyles.input)}
               isLoading={isLoading}
               disabled={isLoading}
             />
@@ -112,17 +111,3 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
   );
 };
 
-const getStyle = (theme: GrafanaTheme2) => ({
-  flexRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-
-    '& > * + *': {
-      marginLeft: theme.spacing(3),
-    },
-  }),
-  input: css({
-    width: '330px !important',
-  }),
-});

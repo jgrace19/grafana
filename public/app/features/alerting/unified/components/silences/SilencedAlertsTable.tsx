@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 import { type AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
 
-import { getAlertTableStyles } from '../../styles/table';
+import * as stylex from '@stylexjs/stylex';
+import { tableStyles } from '../../styles/table.stylex';
 
 import { SilencedAlertsTableRow } from './SilencedAlertsTableRow';
 
@@ -14,17 +14,15 @@ interface Props {
 }
 
 const SilencedAlertsTable = ({ silencedAlerts }: Props) => {
-  const tableStyles = useStyles2(getAlertTableStyles);
-  const styles = useStyles2(getStyles);
 
   if (!!silencedAlerts.length) {
     return (
-      <table className={cx(tableStyles.table, styles.tableMargin)}>
+      <table className={cx(tableStyles.table, stylex.props(formStyles.tableMargin))}>
         <colgroup>
-          <col className={tableStyles.colExpand} />
-          <col className={styles.colState} />
+          <col {...stylex.props(tableStyles.colExpand)} />
+          <col {...stylex.props(silencedAlertsTableStyles.colState)} />
           <col />
-          <col className={styles.colName} />
+          <col {...stylex.props(silencedAlertsTableStyles.colName)} />
         </colgroup>
         <thead>
           <tr>
@@ -56,16 +54,5 @@ const SilencedAlertsTable = ({ silencedAlerts }: Props) => {
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tableMargin: css({
-    marginBottom: theme.spacing(1),
-  }),
-  colState: css({
-    width: '110px',
-  }),
-  colName: css({
-    width: '65%',
-  }),
-});
 
 export default SilencedAlertsTable;

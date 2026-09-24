@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { exploreToolbarStyles } from './ExploreToolbar.stylex';
 import { pick } from 'lodash';
 import { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
@@ -14,7 +17,6 @@ import {
   SetInterval,
   ToolbarButton,
   ButtonGroup,
-  useStyles2,
 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -42,19 +44,6 @@ import { isLeftPaneSelector, isSplit, selectCorrelationDetails, selectPanesEntri
 import { syncTimes, changeRefreshInterval } from './state/time';
 import { LiveTailControls } from './useLiveTailControls';
 
-const getStyles = (theme: GrafanaTheme2, splitted: Boolean) => ({
-  rotateIcon: css({
-    '> div > svg': {
-      transform: 'rotate(180deg)',
-    },
-  }),
-  toolbarButton: css({
-    display: 'flex',
-    justifyContent: 'center',
-    marginRight: theme.spacing(0.5),
-    width: splitted && theme.spacing(6),
-  }),
-});
 
 interface Props {
   exploreId: string;
@@ -66,7 +55,6 @@ interface Props {
 export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle, isContentOutlineOpen }: Props) {
   const dispatch = useDispatch();
   const splitted = useSelector(isSplit);
-  const styles = useStyles2(getStyles, splitted);
 
   const timeZone = useSelector((state: StoreState) => getTimeZone(state.user));
   const fiscalYearStartMonth = useSelector((state: StoreState) => getFiscalYearStartMonth(state.user));
@@ -217,7 +205,7 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
             onClick={onContentOutlineToogle}
             aria-expanded={isContentOutlineOpen}
             aria-controls={isContentOutlineOpen ? 'content-outline-container' : undefined}
-            className={styles.toolbarButton}
+            {...stylex.props(exploreToolbarStyles.toolbarButton)}
           >
             <Trans i18nKey="explore.explore-toolbar.outline">Outline</Trans>
           </ToolbarButton>,
@@ -263,7 +251,7 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
                 onClick={onClickResize}
                 icon={isLargerPane ? 'gf-movepane-left' : 'gf-movepane-right'}
                 iconOnly={true}
-                className={cx(shouldRotateSplitIcon && styles.rotateIcon)}
+                {...mergeStylexClassName(stylex.props(exploreToolbarStyles.rotateIcon, shouldRotateSplitIcon && ), undefined)}
               />
               <ToolbarButton
                 tooltip={t('explore.toolbar.split-close-tooltip', 'Close split pane')}

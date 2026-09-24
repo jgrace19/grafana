@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 
 import { type NodesMap, type TreeNode } from './types';
 
@@ -14,7 +12,7 @@ export interface ScopesTreeHeadlineProps {
 }
 
 export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scopeNodes }: ScopesTreeHeadlineProps) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (
     anyChildExpanded ||
@@ -24,7 +22,7 @@ export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scop
   }
 
   return (
-    <h6 className={styles.container} data-testid="scopes-tree-headline">
+    <h6 {...stylex.props(scopesTreeHeadlineStyles.container)} data-testid="scopes-tree-headline">
       {!query ? (
         <Trans i18nKey="scopes.tree.headline.recommended">Recommended</Trans>
       ) : resultsNodes.length === 0 ? (
@@ -36,11 +34,4 @@ export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scop
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      color: theme.colors.text.secondary,
-      margin: theme.spacing(1, 0),
-    }),
-  };
-};
+;

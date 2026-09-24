@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { genAIHistoryStyles } from './GenAIHistory.stylex';
 import { useState, useCallback, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Button, Icon, Input, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
 
@@ -31,7 +32,6 @@ export const GenAIHistory = ({
   updateHistory,
   timeout,
 }: GenAIHistoryProps) => {
-  const styles = useStyles2(getStyles);
 
   const [currentIndex, setCurrentIndex] = useState(1);
   const [customFeedback, setCustomPrompt] = useState('');
@@ -97,7 +97,7 @@ export const GenAIHistory = ({
   const showError = error && !isStreamGenerating;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(genAIHistoryStyles.container)}>
       {showError && (
         <Alert title="">
           <Stack direction="column">
@@ -111,7 +111,7 @@ export const GenAIHistory = ({
       )}
 
       <GenerationHistoryCarousel history={history} index={currentIndex} onNavigate={onNavigate} />
-      <div className={styles.actionButtons}>
+      <div {...stylex.props(genAIHistoryStyles.actionButtons)}>
         <QuickFeedback onSuggestionClick={onGenerateWithFeedback} isGenerating={isStreamGenerating} />
       </div>
 
@@ -134,7 +134,7 @@ export const GenAIHistory = ({
         onKeyDown={onKeyDownCustomFeedbackInput}
       />
 
-      <div className={styles.applySuggestion}>
+      <div {...stylex.props(genAIHistoryStyles.applySuggestion)}>
         <Stack justifyContent="flex-end" direction="row">
           {isStreamGenerating ? (
             <Button icon="fa fa-spinner" onClick={onStopGeneration}>
@@ -148,8 +148,8 @@ export const GenAIHistory = ({
         </Stack>
       </div>
 
-      <div className={styles.footer}>
-        <Icon name="exclamation-circle" className={styles.infoColor} />
+      <div {...stylex.props(genAIHistoryStyles.footer)}>
+        <Icon name="exclamation-circle" {...stylex.props(genAIHistoryStyles.infoColor)} />
         <Text variant="bodySmall" color="secondary">
           <Trans i18nKey="dashboard.gen-aihistory.footer-text">
             This content is AI-generated using the{' '}
@@ -169,46 +169,3 @@ export const GenAIHistory = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    width: 520,
-    maxHeight: 350,
-    // This is the space the footer height
-    paddingBottom: 25,
-  }),
-  applySuggestion: css({
-    paddingTop: theme.spacing(2),
-  }),
-  actions: css({
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  }),
-  footer: css({
-    // Absolute positioned since Toggletip doesn't support footer
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    margin: 0,
-    padding: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    marginTop: theme.spacing(2),
-  }),
-  infoColor: css({
-    color: theme.colors.info.main,
-  }),
-  actionButtons: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: '24px 0 8px 0',
-  }),
-});

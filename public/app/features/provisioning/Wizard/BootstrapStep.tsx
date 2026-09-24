@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { bootstrapStepStyles } from './BootstrapStep.stylex';
 import { memo, useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, Card, Field, Input, LoadingPlaceholder, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Card, Field, Input, LoadingPlaceholder, Stack, Text } from '@grafana/ui';
 import { type RepositoryViewList } from 'app/api/clients/provisioning/v0alpha1';
 import { generateRepositoryTitle } from 'app/features/provisioning/utils/data';
 
@@ -60,7 +61,6 @@ export const BootstrapStep = memo(function BootstrapStep({ settingsData, repoNam
   } = useResourceStats(repoName, selectedTarget, undefined, { isHealthy, healthStatusNotReady });
 
   const maxResourcesPerRepository = quota?.maxResourcesPerRepository ?? 0;
-  const styles = useStyles2(getStyles);
 
   const isLoading = isRepositoryStatusLoading || isResourceStatsLoading || !isRepositoryReady;
   const isQuotaExceeded = !isLoading && maxResourcesPerRepository > 0 && fileCount > maxResourcesPerRepository;
@@ -184,7 +184,7 @@ export const BootstrapStep = memo(function BootstrapStep({ settingsData, repoNam
                     <Text variant="h5">{action.label}</Text>
                   </Card.Heading>
                   <Card.Description>
-                    <div className={styles.divider} />
+                    <div {...stylex.props(bootstrapStepStyles.divider)} />
 
                     <Box paddingBottom={2}>
                       <BootstrapStepCardIcons target={action.target} repoType={repositoryType} />
@@ -194,7 +194,7 @@ export const BootstrapStep = memo(function BootstrapStep({ settingsData, repoNam
                       <Text color="primary">{action.subtitle}</Text>
                       <QuotaLimitNote maxResourcesPerRepository={maxResourcesPerRepository} />
                     </Stack>
-                    <div className={styles.divider} />
+                    <div {...stylex.props(bootstrapStepStyles.divider)} />
 
                     <BootstrapStepResourceCounting
                       fileCountString={fileCountString}
@@ -239,12 +239,3 @@ export const BootstrapStep = memo(function BootstrapStep({ settingsData, repoNam
   );
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  divider: css({
-    height: 1,
-    width: '100%',
-    backgroundColor: theme.colors.border.medium,
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  }),
-});

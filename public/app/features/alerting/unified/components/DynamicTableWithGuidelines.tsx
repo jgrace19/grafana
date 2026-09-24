@@ -1,7 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { DynamicTable, type DynamicTableProps } from './DynamicTable';
 
@@ -12,28 +11,27 @@ export const DynamicTableWithGuidelines = <T extends object>({
   renderExpandedContent,
   ...props
 }: DynamicTableWithGuidelinesProps<T>) => {
-  const styles = useStyles2(getStyles);
   return (
     <DynamicTable
       renderExpandedContent={
         renderExpandedContent
           ? (item, index, items) => (
               <>
-                {!(index === items.length - 1) && <div className={cx(styles.contentGuideline, styles.guideline)} />}
+                {!(index === items.length - 1) && <div {...mergeStylexClassName(stylex.props(formStyles.contentGuideline), stylex.props(formStyles.guideline))} />}
                 {renderExpandedContent(item, index, items)}
               </>
             )
           : undefined
       }
       renderPrefixHeader={() => (
-        <div className={styles.relative}>
-          <div className={cx(styles.headerGuideline, styles.guideline)} />
+        <div {...stylex.props(dynamicTableWithGuidelinesStyles.relative)}>
+          <div {...mergeStylexClassName(stylex.props(formStyles.headerGuideline), stylex.props(formStyles.guideline))} />
         </div>
       )}
       renderPrefixCell={(_, index, items) => (
-        <div className={styles.relative}>
-          <div className={cx(styles.topGuideline, styles.guideline)} />
-          {!(index === items.length - 1) && <div className={cx(styles.bottomGuideline, styles.guideline)} />}
+        <div {...stylex.props(dynamicTableWithGuidelinesStyles.relative)}>
+          <div {...mergeStylexClassName(stylex.props(formStyles.topGuideline), stylex.props(formStyles.guideline))} />
+          {!(index === items.length - 1) && <div {...mergeStylexClassName(stylex.props(formStyles.bottomGuideline), stylex.props(formStyles.guideline))} />}
         </div>
       )}
       {...props}
@@ -41,37 +39,3 @@ export const DynamicTableWithGuidelines = <T extends object>({
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  relative: css({
-    position: 'relative',
-    height: '100%',
-  }),
-  guideline: css({
-    left: '-19px',
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
-    position: 'absolute',
-
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  }),
-  topGuideline: css({
-    width: '18px',
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    top: 0,
-    bottom: '50%',
-  }),
-  bottomGuideline: css({
-    top: '50%',
-    bottom: 0,
-  }),
-  contentGuideline: css({
-    top: 0,
-    bottom: 0,
-    left: '-49px !important',
-  }),
-  headerGuideline: css({
-    top: '-17px',
-    bottom: 0,
-  }),
-});

@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { explorePageStyles } from './ExplorePage.stylex';
 import { useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { ErrorBoundaryAlert, LoadingPlaceholder, useStyles2, useTheme2 } from '@grafana/ui';
+import { ErrorBoundaryAlert, LoadingPlaceholder, useTheme2 } from '@grafana/ui';
 import { SplitPaneWrapper } from 'app/core/components/SplitPaneWrapper/SplitPaneWrapper';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { useNavModel } from 'app/core/hooks/useNavModel';
@@ -32,7 +34,6 @@ export default function ExplorePage(props: GrafanaRouteComponentProps<{}, Explor
 }
 
 function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryParams>) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   useTimeSrvFix();
   useStateSync(props.queryParams);
@@ -65,9 +66,9 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
 
   return (
     <div
-      className={cx(styles.pageScrollbarWrapper, {
-        [styles.correlationsEditorIndicator]: showCorrelationEditorBar,
-      })}
+      {...mergeStylexClassName(stylex.props(explorePageStyles.pageScrollbarWrapper, , {
+        [mergeStylexClassName(stylex.props(explorePageStyles.correlationsEditorIndicator), undefined).className]: showCorrelationEditorBar,
+      }), undefined)}
     >
       <h1 className="sr-only">
         <Trans i18nKey="nav.explore.title">Explore</Trans>
@@ -110,21 +111,4 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    pageScrollbarWrapper: css({
-      width: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-      height: '100%',
-      position: 'relative',
-      overflow: 'hidden',
-    }),
-    correlationsEditorIndicator: css({
-      borderLeft: `4px solid ${theme.colors.primary.main}`,
-      borderRight: `4px solid ${theme.colors.primary.main}`,
-      borderBottom: `4px solid ${theme.colors.primary.main}`,
-      overflow: 'scroll',
-    }),
-  };
-};
+;

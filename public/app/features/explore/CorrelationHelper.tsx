@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { correlationHelperStyles } from './CorrelationHelper.stylex';
 import { useEffect, useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAsync } from 'react-use';
@@ -21,7 +23,6 @@ import {
   Input,
   Stack,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
 import { useDispatch, useSelector } from 'app/types/store';
 
@@ -45,7 +46,6 @@ interface FormValues {
 
 export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
   const panes = useSelector(selectPanes);
   const panesVals = Object.values(panes);
   const { value: defaultLabel, loading: loadingLabel } = useAsync(
@@ -183,7 +183,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
             <Stack gap={1} direction="row" wrap="wrap" alignItems="center">
               <Trans i18nKey="explore.correlation-helper.label-description-header">Label / Description</Trans>
               {!isLabelDescOpen && !loadingLabel && (
-                <span className={styles.labelCollapseDetails}>{`Label: ${getValues('label') || defaultLabel}`}</span>
+                <span {...stylex.props(correlationHelperStyles.labelCollapseDetails)}>{`Label: ${getValues('label') || defaultLabel}`}</span>
               )}
             </Stack>
           }
@@ -228,7 +228,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
             onClick={() => {
               setShowTransformationAddModal(true);
             }}
-            className={styles.transformationAction}
+            {...stylex.props(correlationHelperStyles.transformationAction)}
           >
             <Trans i18nKey="explore.correlation-helper.add-transformation">Add transformation</Trans>
           </Button>
@@ -248,7 +248,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
                   {field}: {type}
                 </Card.Heading>
                 {detailsString.length > 0 && (
-                  <Card.Meta className={styles.transformationMeta}>{detailsString}</Card.Meta>
+                  <Card.Meta {...stylex.props(correlationHelperStyles.transformationMeta)}>{detailsString}</Card.Meta>
                 )}
                 <Card.SecondaryActions>
                   <IconButton
@@ -278,18 +278,4 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    labelCollapseDetails: css({
-      marginLeft: theme.spacing(2),
-      ...theme.typography['bodySmall'],
-      fontStyle: 'italic',
-    }),
-    transformationAction: css({
-      marginBottom: theme.spacing(2),
-    }),
-    transformationMeta: css({
-      alignItems: 'baseline',
-    }),
-  };
-};
+;

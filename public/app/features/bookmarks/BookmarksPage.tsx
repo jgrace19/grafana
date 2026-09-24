@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { EmptyState, useStyles2 } from '@grafana/ui';
+import { EmptyState, } from '@grafana/ui';
 import { usePinnedItems } from 'app/core/components/AppChrome/MegaMenu/hooks';
 import { findByUrl } from 'app/core/components/AppChrome/MegaMenu/utils';
 import { NavLandingPageCard } from 'app/core/components/NavLandingPage/NavLandingPageCard';
@@ -10,7 +8,7 @@ import { Page } from 'app/core/components/Page/Page';
 import { useSelector } from 'app/types/store';
 
 export function BookmarksPage() {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   const pinnedItems = usePinnedItems();
   const navTree = useSelector((state) => state.navBarTree);
 
@@ -35,7 +33,7 @@ export function BookmarksPage() {
             </Trans>
           </EmptyState>
         ) : (
-          <section className={styles.grid}>
+          <section {...stylex.props(bookmarksPageStyles.grid)}>
             {validItems.map((item) => {
               return (
                 <NavLandingPageCard
@@ -53,14 +51,5 @@ export function BookmarksPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  grid: css({
-    display: 'grid',
-    gap: theme.spacing(3),
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gridAutoRows: '138px',
-    padding: theme.spacing(2, 0),
-  }),
-});
 
 export default BookmarksPage;

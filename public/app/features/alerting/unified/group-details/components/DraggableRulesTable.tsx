@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { draggableRulesTableStyles } from './DraggableRulesTable.stylex';
 import {
   DragDropContext,
   Draggable,
@@ -10,9 +13,8 @@ import {
 import { produce } from 'immer';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Badge, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Badge, Icon, Stack } from '@grafana/ui';
 import { type RulerRuleDTO } from 'app/types/unified-alerting-dto';
 
 import { type SwapOperation, swapItems } from '../../reducers/ruler/ruleGroups';
@@ -26,7 +28,6 @@ interface DraggableRulesTableProps {
 }
 
 export function DraggableRulesTable({ rules, groupInterval, onSwap }: DraggableRulesTableProps) {
-  const styles = useStyles2(getStyles);
   const [rulesList, setRulesList] = useState<RulerRuleDTO[]>(rules);
 
   const onDragEnd = useCallback(
@@ -62,7 +63,7 @@ export function DraggableRulesTable({ rules, groupInterval, onSwap }: DraggableR
           'alerting.draggable-rules-table.evals-to-start-alerting',
           'Evaluations to start alerting'
         )}
-        className={styles.listHeader}
+        {...stylex.props(draggableRulesTableStyles.listHeader)}
       />
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
@@ -103,7 +104,6 @@ interface DraggableListItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const DraggableListItem = ({ provided, rule, groupInterval, isClone = false }: DraggableListItemProps) => {
-  const styles = useStyles2(getStyles);
 
   const ruleName = getRuleName(rule);
   const pendingPeriod = rulerRuleType.any.alertingRule(rule) ? rule.for : null;
@@ -123,7 +123,7 @@ const DraggableListItem = ({ provided, rule, groupInterval, isClone = false }: D
         )
       }
       data-testid="reorder-alert-rule"
-      className={cx(styles.listItem, { [styles.listItemClone]: isClone })}
+      className={cx(draggableRulesTableStyles.listItem, { [draggableRulesTableStyles.listItemClone]: isClone })}
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
@@ -140,10 +140,9 @@ interface ListItemProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const ListItem = forwardRef<HTMLDivElement, ListItemProps>(
   ({ dragHandle, ruleName, pendingPeriod, evalsToStartAlerting, className, ...props }, ref) => {
-    const styles = useStyles2(getStyles);
 
     return (
-      <div className={cx(styles.listItem, className)} ref={ref} {...props}>
+      <div {...mergeStylexClassName(stylex.props(draggableRulesTableStyles.listItem), className)} ref={ref} {...props}>
         <Stack flex="0 0 24px">{dragHandle}</Stack>
         <Stack flex={1}>{ruleName}</Stack>
         <Stack basis="30%">{pendingPeriod}</Stack>
@@ -154,24 +153,3 @@ const ListItem = forwardRef<HTMLDivElement, ListItemProps>(
 );
 ListItem.displayName = 'ListItem';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listItem: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    gap: theme.spacing(1),
-    padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-
-    '&:nth-child(even)': {
-      background: theme.colors.background.secondary,
-    },
-  }),
-  listItemClone: css({
-    border: `solid 1px ${theme.colors.primary.shade}`,
-  }),
-  listHeader: css({
-    fontWeight: theme.typography.fontWeightBold,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-});

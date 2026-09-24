@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rawListContainerStyles } from './RawListContainer.stylex';
 import { cloneDeep } from 'lodash';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
@@ -26,35 +28,6 @@ export interface RawListContainerProps {
   tableResult: DataFrame;
 }
 
-const styles = {
-  wrapper: css({
-    height: '100%',
-    overflow: 'scroll',
-  }),
-  switchWrapper: css({
-    display: 'flex',
-    flexDirection: 'row',
-    marginBottom: 0,
-  }),
-  switchLabel: css({
-    marginLeft: '15px',
-    marginBottom: 0,
-  }),
-  switch: css({
-    marginLeft: '10px',
-  }),
-  resultCount: css({
-    marginBottom: '4px',
-  }),
-  header: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 0',
-    fontSize: '12px',
-    lineHeight: 1.25,
-  }),
-};
 
 const mobileWidthThreshold = 480;
 const numberOfColumnsBeforeExpandedViewIsDefault = 2;
@@ -121,14 +94,14 @@ const RawListContainer = (props: RawListContainerProps) => {
 
   return (
     <section>
-      <header className={styles.header}>
+      <header {...stylex.props(rawListContainerStyles.header)}>
         <Field
-          className={styles.switchWrapper}
+          {...stylex.props(rawListContainerStyles.switchWrapper)}
           label={t('explore.raw-list-container.label-expand-results', 'Expand results')}
           htmlFor={'isExpandedView'}
           noMargin
         >
-          <div className={styles.switch}>
+          <div {...stylex.props(rawListContainerStyles.switch)}>
             <Switch
               onChange={onContentClick}
               id={switchId}
@@ -138,7 +111,7 @@ const RawListContainer = (props: RawListContainerProps) => {
           </div>
         </Field>
 
-        <div className={styles.resultCount}>
+        <div {...stylex.props(rawListContainerStyles.resultCount)}>
           <Trans i18nKey="explore.raw-list-container.item-count" values={{ numItems: items.length }}>
             Result series: {'{{numItems}}'}
           </Trans>
@@ -155,7 +128,7 @@ const RawListContainer = (props: RawListContainerProps) => {
             <List
               ref={listRef}
               itemCount={items.length}
-              className={styles.wrapper}
+              {...stylex.props(rawListContainerStyles.wrapper)}
               itemSize={(index) => getListItemHeight(index, isExpandedView)}
               height={calculateInitialHeight(items.length)}
               width="100%"

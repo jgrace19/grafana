@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variablesUnknownTableStyles } from './VariablesUnknownTable.stylex';
 import { type ReactElement, useEffect, useState } from 'react';
 import { useAsync } from 'react-use';
 
 import { type BaseVariableModel, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { CollapsableSection, Icon, Spinner, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { CollapsableSection, Icon, Spinner, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { type DashboardModel } from '../../dashboard/state/DashboardModel';
 
@@ -24,7 +26,7 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
   const [open, setOpen] = useState(false);
   const [changed, setChanged] = useState(0);
   const [usages, setUsages] = useState<UsagesToNetwork[]>([]);
-  const style = useStyles2(getStyles);
+  const style = (getStyles);
   useEffect(() => setChanged((prevState) => prevState + 1), [variables, dashboard]);
   const { loading } = useAsync(async () => {
     if (open && changed > 0) {
@@ -77,7 +79,7 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
 }
 
 function CollapseLabel(): ReactElement {
-  const style = useStyles2(getStyles);
+  const style = (getStyles);
 
   return (
     <Text variant="h5">
@@ -105,7 +107,7 @@ function NoUnknowns(): ReactElement {
 }
 
 function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
-  const style = useStyles2(getStyles);
+  const style = (getStyles);
   return (
     <table className="filter-table filter-table--hover">
       <thead>
@@ -139,27 +141,3 @@ function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginTop: theme.spacing(4),
-    paddingTop: theme.spacing(4),
-  }),
-  infoIcon: css({
-    marginLeft: theme.spacing(1),
-  }),
-  defaultColumn: css({
-    width: '1%',
-  }),
-  firstColumn: css({
-    width: '1%',
-    verticalAlign: 'top',
-    color: theme.colors.text.maxContrast,
-  }),
-  lastColumn: css({
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    width: '100%',
-    textAlign: 'right',
-  }),
-});

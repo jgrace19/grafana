@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardBrandingFooterStyles } from './DashboardBrandingFooter.stylex';
 import i18n from 'i18next';
 
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2  } from '@grafana/ui';
 import grafanaTextLogoDarkSvg from 'img/grafana_text_logo_dark.svg';
 import grafanaTextLogoLightSvg from 'img/grafana_text_logo_light.svg';
 
@@ -86,7 +88,7 @@ export const DashboardBrandingFooter = function ({
 
   // `conf.footerText` is already styled by `useGetPublicDashboardConfig()`. Avoid double-wrapping styles.
   const resolvedText = text !== undefined ? text : defaultText;
-  const footerText = resolvedText !== undefined ? <span className={styles.text}>{resolvedText}</span> : conf.footerText;
+  const footerText = resolvedText !== undefined ? <span {...stylex.props(dashboardBrandingFooterStyles.text)}>{resolvedText}</span> : conf.footerText;
 
   // `logo=""` intentionally hides the logo, so we check `!== undefined` (not `??`).
   const footerLogo = logo !== undefined ? logo : (defaultLogo ?? conf.footerLogo);
@@ -100,53 +102,18 @@ export const DashboardBrandingFooter = function ({
 
   return (
     <div
-      className={cx(
-        styles.footer,
-        paddingX !== undefined && styles.footerPaddingX,
-        useMinHeight && styles.footerMinHeight
-      )}
+      {...mergeStylexClassName(stylex.props(dashboardBrandingFooterStyles.footer, 
+        ,
+        paddingX !== undefined && mergeStylexClassName(stylex.props(dashboardBrandingFooterStyles.footerPaddingX), undefined).className,
+        useMinHeight && mergeStylexClassName(stylex.props(dashboardBrandingFooterStyles.footerMinHeight), undefined).className
+      ), undefined)}
       data-testid={selectors.footer}
     >
-      <a className={styles.link} href={href} target="_blank" rel="noreferrer noopener">
-        {footerText} {logoSrc ? <img className={styles.logoImg} alt="" src={logoSrc} /> : null}
+      <a {...stylex.props(dashboardBrandingFooterStyles.link)} href={href} target="_blank" rel="noreferrer noopener">
+        {footerText} {logoSrc ? <img {...stylex.props(dashboardBrandingFooterStyles.logoImg)} alt="" src={logoSrc} /> : null}
       </a>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, opts: { paddingX?: number; useMinHeight?: boolean }) => {
-  return {
-    footer: css({
-      display: 'flex',
-      justifyContent: 'end',
-      height: '30px',
-      backgroundColor: theme.colors.background.canvas,
-      position: 'sticky',
-      bottom: 0,
-      zIndex: theme.zIndex.navbarFixed,
-      padding: theme.spacing(0.5, 0),
-    }),
-    footerPaddingX: css({
-      boxSizing: 'border-box',
-      paddingLeft: theme.spacing(opts.paddingX ?? 0),
-      paddingRight: theme.spacing(opts.paddingX ?? 0),
-    }),
-    footerMinHeight: css({
-      height: 'auto',
-      minHeight: '30px',
-      alignItems: 'center',
-    }),
-    link: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    logoImg: css({
-      height: '16px',
-      marginLeft: theme.spacing(0.5),
-    }),
-    text: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.body.fontSize,
-    }),
-  };
-};
+;

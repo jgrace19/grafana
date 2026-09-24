@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { inlineSaveInputStyles } from './InlineSaveInput.stylex';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, IconButton, Input, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, IconButton, Input, Stack, Text } from '@grafana/ui';
 
 import { useAppNotification } from '../../../../../core/copy/appNotification';
 
@@ -26,7 +27,6 @@ interface FormValues {
 }
 
 export function InlineSaveInput({ onSave, onCancel, savedSearches }: InlineSaveInputProps) {
-  const styles = useStyles2(getStyles);
   const notifyApp = useAppNotification();
 
   const {
@@ -110,7 +110,7 @@ export function InlineSaveInput({ onSave, onCancel, savedSearches }: InlineSaveI
             aria-label={t('alerting.saved-searches.save-button', 'Save')}
             disabled={isSubmitting}
             tooltip={t('alerting.saved-searches.save-button', 'Save')}
-            className={styles.successIcon}
+            {...stylex.props(inlineSaveInputStyles.successIcon)}
             size="md"
             variant="secondary"
             onClick={handleSubmit(onSubmit)}
@@ -130,10 +130,3 @@ export function InlineSaveInput({ onSave, onCancel, savedSearches }: InlineSaveI
 // Styles
 // ============================================================================
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    successIcon: css({
-      color: theme.colors.success.main,
-    }),
-  };
-}

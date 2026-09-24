@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sidebarItemStyles } from './SidebarItem.stylex';
 import { t } from '@grafana/i18n';
 import { IconButton, Text, Stack, Card } from '@grafana/ui';
 
@@ -50,7 +51,7 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick, styles }: P
   return (
     <Card
       noMargin
-      className={`${styles.stepItem} ${isCurrent ? styles.activeStep : ''} ${styles.plainCard}`}
+      className={`${mergeStylexClassName(stylex.props(sidebarItemStyles.stepItem), undefined).className} ${isCurrent ? mergeStylexClassName(stylex.props(sidebarItemStyles.activeStep), undefined).className : ''} ${mergeStylexClassName(stylex.props(sidebarItemStyles.plainCard), undefined).className}`}
       onClick={handleClick}
     >
       <Stack direction="row" alignItems="center" gap={2}>
@@ -70,20 +71,4 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick, styles }: P
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  stepItem: css({
-    padding: theme.spacing(1),
-    cursor: 'pointer',
-    '&:hover': {
-      background: theme.colors.action.hover,
-    },
-  }),
-  activeStep: css({
-    color: theme.colors.primary.text,
-  }),
-  plainCard: css({
-    background: 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-  }),
-});
+export 

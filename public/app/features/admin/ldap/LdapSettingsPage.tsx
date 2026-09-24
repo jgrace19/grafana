@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ldapSettingsPageStyles } from './LdapSettingsPage.stylex';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { connect } from 'react-redux';
@@ -7,7 +9,6 @@ import { AppEvents, type GrafanaTheme2, type NavModelItem } from '@grafana/data'
 import { Trans, t } from '@grafana/i18n';
 import { getBackendSrv, getAppEvents, locationService, reportInteraction } from '@grafana/runtime';
 import {
-  useStyles2,
   Alert,
   Box,
   Button,
@@ -120,8 +121,6 @@ export const LdapSettingsPage = () => {
     reset,
     watch,
   } = methods;
-
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     async function init() {
@@ -290,7 +289,7 @@ export const LdapSettingsPage = () => {
             <FormPrompt confirmRedirect={isDirty} onDiscard={onDiscard} />
             {isLoading && <Loader />}
             {!isLoading && (
-              <section className={styles.form}>
+              <section {...stylex.props(ldapSettingsPageStyles.form)}>
                 <h3>
                   <Trans i18nKey="ldap-settings-page.title">Basic Settings</Trans>
                 </h3>
@@ -372,7 +371,7 @@ export const LdapSettingsPage = () => {
                       <MultiSelect
                         {...field}
                         allowCustomValue
-                        className={styles.multiSelect}
+                        {...stylex.props(ldapSettingsPageStyles.multiSelect)}
                         noOptionsMessage=""
                         placeholder={t('ldap-settings-page.search-base-dns.placeholder', 'example: dc=grafana,dc=org')}
                         onChange={(v) => onChange(v.map(({ value }) => String(value)))}
@@ -465,17 +464,5 @@ export const LdapSettingsPage = () => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    form: css({
-      width: theme.spacing(68),
-    }),
-    multiSelect: css({
-      'div:last-of-type > svg': {
-        display: 'none',
-      },
-    }),
-  };
-}
 
 export default connector(LdapSettingsPage);

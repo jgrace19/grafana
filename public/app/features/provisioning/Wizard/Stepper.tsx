@@ -1,7 +1,6 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Icon } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
 
 export interface Step<T> {
   id: T;
@@ -19,32 +18,31 @@ export interface Props<T extends string | number> {
 }
 
 export function Stepper<T extends string | number>({ visitedSteps = [], steps, activeStep = steps[0]?.id }: Props<T>) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
-    <ol className={styles.container}>
+    <ol {...stylex.props(stepperStyles.container)}>
       {steps.map((step, index) => {
         const isActive = step.id === activeStep;
         const isCompleted = visitedSteps.includes(step.id) && !isActive;
         const isLast = index === steps.length - 1;
 
-        const stepTextClass = cx(styles.stepText, {
-          [styles.activeStepText]: isActive,
-        });
+        const stepTextClass = cx(styles.stepText, { ...(isActive,
+         ? stylex.props(stepperStyles.activeStepText) : {}) });
 
         return (
-          <li key={step.id} className={styles.stepContainer}>
-            <div className={styles.stepContent}>
+          <li key={step.id} {...stylex.props(stepperStyles.stepContainer)}>
+            <div {...stylex.props(stepperStyles.stepContent)}>
               {isCompleted ? (
-                <div className={cx(styles.stepNumber, styles.completedStepNumber)}>
+                <div {...mergeStylexClassName(stylex.props(stepperStyles.stepNumber, , styles.completedStepNumber), undefined)}>
                   <Icon name="check" size="sm" />
                 </div>
               ) : (
-                <div className={styles.stepNumber}>{index + 1}</div>
+                <div {...stylex.props(stepperStyles.stepNumber)}>{index + 1}</div>
               )}
               <div className={stepTextClass}>{step.name}</div>
             </div>
-            {!isLast && <div className={styles.connector} />}
+            {!isLast && <div {...stylex.props(stepperStyles.connector)} />}
           </li>
         );
       })}
@@ -52,55 +50,4 @@ export function Stepper<T extends string | number>({ visitedSteps = [], steps, a
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      margin: theme.spacing(2, 0),
-      padding: 0,
-      listStyle: 'none',
-      width: 200,
-    }),
-    stepContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      position: 'relative',
-    }),
-    stepContent: css({
-      display: 'flex',
-      alignItems: 'center',
-      padding: theme.spacing(0.5, 0),
-    }),
-    stepNumber: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: theme.spacing(3),
-      width: theme.spacing(3),
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.sm,
-      fontWeight: theme.typography.fontWeightMedium,
-      marginRight: theme.spacing(1),
-    }),
-    completedStepNumber: css({
-      color: theme.colors.success.main,
-    }),
-    stepText: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.md,
-    }),
-    activeStepText: css({
-      color: theme.colors.text.primary,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-    connector: css({
-      width: '1px',
-      backgroundColor: theme.colors.border.medium,
-      height: theme.spacing(2),
-      marginLeft: theme.spacing(1.5),
-      marginTop: theme.spacing(0.5),
-    }),
-  };
-};
+;

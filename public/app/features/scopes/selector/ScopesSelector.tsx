@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { scopesSelectorStyles } from './ScopesSelector.stylex';
 import { useEffect } from 'react';
 import { useObservable } from 'react-use';
 import { Observable } from 'rxjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { useScopes } from '@grafana/runtime';
-import { Button, Drawer, ErrorBoundary, ErrorWithStack, Spinner, Text, useStyles2 } from '@grafana/ui';
+import { Button, Drawer, ErrorBoundary, ErrorWithStack, Spinner, Text } from '@grafana/ui';
 import { getModKey } from 'app/core/utils/browser';
 
 import { useScopesServices } from '../ScopesContextProvider';
@@ -16,7 +17,6 @@ import { type ScopesSelectorServiceState } from './ScopesSelectorService';
 import { ScopesTree } from './ScopesTree';
 
 export const ScopesSelector = () => {
-  const styles = useStyles2(getStyles);
   const scopes = useScopes();
 
   const services = useScopesServices();
@@ -90,8 +90,8 @@ export const ScopesSelector = () => {
                 );
               }
               return (
-                <div className={styles.drawerContainer}>
-                  <div className={styles.treeContainer}>
+                <div {...stylex.props(scopesSelectorStyles.drawerContainer)}>
+                  <div {...stylex.props(scopesSelectorStyles.treeContainer)}>
                     {loading || !tree ? (
                       <Spinner data-testid="scopes-selector-loading" />
                     ) : (
@@ -111,7 +111,7 @@ export const ScopesSelector = () => {
                     )}
                   </div>
 
-                  <div className={styles.buttonsContainer}>
+                  <div {...stylex.props(scopesSelectorStyles.buttonsContainer)}>
                     <Button variant="primary" data-testid="scopes-selector-apply" onClick={closeAndApply}>
                       <Trans i18nKey="scopes.selector.apply">Apply</Trans>&nbsp;
                       <Text variant="bodySmall">{`${getModKey()}+↵`}</Text>
@@ -130,32 +130,4 @@ export const ScopesSelector = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    dashboards: css({
-      color: theme.colors.text.secondary,
-
-      '&:hover': css({
-        color: theme.colors.text.primary,
-      }),
-    }),
-    drawerContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-    }),
-    treeContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      maxHeight: '100%',
-      overflowY: 'hidden',
-      // Fix for top level search outline overflow due to scrollbars
-      paddingLeft: theme.spacing(0.5),
-    }),
-    buttonsContainer: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      marginTop: theme.spacing(8),
-    }),
-  };
-};
+;

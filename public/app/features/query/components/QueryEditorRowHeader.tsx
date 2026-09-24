@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryEditorRowHeaderStyles } from './QueryEditorRowHeader.stylex';
 import * as React from 'react';
 import { type ReactNode, useState } from 'react';
 
 import { type DataQuery, type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { FieldValidationMessage, Icon, Input, useStyles2 } from '@grafana/ui';
+import { FieldValidationMessage, Icon, Input } from '@grafana/ui';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 export interface Props<TQuery extends DataQuery = DataQuery> {
@@ -23,8 +25,6 @@ export interface Props<TQuery extends DataQuery = DataQuery> {
 
 export const QueryEditorRowHeader = <TQuery extends DataQuery>(props: Props<TQuery>) => {
   const { query, queries, onChange, collapsedText, renderExtras, hidden, hideRefId = false } = props;
-
-  const styles = useStyles2(getStyles);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -85,17 +85,17 @@ export const QueryEditorRowHeader = <TQuery extends DataQuery>(props: Props<TQue
 
   return (
     <>
-      <div className={styles.wrapper}>
+      <div {...stylex.props(queryEditorRowHeaderStyles.wrapper)}>
         {!hideRefId && !isEditing && (
           <button
-            className={styles.queryNameWrapper}
+            {...stylex.props(queryEditorRowHeaderStyles.queryNameWrapper)}
             data-testid={selectors.components.QueryEditorRow.title(query.refId)}
             title={t('query.query-editor-row-header.query-name-div-title-edit-query-name', 'Edit query name')}
             onClick={onEditQuery}
             type="button"
           >
-            <span className={styles.queryName}>{query.refId}</span>
-            <Icon name="pen" className={styles.queryEditIcon} size="sm" />
+            <span {...stylex.props(queryEditorRowHeaderStyles.queryName)}>{query.refId}</span>
+            <Icon name="pen" className={queryEditorRowHeaderStyles.queryEditIcon} size="sm" />
           </button>
         )}
 
@@ -110,22 +110,22 @@ export const QueryEditorRowHeader = <TQuery extends DataQuery>(props: Props<TQue
               onFocus={onFocus}
               invalid={validationError !== null}
               onChange={onInputChange}
-              className={styles.queryNameInput}
+              {...stylex.props(queryEditorRowHeaderStyles.queryNameInput)}
               data-testid="query-name-input"
             />
             {validationError && <FieldValidationMessage horizontal>{validationError}</FieldValidationMessage>}
           </>
         )}
         {renderDataSource(props, styles)}
-        {renderExtras && <div className={styles.itemWrapper}>{renderExtras()}</div>}
+        {renderExtras && <div {...stylex.props(queryEditorRowHeaderStyles.itemWrapper)}>{renderExtras()}</div>}
         {hidden && (
-          <em className={styles.contextInfo}>
+          <em {...stylex.props(queryEditorRowHeaderStyles.contextInfo)}>
             <Trans i18nKey="query.query-editor-row-header.hidden">Hidden</Trans>
           </em>
         )}
       </div>
 
-      {collapsedText && <div className={styles.collapsedText}>{collapsedText}</div>}
+      {collapsedText && <div {...stylex.props(queryEditorRowHeaderStyles.collapsedText)}>{collapsedText}</div>}
     </>
   );
 };
@@ -137,11 +137,11 @@ const renderDataSource = <TQuery extends DataQuery>(
   const { alerting, dataSource, onChangeDataSource } = props;
 
   if (!onChangeDataSource) {
-    return <em className={styles.contextInfo}>({dataSource.name})</em>;
+    return <em {...stylex.props(queryEditorRowHeaderStyles.contextInfo)}>({dataSource.name})</em>;
   }
 
   return (
-    <div className={styles.itemWrapper}>
+    <div {...stylex.props(queryEditorRowHeaderStyles.itemWrapper)}>
       <DataSourcePicker
         dashboard={true}
         variables={true}
@@ -153,80 +153,4 @@ const renderDataSource = <TQuery extends DataQuery>(
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      label: 'Wrapper',
-      display: 'flex',
-      alignItems: 'center',
-      marginLeft: theme.spacing(0.5),
-      overflow: 'hidden',
-    }),
-    queryNameWrapper: css({
-      display: 'flex',
-      cursor: 'pointer',
-      border: '1px solid transparent',
-      borderRadius: theme.shape.radius.default,
-      alignItems: 'center',
-      padding: theme.spacing(0, 0, 0, 0.5),
-      margin: 0,
-      background: 'transparent',
-      overflow: 'hidden',
-
-      '&:hover': {
-        background: theme.colors.action.hover,
-        border: `1px dashed ${theme.colors.border.strong}`,
-      },
-
-      '&:focus': {
-        border: `2px solid ${theme.colors.primary.border}`,
-      },
-
-      '&:hover, &:focus': {
-        '.query-name-edit-icon': {
-          visibility: 'visible',
-        },
-      },
-    }),
-    queryName: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.primary.text,
-      cursor: 'pointer',
-      overflow: 'hidden',
-      marginLeft: theme.spacing(0.5),
-    }),
-    queryEditIcon: cx(
-      css({
-        marginLeft: theme.spacing(2),
-        visibility: 'hidden',
-      }),
-      'query-name-edit-icon'
-    ),
-    queryNameInput: css({
-      maxWidth: '300px',
-      margin: '-4px 0',
-    }),
-    collapsedText: css({
-      fontWeight: theme.typography.fontWeightRegular,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      paddingLeft: theme.spacing(1),
-      alignItems: 'center',
-      overflow: 'hidden',
-      fontStyle: 'italic',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-    }),
-    contextInfo: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontStyle: 'italic',
-      color: theme.colors.text.secondary,
-      paddingLeft: '10px',
-      paddingRight: '10px',
-    }),
-    itemWrapper: css({
-      display: 'flex',
-      marginLeft: '4px',
-    }),
-  };
-};
+;

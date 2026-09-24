@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { richHistoryQueriesTabStyles } from './RichHistoryQueriesTab.stylex';
 import { useEffect } from 'react';
 import { useAsync } from 'react-use';
 
@@ -27,85 +29,7 @@ export interface RichHistoryQueriesTabProps {
   height: number;
 }
 
-const getStyles = (theme: GrafanaTheme2, height: number) => {
-  return {
-    container: css({
-      display: 'flex',
-    }),
-    labelSlider: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      '&:last-of-type': {
-        marginTop: theme.spacing(3),
-      },
-      '&:first-of-type': {
-        fontWeight: theme.typography.fontWeightMedium,
-        marginBottom: theme.spacing(2),
-      },
-    }),
-    containerContent: css({
-      /* 134px is based on the width of the Query history tabs bar, so the content is aligned to right side of the tab */
-      width: 'calc(100% - 134px)',
-    }),
-    containerSlider: css({
-      width: '129px',
-      marginRight: theme.spacing(1),
-    }),
-    fixedSlider: css({
-      position: 'fixed',
-    }),
-    slider: css({
-      bottom: '10px',
-      height: `${height - 180}px`,
-      width: '129px',
-      padding: theme.spacing(1, 0),
-    }),
-    selectors: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    }),
-    filterInput: css({
-      marginBottom: theme.spacing(1),
-    }),
-    multiselect: css({
-      width: '100%',
-      marginBottom: theme.spacing(1),
-    }),
-    sort: css({
-      width: '170px',
-    }),
-    sessionName: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'flex-start',
-      marginTop: theme.spacing(3),
-      h4: {
-        margin: '0 10px 0 0',
-      },
-    }),
-    heading: css({
-      fontSize: theme.typography.h4.fontSize,
-      margin: theme.spacing(2, 0.25, 1, 0.25),
-    }),
-    footer: css({
-      height: '60px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontWeight: theme.typography.fontWeightLight,
-      fontSize: theme.typography.bodySmall.fontSize,
-      a: {
-        fontWeight: theme.typography.fontWeightMedium,
-        marginLeft: theme.spacing(0.25),
-      },
-    }),
-    queries: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightRegular,
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-};
+;
 
 export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
   const {
@@ -121,8 +45,6 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
     listOfDatasources,
     activeDatasources,
   } = props;
-
-  const styles = useStyles2(getStyles, height);
 
   // on mount, set filter to either active datasource or all datasources
   useEffect(() => {
@@ -185,14 +107,14 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.containerSlider}>
-        <div className={styles.fixedSlider}>
-          <div className={styles.labelSlider}>
+    <div {...stylex.props(richHistoryQueriesTabStyles.container)}>
+      <div {...stylex.props(richHistoryQueriesTabStyles.containerSlider)}>
+        <div {...stylex.props(richHistoryQueriesTabStyles.fixedSlider)}>
+          <div {...stylex.props(richHistoryQueriesTabStyles.labelSlider)}>
             <Trans i18nKey="explore.rich-history-queries-tab.filter-history">Filter history</Trans>
           </div>
-          <div className={styles.labelSlider}>{mapNumbertoTimeInSlider(timeFilter[0])}</div>
-          <div className={styles.slider}>
+          <div {...stylex.props(richHistoryQueriesTabStyles.labelSlider)}>{mapNumbertoTimeInSlider(timeFilter[0])}</div>
+          <div {...stylex.props(richHistoryQueriesTabStyles.slider)}>
             <RangeSlider
               tooltipAlwaysVisible={false}
               min={0}
@@ -206,15 +128,15 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
               }}
             />
           </div>
-          <div className={styles.labelSlider}>{mapNumbertoTimeInSlider(timeFilter[1])}</div>
+          <div {...stylex.props(richHistoryQueriesTabStyles.labelSlider)}>{mapNumbertoTimeInSlider(timeFilter[1])}</div>
         </div>
       </div>
 
-      <div className={styles.containerContent} data-testid="query-history-queries-tab">
-        <div className={styles.selectors}>
+      <div {...stylex.props(richHistoryQueriesTabStyles.containerContent)} data-testid="query-history-queries-tab">
+        <div {...stylex.props(richHistoryQueriesTabStyles.selectors)}>
           {!richHistorySettings.activeDatasourcesOnly && (
             <MultiSelect
-              className={styles.multiselect}
+              {...stylex.props(richHistoryQueriesTabStyles.multiselect)}
               options={listOfDatasources.map((ds) => {
                 return { value: ds.name, label: ds.name };
               })}
@@ -229,7 +151,7 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
               }}
             />
           )}
-          <div className={styles.filterInput}>
+          <div {...stylex.props(richHistoryQueriesTabStyles.filterInput)}>
             <FilterInput
               escapeRegex={false}
               placeholder={t('explore.rich-history-queries-tab.search-placeholder', 'Search queries')}
@@ -239,7 +161,7 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
           </div>
           <div
             aria-label={t('explore.rich-history-queries-tab.sort-aria-label', 'Sort queries')}
-            className={styles.sort}
+            {...stylex.props(richHistoryQueriesTabStyles.sort)}
           >
             <Select
               value={sortOrderOptions.filter((order) => order.value === richHistorySearchFilters.sortOrder)}
@@ -260,9 +182,9 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
           Object.keys(mappedQueriesToHeadings).map((heading) => {
             return (
               <div key={heading}>
-                <div className={styles.heading}>
+                <div {...stylex.props(richHistoryQueriesTabStyles.heading)}>
                   {heading}{' '}
-                  <span className={styles.queries}>
+                  <span {...stylex.props(richHistoryQueriesTabStyles.queries)}>
                     {partialResults ? (
                       <Trans
                         i18nKey="explore.rich-history-queries-tab.displaying-partial-queries"
@@ -298,7 +220,7 @@ export function RichHistoryQueriesTab(props: RichHistoryQueriesTabProps) {
             />
           </div>
         ) : null}
-        <div className={styles.footer}>
+        <div {...stylex.props(richHistoryQueriesTabStyles.footer)}>
           {!config.queryHistoryEnabled
             ? t(
                 'explore.rich-history-queries-tab.history-local',

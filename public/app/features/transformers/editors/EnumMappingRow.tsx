@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { enumMappingRowStyles } from './EnumMappingRow.stylex';
 import { Draggable } from '@hello-pangea/dnd';
 import { type FormEvent, useState, type KeyboardEvent, useRef, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Input, IconButton, FieldValidationMessage, useStyles2, Stack } from '@grafana/ui';
+import { Icon, Input, IconButton, FieldValidationMessage, Stack } from '@grafana/ui';
 
 type EnumMappingRowProps = {
   transformIndex: number;
@@ -25,7 +26,6 @@ const EnumMappingRow = ({
   onRemoveEnumRow,
   checkIsEnumUniqueValue,
 }: EnumMappingRowProps) => {
-  const styles = useStyles2(getStyles);
 
   const [enumValue, setEnumValue] = useState<string>(value);
   // If the enum value is empty, we assume it is a new row and should be editable
@@ -88,7 +88,7 @@ const EnumMappingRow = ({
       {(provided) => (
         <tr key={index} ref={provided.innerRef} {...provided.draggableProps}>
           <td>
-            <div className={styles.dragHandle} {...provided.dragHandleProps}>
+            <div {...stylex.props(enumMappingRowStyles.dragHandle)} {...provided.dragHandleProps}>
               <Icon
                 name="draggabledots"
                 size="lg"
@@ -111,11 +111,11 @@ const EnumMappingRow = ({
           ) : (
             // TODO fix accessibility issue here
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-            <td onClick={onEnumValueClick} className={styles.clickableTableCell}>
+            <td onClick={onEnumValueClick} {...stylex.props(enumMappingRowStyles.clickableTableCell)}>
               {value && value !== '' ? value : t('transformers.enum-mapping-row.click-to-edit', 'Click to edit')}
             </td>
           )}
-          <td className={styles.textAlignCenter}>
+          <td {...stylex.props(enumMappingRowStyles.textAlignCenter)}>
             <Stack gap={1}>
               <IconButton
                 name="trash-alt"
@@ -135,20 +135,5 @@ const EnumMappingRow = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dragHandle: css({
-    cursor: 'grab',
-  }),
-  textAlignCenter: css({
-    textAlign: 'center',
-  }),
-  clickableTableCell: css({
-    cursor: 'pointer',
-    width: '100px',
-    '&:hover': {
-      color: theme.colors.text.maxContrast,
-    },
-  }),
-});
 
 export default EnumMappingRow;

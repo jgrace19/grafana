@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { muteTimingFieldsStyles } from './MuteTimingFields.stylex';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, useStyles2 } from '@grafana/ui';
+import { Field } from '@grafana/ui';
 import MuteTimingsSelector from 'app/features/alerting/unified/components/alertmanager-entities/MuteTimingsSelector';
 import { type BaseAlertmanagerArgs } from 'app/features/alerting/unified/types/hooks';
 import { type RuleFormValues } from 'app/features/alerting/unified/types/rule-form';
@@ -11,7 +12,6 @@ import { mapMultiSelectValueToStrings } from 'app/features/alerting/unified/util
 
 /** Provides a form field for use in simplified routing, for selecting appropriate mute timings */
 export function MuteTimingFields({ alertmanager }: BaseAlertmanagerArgs) {
-  const styles = useStyles2(getStyles);
   const {
     control,
     formState: { errors },
@@ -25,7 +25,7 @@ export function MuteTimingFields({ alertmanager }: BaseAlertmanagerArgs) {
         'alerting.mute-timing-fields.am-mute-timing-select-description-mute-timings',
         'Select a mute timing to define when not to send notifications for this alert rule'
       )}
-      className={styles.muteTimingField}
+      {...stylex.props(muteTimingFieldsStyles.muteTimingField)}
       invalid={!!errors.contactPoints?.[alertmanager]?.muteTimeIntervals}
       noMargin
     >
@@ -45,8 +45,3 @@ export function MuteTimingFields({ alertmanager }: BaseAlertmanagerArgs) {
     </Field>
   );
 }
-const getStyles = (theme: GrafanaTheme2) => ({
-  muteTimingField: css({
-    marginTop: theme.spacing(1),
-  }),
-});

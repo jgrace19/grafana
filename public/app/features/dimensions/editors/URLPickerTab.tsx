@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { uRLPickerTabStyles } from './URLPickerTab.stylex';
 import { type Dispatch, type SetStateAction } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, Input, Label, useStyles2 } from '@grafana/ui';
+import { Field, Input, Label } from '@grafana/ui';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
 import { getPublicOrAbsoluteUrl } from '../resource';
@@ -17,7 +18,6 @@ interface Props {
 
 export const URLPickerTab = (props: Props) => {
   const { newValue, setNewValue, mediaType } = props;
-  const styles = useStyles2(getStyles);
 
   const imgSrc = getPublicOrAbsoluteUrl(newValue!);
 
@@ -31,12 +31,12 @@ export const URLPickerTab = (props: Props) => {
       <Field>
         <Input onChange={(e) => setNewValue(e.currentTarget.value)} value={newValue} />
       </Field>
-      <div className={styles.iconContainer}>
+      <div {...stylex.props(uRLPickerTabStyles.iconContainer)}>
         <Field label={t('dimensions.urlpicker-tab.label-preview', 'Preview')}>
-          <div className={styles.iconPreview}>
-            {mediaType === MediaType.Icon && <SanitizedSVG src={imgSrc} className={styles.img} />}
+          <div {...stylex.props(uRLPickerTabStyles.iconPreview)}>
+            {mediaType === MediaType.Icon && <SanitizedSVG src={imgSrc} {...stylex.props(uRLPickerTabStyles.img)} />}
             {mediaType === MediaType.Image && newValue && (
-              <img src={imgSrc} alt="Preview of the selected URL" className={styles.img} />
+              <img src={imgSrc} alt="Preview of the selected URL" {...stylex.props(uRLPickerTabStyles.img)} />
             )}
           </div>
         </Field>
@@ -46,25 +46,3 @@ export const URLPickerTab = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  iconContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    width: '80%',
-    alignItems: 'center',
-    alignSelf: 'center',
-  }),
-  iconPreview: css({
-    width: '238px',
-    height: '198px',
-    border: `1px solid ${theme.colors.border.medium}`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-  img: css({
-    width: '147px',
-    height: '147px',
-    fill: theme.colors.text.primary,
-  }),
-});

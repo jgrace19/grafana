@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 
 import { FeatureState, type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, FeatureBadge, LinkButton, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Box, FeatureBadge, LinkButton, Stack, Text, TextLink, } from '@grafana/ui';
 
 import { QuotaLimitMessage } from '../Shared/QuotaLimitMessage';
 import { RepositoryTypeCards } from '../Shared/RepositoryTypeCards';
@@ -21,7 +20,7 @@ export const FeaturesList = ({
   maxRepositories = 0,
   onSetupFeatures,
 }: FeaturesListProps) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
     <Stack direction="column" gap={3}>
@@ -31,7 +30,7 @@ export const FeaturesList = ({
         </Trans>{' '}
         {!isOnPrem() && <FeatureBadge featureState={FeatureState.preview} />}
       </Text>
-      <ul className={styles.featuresList}>
+      <ul {...stylex.props(featuresListStyles.featuresList)}>
         <li>
           <Trans i18nKey="provisioning.features-list.manage-dashboards-provision-updates-automatically">
             Manage dashboards as code in Git and provision updates automatically
@@ -74,25 +73,4 @@ export const FeaturesList = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    featuresList: css({
-      listStyleType: 'none',
-      paddingLeft: 0,
-      marginLeft: theme.spacing(-1),
-      '& li': {
-        position: 'relative',
-        paddingLeft: theme.spacing(4),
-        marginBottom: theme.spacing(1),
-        '&:before': {
-          content: '"✓"',
-          position: 'absolute',
-          left: theme.spacing(1),
-          top: '0',
-          color: theme.colors.text.secondary,
-          fontWeight: theme.typography.fontWeightBold,
-        },
-      },
-    }),
-  };
-};
+;

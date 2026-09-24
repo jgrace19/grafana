@@ -1,37 +1,18 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 
 interface Props {
   title: string;
 }
 
 export function DataSourceTitle({ title }: Props) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{title}</h1>
+    <div {...stylex.props(dataSourceTitleStyles.container)}>
+      <h1 {...stylex.props(dataSourceTitleStyles.title)}>{title}</h1>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: theme.spacing(2),
-      h1: {
-        display: 'inline-block',
-      },
-    }),
-    title: css({
-      display: 'inline-block',
-      margin: '0 0 0 0',
-      maxWidth: '40vw',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+;

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { adminOrgsTableStyles } from './AdminOrgsTable.stylex';
 import { useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
+import { Button, ConfirmModal } from '@grafana/ui';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -85,7 +86,7 @@ function AdminOrgsTableComponent({ orgs, onDelete }: Props) {
 }
 
 const AdminOrgsTableSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
+  const styles = (getSkeletonStyles);
   return (
     <table className="filter-table" {...rootProps}>
       {getTableHeader()}
@@ -99,7 +100,7 @@ const AdminOrgsTableSkeleton: SkeletonComponent = ({ rootProps }) => {
               <Skeleton width={240} />
             </td>
             <td>
-              <Skeleton containerClassName={styles.deleteButton} width={22} height={24} />
+              <Skeleton containerClassName={mergeStylexClassName(stylex.props(adminOrgsTableStyles.deleteButton), undefined).className} width={22} height={24} />
             </td>
           </tr>
         ))}
@@ -110,11 +111,3 @@ const AdminOrgsTableSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 export const AdminOrgsTable = attachSkeleton(AdminOrgsTableComponent, AdminOrgsTableSkeleton);
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  deleteButton: css({
-    alignItems: 'center',
-    display: 'flex',
-    height: 30,
-    lineHeight: 1,
-  }),
-});

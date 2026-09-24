@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineStyles } from './LogLine.stylex';
 import {
   type CSSProperties,
   memo,
@@ -211,19 +213,19 @@ const LogLineComponent = memo(
         {/* A button element could be used but in Safari it prevents text selection. Fallback available for a11y in LogLineMenu  */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
         <div
-          className={`${styles.logLine} ${variant ?? ''} ${pinned ? styles.pinnedLogLine : ''} ${permalinked ? styles.permalinkedLogLine : ''} ${detailsShown ? styles.detailsDisplayed : ''} ${isLogDetailsFocused ? styles.currentLog : ''} ${fontSize === 'small' ? styles.fontSizeSmall : styles.fontSizeDefault} ${enableLogDetails ? styles.clickable : ''}`}
+          className={`${mergeStylexClassName(stylex.props(logLineStyles.logLine), undefined).className} ${variant ?? ''} ${pinned ? mergeStylexClassName(stylex.props(logLineStyles.pinnedLogLine), undefined).className : ''} ${permalinked ? mergeStylexClassName(stylex.props(logLineStyles.permalinkedLogLine), undefined).className : ''} ${detailsShown ? mergeStylexClassName(stylex.props(logLineStyles.detailsDisplayed), undefined).className : ''} ${isLogDetailsFocused ? mergeStylexClassName(stylex.props(logLineStyles.currentLog), undefined).className : ''} ${fontSize === 'small' ? mergeStylexClassName(stylex.props(logLineStyles.fontSizeSmall), undefined).className : mergeStylexClassName(stylex.props(logLineStyles.fontSizeDefault), undefined).className} ${enableLogDetails ? mergeStylexClassName(stylex.props(logLineStyles.clickable), undefined).className : ''}`}
           onMouseEnter={handleMouseOver}
           onFocus={handleMouseOver}
           onClick={handleClick}
         >
           <LogLineMenu styles={styles} log={log} active={isLogDetailsFocused} />
           {dedupStrategy !== LogsDedupStrategy.none && (
-            <div className={`${styles.duplicates}`}>
+            <div className={`${mergeStylexClassName(stylex.props(logLineStyles.duplicates), undefined).className}`}>
               {log.duplicates && log.duplicates > 0 ? `${log.duplicates + 1}x` : null}
             </div>
           )}
           {hasLogsWithErrors && (
-            <div className={`${styles.hasError}`}>
+            <div className={`${mergeStylexClassName(stylex.props(logLineStyles.hasError), undefined).className}`}>
               {log.hasError && (
                 <Tooltip
                   content={t('logs.log-line.tooltip-error', 'Error: {{errorMessage}}', {
@@ -233,7 +235,7 @@ const LogLineComponent = memo(
                   theme="error"
                 >
                   <Icon
-                    className={styles.logIconError}
+                    {...stylex.props(logLineStyles.logIconError)}
                     name="exclamation-triangle"
                     aria-label={t('logs.log-line.has-error', 'Has errors')}
                     size="xs"
@@ -243,11 +245,11 @@ const LogLineComponent = memo(
             </div>
           )}
           {hasSampledLogs && (
-            <div className={`${styles.isSampled}`}>
+            <div className={`${mergeStylexClassName(stylex.props(logLineStyles.isSampled), undefined).className}`}>
               {log.isSampled && (
                 <Tooltip content={log.sampledMessage ?? ''} placement="right" theme="info">
                   <Icon
-                    className={styles.logIconInfo}
+                    {...stylex.props(logLineStyles.logIconInfo)}
                     name="info-circle"
                     size="xs"
                     aria-label={t('logs.log-line.is-sampled', 'Is sampled')}
@@ -257,7 +259,7 @@ const LogLineComponent = memo(
             </div>
           )}
           <div
-            className={`${styles.fieldsWrapper} ${detailsShown ? styles.detailsDisplayed : ''} ${isLogDetailsFocused ? styles.currentLog : ''} ${wrapLogMessage ? styles.wrappedLogLine : `${styles.unwrappedLogLine} unwrapped-log-line`} ${collapsed === true ? styles.collapsedLogLine : ''}`}
+            className={`${mergeStylexClassName(stylex.props(logLineStyles.fieldsWrapper), undefined).className} ${detailsShown ? mergeStylexClassName(stylex.props(logLineStyles.detailsDisplayed), undefined).className : ''} ${isLogDetailsFocused ? mergeStylexClassName(stylex.props(logLineStyles.currentLog), undefined).className : ''} ${wrapLogMessage ? mergeStylexClassName(stylex.props(logLineStyles.wrappedLogLine), undefined).className : `${mergeStylexClassName(stylex.props(logLineStyles.unwrappedLogLine), undefined).className} unwrapped-log-line`} ${collapsed === true ? mergeStylexClassName(stylex.props(logLineStyles.collapsedLogLine), undefined).className : ''}`}
             style={
               collapsed && virtualization
                 ? { maxHeight: `${virtualization.getTruncationLineCount() * virtualization.getLineHeight()}px` }
@@ -278,12 +280,12 @@ const LogLineComponent = memo(
           </div>
         </div>
         {collapsed === true && (
-          <div className={styles.expandCollapseControl}>
+          <div {...stylex.props(logLineStyles.expandCollapseControl)}>
             <Button
               variant="primary"
               fill="text"
               size="sm"
-              className={styles.expandCollapseControlButton}
+              {...stylex.props(logLineStyles.expandCollapseControlButton)}
               onClick={handleExpandCollapse}
             >
               {t('logs.log-line.show-more', 'show more')}
@@ -291,12 +293,12 @@ const LogLineComponent = memo(
           </div>
         )}
         {collapsed === false && (
-          <div className={styles.expandCollapseControl}>
+          <div {...stylex.props(logLineStyles.expandCollapseControl)}>
             <Button
               variant="primary"
               fill="text"
               size="sm"
-              className={styles.expandCollapseControlButton}
+              {...stylex.props(logLineStyles.expandCollapseControlButton)}
               onClick={handleExpandCollapse}
             >
               {t('logs.log-line.show-less', 'show less')}
@@ -352,7 +354,7 @@ const Log = memo(
     return (
       <>
         {showTime && (
-          <span className={`${styles.timestamp} level-${log.logLevel} field`}>
+          <span className={`${mergeStylexClassName(stylex.props(logLineStyles.timestamp), undefined).className} level-${log.logLevel} field`}>
             {timestampResolution === 'ms' ? log.timestamp : log.timestampNs}{' '}
           </span>
         )}
@@ -360,7 +362,7 @@ const Log = memo(
           // When logs are unwrapped, we want an empty column space to align with other log lines.
         }
         {showLevel && (log.displayLevel || !wrapLogMessage) && (
-          <span className={`${styles.level} level-${log.logLevel} field`}>{log.displayLevel} </span>
+          <span className={`${mergeStylexClassName(stylex.props(logLineStyles.level), undefined).className} level-${log.logLevel} field`}>{log.displayLevel} </span>
         )}
         {showUniqueLabels && log.uniqueLabels && (
           <span className="field">
@@ -435,7 +437,7 @@ const DisplayedFields = ({
               textToHighlight={fieldValue}
               searchWords={searchWords}
               findChunks={findHighlightChunksInText}
-              highlightClassName={styles.matchHighLight}
+              highlightClassName={mergeStylexClassName(stylex.props(logLineStyles.matchHighLight), undefined).className}
             />
           ) : (
             fieldValue
@@ -458,8 +460,8 @@ const LogLineBody = ({ log, styles }: { log: LogListModel; styles: LogLineStyles
     if (!searchWords.length) {
       return undefined;
     }
-    return { searchWords, highlightClassName: styles.matchHighLight };
-  }, [log.searchWords, log.uid, matchingUids, search, styles.matchHighLight, syntaxHighlighting]);
+    return { searchWords, highlightClassName: mergeStylexClassName(stylex.props(logLineStyles.matchHighLight), undefined).className };
+  }, [log.searchWords, log.uid, matchingUids, search, mergeStylexClassName(stylex.props(logLineStyles.matchHighLight), undefined).className, syntaxHighlighting]);
 
   if (log.hasAnsi) {
     return (
@@ -475,7 +477,7 @@ const LogLineBody = ({ log, styles }: { log: LogListModel; styles: LogLineStyles
         textToHighlight={log.body}
         searchWords={highlight.searchWords}
         findChunks={findHighlightChunksInText}
-        highlightClassName={styles.matchHighLight}
+        highlightClassName={mergeStylexClassName(stylex.props(logLineStyles.matchHighLight), undefined).className}
       />
     ) : (
       <span className="field no-highlighting log-line-body">{log.body} </span>
@@ -508,253 +510,7 @@ export function getGridTemplateColumns(
 }
 
 export type LogLineStyles = ReturnType<typeof getStyles>;
-export const getStyles = (
-  theme: GrafanaTheme2,
-  virtualization: LogLineVirtualization | undefined = undefined,
-  displayedFields: string[] = []
-) => {
-  const base = tinycolor(theme.colors.background.primary);
-
-  let maxContrast = theme.isDark
-    ? tinycolor(theme.colors.text.maxContrast).darken(10).toRgbString()
-    : tinycolor(theme.colors.text.maxContrast).lighten(10).toRgbString();
-  let colorDefault = theme.isDark
-    ? theme.colors.text.primary
-    : tinycolor(theme.colors.text.maxContrast).lighten(30).toRgbString();
-  const contrast1 = tinycolor.readability(base, maxContrast);
-  const contrast2 = tinycolor.readability(base, colorDefault);
-
-  if (!displayedFields.length || (displayedFields.length === 1 && displayedFields.includes(LOG_LINE_BODY_FIELD_NAME))) {
-    colorDefault = theme.colors.text.primary;
-    maxContrast = theme.colors.text.primary;
-  } else if (contrast1 < contrast2) {
-    colorDefault = maxContrast;
-    maxContrast = theme.colors.text.primary;
-  }
-
-  const colors = {
-    critical: '#B877D9',
-    error: theme.colors.error.text,
-    warning: '#FBAD37',
-    debug: '#6E9FFF',
-    trace: '#6ed0e0',
-    info: '#6CCF8E',
-    metadata: theme.colors.text.secondary,
-    default: colorDefault,
-    parsedField: theme.colors.text.secondary,
-    logLineBody: maxContrast,
-  };
-
-  const hoverColor = tinycolor(theme.colors.background.canvas).darken(11).toRgbString();
-
-  return {
-    logLine: css({
-      color: colors.default,
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      flexDirection: 'row',
-      fontFamily: theme.typography.fontFamilyMonospace,
-      wordBreak: 'break-all',
-      '&:hover': {
-        background: hoverColor,
-      },
-      '&.infinite-scroll': {
-        '&::before': {
-          borderTop: `solid 1px ${theme.colors.border.strong}`,
-          content: '""',
-          height: 0,
-          left: 0,
-          position: 'absolute',
-          top: -3,
-          width: '100%',
-        },
-      },
-      '& .log-syntax-highlight': {
-        '.log-token-string': {
-          color: colors.logLineBody,
-        },
-        '.log-token-duration': {
-          color: theme.colors.success.text,
-        },
-        '.log-token-size': {
-          color: theme.colors.success.text,
-        },
-        '.log-token-uuid': {
-          color: theme.colors.success.text,
-        },
-        '.log-token-key': {
-          color: colors.parsedField,
-          fontWeight: theme.typography.fontWeightMedium,
-        },
-        '.log-token-json-key': {
-          color: colors.parsedField,
-          opacity: 0.9,
-          fontWeight: theme.typography.fontWeightMedium,
-        },
-        '.log-token-label': {
-          color: colors.metadata,
-          fontWeight: theme.typography.fontWeightBold,
-        },
-        '.log-token-method': {
-          color: theme.colors.info.shade,
-        },
-        '.log-search-match': {
-          color: theme.components.textHighlight.text,
-          backgroundColor: theme.components.textHighlight.background,
-        },
-        '&.log-line-body': {
-          color: colors.logLineBody,
-        },
-      },
-      '& .no-highlighting': {
-        color: theme.colors.text.primary,
-      },
-    }),
-    matchHighLight: css({
-      color: theme.components.textHighlight.text,
-      backgroundColor: theme.components.textHighlight.background,
-    }),
-    fontSizeSmall: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-    }),
-    fontSizeDefault: css({
-      fontSize: theme.typography.fontSize,
-      lineHeight: theme.typography.body.lineHeight,
-    }),
-    detailsDisplayed: css({
-      background: tinycolor(theme.colors.background.canvas)
-        .darken(theme.isDark ? 2 : 5)
-        .toRgbString(),
-    }),
-    currentLog: css({
-      background: hoverColor,
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    pinnedLogLine: css({
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-    }),
-    permalinkedLogLine: css({
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-    }),
-    menuIcon: css({
-      height: virtualization?.getLineHeight() ?? DEFAULT_LINE_HEIGHT,
-      margin: 0,
-      padding: theme.spacing(0, 0, 0, 0.5),
-    }),
-    logLineMessage: css({
-      fontFamily: theme.typography.fontFamily,
-      justifyContent: 'center',
-    }),
-    timestamp: css({
-      color: theme.colors.text.disabled,
-      display: 'inline-block',
-    }),
-    duplicates: css({
-      flexShrink: 0,
-      textAlign: 'center',
-      width: theme.spacing(4.5),
-    }),
-    hasError: css({
-      flexShrink: 0,
-      width: theme.spacing(2),
-      '& svg': {
-        position: 'relative',
-        top: -1,
-      },
-    }),
-    isSampled: css({
-      flexShrink: 0,
-      width: theme.spacing(2),
-      '& svg': {
-        position: 'relative',
-        top: -1,
-      },
-    }),
-    logIconError: css({
-      color: theme.colors.warning.main,
-    }),
-    logIconInfo: css({
-      color: theme.colors.info.main,
-    }),
-    level: css({
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightBold,
-      textTransform: 'uppercase',
-      display: 'inline-block',
-      '&.level-critical': {
-        color: colors.critical,
-      },
-      '&.level-error': {
-        color: colors.error,
-      },
-      '&.level-warning': {
-        color: colors.warning,
-      },
-      '&.level-info': {
-        color: colors.info,
-      },
-      '&.level-debug': {
-        color: colors.debug,
-      },
-    }),
-    loadMoreButton: css({
-      background: 'transparent',
-      border: 'none',
-      display: 'inline',
-    }),
-    loadMoreTopContainer: css({
-      backgroundColor: tinycolor(theme.colors.background.primary).setAlpha(0.75).toString(),
-      left: 0,
-      position: 'absolute',
-      top: 0,
-      width: '100%',
-      zIndex: theme.zIndex.navbarFixed,
-    }),
-    overflows: css({
-      outline: 'solid 1px red',
-    }),
-    clickable: css({
-      cursor: 'pointer',
-    }),
-    unwrappedLogLine: css({
-      display: 'grid',
-      gridColumnGap: theme.spacing(FIELD_GAP_MULTIPLIER),
-      whiteSpace: 'pre',
-      paddingBottom: theme.spacing(0.75),
-    }),
-    wrappedLogLine: css({
-      alignSelf: 'flex-start',
-      paddingBottom: theme.spacing(0.75),
-      whiteSpace: 'pre-wrap',
-      '& .field': {
-        marginRight: theme.spacing(FIELD_GAP_MULTIPLIER),
-      },
-      '& .field:last-child': {
-        marginRight: 0,
-      },
-    }),
-    fieldsWrapper: css({
-      minHeight: virtualization ? virtualization.getLineHeight() + virtualization.getPaddingBottom() : undefined,
-      '&:hover': {
-        background: hoverColor,
-      },
-    }),
-    collapsedLogLine: css({
-      overflow: 'hidden',
-    }),
-    expandCollapseControl: css({
-      display: 'flex',
-      justifyContent: 'center',
-    }),
-    expandCollapseControlButton: css({
-      fontWeight: theme.typography.fontWeightLight,
-      height: virtualization?.getLineHeight() ?? DEFAULT_LINE_HEIGHT,
-      margin: 0,
-    }),
-  };
-};
-
+export 
 function isLogLineClick(target: EventTarget) {
   const targetIsButton = target instanceof HTMLButtonElement || (target instanceof Element && target.closest('button'));
   return !targetIsButton;

@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { notificationDetailAlertsStyles } from './NotificationDetailAlerts.stylex';
 import { useMemo } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
 import { type CreateNotificationsqueryalertsNotificationEntryAlert } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { LoadingPlaceholder, Stack, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { LoadingPlaceholder, Stack, Text, TextLink, Tooltip } from '@grafana/ui';
 
 import { AlertEnrichments } from '../components/AlertEnrichments';
 import { StateTag } from '../components/StateTag';
@@ -59,7 +60,6 @@ function getCommonAnnotations(alerts: AlertEntry[]): Record<string, string> {
 }
 
 export function OverviewSection({ alerts, groupLabels, isLoading }: SectionProps) {
-  const styles = useStyles2(getStyles);
   const commonLabels = useMemo(() => getCommonLabels(alerts, groupLabels), [alerts, groupLabels]);
   const commonAnnotations = useMemo(() => getCommonAnnotations(alerts), [alerts]);
 
@@ -92,7 +92,7 @@ export function OverviewSection({ alerts, groupLabels, isLoading }: SectionProps
   return (
     <Stack direction="column" gap={2}>
       {hasCommonLabels && (
-        <div className={styles.alertDetail}>
+        <div {...stylex.props(notificationDetailAlertsStyles.alertDetail)}>
           <Stack direction="column" gap={1}>
             <Text variant="h6">
               <Trans i18nKey="alerting.notification-detail.common-labels">Labels</Trans>
@@ -102,19 +102,19 @@ export function OverviewSection({ alerts, groupLabels, isLoading }: SectionProps
         </div>
       )}
       {hasCommonAnnotations && (
-        <div className={styles.alertDetail}>
+        <div {...stylex.props(notificationDetailAlertsStyles.alertDetail)}>
           <Stack direction="column" gap={1}>
             <Text variant="h6">
               <Trans i18nKey="alerting.notification-detail.common-annotations">Annotations</Trans>
             </Text>
-            <table className={styles.annotationsTable}>
+            <table {...stylex.props(notificationDetailAlertsStyles.annotationsTable)}>
               <tbody>
                 {Object.entries(commonAnnotations).map(([key, value]) => (
                   <tr key={key}>
-                    <td className={styles.annotationKey}>
+                    <td {...stylex.props(notificationDetailAlertsStyles.annotationKey)}>
                       <Text color="secondary">{key}</Text>
                     </td>
-                    <td className={styles.annotationValue}>
+                    <td {...stylex.props(notificationDetailAlertsStyles.annotationValue)}>
                       <AnnotationValue value={value} />
                     </td>
                   </tr>
@@ -125,7 +125,7 @@ export function OverviewSection({ alerts, groupLabels, isLoading }: SectionProps
         </div>
       )}
       {enrichedAlerts.length > 0 && (
-        <div className={styles.alertDetail}>
+        <div {...stylex.props(notificationDetailAlertsStyles.alertDetail)}>
           {enrichedAlerts.map((alert, index) => (
             <AlertEnrichments
               key={`${alert.labels?.__alert_rule_uid__}-${alert.startsAt}-${index}`}
@@ -170,7 +170,6 @@ interface AlertCardProps {
 }
 
 function AlertCard({ alert, groupLabels }: AlertCardProps) {
-  const styles = useStyles2(getStyles);
 
   const ruleUid = alert.labels?.__alert_rule_uid__;
   const alertName = alert.labels?.alertname || 'Alert';
@@ -200,7 +199,7 @@ function AlertCard({ alert, groupLabels }: AlertCardProps) {
   const hasAnnotations = Object.keys(annotations).length > 0;
 
   return (
-    <div className={styles.alertDetail}>
+    <div {...stylex.props(notificationDetailAlertsStyles.alertDetail)}>
       <Stack direction="column" gap={1}>
         <Stack direction="row" gap={1.5} alignItems="center" wrap="wrap">
           <StateTag state={isFiring ? 'bad' : 'good'} size="sm">
@@ -234,14 +233,14 @@ function AlertCard({ alert, groupLabels }: AlertCardProps) {
           </Stack>
         )}
         {hasAnnotations && (
-          <table className={styles.annotationsTable}>
+          <table {...stylex.props(notificationDetailAlertsStyles.annotationsTable)}>
             <tbody>
               {Object.entries(annotations).map(([key, value]) => (
                 <tr key={key}>
-                  <td className={styles.annotationKey}>
+                  <td {...stylex.props(notificationDetailAlertsStyles.annotationKey)}>
                     <Text color="secondary">{key}</Text>
                   </td>
-                  <td className={styles.annotationValue}>
+                  <td {...stylex.props(notificationDetailAlertsStyles.annotationValue)}>
                     <AnnotationValue value={value} />
                   </td>
                 </tr>
@@ -275,33 +274,3 @@ function AnnotationValue({ value }: { value: string }) {
   return <Text>{value}</Text>;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alertDetail: css({
-    padding: theme.spacing(1.5),
-    backgroundColor: theme.colors.background.canvas,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  annotationsTable: css({
-    borderCollapse: 'collapse',
-    width: '100%',
-
-    td: {
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-      verticalAlign: 'top',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    },
-
-    'tr:last-child td': {
-      borderBottom: 'none',
-    },
-  }),
-  annotationKey: css({
-    whiteSpace: 'nowrap',
-    width: '1%',
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  annotationValue: css({
-    wordBreak: 'break-word',
-  }),
-});

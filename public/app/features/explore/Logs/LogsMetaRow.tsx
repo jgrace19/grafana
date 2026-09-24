@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsMetaRowStyles } from './LogsMetaRow.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo } from 'react';
 
@@ -23,17 +25,6 @@ import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
 
-const getStyles = () => ({
-  metaContainer: css({
-    flex: 1,
-    display: 'flex',
-    flexWrap: 'wrap',
-    '& span': {
-      fontWeight: 'normal',
-      lineHeight: '1.25em',
-    },
-  }),
-});
 
 export type Props = {
   meta: LogsMetaItem[];
@@ -57,7 +48,6 @@ export const LogsMetaRow = memo(
     defaultDisplayedFields,
     visualisationType,
   }: Props) => {
-    const style = useStyles2(getStyles);
     const logsPanelControlsEnabled = useBooleanFlagValue('logsPanelControls', true);
     const newLogsPanelEnabled = useBooleanFlagValue('newLogsPanel', true);
 
@@ -127,7 +117,7 @@ export const LogsMetaRow = memo(
     return (
       <>
         {logsMetaItem && (
-          <div className={style.metaContainer}>
+          <div {...stylex.props(logsMetaRowStyles.metaContainer)}>
             <MetaInfoText
               metaItems={logsMetaItem.map((item) => {
                 return {

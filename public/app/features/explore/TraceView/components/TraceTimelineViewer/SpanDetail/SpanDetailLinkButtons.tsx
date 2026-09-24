@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { spanDetailLinkButtonsStyles } from './SpanDetailLinkButtons.stylex';
 import * as React from 'react';
 
 import {
@@ -14,7 +16,7 @@ import { Trans, t } from '@grafana/i18n';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, locationService, reportInteraction, usePluginLinks } from '@grafana/runtime';
 import { type DataSourceRef } from '@grafana/schema';
-import { Button, DataLinkButton, Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Button, DataLinkButton, Dropdown, Menu } from '@grafana/ui';
 import { RelatedProfilesTitle } from '@grafana-plugins/tempo/resultTransformer';
 
 import { pyroscopeProfileIdTagKey } from '../../../createSpanLink';
@@ -147,33 +149,18 @@ export const getSpanDetailLinkButtons = (props: Props) => {
 
   return (
     <span
-      className={css({
-        display: 'flex',
-        width: '100%',
-        flexDisplay: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-end',
-        gap: '5px',
-      })}
+      {...stylex.props(spanDetailLinkButtonsStyles.linkRow)}
     >
       {content}
     </span>
   );
 };
 
-function getResponsibleButtonStyles(theme: GrafanaTheme2) {
-  return css({
-    [theme.breakpoints.down('sm')]: {
-      span: { display: 'none' },
-    },
-  });
-}
 
 const SingleLinkButton: React.FC<{ spanLinkModel: SpanLinkModel }> = ({ spanLinkModel }) => {
-  const styles = useStyles2(getResponsibleButtonStyles);
   const { linkModel, icon, className } = spanLinkModel;
   return (
-    <span className={styles}>
+    <span {...stylex.props(spanDetailLinkButtonsStyles.responsibleButton)}>
       <DataLinkButton link={linkModel} buttonProps={{ icon, className }}></DataLinkButton>
     </span>
   );
@@ -181,7 +168,6 @@ const SingleLinkButton: React.FC<{ spanLinkModel: SpanLinkModel }> = ({ spanLink
 
 const DropDownMenu = ({ links }: { links: SpanLinkModel[] }) => {
   const [_, setIsOpen] = React.useState(false);
-  const styles = useStyles2(getResponsibleButtonStyles);
 
   const menu = (
     <Menu>
@@ -201,7 +187,7 @@ const DropDownMenu = ({ links }: { links: SpanLinkModel[] }) => {
         variant="primary"
         icon="link"
         size="sm"
-        className={styles}
+        {...stylex.props(spanDetailLinkButtonsStyles.responsibleButton)}
         aria-label={t('explore.drop-down-menu.aria-label-links', 'Links')}
       >
         <Trans i18nKey="explore.drop-down-menu.links">Links</Trans>

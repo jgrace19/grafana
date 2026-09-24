@@ -1,48 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLabelStatsStyles } from './LogLabelStats.stylex';
 import { useMemo } from 'react';
 
 import { type LogLabelStatsModel, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import { LogLabelStatsRow } from './LogLabelStatsRow';
 
 const STATS_ROW_LIMIT = 5;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    logsStats: css({
-      label: 'logs-stats',
-      background: 'inherit',
-      color: theme.colors.text.primary,
-      wordBreak: 'break-all',
-      width: 'fit-content',
-      maxWidth: '100%',
-    }),
-    logsStatsHeader: css({
-      label: 'logs-stats__header',
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      display: 'flex',
-    }),
-    logsStatsTitle: css({
-      label: 'logs-stats__title',
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingRight: theme.spacing(2),
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      flexGrow: 1,
-    }),
-    logsStatsClose: css({
-      label: 'logs-stats__close',
-      cursor: 'pointer',
-    }),
-    logsStatsBody: css({
-      label: 'logs-stats__body',
-      padding: '5px 0px',
-    }),
-  };
-};
+;
 
 interface Props {
   className?: string;
@@ -54,7 +22,7 @@ interface Props {
 }
 
 export const LogLabelStats = ({ className, label, rowCount, stats, value, isLabel }: Props) => {
-  const style = useStyles2(getStyles);
+  const style = (getStyles);
   const rows = useMemo(() => {
     const topRows = stats.slice(0, STATS_ROW_LIMIT);
     let activeRow = topRows.find((row) => row.value === value);

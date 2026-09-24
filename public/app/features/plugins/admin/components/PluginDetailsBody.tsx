@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pluginDetailsBodyStyles } from './PluginDetailsBody.stylex';
 import { useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2, PluginContextProvider, type UrlQueryMap, PluginType } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type PageInfoItem } from '@grafana/runtime/internal';
-import { type CellProps, type Column, InteractiveTable, Stack, useStyles2, Carousel } from '@grafana/ui';
+import { type CellProps, type Column, InteractiveTable, Stack, Carousel } from '@grafana/ui';
 
 import { Changelog } from '../components/Changelog';
 import { PluginDetailsPanel } from '../components/PluginDetailsPanel';
@@ -28,7 +29,6 @@ type Props = {
 type Cell<T extends keyof Permission = keyof Permission> = CellProps<Permission, Permission[T]>;
 
 export function PluginDetailsBody({ plugin, queryParams, pageId, info, showDetails }: Props): JSX.Element {
-  const styles = useStyles2(getStyles);
   const { value: pluginConfig } = usePluginConfig(plugin);
   const columns: Array<Column<Permission>> = useMemo(
     () => [
@@ -53,7 +53,7 @@ export function PluginDetailsBody({ plugin, queryParams, pageId, info, showDetai
   if (pageId === PluginTabIds.OVERVIEW) {
     return (
       <div
-        className={styles.readme}
+        {...stylex.props(pluginDetailsBodyStyles.readme)}
         dangerouslySetInnerHTML={{
           __html: plugin.details?.readme ?? 'No plugin help or readme markdown file was found',
         }}
@@ -144,7 +144,7 @@ export function PluginDetailsBody({ plugin, queryParams, pageId, info, showDetai
 
   if (pageId === PluginTabIds.USAGE && pluginConfig) {
     return (
-      <div className={styles.wrap}>
+      <div {...stylex.props(pluginDetailsBodyStyles.wrap)}>
         <PluginUsage plugin={pluginConfig?.meta} />
       </div>
     );
@@ -167,49 +167,4 @@ export function PluginDetailsBody({ plugin, queryParams, pageId, info, showDetai
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrap: css({
-    width: '100%',
-    height: '65vh',
-  }),
-  readme: css({
-    '& img': {
-      maxWidth: '100%',
-    },
-    'h1, h2, h3': {
-      marginTop: theme.spacing(3),
-      marginBottom: theme.spacing(2),
-    },
-    '*:first-child': {
-      marginTop: 0,
-    },
-    li: {
-      marginLeft: theme.spacing(2),
-      '& > p': {
-        margin: theme.spacing(1, 0),
-      },
-      code: {
-        whiteSpace: 'pre-wrap',
-      },
-    },
-    a: {
-      color: theme.colors.text.link,
-      '&:hover': {
-        color: theme.colors.text.link,
-        textDecoration: 'underline',
-      },
-    },
-    table: {
-      tableLayout: 'fixed',
-      width: '100%',
-      'td, th': {
-        overflowX: 'auto',
-        padding: theme.spacing(0.5, 1),
-      },
-      'table, th, td': {
-        border: `1px solid ${theme.colors.border.medium}`,
-        borderCollapse: 'collapse',
-      },
-    },
-  }),
-});
+export 

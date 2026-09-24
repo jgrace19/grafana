@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rulesFilter.v1Styles } from './RulesFilter.v1.stylex';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { ContactPointSelector } from '@grafana/alerting/unstable';
 import { type DataSourceInstanceSettings, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Icon, Input, Label, RadioButtonGroup, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Field, Icon, Input, Label, RadioButtonGroup, Stack, Tooltip } from '@grafana/ui';
 import { DashboardPicker } from 'app/core/components/Select/DashboardPicker';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -44,7 +46,6 @@ const RuleStateOptions = Object.entries(PromAlertingRuleState)
   }));
 
 const RulesFilter = ({ onClear = () => undefined, viewMode, onViewModeChange }: RulesFilterProps) => {
-  const styles = useStyles2(getStyles);
   const { pluginsFilterEnabled } = usePluginsFilterStatus();
   const { filterState, hasActiveFilters, searchQuery, setSearchQuery, updateFilters } = useRulesFilter();
 
@@ -115,7 +116,7 @@ const RulesFilter = ({ onClear = () => undefined, viewMode, onViewModeChange }: 
     <Stack direction="column" gap={0}>
       <Stack direction="row" gap={1} wrap="wrap">
         <Field
-          className={styles.dsPickerContainer}
+          {...stylex.props(rulesFilter.v1Styles.dsPickerContainer)}
           label={
             <Label htmlFor="data-source-picker">
               <Stack gap={0.5} alignItems="center">
@@ -166,7 +167,7 @@ const RulesFilter = ({ onClear = () => undefined, viewMode, onViewModeChange }: 
         </Field>
 
         <Field
-          className={styles.dashboardPickerContainer}
+          {...stylex.props(rulesFilter.v1Styles.dashboardPickerContainer)}
           label={
             <Label htmlFor="filters-dashboard-picker">
               <Trans i18nKey="alerting.rules-filter.dashboard">Dashboard</Trans>
@@ -260,7 +261,7 @@ const RulesFilter = ({ onClear = () => undefined, viewMode, onViewModeChange }: 
       <Stack direction="column" gap={0}>
         <Stack direction="row" gap={1}>
           <form
-            className={styles.searchInput}
+            {...stylex.props(rulesFilter.v1Styles.searchInput)}
             onSubmit={handleSubmit((data) => {
               setSearchQuery(data.searchQuery);
               searchQueryRef.current?.blur();
@@ -324,25 +325,8 @@ const RulesFilter = ({ onClear = () => undefined, viewMode, onViewModeChange }: 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    dsPickerContainer: css({
-      width: theme.spacing(60),
-      flexGrow: 0,
-      margin: 0,
-    }),
-    dashboardPickerContainer: css({
-      minWidth: theme.spacing(50),
-    }),
-    searchInput: css({
-      flex: 1,
-      margin: 0,
-    }),
-  };
-};
 
 function SearchQueryHelp() {
-  const styles = useStyles2(helpStyles);
 
   return (
     <div>
@@ -352,7 +336,7 @@ function SearchQueryHelp() {
         </Trans>
       </div>
       <hr />
-      <div className={styles.grid}>
+      <div {...stylex.props(rulesFilter.v1Styles.grid)}>
         <div>
           <Trans i18nKey="alerting.search-query-help.filter-type">Filter type</Trans>
         </div>
@@ -390,28 +374,15 @@ function SearchQueryHelp() {
 }
 
 function HelpRow({ title, expr }: { title: string; expr: string }) {
-  const styles = useStyles2(helpStyles);
 
   return (
     <>
       <div>{title}</div>
-      <code className={styles.code}>{expr}</code>
+      <code {...stylex.props(rulesFilter.v1Styles.code)}>{expr}</code>
     </>
   );
 }
 
-const helpStyles = (theme: GrafanaTheme2) => ({
-  grid: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content auto',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-  }),
-  code: css({
-    display: 'block',
-    textAlign: 'center',
-  }),
-});
 
 function usePluginsFilterStatus() {
   const { components } = useAlertingHomePageExtensions();

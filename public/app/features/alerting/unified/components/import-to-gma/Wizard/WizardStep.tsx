@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { wizardStepStyles } from './WizardStep.stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { FieldSet, Stack, useStyles2 } from '@grafana/ui';
+import { FieldSet, Stack } from '@grafana/ui';
 
 import { CancelButton } from './CancelButton';
 import { NextButton } from './NextButton';
@@ -57,7 +58,6 @@ export const WizardStep = ({
   disableNext = false,
   onCancel,
 }: WizardStepProps) => {
-  const styles = useStyles2(getStyles);
   const { setVisitedStep, setStepCompleted, setStepSkipped } = useStepperState();
 
   const handleNext = async () => {
@@ -91,10 +91,10 @@ export const WizardStep = ({
   };
 
   return (
-    <FieldSet label={label} className={styles.fieldSet}>
-      {subHeader && <div className={styles.subHeader}>{subHeader}</div>}
-      <div className={styles.content}>{children}</div>
-      <div className={styles.actions}>
+    <FieldSet label={label} {...stylex.props(wizardStepStyles.fieldSet)}>
+      {subHeader && <div {...stylex.props(wizardStepStyles.subHeader)}>{subHeader}</div>}
+      <div {...stylex.props(wizardStepStyles.content)}>{children}</div>
+      <div {...stylex.props(wizardStepStyles.actions)}>
         <Stack direction="row" gap={1}>
           <PreviousButton onBack={handleBack} />
           <NextButton
@@ -111,29 +111,3 @@ export const WizardStep = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  fieldSet: css({
-    '& legend': {
-      marginBottom: theme.spacing(0.5),
-      fontSize: theme.typography.h4.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-  }),
-  subHeader: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(3),
-    maxWidth: 800,
-  }),
-  content: css({
-    marginBottom: theme.spacing(4),
-    maxWidth: 800,
-  }),
-  actions: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    maxWidth: 800,
-    paddingTop: theme.spacing(2),
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-  }),
-});

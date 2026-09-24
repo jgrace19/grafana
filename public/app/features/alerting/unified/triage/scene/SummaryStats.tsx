@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { summaryStatsStyles } from './SummaryStats.stylex';
 
 import { type DataFrame, type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { SceneObjectBase, type SceneObjectState } from '@grafana/scenes';
 import { useQueryRunner } from '@grafana/scenes-react';
-import { Box, ErrorBoundaryAlert, Icon, Text, useStyles2 } from '@grafana/ui';
+import { Box, ErrorBoundaryAlert, Icon, Text } from '@grafana/ui';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
 import { FIELD_NAMES } from '../constants';
@@ -63,11 +64,10 @@ interface CompactStatRowProps {
 }
 
 function CompactStatRow({ color, icon, ruleCount, stateLabel }: CompactStatRowProps) {
-  const styles = useStyles2(getCompactStatStyles);
-  const iconColor = color === 'error' ? styles.errorColor : styles.warningColor;
+  const iconColor = color === 'error' ? stylex.props(formStyles.errorColor) : stylex.props(formStyles.warningColor);
 
   return (
-    <div className={styles.statRow}>
+    <div {...stylex.props(formStyles.statRow)}>
       <Icon name={icon} size="sm" className={iconColor} />
       <Text element="span" weight="medium" color={color}>
         {stateLabel === 'firing' ? (
@@ -76,7 +76,7 @@ function CompactStatRow({ color, icon, ruleCount, stateLabel }: CompactStatRowPr
           <Trans i18nKey="alerting.triage.compact-pending">pending</Trans>
         )}
       </Text>
-      <span className={`${styles.statValue} ${iconColor}`}>{ruleCount}</span>
+      <span className={`${stylex.props(formStyles.statValue)} ${iconColor}`}>{ruleCount}</span>
       <Text element="span" color="secondary" variant="bodySmall">
         <Trans i18nKey="alerting.triage.compact-rules">rules</Trans>
       </Text>
@@ -85,7 +85,6 @@ function CompactStatRow({ color, icon, ruleCount, stateLabel }: CompactStatRowPr
 }
 
 function SummaryStatsContent() {
-  const styles = useStyles2(getCompactStatStyles);
   const filter = useQueryFilter();
 
   // Strip alertstate from filter since the dedup queries add their own alertstate matchers.
@@ -110,7 +109,7 @@ function SummaryStatsContent() {
 
   return (
     <Box backgroundColor="secondary" borderRadius="default" padding={1.5}>
-      <div className={styles.statsGrid}>
+      <div {...stylex.props(formStyles.statsGrid)}>
         {rules.firing > 0 && (
           <CompactStatRow
             color="error"
@@ -145,31 +144,3 @@ export class SummaryStatsScene extends SceneObjectBase<SceneObjectState> {
   static Component = SummaryStatsReact;
 }
 
-const getCompactStatStyles = (theme: GrafanaTheme2) => ({
-  statsGrid: css({
-    display: 'grid',
-    gridTemplateColumns: 'max-content max-content max-content max-content',
-    alignItems: 'center',
-    columnGap: theme.spacing(1.5),
-    rowGap: theme.spacing(0.5),
-    fontSize: theme.typography.body.fontSize,
-  }),
-  statRow: css({
-    gridColumn: '1 / -1',
-    display: 'grid',
-    gridTemplateColumns: 'subgrid',
-    alignItems: 'center',
-  }),
-  statValue: css({
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.h4.fontSize,
-    textAlign: 'right',
-    fontVariantNumeric: 'tabular-nums',
-  }),
-  errorColor: css({
-    color: theme.colors.error.text,
-  }),
-  warningColor: css({
-    color: theme.colors.warning.text,
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { saveProvisionedDashboardFormStyles } from './SaveProvisionedDashboardForm.stylex';
 import { saveAs } from 'file-saver';
 import { useCallback, useState } from 'react';
 
@@ -53,7 +55,7 @@ export const SaveProvisionedDashboardForm = ({ dashboard, onCancel }: Omit<SaveD
           onChange={(e) => {
             setDashboardJson(e.currentTarget.value);
           }}
-          className={styles.json}
+          {...stylex.props(saveProvisionedDashboardFormStyles.json)}
         />
         <Stack>
           <Button variant="secondary" onClick={onCancel} fill="outline">
@@ -73,12 +75,3 @@ export const SaveProvisionedDashboardForm = ({ dashboard, onCancel }: Omit<SaveD
   );
 };
 
-const styles = {
-  json: css({
-    height: '400px',
-    width: '100%',
-    overflow: 'auto',
-    resize: 'none',
-    fontFamily: 'monospace',
-  }),
-};

@@ -1,6 +1,8 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { settingsSummaryStyles } from './SettingsSummary.stylex';
 import { Trans, t } from '@grafana/i18n';
 import { Spinner, TimeRangeLabel, useStyles2 } from '@grafana/ui';
 
@@ -19,7 +21,6 @@ export function SettingsSummary({
   timeSelectionEnabled,
   annotationsEnabled,
 }: Props) {
-  const styles = useStyles2(getStyles);
 
   const translatedTimeRangePickerEnabledStatus = t(
     'public-dashboard.settings-summary.time-range-picker-enabled-text',
@@ -39,19 +40,19 @@ export function SettingsSummary({
   );
 
   return isDataLoading ? (
-    <div className={cx(styles.summaryWrapper, className)}>
-      <Spinner className={styles.summary} inline={true} size="sm" />
+    <div {...mergeStylexClassName(stylex.props(settingsSummaryStyles.summaryWrapper, , className), undefined)}>
+      <Spinner {...stylex.props(settingsSummaryStyles.summary)} inline={true} size="sm" />
     </div>
   ) : (
-    <div className={cx(styles.summaryWrapper, className)}>
-      <span className={styles.summary}>
+    <div {...mergeStylexClassName(stylex.props(settingsSummaryStyles.summaryWrapper, , className), undefined)}>
+      <span {...stylex.props(settingsSummaryStyles.summary)}>
         <Trans i18nKey="public-dashboard.settings-summary.time-range-text">Time range = </Trans>
-        <TimeRangeLabel className={styles.timeRange} value={timeRange} />
+        <TimeRangeLabel {...stylex.props(settingsSummaryStyles.timeRange)} value={timeRange} />
       </span>
-      <span className={styles.summary}>
+      <span {...stylex.props(settingsSummaryStyles.summary)}>
         {timeSelectionEnabled ? translatedTimeRangePickerEnabledStatus : translatedTimeRangePickerDisabledStatus}
       </span>
-      <span className={styles.summary}>
+      <span {...stylex.props(settingsSummaryStyles.summary)}>
         {annotationsEnabled ? translatedAnnotationShownStatus : translatedAnnotationHiddenStatus}
       </span>
     </div>
@@ -60,19 +61,4 @@ export function SettingsSummary({
 
 SettingsSummary.displayName = 'SettingsSummary';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    summaryWrapper: css({
-      display: 'flex',
-    }),
-    summary: css({
-      label: 'collapsedText',
-      marginLeft: `${theme.spacing.gridSize * 2}px`,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    timeRange: css({
-      display: 'inline-block',
-    }),
-  };
-};
+;

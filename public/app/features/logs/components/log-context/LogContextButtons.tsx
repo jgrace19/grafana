@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logContextButtonsStyles } from './LogContextButtons.stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, InlineSwitch, useStyles2 } from '@grafana/ui';
+import { Button, InlineSwitch } from '@grafana/ui';
 
 export type Props = {
   wrapLines?: boolean;
@@ -13,17 +14,8 @@ export type Props = {
   onScrollCenterClick: () => void;
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    buttons: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-    }),
-  };
-}
 
 export const LogContextButtons = (props: Props) => {
-  const styles = useStyles2(getStyles);
   const { wrapLines, onChangeWrapLines, onScrollCenterClick } = props;
   const internalOnChangeWrapLines = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
@@ -37,7 +29,7 @@ export const LogContextButtons = (props: Props) => {
   );
 
   return (
-    <div className={styles.buttons}>
+    <div {...stylex.props(logContextButtonsStyles.buttons)}>
       <InlineSwitch
         showLabel
         value={wrapLines}

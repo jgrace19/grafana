@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rulesTableStyles } from './RulesTable.stylex';
 import { useEffect, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Pagination, Tooltip, useStyles2 } from '@grafana/ui';
+import { Pagination, Tooltip } from '@grafana/ui';
 import { type CombinedRule, type RulesSource } from 'app/types/unified-alerting';
 
 import { DEFAULT_PER_PAGE_PAGINATION } from '../../../../../core/constants';
@@ -60,8 +62,7 @@ export const RulesTable = ({
   showSummaryColumn = false,
   showNextEvaluationColumn = false,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-  const wrapperClass = cx(styles.wrapper, className, { [styles.wrapperMargin]: showGuidelines });
+  const wrapperClass = cx(rulesTableStyles.wrapper, className, { [rulesTableStyles.wrapperMargin]: showGuidelines });
 
   const { pageItems, page, numberOfPages, onPageChange } = usePagination(rules, 1, DEFAULT_PER_PAGE_PAGINATION);
 
@@ -81,7 +82,7 @@ export const RulesTable = ({
   const columns = useColumns(showSummaryColumn, showGroupColumn, showNextEvaluationColumn, isLoadingRulerGroup);
 
   if (!pageItems.length) {
-    return <div className={cx(wrapperClass, styles.emptyMessage)}>{emptyMessage}</div>;
+    return <div className={cx(wrapperClass, rulesTableStyles.emptyMessage)}>{emptyMessage}</div>;
   }
 
   const TableComponent = showGuidelines ? DynamicTableWithGuidelines : DynamicTable;
@@ -99,7 +100,7 @@ export const RulesTable = ({
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
         hideWhenSinglePage
-        className={styles.pagination}
+        {...stylex.props(rulesTableStyles.pagination)}
       />
     </div>
   );
@@ -158,34 +159,6 @@ function useLazyLoadRulerRules(rules: CombinedRule[]) {
   return state;
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrapperMargin: css({
-    [theme.breakpoints.up('md')]: {
-      marginLeft: '36px',
-    },
-  }),
-  emptyMessage: css({
-    padding: theme.spacing(1),
-  }),
-  wrapper: css({
-    width: 'auto',
-    borderRadius: theme.shape.radius.default,
-  }),
-  skeletonWrapper: css({
-    flex: 1,
-  }),
-  pagination: css({
-    display: 'flex',
-    margin: 0,
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(0.25),
-    justifyContent: 'center',
-    borderLeft: `1px solid ${theme.colors.border.medium}`,
-    borderRight: `1px solid ${theme.colors.border.medium}`,
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    float: 'none',
-  }),
-});
 
 function useColumns(
   showSummaryColumn: boolean,
@@ -318,11 +291,10 @@ function RuleStateCell({ rule }: { rule: CombinedRule }) {
 }
 
 function RuleActionsCell({ rule, isLoadingRuler }: { rule: CombinedRule; isLoadingRuler: boolean }) {
-  const styles = useStyles2(getStyles);
   const { isDeleting, isCreating } = useRuleStatus(rule);
 
   if (isLoadingRuler) {
-    return <Skeleton containerClassName={styles.skeletonWrapper} />;
+    return <Skeleton containerClassName={rulesTableStyles.skeletonWrapper} />;
   }
 
   return (

@@ -1,6 +1,4 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -16,8 +14,7 @@ import {
   TextLink,
   Label,
   Stack,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { Form } from 'app/core/components/Form/Form';
 
 import { validateDashboardJson, validateGcomDashboard } from '../utils/validation';
@@ -37,7 +34,7 @@ type Props = {
 };
 
 export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: Props) {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   // Do not display upload file list
   const fileListRenderer = (_file: DropzoneFile, _removeFile: (file: DropzoneFile) => void) => null;
@@ -52,7 +49,7 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
 
   return (
     <>
-      <div className={styles.option}>
+      <div {...stylex.props(importSourceFormStyles.option)}>
         <FileDropzone
           options={{ multiple: false, accept: ['.json', '.txt'] }}
           readAs="readAsText"
@@ -66,12 +63,12 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
         </FileDropzone>
       </div>
 
-      <div className={styles.option}>
+      <div {...stylex.props(importSourceFormStyles.option)}>
         <Form onSubmit={onGcomSubmit} defaultValues={{ gcomDashboard: '' }}>
           {({ register, errors }) => (
             <Field
               label={
-                <Label className={styles.labelWithLink} htmlFor="url-input">
+                <Label {...stylex.props(importSourceFormStyles.labelWithLink)} htmlFor="url-input">
                   <span>
                     <Trans i18nKey="dashboard-import.gcom-field.label" components={{ link: gcomLink }}>
                       {'Find and import dashboards for common applications at <link />'}
@@ -105,7 +102,7 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
         </Form>
       </div>
 
-      <div className={styles.option}>
+      <div {...stylex.props(importSourceFormStyles.option)}>
         <Form onSubmit={onJsonSubmit} defaultValues={{ dashboardJson: '' }}>
           {({ register, errors }) => (
             <Stack direction="column" gap={2}>
@@ -142,14 +139,3 @@ export function ImportSourceForm({ onFileUpload, onGcomSubmit, onJsonSubmit }: P
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    option: css({
-      marginBottom: theme.spacing(4),
-      maxWidth: '600px',
-    }),
-    labelWithLink: css({
-      maxWidth: '100%',
-    }),
-  };
-}

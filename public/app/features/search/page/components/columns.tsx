@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { intervalToDuration } from 'date-fns';
 import Skeleton from 'react-loading-skeleton';
 
@@ -115,7 +115,7 @@ export const generateColumns = (
   width = Math.max(availableWidth * 0.2, 300);
   columns.push({
     Cell: (p) => {
-      let classNames = cx(styles.nameCellStyle);
+      let classNames = clsx(styles.nameCellStyle);
       let name = access.name.values[p.row.index];
       const isDeleted = access.isDeleted?.values[p.row.index];
 
@@ -295,7 +295,7 @@ export const generateColumns = (
           <div
             key={key}
             {...cellProps}
-            className={cx(styles.cell, styles.explainItem)}
+            className={clsx(styles.cell, styles.explainItem)}
             onClick={() => showExplainPopup(p.row.index)}
           >
             {vals[p.row.index]}
@@ -340,7 +340,7 @@ function makeDataSourceColumn(
       }
       const { key, ...cellProps } = p.cellProps;
       return (
-        <div key={key} {...cellProps} className={cx(datasourceItemClass)}>
+        <div key={key} {...cellProps} className={clsx(datasourceItemClass)}>
           {dslist.map((v, i) => {
             const settings = srv.getInstanceSettings(v);
             const icon = settings?.meta?.info?.logos?.small;
@@ -392,7 +392,7 @@ function makeDeletedRemainingColumn(
 
       if (!deletedDate || !response.isItemLoaded(p.row.index)) {
         return (
-          <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+          <div key={key} {...cellProps} className={clsx(styles.cell, styles.typeCell)}>
             <Skeleton width={100} />
           </div>
         );
@@ -405,7 +405,7 @@ function makeDeletedRemainingColumn(
         : formatDuration(duration, { style: 'long' });
 
       return (
-        <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+        <div key={key} {...cellProps} className={clsx(styles.cell, styles.typeCell)}>
           <Tooltip content={formatDate(deletedDate, { dateStyle: 'medium', timeStyle: 'short' })}>
             <span>{formatted}</span>
           </Tooltip>
@@ -471,7 +471,7 @@ function makeTypeColumn(
       }
       const { key, ...cellProps } = p.cellProps;
       return (
-        <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+        <div key={key} {...cellProps} className={clsx(styles.cell, styles.typeCell)}>
           {!response.isItemLoaded(p.row.index) ? (
             <Skeleton width={100} />
           ) : (

@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 
 /**
  * A simple "flex: 1;" component you can use in combination with the Stack component(s), like so
@@ -12,8 +11,5 @@ import { css } from '@emotion/css';
 
 export const Spacer = () => (
   <span
-    className={css({
-      flex: 1,
-    })}
-  />
+      />
 );

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsDisplayedFieldsStyles } from './LogLineDetailsDisplayedFields.stylex';
 import { DragDropContext, Draggable, type DraggableProvided, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Card, IconButton, useStyles2 } from '@grafana/ui';
+import { Card, IconButton } from '@grafana/ui';
 
 import { useLogDetailsContext } from './LogDetailsContext';
 import { type LogLineDetailsMode } from './LogLineDetails';
@@ -92,14 +93,14 @@ const DisplayedField = ({
 }: DraggableDisplayedFieldProps & { provided: DraggableProvided }) => {
   const { displayedFields, onClickHideField } = useLogListContext();
   const { detailsMode } = useLogDetailsContext();
-  const styles = useStyles2(getStyles, detailsMode);
+  const styles = (getStyles, detailsMode);
   const nextIndex = index === displayedFields.length - 1 ? 0 : index + 1;
   const prevIndex = index === 0 ? displayedFields.length - 1 : index - 1;
   return (
     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-      <Card noMargin className={styles.fieldCard}>
-        <div className={styles.fieldWrapper}>
-          <div className={styles.field}>{getNormalizedFieldName(field)}</div>
+      <Card noMargin {...stylex.props(logLineDetailsDisplayedFieldsStyles.fieldCard)}>
+        <div {...stylex.props(logLineDetailsDisplayedFieldsStyles.fieldWrapper)}>
+          <div {...stylex.props(logLineDetailsDisplayedFieldsStyles.field)}>{getNormalizedFieldName(field)}</div>
           {displayedFields.length > 1 && (
             <>
               <IconButton
@@ -127,23 +128,3 @@ const DisplayedField = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, detailsMode: LogLineDetailsMode) => ({
-  fieldCard: css({
-    display: 'block',
-    padding: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    width: detailsMode === 'inline' ? '30vw' : undefined,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    wordBreak: 'break-word',
-  }),
-  fieldWrapper: css({
-    cursor: 'move',
-    display: 'flex',
-    gap: theme.spacing(0.5),
-    justifyContent: 'space-evenly',
-  }),
-  field: css({
-    flex: 1,
-  }),
-});

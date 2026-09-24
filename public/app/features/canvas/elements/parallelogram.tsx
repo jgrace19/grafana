@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { parallelogramStyles } from './parallelogram.stylex';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DimensionContext } from 'app/features/dimensions/context';
@@ -25,7 +26,7 @@ const Parallelogram = (props: CanvasElementProps<CanvasElementConfig, CanvasElem
   const uniqueId = uuidv4();
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(parallelogramStyles.container)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 250 150"
@@ -59,10 +60,10 @@ const Parallelogram = (props: CanvasElementProps<CanvasElementConfig, CanvasElem
         <polygon
           points="0,150 50,0 250,0 200,150"
           clipPath={`url(#parallelogramClip-${uniqueId})`}
-          className={styles.elementBorder}
+          {...stylex.props(parallelogramStyles.elementBorder)}
         />
       </svg>
-      <span className={styles.text}>{data?.text}</span>
+      <span {...stylex.props(parallelogramStyles.text)}>{data?.text}</span>
     </div>
   );
 };
@@ -204,31 +205,3 @@ export const parallelogramItem: CanvasElementItem = {
   ],
 };
 
-const getStyles = (theme: GrafanaTheme2, data: CanvasElementData | undefined) => {
-  const textTop = data?.valign === VAlign.Middle ? '50%' : data?.valign === VAlign.Top ? '10%' : '90%';
-  const textLeft = data?.align === Align.Center ? '50%' : data?.align === Align.Left ? '10%' : '90%';
-  const textTransform = `translate(${data?.align === Align.Center ? '-50%' : data?.align === Align.Left ? '10%' : '-90%'}, ${
-    data?.valign === VAlign.Middle ? '-50%' : data?.valign === VAlign.Top ? '10%' : '-90%'
-  })`;
-
-  return {
-    container: css({
-      height: '100%',
-      width: '100%',
-    }),
-    text: css({
-      position: 'absolute',
-      top: textTop,
-      left: textLeft,
-      transform: textTransform,
-      fontSize: `${data?.size}px`,
-      color: data?.color,
-    }),
-    elementBorder: css({
-      fill: 'none',
-      stroke: data?.borderColor ?? 'none',
-      strokeWidth: data?.borderWidth ?? 0,
-      strokeLinejoin: 'round',
-    }),
-  };
-};

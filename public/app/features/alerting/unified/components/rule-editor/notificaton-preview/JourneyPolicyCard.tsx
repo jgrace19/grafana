@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type RouteWithID } from '@grafana/alerting';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Text, Tooltip } from '@grafana/ui';
 import { type ObjectMatcher } from 'app/plugins/datasource/alertmanager/types';
 
 import { labelMatcherToObjectMatcher } from '../../../utils/routeAdapter';
@@ -17,7 +16,6 @@ interface JourneyPolicyCardProps {
 }
 
 export function JourneyPolicyCard({ route, isRoot = false, isFinalRoute = false }: JourneyPolicyCardProps) {
-  const styles = useStyles2(getStyles);
 
   // Convert route matchers to ObjectMatcher format
   const matchers: ObjectMatcher[] = route.matchers?.map(labelMatcherToObjectMatcher) ?? [];
@@ -26,7 +24,7 @@ export function JourneyPolicyCard({ route, isRoot = false, isFinalRoute = false 
   const continueMatching = route.continue ?? false;
 
   return (
-    <article className={styles.policyWrapper(isFinalRoute)} aria-current={isFinalRoute ? 'true' : 'false'}>
+    <article className={stylex.props(formStyles.policyWrapper)(isFinalRoute)} aria-current={isFinalRoute ? 'true' : 'false'}>
       {continueMatching && <ContinueMatchingIndicator />}
       <Stack direction="column" gap={0.5}>
         {/* root route indicator */}
@@ -60,7 +58,6 @@ export function JourneyPolicyCard({ route, isRoot = false, isFinalRoute = false 
 }
 
 const ContinueMatchingIndicator = () => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Tooltip
@@ -71,42 +68,10 @@ const ContinueMatchingIndicator = () => {
         </Trans>
       }
     >
-      <div className={styles.gutterIcon} data-testid="continue-matching">
+      <div {...stylex.props(journeyPolicyCardStyles.gutterIcon)} data-testid="continue-matching">
         <Icon name="arrow-down" />
       </div>
     </Tooltip>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  policyWrapper: (hasFocus = false) =>
-    css({
-      position: 'relative',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      border: `solid 1px ${theme.colors.border.weak}`,
-      ...(hasFocus && {
-        borderColor: theme.colors.primary.border,
-        background: theme.colors.primary.transparent,
-      }),
-      padding: theme.spacing(1),
-    }),
-  gutterIcon: css({
-    position: 'absolute',
-    left: `-${theme.spacing(3.5)}`,
-    top: theme.spacing(2.25),
-
-    color: theme.colors.text.secondary,
-    background: theme.colors.background.primary,
-
-    width: '20px',
-    height: '20px',
-
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-});

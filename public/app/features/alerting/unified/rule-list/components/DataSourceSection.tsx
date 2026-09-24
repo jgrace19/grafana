@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceSectionStyles } from './DataSourceSection.stylex';
 import { type PropsWithChildren, type ReactNode } from 'react';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, IconButton, LinkButton, Stack, Text, Toggletip, useStyles2 } from '@grafana/ui';
+import { Button, IconButton, LinkButton, Stack, Text, Toggletip } from '@grafana/ui';
 import { GrafanaRulesSourceSymbol, type RulesSourceIdentifier } from 'app/types/unified-alerting';
 import { type RulesSourceApplication } from 'app/types/unified-alerting-dto';
 
@@ -36,7 +37,7 @@ export const DataSourceSection = ({
   description = null,
 }: DataSourceSectionProps) => {
   const [isCollapsed, toggleCollapsed] = useToggle(false);
-  const styles = useStyles2((theme) => getStyles(theme, isCollapsed));
+  const styles = ((theme) => getStyles(theme, isCollapsed));
 
   const configureLink = (() => {
     if (uid === GrafanaRulesSourceSymbol) {
@@ -54,7 +55,7 @@ export const DataSourceSection = ({
       <Stack direction="column" gap={0}>
         <Stack direction="column" gap={0}>
           {isLoading && <LoadingIndicator datasourceUid={String(uid)} />}
-          <div className={styles.dataSourceSectionTitle}>
+          <div {...stylex.props(dataSourceSectionStyles.dataSourceSectionTitle)}>
             {loader ?? (
               <Stack alignItems="center">
                 <IconButton
@@ -101,19 +102,9 @@ export const DataSourceSection = ({
             )}
           </div>
         </Stack>
-        {!isCollapsed && <div className={styles.itemsWrapper}>{children}</div>}
+        {!isCollapsed && <div {...stylex.props(dataSourceSectionStyles.itemsWrapper)}>{children}</div>}
       </Stack>
     </section>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, isCollapsed = false) => ({
-  itemsWrapper: css({
-    position: 'relative',
-  }),
-  dataSourceSectionTitle: css({
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(1, 1.5),
-    borderRadius: theme.shape.radius.default,
-  }),
-});

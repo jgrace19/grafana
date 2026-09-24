@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleDetailsExpressionStyles } from './RuleDetailsExpression.stylex';
 import type { JSX } from 'react';
 
 import { t } from '@grafana/i18n';
@@ -26,15 +29,10 @@ export function RuleDetailsExpression(props: Props): JSX.Element | null {
     <DetailsField
       label={t('alerting.rule-details-expression.label-expression', 'Expression')}
       horizontal={true}
-      className={cx({ [styles.exprRow]: !!annotations.length })}
+      className={cx({ [ruleDetailsExpressionStyles.exprRow]: !!annotations.length })}
     >
       <Expression expression={rule.query} rulesSource={rulesSource} />
     </DetailsField>
   );
 }
 
-const getStyles = () => ({
-  exprRow: css({
-    marginBottom: '46px',
-  }),
-});

@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { richHistoryCardStyles } from './RichHistoryCard.stylex';
 import { useCallback, useState } from 'react';
 import * as React from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2, type DataSourceApi } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction, getAppEvents } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
@@ -42,106 +44,12 @@ interface OwnProps<T extends DataQuery = DataQuery> {
 
 export type Props<T extends DataQuery = DataQuery> = ConnectedProps<typeof connector> & OwnProps<T>;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  /* Hard-coded value so all buttons and icons on right side of card are aligned */
-  const rightColumnWidth = '240px';
-  const rightColumnContentWidth = '170px';
-
-  /* If datasource was removed, card will have inactive color */
-  const cardColor = theme.colors.background.secondary;
-
-  return {
-    queryCard: css({
-      position: 'relative',
-      display: 'flex',
-      flexDirection: 'column',
-      border: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(1, 0),
-      backgroundColor: cardColor,
-      borderRadius: theme.shape.radius.default,
-      '.starred': {
-        color: theme.v1.palette.orange,
-      },
-    }),
-    cardRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1),
-      borderBottom: 'none',
-      ':first-of-type': {
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
-        padding: theme.spacing(0.5, 1),
-      },
-      img: {
-        height: `${theme.typography.fontSize}px`,
-        maxWidth: `${theme.typography.fontSize}px`,
-        marginRight: theme.spacing(1),
-      },
-    }),
-    queryActionButtons: css({
-      maxWidth: rightColumnContentWidth,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      fontSize: theme.typography.size.base,
-      button: {
-        marginLeft: theme.spacing(1),
-      },
-    }),
-    queryContainer: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      width: `calc(100% - ${rightColumnWidth})`,
-    }),
-    updateCommentContainer: css({
-      width: `calc(100% + ${rightColumnWidth})`,
-      marginTop: theme.spacing(1),
-    }),
-    comment: css({
-      overflowWrap: 'break-word',
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightRegular,
-      marginTop: theme.spacing(0.5),
-    }),
-    commentButtonRow: css({
-      '> *': {
-        marginTop: theme.spacing(1),
-        marginRight: theme.spacing(1),
-      },
-    }),
-    textArea: css({
-      width: '100%',
-    }),
-    runButton: css({
-      maxWidth: rightColumnContentWidth,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      button: {
-        height: 'auto',
-        padding: theme.spacing(0.5, 2),
-        lineHeight: 1.4,
-        span: {
-          whiteSpace: 'normal !important',
-        },
-      },
-    }),
-    loader: css({
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-};
 
 export function RichHistoryCard(props: Props) {
   const { queryHistoryItem, commentHistoryItem, starHistoryItem, deleteHistoryItem, datasourceInstances } = props;
 
   const [activeUpdateComment, setActiveUpdateComment] = useState(false);
   const [comment, setComment] = useState<string | undefined>(queryHistoryItem.comment);
-  const styles = useStyles2(getStyles);
 
   const cardRootDatasource = datasourceInstances
     ? datasourceInstances.find((di) => di.uid === queryHistoryItem.datasourceUid)
@@ -241,7 +149,7 @@ export function RichHistoryCard(props: Props) {
 
   const updateComment = (
     <div
-      className={styles.updateCommentContainer}
+      {...stylex.props(richHistoryCardStyles.updateCommentContainer)}
       aria-label={
         comment
           ? t('explore.rich-history-card.update-comment-form', 'Update comment form')
@@ -257,9 +165,9 @@ export function RichHistoryCard(props: Props) {
             : t('explore.rich-history-card.optional-description', 'An optional description of what the query does.')
         }
         onChange={(e) => setComment(e.currentTarget.value)}
-        className={styles.textArea}
+        {...stylex.props(richHistoryCardStyles.textArea)}
       />
-      <div className={styles.commentButtonRow}>
+      <div {...stylex.props(richHistoryCardStyles.commentButtonRow)}>
         <Button onClick={onUpdateComment}>
           <Trans i18nKey="explore.rich-history-card.save-comment">Save comment</Trans>
         </Button>
@@ -271,7 +179,7 @@ export function RichHistoryCard(props: Props) {
   );
 
   const queryActionButtons = (
-    <div className={styles.queryActionButtons}>
+    <div {...stylex.props(richHistoryCardStyles.queryActionButtons)}>
       <IconButton
         name="comment-alt"
         onClick={toggleActiveUpdateComment}
@@ -317,14 +225,14 @@ export function RichHistoryCard(props: Props) {
   );
 
   return (
-    <div className={styles.queryCard}>
-      <div className={styles.cardRow}>
+    <div {...stylex.props(richHistoryCardStyles.queryCard)}>
+      <div {...stylex.props(richHistoryCardStyles.cardRow)}>
         <DatasourceInfo dsApi={cardRootDatasource} size="sm" />
 
         {queryActionButtons}
       </div>
-      <div className={cx(styles.cardRow)}>
-        <div className={styles.queryContainer}>
+      <div {...mergeStylexClassName(stylex.props(richHistoryCardStyles.cardRow, ), undefined)}>
+        <div {...stylex.props(richHistoryCardStyles.queryContainer)}>
           {queryHistoryItem?.queries.map((q, i) => {
             const queryDs = datasourceInstances?.find((ds) => ds.uid === q.datasource?.uid);
             return (
@@ -338,7 +246,7 @@ export function RichHistoryCard(props: Props) {
           {!activeUpdateComment && queryHistoryItem.comment && (
             <div
               aria-label={t('explore.rich-history-card.query-comment-label', 'Query comment')}
-              className={styles.comment}
+              {...stylex.props(richHistoryCardStyles.comment)}
             >
               {queryHistoryItem.comment}
             </div>
@@ -347,7 +255,7 @@ export function RichHistoryCard(props: Props) {
         </div>
         {!activeUpdateComment && <RichHistoryAddToLibrary query={queryHistoryItem?.queries[0]} />}
         {!activeUpdateComment && (
-          <div className={styles.runButton}>
+          <div {...stylex.props(richHistoryCardStyles.runButton)}>
             <ExploreRunQueryButton queries={queryHistoryItem.queries} rootDatasourceUid={cardRootDatasource?.uid} />
           </div>
         )}
@@ -356,25 +264,6 @@ export function RichHistoryCard(props: Props) {
   );
 }
 
-const getQueryStyles = (theme: GrafanaTheme2) => ({
-  queryRow: css({
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    display: 'flex',
-    flexDirection: 'row',
-    padding: theme.spacing(0.5, 0),
-    gap: theme.spacing(0.5),
-    ':first-child': {
-      borderTop: 'none',
-    },
-  }),
-  dsInfoContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  queryText: css({
-    wordBreak: 'break-all',
-  }),
-});
 
 interface QueryProps {
   query: {
@@ -386,17 +275,16 @@ interface QueryProps {
 }
 
 const Query = ({ query, showDsInfo = false }: QueryProps) => {
-  const styles = useStyles2(getQueryStyles);
 
   return (
-    <div className={styles.queryRow}>
+    <div {...stylex.props(richHistoryCardStyles.queryRow)}>
       {showDsInfo && (
-        <div className={styles.dsInfoContainer}>
+        <div {...stylex.props(richHistoryCardStyles.dsInfoContainer)}>
           <DatasourceInfo dsApi={query.datasource} size="md" />
           {': '}
         </div>
       )}
-      <span aria-label={t('explore.rich-history-card.query-text-label', 'Query text')} className={styles.queryText}>
+      <span aria-label={t('explore.rich-history-card.query-text-label', 'Query text')} {...stylex.props(richHistoryCardStyles.queryText)}>
         {createQueryText(query.query, query.datasource)}
       </span>
     </div>
@@ -414,7 +302,6 @@ const getDsInfoStyles = (size: 'sm' | 'md') => (theme: GrafanaTheme2) =>
 
 function DatasourceInfo({ dsApi, size }: { dsApi?: DataSourceApi; size: 'sm' | 'md' }) {
   const getStyles = useCallback((theme: GrafanaTheme2) => getDsInfoStyles(size)(theme), [size]);
-  const styles = useStyles2(getStyles);
 
   return (
     <div className={styles}>

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsSamplePanelStyles } from './LogsSamplePanel.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useRef, type JSX } from 'react';
 
@@ -42,8 +44,6 @@ export function LogsSamplePanel(props: Props) {
   const { queryResponse, timeZone, enabled, setLogsSampleEnabled, datasourceInstance, queries, splitOpen } = props;
   const newLogsPanelEnabled = useBooleanFlagValue('newLogsPanel', true);
 
-  const styles = useStyles2(getStyles, newLogsPanelEnabled);
-
   const logsContainerRef = useRef<HTMLDivElement | null>(null);
 
   const onToggleLogsSampleCollapse = (isOpen: boolean) => {
@@ -79,7 +79,7 @@ export function LogsSamplePanel(props: Props) {
     };
 
     return (
-      <Button size="sm" className={styles.logSamplesButton} onClick={onSplitOpen}>
+      <Button size="sm" {...stylex.props(logsSamplePanelStyles.logSamplesButton)} onClick={onSplitOpen}>
         <Trans i18nKey="explore.logs-sample-panel.open-in-split-view-button.open-logs-in-split-view">
           Open logs in split view
         </Trans>
@@ -153,7 +153,7 @@ export function LogsSamplePanel(props: Props) {
           <Tooltip
             content={t('explore.logs-sample-panel.tooltip', 'Show log lines that contributed to visualized metrics')}
           >
-            <Icon name="info-circle" className={styles.infoTooltip} />
+            <Icon name="info-circle" {...stylex.props(logsSamplePanelStyles.infoTooltip)} />
           </Tooltip>
         </div>
       }
@@ -161,25 +161,11 @@ export function LogsSamplePanel(props: Props) {
       onToggle={onToggleLogsSampleCollapse}
     >
       <OpenInSplitViewButton />
-      <div className={styles.logContainer} ref={logsContainerRef}>
+      <div {...stylex.props(logsSamplePanelStyles.logContainer)} ref={logsContainerRef}>
         {LogsSamplePanelContent}
       </div>
     </Collapse>
   ) : null;
 }
 
-const getStyles = (theme: GrafanaTheme2, newLogsPanelEnabled: boolean) => {
-  return {
-    logSamplesButton: css({
-      position: 'absolute',
-      top: theme.spacing(1),
-      right: theme.spacing(1),
-    }),
-    logContainer: css({
-      overflow: newLogsPanelEnabled ? 'visible' : 'scroll',
-    }),
-    infoTooltip: css({
-      marginLeft: theme.spacing(1),
-    }),
-  };
-};
+;

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { recentScopesStyles } from './RecentScopes.stylex';
 import { useId, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Stack, Text, Icon, Box } from '@grafana/ui';
+import { Stack, Text, Icon, Box } from '@grafana/ui';
 
 import { type RecentScope } from './types';
 
@@ -13,15 +14,14 @@ interface RecentScopesProps {
 }
 
 export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
-  const styles = useStyles2(getStyles);
   const [expanded, setExpanded] = useState(false);
 
   const contentId = useId();
   return (
     <fieldset>
-      <legend className={styles.legend}>
+      <legend {...stylex.props(recentScopesStyles.legend)}>
         <button
-          className={styles.expandButton}
+          {...stylex.props(recentScopesStyles.expandButton)}
           aria-expanded={expanded}
           aria-controls={contentId}
           onClick={() => setExpanded(!expanded)}
@@ -38,7 +38,7 @@ export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
           {expanded &&
             recentScopes.map((recentScopeSet) => (
               <button
-                className={styles.recentScopeButton}
+                {...stylex.props(recentScopesStyles.recentScopeButton)}
                 key={
                   recentScopeSet.map((s) => s.metadata.name).join(',') + recentScopeSet[0]?.parentNode?.metadata?.name
                 }
@@ -64,28 +64,3 @@ export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  recentScopeButton: css({
-    textAlign: 'left',
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    cursor: 'pointer',
-    display: 'flex',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-  }),
-  expandButton: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    cursor: 'pointer',
-  }),
-  legend: css({
-    marginBottom: 0,
-    padding: `${theme.spacing(0.5)} 0`,
-  }),
-});

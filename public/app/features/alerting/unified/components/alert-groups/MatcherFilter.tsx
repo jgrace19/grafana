@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { matcherFilterStyles } from './MatcherFilter.stylex';
 import { useState } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Field, Icon, Input, Label, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Field, Icon, Input, Label, Stack, Tooltip } from '@grafana/ui';
 
 import { LogMessages, logInfo } from '../../Analytics';
 import { parsePromQLStyleMatcherLoose } from '../../utils/matchers';
@@ -15,7 +16,6 @@ interface Props {
 }
 
 export const MatcherFilter = ({ onFilterChange, defaultQueryString }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const [filterQuery, setFilterQuery] = useState<string>(defaultQueryString ?? '');
 
@@ -42,7 +42,7 @@ export const MatcherFilter = ({ onFilterChange, defaultQueryString }: Props) => 
 
   return (
     <Field
-      className={styles.fixMargin}
+      {...stylex.props(matcherFilterStyles.fixMargin)}
       invalid={!inputValid}
       error={!inputValid ? 'Query must use valid matcher syntax. See the examples in the help tooltip.' : null}
       label={
@@ -82,20 +82,9 @@ export const MatcherFilter = ({ onFilterChange, defaultQueryString }: Props) => 
         onChange={(e) => setFilterQuery(e.currentTarget.value)}
         data-testid="search-query-input"
         prefix={searchIcon}
-        className={styles.inputWidth}
+        {...stylex.props(matcherFilterStyles.inputWidth)}
       />
     </Field>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  fixMargin: css({
-    marginBottom: 0,
-    minWidth: 0,
-    flex: '1 1 0',
-  }),
-  inputWidth: css({
-    width: '100%',
-    minWidth: 220,
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { helpWizardStyles } from './HelpWizard.stylex';
 import { useMemo, useEffect } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -10,7 +12,6 @@ import {
   Tab,
   TabsBar,
   CodeEditor,
-  useStyles2,
   Field,
   InlineSwitch,
   Button,
@@ -34,7 +35,6 @@ interface Props {
 }
 
 export function HelpWizard({ panel, plugin, onClose }: Props) {
-  const styles = useStyles2(getStyles);
   const service = useMemo(() => new SupportSnapshotService(panel), [panel]);
 
   const {
@@ -112,9 +112,9 @@ export function HelpWizard({ panel, plugin, onClose }: Props) {
       {error && <Alert title={error.title}>{error.message}</Alert>}
 
       {currentTab === SnapshotTab.Data && (
-        <div className={styles.code}>
-          <div className={styles.opts}>
-            <Field label={t('dashboard.help-wizard.label-template', 'Template')} className={styles.field}>
+        <div {...stylex.props(helpWizardStyles.code)}>
+          <div {...stylex.props(helpWizardStyles.opts)}>
+            <Field label={t('dashboard.help-wizard.label-template', 'Template')} {...stylex.props(helpWizardStyles.field)}>
               <Select options={options} value={showMessage} onChange={service.onShowMessageChange} />
             </Field>
 
@@ -212,23 +212,3 @@ export function HelpWizard({ panel, plugin, onClose }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  code: css({
-    flexGrow: 1,
-    height: '100%',
-    overflow: 'scroll',
-  }),
-  field: css({
-    width: '100%',
-  }),
-  opts: css({
-    display: 'flex',
-    width: '100%',
-    flexGrow: 0,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    button: {
-      marginLeft: '8px',
-    },
-  }),
-});

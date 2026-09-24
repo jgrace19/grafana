@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { grafanaRuleQueryViewerStyles } from './GrafanaRuleQueryViewer.stylex';
 import { keyBy, startCase, uniqueId } from 'lodash';
 import * as React from 'react';
 
@@ -7,7 +9,7 @@ import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DataSourceRef } from '@grafana/schema';
 import { Preview } from '@grafana/sql';
-import { Alert, Badge, ErrorBoundaryAlert, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, ErrorBoundaryAlert, LinkButton, Stack, Text } from '@grafana/ui';
 import { type CombinedRule } from 'app/types/unified-alerting';
 
 import { type AlertDataQuery, type AlertQuery } from '../../../types/unified-alerting-dto';
@@ -44,13 +46,12 @@ export function GrafanaRuleQueryViewer({ rule, queries, condition, evalDataByQue
   const dsByUid = keyBy(Object.values(config.datasources), (ds) => ds.uid);
   const dataQueries = queries.filter((q) => !isExpressionQuery(q.model));
   const expressions = queries.filter((q) => isExpressionQuery(q.model));
-  const styles = useStyles2(getExpressionViewerStyles);
 
   const thresholds = getThresholdsForQueries(queries, condition);
 
   return (
     <Stack gap={1} direction="column" flex={'1 1 320px'}>
-      <div className={styles.maxWidthContainer}>
+      <div {...stylex.props(formStyles.maxWidthContainer)}>
         <Stack gap={1} wrap="wrap" data-testid="queries-container">
           {dataQueries.map(({ model, relativeTimeRange, refId, datasourceUid }, index) => {
             const dataSource = dsByUid[datasourceUid];
@@ -70,7 +71,7 @@ export function GrafanaRuleQueryViewer({ rule, queries, condition, evalDataByQue
           })}
         </Stack>
       </div>
-      <div className={styles.maxWidthContainer}>
+      <div {...stylex.props(formStyles.maxWidthContainer)}>
         <Stack gap={1} wrap="wrap" data-testid="expressions-container">
           {expressions.map(({ model, refId, datasourceUid }, index) => {
             return (
@@ -107,7 +108,6 @@ export function QueryPreview({
   queryData,
   relativeTimeRange,
 }: QueryPreviewProps) {
-  const styles = useStyles2(getQueryPreviewStyles);
   const isExpression = isExpressionQuery(model);
   const [exploreSupported, exploreAllowed] = useAlertRuleAbility(rule, AlertRuleAction.Explore);
   const canExplore = exploreSupported && exploreAllowed;
@@ -137,7 +137,7 @@ export function QueryPreview({
   return (
     <>
       <QueryBox refId={refId} headerItems={headerItems} exploreLink={exploreLink}>
-        <div className={styles.queryPreviewWrapper}>
+        <div {...stylex.props(formStyles.queryPreviewWrapper)}>
           <ErrorBoundaryAlert>
             {model && dataSource && <DatasourceModelPreview model={model} dataSource={dataSource} />}
           </ErrorBoundaryAlert>
@@ -173,32 +173,15 @@ interface DataSourceBadgeProps {
 }
 
 function DataSourceBadge({ name, imgUrl }: DataSourceBadgeProps) {
-  const styles = useStyles2(getQueryPreviewStyles);
 
   return (
-    <div className={styles.dataSource} key="datasource">
+    <div {...stylex.props(formStyles.dataSource)} key="datasource">
       <img src={imgUrl} width={16} alt={name} />
       {name}
     </div>
   );
 }
 
-const getQueryPreviewStyles = (theme: GrafanaTheme2) => ({
-  queryPreviewWrapper: css({
-    margin: theme.spacing(1),
-  }),
-  contentBox: css({
-    flex: '1 0 100%',
-  }),
-  dataSource: css({
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(0.5, 1),
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-});
 
 interface ExpressionPreviewProps extends Pick<AlertQuery, 'refId'> {
   isAlertCondition: boolean;
@@ -207,7 +190,6 @@ interface ExpressionPreviewProps extends Pick<AlertQuery, 'refId'> {
 }
 
 function ExpressionPreview({ refId, model, evalData, isAlertCondition }: ExpressionPreviewProps) {
-  const styles = useStyles2(getQueryBoxStyles);
 
   function renderPreview() {
     switch (model.type) {
@@ -248,7 +230,7 @@ function ExpressionPreview({ refId, model, evalData, isAlertCondition }: Express
       ]}
       isAlertCondition={isAlertCondition}
     >
-      <div className={styles.previewWrapper}>
+      <div {...stylex.props(formStyles.previewWrapper)}>
         {evalData?.errors?.map((error) => (
           <Alert
             key={uniqueId()}
@@ -275,12 +257,11 @@ interface QueryBoxProps extends React.PropsWithChildren<unknown> {
 }
 
 function QueryBox({ refId, headerItems = [], children, isAlertCondition, exploreLink }: QueryBoxProps) {
-  const styles = useStyles2(getQueryBoxStyles);
 
   return (
-    <div className={cx(styles.container)}>
-      <header className={styles.header}>
-        <span className={styles.refId}>{refId}</span>
+    <div className={cx(stylex.props(formStyles.container))}>
+      <header {...stylex.props(formStyles.header)}>
+        <span {...stylex.props(formStyles.refId)}>{refId}</span>
         {headerItems}
         <Spacer />
         {isAlertCondition && (
@@ -335,31 +316,30 @@ const getQueryBoxStyles = (theme: GrafanaTheme2) => ({
 });
 
 function ClassicConditionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getClassicConditionViewerStyles);
 
   const reducerFunctions = keyBy(alertDef.reducerTypes, (rt) => rt.value);
   const evalOperators = keyBy(alertDef.evalOperators, (eo) => eo.value);
   const evalFunctions = keyBy(alertDef.evalFunctions, (ef) => ef.value);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(formStyles.container)}>
       {model.conditions?.map(({ query, operator, reducer, evaluator }, index) => {
         const isRange = isRangeEvaluator(evaluator);
 
         return (
           <React.Fragment key={index}>
-            <div className={styles.blue}>
+            <div {...stylex.props(formStyles.blue)}>
               {index === 0
                 ? t('alerting.classic-condition-viewer.when', 'WHEN')
                 : !!operator?.type && evalOperators[operator?.type]?.text}
             </div>
-            <div className={styles.bold}>{reducer?.type && reducerFunctions[reducer.type]?.text}</div>
-            <div className={styles.blue}>
+            <div {...stylex.props(formStyles.bold)}>{reducer?.type && reducerFunctions[reducer.type]?.text}</div>
+            <div {...stylex.props(formStyles.blue)}>
               <Trans i18nKey="alerting.classic-condition-viewer.of">OF</Trans>
             </div>
-            <div className={styles.bold}>{query.params[0]}</div>
-            <div className={styles.blue}>{evalFunctions[evaluator.type].text}</div>
-            <div className={styles.bold}>
+            <div {...stylex.props(formStyles.bold)}>{query.params[0]}</div>
+            <div {...stylex.props(formStyles.blue)}>{evalFunctions[evaluator.type].text}</div>
+            <div {...stylex.props(formStyles.bold)}>
               {isRange ? `(${evaluator.params[0]}; ${evaluator.params[1]})` : evaluator.params[0]}
             </div>
           </React.Fragment>
@@ -379,7 +359,6 @@ const getClassicConditionViewerStyles = (theme: GrafanaTheme2) => ({
 });
 
 function ReduceConditionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getReduceConditionViewerStyles);
 
   const { reducer, expression, settings } = model;
   const reducerType = reducerTypes.find((rt) => rt.value === reducer);
@@ -388,21 +367,21 @@ function ReduceConditionViewer({ model }: { model: ExpressionQuery }) {
   const modeName = reducerModes.find((rm) => rm.value === reducerMode);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(formStyles.container)}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.function">Function</Trans>
       </div>
-      <div className={styles.value}>{reducerType?.label}</div>
+      <div {...stylex.props(formStyles.value)}>{reducerType?.label}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(formStyles.value)}>{expression}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.reduce-condition-viewer.mode">Mode</Trans>
       </div>
-      <div className={styles.value}>{modeName?.label}</div>
+      <div {...stylex.props(formStyles.value)}>{modeName?.label}</div>
     </div>
   );
 }
@@ -422,33 +401,32 @@ const getReduceConditionViewerStyles = (theme: GrafanaTheme2) => ({
 });
 
 function ResampleExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getResampleExpressionViewerStyles);
 
   const { expression, window, downsampler, upsampler } = model;
   const downsamplerType = downsamplingTypes.find((dt) => dt.value === downsampler);
   const upsamplerType = upsamplingTypes.find((ut) => ut.value === upsampler);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(formStyles.container)}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(formStyles.value)}>{expression}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.resample-to">Resample to</Trans>
       </div>
-      <div className={styles.value}>{window}</div>
+      <div {...stylex.props(formStyles.value)}>{window}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.downsample">Downsample</Trans>
       </div>
-      <div className={styles.value}>{downsamplerType?.label}</div>
+      <div {...stylex.props(formStyles.value)}>{downsamplerType?.label}</div>
 
-      <div className={styles.label}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.resample-expression-viewer.upsample">Upsample</Trans>
       </div>
-      <div className={styles.value}>{upsamplerType?.label}</div>
+      <div {...stylex.props(formStyles.value)}>{upsamplerType?.label}</div>
     </div>
   );
 }
@@ -464,7 +442,6 @@ const getResampleExpressionViewerStyles = (theme: GrafanaTheme2) => ({
 });
 
 function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getExpressionViewerStyles);
 
   const { expression, conditions } = model;
 
@@ -480,34 +457,34 @@ function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.label}>
+      <div {...stylex.props(formStyles.container)}>
+        <div {...stylex.props(formStyles.label)}>
           <Trans i18nKey="alerting.threshold-expression-viewer.input">Input</Trans>
         </div>
-        <div className={styles.value}>{expression}</div>
+        <div {...stylex.props(formStyles.value)}>{expression}</div>
 
         {evaluator && (
           <>
-            <div className={styles.blue}>{thresholdFunction?.label}</div>
-            <div className={styles.bold}>
+            <div {...stylex.props(formStyles.blue)}>{thresholdFunction?.label}</div>
+            <div {...stylex.props(formStyles.bold)}>
               {isRange ? `(${evaluator.params[0]}; ${evaluator.params[1]})` : evaluator.params[0]}
             </div>
           </>
         )}
       </div>
-      <div className={styles.container}>
+      <div {...stylex.props(formStyles.container)}>
         {unloadEvaluator && (
           <>
-            <div className={styles.label}>
+            <div {...stylex.props(formStyles.label)}>
               <Trans i18nKey="alerting.threshold-expression-viewer.stop-alerting-when">
                 Stop alerting (or pending state) when{' '}
               </Trans>
             </div>
-            <div className={styles.value}>{expression}</div>
+            <div {...stylex.props(formStyles.value)}>{expression}</div>
 
             <>
-              <div className={styles.blue}>{unloadThresholdFunction?.label}</div>
-              <div className={styles.bold}>
+              <div {...stylex.props(formStyles.blue)}>{unloadThresholdFunction?.label}</div>
+              <div {...stylex.props(formStyles.bold)}>
                 {unloadIsRange
                   ? `(${unloadEvaluator.params[0]}; ${unloadEvaluator.params[1]})`
                   : unloadEvaluator.params[0]}
@@ -520,34 +497,17 @@ function ThresholdExpressionViewer({ model }: { model: ExpressionQuery }) {
   );
 }
 
-const getExpressionViewerStyles = (theme: GrafanaTheme2) => {
-  const { blue, bold, ...common } = getCommonQueryStyles(theme);
-
-  return {
-    ...common,
-    maxWidthContainer: css({
-      maxWidth: '100%',
-    }),
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-    }),
-    blue: css(blue, { margin: 'auto 0' }),
-    bold: css(bold, { margin: 'auto 0' }),
-  };
-};
 
 function MathExpressionViewer({ model }: { model: ExpressionQuery }) {
-  const styles = useStyles2(getExpressionViewerStyles);
 
   const { expression } = model;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(formStyles.container)}>
+      <div {...stylex.props(formStyles.label)}>
         <Trans i18nKey="alerting.math-expression-viewer.input">Input</Trans>
       </div>
-      <div className={styles.value}>{expression}</div>
+      <div {...stylex.props(formStyles.value)}>{expression}</div>
     </div>
   );
 }

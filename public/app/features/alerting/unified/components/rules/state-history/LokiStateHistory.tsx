@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { lokiStateHistoryStyles } from './LokiStateHistory.stylex';
 import { fromPairs, isEmpty, sortBy, take, uniq } from 'lodash';
 import * as React from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -7,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { AlertLabels } from '@grafana/alerting/unstable';
 import { type DataFrame, type GrafanaTheme2, type SelectableValue, type TimeRange, dateTime } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, Field, Icon, Input, Label, Select, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Field, Icon, Input, Label, Select, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { stateHistoryApi } from '../../../api/stateHistoryApi';
 import { useSlowQuery } from '../../../hooks/useSlowQuery';
@@ -37,7 +39,6 @@ const STATE_FILTER_OPTIONS: Array<SelectableValue<string>> = [
 const MAX_TIMELINE_SERIES = 12;
 
 const LokiStateHistory = ({ ruleUID }: Props) => {
-  const styles = useStyles2(getStyles);
   const [instancesFilter, setInstancesFilter] = useState('');
   const [stateFrom, setStateFrom] = useState<string>(StateFilterValues.all);
   const [stateTo, setStateTo] = useState<string>(StateFilterValues.all);
@@ -148,9 +149,9 @@ const LokiStateHistory = ({ ruleUID }: Props) => {
   }
 
   return (
-    <div className={styles.fullSize}>
+    <div {...stylex.props(lokiStateHistoryStyles.fullSize)}>
       <Stack direction="row" gap={1} alignItems="flex-end">
-        <div className={styles.instancesFilterForm}>
+        <div {...stylex.props(lokiStateHistoryStyles.instancesFilterForm)}>
           <form onSubmit={handleSubmit((data) => setInstancesFilter(data.query))}>
             <SearchFieldInput
               {...register('query')}
@@ -178,7 +179,7 @@ const LokiStateHistory = ({ ruleUID }: Props) => {
         </Field>
       </Stack>
       {!isEmpty(commonLabels) && (
-        <div className={styles.commonLabels}>
+        <div {...stylex.props(lokiStateHistoryStyles.commonLabels)}>
           <Stack gap={1} alignItems="center" wrap="wrap">
             <Stack gap={0.5} alignItems="center" minWidth="fit-content">
               <Text variant="bodySmall">
@@ -198,7 +199,7 @@ const LokiStateHistory = ({ ruleUID }: Props) => {
         </div>
       )}
       {isEmpty(frameSubset) ? (
-        <div className={styles.emptyState}>
+        <div {...stylex.props(lokiStateHistoryStyles.emptyState)}>
           {emptyStateMessage}
           {(totalRecordsCount > 0 || hasActiveStateFilter) && (
             <Button variant="secondary" type="button" onClick={onFilterCleared}>
@@ -209,7 +210,7 @@ const LokiStateHistory = ({ ruleUID }: Props) => {
       ) : (
         <>
           {hasActiveStateFilter ? (
-            <div className={styles.timelineHiddenMessage}>
+            <div {...stylex.props(lokiStateHistoryStyles.timelineHiddenMessage)}>
               <Text variant="bodySmall" color="secondary">
                 <Trans i18nKey="alerting.loki-state-history.timeline-hidden">
                   Timeline is hidden when state filters are active
@@ -217,12 +218,12 @@ const LokiStateHistory = ({ ruleUID }: Props) => {
               </Text>
             </div>
           ) : (
-            <div className={styles.graphWrapper}>
+            <div {...stylex.props(lokiStateHistoryStyles.graphWrapper)}>
               <LogTimelineViewer frames={frameSubset} timeRange={frameTimeRange} />
             </div>
           )}
           {hasMoreInstances && (
-            <div className={styles.moreInstancesWarning}>
+            <div {...stylex.props(lokiStateHistoryStyles.moreInstancesWarning)}>
               <Stack direction="row" alignItems="center" gap={1}>
                 <Icon name="exclamation-triangle" size="sm" />
                 <small>{`Only showing ${frameSubset.length} out of ${dataFrames.length} instances. Click on the labels to narrow down the results`}</small>
@@ -332,46 +333,5 @@ function getDefaultTimeRange(): TimeRange {
   };
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  fullSize: css({
-    minWidth: '100%',
-    height: '100%',
-
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  commonLabels: css({
-    padding: theme.spacing(1, 0),
-  }),
-  timelineHiddenMessage: css({
-    textAlign: 'center',
-    padding: theme.spacing(1, 0),
-  }),
-  instancesFilterForm: css({
-    flex: 1,
-    minWidth: 0,
-  }),
-  graphWrapper: css({
-    padding: `${theme.spacing()} 0`,
-  }),
-  emptyState: css({
-    color: theme.colors.text.secondary,
-
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-    alignItems: 'center',
-    margin: 'auto auto',
-  }),
-  moreInstancesWarning: css({
-    color: theme.colors.warning.text,
-    padding: theme.spacing(),
-  }),
-  // we need !important here to override the list item default styles
-  highlightedLogRecord: css({
-    background: `${theme.colors.primary.transparent} !important`,
-    outline: `1px solid ${theme.colors.primary.shade} !important`,
-  }),
-});
 
 export default LokiStateHistory;

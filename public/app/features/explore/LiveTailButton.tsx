@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { liveTailButtonStyles } from './LiveTailButton.stylex';
 import { useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
@@ -48,10 +50,10 @@ export function LiveTailButton(props: LiveTailButtonProps) {
         timeout={100}
         in={isLive}
         classNames={{
-          enter: styles.stopButtonEnter,
-          enterActive: styles.stopButtonEnterActive,
-          exit: styles.stopButtonExit,
-          exitActive: styles.stopButtonExitActive,
+          enter: mergeStylexClassName(stylex.props(liveTailButtonStyles.stopButtonEnter), undefined).className,
+          enterActive: mergeStylexClassName(stylex.props(liveTailButtonStyles.stopButtonEnterActive), undefined).className,
+          exit: mergeStylexClassName(stylex.props(liveTailButtonStyles.stopButtonExit), undefined).className,
+          exitActive: mergeStylexClassName(stylex.props(liveTailButtonStyles.stopButtonExitActive), undefined).className,
         }}
         nodeRef={transitionRef}
       >
@@ -67,27 +69,3 @@ export function LiveTailButton(props: LiveTailButtonProps) {
   );
 }
 
-const styles = {
-  stopButtonEnter: css({
-    label: 'stopButtonEnter',
-    width: 0,
-    opacity: 0,
-    overflow: 'hidden',
-  }),
-  stopButtonEnterActive: css({
-    label: 'stopButtonEnterActive',
-    opacity: 1,
-    width: '32px',
-  }),
-  stopButtonExit: css({
-    label: 'stopButtonExit',
-    width: '32px',
-    opacity: 1,
-    overflow: 'hidden',
-  }),
-  stopButtonExitActive: css({
-    label: 'stopButtonExitActive',
-    opacity: 0,
-    width: 0,
-  }),
-};

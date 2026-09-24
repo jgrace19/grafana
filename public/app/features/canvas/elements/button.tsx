@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { buttonStyles } from './button.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2, PluginState } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { TextDimensionMode } from '@grafana/schema';
-import { Button, Spinner, useStyles2 } from '@grafana/ui';
+import { Button, Spinner } from '@grafana/ui';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
 import { TextDimensionEditor } from 'app/features/dimensions/editors/TextDimensionEditor';
@@ -46,7 +47,7 @@ export const defaultStyleConfig: ButtonStyleConfig = {
 };
 
 const ButtonDisplay = ({ data }: CanvasElementProps<ButtonConfig, ButtonData>) => {
-  const styles = useStyles2(getStyles, data);
+  const styles = (getStyles, data);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -62,33 +63,15 @@ const ButtonDisplay = ({ data }: CanvasElementProps<ButtonConfig, ButtonData>) =
   };
 
   return (
-    <Button type="submit" variant={data?.style?.variant} onClick={onClick} className={styles.button}>
+    <Button type="submit" variant={data?.style?.variant} onClick={onClick} {...stylex.props(buttonStyles.button)}>
       <span>
-        {isLoading && <Spinner inline={true} className={styles.buttonSpinner} />}
+        {isLoading && <Spinner inline={true} {...stylex.props(buttonStyles.buttonSpinner)} />}
         {data?.text}
       </span>
     </Button>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, data: ButtonData | undefined) => ({
-  button: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-
-    '> span': {
-      display: 'inline-grid',
-      gridAutoFlow: 'column',
-      textAlign: data?.align,
-      fontSize: `${data?.size}px`,
-      color: data?.color,
-    },
-  }),
-  buttonSpinner: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});
 
 export const buttonItem: CanvasElementItem<ButtonConfig, ButtonData> = {
   id: 'button',

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { notificationDetailDebugStyles } from './NotificationDetailDebug.stylex';
 import { type ReactNode } from 'react';
 
 import { type CreateNotificationqueryNotificationEntry } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';
-import { type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Collapse, Text, useStyles2 } from '@grafana/ui';
+import { Collapse, Text } from '@grafana/ui';
 
 type NotificationEntry = CreateNotificationqueryNotificationEntry;
 
@@ -15,7 +16,6 @@ interface DebugDetailsProps {
 }
 
 export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsProps) {
-  const styles = useStyles2(getStyles);
 
   return (
     <Collapse
@@ -23,7 +23,7 @@ export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsPro
       isOpen={isOpen}
       onToggle={onToggle}
     >
-      <div className={styles.detailsGrid}>
+      <div {...stylex.props(notificationDetailDebugStyles.detailsGrid)}>
         <DetailRow label={t('alerting.notification-detail.field-uuid', 'UUID')} value={notification.uuid} />
         <DetailRow
           label={t('alerting.notification-detail.field-timestamp', 'Timestamp')}
@@ -47,7 +47,7 @@ export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsPro
         />
         <DetailRow
           label={t('alerting.notification-detail.field-group-key', 'Group key')}
-          value={<code className={styles.groupKey}>{notification.groupKey}</code>}
+          value={<code {...stylex.props(notificationDetailDebugStyles.groupKey)}>{notification.groupKey}</code>}
         />
       </div>
     </Collapse>
@@ -55,39 +55,15 @@ export function DebugDetails({ notification, isOpen, onToggle }: DebugDetailsPro
 }
 
 function DetailRow({ label, value }: { label: string; value: ReactNode }) {
-  const styles = useStyles2(getStyles);
   return (
     <>
-      <div className={styles.detailLabel}>
+      <div {...stylex.props(notificationDetailDebugStyles.detailLabel)}>
         <Text color="secondary" variant="bodySmall">
           {label}
         </Text>
       </div>
-      <div className={styles.detailValue}>{typeof value === 'string' ? <Text>{value}</Text> : value}</div>
+      <div {...stylex.props(notificationDetailDebugStyles.detailValue)}>{typeof value === 'string' ? <Text>{value}</Text> : value}</div>
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  detailsGrid: css({
-    display: 'grid',
-    gridTemplateColumns: '180px 1fr',
-    gap: `${theme.spacing(1)} ${theme.spacing(2)}`,
-    alignItems: 'start',
-  }),
-  detailLabel: css({
-    paddingTop: '2px',
-  }),
-  detailValue: css({
-    wordBreak: 'break-all',
-  }),
-  groupKey: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    backgroundColor: theme.colors.background.canvas,
-    padding: `${theme.spacing(0.25)} ${theme.spacing(0.5)}`,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-    wordBreak: 'break-all',
-  }),
-});

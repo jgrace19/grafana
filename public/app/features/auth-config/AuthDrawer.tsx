@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { authDrawerStyles } from './AuthDrawer.stylex';
 import { type JSX } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Drawer, Text, TextLink, Switch, useStyles2 } from '@grafana/ui';
+import { Button, Drawer, Text, TextLink, Switch } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { type StoreState } from 'app/types/store';
 
@@ -82,8 +83,6 @@ export const AuthDrawerUnconnected = ({
     </Trans>
   );
 
-  const styles = useStyles2(getStyles);
-
   return (
     <Drawer
       title={t('auth-config.auth-drawer-unconnected.title-auth-settings', 'Auth settings')}
@@ -91,7 +90,7 @@ export const AuthDrawerUnconnected = ({
       size="md"
       onClose={onClose}
     >
-      <div className={styles.advancedAuth}>
+      <div {...stylex.props(authDrawerStyles.advancedAuth)}>
         <Text variant="h4">
           <Trans i18nKey="auth-config.auth-drawer-unconnected.advanced-auth">Advanced Auth</Trans>
         </Text>
@@ -110,7 +109,7 @@ export const AuthDrawerUnconnected = ({
       <Button
         size="md"
         variant="secondary"
-        className={styles.button}
+        {...stylex.props(authDrawerStyles.button)}
         onClick={resetButtonOnClick}
         tooltip={t(
           'auth-config.auth-drawer-unconnected.reset-tooltip',
@@ -125,15 +124,4 @@ export const AuthDrawerUnconnected = ({
 
 export default connector(AuthDrawerUnconnected);
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    advancedAuth: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
-    button: css({
-      marginTop: theme.spacing(2),
-    }),
-  };
-};
+;

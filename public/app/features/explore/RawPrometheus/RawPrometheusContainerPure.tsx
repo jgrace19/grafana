@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rawPrometheusContainerPureStyles } from './RawPrometheusContainerPure.stylex';
 import { memo, useState } from 'react';
 
 import { type DataFrame, type GrafanaTheme2, type LoadingState, type SelectableValue } from '@grafana/data';
@@ -10,13 +12,6 @@ import { TABLE_RESULTS_STYLE, TABLE_RESULTS_STYLES, type TableResultsStyle } fro
 import { MetaInfoText } from '../MetaInfoText';
 import RawListContainer from '../PrometheusListView/RawListContainer';
 
-const getStyles = (_theme: GrafanaTheme2) => ({
-  spacing: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    flex: '1',
-  }),
-});
 
 /**
  * Props for the pure RawPrometheusContainer component.
@@ -50,7 +45,6 @@ export const RawPrometheusContainerPure = memo(
     ariaLabel,
     showRawPrometheus,
   }: RawPrometheusContainerPureProps) => {
-    const styles = useStyles2(getStyles);
 
     // If resultsStyle is undefined we won't render the toggle, and the default table will be rendered
     const [resultsStyle, setResultsStyle] = useState<TableResultsStyle | undefined>(
@@ -78,7 +72,7 @@ export const RawPrometheusContainerPure = memo(
       }));
 
       return (
-        <div className={styles.spacing}>
+        <div {...stylex.props(rawPrometheusContainerPureStyles.spacing)}>
           <RadioButtonGroup
             onClick={() => {
               const props = {

@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { contentOutlineStyles } from './ContentOutline.stylex';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useToggle, useScroll } from 'react-use';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2, PanelContainer, ScrollContainer } from '@grafana/ui';
+import { PanelContainer, ScrollContainer  } from '@grafana/ui';
 
 import { type ContentOutlineItemContextProps, useContentOutlineContext } from './ContentOutlineContext';
 import { ContentOutlineItemButton } from './ContentOutlineItemButton';
@@ -44,7 +46,6 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   const [contentOutlineExpanded, toggleContentOutlineExpanded] = useToggle(
     store.getBool(CONTENT_OUTLINE_LOCAL_STORAGE_KEYS.expanded, true)
   );
-  const styles = useStyles2(getStyles, contentOutlineExpanded);
   const scrollerRef = useRef(scroller || null);
   const { y: verticalScroll } = useScroll(scrollerRef);
   const { outlineItems } = useContentOutlineContext() ?? { outlineItems: [] };
@@ -154,9 +155,9 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   }, [outlineItems, verticalScroll]);
 
   return (
-    <PanelContainer className={styles.wrapper} id={panelId}>
+    <PanelContainer {...stylex.props(contentOutlineStyles.wrapper)} id={panelId}>
       <ScrollContainer>
-        <div className={styles.content}>
+        <div {...stylex.props(contentOutlineStyles.content)}>
           <ContentOutlineItemButton
             icon={'arrow-from-right'}
             tooltip={
@@ -166,9 +167,9 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
             }
             tooltipPlacement={contentOutlineExpanded ? 'right' : 'bottom'}
             onClick={toggle}
-            className={cx(styles.toggleContentOutlineButton, {
-              [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsShouldIndent,
-            })}
+            {...mergeStylexClassName(stylex.props(contentOutlineStyles.toggleContentOutlineButton, , {
+              [mergeStylexClassName(stylex.props(contentOutlineStyles.justifyCenter), undefined).className]: !contentOutlineExpanded && !outlineItemsShouldIndent,
+            }), undefined)}
             aria-expanded={contentOutlineExpanded}
           />
 
@@ -179,13 +180,13 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                   key={item.id}
                   title={contentOutlineExpanded ? item.title : undefined}
                   contentOutlineExpanded={contentOutlineExpanded}
-                  className={cx(styles.buttonStyles, {
-                    [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
-                    [styles.sectionHighlighter]: isChildActive(item, activeSectionChildId) && !contentOutlineExpanded,
+                  className={clsx(mergeStylexClassName(stylex.props(contentOutlineStyles.buttonStyles), undefined).className, {
+                    [mergeStylexClassName(stylex.props(contentOutlineStyles.justifyCenter), undefined).className]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
+                    [mergeStylexClassName(stylex.props(contentOutlineStyles.sectionHighlighter), undefined).className]: isChildActive(item, activeSectionChildId) && !contentOutlineExpanded,
                   })}
-                  indentStyle={cx({
-                    [styles.indentRoot]: !isCollapsible(item) && outlineItemsShouldIndent,
-                    [styles.sectionHighlighter]:
+                  indentStyle={clsx({
+                    [mergeStylexClassName(stylex.props(contentOutlineStyles.indentRoot), undefined).className]: !isCollapsible(item) && outlineItemsShouldIndent,
+                    [mergeStylexClassName(stylex.props(contentOutlineStyles.sectionHighlighter), undefined).className]:
                       isChildActive(item, activeSectionChildId) && !contentOutlineExpanded && sectionsExpanded[item.id],
                   })}
                   icon={item.icon}
@@ -203,12 +204,12 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                     isCollapsible(item) &&
                     sectionsExpanded[item.id] &&
                     item.children.map((child, i) => (
-                      <div key={child.id} className={styles.itemWrapper}>
+                      <div key={child.id} {...stylex.props(contentOutlineStyles.itemWrapper)}>
                         {contentOutlineExpanded && (
                           <div
-                            className={cx(styles.itemConnector, {
-                              [styles.firstItemConnector]: i === 0,
-                              [styles.lastItemConnector]: i === (item.children?.length || 0) - 1,
+                            className={clsx(mergeStylexClassName(stylex.props(contentOutlineStyles.itemConnector), undefined).className, {
+                              [mergeStylexClassName(stylex.props(contentOutlineStyles.firstItemConnector), undefined).className]: i === 0,
+                              [mergeStylexClassName(stylex.props(contentOutlineStyles.lastItemConnector), undefined).className]: i === (item.children?.length || 0) - 1,
                             })}
                           />
                         )}
@@ -217,12 +218,12 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
                           title={contentOutlineExpanded ? child.title : undefined}
                           contentOutlineExpanded={contentOutlineExpanded}
                           icon={contentOutlineExpanded ? undefined : item.icon}
-                          className={cx(styles.buttonStyles, {
-                            [styles.justifyCenter]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
-                            [styles.sectionHighlighter]:
+                          className={clsx(mergeStylexClassName(stylex.props(contentOutlineStyles.buttonStyles), undefined).className, {
+                            [mergeStylexClassName(stylex.props(contentOutlineStyles.justifyCenter), undefined).className]: !contentOutlineExpanded && !outlineItemsHaveDeleteButton,
+                            [mergeStylexClassName(stylex.props(contentOutlineStyles.sectionHighlighter), undefined).className]:
                               isChildActive(item, activeSectionChildId) && !contentOutlineExpanded,
                           })}
-                          indentStyle={styles.indentChild}
+                          indentStyle={mergeStylexClassName(stylex.props(contentOutlineStyles.indentChild), undefined).className}
                           onClick={(e) => {
                             handleItemClicked(child);
                             child.onClick?.(e);
@@ -245,81 +246,7 @@ export function ContentOutline({ scroller, panelId }: { scroller: HTMLElement | 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  return {
-    wrapper: css({
-      label: 'wrapper',
-      position: 'relative',
-      display: 'flex',
-      justifyContent: 'center',
-      marginRight: theme.spacing(1),
-      height: '100%',
-      backgroundColor: theme.colors.background.primary,
-      width: expanded ? '160px' : undefined,
-      minWidth: expanded ? '160px' : undefined,
-    }),
-    content: css({
-      label: 'content',
-      marginLeft: theme.spacing(0.5),
-      top: 0,
-    }),
-    buttonStyles: css({
-      display: 'flex',
-      '&:hover': {
-        color: theme.colors.text.primary,
-        textDecoration: 'underline',
-      },
-    }),
-    toggleContentOutlineButton: css({
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-      transform: expanded ? 'rotate(180deg)' : '',
-      marginRight: expanded ? theme.spacing(0.5) : undefined,
-    }),
-    indentRoot: css({
-      paddingLeft: theme.spacing(3),
-    }),
-    indentChild: css({
-      paddingLeft: expanded ? theme.spacing(5) : theme.spacing(2.75),
-    }),
-    itemWrapper: css({
-      display: 'flex',
-      height: theme.spacing(4),
-      alignItems: 'center',
-    }),
-    itemConnector: css({
-      position: 'relative',
-      height: '100%',
-      width: theme.spacing(1.5),
-      '&::before': {
-        borderRight: `1px solid ${theme.colors.border.medium}`,
-        content: '""',
-        height: '100%',
-        left: theme.spacing(4.75),
-        position: 'absolute',
-        transform: 'translateX(50%)',
-      },
-    }),
-    firstItemConnector: css({
-      '&::before': {
-        top: theme.spacing(1),
-        height: `calc(100% - ${theme.spacing(1)})`,
-      },
-    }),
-    lastItemConnector: css({
-      '&::before': {
-        height: `calc(100% - ${theme.spacing(1)})`,
-      },
-    }),
-    justifyCenter: css({
-      justifyContent: 'center',
-    }),
-    sectionHighlighter: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-};
+;
 
 function isCollapsible(item: ContentOutlineItemContextProps): boolean {
   return !!(item.children && item.children.length > 0 && (!item.mergeSingleChild || item.children.length !== 1));

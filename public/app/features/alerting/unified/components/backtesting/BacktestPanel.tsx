@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { backtestPanelStyles } from './BacktestPanel.stylex';
 import { fromPairs, isEmpty, isEqual } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -14,8 +16,7 @@ import {
   Text,
   TimeRangePicker,
   Tooltip,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 
 import { useRunBacktestMutation } from '../../api/backtestApi';
 import { type RuleFormValues } from '../../types/rule-form';
@@ -33,7 +34,6 @@ interface BacktestPanelProps {
 }
 
 export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPanelProps) {
-  const styles = useStyles2(getStyles);
   const [timeRange, setTimeRange] = useState<TimeRange>(
     initialTimeRange || rangeUtil.convertRawToRange({ from: 'now-15m', to: 'now' })
   );
@@ -133,7 +133,7 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
           noIntervalPicker={true}
         />
       </Stack>
-      <div className={styles.scrollableContent}>
+      <div {...stylex.props(backtestPanelStyles.scrollableContent)}>
         {isLoading && <LoadingPlaceholder text={t('alerting.backtest.loading', 'Running backtest...')} />}
 
         {errorMessage && (
@@ -151,7 +151,7 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
         )}
 
         {!isLoading && !mutationError && hasResults && (
-          <div className={styles.resultsContainer}>
+          <div {...stylex.props(backtestPanelStyles.resultsContainer)}>
             {!isEmpty(commonLabels) && (
               <Stack gap={1} alignItems="center" wrap="wrap">
                 <Stack gap={0.5} alignItems="center" minWidth="fit-content">
@@ -182,19 +182,3 @@ export function BacktestPanel({ ruleDefinition, initialTimeRange }: BacktestPane
     </div>
   );
 }
-const getStyles = (theme: GrafanaTheme2) => ({
-  scrollableContent: css({
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: theme.spacing(2),
-    overflow: 'hidden',
-  }),
-  resultsContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-    flex: 1,
-    overflow: 'hidden',
-  }),
-});

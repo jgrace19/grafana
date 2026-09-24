@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 
 interface Props {
   name: string;
@@ -9,15 +7,15 @@ interface Props {
 }
 
 export const InspectStatsTraceIdsTable = ({ name, traceIds }: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   if (traceIds.length === 0) {
     return null;
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.heading}>{name}</div>
+    <div {...stylex.props(inspectStatsTraceIdsTableStyles.wrapper)}>
+      <div {...stylex.props(inspectStatsTraceIdsTableStyles.heading)}>{name}</div>
       <table className="filter-table width-30">
         <tbody>
           {traceIds.map((traceId, index) => {
@@ -33,15 +31,3 @@ export const InspectStatsTraceIdsTable = ({ name, traceIds }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    fontSize: theme.typography.body.fontSize,
-    marginBottom: theme.spacing(1),
-  }),
-  wrapper: css({
-    paddingBottom: theme.spacing(2),
-  }),
-  cell: css({
-    textAlign: 'right',
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { teamListStyles } from './TeamList.stylex';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { type SortingRule } from 'react-table';
@@ -21,8 +23,7 @@ import {
   Stack,
   Tag,
   TextLink,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import { useLazySearchDashboardsAndFoldersQuery } from 'app/api/clients/dashboard/v0alpha1';
 import { Page } from 'app/core/components/Page/Page';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
@@ -61,7 +62,6 @@ const TeamList = () => {
   const pageSize = 20;
 
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
-  const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<string>();
@@ -106,7 +106,7 @@ const TeamList = () => {
         disableGrow: true,
         cell: ({ cell: { value } }: Cell<'avatarUrl'>) => {
           if (isLoading) {
-            return <Skeleton containerClassName={styles.blockSkeleton} width={24} height={24} circle />;
+            return <Skeleton containerClassName={mergeStylexClassName(stylex.props(teamListStyles.blockSkeleton), undefined).className} width={24} height={24} circle />;
           }
 
           return value && <Avatar src={value} alt="User avatar" />;
@@ -167,7 +167,7 @@ const TeamList = () => {
               header: 'Role',
               cell: ({ row: { original } }: Cell<'memberCount'>) => {
                 if (isLoading) {
-                  return <Skeleton width={320} height={32} containerClassName={styles.blockSkeleton} />;
+                  return <Skeleton width={320} height={32} containerClassName={mergeStylexClassName(stylex.props(teamListStyles.blockSkeleton), undefined).className} />;
                 }
                 const canSeeTeamRoles = contextSrv.hasPermissionInMetadata(
                   AccessControlAction.ActionTeamsRolesList,
@@ -206,8 +206,8 @@ const TeamList = () => {
           if (isLoading) {
             return (
               <Stack direction="row" justifyContent="flex-end" alignItems="center">
-                <Skeleton containerClassName={styles.blockSkeleton} width={16} height={16} />
-                <Skeleton containerClassName={styles.blockSkeleton} width={22} height={24} />
+                <Skeleton containerClassName={mergeStylexClassName(stylex.props(teamListStyles.blockSkeleton), undefined).className} width={16} height={16} />
+                <Skeleton containerClassName={mergeStylexClassName(stylex.props(teamListStyles.blockSkeleton), undefined).className} width={22} height={24} />
               </Stack>
             );
           }
@@ -298,7 +298,7 @@ const TeamList = () => {
         },
       },
     ],
-    [displayRolePicker, isLoading, styles.blockSkeleton, roleOptions, deleteTeam, triggerFoldersQuery, notifyApp]
+    [displayRolePicker, isLoading, teamListStyles.blockSkeleton, roleOptions, deleteTeam, triggerFoldersQuery, notifyApp]
   );
 
   return (
@@ -386,10 +386,3 @@ function shouldDisplayRolePicker(): boolean {
 
 export default TeamList;
 
-const getStyles = () => ({
-  blockSkeleton: css({
-    lineHeight: 1,
-    // needed for things to align properly in the table
-    display: 'flex',
-  }),
-});

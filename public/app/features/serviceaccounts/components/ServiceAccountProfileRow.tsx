@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { serviceAccountProfileRowStyles } from './ServiceAccountProfileRow.stylex';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ConfirmButton, Input, Label, LegacyInputStatus, useStyles2 } from '@grafana/ui';
+import { ConfirmButton, Input, Label, LegacyInputStatus } from '@grafana/ui';
 
 interface Props {
   label: string;
@@ -18,7 +20,6 @@ export const ServiceAccountProfileRow = ({ label, value, inputType, disabled, on
   const inputElem = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
-  const styles = useStyles2(getStyles);
   const inputId = `${label}-input`;
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export const ServiceAccountProfileRow = ({ label, value, inputType, disabled, on
             width={30}
           />
         ) : (
-          <span className={cx({ [styles.disabled]: disabled })}>{value}</span>
+          <span {...mergeStylexClassName(stylex.props(serviceAccountProfileRowStyles.disabled, { []: disabled }), undefined)}>{value}</span>
         )}
       </td>
       <td>
@@ -99,10 +100,4 @@ export const ServiceAccountProfileRow = ({ label, value, inputType, disabled, on
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    disabled: css({
-      color: theme.colors.text.secondary,
-    }),
-  };
-};
+;

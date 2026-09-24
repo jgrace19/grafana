@@ -1,19 +1,21 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useEffect, useRef, useState } from 'react';
 import { type Unsubscribable } from 'rxjs';
 
-import { type GrafanaTheme2, OrgRole } from '@grafana/data';
+import { OrgRole } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { contextSrv } from 'app/core/services/context_srv';
+
+import { liveConnectionWarningStyles } from './LiveConnectionWarning.stylex';
 
 export interface Props {}
 
 export const LiveConnectionWarning = memo(function LiveConnectionWarning() {
   const [show, setShow] = useState<boolean | undefined>(undefined);
   const subscriptionRef = useRef<Unsubscribable | undefined>(undefined);
-  const styles = useStyles2(getStyle);
 
   useEffect(() => {
     // Only show the error in development mode
@@ -49,22 +51,10 @@ export const LiveConnectionWarning = memo(function LiveConnectionWarning() {
     return (
       <Alert
         severity={'warning'}
-        className={styles.warn}
+        {...mergeStylexClassName(stylex.props(liveConnectionWarningStyles.warn), undefined)}
         title={t('live.live-connection-warning.title-connection-to-server-is-lost', 'Connection to server is lost...')}
       />
     );
   }
   return null;
-});
-
-const getStyle = (theme: GrafanaTheme2) => ({
-  warn: css({
-    position: 'fixed',
-    bottom: 0,
-    left: '50%',
-    transform: 'translate(-50%)',
-    maxWidth: '400px',
-    zIndex: theme.zIndex.portal,
-    cursor: 'wait',
-  }),
 });

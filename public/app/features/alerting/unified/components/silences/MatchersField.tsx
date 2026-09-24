@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { matchersFieldStyles } from './MatchersField.stylex';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Divider, Field, IconButton, Input, Select, useStyles2 } from '@grafana/ui';
+import { Button, Divider, Field, IconButton, Input, Select } from '@grafana/ui';
 import { alertRuleApi } from 'app/features/alerting/unified/api/alertRuleApi';
 import { MatcherOperator } from 'app/plugins/datasource/alertmanager/types';
 
@@ -18,7 +20,6 @@ interface Props {
 }
 
 const MatchersField = ({ className, required, ruleUid }: Props) => {
-  const styles = useStyles2(getStyles);
   const formApi = useFormContext<SilenceFormFields>();
   const {
     control,
@@ -43,7 +44,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
         required={required}
       >
         <div>
-          <div className={cx(styles.matchers, styles.indent)}>
+          <div {...mergeStylexClassName(stylex.props(formStyles.matchers), stylex.props(formStyles.indent))}>
             {alertRule && (
               <div>
                 <Field label={t('alerting.matchers-field.label-alert-rule', 'Alert rule')} disabled>
@@ -54,7 +55,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
             )}
             {matchers.map((matcher, index) => {
               return (
-                <div className={styles.row} key={`${matcher.id}`} data-testid="matcher">
+                <div {...stylex.props(matchersFieldStyles.row)} key={`${matcher.id}`} data-testid="matcher">
                   <Field
                     label={t('alerting.matchers-field.label-label', 'Label')}
                     invalid={!!errors?.matchers?.[index]?.name}
@@ -79,7 +80,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                         <Select
                           {...field}
                           onChange={(value) => onChange(value.value)}
-                          className={styles.matcherOptions}
+                          {...stylex.props(matchersFieldStyles.matcherOptions)}
                           options={matcherFieldOptions}
                           aria-label={t('alerting.matchers-field.aria-label-operator', 'operator')}
                           id={`matcher-${index}-operator`}
@@ -115,7 +116,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                   {(matchers.length > 1 || !required) && (
                     <IconButton
                       aria-label={t('alerting.matchers-field.aria-label-remove-matcher', 'Remove matcher')}
-                      className={styles.removeButton}
+                      {...stylex.props(matchersFieldStyles.removeButton)}
                       name="trash-alt"
                       onClick={() => remove(index)}
                     >
@@ -127,7 +128,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
             })}
           </div>
           <Button
-            className={styles.indent}
+            {...stylex.props(matchersFieldStyles.indent)}
             tooltip={t(
               'alerting.matchers-field.tooltip-refine-which-alert-instances-silenced-selecting',
               'Refine which alert instances are silenced by selecting label matchers'
@@ -148,38 +149,5 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      marginTop: theme.spacing(2),
-    }),
-    row: css({
-      marginTop: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'flex-start',
-      flexDirection: 'row',
-      backgroundColor: theme.colors.background.secondary,
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} 0 ${theme.spacing(1)}`,
-      '& > * + *': {
-        marginLeft: theme.spacing(2),
-      },
-    }),
-    removeButton: css({
-      marginLeft: theme.spacing(1),
-      marginTop: theme.spacing(2.5),
-    }),
-    matcherOptions: css({
-      minWidth: '140px',
-    }),
-    matchers: css({
-      maxWidth: `${theme.breakpoints.values.sm}px`,
-      margin: `${theme.spacing(1)} 0`,
-      paddingTop: theme.spacing(0.5),
-    }),
-    indent: css({
-      marginLeft: theme.spacing(2),
-    }),
-  };
-};
 
 export default MatchersField;

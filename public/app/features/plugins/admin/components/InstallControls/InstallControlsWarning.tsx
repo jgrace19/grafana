@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, featureEnabled } from '@grafana/runtime';
-import { LinkButton, useStyles2, Alert, TextLink, Stack } from '@grafana/ui';
+import { LinkButton, Alert, TextLink, Stack } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { isOpenSourceBuildOrUnlicenced } from 'app/features/admin/EnterpriseAuthFeaturesCard';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -19,7 +17,7 @@ interface Props {
 }
 
 export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleVersion }: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
   const isExternallyManaged = config.pluginAdminExternalManageEnabled;
   const hasPermission = contextSrv.hasPermission(AccessControlAction.PluginsInstall);
   const isRemotePluginsAvailable = useIsRemotePluginsAvailable();
@@ -34,14 +32,14 @@ export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleV
           'plugins.install-controls-warning.title-renderer-plugins-cannot-managed-plugin-catalog',
           'Renderer plugins cannot be managed by the Plugin Catalog.'
         )}
-        className={styles.alert}
+        {...stylex.props(installControlsWarningStyles.alert)}
       />
     );
   }
 
   if (plugin.isEnterprise && !featureEnabled('enterprise.plugins') && isOpenSourceBuildOrUnlicenced()) {
     return (
-      <Alert severity={'info'} title="" className={styles.alert}>
+      <Alert severity={'info'} title="" {...stylex.props(installControlsWarningStyles.alert)}>
         <Stack direction="row" alignItems="center">
           <span>
             <Trans i18nKey="plugins.install-controls-warning.enterprise-plugin-info">
@@ -71,18 +69,18 @@ export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleV
           'plugins.install-controls-warning.title-dev-alert',
           "This is a development build of the plugin and can't be uninstalled."
         )}
-        className={styles.alert}
+        {...stylex.props(installControlsWarningStyles.alert)}
       />
     );
   }
 
   if (!hasPermission && !isExternallyManaged) {
-    return <Alert severity="warning" title={statusToMessage(pluginStatus)} className={styles.alert} />;
+    return <Alert severity="warning" title={statusToMessage(pluginStatus)} {...stylex.props(installControlsWarningStyles.alert)} />;
   }
 
   if (!plugin.isPublished) {
     return (
-      <Alert severity="warning" title="" className={styles.alert}>
+      <Alert severity="warning" title="" {...stylex.props(installControlsWarningStyles.alert)}>
         <div>
           <Trans i18nKey="plugins.install-controls-warning.body-not-published">
             This plugin is not published to{' '}
@@ -104,7 +102,7 @@ export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleV
           'plugins.install-controls-warning.title-plugin-doesnt-support-version-grafana',
           "This plugin doesn't support your version of Grafana."
         )}
-        className={styles.alert}
+        {...stylex.props(installControlsWarningStyles.alert)}
       />
     );
   }
@@ -117,7 +115,7 @@ export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleV
           'plugins.install-controls-warning.title-remote-plugins-unavailable',
           'The install controls have been disabled because the Grafana server cannot access grafana.com.'
         )}
-        className={styles.alert}
+        {...stylex.props(installControlsWarningStyles.alert)}
       />
     );
   }
@@ -125,13 +123,7 @@ export const InstallControlsWarning = ({ plugin, pluginStatus, latestCompatibleV
   return null;
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    alert: css({
-      marginTop: `${theme.spacing(2)}`,
-    }),
-  };
-};
+export ;
 
 function statusToMessage(status: PluginStatus): string {
   switch (status) {

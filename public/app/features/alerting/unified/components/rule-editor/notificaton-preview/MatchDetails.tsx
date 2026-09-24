@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { AlertLabel, type LabelMatchDetails } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Text, useStyles2 } from '@grafana/ui';
+import { Box, Text } from '@grafana/ui';
 
 import { labelMatcherToObjectMatcher } from '../../../utils/routeAdapter';
 import { MatcherBadge } from '../../notification-policies/Matchers';
@@ -14,13 +13,12 @@ interface MatchDetailsProps {
 }
 
 export function MatchDetails({ matchDetails, labels }: MatchDetailsProps) {
-  const styles = useStyles2(getStyles);
   const matchingLabels = matchDetails.filter((detail) => detail.match);
 
   const noMatchingLabels = matchingLabels.length === 0;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(matchDetailsStyles.container)}>
       {noMatchingLabels ? (
         <Text variant="bodySmall" color="secondary">
           <Trans i18nKey="alerting.match-details.no-matchers-matched">Policy matches all labels</Trans>
@@ -40,17 +38,3 @@ export function MatchDetails({ matchDetails, labels }: MatchDetailsProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    background: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.pill,
-    border: `solid 1px ${theme.colors.border.weak}`,
-
-    width: 'fit-content',
-    alignSelf: 'center',
-  }),
-});

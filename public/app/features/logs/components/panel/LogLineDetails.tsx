@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsStyles } from './LogLineDetails.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { Resizable } from 're-resizable';
 import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, Icon, ScrollContainer, Tab, TabsBar, useStyles2 } from '@grafana/ui';
+import { getDragStyles, Icon, ScrollContainer, Tab, TabsBar } from '@grafana/ui';
 
 import { getFieldSelectorWidth } from '../fieldSelector/fieldSelectorUtils';
 
@@ -35,8 +36,8 @@ export const LogLineDetails = memo(
     const { noInteractions, fontSize, logOptionsStorageKey } = useLogListContext();
     const { detailsWidth, setDetailsWidth } = useLogDetailsContext();
     const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
-    const styles = useStyles2(getStyles, 'sidebar', showControls, fontSize, inlineLogDetailsNoScrolls);
-    const dragStyles = useStyles2(getDragStyles);
+    const styles = (getStyles, 'sidebar', showControls, fontSize, inlineLogDetailsNoScrolls);
+    const dragStyles = (getDragStyles);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const handleResize = useCallback(() => {
@@ -69,7 +70,7 @@ export const LogLineDetails = memo(
         minWidth={40}
         maxWidth={maxWidth}
       >
-        <div className={styles.container} ref={containerRef}>
+        <div {...stylex.props(logLineDetailsStyles.container)} ref={containerRef}>
           <LogLineDetailsTabs focusLogLine={focusLogLine} logs={logs} timeRange={timeRange} timeZone={timeZone} />
         </div>
       </Resizable>
@@ -86,7 +87,7 @@ const LogLineDetailsTabs = memo(
     const inputRef = useRef('');
     const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
 
-    const styles = useStyles2(getStyles, 'sidebar', undefined, fontSize, inlineLogDetailsNoScrolls);
+    const styles = (getStyles, 'sidebar', undefined, fontSize, inlineLogDetailsNoScrolls);
 
     useEffect(() => {
       // When wrapping is enabled and details is in sidebar mode, the logs panel width changes and the
@@ -118,7 +119,7 @@ const LogLineDetailsTabs = memo(
     }
 
     return (
-      <div className={styles.tabsWrapper}>
+      <div {...stylex.props(logLineDetailsStyles.tabsWrapper)}>
         {showDetails.length > 1 && (
           <TabsBar>
             {tabs.map((log) => {
@@ -172,7 +173,7 @@ export const InlineLogLineDetails = memo(({ logs, log, onResize, timeRange, time
   const { app, fontSize, noInteractions } = useLogListContext();
   const { detailsWidth } = useLogDetailsContext();
   const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
-  const styles = useStyles2(getStyles, 'inline', undefined, fontSize, inlineLogDetailsNoScrolls);
+  const styles = (getStyles, 'inline', undefined, fontSize, inlineLogDetailsNoScrolls);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
   const inputRef = useRef('');
@@ -217,8 +218,8 @@ export const InlineLogLineDetails = memo(({ logs, log, onResize, timeRange, time
   }, [inlineLogDetailsNoScrolls, autoScrolled, log, scrollRef.current?.scrollHeight]);
 
   return (
-    <div className={`${styles.inlineWrapper} log-line-inline-details`} style={{ maxWidth: detailsWidth }}>
-      <div className={styles.inlineContainer}>
+    <div className={`${logLineDetailsStyles.inlineWrapper} log-line-inline-details`} style={{ maxWidth: detailsWidth }}>
+      <div {...stylex.props(logLineDetailsStyles.inlineContainer)}>
         <LogLineDetailsHeader log={log} search={search} onSearch={handleSearch} />
         {inlineLogDetailsNoScrolls ? (
           <div>
@@ -237,39 +238,3 @@ InlineLogLineDetails.displayName = 'InlineLogLineDetails';
 
 export const LOG_LINE_DETAILS_HEIGHT = 45;
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  mode: LogLineDetailsMode,
-  showControls: boolean | undefined,
-  fontSize: LogListFontSize,
-  inlineLogDetailsNoScrolls: boolean
-) => ({
-  inlineWrapper: css({
-    gridColumn: '1 / -1',
-    height: inlineLogDetailsNoScrolls === false ? `${LOG_LINE_DETAILS_HEIGHT}vh` : undefined,
-    padding: theme.spacing(1, 2, 1.5, 2),
-    marginRight: 1,
-  }),
-  inlineContainer: css({
-    backgroundColor: theme.colors.background.secondary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    fontSize: fontSize === 'small' ? theme.typography.bodySmall.fontSize : undefined,
-    lineHeight: fontSize === 'small' ? theme.typography.bodySmall.lineHeight : undefined,
-  }),
-  container: css({
-    backgroundColor: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderBottomRightRadius: showControls ? undefined : theme.shape.radius.default,
-    borderRight: mode === 'sidebar' && showControls ? 'none' : undefined,
-    borderTopRightRadius: showControls ? undefined : theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    height: '100%',
-    fontSize: fontSize === 'small' ? theme.typography.bodySmall.fontSize : undefined,
-    lineHeight: fontSize === 'small' ? theme.typography.bodySmall.lineHeight : undefined,
-  }),
-  tabsWrapper: css({ height: '100%', display: 'flex', flexDirection: 'column' }),
-});

@@ -1,4 +1,4 @@
-import { type PropsOf } from '@emotion/react';
+import { type ComponentProps } from 'react';
 
 import { useAssistant } from '@grafana/assistant';
 import { AppEvents } from '@grafana/data';

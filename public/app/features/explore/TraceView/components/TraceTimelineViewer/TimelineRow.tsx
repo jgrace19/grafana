@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { timelineRowStyles } from './TimelineRow.stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
-import { useStyles2 } from '@grafana/ui';
 
-const getStyles = () => {
-  return {
-    row: css({
-      display: 'flex',
-      flex: '0 1 auto',
-      flexDirection: 'row',
-    }),
-    rowCell: css({
-      position: 'relative',
-    }),
-  };
-};
+;
 
 type TTimelineRowProps = {
   children: React.ReactNode;
@@ -44,9 +35,8 @@ interface TimelineRowCellProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function TimelineRow({ children, className = '', ...rest }: TTimelineRowProps) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.row, className)} {...rest}>
+    <div {...mergeStylexClassName(stylex.props(timelineRowStyles.row, , className), undefined)} {...rest}>
       {children}
     </div>
   );
@@ -55,9 +45,8 @@ export default function TimelineRow({ children, className = '', ...rest }: TTime
 export function TimelineRowCell({ children, className = '', width, style = {}, ...rest }: TimelineRowCellProps) {
   const widthPercent = `${width * 100}%`;
   const mergedStyle = { ...style, flexBasis: widthPercent, maxWidth: widthPercent };
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.rowCell, className)} style={mergedStyle} data-testid="TimelineRowCell" {...rest}>
+    <div {...mergeStylexClassName(stylex.props(timelineRowStyles.row, Cell, className), undefined)} style={mergedStyle} data-testid="TimelineRowCell" {...rest}>
       {children}
     </div>
   );

@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { indexStyles } from './index.stylex';
 import { SpanStatusCode } from '@opentelemetry/api';
 import React, { useCallback, useMemo, useRef } from 'react';
 
@@ -122,112 +125,7 @@ const useResourceAttributesExtensionLinks = ({
   return resourceLinksGetter;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      ':not(:empty)': {
-        border: '1px solid ' + theme.colors.border.weak,
-        '&:hover': {
-          border: '1px solid ' + theme.colors.border.strong,
-        },
-      },
-      borderRadius: theme.shape.radius.md,
-      margin: '6px',
-      padding: '5px',
-    }),
-    header: css({
-      label: 'SpanDetailHeader',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      gap: '0 1rem',
-      marginBottom: '0.25rem',
-      flexDirection: 'column',
-    }),
-    content: css({
-      label: 'SpanDetailContent',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    listWrapper: css({
-      label: 'SpanDetailListWrapper',
-      overflow: 'hidden',
-      flexGrow: 1,
-      display: 'flex',
-      justifyContent: 'flex-end',
-    }),
-    list: css({
-      textAlign: 'left',
-    }),
-    spanDetailComponent: css({
-      label: 'SpanDetailComponent',
-      display: 'flex',
-      flexDirection: 'column', // On bigger screens display attributes below service name
-    }),
-    serviceNameAndLinks: css({
-      label: 'ServiceNameAndLinks',
-      display: 'flex',
-      width: '100%',
-      marginBottom: theme.spacing(1),
-    }),
-    operationName: css({
-      label: 'SpanDetailOperationName',
-      margin: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      maxWidth: '50%',
-      flexGrow: 1,
-      flexShrink: 0,
-    }),
-    AccordianWarnings: css({
-      label: 'AccordianWarnings',
-      background: autoColor(theme, '#fafafa'),
-      border: `1px solid ${autoColor(theme, '#e4e4e4')}`,
-      marginBottom: '0.25rem',
-    }),
-    AccordianWarningsHeader: css({
-      label: 'AccordianWarningsHeader',
-      background: autoColor(theme, '#fff7e6'),
-      padding: '0.25rem 0.5rem',
-    }),
-    AccordianWarningsHeaderOpen: css({
-      label: 'AccordianWarningsHeaderOpen',
-      borderBottom: `1px solid ${autoColor(theme, '#e8e8e8')}`,
-    }),
-    AccordianWarningsLabel: css({
-      label: 'AccordianWarningsLabel',
-      color: autoColor(theme, '#d36c08'),
-    }),
-    Textarea: css({
-      wordBreak: 'break-all',
-      whiteSpace: 'pre',
-    }),
-    linkList: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '10px',
-      marginBottom: theme.spacing(2),
-    }),
-    debugInfo: css({
-      label: 'debugInfo',
-      display: 'block',
-      letterSpacing: '0.25px',
-      margin: '0.5em 0 -0.75em',
-      textAlign: 'right',
-      clear: 'both',
-    }),
-    debugLabel: css({
-      label: 'debugLabel',
-      '&::before': {
-        color: autoColor(theme, '#bbb'),
-        content: 'attr(data-label)',
-      },
-    }),
-    LinkIcon: css({
-      fontSize: '1.5em',
-    }),
-  };
-};
+;
 
 export const alignIcon = css({
   margin: '-0.2rem 0.25rem 0 0',
@@ -350,8 +248,6 @@ export default function SpanDetail(props: SpanDetailProps) {
   ];
 
   const mainContainerRef = useRef<HTMLDivElement>(null);
-
-  const styles = useStyles2(getStyles);
   if (span.kind) {
     overviewItems.push({
       key: KIND,
@@ -519,22 +415,22 @@ export default function SpanDetail(props: SpanDetailProps) {
   }
 
   return (
-    <div data-testid="span-detail-component" ref={mainContainerRef} className={styles.spanDetailComponent}>
-      <div className={styles.header}>
-        <div className={styles.serviceNameAndLinks}>
-          <h6 className={styles.operationName} title={operationName}>
+    <div data-testid="span-detail-component" ref={mainContainerRef} {...stylex.props(indexStyles.spanDetailComponent)}>
+      <div {...stylex.props(indexStyles.header)}>
+        <div {...stylex.props(indexStyles.serviceNameAndLinks)}>
+          <h6 {...stylex.props(indexStyles.operationName)} title={operationName}>
             {operationName}
           </h6>
           {linksComponent}
         </div>
-        <div className={styles.listWrapper}>
-          <LabeledList className={styles.list} divider={false} items={overviewItems} color={color} />
+        <div {...stylex.props(indexStyles.listWrapper)}>
+          <LabeledList {...stylex.props(indexStyles.list)} divider={false} items={overviewItems} color={color} />
         </div>
       </div>
-      <div className={styles.content}>
+      <div {...stylex.props(indexStyles.content)}>
         <CardsContainer listOfContentCards={listOfContentCards} mainContainerRef={mainContainerRef} />
 
-        <small className={styles.debugInfo}>
+        <small {...stylex.props(indexStyles.debugInfo)}>
           {/* TODO: fix keyboard a11y */}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <a
@@ -553,9 +449,9 @@ export default function SpanDetail(props: SpanDetailProps) {
               }
             }}
           >
-            <Icon name={'link'} className={cx(alignIcon, styles.LinkIcon)}></Icon>
+            <Icon name={'link'} {...mergeStylexClassName(stylex.props(indexStyles.LinkIcon, alignIcon, ), undefined)}></Icon>
           </a>
-          <span className={styles.debugLabel} data-label="SpanID:" /> {spanID}
+          <span {...stylex.props(indexStyles.debugLabel)} data-label="SpanID:" /> {spanID}
         </small>
       </div>
     </div>
@@ -576,7 +472,6 @@ const CardsContainer = ({
   listOfContentCards: React.ReactNode[];
   mainContainerRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
-  const styles = useStyles2(getStyles);
 
   const useTwoColumns =
     mainContainerRef && mainContainerRef.current && mainContainerRef.current.getBoundingClientRect().width > 1000;
@@ -587,7 +482,7 @@ const CardsContainer = ({
         <div className={css({ float: 'left', width: '50%' })}>
           {listOfContentCards.map((card, index) =>
             index % 2 === 0 ? (
-              <div className={styles.card} key={index}>
+              <div {...stylex.props(indexStyles.card)} key={index}>
                 {card}
               </div>
             ) : null
@@ -597,7 +492,7 @@ const CardsContainer = ({
         <div className={css({ float: 'right', width: '50%' })}>
           {listOfContentCards.map((card, index) =>
             index % 2 === 1 ? (
-              <div className={styles.card} key={index}>
+              <div {...stylex.props(indexStyles.card)} key={index}>
                 {card}
               </div>
             ) : null
@@ -610,7 +505,7 @@ const CardsContainer = ({
   return (
     <div className={css({ clear: 'both', width: '100%' })}>
       {listOfContentCards.map((card, index) => (
-        <div className={styles.card} key={index}>
+        <div {...stylex.props(indexStyles.card)} key={index}>
           {card}
         </div>
       ))}

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { featureHighlightsTabPageStyles } from './FeatureHighlightsTabPage.stylex';
 import { useParams } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, LinkButton, TextLink, useStyles2 } from '@grafana/ui';
+import { Icon, LinkButton, TextLink } from '@grafana/ui';
 import { CloudEnterpriseBadge } from 'app/core/components/Branding/CloudEnterpriseBadge';
 import { Page } from 'app/core/components/Page/Page';
 import { DataSourceTitle } from 'app/features/datasources/components/DataSourceTitle';
@@ -34,7 +35,6 @@ export function FeatureHighlightsTabPage({
   useInitDataSourceSettings(uid);
 
   const { navId, pageNav, dataSourceHeader } = useDataSourceTabNav(pageName);
-  const styles = useStyles2(getStyles);
 
   const info = useDataSourceInfo({
     dataSourcePluginName: pageNav.dataSourcePluginName,
@@ -50,22 +50,22 @@ export function FeatureHighlightsTabPage({
       actions={<EditDataSourceActions uid={uid} />}
     >
       <Page.Contents>
-        <div className={styles.container}>
-          <div className={styles.content}>
-            <div className={styles.badge}>
+        <div {...stylex.props(featureHighlightsTabPageStyles.container)}>
+          <div {...stylex.props(featureHighlightsTabPageStyles.content)}>
+            <div {...stylex.props(featureHighlightsTabPageStyles.badge)}>
               <CloudEnterpriseBadge />
             </div>
-            <h1 className={styles.title}>{title}</h1>
-            <div className={styles.header}>{header}</div>
-            <div className={styles.itemsList}>
+            <h1 {...stylex.props(featureHighlightsTabPageStyles.title)}>{title}</h1>
+            <div {...stylex.props(featureHighlightsTabPageStyles.header)}>{header}</div>
+            <div {...stylex.props(featureHighlightsTabPageStyles.itemsList)}>
               {items.map((item) => (
-                <div key={item} className={styles.listItem}>
-                  <Icon className={styles.icon} name="check" />
+                <div key={item} {...stylex.props(featureHighlightsTabPageStyles.listItem)}>
+                  <Icon {...stylex.props(featureHighlightsTabPageStyles.icon)} name="check" />
                   {item}
                 </div>
               ))}
             </div>
-            <div className={styles.footer}>
+            <div {...stylex.props(featureHighlightsTabPageStyles.footer)}>
               <Trans i18nKey="connections.feature-highlight-page.footer">
                 Create a Grafana Cloud Free account to start using data source permissions. This feature is also
                 available with a Grafana Enterprise license.
@@ -77,11 +77,11 @@ export function FeatureHighlightsTabPage({
                 </TextLink>
               </div>
             </div>
-            <LinkButton className={styles.linkButton} href={buttonLink}>
-              <Icon name="external-link-alt" className={styles.buttonIcon} />
+            <LinkButton {...stylex.props(featureHighlightsTabPageStyles.linkButton)} href={buttonLink}>
+              <Icon name="external-link-alt" {...stylex.props(featureHighlightsTabPageStyles.buttonIcon)} />
               <Trans i18nKey="connections.feature-highlight-page.link-button-label">Create account</Trans>
             </LinkButton>
-            <p className={styles.footNote}>
+            <p {...stylex.props(featureHighlightsTabPageStyles.footNote)}>
               <Trans i18nKey="connections.feature-highlight-page.foot-note">
                 After creating an account, you can easily{' '}
                 <TextLink href="https://grafana.com/docs/grafana/latest/administration/migration-guide/cloud-migration-assistant/">
@@ -91,8 +91,8 @@ export function FeatureHighlightsTabPage({
               </Trans>
             </p>
           </div>
-          <div className={styles.imageContainer}>
-            <img className={styles.image} src={screenshotPath} alt={`${pageName} screenshot`} />
+          <div {...stylex.props(featureHighlightsTabPageStyles.imageContainer)}>
+            <img {...stylex.props(featureHighlightsTabPageStyles.image)} src={screenshotPath} alt={`${pageName} screenshot`} />
           </div>
         </div>
       </Page.Contents>
@@ -100,73 +100,3 @@ export function FeatureHighlightsTabPage({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    gap: theme.spacing(4),
-    alignItems: 'flex-start',
-    [theme.breakpoints.down('lg')]: {
-      flexDirection: 'column',
-    },
-  }),
-  content: css({
-    flex: '0 0 40%',
-  }),
-  imageContainer: css({
-    flex: '0 0 60%',
-    display: 'flex',
-    [theme.breakpoints.down('lg')]: {
-      flex: '1 1 auto',
-    },
-    padding: `${theme.spacing(5)} 10% 0 ${theme.spacing(5)}`,
-  }),
-  image: css({
-    width: '100%',
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-  }),
-  buttonIcon: css({
-    marginRight: theme.spacing(1),
-  }),
-  badge: css({
-    marginBottom: theme.spacing(1),
-  }),
-  title: css({
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
-  }),
-  header: css({
-    color: theme.colors.text.primary,
-  }),
-
-  itemsList: css({
-    marginBottom: theme.spacing(3),
-    marginTop: theme.spacing(3),
-  }),
-
-  listItem: css({
-    display: 'flex',
-    alignItems: 'flex-start',
-    color: theme.colors.text.primary,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    marginBottom: theme.spacing(2),
-  }),
-
-  linkButton: css({
-    marginBottom: theme.spacing(2),
-  }),
-
-  footer: css({
-    marginBottom: theme.spacing(3),
-    marginTop: theme.spacing(3),
-  }),
-
-  icon: css({
-    marginRight: theme.spacing(1),
-    color: theme.colors.success.main,
-  }),
-  footNote: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-});

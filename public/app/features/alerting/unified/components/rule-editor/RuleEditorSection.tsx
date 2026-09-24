@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleEditorSectionStyles } from './RuleEditorSection.stylex';
 import * as React from 'react';
 import { type ReactElement } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { FieldSet, InlineSwitch, Stack, Text, useStyles2 } from '@grafana/ui';
+import { FieldSet, InlineSwitch, Stack, Text } from '@grafana/ui';
 
 export interface RuleEditorSectionProps {
   title: string;
@@ -26,13 +28,12 @@ export const RuleEditorSection = ({
   description,
   switchMode,
 }: React.PropsWithChildren<RuleEditorSectionProps>) => {
-  const styles = useStyles2(getStyles);
 
   const AlertRuleSelectors = selectors.components.AlertRules;
   return (
-    <div className={styles.parent} data-testid={AlertRuleSelectors.step(stepNo.toString())}>
+    <div {...stylex.props(ruleEditorSectionStyles.parent)} data-testid={AlertRuleSelectors.step(stepNo.toString())}>
       <FieldSet
-        className={cx(fullWidth && styles.fullWidth)}
+        className={cx(fullWidth && ruleEditorSectionStyles.fullWidth)}
         label={
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Text variant="h3">
@@ -49,7 +50,7 @@ export const RuleEditorSection = ({
                   label={t('alerting.rule-editor-section.label-advanced-options', 'Advanced options')}
                   showLabel
                   transparent
-                  className={styles.reverse}
+                  {...stylex.props(ruleEditorSectionStyles.reverse)}
                 />
               </Text>
             )}
@@ -57,7 +58,7 @@ export const RuleEditorSection = ({
         }
       >
         <Stack direction="column">
-          {description && <div className={styles.description}>{description}</div>}
+          {description && <div {...stylex.props(ruleEditorSectionStyles.description)}>{description}</div>}
           {children}
         </Stack>
       </FieldSet>
@@ -65,22 +66,3 @@ export const RuleEditorSection = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  parent: css({
-    display: 'flex',
-    flexDirection: 'row',
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.lg,
-    padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-  }),
-  description: css({
-    marginTop: `-${theme.spacing(2)}`,
-  }),
-  fullWidth: css({
-    width: '100%',
-  }),
-  reverse: css({
-    flexDirection: 'row-reverse',
-    gap: theme.spacing(1),
-  }),
-});

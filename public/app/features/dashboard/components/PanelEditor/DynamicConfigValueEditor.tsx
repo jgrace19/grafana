@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dynamicConfigValueEditorStyles } from './DynamicConfigValueEditor.stylex';
 import { useId } from 'react';
 import Highlighter from 'react-highlight-words';
 
@@ -33,7 +36,6 @@ export const DynamicConfigValueEditor = ({
   isSystemOverride,
   searchQuery,
 }: DynamicConfigValueEditorProps) => {
-  const styles = useStyles2(getStyles);
 
   const item = registry?.getIfExists(property.id);
 
@@ -129,21 +131,13 @@ export const DynamicConfigValueEditor = ({
 
   return (
     <div
-      className={cx(
-        isCollapsible && styles.collapsibleOverrideEditor,
+      {...mergeStylexClassName(stylex.props(dynamicConfigValueEditorStyles.collapsibleOverrideEditor, 
+        isCollapsible && ,
         !isCollapsible && 'dynamicConfigValueEditor--nonCollapsible'
-      )}
+      ), undefined)}
     >
       {editor}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapsibleOverrideEditor: css({
-    label: 'collapsibleOverrideEditor',
-    '& + .dynamicConfigValueEditor--nonCollapsible': {
-      marginTop: theme.spacing(1),
-    },
-  }),
-});

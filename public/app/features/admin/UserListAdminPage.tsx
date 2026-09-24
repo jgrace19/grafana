@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { userListAdminPageStyles } from './UserListAdminPage.stylex';
 import { type ComponentType, useEffect } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { LinkButton, RadioButtonGroup, useStyles2, FilterInput, EmptyState } from '@grafana/ui';
+import { LinkButton, RadioButtonGroup, FilterInput, EmptyState } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -66,7 +67,6 @@ const UserListAdminPageUnConnected = ({
   changeSort,
   isLoading,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     fetchUsers();
@@ -74,8 +74,8 @@ const UserListAdminPageUnConnected = ({
 
   return (
     <Page.Contents>
-      <div className={styles.actionBar} data-testid={selectors.container}>
-        <div className={styles.row}>
+      <div {...stylex.props(userListAdminPageStyles.actionBar)} data-testid={selectors.container}>
+        <div {...stylex.props(userListAdminPageStyles.row)}>
           <FilterInput
             placeholder={t(
               'admin.user-list-admin-page-un-connected.placeholder-search-login-email',
@@ -96,10 +96,10 @@ const UserListAdminPageUnConnected = ({
             ]}
             onChange={(value) => changeFilter({ name: 'activeLast30Days', value })}
             value={filters.find((f) => f.name === 'activeLast30Days')?.value}
-            className={styles.filter}
+            {...stylex.props(userListAdminPageStyles.filter)}
           />
           {extraFilters.map((FilterComponent, index) => (
-            <FilterComponent key={index} filters={filters} onChange={changeFilter} className={styles.filter} />
+            <FilterComponent key={index} filters={filters} onChange={changeFilter} {...stylex.props(userListAdminPageStyles.filter)} />
           ))}
           {contextSrv.hasPermission(AccessControlAction.UsersCreate) && (
             <LinkButton href="admin/users/create" variant="primary">
@@ -135,37 +135,6 @@ export function UserListAdminPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    filter: css({
-      margin: theme.spacing(0, 1),
-      [theme.breakpoints.down('sm')]: {
-        margin: 0,
-      },
-    }),
-    actionBar: css({
-      marginBottom: theme.spacing(2),
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-      },
-    }),
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      marginBottom: theme.spacing(0.5),
-      flexGrow: 1,
-
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-        gap: theme.spacing(2),
-        width: '100%',
-      },
-    }),
-  };
-};
+;
 
 export default UserListAdminPage;

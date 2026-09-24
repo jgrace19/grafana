@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { organizeFieldsTransformerEditorStyles } from './OrganizeFieldsTransformerEditor.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useCallback, useId, useMemo } from 'react';
 
@@ -24,7 +27,6 @@ import {
   IconButton,
   Icon,
   FieldValidationMessage,
-  useStyles2,
   Stack,
   InlineLabel,
   Text,
@@ -242,7 +244,7 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
     [options, onChange, uiOrderByItems]
   );
 
-  const styles = useStyles2(getDraggableStyles);
+  const styles = (getDraggableStyles);
 
   // Show warning that we only apply the first frame
   if (input.length > 1) {
@@ -258,7 +260,7 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
 
   return (
     <>
-      <InlineFieldRow className={styles.fieldOrderRadio}>
+      <InlineFieldRow {...stylex.props(organizeFieldsTransformerEditorStyles.fieldOrderRadio)}>
         <InlineField label={t('transformers.organize-fields-transformer-editor.field-order', 'Field order')}>
           <RadioButtonGroup
             options={[
@@ -282,7 +284,7 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
             {(provided) => {
               return (
                 <>
-                  <div ref={provided.innerRef} className={styles.labelsDraggable} {...provided.droppableProps}>
+                  <div ref={provided.innerRef} {...stylex.props(organizeFieldsTransformerEditorStyles.labelsDraggable)} {...provided.droppableProps}>
                     {uiOrderByItems.map((item, idx) => (
                       <DraggableUIOrderByItem
                         item={item}
@@ -331,14 +333,6 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
   );
 };
 
-const getDraggableStyles = (theme: GrafanaTheme2) => ({
-  fieldOrderRadio: css({
-    marginBottom: theme.spacing(1),
-  }),
-  labelsDraggable: css({
-    marginBottom: theme.spacing(3),
-  }),
-});
 
 OrganizeFieldsTransformerEditor.displayName = 'OrganizeFieldsTransformerEditor';
 
@@ -361,13 +355,13 @@ const DraggableFieldName = ({
   onRenameField,
   isDragDisabled,
 }: DraggableFieldProps) => {
-  const styles = useStyles2(getFieldNameStyles);
+  const styles = (getFieldNameStyles);
 
   return (
     <Draggable draggableId={fieldName} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <Box display="flex" gap={0} marginBottom={0.5} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={styles.flexLabel}>
+          <InlineLabel as="div" className={organizeFieldsTransformerEditorStyles.flexLabel}>
             <Stack gap={0} justifyContent="flex-start" alignItems="center" width="100%">
               {!isDragDisabled && (
                 <span {...provided.dragHandleProps}>
@@ -378,12 +372,12 @@ const DraggableFieldName = ({
                       'Drag and drop to reorder'
                     )}
                     size="lg"
-                    className={styles.draggable}
+                    className={organizeFieldsTransformerEditorStyles.draggable}
                   />
                 </span>
               )}
               <IconButton
-                className={styles.toggle}
+                className={organizeFieldsTransformerEditorStyles.toggle}
                 size="md"
                 name={visible ? 'eye' : 'eye-slash'}
                 onClick={() => onToggleVisibility(fieldName, visible)}
@@ -399,7 +393,7 @@ const DraggableFieldName = ({
             </Stack>
           </InlineLabel>
           <Input
-            className={styles.flexInput}
+            className={organizeFieldsTransformerEditorStyles.flexInput}
             defaultValue={renamedFieldName || ''}
             placeholder={t('transformers.draggable-field-name.rename-placeholder', 'Rename {{fieldName}}', {
               fieldName,
@@ -422,14 +416,14 @@ interface DraggableUIOrderByItemProps {
 }
 
 const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderByItemProps) => {
-  const styles = useStyles2(getFieldNameStyles);
+  const styles = (getFieldNameStyles);
   const draggableId = useId();
 
   return (
     <Draggable draggableId={draggableId} index={index} isDragDisabled={item.order === Order.Off}>
       {(provided) => (
         <Box marginBottom={0.5} display="flex" gap={0} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className={styles.flexLabel}>
+          <InlineLabel as="div" className={organizeFieldsTransformerEditorStyles.flexLabel}>
             <Stack gap={3} justifyContent="flex-start" alignItems="center" width="100%">
               <span {...provided.dragHandleProps}>
                 <Icon
@@ -439,7 +433,7 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
                     'Drag and drop to reorder'
                   )}
                   size="lg"
-                  className={cx(styles.draggable, { [styles.disabled]: item.order === Order.Off })}
+                  className={cx(organizeFieldsTransformerEditorStyles.draggable, { [organizeFieldsTransformerEditorStyles.disabled]: item.order === Order.Off })}
                 />
               </span>
               <Text truncate={true} element="p" variant="bodySmall" weight="bold">

@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardEmptyStyles } from './DashboardEmpty.stylex';
 import { useCallback, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { Button, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { AutoGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager';
@@ -32,12 +33,11 @@ const InternalDashboardEmpty = ({
   onAddLibraryPanel,
   onImportDashboard,
 }: InternalProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <>
       <Stack alignItems="center" justifyContent="center">
-        <div className={`${styles.wrapper} ${styles.wrapperMaxWidth}`}>
+        <div className={`${mergeStylexClassName(stylex.props(dashboardEmptyStyles.wrapper), undefined).className} ${mergeStylexClassName(stylex.props(dashboardEmptyStyles.wrapperMaxWidth), undefined).className}`}>
           {config.featureToggles.dashboardNewLayouts && dashboard instanceof DashboardScene ? (
             <NewLayoutEmpty dashboard={dashboard} styles={styles} />
           ) : (
@@ -93,7 +93,7 @@ const NewLayoutEmpty = ({ dashboard, styles }: NewLayoutEmptyProps) => {
     <Stack alignItems="stretch" justifyContent="center" gap={4} direction="column" width="100%">
       <Box padding={4}>
         <Box marginBottom={2} paddingX={4} display="flex" justifyContent="center">
-          <Icon name="apps" size="xxl" className={styles.appsIcon} />
+          <Icon name="apps" size="xxl" {...stylex.props(dashboardEmptyStyles.appsIcon)} />
         </Box>
         <Text element="h1" textAlignment="center" weight="medium">
           <Trans i18nKey="dashboard.empty.title">New dashboard</Trans>
@@ -272,24 +272,3 @@ const DashboardEmpty = (props: Props) => {
 
 export default DashboardEmpty;
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      label: 'dashboard-empty-wrapper',
-      flexDirection: 'column',
-      gap: theme.spacing.gridSize * 4,
-      paddingTop: theme.spacing(2),
-      width: '100%',
-
-      [theme.breakpoints.up('sm')]: {
-        paddingTop: theme.spacing(12),
-      },
-    }),
-    wrapperMaxWidth: css({
-      maxWidth: '890px',
-    }),
-    appsIcon: css({
-      fill: theme.v1.palette.orange,
-    }),
-  };
-}

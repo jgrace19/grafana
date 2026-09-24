@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { payloadEditorStyles } from './PayloadEditor.stylex';
 import { useState } from 'react';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, CodeEditor, Dropdown, Menu, Stack, Toggletip, useStyles2 } from '@grafana/ui';
+import { Button, CodeEditor, Dropdown, Menu, Stack, Toggletip } from '@grafana/ui';
 import { type TestTemplateAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { EditorColumnHeader } from '../EditorColumnHeader';
@@ -32,7 +34,6 @@ export function PayloadEditor({
   payloadFormatError: string | null;
   className?: string;
 }) {
-  const styles = useStyles2(getStyles);
   const onReset = () => {
     setPayload(defaultPayload);
   };
@@ -83,7 +84,7 @@ export function PayloadEditor({
 
   return (
     <>
-      <div className={cx(styles.wrapper, className)}>
+      <div {...mergeStylexClassName(stylex.props(payloadEditorStyles.wrapper), className)}>
         <EditorColumnHeader
           label={t('alerting.payload-editor.label-payload', 'Payload')}
           actions={
@@ -122,11 +123,11 @@ export function PayloadEditor({
           }
         />
 
-        <div className={styles.editorWrapper}>
+        <div {...stylex.props(payloadEditorStyles.editorWrapper)}>
           <AutoSizer>
             {({ width, height }) => (
               <CodeEditor
-                containerStyles={styles.editorContainer}
+                containerStyles={payloadEditorStyles.editorContainer}
                 width={width}
                 height={height}
                 language={'json'}
@@ -157,31 +158,3 @@ export function PayloadEditor({
 const AlertTemplateDataTable = () => {
   return <TemplateDataTable dataItems={AlertTemplatePreviewData} />;
 };
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  }),
-  tooltip: css({
-    paddingLeft: theme.spacing(1),
-  }),
-  label: css({
-    margin: 0,
-  }),
-  editorWrapper: css({
-    flex: 1,
-  }),
-  editorContainer: css({
-    width: 'fit-content',
-    border: 'none',
-  }),
-  templateDataDocsHeader: css({
-    color: theme.colors.text.primary,
-
-    span: {
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    },
-  }),
-});

@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { shareSpanButtonStyles } from './ShareSpanButton.stylex';
 import { Trans } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
 
@@ -8,22 +9,10 @@ type Props = {
   focusSpanLink: LinkModel;
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    shareButton: css({
-      [theme.breakpoints.down('sm')]: {
-        span: {
-          display: 'none',
-        },
-      },
-    }),
-  };
-}
 
 export function ShareSpanButton(props: Props) {
   const { focusSpanLink } = props;
   const { interpolatedParams, ...linkProps } = focusSpanLink ?? {};
-  const styles = useStyles2(getStyles);
   return (
     <span>
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
@@ -44,7 +33,7 @@ export function ShareSpanButton(props: Props) {
           }
         }}
       >
-        <Button variant="secondary" size="sm" icon="share-alt" fill="outline" className={styles.shareButton}>
+        <Button variant="secondary" size="sm" icon="share-alt" fill="outline" {...stylex.props(shareSpanButtonStyles.shareButton)}>
           <Trans i18nKey="explore.span-detail.share-span">Share</Trans>
         </Button>
       </a>

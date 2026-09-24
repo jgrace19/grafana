@@ -1,15 +1,17 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sqlExprStyles } from './SqlExpr.stylex';
 import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { useLocalStorage, useMeasure } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { CompletionItemKind, type LanguageDefinition, type TableIdentifier } from '@grafana/plugin-ui';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { formatSQL } from '@grafana/sql';
-import { Button, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Stack } from '@grafana/ui';
 
 import { type ExpressionQueryEditorProps } from '../../ExpressionQueryEditor';
 import { type SqlExpressionQuery } from '../../types';
@@ -84,7 +86,7 @@ LIMIT
   const [toolboxRef, toolboxMeasure] = useMeasure<HTMLDivElement>();
   const [isSchemaInspectorOpen = true, setIsSchemaInspectorOpen] = useLocalStorage(SCHEMA_INSPECTOR_OPEN_KEY, true);
 
-  const styles = useStyles2((theme) => getStyles(theme));
+  const styles = ((theme) => getStyles(theme));
   const { handleApplySuggestion, handleCloseDrawer, handleHistoryUpdate, handleOpenDrawer, isDrawerOpen, suggestions } =
     useSQLSuggestions();
 
@@ -249,11 +251,10 @@ LIMIT
 
   const renderMainContent = () => (
     <div
-      className={cx(styles.contentContainer, {
-        [styles.contentContainerWithSchema]: isSchemaInspectorOpen && isSchemasFeatureEnabled,
-      })}
+      {...mergeStylexClassName(stylex.props(sqlExprStyles.contentContainer, { ...(isSchemaInspectorOpen && isSchemasFeatureEnabled,
+       ? stylex.props(sqlExprStyles.contentContainerWithSchema) : {}) }), undefined)}
     >
-      <div className={styles.editorContainer}>
+      <div {...stylex.props(sqlExprStyles.editorContainer)}>
         <AutoSizer>
           {({ width, height }) => (
             <Suspense fallback={null}>
@@ -275,7 +276,7 @@ LIMIT
         </AutoSizer>
       </div>
       {isSchemaInspectorOpen && isSchemasFeatureEnabled && (
-        <div className={styles.schemaInspector}>
+        <div {...stylex.props(sqlExprStyles.schemaInspector)}>
           <SchemaInspectorPanel schemas={schemas?.sqlSchemas ?? null} loading={schemasLoading} error={schemasError} />
         </div>
       )}
@@ -291,7 +292,7 @@ LIMIT
 
   return (
     <SqlExprProvider value={contextValue}>
-      <div className={styles.mainContainer}>
+      <div {...stylex.props(sqlExprStyles.mainContainer)}>
         {renderSQLEditor()}
         <Suspense fallback={null}>
           <GenAISuggestionsDrawer
@@ -313,44 +314,6 @@ LIMIT
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainContainer: css({
-    marginTop: theme.spacing(0.5),
-  }),
-  contentContainer: css({
-    minHeight: '250px',
-    height: '100%',
-    resize: 'vertical',
-    overflow: 'hidden',
-
-    display: 'grid',
-    gridTemplateColumns: '1fr 0fr',
-    gridTemplateAreas: '"editor schema"',
-    [theme.transitions.handleMotion('no-preference')]: {
-      transition: theme.transitions.create(['grid-template-columns'], {
-        duration: theme.transitions.duration.standard,
-      }),
-    },
-  }),
-  contentContainerWithSchema: css({
-    gridTemplateColumns: '1fr 1fr',
-    gap: theme.spacing(1),
-  }),
-  editorContainer: css({
-    gridArea: 'editor',
-    height: '100%',
-    width: '100%',
-    overflow: 'auto',
-  }),
-  schemaInspector: css({
-    gridArea: 'schema',
-    height: '100%',
-    overflow: 'hidden',
-    minWidth: 0,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-  }),
-});
 
 async function fetchFields(identifier: TableIdentifier, queries: DataQuery[]) {
   const fields = await fetchSQLFields({ table: identifier.table }, queries);

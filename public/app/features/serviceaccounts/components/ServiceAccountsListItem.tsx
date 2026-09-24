@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { serviceAccountsListItemStyles } from './ServiceAccountsListItem.stylex';
 import { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, type OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Icon, IconButton, Stack } from '@grafana/ui';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -37,7 +39,6 @@ const ServiceAccountListItemComponent = memo(
     onAddTokenClick,
   }: ServiceAccountListItemProps) => {
     const editUrl = `org/serviceaccounts/${serviceAccount.id}`;
-    const styles = useStyles2(getStyles);
 
     const canUpdateRole = contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsWrite, serviceAccount);
     const displayRolePicker =
@@ -45,7 +46,7 @@ const ServiceAccountListItemComponent = memo(
       contextSrv.hasPermission(AccessControlAction.ActionUserRolesList);
 
     return (
-      <tr key={serviceAccount.id} className={cx({ [styles.disabled]: serviceAccount.isDisabled })}>
+      <tr key={serviceAccount.id} className={cx({ [serviceAccountsListItemStyles.disabled]: serviceAccount.isDisabled })}>
         <td className="width-4 text-center link-td">
           <a href={editUrl} aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}>
             <img
@@ -67,7 +68,7 @@ const ServiceAccountListItemComponent = memo(
         </td>
         <td className="link-td max-width-10">
           <a
-            className={styles.accountId}
+            className={serviceAccountsListItemStyles.accountId}
             href={editUrl}
             title={serviceAccount.login}
             aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
@@ -108,7 +109,7 @@ const ServiceAccountListItemComponent = memo(
             title={t('serviceaccounts.service-account-list-item.title-tokens', 'Tokens')}
             aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
           >
-            <div className={cx(styles.tokensInfo, { [styles.tokensInfoSecondary]: !serviceAccount.tokens })}>
+            <div className={cx(serviceAccountsListItemStyles.tokensInfo, { [serviceAccountsListItemStyles.tokensInfoSecondary]: !serviceAccount.tokens })}>
               <span>
                 <Icon name="key-skeleton-alt"></Icon>
               </span>
@@ -123,24 +124,24 @@ const ServiceAccountListItemComponent = memo(
                 <Button
                   onClick={() => onAddTokenClick(serviceAccount)}
                   disabled={serviceAccount.isDisabled}
-                  className={styles.actionButton}
+                  className={serviceAccountsListItemStyles.actionButton}
                 >
                   <Trans i18nKey="serviceaccounts.service-account-list-item.add-token">Add token</Trans>
                 </Button>
               )}
               {contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsWrite, serviceAccount) &&
                 (serviceAccount.isDisabled ? (
-                  <Button variant="primary" onClick={() => onEnable(serviceAccount)} className={styles.actionButton}>
+                  <Button variant="primary" onClick={() => onEnable(serviceAccount)} className={serviceAccountsListItemStyles.actionButton}>
                     <Trans i18nKey="serviceaccounts.service-account-list-item.enable">Enable</Trans>
                   </Button>
                 ) : (
-                  <Button variant="secondary" onClick={() => onDisable(serviceAccount)} className={styles.actionButton}>
+                  <Button variant="secondary" onClick={() => onDisable(serviceAccount)} className={serviceAccountsListItemStyles.actionButton}>
                     <Trans i18nKey="serviceaccounts.service-account-list-item.disable">Disable</Trans>
                   </Button>
                 ))}
               {contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsDelete, serviceAccount) && (
                 <IconButton
-                  className={styles.deleteButton}
+                  {...stylex.props(serviceAccountsListItemStyles.deleteButton)}
                   name="trash-alt"
                   size="md"
                   onClick={() => onRemoveButtonClick(serviceAccount)}
@@ -174,12 +175,12 @@ const ServiceAccountListItemComponent = memo(
 ServiceAccountListItemComponent.displayName = 'ServiceAccountListItem';
 
 const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
+  const styles = (getSkeletonStyles);
 
   return (
     <tr {...rootProps}>
       <td className="width-4 text-center">
-        <Skeleton containerClassName={styles.blockSkeleton} circle width={25} height={25} />
+        <Skeleton containerClassName={mergeStylexClassName(stylex.props(serviceAccountsListItemStyles.blockSkeleton), undefined).className} circle width={25} height={25} />
       </td>
       <td className="max-width-10">
         <Skeleton width={100} />
@@ -188,16 +189,16 @@ const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
         <Skeleton width={100} />
       </td>
       <td>
-        <Skeleton containerClassName={styles.blockSkeleton} width="100%" height={32} />
+        <Skeleton containerClassName={mergeStylexClassName(stylex.props(serviceAccountsListItemStyles.blockSkeleton), undefined).className} width="100%" height={32} />
       </td>
       <td className="max-width-10">
         <Skeleton width={40} />
       </td>
       <td>
         <Stack alignItems="center" justifyContent="flex-end">
-          <Skeleton containerClassName={styles.blockSkeleton} width={102} height={32} />
-          <Skeleton containerClassName={styles.blockSkeleton} width={85} height={32} />
-          <Skeleton containerClassName={cx(styles.blockSkeleton, styles.deleteButton)} width={16} height={16} />
+          <Skeleton containerClassName={mergeStylexClassName(stylex.props(serviceAccountsListItemStyles.blockSkeleton), undefined).className} width={102} height={32} />
+          <Skeleton containerClassName={mergeStylexClassName(stylex.props(serviceAccountsListItemStyles.blockSkeleton), undefined).className} width={85} height={32} />
+          <Skeleton containerClassName={cx(serviceAccountsListItemStyles.blockSkeleton, serviceAccountsListItemStyles.deleteButton)} width={16} height={16} />
         </Stack>
       </td>
     </tr>
@@ -206,15 +207,6 @@ const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 const ServiceAccountListItem = attachSkeleton(ServiceAccountListItemComponent, ServiceAccountsListItemSkeleton);
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  blockSkeleton: css({
-    display: 'block',
-    lineHeight: 1,
-  }),
-  deleteButton: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionsPaneOptionsStyles } from './OptionsPaneOptions.stylex';
 import { useMemo, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FilterInput, RadioButtonGroup, ScrollContainer, useStyles2 } from '@grafana/ui';
 
@@ -22,7 +23,6 @@ export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
   const { plugin, panel } = props;
   const [searchQuery, setSearchQuery] = useState('');
   const [listMode, setListMode] = useState(OptionFilter.All);
-  const styles = useStyles2(getStyles);
 
   const [panelFrameOptions, vizOptions, libraryPanelOptions] = useMemo(
     () => [getPanelFrameCategory(props), getVisualizationOptions(props), getLibraryPanelOptionsCategory(props)],
@@ -97,9 +97,9 @@ export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
   const showSearchRadioButtons = !isSearching && !plugin.fieldConfigRegistry.isEmpty();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.formBox}>
-        <div className={styles.formRow}>
+    <div {...stylex.props(optionsPaneOptionsStyles.wrapper)}>
+      <div {...stylex.props(optionsPaneOptionsStyles.formBox)}>
+        <div {...stylex.props(optionsPaneOptionsStyles.formRow)}>
           <FilterInput
             width={0}
             value={searchQuery}
@@ -108,13 +108,13 @@ export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
           />
         </div>
         {showSearchRadioButtons && (
-          <div className={styles.formRow}>
+          <div {...stylex.props(optionsPaneOptionsStyles.formRow)}>
             <RadioButtonGroup options={optionRadioFilters} value={listMode} fullWidth onChange={setListMode} />
           </div>
         )}
       </div>
       <ScrollContainer>
-        <div className={styles.mainBox}>{mainBoxElements}</div>
+        <div {...stylex.props(optionsPaneOptionsStyles.mainBox)}>{mainBoxElements}</div>
       </ScrollContainer>
     </div>
   );
@@ -159,49 +159,3 @@ export function renderSearchHits(
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: '1 1 0',
-
-    '.search-fragment-highlight': {
-      color: theme.colors.warning.text,
-      background: 'transparent',
-    },
-  }),
-  searchBox: css({
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-  }),
-  formRow: css({
-    marginBottom: theme.spacing(1),
-  }),
-  formBox: css({
-    padding: theme.spacing(1),
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderTopLeftRadius: theme.shape.borderRadius(1.5),
-    borderBottom: 'none',
-  }),
-  closeButton: css({
-    marginLeft: theme.spacing(1),
-  }),
-  searchHits: css({
-    padding: theme.spacing(1, 1, 0, 1),
-  }),
-  searchNotice: css({
-    fontSize: theme.typography.size.sm,
-    color: theme.colors.text.secondary,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-  }),
-  mainBox: css({
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderTop: 'none',
-    flexGrow: 1,
-  }),
-});

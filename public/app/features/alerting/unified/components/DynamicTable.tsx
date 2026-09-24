@@ -1,14 +1,13 @@
-import { css, cx } from '@emotion/css';
 import { type ReactNode, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { IconButton, Pagination, useStyles2 } from '@grafana/ui';
+import { IconButton, Pagination } from '@grafana/ui';
 
 import { usePagination } from '../hooks/usePagination';
-import { getPaginationStyles } from '../styles/pagination';
+import * as stylex from '@stylexjs/stylex';
+import { paginationStyles } from '../styles/pagination.stylex';
 
 interface DynamicTablePagination {
   itemsPerPage: number;
@@ -78,7 +77,6 @@ export const DynamicTable = <T extends object>({
   footerRow,
   dataTestId,
 }: DynamicTableProps<T>) => {
-  const defaultPaginationStyles = useStyles2(getPaginationStyles);
 
   if ((onCollapse || onExpand || isExpanded) && !(onCollapse && onExpand && isExpanded)) {
     throw new Error('either all of onCollapse, onExpand, isExpanded must be provided, or none');
@@ -86,7 +84,7 @@ export const DynamicTable = <T extends object>({
   if ((isExpandable || renderExpandedContent) && !(isExpandable && renderExpandedContent)) {
     throw new Error('either both isExpanded and renderExpandedContent must be provided, or neither');
   }
-  const styles = useStyles2(getStyles(cols, isExpandable, !!renderPrefixHeader));
+  const styles =(getStyles(cols, isExpandable, !!renderPrefixHeader));
 
   const [expandedIds, setExpandedIds] = useState<Array<DynamicTableItemProps['id']>>([]);
 
@@ -105,12 +103,12 @@ export const DynamicTable = <T extends object>({
 
   return (
     <>
-      <div className={styles.container} data-testid={dataTestId ?? 'dynamic-table'}>
-        <div className={styles.row} data-testid="header">
+      <div {...stylex.props(formStyles.container)} data-testid={dataTestId ?? 'dynamic-table'}>
+        <div {...stylex.props(formStyles.row)} data-testid="header">
           {renderPrefixHeader && renderPrefixHeader()}
-          {isExpandable && <div className={styles.cell()} />}
+          {isExpandable && <div className={stylex.props(formStyles.cell)()} />}
           {cols.map((col) => (
-            <div className={styles.cell(col.alignColumn)} key={col.id}>
+            <div className={stylex.props(formStyles.cell)(col.alignColumn)} key={col.id}>
               {col.label}
             </div>
           ))}
@@ -120,13 +118,13 @@ export const DynamicTable = <T extends object>({
           const isItemExpanded = isExpanded ? isExpanded(item) : expandedIds.includes(item.id);
           return (
             <div
-              className={styles.row}
+              {...stylex.props(formStyles.row)}
               key={`${item.id}-${index}`}
               data-testid={testIdGenerator?.(item, index) ?? 'row'}
             >
               {renderPrefixCell && renderPrefixCell(item, index, items)}
               {isExpandable && (
-                <div className={cx(styles.cell(), styles.expandCell)}>
+                <div className={cx(stylex.props(formStyles.cell)(), stylex.props(formStyles.expandCell))}>
                   <IconButton
                     tooltip={
                       isItemExpanded
@@ -141,7 +139,7 @@ export const DynamicTable = <T extends object>({
               )}
               {cols.map((col) => (
                 <div
-                  className={cx(styles.cell(col.alignColumn), styles.bodyCell, col.className)}
+                  className={cx(stylex.props(formStyles.cell)(col.alignColumn), stylex.props(formStyles.bodyCell), col.className)}
                   data-column={col.label}
                   key={`${item.id}-${col.id}`}
                 >
@@ -150,7 +148,7 @@ export const DynamicTable = <T extends object>({
               ))}
               {isItemExpanded && renderExpandedContent && (
                 <div
-                  className={styles.expandedContentRow}
+                  {...stylex.props(formStyles.expandedContentRow)}
                   data-testid={selectors.components.AlertRules.expandedContent}
                 >
                   {renderExpandedContent(item, index, items)}
@@ -159,11 +157,11 @@ export const DynamicTable = <T extends object>({
             </div>
           );
         })}
-        {footerRow && <div className={cx(styles.row, styles.footerRow)}>{footerRow}</div>}
+        {footerRow && <div {...mergeStylexClassName(stylex.props(formStyles.row), stylex.props(formStyles.footerRow))}>{footerRow}</div>}
       </div>
       {pagination && (
         <Pagination
-          className={cx(defaultPaginationStyles, paginationStyles)}
+          className={cx(paginationStyles, paginationStyles)}
           currentPage={page}
           numberOfPages={numberOfPages}
           onNavigate={onPageChange}

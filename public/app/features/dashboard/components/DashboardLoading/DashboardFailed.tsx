@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardFailedStyles } from './DashboardFailed.stylex';
 
 import { Alert } from '@grafana/ui';
 import { getMessageFromError } from 'app/core/utils/errors';
@@ -15,7 +17,7 @@ export const DashboardFailed = ({ initError }: Props) => {
   }
 
   return (
-    <div className={styles.dashboardLoading}>
+    <div {...stylex.props(dashboardFailedStyles.dashboardLoading)}>
       <Alert severity={AppNotificationSeverity.Error} title={initError.message}>
         {getMessageFromError(initError.error)}
       </Alert>
@@ -23,11 +25,3 @@ export const DashboardFailed = ({ initError }: Props) => {
   );
 };
 
-export const styles = {
-  dashboardLoading: css({
-    height: '60vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-};

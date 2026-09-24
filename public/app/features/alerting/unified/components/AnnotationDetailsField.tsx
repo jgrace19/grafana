@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { TextLink, Tooltip } from '@grafana/ui';
 
 import { type Annotation, annotationLabels } from '../utils/constants';
 
@@ -35,7 +34,6 @@ export const AnnotationDetailsField = ({ annotationKey, value, valueLink }: Prop
 };
 
 const AnnotationValue = ({ annotationKey, value, valueLink }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const needsWell = wellableAnnotationKeys.includes(annotationKey);
   const needsExternalLink = value && value.startsWith('http');
@@ -51,7 +49,7 @@ const AnnotationValue = ({ annotationKey, value, valueLink }: Props) => {
   }
 
   if (needsWell) {
-    return <Well className={styles.well}>{tokenizeValue}</Well>;
+    return <Well {...stylex.props(annotationDetailsFieldStyles.well)}>{tokenizeValue}</Well>;
   }
 
   if (needsExternalLink) {
@@ -65,8 +63,3 @@ const AnnotationValue = ({ annotationKey, value, valueLink }: Props) => {
   return <>{tokenizeValue}</>;
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  well: css({
-    wordBreak: 'break-word',
-  }),
-});

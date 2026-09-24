@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 
 import { type DataSourcePluginMeta, type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Card, LinkButton, PluginSignatureBadge, useStyles2 } from '@grafana/ui';
+import { Card, LinkButton, PluginSignatureBadge, } from '@grafana/ui';
 
 export type Props = {
   dataSourcePlugin: DataSourcePluginMeta;
@@ -16,34 +16,34 @@ export function DataSourceTypeCard({ onClick, dataSourcePlugin }: Props) {
   const learnMoreLink = dataSourcePlugin.info?.links?.length > 0 ? dataSourcePlugin.info.links[0] : null;
   const learnMoreLinkTarget = learnMoreLink?.target ?? '_blank';
 
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
-    <Card noMargin className={cx(styles.card, 'card-parent')} onClick={isClickable ? onClick : () => {}}>
+    <Card noMargin {...mergeStylexClassName(stylex.props(dataSourceTypeCardStyles.card, , 'card-parent'), undefined)} onClick={isClickable ? onClick : () => {}}>
       {/* Name */}
       <Card.Heading
-        className={styles.heading}
+        {...stylex.props(dataSourceTypeCardStyles.heading)}
         data-testid={e2eSelectors.pages.AddDataSource.dataSourcePluginsV2(dataSourcePlugin.name)}
       >
         {dataSourcePlugin.name}
       </Card.Heading>
 
       {/* Logo */}
-      <Card.Figure align="center" className={styles.figure}>
-        <img className={styles.logo} src={dataSourcePlugin.info.logos.small} alt="" />
+      <Card.Figure align="center" {...stylex.props(dataSourceTypeCardStyles.figure)}>
+        <img {...stylex.props(dataSourceTypeCardStyles.logo)} src={dataSourcePlugin.info.logos.small} alt="" />
       </Card.Figure>
 
-      <Card.Description className={styles.description}>{dataSourcePlugin.info.description}</Card.Description>
+      <Card.Description {...stylex.props(dataSourceTypeCardStyles.description)}>{dataSourcePlugin.info.description}</Card.Description>
 
       {/* Signature */}
       {!isPhantom && (
-        <Card.Meta className={styles.meta}>
+        <Card.Meta {...stylex.props(dataSourceTypeCardStyles.meta)}>
           <PluginSignatureBadge status={dataSourcePlugin.signature} />
         </Card.Meta>
       )}
 
       {/* Learn more */}
-      <Card.Actions className={styles.actions}>
+      <Card.Actions {...stylex.props(dataSourceTypeCardStyles.actions)}>
         {learnMoreLink && (
           <LinkButton
             aria-label={t(
@@ -65,49 +65,3 @@ export function DataSourceTypeCard({ onClick, dataSourcePlugin }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    heading: css({
-      fontSize: theme.v1.typography.heading.h5,
-      fontWeight: 'inherit',
-    }),
-    figure: css({
-      width: 'inherit',
-      marginRight: '0px',
-      '> img': {
-        width: theme.spacing(7),
-      },
-    }),
-    meta: css({
-      marginTop: '6px',
-      position: 'relative',
-    }),
-    description: css({
-      margin: '0px',
-      fontSize: theme.typography.size.sm,
-    }),
-    actions: css({
-      position: 'relative',
-      alignSelf: 'center',
-      marginTop: '0px',
-      opacity: 0,
-
-      '.card-parent:hover &, .card-parent:focus-within &': {
-        opacity: 1,
-      },
-    }),
-    card: css({
-      gridTemplateAreas: `
-        "Figure   Heading   Actions"
-        "Figure Description Actions"
-        "Figure    Meta     Actions"
-        "Figure     -       Actions"`,
-    }),
-    logo: css({
-      marginRight: theme.v1.spacing.lg,
-      marginLeft: theme.v1.spacing.sm,
-      width: theme.spacing(7),
-      maxHeight: theme.spacing(7),
-    }),
-  };
-}

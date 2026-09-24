@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceFailureBadgeStyles } from './DataSourceFailureBadge.stylex';
 import { type ReactElement } from 'react';
 
 import { textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
 
 import { type FailureSeverity } from '../../connections/hooks/useDatasourceAdvisorChecks';
 
@@ -13,13 +15,12 @@ interface Props {
 }
 
 export function DataSourceFailureBadge({ severity, message }: Props) {
-  const styles = useStyles2(getStyles);
   const isHigh = severity === 'high';
   const fallbackTooltip = isHigh
     ? t('datasources.list.failed-high-tooltip', 'This data source has critical failures reported by Grafana Advisor.')
     : t('datasources.list.failed-low-tooltip', 'This data source has non-critical issues reported by Grafana Advisor.');
   const tooltipContent: string | ReactElement = message ? (
-    <span className={styles.tooltipContent} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(message) }} />
+    <span {...stylex.props(dataSourceFailureBadgeStyles.tooltipContent)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(message) }} />
   ) : (
     fallbackTooltip
   );
@@ -30,21 +31,8 @@ export function DataSourceFailureBadge({ severity, message }: Props) {
       text={isHigh ? t('datasources.list.failed-high', 'failed') : t('datasources.list.failed-low', 'warning')}
       color={isHigh ? 'red' : 'orange'}
       tooltip={tooltipContent}
-      className={styles.trigger}
+      {...stylex.props(dataSourceFailureBadgeStyles.trigger)}
     />
   );
 }
 
-const getStyles = () => ({
-  trigger: css({
-    display: 'inline-flex',
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    position: 'relative',
-    zIndex: 1,
-    cursor: 'help',
-  }),
-  tooltipContent: css({
-    whiteSpace: 'normal',
-  }),
-});

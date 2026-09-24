@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleStateStyles } from './RuleState.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Spinner, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Spinner, Stack, Tooltip } from '@grafana/ui';
 import { type CombinedRule } from 'app/types/unified-alerting';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
@@ -20,7 +21,6 @@ interface Props {
 }
 
 export const RuleState = ({ rule, isDeleting, isCreating, isPaused }: Props) => {
-  const style = useStyles2(getStyle);
 
   const { promRule, rulerRule } = rule;
   // return how long the rule has been in its firing state, if any
@@ -56,7 +56,7 @@ export const RuleState = ({ rule, isDeleting, isCreating, isPaused }: Props) => 
       // calculate time elapsed from earliest alert
       if (firstActiveAt) {
         return (
-          <span title={String(firstActiveAt)} className={style.for}>
+          <span title={String(firstActiveAt)} {...stylex.props(ruleStateStyles.for)}>
             <Trans
               i18nKey="alerting.rule-state.for"
               values={{
@@ -105,11 +105,3 @@ export const RuleState = ({ rule, isDeleting, isCreating, isPaused }: Props) => 
   return <Trans i18nKey="alerting.rule-state.na">n/a</Trans>;
 };
 
-const getStyle = (theme: GrafanaTheme2) => ({
-  for: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    whiteSpace: 'nowrap',
-    paddingTop: '2px',
-  }),
-});

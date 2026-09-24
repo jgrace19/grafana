@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { evaluationGroupFieldRowStyles } from './EvaluationGroupFieldRow.stylex';
 import { useId, useMemo, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Box, Button, Field, Select, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Button, Field, Select, Stack, Text } from '@grafana/ui';
 import { type RulerRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
 import { useFetchGroupsForFolder } from '../../hooks/useFetchGroupsForFolder';
@@ -18,7 +19,6 @@ import { EvaluationGroupCreationModal } from './GrafanaEvaluationBehavior';
 export type GroupOption = SelectableValue<string> & { isProvisioned?: boolean };
 
 export function EvaluationGroupFieldRow({ enableProvisionedGroups }: { enableProvisionedGroups: boolean }) {
-  const styles = useStyles2(getStyles);
   const groupInputId = useId();
 
   const {
@@ -72,12 +72,12 @@ export function EvaluationGroupFieldRow({ enableProvisionedGroups }: { enablePro
 
   return (
     <Stack alignItems="end">
-      <div className={styles.formContainer}>
+      <div {...stylex.props(evaluationGroupFieldRowStyles.formContainer)}>
         <Field
           noMargin
           label={label}
           data-testid="group-picker"
-          className={styles.formInput}
+          {...stylex.props(evaluationGroupFieldRowStyles.formInput)}
           error={errors.group?.message}
           invalid={!!errors.group?.message}
           htmlFor="group"
@@ -154,9 +154,9 @@ export function EvaluationGroupFieldRow({ enableProvisionedGroups }: { enablePro
         />
       )}
       {getValues('group') && getValues('evaluateEvery') && (
-        <div className={styles.evaluationContainer}>
+        <div {...stylex.props(evaluationGroupFieldRowStyles.evaluationContainer)}>
           <Stack direction="column" gap={0}>
-            <div className={styles.marginTop}>
+            <div {...stylex.props(evaluationGroupFieldRowStyles.marginTop)}>
               <Stack direction="column" gap={1}>
                 <Trans
                   i18nKey="alerting.rule-form.evaluation.group-text"
@@ -173,22 +173,3 @@ export function EvaluationGroupFieldRow({ enableProvisionedGroups }: { enablePro
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    formContainer: css({
-      width: '100%',
-      maxWidth: theme.breakpoints.values.sm,
-    }),
-    formInput: css({
-      flexGrow: 1,
-    }),
-    evaluationContainer: css({
-      color: theme.colors.text.secondary,
-      maxWidth: `${theme.breakpoints.values.sm}px`,
-      fontSize: theme.typography.size.sm,
-    }),
-    marginTop: css({
-      marginTop: theme.spacing(1),
-    }),
-  };
-}

@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, dateTimeFormat, intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 interface SilenceMetadataGridProps {
   startsAt: string;
@@ -12,7 +10,6 @@ interface SilenceMetadataGridProps {
 }
 
 export function SilenceMetadataGrid({ startsAt, endsAt, comment, createdBy }: SilenceMetadataGridProps) {
-  const styles = useStyles2(getStyles);
   const dateDisplayFormat = 'YYYY-MM-DD HH:mm';
   const startsAtDate = dateTimeFormat(startsAt, { format: dateDisplayFormat });
   const endsAtDate = dateTimeFormat(endsAt, { format: dateDisplayFormat });
@@ -22,20 +19,20 @@ export function SilenceMetadataGrid({ startsAt, endsAt, comment, createdBy }: Si
   });
 
   return (
-    <div className={styles.container}>
-      <div className={styles.label}>
+    <div {...stylex.props(silenceMetadataGridStyles.container)}>
+      <div {...stylex.props(silenceMetadataGridStyles.label)}>
         <Trans i18nKey="alerting.silence-details.comment">Comment</Trans>
       </div>
       <div>{comment}</div>
-      <div className={styles.label}>
+      <div {...stylex.props(silenceMetadataGridStyles.label)}>
         <Trans i18nKey="alerting.silence-details.schedule">Schedule</Trans>
       </div>
       <div>{`${startsAtDate} - ${endsAtDate}`}</div>
-      <div className={styles.label}>
+      <div {...stylex.props(silenceMetadataGridStyles.label)}>
         <Trans i18nKey="alerting.silence-details.duration">Duration</Trans>
       </div>
       <div>{duration}</div>
-      <div className={styles.label}>
+      <div {...stylex.props(silenceMetadataGridStyles.label)}>
         <Trans i18nKey="alerting.silence-details.created-by">Created by</Trans>
       </div>
       <div>{createdBy}</div>
@@ -43,14 +40,3 @@ export function SilenceMetadataGrid({ startsAt, endsAt, comment, createdBy }: Si
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gridTemplateColumns: '1fr 9fr',
-    gridRowGap: '1rem',
-    paddingBottom: theme.spacing(2),
-  }),
-  label: css({
-    color: theme.colors.text.primary,
-  }),
-});

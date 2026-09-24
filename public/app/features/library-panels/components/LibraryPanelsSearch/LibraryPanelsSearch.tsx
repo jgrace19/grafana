@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { libraryPanelsSearchStyles } from './LibraryPanelsSearch.stylex';
 import { memo, useCallback, useState, type JSX } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2, type PanelPluginMeta, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Stack, FilterInput } from '@grafana/ui';
+import { Stack, FilterInput } from '@grafana/ui';
 
 import { FolderFilter } from '../../../../core/components/FolderFilter/FolderFilter';
 import { PanelTypeFilter } from '../../../../core/components/PanelTypeFilter/PanelTypeFilter';
@@ -41,7 +43,7 @@ export const LibraryPanelsSearch = ({
   showSort = false,
   showSecondaryActions = false,
 }: LibraryPanelsSearchProps): JSX.Element => {
-  const styles = useStyles2(getStyles, variant);
+  const styles = (getStyles, variant);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -55,14 +57,13 @@ export const LibraryPanelsSearch = ({
   const verticalGroupSpacing = variant === LibraryPanelsSearchVariant.Tight ? 3 : 0.5;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(libraryPanelsSearchStyles.container)}>
       <Stack direction="column" gap={verticalGroupSpacing}>
         <div
-          className={cx(styles.gridContainer, {
-            [styles.tightLayout]: variant === LibraryPanelsSearchVariant.Tight,
-          })}
+          {...mergeStylexClassName(stylex.props(libraryPanelsSearchStyles.gridContainer, { ...(variant === LibraryPanelsSearchVariant.Tight,
+           ? stylex.props(libraryPanelsSearchStyles.tightLayout) : {}) }), undefined)}
         >
-          <div className={styles.filterInputWrapper}>
+          <div {...stylex.props(libraryPanelsSearchStyles.filterInputWrapper)}>
             <FilterInput
               value={searchQuery}
               onChange={setSearchQuery}
@@ -88,7 +89,7 @@ export const LibraryPanelsSearch = ({
           )}
         </div>
 
-        <div className={styles.libraryPanelsView}>
+        <div {...stylex.props(libraryPanelsSearchStyles.libraryPanelsView)}>
           <LibraryPanelsView
             onClickCard={onClick}
             searchString={debouncedSearchQuery}
@@ -105,33 +106,6 @@ export const LibraryPanelsSearch = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2, variant: LibraryPanelsSearchVariant) {
-  return {
-    filterInputWrapper: css({
-      flexGrow: variant === LibraryPanelsSearchVariant.Tight ? 1 : 'initial',
-    }),
-    container: css({
-      width: '100%',
-      overflowY: 'auto',
-      padding: theme.spacing(1),
-    }),
-    libraryPanelsView: css({
-      width: '100%',
-    }),
-    gridContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      columnGap: theme.spacing(1),
-      rowGap: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-    }),
-    tightLayout: css({
-      flexDirection: 'row',
-      rowGap: theme.spacing(1),
-    }),
-  };
-}
 
 interface SearchControlsProps {
   showSort: boolean;
@@ -155,7 +129,7 @@ const SearchControls = memo(
     onFolderFilterChange,
     onPanelFilterChange,
   }: SearchControlsProps) => {
-    const styles = useStyles2(getRowStyles);
+    const styles = (getRowStyles);
     const panelFilterChanged = useCallback(
       (plugins: PanelPluginMeta[]) => onPanelFilterChange(plugins.map((p) => p.id)),
       [onPanelFilterChange]
@@ -167,15 +141,15 @@ const SearchControls = memo(
 
     return (
       <div
-        className={cx(styles.container, {
-          [styles.containerTight]: variant === LibraryPanelsSearchVariant.Tight,
-        })}
+        {...mergeStylexClassName(stylex.props(libraryPanelsSearchStyles.container, {
+          [libraryPanelsSearchStyles.containerTight]: variant === LibraryPanelsSearchVariant.Tight,
+        }), undefined)}
       >
         {showSort && <SortPicker value={sortDirection} onChange={onSortChange} filter={['alpha-asc', 'alpha-desc']} />}
         {(showFolderFilter || showPanelFilter) && (
           <div
-            className={cx(styles.filterContainer, {
-              [styles.filterContainerTight]: variant === LibraryPanelsSearchVariant.Tight,
+            className={cx(libraryPanelsSearchStyles.filterContainer, {
+              [libraryPanelsSearchStyles.filterContainerTight]: variant === LibraryPanelsSearchVariant.Tight,
             })}
           >
             {showFolderFilter && <FolderFilter onChange={folderFilterChanged} />}

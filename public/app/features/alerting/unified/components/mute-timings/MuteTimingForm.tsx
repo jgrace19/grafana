@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { muteTimingFormStyles } from './MuteTimingForm.stylex';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import { Alert, Button, Field, FieldSet, Input, LinkButton, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Field, FieldSet, Input, LinkButton, LoadingPlaceholder } from '@grafana/ui';
 import {
   type MuteTiming,
   useCreateMuteTiming,
@@ -65,8 +66,6 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
   const [createTimeInterval] = useCreateMuteTiming(hookArgs);
   const [updateTimeInterval] = useUpdateMuteTiming(hookArgs);
   const validateMuteTiming = useValidateMuteTiming(hookArgs);
-
-  const styles = useStyles2(getStyles);
   const defaultValues = useDefaultValues(muteTiming);
 
   const formApi = useForm({ defaultValues, values: defaultValues });
@@ -140,14 +139,14 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
                     return validateMuteTiming(value, skipValidation);
                   },
                 })}
-                className={styles.input}
+                {...stylex.props(muteTimingFormStyles.input)}
                 data-testid={'mute-timing-name'}
               />
             </Field>
             <MuteTimingTimeInterval />
             <Button
               type="submit"
-              className={styles.submitButton}
+              {...stylex.props(muteTimingFormStyles.submitButton)}
               disabled={updating}
               icon={updating ? 'spinner' : undefined}
             >
@@ -167,13 +166,5 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  input: css({
-    width: '400px',
-  }),
-  submitButton: css({
-    marginRight: theme.spacing(1),
-  }),
-});
 
 export default MuteTimingForm;

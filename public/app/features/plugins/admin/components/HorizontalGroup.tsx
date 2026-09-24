@@ -1,7 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { horizontalGroupStyles } from './HorizontalGroup.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
 interface HorizontalGroupProps {
@@ -14,20 +16,6 @@ export const HorizontalGroup = ({ children, wrap, className }: HorizontalGroupPr
   const theme = useTheme2();
   const styles = getStyles(theme, wrap);
 
-  return <div className={cx(styles.container, className)}>{children}</div>;
+  return <div {...mergeStylexClassName(stylex.props(horizontalGroupStyles.container, className), undefined)}>{children}</div>;
 };
 
-const getStyles = (theme: GrafanaTheme2, wrap?: boolean) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: wrap ? 'wrap' : 'nowrap',
-    '& > *': {
-      marginBottom: theme.spacing(),
-      marginRight: theme.spacing(),
-    },
-    '& > *:last-child': {
-      marginRight: 0,
-    },
-  }),
-});

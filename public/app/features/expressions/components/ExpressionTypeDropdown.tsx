@@ -1,8 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { expressionTypeDropdownStyles } from './ExpressionTypeDropdown.stylex';
 import { memo, type ReactElement, useCallback, useMemo } from 'react';
 
 import { FeatureState, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Dropdown, FeatureBadge, Icon, Menu, Tooltip, useStyles2 } from '@grafana/ui';
+import { Dropdown, FeatureBadge, Icon, Menu, Tooltip } from '@grafana/ui';
 import { ExpressionQueryType, expressionTypes } from 'app/features/expressions/types';
 
 const EXPRESSION_ICON_MAP = {
@@ -28,7 +31,6 @@ interface ExpressionMenuItemProps {
 
 const ExpressionMenuItem = memo<ExpressionMenuItemProps>(({ item, onSelect, disabled }) => {
   const { value, label, description } = item;
-  const styles = useStyles2(getStyles);
 
   const handleClick = useCallback(() => {
     onSelect(value!);
@@ -39,17 +41,17 @@ const ExpressionMenuItem = memo<ExpressionMenuItemProps>(({ item, onSelect, disa
   return (
     <Menu.Item
       component={() => (
-        <div className={styles.expressionTypeItem} role="menuitem" aria-disabled={!!disabled}>
+        <div {...stylex.props(expressionTypeDropdownStyles.expressionTypeItem)} role="menuitem" aria-disabled={!!disabled}>
           <div
-            className={cx(styles.expressionTypeItemContent, { [styles.expressionTypeItemDisabled]: !!disabled })}
+            {...mergeStylexClassName(stylex.props(expressionTypeDropdownStyles.expressionTypeItem, Content, { ...(!!disabled  ? stylex.props(expressionTypeDropdownStyles.expressionTypeItemDisabled) : {}) }), undefined)}
             data-testid={`expression-type-${value}`}
           >
-            <Icon className={styles.icon} name={EXPRESSION_ICON_MAP[value!]} aria-hidden="true" />
+            <Icon {...stylex.props(expressionTypeDropdownStyles.icon)} name={EXPRESSION_ICON_MAP[value!]} aria-hidden="true" />
             {label}
             {value === ExpressionQueryType.sql && <FeatureBadge featureState={FeatureState.preview} />}
           </div>
           <Tooltip placement="right" content={tooltipContent!}>
-            <Icon className={styles.infoIcon} name="info-circle" />
+            <Icon {...stylex.props(expressionTypeDropdownStyles.infoIcon)} name="info-circle" />
           </Tooltip>
         </div>
       )}
@@ -89,36 +91,4 @@ export const ExpressionTypeDropdown = memo<ExpressionTypeDropdownProps>(
 
 ExpressionTypeDropdown.displayName = 'ExpressionTypeDropdown';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    expressionTypeItem: css({
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-
-    expressionTypeItemContent: css({
-      flexGrow: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-
-    expressionTypeItemDisabled: css({
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    }),
-
-    icon: css({
-      color: theme.colors.text.secondary,
-      flexShrink: 0,
-    }),
-
-    infoIcon: css({
-      opacity: 0.7,
-      color: theme.colors.text.secondary,
-      flexShrink: 0,
-    }),
-  };
-};
+;

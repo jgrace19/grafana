@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertGroupFilterStyles } from './AlertGroupFilter.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { type AlertState, type AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
 
@@ -24,8 +25,6 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   const { groupBy = [], queryString, alertState, receivers = [] } = getFiltersFromUrlParams(queryParams);
   const matcherFilterKey = `matcher-${filterKey}`;
 
-  const styles = useStyles2(getStyles);
-
   const clearFilters = () => {
     setQueryParams({
       groupBy: null,
@@ -40,9 +39,9 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   const showClearButton = !!(groupBy.length > 0 || queryString || alertState || receivers.length > 0);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.filterSectionScroll}>
-        <div className={styles.filterSection}>
+    <div {...stylex.props(alertGroupFilterStyles.wrapper)}>
+      <div {...stylex.props(alertGroupFilterStyles.filterSectionScroll)}>
+        <div {...stylex.props(alertGroupFilterStyles.filterSection)}>
           <MatcherFilter
             key={matcherFilterKey}
             defaultQueryString={queryString}
@@ -67,7 +66,7 @@ export const AlertGroupFilter = ({ groups }: Props) => {
         </div>
       </div>
       {showClearButton && (
-        <div className={styles.clearButtonRow}>
+        <div {...stylex.props(alertGroupFilterStyles.clearButtonRow)}>
           <Button size="sm" variant="primary" fill="text" onClick={clearFilters}>
             <Trans i18nKey="alerting.alert-group-filter.clear-filters">Clear filters</Trans>
           </Button>
@@ -77,33 +76,3 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    marginBottom: theme.spacing(3),
-  }),
-  filterSection: css({
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    alignItems: 'flex-end',
-    gap: theme.spacing(1),
-    width: 'max-content',
-    minWidth: '100%',
-    '& > *': {
-      flexShrink: 0,
-    },
-  }),
-  filterSectionScroll: css({
-    width: '100%',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    marginBottom: theme.spacing(1),
-    paddingBottom: theme.spacing(0.5),
-  }),
-  clearButtonRow: css({
-    display: 'flex',
-    justifyContent: 'flex-start',
-    marginBottom: theme.spacing(2),
-  }),
-});

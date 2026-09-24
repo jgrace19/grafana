@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashNavStyles } from './DashNav.stylex';
 import { memo, type ReactNode } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { useLocation } from 'react-router-dom-v5-compat';
@@ -93,7 +95,7 @@ export const DashNav = memo<Props>((props) => {
                 'dashboard.dash-nav.on-open-snapshot-original.title.proceed-to-external-site',
                 'Proceed to external site?'
               ),
-              modalClass: modalStyles,
+              modalClass: mergeStylexClassName(stylex.props(dashNavStyles.modalStyles), undefined).className,
               body: (
                 <>
                   <p>
@@ -303,7 +305,3 @@ DashNav.displayName = 'DashNav';
 
 export default connector(DashNav);
 
-const modalStyles = css({
-  width: 'max-content',
-  maxWidth: '80vw',
-});

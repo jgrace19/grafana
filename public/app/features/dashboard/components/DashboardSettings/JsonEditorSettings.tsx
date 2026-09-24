@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { jsonEditorSettingsStyles } from './JsonEditorSettings.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { Button, CodeEditor, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
@@ -21,11 +22,9 @@ export function JsonEditorSettings({ dashboard, sectionNav }: SettingsPageProps)
     dashboardWatcher.reloadPage();
   };
 
-  const styles = useStyles2(getStyles);
-
   return (
     <Page navModel={sectionNav} pageNav={pageNav}>
-      <div className={styles.wrapper}>
+      <div {...stylex.props(jsonEditorSettingsStyles.wrapper)}>
         <Trans i18nKey="dashboard-settings.json-editor.subtitle">
           The JSON model below is the data structure that defines the dashboard. This includes dashboard settings, panel
           settings, layout, queries, and so on.
@@ -36,7 +35,7 @@ export function JsonEditorSettings({ dashboard, sectionNav }: SettingsPageProps)
           showMiniMap={true}
           showLineNumbers={true}
           onBlur={setDashboardJson}
-          containerStyles={styles.codeEditor}
+          containerStyles={mergeStylexClassName(stylex.props(jsonEditorSettingsStyles.codeEditor), undefined).className}
         />
         {dashboard.meta.canSave && (
           <div>
@@ -50,14 +49,3 @@ export function JsonEditorSettings({ dashboard, sectionNav }: SettingsPageProps)
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    height: '100%',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  codeEditor: css({
-    flexGrow: 1,
-  }),
-});

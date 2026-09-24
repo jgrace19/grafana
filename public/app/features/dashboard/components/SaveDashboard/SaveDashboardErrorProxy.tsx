@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { saveDashboardErrorProxyStyles } from './SaveDashboardErrorProxy.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, type FetchError } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
@@ -119,16 +120,14 @@ export const SaveDashboardErrorProxy = ({
 const ConfirmPluginDashboardSaveModal = ({ onDismiss, dashboard }: SaveDashboardModalProps) => {
   const { onDashboardSave } = useDashboardSave();
 
-  const styles = useStyles2(getConfirmPluginDashboardSaveModalStyles);
-
   return (
     <Modal
-      className={styles.modal}
+      {...stylex.props(saveDashboardErrorProxyStyles.modal)}
       title={t('dashboard.confirm-plugin-dashboard-save-modal.title-plugin-dashboard', 'Plugin dashboard')}
       isOpen={true}
       onDismiss={onDismiss}
     >
-      <div className={styles.modalText}>
+      <div {...stylex.props(saveDashboardErrorProxyStyles.modalText)}>
         <Trans i18nKey="dashboard.confirm-plugin-dashboard-save-modal.body-plugin-dashboard">
           Your changes will be lost when you update the plugin.
           <br />
@@ -168,20 +167,3 @@ export const proxyHandlesError = (errorStatus: string) => {
   }
 };
 
-const getConfirmPluginDashboardSaveModalStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '500px',
-  }),
-  modalText: css({
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-  }),
-  modalButtonRow: css({
-    marginBottom: '14px',
-    'a, button': {
-      marginRight: theme.spacing(2),
-    },
-  }),
-});

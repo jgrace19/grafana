@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardsTreeStyles } from './DashboardsTree.stylex';
 import * as React from 'react';
 import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { type TableInstance, useTable } from 'react-table';
 import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 
-import { type GrafanaTheme2, isTruthy } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 import { type DashboardViewItem } from 'app/features/search/types';
 
 import { canSelectItems } from '../permissions';
@@ -63,7 +64,6 @@ export function DashboardsTree({
 
   const infiniteLoaderRef = useRef<InfiniteLoader>(null);
   const listRef = useRef<List | null>(null);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     // If the tree changed identity, then some indexes that were previously loaded may now be unloaded,
@@ -161,12 +161,12 @@ export function DashboardsTree({
         });
 
         return (
-          <div key={key} {...headerGroupProps} className={cx(styles.row, styles.headerRow)}>
+          <div key={key} {...headerGroupProps} {...mergeStylexClassName(stylex.props(dashboardsTreeStyles.row, dashboardsTreeStyles.headerRow), undefined)}>
             {headerGroup.headers.map((column) => {
               const { key, ...headerProps } = column.getHeaderProps();
 
               return (
-                <div key={key} {...headerProps} role="columnheader" className={styles.cell}>
+                <div key={key} {...headerProps} role="columnheader" {...stylex.props(dashboardsTreeStyles.cell)}>
                   {column.render('Header', { isSelected, onAllSelectionChange, permissions })}
                 </div>
               );
@@ -219,7 +219,6 @@ interface VirtualListRowProps {
 }
 
 function VirtualListRow({ index, style, data }: VirtualListRowProps) {
-  const styles = useStyles2(getStyles);
   const { table, isSelected, onItemSelectionChange, treeID, permissions } = data;
   const { rows, prepareRow } = table;
 
@@ -232,7 +231,7 @@ function VirtualListRow({ index, style, data }: VirtualListRowProps) {
   if (dashboardItem.kind === 'ui' && dashboardItem.uiKind === 'divider') {
     return (
       <div key={key} {...rowProps}>
-        <hr className={styles.divider} />
+        <hr {...stylex.props(dashboardsTreeStyles.divider)} />
       </div>
     );
   }
@@ -241,7 +240,7 @@ function VirtualListRow({ index, style, data }: VirtualListRowProps) {
     <div
       key={key}
       {...rowProps}
-      className={cx(styles.row, styles.bodyRow)}
+      {...mergeStylexClassName(stylex.props(dashboardsTreeStyles.row, dashboardsTreeStyles.bodyRow), undefined)}
       aria-labelledby={makeRowID(treeID, dashboardItem)}
       data-testid={selectors.pages.BrowseDashboards.table.row(
         'title' in dashboardItem ? dashboardItem.title : dashboardItem.uid
@@ -251,7 +250,7 @@ function VirtualListRow({ index, style, data }: VirtualListRowProps) {
         const { key, ...cellProps } = cell.getCellProps();
 
         return (
-          <div key={key} {...cellProps} className={styles.cell}>
+          <div key={key} {...cellProps} {...stylex.props(dashboardsTreeStyles.cell)}>
             {cell.render('Cell', { isSelected, onItemSelectionChange, treeID, permissions })}
           </div>
         );
@@ -260,44 +259,4 @@ function VirtualListRow({ index, style, data }: VirtualListRowProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    // Column flex properties (cell sizing) are set by customFlexTableLayout.ts
-
-    row: css({
-      gap: theme.spacing(1),
-    }),
-
-    divider: css({
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      width: '100%',
-      margin: 0,
-    }),
-
-    headerRow: css({
-      backgroundColor: theme.colors.background.secondary,
-      height: HEADER_HEIGHT,
-    }),
-
-    bodyRow: css({
-      height: ROW_HEIGHT,
-
-      '&:hover': {
-        backgroundColor: theme.colors.action.hover,
-      },
-    }),
-
-    cell: css({
-      padding: theme.spacing(1),
-      overflow: 'hidden', // Required so flex children can do text-overflow: ellipsis
-      display: 'flex',
-      alignItems: 'center',
-    }),
-
-    link: css({
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-  };
-};
+;

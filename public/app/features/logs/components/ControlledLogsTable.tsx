@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { controlledLogsTableStyles } from './ControlledLogsTable.stylex';
 import { useMemo, useRef } from 'react';
 
 import { EventBusSrv, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { LogsTableWrap } from '../../explore/Logs/LogsTableWrap';
 
@@ -35,8 +36,6 @@ export const ControlledLogsTable = ({
   const eventBus = useMemo(() => new EventBusSrv(), []);
   const ref = useRef(null);
 
-  const styles = useStyles2(getStyles);
-
   if (!splitOpen || !width || !updatePanelState) {
     console.error('<ControlledLogsTable>: Missing required props.');
     return;
@@ -46,9 +45,9 @@ export const ControlledLogsTable = ({
   const tableWidth = width - (LOG_LIST_CONTROLS_WIDTH + 12);
 
   return (
-    <div ref={ref} className={styles.logRowsContainer}>
+    <div ref={ref} {...stylex.props(controlledLogsTableStyles.logRowsContainer)}>
       <LogListControls eventBus={eventBus} visualisationType={visualisationType} />
-      <div className={styles.logRows} data-testid="logRowsTable">
+      <div {...stylex.props(controlledLogsTableStyles.logRows)} data-testid="logRowsTable">
         {/* Width should be full width minus logs navigation and padding */}
         <LogsTableWrap
           logsSortOrder={sortOrder}
@@ -72,15 +71,4 @@ export const ControlledLogsTable = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    logRows: css({
-      overflowY: 'visible',
-      width: '100%',
-    }),
-    logRowsContainer: css({
-      display: 'flex',
-      flexDirection: 'row-reverse',
-    }),
-  };
-};
+;

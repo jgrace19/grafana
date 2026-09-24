@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rawListItemStyles } from './RawListItem.stylex';
 import { useCopyToClipboard } from 'react-use';
 
 import { type Field, type GrafanaTheme2 } from '@grafana/data';
@@ -25,52 +27,6 @@ export const rawListExtraSpaceAtEndOfLine = '20px';
 export const rawListItemColumnWidth = '80px';
 export const rawListPaddingToHoldSpaceForCopyIcon = '25px';
 
-const getStyles = (theme: GrafanaTheme2, totalNumberOfValues: number, isExpandedView: boolean) => ({
-  rowWrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    display: 'flex',
-    position: 'relative',
-    paddingLeft: '22px',
-    alignItems: !isExpandedView ? 'center' : '',
-    height: !isExpandedView ? '100%' : '',
-  }),
-  copyToClipboardWrapper: css({
-    position: 'absolute',
-    left: 0,
-    bottom: !isExpandedView ? '0' : '',
-    top: isExpandedView ? '4px' : '0',
-    margin: 'auto',
-    zIndex: 1,
-    height: '16px',
-    width: '16px',
-  }),
-  rowLabelWrapWrap: css({
-    position: 'relative',
-    width: `calc(100% - (${totalNumberOfValues} * ${rawListItemColumnWidth}) - ${rawListPaddingToHoldSpaceForCopyIcon})`,
-  }),
-  rowLabelWrap: css({
-    whiteSpace: 'nowrap',
-    overflowX: 'auto',
-    MsOverflowStyle: 'none' /* IE and Edge */,
-    scrollbarWidth: 'none' /* Firefox */,
-    paddingRight: rawListExtraSpaceAtEndOfLine,
-
-    '&::-webkit-scrollbar': {
-      display: 'none' /* Chrome, Safari and Opera */,
-    },
-
-    '&:after': {
-      pointerEvents: 'none',
-      content: "''",
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      background: `linear-gradient(to right, transparent calc(100% - ${rawListExtraSpaceAtEndOfLine}), ${theme.colors.background.primary})`,
-    },
-  }),
-});
 
 function getQueryValues(allLabels: Pick<instantQueryRawVirtualizedListData, 'Value' | string | number>) {
   let attributeValues: RawListValue[] = [];
@@ -100,7 +56,6 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
   const isLegacyMetric = isValidLegacyName(__name__ ?? '');
   const [_, copyToClipboard] = useCopyToClipboard();
   const displayLength = valueLabels?.length ?? totalNumberOfValues;
-  const styles = useStyles2(getStyles, displayLength, isExpandedView);
 
   const { values, attributeValues } = getQueryValues(allLabels);
 
@@ -129,8 +84,8 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
       {valueLabels !== undefined && isExpandedView && (
         <ItemLabels valueLabels={valueLabels} expanded={isExpandedView} />
       )}
-      <div key={listKey} className={styles.rowWrapper}>
-        <span className={styles.copyToClipboardWrapper}>
+      <div key={listKey} {...stylex.props(rawListItemStyles.rowWrapper)}>
+        <span {...stylex.props(rawListItemStyles.copyToClipboardWrapper)}>
           <IconButton
             tooltip={t('explore.raw-list-item.tooltip-copy-to-clipboard', 'Copy to clipboard')}
             onClick={() => {
@@ -140,8 +95,8 @@ const RawListItem = ({ listItemData, listKey, totalNumberOfValues, valueLabels, 
             name="copy"
           />
         </span>
-        <span role={'cell'} className={styles.rowLabelWrapWrap}>
-          <div className={styles.rowLabelWrap}>
+        <span role={'cell'} {...stylex.props(rawListItemStyles.rowLabelWrapWrap)}>
+          <div {...stylex.props(rawListItemStyles.rowLabelWrap)}>
             {!!__name__ && isLegacyMetric && <span>{__name__}</span>}
             <span>{`{`}</span>
             {!isLegacyMetric && !!__name__ && __name__ !== '' && (

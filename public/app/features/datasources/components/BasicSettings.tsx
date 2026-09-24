@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { basicSettingsStyles } from './BasicSettings.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { InlineField, InlineSwitch, Input, Badge, useStyles2, Box, Stack } from '@grafana/ui';
+import { InlineField, InlineSwitch, Input, Badge, Box, Stack } from '@grafana/ui';
 
 export interface Props {
   dataSourceName: string;
@@ -70,10 +71,9 @@ export function BasicSettings({ dataSourceName, isDefault, onDefaultChange, onNa
 }
 
 export function AlertingEnabled({ enabled }: { enabled: boolean }) {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.badge}>
+    <div {...stylex.props(basicSettingsStyles.badge)}>
       {enabled ? (
         <Badge
           color="green"
@@ -91,8 +91,3 @@ export function AlertingEnabled({ enabled }: { enabled: boolean }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  badge: css({
-    marginBottom: theme.spacing(2),
-  }),
-});

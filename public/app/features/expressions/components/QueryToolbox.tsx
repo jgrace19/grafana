@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryToolboxStyles } from './QueryToolbox.stylex';
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
+import { IconButton, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
 
 import { type SqlExpressionQuery } from '../types';
 
@@ -17,7 +18,6 @@ interface QueryToolboxProps {
 const SHOW_SUCCESS_DURATION = 2 * 1000;
 
 export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: QueryToolboxProps): JSX.Element => {
-  const styles = useStyles2(getStyles);
 
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -46,7 +46,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
   const copiedText = t('clipboard-button.inline-toast.success', 'Copied');
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(queryToolboxStyles.container)}>
       <Stack alignItems="center" direction="row" gap={1}>
         {onFormatCode && (
           <IconButton
@@ -91,14 +91,3 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderTop: 'none',
-    padding: theme.spacing(1),
-    display: 'flex',
-    flexGrow: 1,
-    justifyContent: 'end',
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-});

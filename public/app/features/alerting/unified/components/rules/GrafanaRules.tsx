@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { grafanaRulesStyles } from './GrafanaRules.stylex';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Button, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { type CombinedRuleNamespace } from 'app/types/unified-alerting';
 
@@ -14,7 +15,8 @@ import { AlertingAction, useAlertingAbility } from '../../hooks/useAbilities';
 import { flattenGrafanaManagedRules } from '../../hooks/useCombinedRuleNamespaces';
 import { usePagination } from '../../hooks/usePagination';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
-import { getPaginationStyles } from '../../styles/pagination';
+import * as stylex from '@stylexjs/stylex';
+import { paginationStyles } from '../../styles/pagination.stylex';
 import { useRulesAccess } from '../../utils/accessControlHooks';
 import { GRAFANA_RULES_SOURCE_NAME } from '../../utils/datasource';
 import { initialAsyncRequestState } from '../../utils/redux';
@@ -30,7 +32,6 @@ interface Props {
 }
 
 export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
-  const styles = useStyles2(getStyles);
   const [queryParams] = useQueryParams();
 
   const { prom, ruler } = useUnifiedAlertingSelector((state) => ({
@@ -61,15 +62,15 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
   const grafanaRecordingRulesEnabled = config.unifiedAlerting.recordingRulesEnabled && canCreateGrafanaRules;
 
   return (
-    <section className={styles.wrapper}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.headerRow}>
+    <section {...stylex.props(grafanaRulesStyles.wrapper)}>
+      <div {...stylex.props(grafanaRulesStyles.sectionHeader)}>
+        <div {...stylex.props(grafanaRulesStyles.headerRow)}>
           <Text element="h2" variant="h5">
             <Trans i18nKey="alerting.list-view.section.grafanaManaged.title">Grafana-managed</Trans>
           </Text>
           {loading ? (
             <LoadingPlaceholder
-              className={styles.loader}
+              {...stylex.props(grafanaRulesStyles.loader)}
               text={t('alerting.list-view.section.grafanaManaged.loading', 'Loading...')}
             />
           ) : (
@@ -128,9 +129,9 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
           <Trans i18nKey="alerting.grafana-rules.no-rules-found">No rules found.</Trans>
         </p>
       )}
-      {!hasResult && loading && <Spinner size="xl" className={styles.spinner} />}
+      {!hasResult && loading && <Spinner size="xl" {...stylex.props(grafanaRulesStyles.spinner)} />}
       <Pagination
-        className={styles.pagination}
+        {...stylex.props(grafanaRulesStyles.pagination)}
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -141,28 +142,3 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loader: css({
-    marginBottom: 0,
-  }),
-  sectionHeader: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing(1),
-  }),
-  wrapper: css({
-    marginBottom: theme.spacing(4),
-  }),
-  spinner: css({
-    textAlign: 'center',
-    padding: theme.spacing(2),
-  }),
-  pagination: getPaginationStyles(theme),
-  headerRow: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    flexDirection: 'row',
-  }),
-});

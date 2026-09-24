@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ClipboardButton, useStyles2, CodeEditor } from '@grafana/ui';
+import { ClipboardButton, CodeEditor } from '@grafana/ui';
 
 interface Props {
   code: string;
@@ -12,14 +10,14 @@ interface Props {
 export const CodeBlock = ({ code, copyCode = true }: Props) => {
   const lineCount = code.split('\n').length;
   const useMinHeight = lineCount * 24 <= 42; // 24px per line, 42px minimum
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(codeBlockStyles.container)}>
       {copyCode && (
         <ClipboardButton
           aria-label={t('provisioning.code-block.aria-label-copy', 'Copy code to clipboard')}
-          className={styles.copyButton}
+          {...stylex.props(codeBlockStyles.copyButton)}
           variant="secondary"
           size="sm"
           icon="copy"
@@ -45,16 +43,3 @@ export const CodeBlock = ({ code, copyCode = true }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'relative',
-    margin: `${theme.spacing(2)} 0`,
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
-  copyButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-  }),
-});

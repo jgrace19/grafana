@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { annotationSettingsListStyles } from './AnnotationSettingsList.stylex';
 import { useState } from 'react';
 
 import { arrayUtils, type AnnotationQuery } from '@grafana/data';
@@ -17,7 +19,6 @@ type Props = {
 };
 
 export const AnnotationSettingsList = ({ dashboard, onNew, onEdit }: Props) => {
-  const styles = useStyles2(getStyles);
   const [annotations, updateAnnotations] = useState(dashboard.annotations.list);
 
   const onMove = (idx: number, direction: number) => {
@@ -64,7 +65,7 @@ export const AnnotationSettingsList = ({ dashboard, onNew, onEdit }: Props) => {
   return (
     <Stack direction="column">
       {annotations.length > 0 && (
-        <div className={styles.table}>
+        <div {...stylex.props(annotationSettingsListStyles.table)}>
           <table role="grid" className="filter-table filter-table--hover">
             <thead>
               <tr>
@@ -179,9 +180,3 @@ export const AnnotationSettingsList = ({ dashboard, onNew, onEdit }: Props) => {
   );
 };
 
-const getStyles = () => ({
-  table: css({
-    width: '100%',
-    overflowX: 'scroll',
-  }),
-});

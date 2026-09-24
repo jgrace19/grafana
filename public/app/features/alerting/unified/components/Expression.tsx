@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { expressionStyles } from './Expression.stylex';
 import { languages as prismLanguages } from 'prismjs';
 import { type FC, useMemo } from 'react';
 import { Editor } from 'slate-react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { promqlGrammar } from '@grafana/prometheus';
-import { SlatePrism, makeValue, useStyles2 } from '@grafana/ui';
+import { SlatePrism, makeValue } from '@grafana/ui';
 import LogqlSyntax from 'app/plugins/datasource/loki/syntax';
 import { type RulesSource } from 'app/types/unified-alerting';
 
@@ -39,10 +41,9 @@ export const HighlightedQuery: FC<{ language: 'promql' | 'logql'; expr: string }
 };
 
 export const Expression: FC<Props> = ({ expression: query, rulesSource }) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <Well className={cx(styles.well, 'slate-query-field')}>
+    <Well className={cx(expressionStyles.well, 'slate-query-field')}>
       {isCloudRulesSource(rulesSource) ? (
         <HighlightedQuery expr={query} language={rulesSource.type === DataSourceType.Loki ? 'logql' : 'promql'} />
       ) : (
@@ -52,8 +53,3 @@ export const Expression: FC<Props> = ({ expression: query, rulesSource }) => {
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  well: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-});

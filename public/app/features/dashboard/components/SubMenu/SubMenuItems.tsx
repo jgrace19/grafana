@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { subMenuItemsStyles } from './SubMenuItems.stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, type TypedVariableModel, VariableHide } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { useStyles2 } from '@grafana/ui';
 
 import { PickerRenderer } from '../../../variables/pickers/PickerRenderer';
 
@@ -14,7 +14,6 @@ interface Props {
 
 export const SubMenuItems = ({ variables, readOnly }: Props) => {
   const [visibleVariables, setVisibleVariables] = useState<TypedVariableModel[]>([]);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     setVisibleVariables(variables.filter((state) => state.hide !== VariableHide.hideVariable));
@@ -29,7 +28,7 @@ export const SubMenuItems = ({ variables, readOnly }: Props) => {
       {visibleVariables.map((variable) => (
         <div
           key={variable.id}
-          className={styles.submenuItem}
+          {...stylex.props(subMenuItemsStyles.submenuItem)}
           data-testid={selectors.pages.Dashboard.SubMenu.submenuItem}
         >
           <PickerRenderer variable={variable} readOnly={readOnly} />
@@ -39,17 +38,3 @@ export const SubMenuItems = ({ variables, readOnly }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  submenuItem: css({
-    display: 'inline-block',
-
-    '.fa-caret-down': {
-      fontSize: '75%',
-      paddingLeft: theme.spacing(1),
-    },
-
-    '.gf-form': {
-      marginBottom: 0,
-    },
-  }),
-});

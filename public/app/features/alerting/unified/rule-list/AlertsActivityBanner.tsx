@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertsActivityBannerStyles } from './AlertsActivityBanner.stylex';
 import { useEffect, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, LinkButton, Stack, Text } from '@grafana/ui';
 
 import {
   trackAlertsActivityBannerClickTry,
@@ -27,7 +28,6 @@ import { useAlertsActivityBannerPrefs } from './hooks/useAlertsActivityBannerPre
  * - Telemetry tracking for impressions, clicks, dismissals
  */
 export function AlertsActivityBanner() {
-  const styles = useStyles2(getStyles);
   const { bannerIsDismissed, dismissBanner } = useAlertsActivityBannerPrefs();
   const impressionTracked = useRef(false);
 
@@ -61,7 +61,7 @@ export function AlertsActivityBanner() {
       severity="info"
       title={t('alerting.alerts-activity-banner.title', 'Alert Activity is now available!')}
       onRemove={handleDismiss}
-      className={styles.banner}
+      {...stylex.props(alertsActivityBannerStyles.banner)}
     >
       <Stack direction="column" gap={2}>
         <Text>
@@ -88,8 +88,3 @@ export function AlertsActivityBanner() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  banner: css({
-    marginBottom: theme.spacing(2),
-  }),
-});

@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, LinkButton, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, LinkButton, Stack, Tooltip } from '@grafana/ui';
 
 import { type ReceiverPluginMetadata } from './useReceiversMetadata';
 
@@ -11,14 +10,13 @@ interface Props {
 }
 
 export const ReceiverMetadataBadge = ({ metadata: { icon, title, externalUrl, warning } }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Stack alignItems="center" gap={0.5}>
       <Stack direction="row" alignItems="center" gap={0.5}>
         {warning ? (
           <Tooltip content={warning} theme="error">
-            <Icon name="exclamation-triangle" className={styles.warnIcon} />
+            <Icon name="exclamation-triangle" {...stylex.props(receiverMetadataBadgeStyles.warnIcon)} />
           </Tooltip>
         ) : (
           <img src={icon} alt={title} height="16px" />
@@ -39,8 +37,3 @@ export const ReceiverMetadataBadge = ({ metadata: { icon, title, externalUrl, wa
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  warnIcon: css({
-    fill: theme.colors.warning.text,
-  }),
-});

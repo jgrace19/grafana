@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceTestingStatusStyles } from './DataSourceTestingStatus.stylex';
 import { type HTMLAttributes } from 'react';
 
 import {
@@ -18,7 +21,7 @@ import {
   usePluginComponents,
   renderLimitedComponents,
 } from '@grafana/runtime';
-import { type AlertVariant, Alert, useTheme2, Link, useStyles2, Spinner } from '@grafana/ui';
+import { type AlertVariant, Alert, useTheme2, Link, Spinner } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { CONTENT_KINDS, SOURCE_ENTRY_POINTS } from 'app/features/dashboard/dashgrid/DashboardLibrary/constants';
 import { DashboardLibraryInteractions } from 'app/features/dashboard/dashgrid/DashboardLibrary/interactions';
@@ -45,25 +48,7 @@ interface AlertMessageProps extends HTMLAttributes<HTMLDivElement> {
   extensionLinks?: PluginExtensionLink[];
 }
 
-const getStyles = (theme: GrafanaTheme2, hasTitle: boolean) => {
-  return {
-    content: css({
-      color: theme.colors.text.secondary,
-      paddingTop: hasTitle ? theme.spacing(1) : 0,
-      maxHeight: '50vh',
-      overflowY: 'auto',
-    }),
-    disabled: css({
-      pointerEvents: 'none',
-      color: theme.colors.text.secondary,
-    }),
-    extensionLinks: css({
-      display: 'inline-flex',
-      marginTop: theme.spacing(0.5),
-      gap: theme.spacing(1),
-    }),
-  };
-};
+;
 
 const AlertSuccessMessage = ({
   title,
@@ -80,7 +65,7 @@ const AlertSuccessMessage = ({
   const canExploreDataSources = contextSrv.hasAccessToExplore();
 
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(dataSourceTestingStatusStyles.content)}>
       {config.featureToggles.suggestedDashboards && hasDashboards ? (
         <Trans i18nKey="data-source-testing-status-page.success-more-details-links">
           Next, you can start to visualize data by{' '}
@@ -107,10 +92,10 @@ const AlertSuccessMessage = ({
           or by querying data in the{' '}
           <Link
             aria-label={t('datasources.alert-success-message.aria-label-explore-data', 'Explore data')}
-            className={cx('external-link', {
-              [`${styles.disabled}`]: !canExploreDataSources,
+            {...mergeStylexClassName(stylex.props(dataSourceTestingStatusStyles.disabled, 'external-link', {
+              [`${}`]: !canExploreDataSources,
               'test-disabled': !canExploreDataSources,
-            })}
+            }), undefined)}
             href={exploreUrl}
           >
             Explore view
@@ -131,10 +116,10 @@ const AlertSuccessMessage = ({
           or by querying data in the{' '}
           <Link
             aria-label={t('datasources.alert-success-message.aria-label-explore-data', 'Explore data')}
-            className={cx('external-link', {
-              [`${styles.disabled}`]: !canExploreDataSources,
+            {...mergeStylexClassName(stylex.props(dataSourceTestingStatusStyles.disabled, 'external-link', {
+              [`${}`]: !canExploreDataSources,
               'test-disabled': !canExploreDataSources,
-            })}
+            }), undefined)}
             href={exploreUrl}
           >
             Explore view
@@ -171,7 +156,7 @@ const ErrorDetailsLink = ({ link }: ErrorDetailsLinkProps) => {
     return <></>;
   }
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(dataSourceTestingStatusStyles.content)}>
       <Trans i18nKey="data-source-testing-status-page.error-more-details-link">
         Click{' '}
         <Link
@@ -217,7 +202,7 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
       path: window.location.pathname,
     });
   };
-  const styles = useStyles2(getTestingStatusStyles);
+  const styles = (getTestingStatusStyles);
 
   // Extensions context
   const extensionStatusContext: PluginExtensionDataSourceConfigStatusContext = {
@@ -264,7 +249,7 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
 
   if (message) {
     return (
-      <div className={cx('gf-form-group', styles.container)}>
+      <div className={cx('gf-form-group', dataSourceTestingStatusStyles.container)}>
         <Alert severity={severity} title={message} data-testid={e2eSelectors.pages.DataSource.alert}>
           {testingStatus?.details && (
             <>
@@ -315,14 +300,14 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
             </>
           )}
           {extensionLinks.length > 0 && (
-            <div className={styles.linksContainer}>
+            <div className={dataSourceTestingStatusStyles.linksContainer}>
               {extensionLinks.map((link) => {
                 return (
                   <a
                     key={link.id}
                     href={link.path ? sanitizeUrl(link.path) : undefined}
                     onClick={link.onClick}
-                    className={styles.pluginLink}
+                    className={dataSourceTestingStatusStyles.pluginLink}
                     title={link.description}
                   >
                     {link.title}
@@ -332,7 +317,7 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
             </div>
           )}
           {extensionComponents.length > 0 && (
-            <div className={styles.linksContainer}>
+            <div className={dataSourceTestingStatusStyles.linksContainer}>
               {renderLimitedComponents<PluginExtensionDataSourceConfigStatusContext>({
                 props: extensionStatusContext,
                 components: extensionComponents,

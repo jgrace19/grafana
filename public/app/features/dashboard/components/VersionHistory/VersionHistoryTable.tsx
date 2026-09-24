@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { versionHistoryTableStyles } from './VersionHistoryTable.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Checkbox, Button, Tag, ModalsController, useStyles2 } from '@grafana/ui';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
@@ -15,10 +16,9 @@ type VersionsTableProps = {
 };
 
 export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsTableProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.margin}>
+    <div {...stylex.props(versionHistoryTableStyles.margin)}>
       <table className="filter-table">
         <thead>
           <tr>
@@ -92,10 +92,3 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    margin: css({
-      marginBottom: theme.spacing(4),
-    }),
-  };
-}

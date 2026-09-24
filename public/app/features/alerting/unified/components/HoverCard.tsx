@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { hoverCardStyles } from './HoverCard.stylex';
 import { type Placement } from '@popperjs/core';
 import classnames from 'classnames';
 import { type ReactElement, type ReactNode, cloneElement, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Popover as GrafanaPopover, PopoverController, Stack, useStyles2 } from '@grafana/ui';
+import { Popover as GrafanaPopover, PopoverController, Stack } from '@grafana/ui';
 
 export interface PopupCardProps {
   children: ReactElement<Record<string, unknown>>;
@@ -40,7 +41,6 @@ export const PopupCard = ({
   ...rest
 }: PopupCardProps) => {
   const popoverRef = useRef<HTMLElement>(null);
-  const styles = useStyles2(getStyles);
 
   if (disabled) {
     return children;
@@ -51,9 +51,9 @@ export const PopupCard = ({
 
   const body = (
     <Stack direction="column" gap={0} role="tooltip">
-      {header && <div className={styles.card.header}>{header}</div>}
-      <div className={styles.card.body}>{content}</div>
-      {footer && <div className={styles.card.footer}>{footer}</div>}
+      {header && <div className={hoverCardStyles.card.header}>{header}</div>}
+      <div className={hoverCardStyles.card.body}>{content}</div>
+      {footer && <div className={hoverCardStyles.card.footer}>{footer}</div>}
     </Stack>
   );
 
@@ -100,7 +100,7 @@ export const PopupCard = ({
                 {...popperProps}
                 show={shouldShow}
                 {...rest}
-                wrapperClassName={classnames(styles.popover, wrapperClassName)}
+                wrapperClassName={classnames(hoverCardStyles.popover, wrapperClassName)}
                 referenceElement={popoverRef.current}
                 renderArrow={arrow}
                 // @TODO
@@ -129,26 +129,3 @@ export const PopupCard = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  popover: css({
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  card: {
-    body: css({
-      padding: theme.spacing(1),
-    }),
-    header: css({
-      padding: theme.spacing(1),
-      background: theme.colors.background.secondary,
-      borderBottom: `solid 1px ${theme.colors.border.medium}`,
-    }),
-    footer: css({
-      padding: theme.spacing(0.5, 1),
-      background: theme.colors.background.secondary,
-      borderTop: `solid 1px ${theme.colors.border.medium}`,
-    }),
-  },
-});

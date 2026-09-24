@@ -1,7 +1,9 @@
-import { css } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { unsupportedDataSourcesAlertStyles } from './UnsupportedDataSourcesAlert.stylex';
 import cx from 'classnames';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, useStyles2 } from '@grafana/ui';
@@ -9,7 +11,6 @@ import { Alert, useStyles2 } from '@grafana/ui';
 const selectors = e2eSelectors.pages.ShareDashboardModal.PublicDashboard;
 
 export const UnsupportedDataSourcesAlert = ({ unsupportedDataSources }: { unsupportedDataSources: string }) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Alert
@@ -18,7 +19,7 @@ export const UnsupportedDataSourcesAlert = ({ unsupportedDataSources }: { unsupp
       data-testid={selectors.UnsupportedDataSourcesWarningAlert}
       bottomSpacing={0}
     >
-      <p className={styles.unsupportedDataSourceDescription}>
+      <p {...stylex.props(unsupportedDataSourcesAlertStyles.unsupportedDataSourceDescription)}>
         <Trans i18nKey="public-dashboard.share-externally.unsupported-data-source-alert-desc">
           There are data sources in this dashboard that are unsupported for shared dashboards. Panels that use these
           data sources may not function properly: {{ unsupportedDataSources }}.
@@ -29,7 +30,7 @@ export const UnsupportedDataSourcesAlert = ({ unsupportedDataSources }: { unsupp
           'https://grafana.com/docs/grafana/next/dashboards/share-dashboards-panels/shared-dashboards/#supported-data-sources'
         }
         target="blank"
-        className={cx('text-link', styles.unsupportedDataSourceDescription)}
+        {...mergeStylexClassName(stylex.props(unsupportedDataSourcesAlertStyles.unsupportedDataSourceDescription, 'text-link', ), undefined)}
       >
         <Trans i18nKey="public-dashboard.modal-alerts.unsupport-data-source-alert-readmore-link">
           Read more about supported data sources
@@ -39,9 +40,3 @@ export const UnsupportedDataSourcesAlert = ({ unsupportedDataSources }: { unsupp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  unsupportedDataSourceDescription: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(1),
-  }),
-});

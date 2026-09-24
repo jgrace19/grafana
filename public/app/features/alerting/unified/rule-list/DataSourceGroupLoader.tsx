@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceGroupLoaderStyles } from './DataSourceGroupLoader.stylex';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { isFetchError } from '@grafana/runtime';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
 import { type DataSourceRuleGroupIdentifier } from 'app/types/unified-alerting';
 import {
   type PromRuleDTO,
@@ -177,7 +178,6 @@ export function RulerBasedGroupRules({
   promGroup,
   rulerGroup,
 }: RulerBasedGroupRulesProps) {
-  const styles = useStyles2(getStyles);
   const { namespace, groupName } = groupIdentifier;
 
   const { matches, promOnlyRules } = useMemo(() => {
@@ -239,7 +239,7 @@ export function RulerBasedGroupRules({
         );
       })}
       {hasMore && (
-        <li aria-selected="false" role="treeitem" className={styles.loadMoreWrapper}>
+        <li aria-selected="false" role="treeitem" {...stylex.props(dataSourceGroupLoaderStyles.loadMoreWrapper)}>
           <LoadMoreButton onClick={loadMore} />
         </li>
       )}
@@ -247,9 +247,3 @@ export function RulerBasedGroupRules({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadMoreWrapper: css({
-    listStyle: 'none',
-    paddingTop: theme.spacing(1),
-  }),
-});

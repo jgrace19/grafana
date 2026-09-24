@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { kBarSearchStyles } from './KBarSearch.stylex';
 import { useKBar, VisualState } from 'kbar';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 export const KBAR_LISTBOX = 'kbar-listbox';
 export const getListboxItemId = (id: number) => `kbar-listbox-item-${id}`;
@@ -37,12 +37,10 @@ export function KBarSearch(
 
   const defaultText = defaultPlaceholder ?? 'Type a command or search…';
 
-  const styles = useStyles2(getStyles);
-
   return (
     <input
       {...rest}
-      className={styles.input}
+      {...stylex.props(kBarSearchStyles.input)}
       ref={query.inputRefSetter}
       /* eslint-disable-next-line jsx-a11y/no-autofocus */
       autoFocus
@@ -70,17 +68,4 @@ export function KBarSearch(
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    input: css({
-      label: 'kbar-search-input',
-      fontSize: theme.typography.body.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.body.lineHeight,
-      color: theme.colors.text.secondary,
-      width: '100%',
-      outline: 'none',
-      paddingLeft: 0,
-    }),
-  };
-};
+;

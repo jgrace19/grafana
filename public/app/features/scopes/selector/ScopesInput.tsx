@@ -1,8 +1,6 @@
-import { css, cx } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { getInputStyles, Icon, LinkButton, Spinner, Tooltip, useStyles2, Text, Stack } from '@grafana/ui';
+import { getInputStyles, Icon, LinkButton, Spinner, Tooltip, Text, Stack } from '@grafana/ui';
 import { getFocusStyles } from '@grafana/ui/internal';
 
 import { getPathOfNode } from './scopesTreeUtils';
@@ -33,7 +31,7 @@ export function ScopesInput({
 }: ScopesInputProps) {
   const firstScope = appliedScopes[0];
   const scope = scopes[firstScope?.scopeId];
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   // Prefer scopeNodeId from defaultPath if available (most reliable source)
   let scopeNodeId: string | undefined;
@@ -105,9 +103,9 @@ export function ScopesInput({
             <Spinner />
           </div>
         )}
-        <span className={styles.text}>
+        <span {...stylex.props(scopesInputStyles.text)}>
           {!scopesTitles && !loading && <Text color="secondary">{placeholderText}</Text>}
-          {!isLoadingTitle && displayTitle && <span className={styles.parentNode}>{displayTitle}</span>}
+          {!isLoadingTitle && displayTitle && <span {...stylex.props(scopesInputStyles.parentNode)}>{displayTitle}</span>}
           {scopesTitles && <span>{scopesTitles}</span>}
         </span>
 
@@ -195,54 +193,3 @@ function ScopesTooltip({ nodes, scopes, appliedScopes, onRemoveAllClick, disable
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const baseStyles = getInputStyles({ theme });
-
-  return {
-    prefix: baseStyles.prefix,
-    suffix: baseStyles.suffix,
-    fakeInput: css([
-      baseStyles.input,
-      {
-        width: 'auto',
-        minWidth: 60,
-        height: theme.spacing(theme.components.height.md),
-        maxWidth: '40%',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        textAlign: 'left',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        paddingRight: 28,
-        flexGrow: 0,
-
-        '&:disabled': cx(
-          baseStyles.inputDisabled,
-          css({
-            cursor: 'not-allowed',
-          })
-        ),
-
-        // We want the focus styles to appear only when tabbing through, not when clicking the button
-        // (and when focus is restored after command palette closes)
-        '&:focus': {
-          outline: 'unset',
-          boxShadow: 'unset',
-        },
-
-        '&:focus-visible': getFocusStyles(theme),
-      },
-    ]),
-    text: css({
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-    }),
-    parentNode: css({
-      marginRight: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      color: theme.colors.text.secondary,
-    }),
-  };
-};

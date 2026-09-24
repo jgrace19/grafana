@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { timelineHeaderRowStyles } from './TimelineHeaderRow.stylex';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import { autoColor } from '../../Theme';
 import Ticks from '../Ticks';
@@ -27,35 +27,7 @@ import { TimelineCollapser } from './TimelineCollapser';
 import TimelineColumnResizer from './TimelineColumnResizer';
 import TimelineViewingLayer from './TimelineViewingLayer';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    TimelineHeaderRow: css({
-      label: 'TimelineHeaderRow',
-      background: autoColor(theme, '#ececec'),
-      borderBottom: `1px solid ${autoColor(theme, '#ccc')}`,
-      height: '38px',
-      lineHeight: '38px',
-      width: '100%',
-      zIndex: 4,
-      position: 'relative',
-    }),
-    TimelineHeaderRowTitle: css({
-      label: 'TimelineHeaderRowTitle',
-      flex: 1,
-      overflow: 'hidden',
-      margin: 0,
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    TimelineHeaderWrapper: css({
-      label: 'TimelineHeaderWrapper',
-      alignItems: 'center',
-      display: 'flex',
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-};
+;
 
 export type TimelineHeaderRowProps = {
   duration: number;
@@ -88,11 +60,10 @@ export default function TimelineHeaderRow(props: TimelineHeaderRowProps) {
     columnResizeHandleHeight,
   } = props;
   const [viewStart, viewEnd] = viewRangeTime.current;
-  const styles = useStyles2(getStyles);
   return (
-    <TimelineRow className={styles.TimelineHeaderRow} data-testid="TimelineHeaderRow">
-      <TimelineRow.Cell className={styles.TimelineHeaderWrapper} width={nameColumnWidth}>
-        <h4 className={styles.TimelineHeaderRowTitle}>
+    <TimelineRow {...stylex.props(timelineHeaderRowStyles.TimelineHeaderRow)} data-testid="TimelineHeaderRow">
+      <TimelineRow.Cell {...stylex.props(timelineHeaderRowStyles.TimelineHeaderWrapper)} width={nameColumnWidth}>
+        <h4 {...stylex.props(timelineHeaderRowStyles.TimelineHeaderRowTitle)}>
           <Trans i18nKey="explore.timeline-header-row.title">Service &amp; Operation</Trans>
         </h4>
         <TimelineCollapser

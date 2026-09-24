@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { secondaryActionsStyles } from './SecondaryActions.stylex';
 import { CoreApp, type GrafanaTheme2 } from '@grafana/data';
 import { Components, selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -23,16 +25,7 @@ type Props = {
   onSelectQueryFromLibrary: OnSelectQueryType;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    containerMargin: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: theme.spacing(1),
-      marginTop: theme.spacing(2),
-    }),
-  };
-};
+;
 
 export function SecondaryActions({
   addQueryRowButtonDisabled,
@@ -43,7 +36,6 @@ export function SecondaryActions({
   queryInspectorButtonActive,
 }: Props) {
   const theme = useTheme2();
-  const styles = getStyles(theme);
   const { queryLibraryEnabled, openDrawer: openQueryLibraryDrawer } = useQueryLibraryContext();
   const { drawerOpened, setDrawerOpened } = useQueriesDrawerContext();
   const canReadQueries = config.featureToggles.savedQueriesRBAC
@@ -51,7 +43,7 @@ export function SecondaryActions({
     : contextSrv.isSignedIn;
 
   return (
-    <div className={styles.containerMargin}>
+    <div {...stylex.props(secondaryActionsStyles.containerMargin)}>
       {!addQueryRowButtonHidden && (
         <>
           <ToolbarButton

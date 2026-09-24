@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { resourceTreeViewStyles } from './ResourceTreeView.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   type CellProps,
@@ -15,8 +16,7 @@ import {
   Spinner,
   Stack,
   Tooltip,
-  useStyles2,
-} from '@grafana/ui';
+  } from '@grafana/ui';
 import {
   type Repository,
   useGetRepositoryFilesQuery,
@@ -46,7 +46,6 @@ function getGrafanaLink(item: TreeItem) {
 }
 
 export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
-  const styles = useStyles2(getStyles);
   const name = repo.metadata?.name ?? '';
 
   const filesQuery = useGetRepositoryFilesQuery({ name });
@@ -82,8 +81,8 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
           const link = getGrafanaLink(item);
 
           return (
-            <div className={styles.titleCell} style={{ paddingLeft: level * 24 }}>
-              <Icon name={iconName} className={styles.icon} />
+            <div {...stylex.props(resourceTreeViewStyles.titleCell)} style={{ paddingLeft: level * 24 }}>
+              <Icon name={iconName} {...stylex.props(resourceTreeViewStyles.icon)} />
               {link ? <Link href={link}>{item.title}</Link> : <span>{item.title}</span>}
             </div>
           );
@@ -108,7 +107,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
               >
                 <Icon
                   name="exclamation-triangle"
-                  className={styles.warningIcon}
+                  {...stylex.props(resourceTreeViewStyles.warningIcon)}
                   aria-label={t('provisioning.resource-tree.missing-folder-metadata', 'Missing folder metadata file')}
                 />
               </Tooltip>
@@ -120,7 +119,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
           return (
             <Icon
               name={status === 'synced' ? 'check-circle' : 'sync'}
-              className={status === 'synced' ? styles.syncedIcon : undefined}
+              className={status === 'synced' ? resourceTreeViewStyles.syncedIcon : undefined}
               title={
                 status === 'synced'
                   ? t('provisioning.resource-tree.status-synced', 'Synced')
@@ -139,7 +138,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
             return null;
           }
           return (
-            <span title={hash} className={styles.hash}>
+            <span title={hash} {...stylex.props(resourceTreeViewStyles.hash)}>
               {hash.substring(0, 7)}
             </span>
           );
@@ -221,25 +220,3 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  titleCell: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  icon: css({
-    color: theme.colors.text.secondary,
-    flexShrink: 0,
-  }),
-  hash: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-  syncedIcon: css({
-    color: theme.colors.success.text,
-  }),
-  warningIcon: css({
-    color: theme.colors.warning.text,
-  }),
-});

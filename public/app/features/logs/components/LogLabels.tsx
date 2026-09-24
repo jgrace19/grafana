@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLabelsStyles } from './LogLabels.stylex';
 import { memo, forwardRef, useMemo, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2, type Labels } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Tooltip } from '@grafana/ui';
 
 import { getNormalizedFieldName } from './panel/processing';
 
@@ -29,7 +30,6 @@ export const LogLabels = memo(
     displayAll: initialDisplayAll = false,
   }: Props) => {
     const [displayAll, setDisplayAll] = useState<boolean | undefined>(displayMax ? initialDisplayAll : undefined);
-    const styles = useStyles2(getStyles);
     const allLabels = useMemo(
       () =>
         Object.keys(labels)
@@ -44,14 +44,14 @@ export const LogLabels = memo(
 
     if (displayLabels.length === 0 && emptyMessage) {
       return (
-        <span className={styles.logsLabels}>
-          <span className={styles.logsLabel}>{emptyMessage}</span>
+        <span {...stylex.props(logLabelsStyles.logsLabels)}>
+          <span {...stylex.props(logLabelsStyles.logsLabel)}>{emptyMessage}</span>
         </span>
       );
     }
 
     return (
-      <span className={styles.logsLabels}>
+      <span {...stylex.props(logLabelsStyles.logsLabels)}>
         {displayLabels.map((labelValue) => {
           return addTooltip ? (
             <Tooltip content={labelValue} key={labelValue} placement="top">
@@ -68,7 +68,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            className={styles.button}
+            {...stylex.props(logLabelsStyles.button)}
             aria-label={t('logs.log-labels.expand', 'Expand labels')}
             onClick={() => {
               setDisplayAll(true);
@@ -84,7 +84,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            className={styles.button}
+            {...stylex.props(logLabelsStyles.button)}
             aria-label={t('logs.log-labels.collapse', 'Collapse labels')}
             onClick={() => {
               setDisplayAll(false);
@@ -105,10 +105,9 @@ interface LogLabelsArrayProps {
 }
 
 export const LogLabelsList = memo(({ labels }: LogLabelsArrayProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <span className={styles.logsLabels}>
+    <span {...stylex.props(logLabelsStyles.logsLabels)}>
       {labels.map((label) => (
         <LogLabel key={label} styles={styles} tooltip={label}>
           {getNormalizedFieldName(label)}
@@ -127,8 +126,8 @@ interface LogLabelProps {
 
 const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ styles, tooltip, children }: LogLabelProps, ref) => {
   return (
-    <span className={styles.logsLabel} ref={ref}>
-      <span className={styles.logsLabelValue} title={tooltip}>
+    <span {...stylex.props(logLabelsStyles.logsLabel)} ref={ref}>
+      <span {...stylex.props(logLabelsStyles.logsLabelValue)} title={tooltip}>
         {children}
       </span>
     </span>
@@ -136,35 +135,4 @@ const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ styles, tooltip, 
 });
 LogLabel.displayName = 'LogLabel';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    logsLabels: css({
-      display: 'inline-flex',
-      flexWrap: 'wrap',
-      fontSize: theme.typography.size.xs,
-      alignItems: 'center',
-    }),
-    logsLabel: css({
-      label: 'logs-label',
-      display: 'flex',
-      padding: theme.spacing(0, 0.25),
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      margin: theme.spacing(0.125, 0.5, 0, 0),
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      maxHeight: theme.spacing(2),
-    }),
-    logsLabelValue: css({
-      label: 'logs-label__value',
-      display: 'inline-block',
-      maxWidth: theme.spacing(25),
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-    }),
-    button: css({
-      height: theme.spacing(2.75),
-    }),
-  };
-};
+;

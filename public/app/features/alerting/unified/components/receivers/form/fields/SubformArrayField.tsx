@@ -1,7 +1,8 @@
+import * as stylex from '@stylexjs/stylex';
 import { type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 import { useControlledFieldArray } from 'app/features/alerting/unified/hooks/useControlledFieldArray';
 import {
   type NotificationChannelOption,
@@ -34,29 +35,28 @@ export const SubformArrayField = ({
   secureFields,
   getOptionMeta,
 }: Props) => {
-  const styles = useStyles2(getReceiverFormFieldStyles);
   const path = `${pathPrefix}${option.propertyName}`;
   const formAPI = useFormContext();
   const { fields, append, remove } = useControlledFieldArray({ name: path, formAPI, defaults: defaultValues });
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(formStyles.wrapper)}>
       <CollapsibleSection
-        className={styles.collapsibleSection}
+        {...stylex.props(formStyles.collapsibleSection)}
         // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
         label={`${option.label} (${fields.length})`}
         description={option.description}
       >
         {(fields ?? defaultValues ?? []).map((field, itemIndex) => {
           return (
-            <div key={itemIndex} className={styles.wrapper}>
+            <div key={itemIndex} {...stylex.props(formStyles.wrapper)}>
               {!readOnly && (
                 <ActionIcon
                   data-testid={`${path}.${itemIndex}.delete-button`}
                   icon="trash-alt"
                   tooltip={t('alerting.subform-array-field.tooltip-delete', 'delete')}
                   onClick={() => remove(itemIndex)}
-                  className={styles.deleteIcon}
+                  {...stylex.props(formStyles.deleteIcon)}
                 />
               )}
               {option.subformOptions?.map((option) => (
@@ -77,7 +77,7 @@ export const SubformArrayField = ({
         {!readOnly && (
           <Button
             data-testid={`${path}.add-button`}
-            className={styles.addButton}
+            {...stylex.props(formStyles.addButton)}
             type="button"
             variant="secondary"
             icon="plus"

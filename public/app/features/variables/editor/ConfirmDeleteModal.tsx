@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
 
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { confirmDeleteModalStyles } from './ConfirmDeleteModal.stylex';
 import { t } from '@grafana/i18n';
 import { ConfirmModal } from '@grafana/ui';
 
@@ -22,15 +24,9 @@ export function ConfirmDeleteModal({ varName, isOpen = false, onConfirm, onDismi
         'Are you sure you want to delete variable "{{variableToDelete}}"?',
         { variableToDelete: varName }
       )}
-      modalClass={styles.modal}
+      modalClass={mergeStylexClassName(stylex.props(confirmDeleteModalStyles.modal), undefined).className}
       confirmText={t('variables.confirm-delete-modal.confirmText-delete', 'Delete')}
     />
   );
 }
 
-const styles = {
-  modal: css({
-    width: 'max-content',
-    maxWidth: '80vw',
-  }),
-};

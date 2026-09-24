@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { vizTypePickerStyles } from './VizTypePicker.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { useListedPanelPluginMetas } from '@grafana/runtime/internal';
-import { EmptySearchResult, useStyles2 } from '@grafana/ui';
+import { EmptySearchResult } from '@grafana/ui';
 
 import { filterPluginList } from '../../state/util';
 
@@ -19,7 +20,6 @@ export interface Props {
 }
 
 export function VizTypePicker({ pluginId, searchQuery, onChange, trackSearch }: Props) {
-  const styles = useStyles2(getStyles);
   const { value: pluginsList = [] } = useListedPanelPluginMetas();
 
   const filteredPluginTypes = useMemo(() => {
@@ -41,7 +41,7 @@ export function VizTypePicker({ pluginId, searchQuery, onChange, trackSearch }: 
   }
 
   return (
-    <div className={styles.grid}>
+    <div {...stylex.props(vizTypePickerStyles.grid)}>
       {filteredPluginTypes.map((plugin, idx) => (
         <VizTypePickerPlugin
           disabled={false}
@@ -60,14 +60,3 @@ export function VizTypePicker({ pluginId, searchQuery, onChange, trackSearch }: 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  grid: css({
-    maxWidth: '100%',
-    display: 'grid',
-    gridGap: theme.spacing(0.5),
-  }),
-  heading: css({
-    ...theme.typography.h5,
-    margin: theme.spacing(0, 0.5, 1),
-  }),
-});

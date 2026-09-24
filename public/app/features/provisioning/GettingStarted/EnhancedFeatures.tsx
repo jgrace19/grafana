@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Stack, Text, LinkButton, useStyles2 } from '@grafana/ui';
+import { Box, Stack, Text, LinkButton, } from '@grafana/ui';
 
 import { IconCircle } from './IconCircle';
 
@@ -13,7 +11,7 @@ interface EnhancedFeaturesProps {
 }
 
 export const EnhancedFeatures = ({ hasPublicAccess, hasImageRenderer, onSetupPublicAccess }: EnhancedFeaturesProps) => {
-  const style = useStyles2(getStyles);
+  const style = (getStyles);
 
   return (
     <Stack direction="column" gap={5}>
@@ -92,10 +90,3 @@ export const EnhancedFeatures = ({ hasPublicAccess, hasImageRenderer, onSetupPub
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    separator: css({
-      borderRight: `2px solid ${theme.colors.border.weak}`,
-    }),
-  };
-}

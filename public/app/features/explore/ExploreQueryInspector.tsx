@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { exploreQueryInspectorStyles } from './ExploreQueryInspector.stylex';
 import { useEffect, useState } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
@@ -41,7 +43,6 @@ export function ExploreQueryInspector(props: Props) {
   if (!errors?.length && queryResponse?.error) {
     errors = [queryResponse.error];
   }
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     reportInteraction('grafana_explore_query_inspector_opened');
@@ -84,7 +85,7 @@ export function ExploreQueryInspector(props: Props) {
     value: 'query',
     icon: 'info-circle',
     content: (
-      <div className={styles.queryInspectorWrapper}>
+      <div {...stylex.props(exploreQueryInspectorStyles.queryInspectorWrapper)}>
         <QueryInspector
           instanceId={isMixed ? mixedRequestId(0, requestIdGenerator(exploreId)) : requestIdGenerator(exploreId)}
           data={queryResponse}
@@ -126,11 +127,6 @@ const mapDispatchToProps = {
   runQueries,
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  queryInspectorWrapper: css({
-    paddingBottom: theme.spacing(3),
-  }),
-});
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 

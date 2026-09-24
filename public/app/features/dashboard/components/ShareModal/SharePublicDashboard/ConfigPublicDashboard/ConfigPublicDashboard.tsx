@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { configPublicDashboardStyles } from './ConfigPublicDashboard.stylex';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { Button, ClipboardButton, Field, Input, Stack, Label, ModalsController, Switch, useStyles2 } from '@grafana/ui';
@@ -65,7 +66,6 @@ export function ConfigPublicDashboardBase({
   publicDashboard,
   dashboard,
 }: Props) {
-  const styles = useStyles2(getStyles);
   const isDesktop = useIsDesktop();
 
   const [update, { isLoading }] = useUpdatePublicDashboardMutation();
@@ -123,7 +123,7 @@ export function ConfigPublicDashboardBase({
   }
 
   return (
-    <div className={styles.configContainer}>
+    <div {...stylex.props(configPublicDashboardStyles.configContainer)}>
       {showSaveChangesAlert && <SaveDashboardChangesAlert />}
       {!hasWritePermissions && <NoUpsertPermissionsAlert mode="edit" />}
       {hasTemplateVariables && <UnsupportedTemplateVariablesAlert />}
@@ -135,7 +135,7 @@ export function ConfigPublicDashboardBase({
 
       <Field
         label={t('public-dashboard.config.dashboard-url-field-label', 'Dashboard URL')}
-        className={styles.fieldSpace}
+        {...stylex.props(configPublicDashboardStyles.fieldSpace)}
       >
         <Input
           value={generatePublicDashboardUrl(publicDashboard!.accessToken!)}
@@ -156,7 +156,7 @@ export function ConfigPublicDashboardBase({
         />
       </Field>
 
-      <Field className={styles.fieldSpace}>
+      <Field {...stylex.props(configPublicDashboardStyles.fieldSpace)}>
         <Stack>
           <Switch
             {...register('isPaused')}
@@ -179,7 +179,7 @@ export function ConfigPublicDashboardBase({
         </Stack>
       </Field>
 
-      <Field className={styles.fieldSpace}>
+      <Field {...stylex.props(configPublicDashboardStyles.fieldSpace)}>
         <SettingsBar
           title={t('public-dashboard.config.settings-title', 'Settings')}
           headerElement={({ className }) => (
@@ -270,20 +270,3 @@ export function ConfigPublicDashboard({ publicDashboard, unsupportedDatasources 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  configContainer: css({
-    label: 'config container',
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    gap: theme.spacing(3),
-  }),
-  fieldSpace: css({
-    label: 'field space',
-    width: '100%',
-    marginBottom: 0,
-  }),
-  timeRange: css({
-    display: 'inline-block',
-  }),
-});

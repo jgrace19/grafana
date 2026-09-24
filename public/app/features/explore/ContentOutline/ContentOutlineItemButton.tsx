@@ -1,4 +1,7 @@
-import { cx, css } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { contentOutlineItemButtonStyles } from './ContentOutlineItemButton.stylex';
 import { type ButtonHTMLAttributes, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
@@ -48,7 +51,7 @@ export function ContentOutlineItemButton({
   const theme = useTheme2();
   const styles = getStyles(theme, color);
 
-  const buttonStyles = cx(styles.button, className);
+  const buttonStyles = clsx(mergeStylexClassName(stylex.props(contentOutlineItemButtonStyles.button), undefined).className, className);
 
   const textRef = useRef<HTMLElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -60,10 +63,10 @@ export function ContentOutlineItemButton({
   }, [title]);
 
   const body = (
-    <div className={cx(styles.buttonContainer, indentStyle)}>
+    <div {...mergeStylexClassName(stylex.props(contentOutlineItemButtonStyles.buttonContainer, , indentStyle), undefined)}>
       {collapsible && (
         <button
-          className={styles.collapseButton}
+          {...stylex.props(contentOutlineItemButtonStyles.collapseButton)}
           onClick={toggleCollapsed}
           aria-label={t(
             'explore.content-outline-item-button.body.aria-label-content-outline-item-collapse-button',
@@ -76,16 +79,16 @@ export function ContentOutlineItemButton({
         </button>
       )}
       <button
-        className={cx(buttonStyles, {
-          [styles.active]: isActive,
-          [styles.extraHighlight]: extraHighlight,
-        })}
+        {...mergeStylexClassName(stylex.props(contentOutlineItemButtonStyles.active, buttonStyles, {
+          []: isActive,
+          [mergeStylexClassName(stylex.props(contentOutlineItemButtonStyles.extraHighlight), undefined).className]: extraHighlight,
+        }), undefined)}
         aria-label={tooltip}
         {...rest}
       >
         <OutlineIcon icon={icon} />
         {title && (
-          <span className={styles.textContainer} ref={textRef}>
+          <span {...stylex.props(contentOutlineItemButtonStyles.textContainer)} ref={textRef}>
             {title}
           </span>
         )}
@@ -97,7 +100,7 @@ export function ContentOutlineItemButton({
             'Delete item'
           )}
           variant="destructive"
-          className={styles.deleteButton}
+          {...stylex.props(contentOutlineItemButtonStyles.deleteButton)}
           icon="times"
           onClick={() => onRemove()}
           data-testid="content-outline-item-delete-button"
@@ -130,97 +133,4 @@ function OutlineIcon({ icon }: { icon: IconName | React.ReactNode }) {
   return icon;
 }
 
-const getStyles = (theme: GrafanaTheme2, color?: string) => {
-  return {
-    buttonContainer: css({
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      flexGrow: 1,
-      gap: theme.spacing(0.25),
-      width: '100%',
-      overflow: 'hidden',
-    }),
-    button: css({
-      label: 'content-outline-item-button',
-      display: 'flex',
-      alignItems: 'center',
-      height: theme.spacing(theme.components.height.md),
-      gap: theme.spacing(0.5),
-      color: theme.colors.text.secondary,
-      width: '100%',
-      background: 'transparent',
-      overflow: 'hidden',
-      border: 'none',
-    }),
-    collapseButton: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: theme.spacing(3),
-      height: theme.spacing(4),
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.secondary,
-      background: 'transparent',
-      border: 'none',
-      overflow: 'hidden',
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-        background: theme.colors.secondary.shade,
-      },
-    }),
-    textContainer: css({
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      fontSize: theme.typography.bodySmall.fontSize,
-      marginLeft: theme.spacing(0.5),
-    }),
-    active: css({
-      backgroundColor: theme.colors.background.secondary,
-      borderTopRightRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      position: 'relative',
-      height: theme.spacing(theme.components.height.md),
-
-      '&::before': {
-        backgroundImage: color !== undefined ? 'none' : theme.colors.gradients.brandVertical,
-        backgroundColor: color !== undefined ? color : 'none',
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        transform: 'translateX(-50%)',
-        width: theme.spacing(0.5),
-        left: '2px',
-      },
-    }),
-    extraHighlight: css({
-      backgroundColor: theme.colors.background.secondary,
-      borderTopRightRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      position: 'relative',
-
-      '&::before': {
-        backgroundImage: color !== undefined ? 'none' : theme.colors.gradients.brandVertical,
-        backgroundColor: color !== undefined ? color : 'none',
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        transform: 'translateX(-50%)',
-        width: theme.spacing(0.5),
-        left: '2px',
-      },
-    }),
-    deleteButton: css({
-      width: theme.spacing(1),
-      height: theme.spacing(1),
-      padding: theme.spacing(0.75, 0.75),
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-};
+;

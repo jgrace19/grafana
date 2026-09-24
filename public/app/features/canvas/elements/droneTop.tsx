@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ScalarDimensionConfig } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { } from '@grafana/ui';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ScalarDimensionEditor } from 'app/features/dimensions/editors/ScalarDimensionEditor';
 
@@ -26,7 +24,7 @@ interface DroneTopConfig {
 }
 
 const DroneTopDisplay = ({ data }: CanvasElementProps<DroneTopConfig, DroneTopData>) => {
-  const styles = useStyles2(getStyles);
+  const styles = (getStyles);
 
   const fRightRotorAnimation = `spin ${data?.fRightRotorRPM ? 60 / Math.abs(data.fRightRotorRPM) : 0}s linear infinite`;
 
@@ -166,28 +164,3 @@ export const droneTopItem: CanvasElementItem = {
   },
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  propeller: css({
-    transformOrigin: '50% 50%',
-    transformBox: 'fill-box',
-    display: 'block',
-    '@keyframes spin': {
-      from: {
-        transform: 'rotate(0deg)',
-      },
-      to: {
-        transform: 'rotate(360deg)',
-      },
-    },
-  }),
-  propellerCW: css({
-    // TODO: figure out what styles to apply when prefers-reduced-motion is set
-    // eslint-disable-next-line @grafana/no-unreduced-motion
-    animationDirection: 'normal',
-  }),
-  propellerCCW: css({
-    // TODO: figure out what styles to apply when prefers-reduced-motion is set
-    // eslint-disable-next-line @grafana/no-unreduced-motion
-    animationDirection: 'reverse',
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logRowMessageStyles } from './LogRowMessage.stylex';
 import { memo, type ReactNode, type SyntheticEvent, useMemo, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 
@@ -63,7 +65,7 @@ const LogMessage = ({ hasAnsi, entry, highlights, styles }: LogMessageProps) => 
   const truncatedEntry = useMemo(() => (showFull ? entry : entry.substring(0, MAX_CHARACTERS)), [entry, showFull]);
 
   if (hasAnsi) {
-    const highlight = needsHighlighter ? { searchWords, highlightClassName: styles.logsRowMatchHighLight } : undefined;
+    const highlight = needsHighlighter ? { searchWords, highlightClassName: logRowMessageStyles.logsRowMatchHighLight } : undefined;
     return <LogMessageAnsi value={truncatedEntry} highlight={highlight} />;
   } else if (needsHighlighter) {
     return (
@@ -71,7 +73,7 @@ const LogMessage = ({ hasAnsi, entry, highlights, styles }: LogMessageProps) => 
         textToHighlight={truncatedEntry}
         searchWords={searchWords}
         findChunks={findHighlightChunksInText}
-        highlightClassName={styles.logsRowMatchHighLight}
+        highlightClassName={logRowMessageStyles.logsRowMatchHighLight}
       />
     );
   }
@@ -97,31 +99,13 @@ const Ellipsis = ({ toggle, diff }: EllipsisProps) => {
   return (
     <>
       <Trans i18nKey="logs.log-row-message.ellipsis">… </Trans>
-      <button className={styles.showMore} onClick={handleClick}>
+      <button {...stylex.props(logRowMessageStyles.showMore)} onClick={handleClick}>
         {diff} <Trans i18nKey="logs.log-row-message.more">more</Trans>
       </button>
     </>
   );
 };
 
-const getEllipsisStyles = (theme: GrafanaTheme2) => ({
-  showMore: css({
-    backgroundColor: 'transparent',
-    display: 'inline-flex',
-    fontWeight: theme.typography.fontWeightMedium,
-    fontSize: theme.typography.size.sm,
-    fontFamily: theme.typography.fontFamily,
-    height: theme.spacing(3),
-    padding: theme.spacing(0.25, 1),
-    color: theme.colors.secondary.text,
-    border: `1px solid ${theme.colors.border.strong}`,
-    '&:hover': {
-      background: theme.colors.secondary.transparent,
-      borderColor: theme.colors.emphasize(theme.colors.border.strong, 0.25),
-      color: theme.colors.secondary.text,
-    },
-  }),
-});
 
 const restructureLog = (
   row: LogRowModel,
@@ -179,16 +163,16 @@ export const LogRowMessage = memo((props: Props) => {
     <>
       {
         // When context is open, the position has to be NOT relative. // Setting the postion as inline-style to
-        // overwrite the more sepecific style definition from `styles.logsRowMessage`.
+        // overwrite the more sepecific style definition from `logRowMessageStyles.logsRowMessage`.
       }
-      <td className={styles.logsRowMessage}>
-        <div className={wrapLogMessage ? styles.positionRelative : styles.horizontalScroll}>
-          <div className={`${styles.logLine} ${styles.positionRelative}`}>
+      <td className={logRowMessageStyles.logsRowMessage}>
+        <div className={wrapLogMessage ? logRowMessageStyles.positionRelative : logRowMessageStyles.horizontalScroll}>
+          <div className={`${logRowMessageStyles.logLine} ${logRowMessageStyles.positionRelative}`}>
             <LogMessage hasAnsi={hasAnsi} entry={restructuredEntry} highlights={row.searchWords} styles={styles} />
           </div>
         </div>
       </td>
-      <td className={`log-row-menu-cell ${styles.logRowMenuCell}`}>
+      <td className={`log-row-menu-cell ${logRowMessageStyles.logRowMenuCell}`}>
         {shouldShowMenu && (
           <LogRowMenuCell
             logText={restructuredEntry}

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { editorColumnHeaderStyles } from './EditorColumnHeader.stylex';
 import * as React from 'react';
 import { type MergeExclusive } from 'type-fest';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Label, Stack, useStyles2 } from '@grafana/ui';
+import { Label, Stack } from '@grafana/ui';
 
 interface BaseProps {
   id?: string;
@@ -21,15 +21,14 @@ interface LabelActionsProps extends BaseProps {
 type Props = MergeExclusive<ChildrenProps, LabelActionsProps>;
 
 export function EditorColumnHeader({ label, actions, id, children }: Props) {
-  const styles = useStyles2(editorColumnStyles);
 
   if (children) {
-    return <div className={styles.container}>{children}</div>;
+    return <div {...stylex.props(formStyles.container)}>{children}</div>;
   }
 
   return (
-    <div className={styles.container}>
-      <Label className={styles.label} id={id}>
+    <div {...stylex.props(formStyles.container)}>
+      <Label {...stylex.props(formStyles.label)} id={id}>
         {label}
       </Label>
       {actions && (
@@ -41,19 +40,3 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
   );
 }
 
-const editorColumnStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing(1, 2),
-    backgroundColor: theme.colors.background.secondary,
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderTopLeftRadius: theme.shape.radius.default,
-    borderTopRightRadius: theme.shape.radius.default,
-  }),
-  label: css({
-    margin: 0,
-  }),
-});

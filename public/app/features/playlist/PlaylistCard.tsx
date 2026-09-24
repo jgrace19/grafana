@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Card, LinkButton, ModalsController, Stack, useStyles2 } from '@grafana/ui';
-import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
+import { Button, Card, LinkButton, ModalsController, Stack } from '@grafana/ui';
+import { attachSkeleton, mergeStylexClassName, type SkeletonComponent } from '@grafana/ui/unstable';
+
+import { playlistCardStyles } from './PlaylistCard.stylex';
 import { DashNavButton } from 'app/features/dashboard/components/DashNav/DashNavButton';
 
 import { type Playlist } from '../../api/clients/playlist/v1';
@@ -64,7 +65,7 @@ const PlaylistCardComponent = ({ playlist, setStartPlaylist, setPlaylistToDelete
 };
 
 const PlaylistCardSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const skeletonStyles = useStyles2(getSkeletonStyles);
+  const buttonClass = mergeStylexClassName(stylex.props(playlistCardStyles.button), undefined).className;
   return (
     <Card noMargin {...rootProps}>
       <Card.Heading>
@@ -72,11 +73,11 @@ const PlaylistCardSkeleton: SkeletonComponent = ({ rootProps }) => {
       </Card.Heading>
       <Card.Actions>
         <Stack direction="row" wrap="wrap">
-          <Skeleton containerClassName={skeletonStyles.button} width={142} height={32} />
+          <Skeleton containerClassName={buttonClass} width={142} height={32} />
           {canWritePlaylists() && (
             <>
-              <Skeleton containerClassName={skeletonStyles.button} width={135} height={32} />
-              <Skeleton containerClassName={skeletonStyles.button} width={153} height={32} />
+              <Skeleton containerClassName={buttonClass} width={135} height={32} />
+              <Skeleton containerClassName={buttonClass} width={153} height={32} />
             </>
           )}
         </Stack>
@@ -86,11 +87,3 @@ const PlaylistCardSkeleton: SkeletonComponent = ({ rootProps }) => {
 };
 
 export const PlaylistCard = attachSkeleton(PlaylistCardComponent, PlaylistCardSkeleton);
-
-function getSkeletonStyles(theme: GrafanaTheme2) {
-  return {
-    button: css({
-      lineHeight: 1,
-    }),
-  };
-}

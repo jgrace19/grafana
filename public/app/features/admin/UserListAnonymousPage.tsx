@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { userListAnonymousPageStyles } from './UserListAnonymousPage.stylex';
 import { useEffect } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { RadioButtonGroup, useStyles2, FilterInput } from '@grafana/ui';
+import { RadioButtonGroup, FilterInput } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type StoreState } from 'app/types/store';
 
@@ -48,7 +49,6 @@ const UserListAnonymousDevicesPageUnConnected = ({
   changeAnonPage,
   changeAnonUserSort,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     fetchUsersAnonymousDevices();
@@ -56,8 +56,8 @@ const UserListAnonymousDevicesPageUnConnected = ({
 
   return (
     <Page.Contents>
-      <div className={styles.actionBar} data-testid={selectors.container}>
-        <div className={styles.row}>
+      <div {...stylex.props(userListAnonymousPageStyles.actionBar)} data-testid={selectors.container}>
+        <div {...stylex.props(userListAnonymousPageStyles.row)}>
           <FilterInput
             placeholder={t(
               'admin.user-list-anonymous-devices-page-un-connected.placeholder-search-devices-by-ip-address',
@@ -79,7 +79,7 @@ const UserListAnonymousDevicesPageUnConnected = ({
             ]}
             // onChange={(value) => changeFilter({ name: 'activeLast30Days', value })}
             value={filters.find((f) => f.name === 'activeLast30Days')?.value}
-            className={styles.filter}
+            {...stylex.props(userListAnonymousPageStyles.filter)}
           />
         </div>
       </div>
@@ -105,37 +105,6 @@ export function UserListAnonymousDevicesPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    filter: css({
-      margin: theme.spacing(0, 1),
-      [theme.breakpoints.down('sm')]: {
-        margin: 0,
-      },
-    }),
-    actionBar: css({
-      marginBottom: theme.spacing(2),
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-      },
-    }),
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      marginBottom: theme.spacing(0.5),
-      flexGrow: 1,
-
-      [theme.breakpoints.down('sm')]: {
-        flexWrap: 'wrap',
-        gap: theme.spacing(2),
-        width: '100%',
-      },
-    }),
-  };
-};
+;
 
 export default UserListAnonymousDevicesPage;

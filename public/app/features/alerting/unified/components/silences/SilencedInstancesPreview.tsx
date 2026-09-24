@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { silencedInstancesPreviewStyles } from './SilencedInstancesPreview.stylex';
 import { useState } from 'react';
 import { useDebounce, useDeepCompareEffect } from 'react-use';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, dateTime } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Badge, Icon, LoadingPlaceholder, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Icon, LoadingPlaceholder, Tooltip } from '@grafana/ui';
 import { type MatcherFieldValue } from 'app/features/alerting/unified/types/silence-form';
 import { matcherFieldToMatcher } from 'app/features/alerting/unified/utils/alertmanager';
 import { MATCHER_ALERT_RULE_UID } from 'app/features/alerting/unified/utils/constants';
@@ -42,7 +43,6 @@ export const SilencedInstancesPreview = ({ amSourceName, matchers: inputMatchers
     ...inputMatchers,
   ].map(matcherFieldToMatcher);
   const useLazyQuery = alertmanagerApi.endpoints.getAlertmanagerAlerts.useLazyQuery;
-  const styles = useStyles2(getStyles);
   const columns = useColumns();
 
   // By default the form contains an empty matcher - with empty name and value and = operator
@@ -84,7 +84,7 @@ export const SilencedInstancesPreview = ({ amSourceName, matchers: inputMatchers
 
   return (
     <div>
-      <h4 className={styles.title}>
+      <h4 {...stylex.props(silencedInstancesPreviewStyles.title)}>
         <Trans i18nKey="alerting.silences.affected-instances">Affected alert instances</Trans>
         <Tooltip
           content={
@@ -105,7 +105,7 @@ export const SilencedInstancesPreview = ({ amSourceName, matchers: inputMatchers
           </span>
         </Tooltip>
         {tableItemAlerts.length > 0 ? (
-          <Badge className={styles.badge} color="blue" text={tableItemAlerts.length} />
+          <Badge {...stylex.props(silencedInstancesPreviewStyles.badge)} color="blue" text={tableItemAlerts.length} />
         ) : null}
       </h4>
       {!hasValidMatchers && (
@@ -125,7 +125,7 @@ export const SilencedInstancesPreview = ({ amSourceName, matchers: inputMatchers
         />
       )}
       {!isFetching && !isError && hasValidMatchers && (
-        <div className={styles.table}>
+        <div {...stylex.props(silencedInstancesPreviewStyles.table)}>
           {tableItemAlerts.length > 0 ? (
             <DynamicTable
               items={tableItemAlerts}
@@ -147,7 +147,6 @@ export const SilencedInstancesPreview = ({ amSourceName, matchers: inputMatchers
 };
 
 function useColumns(): Array<DynamicTableColumnProps<AlertmanagerAlert>> {
-  const styles = useStyles2(getStyles);
 
   return [
     {
@@ -157,7 +156,7 @@ function useColumns(): Array<DynamicTableColumnProps<AlertmanagerAlert>> {
         return <AmAlertStateTag state={data.status.state} />;
       },
       size: '120px',
-      className: styles.stateColumn,
+      className: silencedInstancesPreviewStyles.stateColumn,
     },
     {
       id: 'labels',
@@ -178,22 +177,3 @@ function useColumns(): Array<DynamicTableColumnProps<AlertmanagerAlert>> {
   ];
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    maxWidth: `${theme.breakpoints.values.lg}px`,
-  }),
-  moreMatches: css({
-    marginTop: theme.spacing(1),
-  }),
-  title: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  badge: css({
-    marginLeft: theme.spacing(1),
-  }),
-  stateColumn: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-});

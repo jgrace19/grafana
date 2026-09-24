@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { prepareTimeSeriesEditorStyles } from './PrepareTimeSeriesEditor.stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
@@ -10,7 +12,7 @@ import {
   TransformerCategory,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Select } from '@grafana/ui';
 
 import darkImage from '../images/dark/prepareTimeSeries.svg';
 import lightImage from '../images/light/prepareTimeSeries.svg';
@@ -19,7 +21,6 @@ import { type PrepareTimeSeriesOptions, timeSeriesFormat, getPrepareTimeSeriesTr
 
 export function PrepareTimeSeriesEditor(props: TransformerUIProps<PrepareTimeSeriesOptions>): React.ReactElement {
   const { options, onChange } = props;
-  const styles = useStyles2(getStyles);
 
   const wideInfo = {
     label: t('transformers.prepare-time-series-editor.wide-info.label.wide-time-series', 'Wide time series'),
@@ -156,18 +157,13 @@ export function PrepareTimeSeriesEditor(props: TransformerUIProps<PrepareTimeSer
       </InlineFieldRow>
       <InlineFieldRow>
         <InlineField label={t('transformers.prepare-time-series-editor.label-info', 'Info')} labelWidth={12}>
-          <div className={styles.info}>{(formats.find((v) => v.value === options.format) || formats[0]).info}</div>
+          <div {...stylex.props(prepareTimeSeriesEditorStyles.info)}>{(formats.find((v) => v.value === options.format) || formats[0]).info}</div>
         </InlineField>
       </InlineFieldRow>
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  info: css({
-    marginLeft: '20px',
-  }),
-});
 
 export const getPrepareTimeseriesTransformerRegistryItem: () => TransformerRegistryItem<PrepareTimeSeriesOptions> =
   () => {

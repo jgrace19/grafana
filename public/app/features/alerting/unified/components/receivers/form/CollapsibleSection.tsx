@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { collapsibleSectionStyles } from './CollapsibleSection.stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { type IconSize, useStyles2 } from '@grafana/ui';
+import { type IconSize } from '@grafana/ui';
 
 import { CollapseToggle } from '../../CollapseToggle';
 
@@ -21,45 +23,22 @@ export const CollapsibleSection = ({
   className,
   size = 'xl',
 }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
   return (
-    <div className={cx(styles.wrapper, className)}>
+    <div {...mergeStylexClassName(stylex.props(collapsibleSectionStyles.wrapper), className)}>
       <CollapseToggle
-        className={styles.toggle}
+        {...stylex.props(collapsibleSectionStyles.toggle)}
         size={size}
         onToggle={toggleCollapse}
         isCollapsed={isCollapsed}
         text={label}
       />
-      {description && <p className={styles.description}>{description}</p>}
-      <div className={isCollapsed ? styles.hidden : styles.content}>{children}</div>
+      {description && <p {...stylex.props(collapsibleSectionStyles.description)}>{description}</p>}
+      <div className={isCollapsed ? collapsibleSectionStyles.hidden : collapsibleSectionStyles.content}>{children}</div>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  }),
-  toggle: css({
-    margin: theme.spacing(1, 0),
-    padding: 0,
-  }),
-  hidden: css({
-    display: 'none',
-  }),
-  description: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.size.sm,
-    fontWeight: theme.typography.fontWeightRegular,
-    margin: 0,
-  }),
-  content: css({
-    paddingLeft: theme.spacing(3),
-  }),
-});

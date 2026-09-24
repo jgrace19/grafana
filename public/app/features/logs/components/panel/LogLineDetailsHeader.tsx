@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logLineDetailsHeaderStyles } from './LogLineDetailsHeader.stylex';
 import { useCallback, useMemo, type MouseEvent, useRef, type ChangeEvent } from 'react';
 
 import { colorManipulator, type GrafanaTheme2, type LogRowModel, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, Input, useStyles2 } from '@grafana/ui';
+import { IconButton, Input } from '@grafana/ui';
 
 import { copyText, handleOpenLogsContextClick } from '../../utils';
 import { LOG_LINE_BODY_FIELD_NAME } from '../fieldSelector/logFields';
@@ -40,7 +42,7 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   } = useLogListContext();
   const { closeDetails, detailsMode, setDetailsMode, toggleDetails } = useLogDetailsContext();
   const pinned = useLogIsPinned(log);
-  const styles = useStyles2(getStyles, detailsMode, wrapLogMessage);
+  const styles = (getStyles, detailsMode, wrapLogMessage);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const searchUsedRef = useRef(false);
@@ -151,14 +153,14 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   }, [log, toggleDetails]);
 
   return (
-    <div className={styles.header} ref={containerRef}>
+    <div {...stylex.props(logLineDetailsHeaderStyles.header)} ref={containerRef}>
       <Input
         onChange={handleSearch}
         placeholder={t('logs.log-line-details.search-placeholder', 'Search field names and values')}
         ref={inputRef}
         suffix={search !== '' ? clearSearch : undefined}
       />
-      <div className={styles.icons}>
+      <div {...stylex.props(logLineDetailsHeaderStyles.icons)}>
         {isAssistantAvailable && (
           <IconButton
             tooltip={t('logs.log-line-details.open-assistant', 'Explain log line in Assistant')}
@@ -243,7 +245,7 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
             tabIndex={0}
           />
         )}
-        <div className={`${styles.divider} ${styles.dividerMargin}`} />
+        <div className={`${logLineDetailsHeaderStyles.divider} ${logLineDetailsHeaderStyles.dividerMargin}`} />
         <IconButton
           name={detailsMode === 'inline' ? 'web-section' : 'gf-layout-simple'}
           tooltip={
@@ -253,7 +255,7 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
           }
           onClick={toggleDetailsMode}
         />
-        <div className={styles.divider} />
+        <div {...stylex.props(logLineDetailsHeaderStyles.divider)} />
         {detailsMode === 'sidebar' ? (
           <IconButton
             name="times"
@@ -274,54 +276,3 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, mode: LogLineDetailsMode, wrapLogMessage: boolean) => ({
-  container: css({
-    overflow: 'auto',
-    height: '100%',
-  }),
-  scrollContainer: css({
-    overflow: 'auto',
-    height: '100%',
-  }),
-  header: css({
-    alignItems: 'center',
-    borderTopLeftRadius: theme.shape.radius.default,
-    borderTopRightRadius: theme.shape.radius.default,
-    background: theme.colors.background.canvas,
-    display: 'flex',
-    flexDirection: !wrapLogMessage && mode === 'inline' ? 'row-reverse' : 'row',
-    gap: theme.spacing(0.75),
-    zIndex: theme.zIndex.navbarFixed,
-    height: theme.spacing(5.5),
-    marginBottom: theme.spacing(1),
-    padding: theme.spacing(0.5, 1),
-    position: 'sticky',
-    top: 0,
-  }),
-  icons: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    alignContent: 'center',
-  }),
-  copyLogButton: css({
-    padding: 0,
-    height: theme.spacing(4),
-    width: theme.spacing(2.5),
-    overflow: 'hidden',
-    '&:hover': {
-      backgroundColor: colorManipulator.alpha(theme.colors.text.primary, 0.12),
-    },
-  }),
-  componentWrapper: css({
-    padding: theme.spacing(0, 1, 1, 1),
-  }),
-  divider: css({
-    width: 1,
-    borderRight: `solid 1px ${theme.colors.border.medium}`,
-    height: theme.spacing(2.25),
-  }),
-  dividerMargin: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});

@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { type MouseEvent, type ReactNode, useState, useMemo, useCallback, useRef, useEffect, memo } from 'react';
 
 import {
@@ -285,7 +285,7 @@ export const LogRows = memo(
             onDismiss={onDisableCancel}
           />
         )}
-        <table className={cx(styles.logsRowsTable, props.overflowingContent ? '' : styles.logsRowsTableContain)}>
+        <table className={clsx(styles.logsRowsTable, props.overflowingContent ? '' : styles.logsRowsTableContain)}>
           <tbody>
             {orderedRows.map((row, index) =>
               index < previewSize ? (

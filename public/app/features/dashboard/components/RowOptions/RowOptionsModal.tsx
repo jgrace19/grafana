@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rowOptionsModalStyles } from './RowOptionsModal.stylex';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
@@ -15,23 +17,16 @@ export interface RowOptionsModalProps {
 }
 
 export const RowOptionsModal = ({ repeat, title, onDismiss, onUpdate, warning }: RowOptionsModalProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <Modal
       isOpen={true}
       title={t('dashboard.row-options-modal.title-row-options', 'Row options')}
       onDismiss={onDismiss}
-      className={styles.modal}
+      {...stylex.props(rowOptionsModalStyles.modal)}
     >
       <RowOptionsForm repeat={repeat} title={title} onCancel={onDismiss} onUpdate={onUpdate} warning={warning} />
     </Modal>
   );
 };
 
-const getStyles = () => ({
-  modal: css({
-    label: 'RowOptionsModal',
-    width: '500px',
-  }),
-});

@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { serviceAccountProfileStyles } from './ServiceAccountProfile.stylex';
 import { useEffect, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2, type OrgRole, type TimeZone, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Label, TextLink, useStyles2 } from '@grafana/ui';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
@@ -19,7 +20,6 @@ interface Props {
 }
 
 export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Props): JSX.Element {
-  const styles = useStyles2(getStyles);
   const ableToWrite = contextSrv.hasPermission(AccessControlAction.ServiceAccountsWrite);
   const [roles, setRoleOptions] = useState<Role[]>([]);
 
@@ -48,7 +48,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
   }, [serviceAccount.orgId]);
 
   return (
-    <div className={styles.section}>
+    <div {...stylex.props(serviceAccountProfileStyles.section)}>
       <h3>
         <Trans i18nKey="serviceaccounts.service-account-profile.information">Information</Trans>
       </h3>
@@ -101,8 +101,4 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  section: css({
-    marginBottom: theme.spacing(4),
-  }),
-});
+export 

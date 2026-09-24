@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { cloudDataSourceSelectorStyles } from './CloudDataSourceSelector.stylex';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, useStyles2 } from '@grafana/ui';
+import { Field } from '@grafana/ui';
 
 import { RuleFormType, type RuleFormValues } from '../../../types/rule-form';
 import { CloudRulesSourcePicker } from '../CloudRulesSourcePicker';
@@ -20,15 +22,13 @@ export const CloudDataSourceSelector = ({ disabled, onChangeCloudDatasource }: C
     watch,
   } = useFormContext<RuleFormValues>();
 
-  const styles = useStyles2(getStyles);
-
   const ruleFormType = watch('type');
 
   return (
-    <div className={styles.flexRow}>
+    <div {...stylex.props(cloudDataSourceSelectorStyles.flexRow)}>
       {(ruleFormType === RuleFormType.cloudAlerting || ruleFormType === RuleFormType.cloudRecording) && (
         <Field
-          className={styles.formInput}
+          {...stylex.props(cloudDataSourceSelectorStyles.formInput)}
           label={
             disabled
               ? t('alerting.cloud-data-source-selector.label-disabled', 'Data source')
@@ -68,17 +68,3 @@ export const CloudDataSourceSelector = ({ disabled, onChangeCloudDatasource }: C
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  formInput: css({
-    width: '330px',
-    '& + &': {
-      marginLeft: theme.spacing(3),
-    },
-  }),
-  flexRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-  }),
-});

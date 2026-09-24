@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { versionInstallButtonStyles } from './VersionInstallButton.stylex';
 import { useEffect, useState } from 'react';
 import { gt, valid } from 'semver';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Badge, Button, ConfirmModal, Icon, Spinner, useStyles2 } from '@grafana/ui';
+import { Badge, Button, ConfirmModal, Icon, Spinner } from '@grafana/ui';
 
 import { isPreinstalledPlugin } from '../helpers';
 import { useInstall } from '../state/hooks';
@@ -35,7 +36,6 @@ export const VersionInstallButton = ({
   const install = useInstall();
   const [isInstalling, setIsInstalling] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const styles = useStyles2(getStyles);
 
   const installState = getInstallState(installedVersion, version.version);
 
@@ -49,7 +49,7 @@ export const VersionInstallButton = ({
   if (version.version === installedVersion) {
     return (
       <Badge
-        className={styles.badge}
+        {...stylex.props(versionInstallButtonStyles.badge)}
         text={t('plugins.version-install-button.text-installed', 'Installed')}
         icon="check"
         color="green"
@@ -110,13 +110,13 @@ export const VersionInstallButton = ({
         size="sm"
         variant={latestCompatibleVersion === version.version ? 'primary' : 'secondary'}
         onClick={onInstallClick}
-        className={styles.button}
+        {...stylex.props(versionInstallButtonStyles.button)}
         hidden={hidden}
         tooltip={tooltip}
         tooltipPlacement="bottom-start"
       >
         {getLabel(installState)}{' '}
-        {isInstalling ? <Spinner className={styles.spinner} inline size="sm" /> : getIcon(installState)}
+        {isInstalling ? <Spinner {...stylex.props(versionInstallButtonStyles.spinner)} inline size="sm" /> : getIcon(installState)}
       </Button>
       <ConfirmModal
         isOpen={isModalOpen}
@@ -181,18 +181,3 @@ function getButtonHiddenState(installState: PluginStatus, isPreinstalled: { foun
   return isPreinstalled.withVersion;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  spinner: css({
-    marginLeft: theme.spacing(1),
-  }),
-  successIcon: css({
-    color: theme.colors.success.main,
-  }),
-  button: css({
-    width: theme.spacing(13),
-  }),
-  badge: css({
-    width: theme.spacing(13),
-    justifyContent: 'center',
-  }),
-});

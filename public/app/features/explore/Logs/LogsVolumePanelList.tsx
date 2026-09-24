@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { logsVolumePanelListStyles } from './LogsVolumePanelList.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { flatten, groupBy, mapValues, sortBy } from 'lodash';
 import { useCallback, useMemo } from 'react';
@@ -22,7 +24,7 @@ import {
   type TimeZone,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, InlineField, Alert, useStyles2, type SeriesVisibilityChangeMode } from '@grafana/ui';
+import { Button, InlineField, Alert, type SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import {
   mergeLogsVolumeDataFrames,
@@ -116,8 +118,6 @@ export const LogsVolumePanelList = ({
       annotations,
     };
   }, [logs, logsVolumeData?.data]);
-
-  const styles = useStyles2(getStyles);
   const lokiShardSplittingEnabled = useBooleanFlagValue('lokiShardSplitting', false);
 
   const numberOfLogVolumes = Object.keys(logVolumes).length;
@@ -213,7 +213,7 @@ export const LogsVolumePanelList = ({
 
   if (numberOfLogVolumes === 0 && logsVolumeData?.state !== LoadingState.Streaming) {
     return (
-      <div className={styles.alertContainer}>
+      <div {...stylex.props(logsVolumePanelListStyles.alertContainer)}>
         <Alert
           severity="info"
           title={t('explore.logs-volume-panel-list.title-no-logs-volume-available', 'No logs volume available')}
@@ -227,7 +227,7 @@ export const LogsVolumePanelList = ({
   }
 
   return (
-    <div className={styles.listContainer}>
+    <div {...stylex.props(logsVolumePanelListStyles.listContainer)}>
       {queryTooLargeError && canShowPartialData && (
         <SupplementaryResultError
           title={t('explore.logs-volume-panel-list.title-showing-partial-data', 'Showing partial data')}
@@ -271,7 +271,7 @@ export const LogsVolumePanelList = ({
         );
       })}
       {containsZoomed && (
-        <div className={styles.extraInfoContainer}>
+        <div {...stylex.props(logsVolumePanelListStyles.extraInfoContainer)}>
           <InlineField
             label={t('explore.logs-volume-panel-list.label-reload-log-volume', 'Reload log volume')}
             transparent
@@ -291,29 +291,7 @@ export const LogsVolumePanelList = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    listContainer: css({
-      paddingTop: '10px',
-    }),
-    extraInfoContainer: css({
-      display: 'flex',
-      justifyContent: 'end',
-      position: 'absolute',
-      right: '5px',
-      top: '5px',
-    }),
-    oldInfoText: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    alertContainer: css({
-      width: '50%',
-      minWidth: `${theme.breakpoints.values.sm}px`,
-      margin: '0 auto',
-    }),
-  };
-};
+;
 
 function logsLevelZoomRatio(
   logsVolumeData: DataFrame[] | undefined,

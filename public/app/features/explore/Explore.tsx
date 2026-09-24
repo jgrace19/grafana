@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { exploreStyles } from './Explore.stylex';
 import { get, groupBy } from 'lodash';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
@@ -71,38 +74,7 @@ import {
 import { isSplit, selectExploreDSMaps } from './state/selectors';
 import { updateTimeRange } from './state/time';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    exploreMain: css({
-      label: 'exploreMain',
-      // Is needed for some transition animations to work.
-      position: 'relative',
-      marginTop: theme.spacing(3),
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
-    queryContainer: css({
-      label: 'queryContainer',
-      padding: theme.spacing(1),
-    }),
-    exploreContainer: css({
-      label: 'exploreContainer',
-      display: 'flex',
-      flexDirection: 'column',
-      paddingRight: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    }),
-    wrapper: css({
-      position: 'absolute',
-      top: 0,
-      left: theme.spacing(2),
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-    }),
-  };
-};
+;
 
 export interface ExploreProps extends Themeable2 {
   exploreId: string;
@@ -353,7 +325,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
 
   renderEmptyState(exploreContainerStyles: string) {
     return (
-      <div className={cx(exploreContainerStyles)}>
+      <div className={clsx(exploreContainerStyles)}>
         <NoDataSourceCallToAction />
       </div>
     );
@@ -598,7 +570,6 @@ export class Explore extends PureComponent<Props, ExploreState> {
       queryLibraryRef,
     } = this.props;
     const { contentOutlineVisible } = this.state;
-    const styles = getStyles(theme);
     const showPanels = queryResponse && queryResponse.state !== LoadingState.NotStarted;
     const richHistoryRowButtonHidden = !supportedFeatures().queryHistoryAvailable;
     const showNoData =
@@ -636,7 +607,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
             paddingLeft: theme.spacing(2),
           }}
         >
-          <div className={styles.wrapper}>
+          <div {...stylex.props(exploreStyles.wrapper)}>
             {contentOutlineVisible && !compact && (
               <ContentOutline scroller={this.scrollElement} panelId={`content-outline-container-${exploreId}`} />
             )}
@@ -646,7 +617,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                 this.scrollElement = scrollElement || undefined;
               }}
             >
-              <div className={styles.exploreContainer}>
+              <div {...stylex.props(exploreStyles.exploreContainer)}>
                 {datasourceInstance ? (
                   <>
                     <ContentOutlineItem
@@ -655,7 +626,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                       icon="arrow"
                       mergeSingleChild={true}
                     >
-                      <PanelContainer className={styles.queryContainer}>
+                      <PanelContainer {...stylex.props(exploreStyles.queryContainer)}>
                         {correlationsBox}
                         <QueryRows
                           exploreId={exploreId}
@@ -713,7 +684,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                         }
 
                         return (
-                          <main className={cx(styles.exploreMain)} style={{ width }}>
+                          <main {...mergeStylexClassName(stylex.props(exploreStyles.exploreMain, ), undefined)} style={{ width }}>
                             <ErrorBoundaryAlert boundaryName="explore-main">
                               {showPanels && (
                                 <>
@@ -776,7 +747,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                     </AutoSizer>
                   </>
                 ) : (
-                  this.renderEmptyState(styles.exploreContainer)
+                  this.renderEmptyState(mergeStylexClassName(stylex.props(exploreStyles.exploreContainer), undefined).className)
                 )}
               </div>
             </ScrollContainer>

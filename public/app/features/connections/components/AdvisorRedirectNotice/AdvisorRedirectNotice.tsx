@@ -1,30 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { advisorRedirectNoticeStyles } from './AdvisorRedirectNotice.stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, useAppPluginInstalled } from '@grafana/runtime';
 import { UserStorage } from '@grafana/runtime/internal';
-import { Alert, LinkButton, useStyles2 } from '@grafana/ui';
+import { Alert, LinkButton } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alertContent: css({
-    display: 'flex',
-    flexDirection: 'row',
-    padding: 0,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-  alertParagraph: css({
-    margin: theme.spacing(0, 1, 0, 0),
-    lineHeight: theme.spacing(theme.components.height.sm),
-  }),
-});
 const userStorage = new UserStorage('advisor-redirect-notice');
 
 export function AdvisorRedirectNotice() {
-  const styles = useStyles2(getStyles);
   const hasAdminRights = contextSrv.hasRole('Admin') || contextSrv.isGrafanaAdmin;
   const [showNotice, setShowNotice] = useState(false);
   const { value: isAdvisorInstalled } = useAppPluginInstalled('grafana-advisor-app');
@@ -56,8 +43,8 @@ export function AdvisorRedirectNotice() {
         setShowNotice(false);
       }}
     >
-      <div className={styles.alertContent}>
-        <p className={styles.alertParagraph}>
+      <div {...stylex.props(advisorRedirectNoticeStyles.alertContent)}>
+        <p {...stylex.props(advisorRedirectNoticeStyles.alertParagraph)}>
           <Trans i18nKey="connections.advisor-redirect-notice.body">
             Try the new Advisor to uncover potential issues with your data sources and plugins.
           </Trans>

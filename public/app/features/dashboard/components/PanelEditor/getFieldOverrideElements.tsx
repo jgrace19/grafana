@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { getFieldOverrideElementsStyles } from './getFieldOverrideElements.stylex';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
 
@@ -22,7 +24,6 @@ import {
   getUniqueMatcherScopes,
   MatcherScopeSelector,
   buildScopeOptions,
-  useStyles2,
   ValuePicker,
 } from '@grafana/ui';
 import { getDataLinksVariableSuggestions } from 'app/features/panel/panellinks/link_srv';
@@ -312,9 +313,6 @@ export function getFieldOverrideCategories(
 
 function AddOverrideButtonContainer({ children }: { children: React.ReactNode }) {
   const styles = useStyles2(getBorderTopStyles);
-  return <div className={styles}>{children}</div>;
+  return <div {...stylex.props(getFieldOverrideElementsStyles.root)}>{children}</div>;
 }
 
-function getBorderTopStyles(theme: GrafanaTheme2) {
-  return css({ borderTop: `1px solid ${theme.colors.border.weak}`, padding: `${theme.spacing(2)}`, display: 'flex' });
-}

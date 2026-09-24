@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { visualizationSuggestionsStyles } from './VisualizationSuggestions.stylex';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAsyncRetry } from 'react-use';
 
@@ -13,7 +15,7 @@ import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { useListedPanelPluginMetas } from '@grafana/runtime/internal';
 import { type VizPanel } from '@grafana/scenes';
-import { Alert, Button, EmptySearchResult, Icon, Spinner, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Button, EmptySearchResult, Icon, Spinner, Text } from '@grafana/ui';
 import { UNCONFIGURED_PANEL_PLUGIN_ID } from 'app/features/dashboard-scene/scene/UnconfiguredPanel';
 
 import { useStructureRev } from '../../../explore/Graph/useStructureRev';
@@ -68,7 +70,6 @@ const useSuggestions = (data: PanelData | undefined, searchQuery: string | undef
 };
 
 export function VisualizationSuggestions({ onChange, data, panel, searchQuery, isNewPanel }: Props) {
-  const styles = useStyles2(getStyles);
 
   const { value: result, loading, error, retry } = useSuggestions(data, searchQuery);
 
@@ -171,7 +172,7 @@ export function VisualizationSuggestions({ onChange, data, panel, searchQuery, i
 
   if (loading || !data) {
     return (
-      <div className={styles.loadingContainer}>
+      <div {...stylex.props(visualizationSuggestionsStyles.loadingContainer)}>
         <Spinner size="xxl" />
       </div>
     );
@@ -205,7 +206,7 @@ export function VisualizationSuggestions({ onChange, data, panel, searchQuery, i
     <>
       {hasLoadingErrors && (
         <Alert severity="warning" title={''}>
-          <div className={styles.alertContent}>
+          <div {...stylex.props(visualizationSuggestionsStyles.alertContent)}>
             <Trans i18nKey="panel.visualization-suggestions.error-loading-some-suggestions.message">
               Some suggestions could not be loaded
             </Trans>
@@ -236,7 +237,6 @@ interface NoDataPanelListProps {
 }
 
 function NoDataPanelList({ searchQuery, panel, onChange }: NoDataPanelListProps) {
-  const styles = useStyles2(getStyles);
   const { value: meta = [] } = useListedPanelPluginMetas();
   const noDataPanels = useMemo(() => {
     const panels = meta.filter((p) => panelsWithoutData.has(p.id));
@@ -245,22 +245,22 @@ function NoDataPanelList({ searchQuery, panel, onChange }: NoDataPanelListProps)
 
   return (
     <>
-      <div className={styles.emptyStateSection}>
-        <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />
+      <div {...stylex.props(visualizationSuggestionsStyles.emptyStateSection)}>
+        <Icon name="chart-line" size="xxxl" {...stylex.props(visualizationSuggestionsStyles.emptyStateIcon)} />
         <Text element="p" textAlignment="center" color="secondary">
           <Trans i18nKey="panel.visualization-suggestions.run-query-hint">
             Run a query to start seeing suggested visualizations
           </Trans>
         </Text>
       </div>
-      <div className={styles.orDivider}>
-        <div className={styles.orDividerLine} />
+      <div {...stylex.props(visualizationSuggestionsStyles.orDivider)}>
+        <div {...stylex.props(visualizationSuggestionsStyles.orDividerLine)} />
         <Text color="secondary" variant="body">
           <Trans i18nKey="panel.visualization-suggestions.or-divider">OR</Trans>
         </Text>
-        <div className={styles.orDividerLine} />
+        <div {...stylex.props(visualizationSuggestionsStyles.orDividerLine)} />
       </div>
-      <div className={styles.startWithoutDataSection}>
+      <div {...stylex.props(visualizationSuggestionsStyles.startWithoutDataSection)}>
         <Text element="p" textAlignment="center" color="secondary" variant="body">
           <Trans i18nKey="panel.visualization-suggestions.start-without-data-title">Start without data</Trans>
         </Text>
@@ -288,49 +288,4 @@ function NoDataPanelList({ searchQuery, panel, onChange }: NoDataPanelListProps)
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    loadingContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '100%',
-      marginTop: theme.spacing(6),
-    }),
-    alertContent: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    }),
-    emptyStateSection: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing(4, 2, 2),
-      textAlign: 'center',
-    }),
-    emptyStateIcon: css({
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing(2),
-    }),
-    orDivider: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      padding: theme.spacing(1, 2),
-    }),
-    orDividerLine: css({
-      flex: 1,
-      height: '1px',
-      background: theme.colors.border.weak,
-    }),
-    startWithoutDataSection: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      padding: theme.spacing(1, 2, 2),
-    }),
-  };
-};
+;

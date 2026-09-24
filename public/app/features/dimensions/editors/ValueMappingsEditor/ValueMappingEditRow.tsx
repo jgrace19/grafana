@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { valueMappingEditRowStyles } from './ValueMappingEditRow.stylex';
 import { Draggable } from '@hello-pangea/dnd';
 import { useCallback, useEffect, useRef } from 'react';
 import * as React from 'react';
@@ -11,7 +13,7 @@ import {
   type ValueMappingResult,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Icon, Select, ColorPicker, IconButton, Input, Button, Stack } from '@grafana/ui';
+import { Icon, Select, ColorPicker, IconButton, Input, Button, Stack } from '@grafana/ui';
 
 import { ResourcePickerSize, ResourceFolderName, MediaType } from '../../types';
 import { ResourcePicker } from '../ResourcePicker';
@@ -39,7 +41,6 @@ interface Props {
 
 export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDuplicate, showIconPicker }: Props) {
   const { key, result, id } = mapping;
-  const styles = useStyles2(getStyles);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const update = useCallback(
@@ -184,9 +185,9 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
   return (
     <Draggable key={id} draggableId={id} index={index}>
       {(provided) => (
-        <tr className={styles.dragRow} ref={provided.innerRef} {...provided.draggableProps}>
+        <tr {...stylex.props(valueMappingEditRowStyles.dragRow)} ref={provided.innerRef} {...provided.draggableProps}>
           <td>
-            <div className={styles.dragHandle} {...provided.dragHandleProps}>
+            <div {...stylex.props(valueMappingEditRowStyles.dragHandle)} {...provided.dragHandleProps}>
               <Icon
                 name="draggabledots"
                 size="lg"
@@ -194,7 +195,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               />
             </div>
           </td>
-          <td className={styles.typeColumn}>{mapping.type}</td>
+          <td {...stylex.props(valueMappingEditRowStyles.typeColumn)}>{mapping.type}</td>
           <td>
             {mapping.type === MappingType.ValueToText && (
               <Input
@@ -209,7 +210,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               />
             )}
             {mapping.type === MappingType.RangeToText && (
-              <div className={styles.rangeInputWrapper}>
+              <div {...stylex.props(valueMappingEditRowStyles.rangeInputWrapper)}>
                 <Input
                   type="number"
                   value={mapping.from ?? ''}
@@ -254,7 +255,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               )}
             />
           </td>
-          <td className={styles.textAlignCenter}>
+          <td {...stylex.props(valueMappingEditRowStyles.textAlignCenter)}>
             {result.color && (
               <Stack gap={1} justifyContent="center">
                 <ColorPicker color={result.color} onChange={onChangeColor} enableNamedColors={true} />
@@ -277,7 +278,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
             )}
           </td>
           {showIconPicker && (
-            <td className={styles.textAlignCenter}>
+            <td {...stylex.props(valueMappingEditRowStyles.textAlignCenter)}>
               <Stack gap={1} justifyContent="center">
                 <ResourcePicker
                   onChange={onChangeIcon}
@@ -299,7 +300,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               </Stack>
             </td>
           )}
-          <td className={styles.textAlignCenter}>
+          <td {...stylex.props(valueMappingEditRowStyles.textAlignCenter)}>
             <Stack gap={1}>
               <IconButton
                 name="copy"
@@ -329,43 +330,3 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dragRow: css({
-    position: 'relative',
-  }),
-  dragHandle: css({
-    cursor: 'grab',
-    // create focus ring around the whole row when the drag handle is tab-focused
-    // needs position: relative on the drag row to work correctly
-    '&:focus-visible&:after': {
-      bottom: 0,
-      content: '""',
-      left: 0,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      outline: `2px solid ${theme.colors.primary.main}`,
-      outlineOffset: '-2px',
-    },
-  }),
-  rangeInputWrapper: css({
-    display: 'flex',
-    '> div:first-child': {
-      marginRight: theme.spacing(2),
-    },
-  }),
-  regexInputWrapper: css({
-    display: 'flex',
-    '> div:first-child': {
-      marginRight: theme.spacing(2),
-    },
-  }),
-  typeColumn: css({
-    textTransform: 'capitalize',
-    textAlign: 'center',
-    width: '1%',
-  }),
-  textAlignCenter: css({
-    textAlign: 'center',
-  }),
-});

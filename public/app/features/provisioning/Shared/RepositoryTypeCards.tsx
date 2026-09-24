@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Card, IconButton, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Card, IconButton, Stack, Text, } from '@grafana/ui';
 import { useGetFrontendSettingsQuery } from 'app/api/clients/provisioning/v0alpha1';
 
 import { CONNECT_URL } from '../constants';
@@ -16,7 +14,7 @@ interface RepositoryTypeCardsProps {
 }
 
 export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
-  const styles = useStyles2(getStyles, disabled);
+  const styles = (getStyles, disabled);
   const { data: frontendSettings } = useGetFrontendSettingsQuery();
 
   const availableTypes = frontendSettings?.availableRepositoryTypes ?? [];
@@ -35,7 +33,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
               <Card
                 key={config.type}
                 href={disabled ? undefined : `${CONNECT_URL}/${config.type}`}
-                className={styles.card}
+                {...stylex.props(repositoryTypeCardsStyles.card)}
                 noMargin
                 disabled={disabled}
               >
@@ -53,7 +51,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
                         name="info-circle"
                         size="sm"
                         tooltip={config.tooltip}
-                        className={styles.infoIcon}
+                        {...stylex.props(repositoryTypeCardsStyles.infoIcon)}
                         variant="secondary"
                       />
                     )}
@@ -78,7 +76,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
               <Card
                 key={config.type}
                 href={disabled ? undefined : `${CONNECT_URL}/${config.type}`}
-                className={styles.card}
+                {...stylex.props(repositoryTypeCardsStyles.card)}
                 noMargin
                 disabled={disabled}
               >
@@ -102,7 +100,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
                         name="info-circle"
                         size="sm"
                         tooltip={config.tooltip}
-                        className={styles.infoIcon}
+                        {...stylex.props(repositoryTypeCardsStyles.infoIcon)}
                         variant="secondary"
                       />
                     )}
@@ -119,20 +117,3 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2, disabled?: boolean) {
-  return {
-    card: css({
-      width: 220,
-      ...(disabled && {
-        cursor: 'not-allowed',
-        pointerEvents: 'unset',
-        '& h2': {
-          color: theme.colors.text.secondary,
-        },
-      }),
-    }),
-    infoIcon: css({
-      zIndex: 1,
-    }),
-  };
-}

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pluginSignatureDetailsBadgeStyles } from './PluginSignatureDetailsBadge.stylex';
 import { capitalize } from 'lodash';
 import * as React from 'react';
 
-import { type GrafanaTheme2, PluginSignatureType } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Icon, Badge, type IconName } from '@grafana/ui';
+import { Icon, Badge, type IconName } from '@grafana/ui';
 
 const SIGNATURE_ICONS: Record<string, IconName> = {
   [PluginSignatureType.grafana]: 'grafana',
@@ -20,7 +21,6 @@ type Props = {
 
 // Shows more information about a valid signature
 export function PluginSignatureDetailsBadge({ signatureType, signatureOrg = '' }: Props): React.ReactElement | null {
-  const styles = useStyles2(getStyles);
 
   if (!signatureType && !signatureOrg) {
     return null;
@@ -32,8 +32,8 @@ export function PluginSignatureDetailsBadge({ signatureType, signatureOrg = '' }
   return (
     <>
       <DetailsBadge>
-        <div className={styles.detailsWrapper}>
-          <strong className={styles.strong}>Level:&nbsp;</strong>
+        <div {...stylex.props(pluginSignatureDetailsBadgeStyles.detailsWrapper)}>
+          <strong {...stylex.props(pluginSignatureDetailsBadgeStyles.strong)}>Level:&nbsp;</strong>
           <Icon size="xs" name={signatureIcon} />
           &nbsp;
           {signatureTypeText}
@@ -41,7 +41,7 @@ export function PluginSignatureDetailsBadge({ signatureType, signatureOrg = '' }
       </DetailsBadge>
 
       <DetailsBadge>
-        <strong className={styles.strong}>
+        <strong {...stylex.props(pluginSignatureDetailsBadgeStyles.strong)}>
           <Trans i18nKey="plugins.plugin-signature-details-badge.signed-by" values={{ signatureOrg }}>
             Signed by: {{ signatureOrg }}
           </Trans>
@@ -52,26 +52,7 @@ export function PluginSignatureDetailsBadge({ signatureType, signatureOrg = '' }
 }
 
 export const DetailsBadge = ({ children }: React.PropsWithChildren<{}>) => {
-  const styles = useStyles2(getStyles);
 
-  return <Badge color="green" className={styles.badge} text={children} />;
+  return <Badge color="green" {...stylex.props(pluginSignatureDetailsBadgeStyles.badge)} text={children} />;
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  badge: css({
-    backgroundColor: theme.colors.background.canvas,
-    borderColor: theme.colors.border.strong,
-    color: theme.colors.text.secondary,
-    whiteSpace: 'nowrap',
-  }),
-  detailsWrapper: css({
-    alignItems: 'center',
-    display: 'flex',
-  }),
-  strong: css({
-    color: theme.colors.text.primary,
-  }),
-  icon: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});

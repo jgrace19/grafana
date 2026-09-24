@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { userOrgsStyles } from './UserOrgs.stylex';
 import { memo, type ReactElement, useEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, TextLink } from '@grafana/ui';
+import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, Stack, TextLink } from '@grafana/ui';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
 import { OrgPicker, type OrgSelectItem } from 'app/core/components/Select/OrgPicker';
@@ -80,34 +82,7 @@ export const UserOrgs = memo(({ user, orgs, isExternalUser, onOrgRoleChange, onO
 });
 UserOrgs.displayName = 'UserOrgs';
 
-const getOrgRowStyles = (theme: GrafanaTheme2) => {
-  return {
-    removeButton: css({
-      marginRight: '0.6rem',
-      textDecoration: 'underline',
-      color: theme.v1.palette.blue95,
-    }),
-    label: css({
-      fontWeight: 500,
-    }),
-    disabledTooltip: css({
-      display: 'flex',
-    }),
-    tooltipItem: css({
-      marginLeft: '5px',
-    }),
-    tooltipItemLink: css({
-      color: theme.v1.palette.blue95,
-    }),
-    rolePickerWrapper: css({
-      display: 'flex',
-    }),
-    rolePicker: css({
-      flex: 'auto',
-      marginRight: theme.spacing(1),
-    }),
-  };
-};
+;
 
 interface OrgRowProps {
   user?: UserDTO;
@@ -121,7 +96,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
   const [currentRole, setCurrentRole] = useState(org.role);
   const [isChangingRole, setIsChangingRole] = useState(false);
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
-  const styles = useStyles2(getOrgRowStyles);
+  const styles = (getOrgRowStyles);
 
   useEffect(() => {
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -160,7 +135,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
 
   const authSource = user?.authLabels?.length && user?.authLabels[0];
   const lockMessage = authSource ? `Synced via ${authSource}` : '';
-  const labelClass = cx('width-16', styles.label);
+  const labelClass = cx('width-16', userOrgsStyles.label);
   const canChangeRole = contextSrv.hasPermission(AccessControlAction.OrgUsersWrite);
   const canRemoveFromOrg = contextSrv.hasPermission(AccessControlAction.OrgUsersRemove) && !isExternalUser;
   const rolePickerDisabled = isExternalUser || !canChangeRole;
@@ -173,8 +148,8 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       </td>
       {contextSrv.licensedAccessControlEnabled() ? (
         <td>
-          <div className={styles.rolePickerWrapper}>
-            <div className={styles.rolePicker}>
+          <div {...stylex.props(userOrgsStyles.rolePickerWrapper)}>
+            <div {...stylex.props(userOrgsStyles.rolePicker)}>
               <UserRolePicker
                 userId={user?.id || 0}
                 orgId={org.orgId}
@@ -256,7 +231,7 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
   const [pendingOrgId, setPendingOrgId] = useState<number | null>(null);
   const [pendingUserId, setPendingUserId] = useState<number | null>(null);
   const [pendingRoles, setPendingRoles] = useState<Role[]>([]);
-  const styles = useStyles2(getAddToOrgModalStyles);
+  const styles = (getAddToOrgModalStyles);
 
   const onOrgSelect = (org: OrgSelectItem) => {
     const userOrg = userOrgs.find((userOrg) => userOrg.orgId === org.value?.id);
@@ -311,8 +286,8 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
 
   return (
     <Modal
-      className={styles.modal}
-      contentClassName={styles.modalContent}
+      className={userOrgsStyles.modal}
+      contentClassName={mergeStylexClassName(stylex.props(userOrgsStyles.modalContent), undefined).className}
       title={t('admin.add-to-org-modal.title-add-to-an-organization', 'Add to an organization')}
       isOpen={isOpen}
       onDismiss={onCancel}
@@ -380,12 +355,12 @@ export function ChangeOrgButton({
   onOrgRoleSave,
   onCancelClick,
 }: ChangeOrgButtonProps): ReactElement {
-  const styles = useStyles2(getChangeOrgButtonTheme);
+  const styles = (getChangeOrgButtonTheme);
   return (
-    <div className={styles.disabledTooltip}>
+    <div {...stylex.props(userOrgsStyles.disabledTooltip)}>
       {isExternalUser ? (
         <>
-          <span className={styles.lockMessageClass}>{lockMessage}</span>
+          <span className={userOrgsStyles.lockMessageClass}>{lockMessage}</span>
           <Tooltip
             placement="right-end"
             interactive={true}
@@ -402,7 +377,7 @@ export function ChangeOrgButton({
               </div>
             }
           >
-            <div className={styles.icon}>
+            <div className={userOrgsStyles.icon}>
               <Icon name="question-circle" />
             </div>
           </Tooltip>
@@ -426,11 +401,11 @@ interface ExternalUserTooltipProps {
 }
 
 export const ExternalUserTooltip = ({ lockMessage }: ExternalUserTooltipProps) => {
-  const styles = useStyles2(getTooltipStyles);
+  const styles = (getTooltipStyles);
 
   return (
-    <div className={styles.disabledTooltip}>
-      <span className={styles.lockMessageClass}>{lockMessage}</span>
+    <div {...stylex.props(userOrgsStyles.disabledTooltip)}>
+      <span className={userOrgsStyles.lockMessageClass}>{lockMessage}</span>
       <Tooltip
         placement="right-end"
         interactive={true}

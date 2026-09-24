@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { ruleDetailsAnnotationsStyles } from './RuleDetailsAnnotations.stylex';
 import type { JSX } from 'react';
 
-import { useStyles2 } from '@grafana/ui';
 
 import { useAnnotationLinks } from '../../utils/annotations';
 import { AnnotationDetailsField } from '../AnnotationDetailsField';
@@ -11,7 +12,6 @@ type Props = {
 };
 
 export function RuleDetailsAnnotations(props: Props): JSX.Element | null {
-  const styles = useStyles2(getStyles);
 
   const { annotations } = props;
   const annotationLinks = useAnnotationLinks(annotations);
@@ -21,7 +21,7 @@ export function RuleDetailsAnnotations(props: Props): JSX.Element | null {
   }
 
   return (
-    <div className={styles.annotations}>
+    <div {...stylex.props(ruleDetailsAnnotationsStyles.annotations)}>
       {annotations.map(([key, value]) => (
         <AnnotationDetailsField key={key} annotationKey={key} value={value} valueLink={annotationLinks.get(key)} />
       ))}
@@ -29,8 +29,3 @@ export function RuleDetailsAnnotations(props: Props): JSX.Element | null {
   );
 }
 
-const getStyles = () => ({
-  annotations: css({
-    marginTop: '46px',
-  }),
-});

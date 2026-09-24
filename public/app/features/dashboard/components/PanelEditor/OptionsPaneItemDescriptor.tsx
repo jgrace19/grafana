@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionsPaneItemDescriptorStyles } from './OptionsPaneItemDescriptor.stylex';
 import { type ReactNode } from 'react';
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
@@ -133,9 +135,8 @@ interface OptionPanelLabelProps {
 }
 
 function OptionPaneLabel({ title, description, overrides, addon, htmlFor }: OptionPanelLabelProps) {
-  const styles = useStyles2(getLabelStyles);
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(optionsPaneItemDescriptorStyles.container)}>
       <Label description={description} htmlFor={htmlFor}>
         {title}
         {overrides && overrides.length > 0 && <OptionsPaneItemOverrides overrides={overrides} />}
@@ -145,11 +146,3 @@ function OptionPaneLabel({ title, description, overrides, addon, htmlFor }: Opti
   );
 }
 
-function getLabelStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-    }),
-  };
-}
