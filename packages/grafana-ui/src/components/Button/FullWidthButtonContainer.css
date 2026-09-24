@@ -1,0 +1,17 @@
+/*
+ * FullWidthButtonContainer stretches whatever it contains, which StyleX can't target. Not in a cascade layer:
+ * like the Emotion rule it replaces, it must win over the children's own styles.
+ */
+.gf-full-width-button-container button {
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.gf-full-width-button-container > * {
+  flex-grow: 1;
+}
+
+.gf-full-width-button-container label {
+  flex-grow: 1;
+  text-align: center;
+}

@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
@@ -6,7 +6,9 @@ import tinycolor from 'tinycolor2';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { type SkeletonComponent, attachSkeleton } from '../../utils/skeleton';
 import { Icon } from '../Icon/Icon';
@@ -22,10 +24,14 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
   tooltip?: PopoverContent;
 }
 
-const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, className, ...otherProps }) => {
-  const styles = useStyles2(getStyles, color);
+const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, className, style, ...otherProps }) => {
+  const theme = useTheme2();
+  const badgeColors = getBadgeColors(theme, color);
   const badge = (
-    <div className={cx(styles.wrapper, className)} {...otherProps}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.wrapper, styles.colors(...badgeColors)), { className, style })}
+      {...otherProps}
+    >
       {icon && <Icon name={icon} size="sm" />}
       {text}
     </div>
@@ -42,9 +48,9 @@ const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, cla
 BadgeComponent.displayName = 'Badge';
 
 const BadgeSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
-
-  return <Skeleton width={60} height={22} containerClassName={styles.container} {...rootProps} />;
+  return (
+    <Skeleton width={60} height={22} containerClassName={stylex.props(styles.skeleton).className} {...rootProps} />
+  );
 };
 
 /**
@@ -54,47 +60,46 @@ const BadgeSkeleton: SkeletonComponent = ({ rootProps }) => {
  */
 export const Badge = attachSkeleton(BadgeComponent, BadgeSkeleton);
 
-const getSkeletonStyles = () => ({
-  container: css({
+/** [background-color, background-image, border-color, color]: colour math on the visualization palette. */
+function getBadgeColors(theme: GrafanaTheme2, color: BadgeColor): [string, string, string, string] {
+  if (color === 'brand') {
+    return ['transparent', theme.colors.gradients.brandHorizontal, 'transparent', theme.colors.primary.contrastText];
+  }
+  const sourceColor = theme.visualization.getColorByName(color);
+  const textColor = theme.isDark
+    ? tinycolor(sourceColor).lighten(15).toString()
+    : tinycolor(sourceColor).darken(25).toString();
+  return [
+    tinycolor(sourceColor).setAlpha(0.15).toString(),
+    'none',
+    tinycolor(sourceColor).setAlpha(0.25).toString(),
+    textColor,
+  ];
+}
+
+const styles = stylex.create({
+  skeleton: {
     lineHeight: 1,
+  },
+  wrapper: {
+    display: 'inline-flex',
+    paddingTop: '1px',
+    paddingRight: '4px',
+    paddingBottom: '1px',
+    paddingLeft: '4px',
+    borderRadius: shape['--gf-shape-radius-sm'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+    gap: spacing['--gf-spacing-x0-5'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    alignItems: 'center',
+  },
+  colors: (backgroundColor: string, backgroundImage: string, borderColor: string, color: string) => ({
+    backgroundColor,
+    backgroundImage,
+    borderColor,
+    color,
   }),
 });
-
-const getStyles = (theme: GrafanaTheme2, color: BadgeColor) => {
-  let sourceColor = theme.visualization.getColorByName(color);
-  let borderColor = '';
-  let bgColor = '';
-  let textColor = '';
-
-  if (theme.isDark) {
-    bgColor = tinycolor(sourceColor).setAlpha(0.15).toString();
-    borderColor = tinycolor(sourceColor).setAlpha(0.25).toString();
-    textColor = tinycolor(sourceColor).lighten(15).toString();
-  } else {
-    bgColor = tinycolor(sourceColor).setAlpha(0.15).toString();
-    borderColor = tinycolor(sourceColor).setAlpha(0.25).toString();
-    textColor = tinycolor(sourceColor).darken(25).toString();
-  }
-
-  if (color === 'brand') {
-    bgColor = theme.colors.gradients.brandHorizontal;
-    borderColor = 'transparent';
-    textColor = theme.colors.primary.contrastText;
-  }
-
-  return {
-    wrapper: css({
-      display: 'inline-flex',
-      padding: '1px 4px',
-      borderRadius: theme.shape.radius.sm,
-      background: bgColor,
-      border: `1px solid ${borderColor}`,
-      color: textColor,
-      fontWeight: theme.typography.fontWeightRegular,
-      gap: theme.spacing(0.5),
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      alignItems: 'center',
-    }),
-  };
-};

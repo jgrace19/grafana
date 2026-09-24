@@ -1,33 +1,24 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import * as React from 'react';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import './FullWidthButtonContainer.css';
 
 export interface Props {
   className?: string;
 }
 
 export const FullWidthButtonContainer = ({ className, children }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
-
-  return <div className={cx(styles, className)}>{children}</div>;
+  return (
+    <div className={clsx(stylex.props(styles.container).className, 'gf-full-width-button-container', className)}>
+      {children}
+    </div>
+  );
 };
 
-const getStyles = () =>
-  css({
+// Children are styled by FullWidthButtonContainer.css.
+const styles = stylex.create({
+  container: {
     display: 'flex',
-
-    button: {
-      flexGrow: 1,
-      justifyContent: 'center',
-    },
-
-    '> *': {
-      flexGrow: 1,
-    },
-
-    label: {
-      flexGrow: 1,
-      textAlign: 'center',
-    },
-  });
+  },
+});

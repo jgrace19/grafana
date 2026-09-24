@@ -1,13 +1,12 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { type IconSize, isIconSize } from '../../types/icon';
-import { spin } from '../../utils/keyframes';
 import { Icon } from '../Icon/Icon';
 import { getIconRoot, getIconSubDir } from '../Icon/utils';
 
@@ -41,9 +40,6 @@ export const Spinner = ({
   style,
   size = 'md',
 }: Props | PropsWithDeprecatedSize) => {
-  const styles = useStyles2(getStyles);
-
-  const deprecatedStyles = useStyles2(getDeprecatedStyles, size);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const iconName = prefersReducedMotion ? 'hourglass' : 'spinner';
 
@@ -56,39 +52,29 @@ export const Spinner = ({
     return (
       <div
         data-testid="Spinner"
-        style={style}
-        className={cx(
-          {
-            [styles.inline]: inline,
-          },
-          deprecatedStyles.wrapper,
-          className
+        {...mergeStylexProps(
+          stylex.props(
+            inline && styles.inline,
+            styles.deprecatedWrapper(typeof size === 'string' ? size : `${size}px`)
+          ),
+          { className, style }
         )}
       >
         <SVG
           src={svgPath}
           width={size}
           height={size}
-          className={cx(styles.spin, deprecatedStyles.icon, className)}
-          style={style}
+          {...mergeStylexProps(stylex.props(styles.spin, styles.deprecatedIcon), { className, style })}
         />
       </div>
     );
   }
 
   return (
-    <div
-      data-testid="Spinner"
-      style={style}
-      className={cx(
-        {
-          [styles.inline]: inline,
-        },
-        className
-      )}
-    >
+    <div data-testid="Spinner" {...mergeStylexProps(stylex.props(inline && styles.inline), { className, style })}>
       <Icon
-        className={cx(styles.spin, iconClassName)}
+        xstyle={styles.spin}
+        className={iconClassName}
         name={iconName}
         size={size}
         aria-label={t('grafana-ui.spinner.aria-label', 'Loading')}
@@ -97,30 +83,36 @@ export const Spinner = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  inline: css({
-    display: 'inline-block',
-    lineHeight: 0,
-  }),
-  spin: css({
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `${spin} 2s infinite linear`,
-    },
-  }),
+const spin = stylex.keyframes({
+  '0%': {
+    transform: 'rotate(0deg)',
+  },
+  '100%': {
+    transform: 'rotate(359deg)',
+  },
 });
 
-// TODO remove once we fully remove the deprecated type
-const getDeprecatedStyles = (theme: GrafanaTheme2, size: number | string) => ({
-  wrapper: css({
-    fontSize: typeof size === 'string' ? size : `${size}px`,
+const styles = stylex.create({
+  inline: {
+    display: 'inline-block',
+    lineHeight: 0,
+  },
+  spin: {
+    animationName: { default: null, [motion.noPreference]: spin },
+    animationDuration: { default: null, [motion.noPreference]: '2s' },
+    animationIterationCount: { default: null, [motion.noPreference]: 'infinite' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'linear' },
+  },
+  // TODO remove once we fully remove the deprecated type
+  deprecatedWrapper: (fontSize: string) => ({
+    fontSize,
   }),
-  icon: css({
+  deprecatedIcon: {
     display: 'inline-block',
     fill: 'currentColor',
     flexShrink: 0,
-    label: 'Icon',
     // line-height: 0; is needed for correct icon alignment in Safari
     lineHeight: 0,
     verticalAlign: 'middle',
-  }),
+  },
 });

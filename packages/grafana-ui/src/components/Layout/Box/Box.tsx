@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Property } from 'csstype';
-import { type ElementType, forwardRef, type PropsWithChildren } from 'react';
+import { type CSSProperties, type ElementType, forwardRef, type PropsWithChildren } from 'react';
 import * as React from 'react';
 
 import { type GrafanaTheme2, type ThemeSpacingTokens, type ThemeShape, type ThemeShadows } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { type AlignItems, type Direction, type FlexProps, type JustifyContent } from '../types';
-import { type ResponsiveProp, getResponsiveStyle } from '../utils/responsiveness';
-import { getSizeStyles, type SizeProps } from '../utils/styles';
+import { getSizeStyles, responsive, responsiveStyles, type SizeProps } from '../utils/responsiveStyles';
+import { spacingValue } from '../utils/responsiveStylex';
+import { type ResponsiveProp } from '../utils/responsiveness';
 
 type Display = 'flex' | 'block' | 'inline' | 'inline-block' | 'none';
 export type BackgroundColor = keyof GrafanaTheme2['colors']['background'] | 'error' | 'success' | 'warning' | 'info';
@@ -116,43 +117,55 @@ export const Box = forwardRef<HTMLElement, PropsWithChildren<BoxProps>>((props, 
     position,
     ...rest
   } = props;
-  const styles = useStyles2(
-    getStyles,
-    margin,
-    marginX,
-    marginY,
-    marginTop,
-    marginBottom,
-    marginLeft,
-    marginRight,
-    padding,
-    paddingX,
-    paddingY,
-    paddingTop,
-    paddingBottom,
-    paddingLeft,
-    paddingRight,
-    display,
-    backgroundColor,
-    grow,
-    shrink,
-    basis,
-    flex,
-    borderColor,
-    borderStyle,
-    borderRadius,
-    direction,
-    justifyContent,
-    alignItems,
-    boxShadow,
-    gap,
-    position
-  );
-  const sizeStyles = useStyles2(getSizeStyles, width, minWidth, maxWidth, height, minHeight, maxHeight);
+  // BoxProps omits `style`, but callers (Menu) forward one at runtime; it must not replace the dynamic styles.
+  const { style, ...domProps }: typeof rest & { style?: CSSProperties } = rest;
   const Element = element ?? 'div';
 
   return (
-    <Element ref={ref} className={cx(styles.root, sizeStyles)} {...rest}>
+    <Element
+      ref={ref}
+      {...mergeStylexProps(
+        stylex.props(
+          responsive(responsiveStyles.margin, margin, spacingValue),
+          responsive(responsiveStyles.marginLeft, marginX, spacingValue),
+          responsive(responsiveStyles.marginRight, marginX, spacingValue),
+          responsive(responsiveStyles.marginTop, marginY, spacingValue),
+          responsive(responsiveStyles.marginBottom, marginY, spacingValue),
+          responsive(responsiveStyles.marginTop, marginTop, spacingValue),
+          responsive(responsiveStyles.marginBottom, marginBottom, spacingValue),
+          responsive(responsiveStyles.marginLeft, marginLeft, spacingValue),
+          responsive(responsiveStyles.marginRight, marginRight, spacingValue),
+          responsive(responsiveStyles.padding, padding, spacingValue),
+          responsive(responsiveStyles.paddingLeft, paddingX, spacingValue),
+          responsive(responsiveStyles.paddingRight, paddingX, spacingValue),
+          responsive(responsiveStyles.paddingTop, paddingY, spacingValue),
+          responsive(responsiveStyles.paddingBottom, paddingY, spacingValue),
+          responsive(responsiveStyles.paddingTop, paddingTop, spacingValue),
+          responsive(responsiveStyles.paddingBottom, paddingBottom, spacingValue),
+          responsive(responsiveStyles.paddingLeft, paddingLeft, spacingValue),
+          responsive(responsiveStyles.paddingRight, paddingRight, spacingValue),
+          responsive(responsiveStyles.display, display),
+          responsive(responsiveStyles.backgroundColor, backgroundColor, backgroundColorValue),
+          responsive(responsiveStyles.flexDirection, direction),
+          responsive(responsiveStyles.flexGrow, grow),
+          responsive(responsiveStyles.flexShrink, shrink),
+          responsive(responsiveStyles.flexBasis, basis),
+          responsive(responsiveStyles.flex, flex),
+          responsive(responsiveStyles.borderStyle, borderStyle),
+          responsive(responsiveStyles.borderColor, borderColor, borderColorValue),
+          (borderStyle || borderColor) && styles.borderWidth,
+          responsive(responsiveStyles.justifyContent, justifyContent),
+          responsive(responsiveStyles.alignItems, alignItems),
+          responsive(responsiveStyles.borderRadius, borderRadius, (radius) => `var(--gf-shape-radius-${radius})`),
+          responsive(responsiveStyles.boxShadow, boxShadow, (shadow) => `var(--gf-shadows-${shadow})`),
+          responsive(responsiveStyles.gap, gap, spacingValue),
+          responsive(responsiveStyles.position, position),
+          getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+        ),
+        { style }
+      )}
+      {...domProps}
+    >
       {children}
     </Element>
   );
@@ -160,158 +173,17 @@ export const Box = forwardRef<HTMLElement, PropsWithChildren<BoxProps>>((props, 
 
 Box.displayName = 'Box';
 
-const customBorderColor = (color: BorderColor, theme: GrafanaTheme2) => {
-  switch (color) {
-    case 'error':
-    case 'success':
-    case 'info':
-    case 'warning':
-      return theme.colors[color].borderTransparent;
-    default:
-      return color ? theme.colors.border[color] : undefined;
-  }
-};
+const statusColors = new Set(['error', 'success', 'info', 'warning']);
 
-const customBackgroundColor = (color: BackgroundColor, theme: GrafanaTheme2) => {
-  switch (color) {
-    case 'error':
-    case 'success':
-    case 'info':
-    case 'warning':
-      return theme.colors[color].transparent;
-    default:
-      return color ? theme.colors.background[color] : undefined;
-  }
-};
+// Token names are built at runtime so no token object has to ship in the JS bundle.
+const borderColorValue = (color: BorderColor) =>
+  statusColors.has(color) ? `var(--gf-colors-${color}-border-transparent)` : `var(--gf-colors-border-${color})`;
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  margin: BoxProps['margin'],
-  marginX: BoxProps['marginX'],
-  marginY: BoxProps['marginY'],
-  marginTop: BoxProps['marginTop'],
-  marginBottom: BoxProps['marginBottom'],
-  marginLeft: BoxProps['marginLeft'],
-  marginRight: BoxProps['marginRight'],
-  padding: BoxProps['padding'],
-  paddingX: BoxProps['paddingX'],
-  paddingY: BoxProps['paddingY'],
-  paddingTop: BoxProps['paddingTop'],
-  paddingBottom: BoxProps['paddingBottom'],
-  paddingLeft: BoxProps['paddingLeft'],
-  paddingRight: BoxProps['paddingRight'],
-  display: BoxProps['display'],
-  backgroundColor: BoxProps['backgroundColor'],
-  grow: BoxProps['grow'],
-  shrink: BoxProps['shrink'],
-  basis: BoxProps['basis'],
-  flex: BoxProps['flex'],
-  borderColor: BoxProps['borderColor'],
-  borderStyle: BoxProps['borderStyle'],
-  borderRadius: BoxProps['borderRadius'],
-  direction: BoxProps['direction'],
-  justifyContent: BoxProps['justifyContent'],
-  alignItems: BoxProps['alignItems'],
-  boxShadow: BoxProps['boxShadow'],
-  gap: BoxProps['gap'],
-  position: BoxProps['position']
-) => {
-  return {
-    root: css([
-      getResponsiveStyle(theme, margin, (val) => ({
-        margin: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginX, (val) => ({
-        marginLeft: theme.spacing(val),
-        marginRight: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginY, (val) => ({
-        marginTop: theme.spacing(val),
-        marginBottom: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginTop, (val) => ({
-        marginTop: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginBottom, (val) => ({
-        marginBottom: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginLeft, (val) => ({
-        marginLeft: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, marginRight, (val) => ({
-        marginRight: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, padding, (val) => ({
-        padding: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingX, (val) => ({
-        paddingLeft: theme.spacing(val),
-        paddingRight: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingY, (val) => ({
-        paddingTop: theme.spacing(val),
-        paddingBottom: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingTop, (val) => ({
-        paddingTop: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingBottom, (val) => ({
-        paddingBottom: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingLeft, (val) => ({
-        paddingLeft: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, paddingRight, (val) => ({
-        paddingRight: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, display, (val) => ({
-        display: val,
-      })),
-      getResponsiveStyle(theme, backgroundColor, (val) => ({
-        backgroundColor: customBackgroundColor(val, theme),
-      })),
-      getResponsiveStyle(theme, direction, (val) => ({
-        flexDirection: val,
-      })),
-      getResponsiveStyle(theme, grow, (val) => ({
-        flexGrow: val,
-      })),
-      getResponsiveStyle(theme, shrink, (val) => ({
-        flexShrink: val,
-      })),
-      getResponsiveStyle(theme, basis, (val) => ({
-        flexBasis: val,
-      })),
-      getResponsiveStyle(theme, flex, (val) => ({
-        flex: val,
-      })),
-      getResponsiveStyle(theme, borderStyle, (val) => ({
-        borderStyle: val,
-      })),
-      getResponsiveStyle(theme, borderColor, (val) => ({
-        borderColor: customBorderColor(val, theme),
-      })),
-      (borderStyle || borderColor) && {
-        borderWidth: '1px',
-      },
-      getResponsiveStyle(theme, justifyContent, (val) => ({
-        justifyContent: val,
-      })),
-      getResponsiveStyle(theme, alignItems, (val) => ({
-        alignItems: val,
-      })),
-      getResponsiveStyle(theme, borderRadius, (val) => ({
-        borderRadius: theme.shape.radius[val],
-      })),
-      getResponsiveStyle(theme, boxShadow, (val) => ({
-        boxShadow: theme.shadows[val],
-      })),
-      getResponsiveStyle(theme, gap, (val) => ({
-        gap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, position, (val) => ({
-        position: val,
-      })),
-    ]),
-  };
-};
+const backgroundColorValue = (color: BackgroundColor) =>
+  statusColors.has(color) ? `var(--gf-colors-${color}-transparent)` : `var(--gf-colors-background-${color})`;
+
+const styles = stylex.create({
+  borderWidth: {
+    borderWidth: '1px',
+  },
+});

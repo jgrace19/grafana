@@ -10,7 +10,9 @@
     "react-component",
     "typescript"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "repository": {
     "type": "git",
     "url": "http://github.com/grafana/grafana.git",

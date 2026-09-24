@@ -1,0 +1,18 @@
+/*
+ * ButtonGroup styles the buttons passed to it, which StyleX can't target. This file is deliberately not in a
+ * cascade layer: like the Emotion rule it replaces, it must win over the children's own (StyleX or Emotion)
+ * border styles.
+ */
+.gf-button-group > .button-group:not(:first-child) > button,
+.gf-button-group > button:not(:first-child) {
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gf-button-group > .button-group:not(:last-child) > button,
+.gf-button-group > button:not(:last-child) {
+  border-top-right-radius: unset;
+  border-bottom-right-radius: unset;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}

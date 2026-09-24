@@ -1,10 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLProps } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacingValue } from './utils/responsiveStylex';
 
 enum Orientation {
   Horizontal,
@@ -45,17 +43,40 @@ export const Layout = ({
   wrap = false,
   width = '100%',
   height = '100%',
+  style,
   ...rest
 }: LayoutProps) => {
-  const styles = useStyles2(getStyles, orientation, spacing, justify, align, wrap);
+  const isVertical = orientation === Orientation.Vertical;
+  const isHorizontal = orientation === Orientation.Horizontal;
+  const finalSpacing = spacing !== 'none' ? spacingValue(spacingToNumber[spacing]) : '0px';
+  // compensate for last row margin when wrapped, horizontal layout
+  const marginCompensation =
+    (isHorizontal && !wrap) || isVertical ? '0px' : `calc(-1 * ${spacingValue(spacingToNumber[spacing])})`;
+  const layoutProps = stylex.props(
+    styles.layout,
+    styles.layoutDynamic(isVertical ? 'column' : 'row', wrap ? 'wrap' : 'nowrap', justify, align, marginCompensation)
+  );
 
   return (
-    <div className={styles.layout} style={{ width, height }} {...rest}>
+    // A style prop replaces the width/height defaults, as it always did, but keeps the dynamic styles.
+    <div className={layoutProps.className} style={{ ...layoutProps.style, ...(style ?? { width, height }) }} {...rest}>
       {React.Children.toArray(children)
         .filter(Boolean)
         .map((child, index) => {
           return (
-            <div className={styles.childWrapper} key={index}>
+            <div
+              {...stylex.props(
+                styles.childWrapper,
+                styles.childWrapperDynamic(
+                  isHorizontal && !wrap ? '0px' : finalSpacing,
+                  isVertical ? '0px' : null,
+                  isHorizontal ? finalSpacing : '0px',
+                  isHorizontal ? '0px' : null,
+                  align
+                )
+              )}
+              key={index}
+            >
               {child}
             </div>
           );
@@ -113,63 +134,20 @@ export const VerticalGroup = ({
 );
 
 export const Container = ({ children, padding, margin, grow, shrink }: React.PropsWithChildren<ContainerProps>) => {
-  const styles = useStyles2(getContainerStyles, padding, margin);
+  const paddingSize = padding && padding !== 'none' ? spacingValue(spacingToNumber[padding]) : '0px';
+  const marginSize = margin && margin !== 'none' ? spacingValue(spacingToNumber[margin]) : '0px';
 
   return (
     <div
-      className={cx(
-        styles.wrapper,
-        grow !== undefined && css({ flexGrow: grow }),
-        shrink !== undefined && css({ flexShrink: shrink })
+      {...stylex.props(
+        styles.container(marginSize, paddingSize),
+        grow !== undefined && styles.grow(grow),
+        shrink !== undefined && styles.shrink(shrink)
       )}
     >
       {children}
     </div>
   );
-};
-
-const getStyles = (
-  theme: GrafanaTheme2,
-  orientation: Orientation,
-  spacing: Spacing,
-  justify: Justify,
-  align: Align,
-  wrap: boolean
-) => {
-  const finalSpacing = spacing !== 'none' ? theme.spacing(spacingToNumber[spacing]) : 0;
-
-  // compensate for last row margin when wrapped, horizontal layout
-  const marginCompensation =
-    (orientation === Orientation.Horizontal && !wrap) || orientation === Orientation.Vertical ? 0 : `-${finalSpacing}`;
-
-  const label = orientation === Orientation.Vertical ? 'vertical-group' : 'horizontal-group';
-
-  return {
-    layout: css({
-      label: label,
-      display: 'flex',
-      flexDirection: orientation === Orientation.Vertical ? 'column' : 'row',
-      flexWrap: wrap ? 'wrap' : 'nowrap',
-      justifyContent: justify,
-      alignItems: align,
-      height: '100%',
-      maxWidth: '100%',
-      // compensate for last row margin when wrapped, horizontal layout
-      marginBottom: marginCompensation,
-    }),
-    childWrapper: css({
-      label: 'layoutChildrenWrapper',
-      marginBottom: orientation === Orientation.Horizontal && !wrap ? 0 : finalSpacing,
-      marginRight: orientation === Orientation.Horizontal ? finalSpacing : 0,
-      display: 'flex',
-      alignItems: align,
-
-      '&:last-child': {
-        marginBottom: orientation === Orientation.Vertical ? 0 : undefined,
-        marginRight: orientation === Orientation.Horizontal ? 0 : undefined,
-      },
-    }),
-  };
 };
 
 const spacingToNumber: Record<Spacing, number> = {
@@ -180,14 +158,42 @@ const spacingToNumber: Record<Spacing, number> = {
   lg: 3,
 };
 
-const getContainerStyles = (theme: GrafanaTheme2, padding?: Spacing, margin?: Spacing) => {
-  const paddingSize = (padding && padding !== 'none' && theme.spacing(spacingToNumber[padding])) || 0;
-  const marginSize = (margin && margin !== 'none' && theme.spacing(spacingToNumber[margin])) || 0;
-  return {
-    wrapper: css({
-      label: 'container',
-      margin: marginSize,
-      padding: paddingSize,
-    }),
-  };
-};
+const styles = stylex.create({
+  layout: {
+    display: 'flex',
+    height: '100%',
+    maxWidth: '100%',
+  },
+  layoutDynamic: (direction: string, wrap: string, justify: string, align: string, marginBottom: string) => ({
+    flexDirection: direction,
+    flexWrap: wrap,
+    justifyContent: justify,
+    alignItems: align,
+    marginBottom,
+  }),
+  childWrapper: {
+    display: 'flex',
+  },
+  // A null :last-child margin keeps the default margin, like the Emotion `undefined`.
+  childWrapperDynamic: (
+    marginBottom: string,
+    lastMarginBottom: string | null,
+    marginRight: string,
+    lastMarginRight: string | null,
+    align: string
+  ) => ({
+    marginBottom: { default: marginBottom, ':last-child': lastMarginBottom },
+    marginRight: { default: marginRight, ':last-child': lastMarginRight },
+    alignItems: align,
+  }),
+  container: (margin: string, padding: string) => ({
+    margin,
+    padding,
+  }),
+  grow: (grow: number) => ({
+    flexGrow: grow,
+  }),
+  shrink: (shrink: number) => ({
+    flexShrink: shrink,
+  }),
+});

@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
+import { type ThemeSpacingTokens } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { type AlignItems } from '../types';
-import { getResponsiveStyle, type ResponsiveProp } from '../utils/responsiveness';
+import { responsive, responsiveStyles } from '../utils/responsiveStyles';
+import { spacingValue } from '../utils/responsiveStylex';
+import { type ResponsiveProp } from '../utils/responsiveness';
 
 interface GridPropsBase extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> {
   children: NonNullable<React.ReactNode>;
@@ -41,10 +43,34 @@ type GridProps = PropsWithColumns | PropsWithMinColumnWidth;
  */
 export const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const { alignItems, children, gap, rowGap, columnGap, columns, minColumnWidth, ...rest } = props;
-  const styles = useStyles2(getGridStyles, gap, rowGap, columnGap, columns, minColumnWidth, alignItems);
+  // GridProps omits `style`, but callers may forward one at runtime; it must not replace the dynamic styles.
+  const { style, ...domProps }: typeof rest & { style?: React.CSSProperties } = rest;
 
   return (
-    <div ref={ref} {...rest} className={styles.grid}>
+    <div
+      ref={ref}
+      {...domProps}
+      {...mergeStylexProps(
+        stylex.props(
+          styles.grid,
+          responsive(responsiveStyles.gap, gap, spacingValue),
+          responsive(responsiveStyles.rowGap, rowGap, spacingValue),
+          responsive(responsiveStyles.columnGap, columnGap, spacingValue),
+          minColumnWidth
+            ? responsive(
+                responsiveStyles.gridTemplateColumns,
+                minColumnWidth,
+                (width) => `repeat(auto-fill, minmax(${spacingValue(width)}, 1fr))`
+              )
+            : null,
+          columns
+            ? responsive(responsiveStyles.gridTemplateColumns, columns, (count) => `repeat(${count}, 1fr)`)
+            : null,
+          responsive(responsiveStyles.alignItems, alignItems)
+        ),
+        { style }
+      )}
+    >
       {children}
     </div>
   );
@@ -52,38 +78,8 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
 
 Grid.displayName = 'Grid';
 
-const getGridStyles = (
-  theme: GrafanaTheme2,
-  gap: GridProps['gap'],
-  rowGap: GridProps['rowGap'],
-  columnGap: GridProps['columnGap'],
-  columns: GridProps['columns'],
-  minColumnWidth: GridProps['minColumnWidth'],
-  alignItems: GridProps['alignItems']
-) => {
-  return {
-    grid: css([
-      { display: 'grid' },
-      getResponsiveStyle(theme, gap, (val) => ({
-        gap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, rowGap, (val) => ({
-        rowGap: theme.spacing(val),
-      })),
-      getResponsiveStyle(theme, columnGap, (val) => ({
-        columnGap: theme.spacing(val),
-      })),
-      minColumnWidth &&
-        getResponsiveStyle(theme, minColumnWidth, (val) => ({
-          gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(val)}, 1fr))`,
-        })),
-      columns &&
-        getResponsiveStyle(theme, columns, (val) => ({
-          gridTemplateColumns: `repeat(${val}, 1fr)`,
-        })),
-      getResponsiveStyle(theme, alignItems, (val) => ({
-        alignItems: val,
-      })),
-    ]),
-  };
-};
+const styles = stylex.create({
+  grid: {
+    display: 'grid',
+  },
+});

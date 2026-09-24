@@ -1,6 +1,6 @@
 import stylexPlugin from '@stylexjs/babel-plugin';
 import stylex from '@stylexjs/unplugin/rollup';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { type Plugin } from 'rollup';
@@ -19,15 +19,28 @@ const iconSrcPaths = icons.map((iconSubPath) => {
   return `../../public/img/icons/${iconSubPath}.svg`;
 });
 
+// Plain CSS files imported by components (unlayered structural rules such as ButtonGroup.css), shared by
+// both rollup configs.
+const componentCss = new Map<string, string>();
+const srcDir = resolve('src');
+
 /**
  * Pre-compiles StyleX so published JS never calls `stylex.create` at runtime, and writes every rule to
- * `dist/stylex.css` (exported as `@grafana/ui/stylex.css`) for consumers that bundle @grafana/ui.
+ * `dist/stylex.css` (exported as `@grafana/ui/stylex.css`) for consumers that bundle @grafana/ui, followed
+ * by the components' own plain CSS files.
  */
 function stylexPrecompile(): Plugin {
   const transformPlugin: Plugin = stylex({ ...getStylexBabelOptions({ dev: false }), useCSSLayers: cssLayers });
   return {
     ...transformPlugin,
     name: 'grafana-stylex-precompile',
+    async load(id) {
+      if (id.startsWith(srcDir) && id.endsWith('.css')) {
+        componentCss.set(id, await readFile(id, 'utf8'));
+        return 'export {};';
+      }
+      return null;
+    },
     generateBundle() {},
     async writeBundle() {
       // The unplugin collects every transformed module's rules in this global store.
@@ -36,7 +49,8 @@ function stylexPrecompile(): Plugin {
       const css = stylexPlugin.processStylexRules(rules, { useLayers: cssLayers });
       const outFile = resolve(dirname(pkg.main), '..', 'stylex.css');
       await mkdir(dirname(outFile), { recursive: true });
-      await writeFile(outFile, css);
+      const plainCss = [...componentCss.keys()].sort().map((file) => componentCss.get(file));
+      await writeFile(outFile, [css, ...plainCss].join('\n'));
     },
   };
 }

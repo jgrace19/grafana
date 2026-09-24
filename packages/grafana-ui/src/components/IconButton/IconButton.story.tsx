@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
 import { type StoryFn, type Meta } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconSize, type IconName } from '../../types/icon';
 import { Stack } from '../Layout/Stack/Stack';
 
@@ -49,31 +49,19 @@ export const Basic: StoryFn<typeof IconButton> = (args: IconButtonProps) => {
 };
 
 export const ExamplesSizes = (args: BasePropsWithTooltip) => {
-  const theme = useTheme2();
   const sizes: IconSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
   const icons: IconName[] = ['search', 'trash-alt', 'arrow-left', 'times'];
   const variants: IconButtonVariant[] = ['primary', 'secondary', 'destructive'];
-
-  const rowStyle = css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-  });
 
   return (
     <Stack justifyContent="center">
       {variants.map((variant) => {
         return (
-          <div
-            key={variant}
-            className={css({
-              margin: `auto ${theme.spacing(1)}`,
-            })}
-          >
+          <div key={variant} {...stylex.props(styles.variant)}>
             <p>{variant}</p>
             {icons.map((icon) => {
               return (
-                <div className={rowStyle} key={icon}>
+                <div {...stylex.props(styles.row)} key={icon}>
                   {sizes.map((size) => (
                     <span key={icon + size}>
                       <IconButton name={icon} size={size} variant={variant} tooltip={args.tooltip} />
@@ -88,7 +76,7 @@ export const ExamplesSizes = (args: BasePropsWithTooltip) => {
       <div>
         <p>disabled</p>
         {icons.map((icon) => (
-          <div className={rowStyle} key={icon}>
+          <div {...stylex.props(styles.row)} key={icon}>
             {sizes.map((size) => (
               <span key={icon + size}>
                 <IconButton name={icon} size={size} tooltip={args.tooltip} disabled />
@@ -109,24 +97,13 @@ ExamplesSizes.parameters = {
 
 export const ExamplesBackground = (args: BasePropsWithTooltip) => {
   const RenderBackgroundScenario = ({ background }: ScenarioProps) => {
-    const theme = useTheme2();
     const variants: IconButtonVariant[] = ['primary', 'secondary', 'destructive'];
 
     return (
-      <div
-        className={css({
-          padding: '30px',
-          background: theme.colors.background[background],
-        })}
-      >
+      <div {...stylex.props(styles.scenario, styles.background(`var(--gf-colors-background-${background})`))}>
         <Stack direction="column" gap={2}>
           <div>{background}</div>
-          <div
-            className={css({
-              display: 'flex',
-              gap: theme.spacing(2),
-            })}
-          >
+          <div {...stylex.props(styles.scenarioButtons)}>
             {variants.map((variant) => {
               return <IconButton name="times" size="xl" variant={variant} key={variant} tooltip={args.tooltip} />;
             })}
@@ -153,3 +130,27 @@ ExamplesBackground.parameters = {
 };
 
 export default meta;
+
+const styles = stylex.create({
+  row: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  variant: {
+    marginTop: 'auto',
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: 'auto',
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  scenario: {
+    padding: '30px',
+  },
+  background: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  scenarioButtons: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x2'],
+  },
+});
