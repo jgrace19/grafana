@@ -1,21 +1,12 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { type DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import {
-  Box,
-  InlineField,
-  InlineSwitch,
-  Field,
-  TagsInput,
-  Input,
-  CustomHeadersSettings,
-  useStyles2,
-} from '@grafana/ui';
+import { Box, InlineField, InlineSwitch, Field, TagsInput, Input, CustomHeadersSettings } from '@grafana/ui';
 
 import { type InfluxOptions } from '../../../types';
 
-import { getInlineLabelStyles } from './constants';
+import { inlineLabelStyles } from './constants';
 import {
   trackInfluxDBConfigV2AdvancedHTTPSettingsTimeoutField,
   trackInfluxDBConfigV2AdvancedHTTPSettingsToggleClicked,
@@ -24,8 +15,6 @@ import {
 export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions>;
 
 export const AdvancedHttpSettings = ({ options, onOptionsChange }: Props) => {
-  const styles = useStyles2(getInlineLabelStyles);
-
   const [advancedHttpSettingsIsOpen, setAdvancedHttpSettingsIsOpen] = useState(() => {
     const keys = Object.keys(options.jsonData);
     return (
@@ -38,7 +27,10 @@ export const AdvancedHttpSettings = ({ options, onOptionsChange }: Props) => {
   return (
     <>
       <Box display="flex" alignItems="center">
-        <InlineField label={<div className={cx(styles.label)}>Advanced HTTP Settings</div>} labelWidth={40}>
+        <InlineField
+          label={<div {...stylex.props(inlineLabelStyles.label)}>Advanced HTTP Settings</div>}
+          labelWidth={40}
+        >
           <InlineSwitch
             data-testid="influxdb-v2-config-advanced-http-settings-toggle"
             value={advancedHttpSettingsIsOpen}

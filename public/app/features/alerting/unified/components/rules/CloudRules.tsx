@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, urlUtil } from '@grafana/data';
+import { urlUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Badge, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Badge, LinkButton, LoadingPlaceholder, Pagination, Spinner, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type CombinedRuleNamespace } from 'app/types/unified-alerting';
@@ -14,13 +15,13 @@ import { DEFAULT_PER_PAGE_PAGINATION } from '../../../../../core/constants';
 import { AlertingAction, useAlertingAbility } from '../../hooks/useAbilities';
 import { usePagination } from '../../hooks/usePagination';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
-import { getPaginationStyles } from '../../styles/pagination';
 import { getRulesDataSources, getRulesSourceUid } from '../../utils/datasource';
 import { isAsyncRequestStatePending } from '../../utils/redux';
 import { createRelativeUrl } from '../../utils/url';
 
 import { RulesGroup } from './RulesGroup';
 import { useCombinedGroupNamespace } from './useCombinedGroupNamespace';
+import '../alertingPagination.css';
 
 interface Props {
   namespaces: CombinedRuleNamespace[];
@@ -28,8 +29,6 @@ interface Props {
 }
 
 export const CloudRules = ({ namespaces, expandAll }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const promRules = useUnifiedAlertingSelector((state) => state.promRules);
   const rulesDataSources = useMemo(getRulesDataSources, []);
   const groupsWithNamespaces = useCombinedGroupNamespace(namespaces);
@@ -57,16 +56,16 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
     contextSrv.hasPermission(AccessControlAction.AlertingProvisioningSetStatus);
 
   return (
-    <section className={styles.wrapper}>
+    <section {...stylex.props(styles.wrapper)}>
       <Stack gap={2} direction="column">
-        <div className={styles.sectionHeader}>
-          <div className={styles.headerRow}>
+        <div {...stylex.props(styles.sectionHeader)}>
+          <div {...stylex.props(styles.headerRow)}>
             <Text element="h2" variant="h5">
               <Trans i18nKey="alerting.list-view.section.dataSourceManaged.title">Data source-managed</Trans>
             </Text>
             {dataSourcesLoading.length ? (
               <LoadingPlaceholder
-                className={styles.loader}
+                style={{ marginBottom: 0 }}
                 text={t('alerting.list-view.section.loading-rules', 'Loading rules from {{count}} sources', {
                   count: dataSourcesLoading.length,
                 })}
@@ -104,10 +103,12 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
           <Trans i18nKey="alerting.list-view.no-rules">No rules found.</Trans>
         </p>
       )}
-      {!hasSomeResults && hasDataSourcesLoading && <Spinner size="xl" className={styles.spinner} />}
+      {!hasSomeResults && hasDataSourcesLoading && (
+        <Spinner size="xl" className={stylex.props(styles.spinner).className} />
+      )}
 
       <Pagination
-        className={styles.pagination}
+        className="gf-alerting-pagination"
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -117,29 +118,25 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loader: css({
-    marginBottom: 0,
-  }),
-  sectionHeader: css({
+const styles = stylex.create({
+  sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-  }),
-  wrapper: css({
-    marginBottom: theme.spacing(4),
-  }),
-  spinner: css({
+  },
+  wrapper: {
+    marginBottom: spacing['--gf-spacing-x4'],
+  },
+  spinner: {
     textAlign: 'center',
-    padding: theme.spacing(2),
-  }),
-  pagination: getPaginationStyles(theme),
-  headerRow: css({
+    padding: spacing['--gf-spacing-x2'],
+  },
+  headerRow: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: theme.spacing(1),
-  }),
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
 });
 
 export function CreateRecordingRuleButton() {

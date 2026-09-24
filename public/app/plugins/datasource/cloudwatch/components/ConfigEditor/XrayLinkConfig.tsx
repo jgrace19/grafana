@@ -1,16 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type DataSourceInstanceSettings } from '@grafana/data';
+import { type DataSourceInstanceSettings } from '@grafana/data';
 import { ConfigSection } from '@grafana/plugin-ui';
 import { DataSourcePicker, getDataSourceSrv } from '@grafana/runtime';
-import { Alert, Field, InlineField, useStyles2 } from '@grafana/ui';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-});
+import { Alert, Field, InlineField } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   datasourceUid?: string;
@@ -22,8 +16,6 @@ const xRayDsId = 'grafana-x-ray-datasource';
 
 export function XrayLinkConfig({ newFormStyling, datasourceUid, onChange }: Props) {
   const hasXrayDatasource = Boolean(getDataSourceSrv().getList({ pluginId: xRayDsId }).length);
-
-  const styles = useStyles2(getStyles);
 
   return newFormStyling ? (
     <ConfigSection
@@ -55,7 +47,7 @@ export function XrayLinkConfig({ newFormStyling, datasourceUid, onChange }: Prop
     <>
       <h3 className="page-heading">Application Signals trace link</h3>
 
-      <div className={styles.infoText}>
+      <div {...stylex.props(styles.infoText)}>
         Grafana will automatically create a link to a trace in Application Signals data source if logs contain
         @xrayTraceId field
       </div>
@@ -87,3 +79,10 @@ export function XrayLinkConfig({ newFormStyling, datasourceUid, onChange }: Prop
     </>
   );
 }
+
+const styles = stylex.create({
+  infoText: {
+    paddingBottom: spacing['--gf-spacing-x2'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

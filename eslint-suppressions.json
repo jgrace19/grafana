@@ -873,16 +873,6 @@
       "count": 1
     }
   },
-  "packages/grafana-ui/src/themes/GlobalStyles/forms.ts": {
-    "@grafana/no-gf-form": {
-      "count": 25
-    }
-  },
-  "packages/grafana-ui/src/themes/GlobalStyles/legacySelect.ts": {
-    "@grafana/no-gf-form": {
-      "count": 28
-    }
-  },
   "packages/grafana-ui/src/themes/ThemeContext.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
@@ -1405,7 +1395,7 @@
   },
   "public/app/features/alerting/unified/components/rules/Filter/RulesFilter.v1.tsx": {
     "@grafana/require-no-margin": {
-      "count": 4
+      "count": 3
     }
   },
   "public/app/features/alerting/unified/components/rules/RuleListGroupView.tsx": {

@@ -31,6 +31,10 @@ function getStylexBabelOptions({ dev = false, test = false } = {}) {
     treeshakeCompensation: true,
     sxPropName: false,
     styleResolution: 'property-specificity',
+    // With 'property-specificity', shorthands StyleX can't expand (`all`, `animation`, `background`, `border`,
+    // `border{Top,Right,Bottom,Left,Inline,Block,…}`) throw inside the compiler, and the default 'silent' mode
+    // swallows that and emits no CSS for the property. Fail the build instead.
+    propertyValidationMode: 'throw',
     importSources: ['@stylexjs/stylex'],
     unstable_moduleResolution: { type: 'commonJS', rootDir },
     aliases: {

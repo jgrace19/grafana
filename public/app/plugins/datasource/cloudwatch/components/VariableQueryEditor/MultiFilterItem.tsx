@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { AccessoryButton, InputGroup } from '@grafana/plugin-ui';
-import { Alert, Input, useStyles2 } from '@grafana/ui';
+import { Alert, Input } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CloudWatchDatasource } from '../../datasource';
 import { useEnsureVariableHasSingleSelection } from '../../hooks';
@@ -22,7 +22,6 @@ export const MultiFilterItem = ({ filter, onChange, onDelete, keyPlaceholder, da
   const [localKey, setLocalKey] = useState(filter.key || '');
   const [localValue, setLocalValue] = useState(filter.value?.join(', ') || '');
   const error = useEnsureVariableHasSingleSelection(datasource, filter.key);
-  const styles = useStyles2(getOperatorStyles);
 
   return (
     <div data-testid="cloudwatch-multifilter-item">
@@ -40,7 +39,7 @@ export const MultiFilterItem = ({ filter, onChange, onDelete, keyPlaceholder, da
           }}
         />
 
-        <span className={cx(styles.root)}>=</span>
+        <span {...stylex.props(styles.root)}>=</span>
 
         <Input
           data-testid="cloudwatch-multifilter-item-value"
@@ -64,9 +63,12 @@ export const MultiFilterItem = ({ filter, onChange, onDelete, keyPlaceholder, da
   );
 };
 
-const getOperatorStyles = (theme: GrafanaTheme2) => ({
-  root: css({
-    padding: theme.spacing(0, 1),
+const styles = stylex.create({
+  root: {
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x1'],
     alignSelf: 'center',
-  }),
+  },
 });
