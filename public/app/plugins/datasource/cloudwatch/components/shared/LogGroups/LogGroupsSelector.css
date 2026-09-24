@@ -1,0 +1,4 @@
+/* The limit notice's svg rule also reaches the external-link icon that TextLink renders. */
+.gf-cloudwatch-log-group-limit svg {
+  margin-right: var(--gf-spacing-x0-5);
+}

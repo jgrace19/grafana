@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { useCallback, useRef } from 'react';
 
@@ -19,6 +19,8 @@ export interface Props {
 
 export function DynamicLabelsField({ label, width, onChange }: Props) {
   const theme = useTheme2();
+  // stylex: pending Input migration (getInputStyles) and CodeEditor migration. CodeEditor sets its own container
+  // border in Emotion, which beats a StyleX override.
   const styles = getInputStyles({ theme, width });
   const containerRef = useRef<HTMLDivElement>(null);
   const onEditorMount = useCallback(
@@ -36,7 +38,7 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
   );
 
   return (
-    <div ref={containerRef} className={cx(styles.wrapper)}>
+    <div ref={containerRef} className={styles.wrapper}>
       <CodeEditor
         containerStyles={css({
           border: `1px solid ${theme.colors.action.disabledBackground}`,

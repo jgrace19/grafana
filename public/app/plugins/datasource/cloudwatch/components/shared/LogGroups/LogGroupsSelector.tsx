@@ -1,26 +1,18 @@
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { EditorField } from '@grafana/plugin-ui';
-import {
-  Button,
-  Checkbox,
-  Icon,
-  Label,
-  LoadingPlaceholder,
-  Modal,
-  Select,
-  Space,
-  TextLink,
-  useStyles2,
-} from '@grafana/ui';
+import { Button, Checkbox, Icon, Label, LoadingPlaceholder, Modal, Select, Space, TextLink } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type LogGroup } from '../../../dataquery.gen';
 import { type DescribeLogGroupsRequest, type ResourceResponse, type LogGroupResponse } from '../../../resources/types';
-import getStyles from '../../styles';
 import { Account, ALL_ACCOUNTS_OPTION } from '../Account';
 
 import Search from './Search';
+import './LogGroupsSelector.css';
 
 type CrossAccountLogsQueryProps = {
   selectedLogGroups?: LogGroup[];
@@ -45,7 +37,6 @@ export const LogGroupsSelector = ({
   const [searchPhrase, setSearchPhrase] = useState('');
   const [searchAccountId, setSearchAccountId] = useState(ALL_ACCOUNTS_OPTION.value);
   const [isLoading, setIsLoading] = useState(false);
-  const styles = useStyles2(getStyles);
   const selectedLogGroupsCounter = useMemo(
     () => selectedLogGroups.filter((lg) => !lg.name?.startsWith('$')).length,
     [selectedLogGroups]
@@ -124,9 +115,9 @@ export const LogGroupsSelector = ({
 
   return (
     <>
-      <Modal className={styles.modal} title="Select log groups" isOpen={isModalOpen} onDismiss={toggleModal}>
-        <div className={styles.logGroupSelectionArea}>
-          <div className={styles.searchField}>
+      <Modal className={pendingStyles.modal} title="Select log groups" isOpen={isModalOpen} onDismiss={toggleModal}>
+        <div {...stylex.props(styles.logGroupSelectionArea)}>
+          <div {...stylex.props(styles.searchField)}>
             <EditorField label="Log group name prefix">
               <Search
                 searchFn={(phrase) => {
@@ -151,7 +142,7 @@ export const LogGroupsSelector = ({
         <div>
           {!isLoading && selectableLogGroups.length >= 25 && (
             <>
-              <div className={styles.limitLabel}>
+              <div className={`gf-cloudwatch-log-group-limit ${stylex.props(styles.limitLabel).className}`}>
                 <Icon name="info-circle"></Icon>
                 Only the first 50 results can be shown. If you do not see an expected log group, try narrowing down your
                 search.
@@ -169,46 +160,46 @@ export const LogGroupsSelector = ({
               <Space layout="block" v={1} />
             </>
           )}
-          <div className={styles.tableScroller}>
-            <table className={styles.table}>
+          <div {...stylex.props(styles.tableScroller)}>
+            <table {...stylex.props(styles.table)}>
               <thead>
-                <tr className={styles.row}>
-                  <td className={styles.cell}>Log Group</td>
-                  {accountOptions.length > 0 && <td className={styles.cell}>Account label</td>}
-                  <td className={styles.cell}>Account ID</td>
+                <tr {...stylex.props(styles.row)}>
+                  <td {...stylex.props(styles.cell)}>Log Group</td>
+                  {accountOptions.length > 0 && <td {...stylex.props(styles.cell)}>Account label</td>}
+                  <td {...stylex.props(styles.cell)}>Account ID</td>
                 </tr>
               </thead>
               <tbody>
                 {isLoading && (
-                  <tr className={styles.row}>
-                    <td className={styles.cell}>
+                  <tr {...stylex.props(styles.row)}>
+                    <td {...stylex.props(styles.cell)}>
                       <LoadingPlaceholder text={'Loading...'} />
                     </td>
                   </tr>
                 )}
                 {!isLoading && selectableLogGroups.length === 0 && (
-                  <tr className={styles.row}>
-                    <td className={styles.cell}>No log groups found</td>
+                  <tr {...stylex.props(styles.row)}>
+                    <td {...stylex.props(styles.cell)}>No log groups found</td>
                   </tr>
                 )}
                 {!isLoading &&
                   selectableLogGroups.map((row) => (
-                    <tr className={styles.row} key={`${row.arn}`}>
-                      <td className={styles.cell}>
-                        <div className={styles.nestedEntry}>
+                    <tr {...stylex.props(styles.row)} key={`${row.arn}`}>
+                      <td {...stylex.props(styles.cell)}>
+                        <div {...stylex.props(styles.nestedEntry)}>
                           <Checkbox
                             id={row.arn}
                             onChange={(ev) => handleSelectCheckbox(row, ev.currentTarget.checked)}
                             value={!!(row.arn && selectedLogGroups.some((lg) => lg.arn === row.arn))}
                           />
                           <Space layout="inline" h={2} />
-                          <label className={styles.logGroupSearchResults} htmlFor={row.arn} title={row.name}>
+                          <label {...stylex.props(styles.logGroupSearchResults)} htmlFor={row.arn} title={row.name}>
                             {row.name}
                           </label>
                         </div>
                       </td>
-                      {accountOptions.length > 0 && <td className={styles.cell}>{row.accountLabel}</td>}
-                      <td className={styles.cell}>{row.accountId}</td>
+                      {accountOptions.length > 0 && <td {...stylex.props(styles.cell)}>{row.accountLabel}</td>}
+                      <td {...stylex.props(styles.cell)}>{row.accountId}</td>
                     </tr>
                   ))}
               </tbody>
@@ -216,7 +207,7 @@ export const LogGroupsSelector = ({
           </div>
         </div>
         <Space layout="block" v={2} />
-        <Label className={styles.logGroupCountLabel}>
+        <Label className={pendingStyles.logGroupCountLabel}>
           {selectedLogGroupsCounter} log group{selectedLogGroupsCounter !== 1 && 's'} selected
         </Label>
         <Space layout="block" v={1} />
@@ -267,4 +258,66 @@ export const LogGroupsSelector = ({
       </div>
     </>
   );
+};
+
+const styles = stylex.create({
+  table: {
+    width: '100%',
+    tableLayout: 'fixed',
+  },
+  limitLabel: {
+    color: colors['--gf-colors-text-secondary'],
+    textAlign: 'center',
+    maxWidth: 'none',
+    fontSize: 12,
+  },
+  tableScroller: {
+    maxHeight: '40vh',
+    overflow: 'auto',
+  },
+  row: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: {
+      default: colors['--gf-colors-border-weak'],
+      ':last-of-type': colors['--gf-colors-border-medium'],
+    },
+  },
+  cell: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: {
+      default: spacing['--gf-spacing-x0'],
+      ':first-of-type': spacing['--gf-spacing-x2'],
+    },
+    width: {
+      default: '25%',
+      ':first-of-type': '80%',
+    },
+  },
+  nestedEntry: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  logGroupSearchResults: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    width: '90%',
+    verticalAlign: 'middle',
+  },
+  logGroupSelectionArea: {
+    display: 'flex',
+  },
+  searchField: {
+    width: '100%',
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});
+
+// stylex: pending Modal and Label migration. Both set width/color/maxWidth in Emotion, which beats a StyleX override.
+const pendingStyles = {
+  modal: css({ width: '992px' }),
+  logGroupCountLabel: css({ color: 'var(--gf-colors-text-secondary)', maxWidth: 'none' }),
 };

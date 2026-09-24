@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import Prism from 'prismjs';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Collapse, useStyles2, Text, TextLink } from '@grafana/ui';
+import { Collapse, Text, TextLink } from '@grafana/ui';
 import { flattenTokens } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CloudWatchLogsQuery, LogsQueryLanguage } from '../../dataquery.gen';
 import { trackSampleQuerySelection } from '../../tracking';
@@ -94,7 +94,6 @@ type Props = {
 const isLogsQuery = (query: CloudWatchQuery): query is CloudWatchLogsQuery => query.queryMode === 'Logs';
 
 const LogsCheatSheet = (props: Props) => {
-  const styles = useStyles2(getStyles);
   const queryLanguage: LogsQueryLanguage =
     (isLogsQuery(props.query) && props.query.queryLanguage) || LogsQueryLanguage.CWLI;
 
@@ -114,7 +113,7 @@ const LogsCheatSheet = (props: Props) => {
 
   return (
     <div>
-      <div className={styles.heading}>
+      <div {...stylex.props(styles.heading)}>
         <Text variant="h3" weight="bold">
           CloudWatch Logs cheat sheet
         </Text>
@@ -131,7 +130,7 @@ const LogsCheatSheet = (props: Props) => {
                     </Text>
                     <button
                       type="button"
-                      className={styles.cheatSheetExample}
+                      {...stylex.props(styles.cheatSheetExample)}
                       key={item.expr[queryLanguage]}
                       onClick={() => onClickExample(item, query.category)}
                     >
@@ -160,18 +159,22 @@ const LogsCheatSheet = (props: Props) => {
 
 export default LogsCheatSheet;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    marginBottom: theme.spacing(2),
-  }),
-  cheatSheetExample: css({
-    margin: theme.spacing(0.5, 0),
+const styles = stylex.create({
+  heading: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+
+  cheatSheetExample: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0'],
     // element is interactive, clear button styles
     textAlign: 'left',
-    border: 'none',
-    background: 'transparent',
+    borderStyle: 'none',
+    backgroundColor: 'transparent',
     display: 'block',
-  }),
+  },
 });
 
 const getGrammarForLanguage = (queryLanugage: LogsQueryLanguage) => {
