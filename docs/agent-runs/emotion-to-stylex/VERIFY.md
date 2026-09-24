@@ -149,7 +149,8 @@ Exit code: 0 (pass = 0)
 Storybook (`yarn workspace @grafana/ui storybook`) was loaded in headless Chromium for
 `foundations-stylex-theme-bridge--basic` and `--scoped-themes` with `globals=theme:dark` and `globals=theme:light`.
 
-- **Screenshots:** `phase0-bridge-dark.png`, `phase0-bridge-light.png`, `phase0-scoped-dark.png`, `phase0-scoped-light.png`.
+- **Screenshots:** `phase0-bridge-dark.png`, `phase0-bridge-light.png`, and `phase0-scoped-light.png` (dark and light
+  subtrees side by side).
 - **Computed styles:** `phase0-computed.json`. The fixture card resolves `background-color` to `rgb(34, 37, 43)` in dark and
   `rgb(244, 245, 245)` in light (`theme.colors.background.secondary`), `padding` to `16px` (`theme.spacing(2)`), and the
   StyleX sheet is the first element in `<head>` in both themes.
@@ -293,8 +294,8 @@ typography, `white-space`, `opacity`, `cursor`, size, and non-class attributes w
 the first clickable tag.
 
 - **Result:** `compared 1020 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-tags.json`).
-- **Screenshots:** `information-tag--single-{dark,light}-{baseline,stylex-tags}.png`,
-  `information-taglist--list-{dark,light}-{baseline,stylex-tags}.png`.
+- **Screenshots (StyleX build):** `information-tag--single-{dark,light}-stylex-tags.png`,
+  `information-taglist--list-{dark,light}-stylex-tags.png`.
 
 ## Phase 1 — Lane Badge
 
@@ -363,7 +364,7 @@ captured from the Emotion baseline and the StyleX build in dark and light and co
 the Tags lane.
 
 - **Result:** `compared 1564 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-badge.json`).
-- **Screenshots:** `information-badge--{basic,examples}-{dark,light}-{baseline,stylex-badge}.png`.
+- **Screenshots (StyleX build):** `information-badge--examples-{dark,light}-stylex-badge.png`.
 
 ## Phase 1 — Lane Divider
 
@@ -491,7 +492,7 @@ Exit code: 0 (pass = 0)
 and the StyleX build in dark and light and compared with the same property set as the other lanes.
 
 - **Result:** `compared 1104 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-divider.json`).
-- **Screenshots:** `layout-divider--{basic,examples}-{dark,light}-{baseline,stylex-divider}.png`.
+- **Screenshots (StyleX build):** `layout-divider--examples-{dark,light}-stylex-divider.png`.
 
 ## Definition of Done — full cohort (Tags, Badge, Divider)
 
@@ -578,3 +579,19 @@ These checks cover code outside the lane paths that the foundation or cohort cou
 - **Lockfile:** `yarn install --immutable --check-cache`: exit 0.
 - **Prettier:** `yarn prettier:check` reports 8 files that are already unformatted on the base branch and are not touched
   by this PR, plus the gitignored Storybook `mockServiceWorker.js`. Every file changed by this PR is formatted.
+
+## In-app verification
+
+The Grafana backend (`start-backend.sh`) served the core frontend built with the StyleX pre-loader. Two dashboards with
+tags were created, and the Dashboards browse page was checked in the dark and light themes.
+
+- **Theme bridge:** `--grafana-colors-background-primary` on `body` is `#181b1f` in dark and `#ffffff` in light, the
+  `style[data-grafana-theme-variables]` element exists, and the StyleX sheet is the first element in `<head>`
+  (`app_computed.json`).
+- **Tags:** every tag renders with its `TAG_COLORS` background, `rgb(247, 248, 250)` text, `4px` radius, `12px`/`500`
+  type, and `3px 6px` padding in both themes (`app_dashboards_tags_{dark,light}.png`).
+- **Consumer Emotion override:** browse-dashboards passes `css({ justifyContent: 'flex-start', flexWrap: 'nowrap' })` to
+  `TagList`. The live list computes `justify-content: flex-start` and `flex-wrap: nowrap` over the StyleX defaults, while
+  `display: flex` and `gap: 6px` still come from StyleX.
+- **Recording:** `grafana_app_stylex_tags_dark_to_light_theme_switch.mp4` shows the tags in dark, a theme switch through
+  the profile page, and the tags in light.
