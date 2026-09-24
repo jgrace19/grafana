@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Column as RTColumn } from 'react-table';
 
 import { EmptyExpanderHeader, ExpanderCell, ExpanderHeader } from './Expander';
@@ -35,14 +35,24 @@ export function getColumns<K extends object>(
       width: column.width ?? (column.disableGrow ? 0 : undefined),
       minWidth: column.minWidth,
       maxWidth: column.maxWidth,
-      widthClass: css({
-        width: typeof column.width === 'number' && column.width > 0 ? column.width : undefined,
-        minWidth: typeof column.minWidth === 'number' && column.minWidth > 0 ? column.minWidth : undefined,
-        maxWidth: typeof column.maxWidth === 'number' && column.maxWidth > 0 ? column.maxWidth : undefined,
-      }),
+      widthStyle: [
+        isPositive(column.width) && styles.width(column.width),
+        isPositive(column.minWidth) && styles.minWidth(column.minWidth),
+        isPositive(column.maxWidth) && styles.maxWidth(column.maxWidth),
+      ],
       visible: column.visible,
       ...(column.sortDescFirst !== undefined && { sortDescFirst: column.sortDescFirst }),
       ...(column.cell && { Cell: column.cell }),
     })),
   ];
 }
+
+function isPositive(value: unknown): value is number {
+  return typeof value === 'number' && value > 0;
+}
+
+const styles = stylex.create({
+  width: (width: number) => ({ width }),
+  minWidth: (minWidth: number) => ({ minWidth }),
+  maxWidth: (maxWidth: number) => ({ maxWidth }),
+});

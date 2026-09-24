@@ -482,12 +482,14 @@ describe('InteractiveTable', () => {
       render(<InteractiveTable columns={columns} data={data} getRowId={getRowId} />);
 
       const header = screen.getByRole('columnheader', { name: 'ID' });
-      expect(header).toHaveStyle({ width: '80px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(header).toHaveAttribute('style', expect.stringContaining('80px'));
 
       const cells = screen.getAllByRole('cell');
       // First visible cell after expander should have the width
       const idCell = cells.find((cell) => cell.textContent === '1');
-      expect(idCell).toHaveStyle({ width: '80px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(idCell).toHaveAttribute('style', expect.stringContaining('80px'));
     });
 
     it('should apply minWidth and maxWidth to header and cells', () => {
@@ -499,10 +501,12 @@ describe('InteractiveTable', () => {
       render(<InteractiveTable columns={columns} data={data} getRowId={getRowId} />);
 
       const header = screen.getByRole('columnheader', { name: 'ID' });
-      expect(header).toHaveStyle({ minWidth: '100px', maxWidth: '300px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(header).toHaveAttribute('style', expect.stringMatching(/100px.*300px/));
 
       const idCell = screen.getAllByRole('cell').find((cell) => cell.textContent === '1');
-      expect(idCell).toHaveStyle({ minWidth: '100px', maxWidth: '300px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(idCell).toHaveAttribute('style', expect.stringMatching(/100px.*300px/));
     });
 
     it('should not apply width styles when no width props are set', () => {
@@ -514,10 +518,10 @@ describe('InteractiveTable', () => {
       render(<InteractiveTable columns={columns} data={data} getRowId={getRowId} />);
 
       const header = screen.getByRole('columnheader', { name: 'ID' });
-      expect(header).not.toHaveStyle({ width: '0px' });
+      expect(header).not.toHaveAttribute('style');
 
       const idCell = screen.getAllByRole('cell').find((cell) => cell.textContent === '1');
-      expect(idCell).not.toHaveStyle({ width: '0px' });
+      expect(idCell).not.toHaveAttribute('style');
     });
 
     it('should still apply disableGrow when width is not set', () => {
@@ -528,8 +532,10 @@ describe('InteractiveTable', () => {
       const data: TableData[] = [{ id: '1', country: 'Sweden' }];
       render(<InteractiveTable columns={columns} data={data} getRowId={getRowId} />);
 
+      // `width: 0` is a static StyleX style that jsdom can't see (covered by the visual captures); the column
+      // must not pick up a fixed width.
       const header = screen.getByRole('columnheader', { name: 'ID' });
-      expect(header).toHaveStyle({ width: '0px' });
+      expect(header).not.toHaveAttribute('style');
     });
 
     it('should use width over disableGrow when both are set', () => {
@@ -541,10 +547,12 @@ describe('InteractiveTable', () => {
       render(<InteractiveTable columns={columns} data={data} getRowId={getRowId} />);
 
       const header = screen.getByRole('columnheader', { name: 'ID' });
-      expect(header).toHaveStyle({ width: '120px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(header).toHaveAttribute('style', expect.stringContaining('120px'));
 
       const idCell = screen.getAllByRole('cell').find((cell) => cell.textContent === '1');
-      expect(idCell).toHaveStyle({ width: '120px' });
+      // eslint-disable-next-line jest-dom/prefer-to-have-style -- StyleX dynamic values are inline custom properties with hashed names
+      expect(idCell).toHaveAttribute('style', expect.stringContaining('120px'));
     });
   });
 });
