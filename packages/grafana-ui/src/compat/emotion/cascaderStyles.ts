@@ -2,7 +2,7 @@ import { css, keyframes } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { getIconPath } from '../Icon/utils';
+import { getIconPath } from '../../components/Icon/utils';
 
 const slideUpIn = keyframes({
   '0%': {
@@ -60,6 +60,12 @@ const slideDownOut = keyframes({
   },
 });
 
+// Frozen Emotion implementation of the Cascader popup styles, kept for ButtonCascader until it migrates.
+// Cascader itself uses Cascader.global.css. Keep visually in sync.
+
+/**
+ * @deprecated Emotion-based compat helper. Cascader uses Cascader.global.css.
+ */
 export const getCascaderStyles = (theme: GrafanaTheme2) => {
   const iconPath = getIconPath('angle-right');
   return {

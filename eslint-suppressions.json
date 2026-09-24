@@ -504,7 +504,7 @@
       "count": 1
     }
   },
-  "packages/grafana-ui/src/components/Cascader/styles.ts": {
+  "packages/grafana-ui/src/compat/emotion/cascaderStyles.ts": {
     "@grafana/no-unreduced-motion": {
       "count": 17
     }

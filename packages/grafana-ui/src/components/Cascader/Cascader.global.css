@@ -1,0 +1,196 @@
+/*
+ * rc-cascader renders the popup DOM, so StyleX can't style it. Scoped under the `gf-cascader-dropdown` popup class.
+ * The expand icon URL depends on the runtime public path, so Cascader passes it in `--gf-cascader-expand-icon`.
+ */
+@layer grafana-global {
+  @keyframes gf-cascader-slide-up-in {
+    0% {
+      opacity: 0;
+      transform-origin: 0% 0%;
+      transform: scaleY(0.8);
+    }
+
+    100% {
+      opacity: 1;
+      transform-origin: 0% 0%;
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes gf-cascader-slide-up-out {
+    0% {
+      opacity: 1;
+      transform-origin: 0% 0%;
+      transform: scaleY(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform-origin: 0% 0%;
+      transform: scaleY(0.8);
+    }
+  }
+
+  @keyframes gf-cascader-slide-down-in {
+    0% {
+      opacity: 0;
+      transform-origin: 0% 100%;
+      transform: scaleY(0.8);
+    }
+
+    100% {
+      opacity: 1;
+      transform-origin: 0% 100%;
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes gf-cascader-slide-down-out {
+    0% {
+      opacity: 1;
+      transform-origin: 0% 100%;
+      transform: scaleY(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform-origin: 0% 100%;
+      transform: scaleY(0.8);
+    }
+  }
+
+  .gf-cascader-dropdown.rc-cascader-dropdown {
+    position: absolute;
+    /* Required, otherwise the portal that the popup is shown in will render under other components */
+    z-index: 9999;
+  }
+
+  .gf-cascader-dropdown.rc-cascader-dropdown-hidden {
+    display: none;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus {
+    overflow: hidden;
+    background: var(--gf-colors-background-elevated);
+    border: none;
+    border-radius: var(--gf-shape-radius-default);
+    box-shadow: var(--gf-shadows-z3);
+    white-space: nowrap;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-enter,
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-appear {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    transform-origin: 0 0;
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
+    animation-play-state: paused;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-enter.slide-up-enter-active.rc-cascader-menus-placement-bottomLeft,
+  .gf-cascader-dropdown
+    .rc-cascader-menus.slide-up-appear.slide-up-appear-active.rc-cascader-menus-placement-bottomLeft {
+    animation-name: gf-cascader-slide-up-in;
+    animation-play-state: running;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-enter.slide-up-enter-active.rc-cascader-menus-placement-topLeft,
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-appear.slide-up-appear-active.rc-cascader-menus-placement-topLeft {
+    animation-name: gf-cascader-slide-down-in;
+    animation-play-state: running;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-leave {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    transform-origin: 0 0;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.34);
+    animation-play-state: paused;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-leave.slide-up-leave-active.rc-cascader-menus-placement-bottomLeft {
+    animation-name: gf-cascader-slide-up-out;
+    animation-play-state: running;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menus.slide-up-leave.slide-up-leave-active.rc-cascader-menus-placement-topLeft {
+    animation-name: gf-cascader-slide-down-out;
+    animation-play-state: running;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu {
+    display: inline-block;
+    max-width: 50vw;
+    height: 192px;
+    list-style: none;
+    margin: 0;
+    padding: var(--gf-spacing-x0-5);
+    border-right: 1px solid var(--gf-colors-border-weak);
+    overflow: auto;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu:last-child {
+    border-right: 0;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item {
+    height: var(--gf-spacing-x4);
+    line-height: var(--gf-spacing-x4);
+    padding: 0 var(--gf-spacing-x4) 0 var(--gf-spacing-x2);
+    border-radius: var(--gf-shape-radius-default);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item:hover {
+    background: var(--gf-colors-action-hover);
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-disabled {
+    cursor: not-allowed;
+    color: var(--gf-colors-text-disabled);
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-disabled:hover {
+    background: transparent;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-disabled:after {
+    position: absolute;
+    right: 12px;
+    content: 'loading';
+    color: var(--gf-colors-text-disabled);
+    font-style: italic;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-active {
+    color: var(--gf-colors-text-max-contrast);
+    background: var(--gf-colors-background-secondary);
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-active:hover {
+    background: var(--gf-colors-action-hover);
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-expand {
+    position: relative;
+  }
+
+  .gf-cascader-dropdown .rc-cascader-menu-item-expand:after {
+    background: var(--gf-colors-text-primary);
+    content: '';
+    height: var(--gf-spacing-x3);
+    mask: var(--gf-cascader-expand-icon);
+    mask-type: luminance;
+    position: absolute;
+    right: 0;
+    top: var(--gf-spacing-x0-5);
+    width: var(--gf-spacing-x3);
+  }
+}
