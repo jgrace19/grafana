@@ -71,6 +71,7 @@ export const Tab = React.forwardRef<HTMLElement, TabProps>(
       styles.link,
       active ? styles.activeStyle : styles.notActive,
       truncate && styles.linkTruncate,
+      // eslint-disable-next-line @grafana/stylex-no-toggled-pseudo-state -- aria-disabled link, a toggled class on main too
       disabled && styles.disabled
     );
 

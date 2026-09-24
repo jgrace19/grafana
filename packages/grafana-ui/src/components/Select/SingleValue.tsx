@@ -29,6 +29,7 @@ export const SingleValue = <T extends unknown>(props: Props<T>) => {
         mergeStylexProps(
           stylex.props(
             styles.singleValue,
+            // eslint-disable-next-line @grafana/stylex-no-toggled-pseudo-state -- react-select disabled state, a toggled class on main too
             isDisabled && styles.disabled,
             props.selectProps.menuIsOpen && styles.isOpen
           ),

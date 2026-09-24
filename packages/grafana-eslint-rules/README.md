@@ -294,3 +294,18 @@ interface LoadedProperties extends EventProperty {
   numberOfItems: number;
 }
 ```
+
+### `stylex-no-toggled-pseudo-state`
+
+Flags a StyleX namespace toggled from JS inside `stylex.props()` when both the namespace and its condition name a state CSS can express as a pseudo-class (`disabled`, `hover`, `focus`, `focusVisible`, `pressed`, `checked`, `readOnly`). For `disabled`, `checked` and `readOnly` it only flags styles on elements that can match the pseudo-class (`button`, `input`, `select`, `textarea`, …) or on components.
+
+Component state rules written as StyleX conditions are moved out of the CSS layers at build time, so they beat a consumer's `className` as Emotion's merged class did. A toggled namespace is a base rule and loses to it. If the Emotion original toggled a class too (for example a react-select state), disable the line with that reason.
+
+```tsx
+// Bad ❌
+<button {...stylex.props(styles.button, disabled && styles.disabled)} disabled={disabled} />
+
+// Good ✅
+const styles = stylex.create({ button: { color: { default: text, ':disabled': textDisabled } } });
+<button {...stylex.props(styles.button)} disabled={disabled} />
+```

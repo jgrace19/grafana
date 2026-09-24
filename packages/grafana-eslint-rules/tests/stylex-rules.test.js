@@ -1,6 +1,7 @@
 import { RuleTester } from 'eslint';
 
 import stylexNoBorderRadiusLiteral from '../rules/stylex-no-border-radius-literal.cjs';
+import stylexNoToggledPseudoState from '../rules/stylex-no-toggled-pseudo-state.cjs';
 import stylexNoUnreducedMotion from '../rules/stylex-no-unreduced-motion.cjs';
 import stylexThemeTokenUsage from '../rules/stylex-theme-token-usage.cjs';
 
@@ -94,6 +95,50 @@ ruleTester.run('eslint stylex-theme-token-usage', stylexThemeTokenUsage, {
     {
       code: `import { colors } from '@grafana/ui/stylex/tokens.stylex';\ncolors['--gf-colors-text-primary'];`,
       errors: [{ messageId: 'themeTokenUsed', data: { identifier: "colors['--gf-colors-text-primary']" } }],
+    },
+  ],
+});
+
+const jsxTester = new RuleTester({
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+});
+
+jsxTester.run('eslint stylex-no-toggled-pseudo-state', stylexNoToggledPseudoState, {
+  valid: [
+    {
+      name: 'state written as a condition',
+      code: `${header}<button {...stylex.props(styles.button)} disabled={disabled} />`,
+    },
+    {
+      name: 'disabled on an element that cannot match :disabled',
+      code: `${header}<div {...stylex.props(styles.row, disabled && styles.disabled)} />`,
+    },
+    {
+      name: 'selected state is not a pseudo-class',
+      code: `${header}<button {...stylex.props(styles.tab, active && styles.active)} />`,
+    },
+    {
+      name: 'condition names a different state',
+      code: `${header}<button {...stylex.props(styles.button, isOpen && styles.disabled)} />`,
+    },
+    { name: 'not stylex', code: `<button className={cx(styles.button, disabled && styles.disabled)} />` },
+  ],
+  invalid: [
+    {
+      code: `${header}<button {...stylex.props(styles.button, disabled && styles.disabled)} disabled={disabled} />`,
+      errors: [{ messageId: 'toggledPseudoState' }],
+    },
+    {
+      code: `${header}<div {...stylex.props(styles.row, isHovered ? styles.hover : styles.idle)} />`,
+      errors: [{ messageId: 'toggledPseudoState' }],
+    },
+    {
+      code: `${header}const p = stylex.props(styles.field, props.readOnly && styles.readOnly);`,
+      errors: [{ messageId: 'toggledPseudoState' }],
+    },
+    {
+      code: `import { props } from '@stylexjs/stylex';\n<Input {...props(styles.input, [focused && styles.focusVisible])} />`,
+      errors: [{ messageId: 'toggledPseudoState' }],
     },
   ],
 });

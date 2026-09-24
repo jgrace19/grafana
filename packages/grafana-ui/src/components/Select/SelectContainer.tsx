@@ -25,6 +25,7 @@ export const SelectContainer = <Option, isMulti extends boolean, Group extends G
     stylex.props(
       styles.wrapper,
       invalid && styles.invalid,
+      // eslint-disable-next-line @grafana/stylex-no-toggled-pseudo-state -- react-select focus state, a toggled class on main too
       isFocused && styles.focused,
       isDisabled && (invalid ? styles.inputDisabledInvalid : styles.inputDisabled),
       xstyle

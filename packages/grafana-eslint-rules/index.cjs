@@ -11,6 +11,7 @@ const noRestrictedSyntaxRules = require('./rules/no-restricted-syntax.cjs');
 const stylexNoUnreducedMotion = require('./rules/stylex-no-unreduced-motion.cjs');
 const stylexNoBorderRadiusLiteral = require('./rules/stylex-no-border-radius-literal.cjs');
 const stylexThemeTokenUsage = require('./rules/stylex-theme-token-usage.cjs');
+const stylexNoToggledPseudoState = require('./rules/stylex-no-toggled-pseudo-state.cjs');
 
 /** @type {import('eslint').Linter.Plugin} */
 module.exports = {
@@ -27,6 +28,7 @@ module.exports = {
     'stylex-no-unreduced-motion': stylexNoUnreducedMotion,
     'stylex-no-border-radius-literal': stylexNoBorderRadiusLiteral,
     'stylex-theme-token-usage': stylexThemeTokenUsage,
+    'stylex-no-toggled-pseudo-state': stylexNoToggledPseudoState,
     ...noRestrictedSyntaxRules.rules,
   },
 };
