@@ -1,8 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type ActionModel, type GrafanaTheme2, type LinkModel } from '@grafana/data';
-import { usePanelContext, useStyles2 } from '@grafana/ui';
+import { type ActionModel, type LinkModel } from '@grafana/data';
+import { usePanelContext } from '@grafana/ui';
 import { VizTooltipFooter } from '@grafana/ui/internal';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 import { AnnotationTooltipBody } from './AnnotationTooltipBody';
 import { AnnotationTooltipHeader } from './AnnotationTooltipHeader';
@@ -32,7 +34,6 @@ export const AnnotationTooltip2 = ({
   links = [],
   actions = [],
 }: AnnotationTooltipProps) => {
-  const styles = useStyles2(getStyles);
   const { canEditAnnotations = retFalse, canDeleteAnnotations = retFalse, onAnnotationDelete } = usePanelContext();
   const { onDelete, canEdit, canDelete, time, text, alertText, alertState, avatarImgSrc, title } = getAnnotationTooltip(
     annoVals,
@@ -45,7 +46,7 @@ export const AnnotationTooltip2 = ({
   );
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <AnnotationTooltipHeader
         avatarImg={avatarImgSrc}
         alertState={alertState}
@@ -69,14 +70,16 @@ export const AnnotationTooltip2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    zIndex: theme.zIndex.tooltip,
+const styles = stylex.create({
+  wrapper: {
+    zIndex: zIndex.tooltip,
     whiteSpace: 'initial',
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
     userSelect: 'text',
-  }),
+  },
 });

@@ -1,19 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import {
-  type GrafanaTheme2,
-  dateTimeFormat,
-  systemDateFormats,
-  textUtil,
-  type LinkModel,
-  type ActionModel,
-} from '@grafana/data';
+import { dateTimeFormat, systemDateFormats, textUtil, type LinkModel, type ActionModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Stack, IconButton, Tag, usePanelContext, useStyles2 } from '@grafana/ui';
-import { VizTooltipFooter } from '@grafana/ui/internal';
+import { Stack, IconButton, Tag, usePanelContext } from '@grafana/ui';
+import { mergeStylexProps, VizTooltipFooter } from '@grafana/ui/internal';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import alertDef from 'app/features/alerting/state/alertDef';
 
+import './AnnotationTooltip2.css';
 import { AnnotationTooltipHeaderCloseIcon } from './AnnotationTooltipHeaderCloseIcon';
 
 interface Props {
@@ -41,7 +37,6 @@ export const AnnotationTooltip2 = ({
 }: Props) => {
   const annoId = annoVals.id?.[annoIdx];
 
-  const styles = useStyles2(getStyles);
   const focusRef = React.useRef<HTMLButtonElement | null>(null);
   const { canEditAnnotations = retFalse, canDeleteAnnotations = retFalse, onAnnotationDelete } = usePanelContext();
   const dashboardUID = annoVals.dashboardUID?.[annoIdx];
@@ -71,7 +66,7 @@ export const AnnotationTooltip2 = ({
 
   let avatar;
   if (annoVals.login?.[annoIdx] && annoVals.avatarUrl?.[annoIdx]) {
-    avatar = <img className={styles.avatar} alt="Annotation avatar" src={annoVals.avatarUrl[annoIdx]} />;
+    avatar = <img {...stylex.props(styles.avatar)} alt="Annotation avatar" src={annoVals.avatarUrl[annoIdx]} />;
   }
 
   let state: React.ReactNode | null = null;
@@ -80,7 +75,7 @@ export const AnnotationTooltip2 = ({
   if (annoVals.alertId?.[annoIdx] !== undefined && annoVals.newState?.[annoIdx]) {
     const stateModel = alertDef.getStateDisplayModel(annoVals.newState[annoIdx]);
     state = (
-      <div className={styles.alertState}>
+      <div {...stylex.props(styles.alertState)}>
         <i className={stateModel.stateClass}>{stateModel.text}</i>
       </div>
     );
@@ -91,10 +86,10 @@ export const AnnotationTooltip2 = ({
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.header}>
+    <div {...stylex.props(styles.wrapper)}>
+      <div {...stylex.props(styles.header)}>
         <Stack gap={2} basis="100%" justifyContent="space-between" alignItems="center">
-          <div className={styles.meta}>
+          <div {...stylex.props(styles.meta)}>
             <span>
               {avatar}
               {state}
@@ -102,7 +97,7 @@ export const AnnotationTooltip2 = ({
             {time}
           </div>
           {(canEdit || canDelete || isPinned) && (
-            <div className={styles.controls}>
+            <div {...mergeStylexProps(stylex.props(styles.controls), { className: 'gf-annotation-tooltip-controls' })}>
               {canEdit && (
                 <IconButton
                   ref={focusRef}
@@ -136,8 +131,8 @@ export const AnnotationTooltip2 = ({
         </Stack>
       </div>
 
-      <div className={styles.body}>
-        {text && <div className={styles.text} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
+      <div {...mergeStylexProps(stylex.props(styles.body), { className: 'gf-annotation-tooltip-body' })}>
+        {text && <div {...stylex.props(styles.text)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
         {alertText}
         <div>
           <Stack gap={0.5} wrap={true}>
@@ -153,58 +148,56 @@ export const AnnotationTooltip2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    zIndex: theme.zIndex.tooltip,
+const styles = stylex.create({
+  wrapper: {
+    zIndex: zIndex.tooltip,
     whiteSpace: 'initial',
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
     userSelect: 'text',
-  }),
-  header: css({
-    padding: theme.spacing(0.5, 1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.fontSize,
-    color: theme.colors.text.primary,
+  },
+  header: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    fontSize: typography['--gf-typography-font-size'],
+    color: colors['--gf-colors-text-primary'],
     display: 'flex',
-  }),
-  meta: css({
+  },
+  meta: {
     display: 'flex',
-    color: theme.colors.text.primary,
+    color: colors['--gf-colors-text-primary'],
     fontWeight: 400,
-  }),
-  controls: css({
+  },
+  controls: {
     display: 'flex',
-    '> :last-child': {
-      marginLeft: 0,
-    },
-  }),
-  body: css({
-    padding: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
+  },
+  body: {
+    padding: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
     fontWeight: 400,
-    a: {
-      color: theme.colors.text.link,
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }),
-  text: css({
-    paddingBottom: theme.spacing(1),
-  }),
-  avatar: css({
-    borderRadius: theme.shape.radius.circle,
+  },
+  text: {
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  avatar: {
+    borderRadius: shape['--gf-shape-radius-circle'],
     width: 16,
     height: 16,
-    marginRight: theme.spacing(1),
-  }),
-  alertState: css({
-    paddingRight: theme.spacing(1),
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  alertState: {
+    paddingRight: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
 });
