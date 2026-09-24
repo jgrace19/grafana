@@ -16,8 +16,6 @@ import { Button, Dropdown, Icon, IconButton, Menu, Modal } from '@grafana/ui';
 
 import { trackInsightsFeedback } from '../Analytics';
 
-import './InsightsMenuButton.css';
-
 type DataQueryWithExpr = DataQuery & { expr: string };
 
 const getPrometheusExploreUrl = ({
@@ -82,7 +80,7 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
       isOpen={showModal}
       onDismiss={onDismiss}
       onClickBackdrop={onDismiss}
-      className="gf-insights-feedback-modal"
+      xstyle={styles.feedbackModal}
     >
       <div>
         <p>
@@ -91,13 +89,13 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
           </Trans>
         </p>
         <div {...stylex.props(styles.buttonsContainer)}>
-          <Button variant="secondary" className="gf-insights-feedback-button" onClick={() => onButtonClick(false)}>
+          <Button variant="secondary" xstyle={styles.feedbackButton} onClick={() => onButtonClick(false)}>
             <div {...stylex.props(styles.button)}>
               <Icon name="thumbs-up" xstyle={styles.thumbsdown} size="xxxl" />
               <span>{`I don't like it`}</span>
             </div>
           </Button>
-          <Button variant="secondary" className="gf-insights-feedback-button" onClick={() => onButtonClick(true)}>
+          <Button variant="secondary" xstyle={styles.feedbackButton} onClick={() => onButtonClick(true)}>
             <div {...stylex.props(styles.button)}>
               <Icon name="thumbs-up" size="xxxl" />
               <span>
@@ -132,7 +130,7 @@ const InsightsMenuButtonRenderer = ({ model }: SceneComponentProps<InsightsMenuB
         <IconButton
           name="ellipsis-v"
           variant="secondary"
-          className="gf-insights-menu-button"
+          xstyle={styles.menuButton}
           aria-label={t('alerting.insights-menu-button-renderer.aria-label-rate-this-panel', 'Rate this panel')}
         />
       </Dropdown>
@@ -150,6 +148,22 @@ export class InsightsMenuButton extends SceneObjectBase<InsightsMenuButtonState>
 }
 
 const styles = stylex.create({
+  feedbackModal: {
+    maxWidth: '370px',
+  },
+  feedbackButton: {
+    height: '150px',
+    width: '150px',
+    cursor: 'pointer',
+    justifyContent: 'center',
+  },
+  menuButton: {
+    height: '25px',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   buttonsContainer: {
     display: 'flex',
     flexDirection: 'row',

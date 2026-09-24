@@ -11,8 +11,6 @@ import { ResourcePicker } from '../ResourcePicker';
 
 import { buildEditRowModels, editModelToSaveModel, ValueMappingsEditorModal } from './ValueMappingsEditorModal';
 
-import './ValueMappingsEditor.css';
-
 export interface Props extends StandardEditorProps<ValueMapping[]> {
   showIcon?: boolean;
 }
@@ -106,7 +104,7 @@ export const ValueMappingsEditor = memo((props: Props) => {
         isOpen={isEditorOpen}
         title={t('dimensions.value-mappings-editor.title-value-mappings', 'Value mappings')}
         onDismiss={onCloseEditor}
-        className="gf-value-mappings-modal"
+        xstyle={styles.modal}
         closeOnBackdropClick={false}
       >
         <ValueMappingsEditorModal
@@ -123,6 +121,9 @@ export const ValueMappingsEditor = memo((props: Props) => {
 ValueMappingsEditor.displayName = 'ValueMappingsEditor';
 
 const styles = stylex.create({
+  modal: {
+    width: '980px',
+  },
   compactTable: {
     width: '100%',
   },

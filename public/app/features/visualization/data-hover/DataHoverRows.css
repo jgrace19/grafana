@@ -1,4 +1,0 @@
-/* Collapse sets its own margin-bottom; div.gf-* (0,1,1) beats its single class in either stylesheet order. */
-div.gf-data-hover-collapsible-row {
-  margin-bottom: 0;
-}

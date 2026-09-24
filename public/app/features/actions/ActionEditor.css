@@ -1,5 +1,0 @@
-/* InlineField sets its own align-items; div.gf-* (0,1,1) beats its single class in either stylesheet order. */
-div.gf-action-editor-color-picker {
-  display: flex;
-  align-items: center;
-}

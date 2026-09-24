@@ -1,5 +1,0 @@
-/* Modal sets its own width and max-width; div.gf-* (0,1,1) beats its single class in either stylesheet order. */
-div.gf-confirm-delete-variable-modal {
-  width: max-content;
-  max-width: 80vw;
-}

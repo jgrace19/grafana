@@ -49,8 +49,6 @@ import {
   type ViewedBoundsFunctionType,
 } from './utils';
 
-import './VirtualizedTraceView.css';
-
 type RowState = {
   isDetail: boolean;
   span: TraceSpan;
@@ -631,7 +629,7 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
         />
         {this.props.topOfViewRef && ( // only for panel as explore uses content outline to scroll to top
           <ToolbarButton
-            className="gf-trace-scroll-to-top"
+            xstyle={styles.scrollToTop}
             onClick={this.scrollToTop}
             tooltip={t('explore.unthemed-virtualized-trace-view.title-scroll-to-top', 'Scroll to top')}
             icon="arrow-up"
@@ -648,6 +646,19 @@ export default function VirtualizedTraceView(props: Omit<VirtualizedTraceViewPro
 }
 
 const styles = stylex.create({
+  // Positions the panel's scroll-to-top ToolbarButton.
+  scrollToTop: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '40px',
+    height: '40px',
+    position: 'absolute',
+    bottom: '30px',
+    right: '30px',
+    zIndex: 1,
+  },
   rowsWrapper: {
     width: '100%',
   },

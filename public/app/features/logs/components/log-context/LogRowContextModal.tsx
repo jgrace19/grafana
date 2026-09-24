@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { partition } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -411,10 +410,8 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
     <Modal
       isOpen={open}
       title={t('logs.log-row-context-modal.title-log-context', 'Log context')}
-      contentClassName={
-        mergeStylexProps(stylex.props(styles.flexColumn), { className: pendingModalStyles.content }).className
-      }
-      className={pendingModalStyles.modal}
+      contentXstyle={[styles.flexColumn, modalStyles.content]}
+      xstyle={modalStyles.modal}
       onDismiss={onClose}
     >
       {getLogRowContextUi && <div {...stylex.props(styles.datasourceUi)}>{getLogRowContextUi(row, updateResults)}</div>}
@@ -588,18 +585,18 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
   );
 };
 
-// stylex: pending Modal migration. Modal's own (Emotion) width and content padding beat a StyleX class.
-const pendingModalStyles = {
-  modal: css({
-    width: '85vw',
-    [bp.mdDown]: {
-      width: '100%',
-    },
-  }),
-  content: css({
-    padding: `0 ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']} ${spacing['--gf-spacing-x3']}`,
-  }),
-};
+const modalStyles = stylex.create({
+  modal: {
+    width: { default: '85vw', [bp.mdDown]: '100%' },
+  },
+  // Modal's own small-screen padding still wins.
+  content: {
+    paddingTop: { default: 0, [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x2'] },
+    paddingBottom: spacing['--gf-spacing-x3'],
+    paddingLeft: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x2'] },
+  },
+});
 
 const styles = stylex.create({
   flexColumn: {

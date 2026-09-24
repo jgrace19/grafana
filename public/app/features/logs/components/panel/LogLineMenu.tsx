@@ -1,5 +1,4 @@
-import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties, type MouseEvent, useCallback, useMemo, useRef } from 'react';
+import { type MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { type LogRowContextOptions, type LogRowModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -157,8 +156,7 @@ export const LogLineMenu = ({ active, log }: Props) => {
   return (
     <Dropdown overlay={menu} placement="bottom-start">
       <IconButton
-        className={stylex.props(logLineStyles.menuIcon).className}
-        style={menuIconStyle}
+        xstyle={logLineStyles.menuIcon}
         name={active ? 'angle-right' : 'ellipsis-v'}
         aria-label={t('logs.log-line-menu.icon-label', 'Log menu')}
         role="button"
@@ -175,7 +173,3 @@ function isDivider(item: LogLineMenuCustomItem) {
 function isItem(item: LogLineMenuCustomItem) {
   return 'onClick' in item && 'label' in item;
 }
-
-// IconButton has no xstyle and sets its own right margin, which a class from another stylex.props() call can't
-// reliably override.
-const menuIconStyle: CSSProperties = { margin: 0 };

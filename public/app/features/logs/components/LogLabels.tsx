@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties, memo, forwardRef, useMemo, useState, type JSX } from 'react';
+import { memo, forwardRef, useMemo, useState, type JSX } from 'react';
 
 import { type Labels } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -68,7 +68,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            style={buttonStyle}
+            xstyle={styles.button}
             aria-label={t('logs.log-labels.expand', 'Expand labels')}
             onClick={() => {
               setDisplayAll(true);
@@ -84,7 +84,7 @@ export const LogLabels = memo(
             size="sm"
             fill="outline"
             variant="secondary"
-            style={buttonStyle}
+            xstyle={styles.button}
             aria-label={t('logs.log-labels.collapse', 'Collapse labels')}
             onClick={() => {
               setDisplayAll(false);
@@ -133,11 +133,10 @@ const LogLabel = forwardRef<HTMLSpanElement, LogLabelProps>(({ tooltip, children
 });
 LogLabel.displayName = 'LogLabel';
 
-// Button has no xstyle and sets its own height, which a class from another stylex.props() call can't reliably
-// override.
-const buttonStyle: CSSProperties = { height: `calc(${spacing['--gf-spacing-grid-size']} * 2.75)` };
-
 const styles = stylex.create({
+  button: {
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 2.75)`,
+  },
   logsLabels: {
     display: 'inline-flex',
     flexWrap: 'wrap',

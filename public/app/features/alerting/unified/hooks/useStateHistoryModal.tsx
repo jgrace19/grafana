@@ -1,11 +1,12 @@
+import * as stylex from '@stylexjs/stylex';
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Modal } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
-
-import './useStateHistoryModal.css';
 
 const AnnotationsStateHistory = lazy(() => import('../components/rules/state-history/StateHistory'));
 const LokiStateHistory = lazy(() => import('../components/rules/state-history/LokiStateHistory'));
@@ -54,8 +55,8 @@ function useStateHistoryModal() {
         closeOnBackdropClick={true}
         closeOnEscape={true}
         title={t('alerting.use-state-history-modal.state-history-modal.title-state-history', 'State history')}
-        className="gf-state-history-modal"
-        contentClassName="gf-state-history-modal-content"
+        xstyle={styles.modal}
+        contentXstyle={styles.modalContent}
       >
         <Suspense fallback={'Loading...'}>
           {implementation === StateHistoryImplementation.Loki && <LokiStateHistory ruleUID={rule.grafana_alert.uid} />}
@@ -75,3 +76,20 @@ function useStateHistoryModal() {
 }
 
 export { useStateHistoryModal };
+
+const styles = stylex.create({
+  modal: {
+    width: '80%',
+    height: '80%',
+    minWidth: '800px',
+  },
+  // Modal's own small-screen padding still wins.
+  modalContent: {
+    height: '100%',
+    width: '100%',
+    paddingTop: { default: spacing['--gf-spacing-x2'], [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+});

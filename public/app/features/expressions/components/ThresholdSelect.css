@@ -1,8 +1,0 @@
-/* ButtonSelect's ToolbarButton sets its own colour, font size and padding; button.gf-* (0,1,1) beats its base class in
- * either stylesheet order and still loses to its :hover/:focus rules, as the merged Emotion class did. */
-button.gf-threshold-select {
-  color: var(--gf-colors-primary-text);
-  font-size: var(--gf-typography-body-small-font-size);
-  text-transform: uppercase;
-  padding: 0 var(--gf-spacing-x1);
-}

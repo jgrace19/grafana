@@ -16,7 +16,7 @@ import { type LogListModel } from '../panel/processing';
 import { FieldSelector, FIELD_SELECTOR_MIN_WIDTH, getDefaultFieldSelectorWidth } from './FieldSelector';
 import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
-import { collapsedButtonStyle, logsFieldSelectorWrapperStyles } from './styles';
+import { logsFieldSelectorWrapperStyles } from './styles';
 import { getSuggestedFieldsFromLogList } from './suggestedFields';
 
 /**
@@ -154,7 +154,7 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
       ) : (
         <div {...stylex.props(logsFieldSelectorWrapperStyles.collapsedButtonContainer)}>
           <IconButton
-            style={collapsedButtonStyle}
+            xstyle={logsFieldSelectorWrapperStyles.collapsedButton}
             onClick={expand}
             name="arrow-from-right"
             tooltip={t('logs.field-selector.expand', 'Expand sidebar')}

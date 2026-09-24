@@ -38,8 +38,6 @@ import darkImage from '../images/dark/organize.svg';
 import lightImage from '../images/light/organize.svg';
 import { getAllFieldNamesFromDataFrames, getDistinctLabels, useAllFieldNamesFromDataFrames } from '../utils';
 
-import './OrganizeFieldsTransformerEditor.css';
-
 interface OrganizeFieldsTransformerEditorProps extends TransformerUIProps<OrganizeFieldsTransformerOptions> {}
 
 interface UIOrderByItem {
@@ -331,6 +329,26 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
 };
 
 const styles = stylex.create({
+  toggle: {
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  label: {
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
+    width: 'auto',
+    overflow: 'hidden',
+  },
+  input: {
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
+    width: 'auto',
+  },
   fieldOrderRadio: {
     marginBottom: spacing['--gf-spacing-x1'],
   },
@@ -365,7 +383,7 @@ const DraggableFieldName = ({
     <Draggable draggableId={fieldName} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <Box display="flex" gap={0} marginBottom={0.5} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className="gf-organize-fields-label">
+          <InlineLabel as="div" xstyle={styles.label}>
             <Stack gap={0} justifyContent="flex-start" alignItems="center" width="100%">
               {!isDragDisabled && (
                 <span {...provided.dragHandleProps}>
@@ -381,7 +399,7 @@ const DraggableFieldName = ({
                 </span>
               )}
               <IconButton
-                className="gf-organize-fields-toggle"
+                xstyle={styles.toggle}
                 size="md"
                 name={visible ? 'eye' : 'eye-slash'}
                 onClick={() => onToggleVisibility(fieldName, visible)}
@@ -397,7 +415,7 @@ const DraggableFieldName = ({
             </Stack>
           </InlineLabel>
           <Input
-            className="gf-organize-fields-input"
+            xstyle={styles.input}
             defaultValue={renamedFieldName || ''}
             placeholder={t('transformers.draggable-field-name.rename-placeholder', 'Rename {{fieldName}}', {
               fieldName,
@@ -426,7 +444,7 @@ const DraggableUIOrderByItem = ({ index, item, onChangeSort }: DraggableUIOrderB
     <Draggable draggableId={draggableId} index={index} isDragDisabled={item.order === Order.Off}>
       {(provided) => (
         <Box marginBottom={0.5} display="flex" gap={0} ref={provided.innerRef} {...provided.draggableProps}>
-          <InlineLabel as="div" className="gf-organize-fields-label">
+          <InlineLabel as="div" xstyle={styles.label}>
             <Stack gap={3} justifyContent="flex-start" alignItems="center" width="100%">
               <span {...provided.dragHandleProps}>
                 <Icon

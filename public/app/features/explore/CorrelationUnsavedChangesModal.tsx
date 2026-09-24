@@ -1,7 +1,7 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
-
-import './CorrelationUnsavedChangesModal.css';
 
 interface UnsavedChangesModalProps {
   message: string;
@@ -19,7 +19,7 @@ export const CorrelationUnsavedChangesModal = ({ onSave, onDiscard, onCancel, me
         'Unsaved changes to correlation'
       )}
       onDismiss={onCancel}
-      className="gf-explore-correlation-unsaved-modal"
+      xstyle={styles.modal}
     >
       <h5>{message}</h5>
       <Modal.ButtonRow>
@@ -38,3 +38,9 @@ export const CorrelationUnsavedChangesModal = ({ onSave, onDiscard, onCancel, me
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '600px',
+  },
+});

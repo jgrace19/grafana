@@ -9,7 +9,7 @@ import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DownloadFormat } from '../../utils';
 
-import { CONTROLS_WIDTH_EXPANDED, controlButtonStyle, getControlButtonProps } from './LogListControls';
+import { CONTROLS_WIDTH_EXPANDED, controlButtonStyles, getControlButtonProps } from './LogListControls';
 import { LogListControlsOption } from './LogListControlsOption';
 import { LOG_LIST_CONTROLS_WIDTH } from './virtualization';
 
@@ -92,8 +92,7 @@ export const LogTableControls = ({
       <LogListControlsOption
         expanded={controlsExpanded}
         name="arrow-from-right"
-        className={stylex.props(styles.controlButton, !controlsExpanded && styles.controlsCollapsedButton).className}
-        style={controlButtonStyle}
+        xstyle={[controlButtonStyles.button, !controlsExpanded && styles.controlsCollapsedButton]}
         variant="secondary"
         onClick={onExpandControlsClick}
         label={
@@ -185,9 +184,6 @@ const styles = stylex.create({
   }),
   controlsCollapsedButton: {
     transform: 'rotate(180deg)',
-  },
-  controlButton: {
-    height: spacing['--gf-spacing-x2'],
   },
   divider: {
     borderTopStyle: 'solid',

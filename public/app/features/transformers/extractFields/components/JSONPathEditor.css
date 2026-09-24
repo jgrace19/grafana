@@ -1,5 +1,0 @@
-/* InlineField sets its own margin and align-items; div.gf-* (0,1,1) beats its single class in either stylesheet order. */
-div.gf-jsonpath-remove {
-  margin: 0 0 0 4px;
-  align-items: center;
-}

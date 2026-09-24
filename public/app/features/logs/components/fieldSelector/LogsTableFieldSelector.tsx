@@ -17,7 +17,7 @@ import {
 import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
 import { getSuggestedFieldsFromTable } from './getSuggestedFieldsFromTable';
-import { collapsedButtonStyle, logsFieldSelectorWrapperStyles } from './styles';
+import { logsFieldSelectorWrapperStyles } from './styles';
 
 /**
  * FieldSelector wrapper for the LogsTable visualization.
@@ -118,7 +118,7 @@ export const LogsTableFieldSelector = ({
   ) : (
     <div {...stylex.props(logsFieldSelectorWrapperStyles.collapsedButtonContainer)}>
       <IconButton
-        style={collapsedButtonStyle}
+        xstyle={logsFieldSelectorWrapperStyles.collapsedButton}
         onClick={expand}
         name="arrow-from-right"
         tooltip={t('logs.field-selector.expand', 'Expand sidebar')}

@@ -18,7 +18,7 @@ export function FieldSearch({ collapse, onChange, value }: Props) {
     <>
       <IconButton
         className="gf-logs-field-search-collapse"
-        style={iconExpandedStyle}
+        xstyle={styles.iconExpanded}
         onClick={collapse}
         name="arrow-from-right"
         tooltip={t('logs.field-selector.collapse', 'Collapse sidebar')}
@@ -48,15 +48,12 @@ export function FieldSearch({ collapse, onChange, value }: Props) {
   );
 }
 
-// IconButton has no xstyle and sets its own position, which a class from another stylex.props() call can't reliably
-// override.
-const iconExpandedStyle: React.CSSProperties = {
-  position: 'absolute',
-  right: `calc(${spacing['--gf-spacing-grid-size']} * 0.2)`,
-  top: spacing['--gf-spacing-x1'],
-};
-
 const styles = stylex.create({
+  iconExpanded: {
+    position: 'absolute',
+    right: `calc(${spacing['--gf-spacing-grid-size']} * 0.2)`,
+    top: spacing['--gf-spacing-x1'],
+  },
   searchWrap: {
     paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
     paddingRight: 0,
