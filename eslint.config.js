@@ -748,7 +748,6 @@ module.exports = [
       ],
     },
   },
-  },
 
   {
     // Must come after grafana/no-extensions-imports, whose restriction it repeats.
