@@ -1,4 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { silencePeriodStyles } from './SilencePeriod.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useController, useFormContext } from 'react-hook-form';
 
 import { dateTime } from '@grafana/data';
@@ -46,7 +49,7 @@ export const SilencePeriod = () => {
 
   return (
     <Field
-      {...stylex.props(formStyles.timeRange)}
+      {...stylex.props(silencePeriodStyles.timeRange)}
       label={t('alerting.silence-period.label-silence-start-and-end', 'Silence start and end')}
       error={invalid ? 'To is before or the same as from' : ''}
       invalid={invalid}
@@ -74,8 +77,3 @@ export const SilencePeriod = () => {
   );
 };
 
-const styles = {
-  timeRange: css({
-    width: '400px',
-  }),
-};

@@ -453,7 +453,7 @@ import { TextLink } from '@grafana/ui';
 
 - `react-hook-form` (v7) - Form state
 - `@reduxjs/toolkit` - Redux + RTK Query
-- `@emotion/css` - Styling
+- StyleX (`@stylexjs/stylex`, `@grafana/ui/unstable` tokens, `mergeStylexClassName`) - Styling
 - `lodash` - Utilities
 - `msw` - API mocking for tests
 

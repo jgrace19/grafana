@@ -34,7 +34,7 @@ export const QueryOptions = ({
     <>
       <Toggletip
         content={
-          <div {...stylex.props(formStyles.queryOptions)}>
+          <div {...stylex.props(queryOptionsStyles.queryOptions)}>
             {onChangeTimeRange && (
               <InlineField label={t('alerting.query-options.label-time-range', 'Time Range')}>
                 <RelativeTimeRangePicker
@@ -50,13 +50,13 @@ export const QueryOptions = ({
         closeButton={true}
         placement="bottom-start"
       >
-        <button type="button" {...stylex.props(formStyles.actionLink)} onClick={() => setShowOptions(!showOptions)}>
+        <button type="button" {...stylex.props(queryOptionsStyles.actionLink)} onClick={() => setShowOptions(!showOptions)}>
           <Trans i18nKey="alerting.query-options.button-options">Options</Trans>{' '}
           {showOptions ? <Icon name="angle-right" /> : <Icon name="angle-down" />}
         </button>
       </Toggletip>
 
-      <div {...stylex.props(formStyles.staticValues)}>
+      <div {...stylex.props(queryOptionsStyles.staticValues)}>
         <span>
           <TimeRangeLabel relativeTimeRange={query.relativeTimeRange ?? getDefaultRelativeTimeRange()} />
         </span>

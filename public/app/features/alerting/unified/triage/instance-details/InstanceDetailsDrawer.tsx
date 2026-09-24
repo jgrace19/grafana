@@ -284,7 +284,7 @@ function InstanceStateTransitions({
   const sortedRecords = orderBy(records, (r) => r.timestamp, 'desc').slice(0, maxItems);
 
   return (
-    <div {...stylex.props(formStyles.container)}>
+    <div {...stylex.props(instanceDetailsDrawerStyles.container)}>
       {sortedRecords.map((record, index) => (
         <Fragment key={`${record.timestamp}-${index}`}>
           <Text color="secondary" variant="bodySmall">

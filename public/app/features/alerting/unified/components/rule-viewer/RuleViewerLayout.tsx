@@ -4,6 +4,8 @@ import { ruleViewerLayoutStyles } from './RuleViewerLayout.stylex';
 import * as React from 'react';
 import type { JSX } from 'react';
 
+import { type NavModelItem } from '@grafana/data';
+import { themeSpacing } from '../../stylex/spacing';
 import { Page } from 'app/core/components/Page/Page';
 import { type PageProps } from 'app/core/components/Page/types';
 
@@ -39,18 +41,9 @@ type ContentProps = {
 };
 
 export function RuleViewerLayoutContent({ children, padding = 2 }: ContentProps): JSX.Element | null {
-  const styles =(getContentStyles(padding));
-  return <div {...stylex.props(ruleViewerLayoutStyles.wrapper)}>{children}</div>;
+  return (
+    <div {...stylex.props(ruleViewerLayoutStyles.wrapper)} style={{ padding: themeSpacing(padding) }}>
+      {children}
+    </div>
+  );
 }
-
-
-const getContentStyles = (padding: number) => (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(padding),
-    }),
-  };
-};

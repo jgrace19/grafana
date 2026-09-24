@@ -64,10 +64,10 @@ interface CompactStatRowProps {
 }
 
 function CompactStatRow({ color, icon, ruleCount, stateLabel }: CompactStatRowProps) {
-  const iconColor = color === 'error' ? stylex.props(formStyles.errorColor) : stylex.props(formStyles.warningColor);
+  const iconColor = color === 'error' ? stylex.props(summaryStatsStyles.errorColor) : stylex.props(summaryStatsStyles.warningColor);
 
   return (
-    <div {...stylex.props(formStyles.statRow)}>
+    <div {...stylex.props(summaryStatsStyles.statRow)}>
       <Icon name={icon} size="sm" className={iconColor} />
       <Text element="span" weight="medium" color={color}>
         {stateLabel === 'firing' ? (
@@ -76,7 +76,7 @@ function CompactStatRow({ color, icon, ruleCount, stateLabel }: CompactStatRowPr
           <Trans i18nKey="alerting.triage.compact-pending">pending</Trans>
         )}
       </Text>
-      <span className={`${stylex.props(formStyles.statValue)} ${iconColor}`}>{ruleCount}</span>
+      <span className={`${stylex.props(summaryStatsStyles.statValue)} ${iconColor}`}>{ruleCount}</span>
       <Text element="span" color="secondary" variant="bodySmall">
         <Trans i18nKey="alerting.triage.compact-rules">rules</Trans>
       </Text>
@@ -109,7 +109,7 @@ function SummaryStatsContent() {
 
   return (
     <Box backgroundColor="secondary" borderRadius="default" padding={1.5}>
-      <div {...stylex.props(formStyles.statsGrid)}>
+      <div {...stylex.props(summaryStatsStyles.statsGrid)}>
         {rules.firing > 0 && (
           <CompactStatRow
             color="error"

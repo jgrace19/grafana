@@ -23,13 +23,11 @@ export const templateFormStyles = stylex.create({
           flexDirection: 'column',
   },
   form: {
-    label: 'template-form',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
   },
   fieldset: {
-    label: 'template-fieldset',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',

@@ -62,15 +62,15 @@ export function AllLabelsContent({ allLabels, onFilterAdded, labelFilter = '' }:
   };
 
   return (
-    <div {...stylex.props(formStyles.content)}>
+    <div {...stylex.props(labelsContentStyles.content)}>
       {visibleLabels.map((label, index) => {
         const isOpen = sectionOpen.isOpen(label.key);
         return (
           <Fragment key={label.key}>
-            <div {...stylex.props(formStyles.labelRow)}>
+            <div {...stylex.props(labelsContentStyles.labelRow)}>
               <Stack alignItems="center" gap={0} minWidth={0} grow={1}>
                 <IconButton
-                  {...stylex.props(formStyles.collapseToggle)}
+                  {...stylex.props(labelsContentStyles.collapseToggle)}
                   name={isOpen ? 'angle-down' : 'angle-right'}
                   size="sm"
                   aria-label={
@@ -83,7 +83,7 @@ export function AllLabelsContent({ allLabels, onFilterAdded, labelFilter = '' }:
                     labelKey={label.key}
                     onClick={(isActive) => handleLabelKeyClick(label.key, isActive)}
                   />
-                  <span {...stylex.props(formStyles.valueCount)}>{label.values.length}</span>
+                  <span {...stylex.props(labelsContentStyles.valueCount)}>{label.values.length}</span>
                 </Stack>
               </Stack>
               <Stack alignItems="center" gap={0.5} shrink={0}>
@@ -124,12 +124,12 @@ function LabelKeyButton({ labelKey, onClick }: LabelKeyButtonProps) {
   const isActive = useIsAnyFilter(labelKey);
 
   return (
-    <span {...stylex.props(formStyles.labelHeaderKey)}>
+    <span {...stylex.props(labelsContentStyles.labelHeaderKey)}>
       <Button
         variant="secondary"
         fill="text"
         size="sm"
-        {...mergeStylexClassName(stylex.props(formStyles.labelKeyButton), isActive && stylex.props(formStyles.activeButton))}
+        {...mergeStylexClassName(stylex.props(labelsContentStyles.labelKeyButton), isActive && stylex.props(labelsContentStyles.activeButton))}
         onClick={() => onClick(isActive)}
       >
         {labelKey}
@@ -157,12 +157,12 @@ function LabelValuesList({ labelKey, values, onValueClick, valueHits }: LabelVal
   return (
     <Stack direction="column" alignItems="stretch" gap={0}>
       {visibleValues.map(({ value, firing, pending }) => (
-        <div key={value} {...stylex.props(formStyles.valueRow)}>
+        <div key={value} {...stylex.props(labelsContentStyles.valueRow)}>
           <Button
             variant="secondary"
             fill="text"
             size="sm"
-            {...mergeStylexClassName(stylex.props(formStyles.valueButton), activeValue === value && stylex.props(formStyles.activeButton))}
+            {...mergeStylexClassName(stylex.props(labelsContentStyles.valueButton), activeValue === value && stylex.props(labelsContentStyles.activeButton))}
             onClick={() => onValueClick(value, activeValue === value)}
           >
             {value}

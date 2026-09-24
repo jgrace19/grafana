@@ -16,8 +16,8 @@ export function PromDurationDocs() {
         Different units can be combined for more granularity.
       </Trans>
       <hr />
-      <div {...stylex.props(formStyles.list)}>
-        <div {...stylex.props(formStyles.header)}>
+      <div {...stylex.props(promDurationDocsStyles.list)}>
+        <div {...stylex.props(promDurationDocsStyles.header)}>
           <div>
             <Trans i18nKey="alerting.prom-duration-docs.symbol">Symbol</Trans>
           </div>
@@ -33,7 +33,7 @@ export function PromDurationDocs() {
         <PromDurationDocsTimeUnit unit={TimeOptions.hours} name="hours" example="4h" />
         <PromDurationDocsTimeUnit unit={TimeOptions.days} name="days" example="3d" />
         <PromDurationDocsTimeUnit unit={TimeOptions.weeks} name="weeks" example="2w" />
-        <div {...stylex.props(formStyles.examples)}>
+        <div {...stylex.props(promDurationDocsStyles.examples)}>
           <div>
             <Trans i18nKey="alerting.prom-duration-docs.multiple-units-combined">Multiple units combined</Trans>
           </div>
@@ -49,7 +49,7 @@ function PromDurationDocsTimeUnit({ unit, name, example }: { unit: TimeOptions; 
 
   return (
     <>
-      <div {...stylex.props(formStyles.unit)}>{unit}</div>
+      <div {...stylex.props(promDurationDocsStyles.unit)}>{unit}</div>
       <div>{name}</div>
       <code>{example}</code>
     </>

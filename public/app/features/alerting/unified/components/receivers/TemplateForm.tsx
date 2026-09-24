@@ -202,7 +202,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
         <form
           onSubmit={handleSubmit(submit)}
           ref={formRef}
-          {...stylex.props(formStyles.form)}
+          {...stylex.props(templateFormStyles.form)}
           aria-label={t('alerting.template-form.aria-label-template-form', 'Template form')}
         >
           {/* error message */}
@@ -239,7 +239,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
           )}
 
           {/* name field for the template */}
-          <FieldSet disabled={isProvisioned} {...stylex.props(formStyles.fieldset)}>
+          <FieldSet disabled={isProvisioned} {...stylex.props(templateFormStyles.fieldset)}>
             <Stack direction="column" gap={1} alignItems="stretch" minHeight="100%">
               {/* name and save buttons */}
               <Stack direction="row" alignItems="center">
@@ -281,14 +281,14 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
               </Stack>
 
               {/* editor layout */}
-              <div {...rowSplitter.containerProps} {...stylex.props(formStyles.contentContainer)}>
+              <div {...rowSplitter.containerProps} {...stylex.props(templateFormStyles.contentContainer)}>
                 <div {...rowSplitter.primaryProps}>
                   {/* template content and payload editor column – full height and half-width */}
-                  <div {...columnSplitter.containerProps} {...stylex.props(formStyles.contentField)}>
+                  <div {...columnSplitter.containerProps} {...stylex.props(templateFormStyles.contentField)}>
                     {/* template editor */}
                     <div {...columnSplitter.primaryProps}>
                       {/* primaryProps will set "minHeight: min-content;" so we have to make sure to apply minHeight to the child */}
-                      <div {...mergeStylexClassName(stylex.props(formStyles.flexColumn), stylex.props(formStyles.containerWithBorderAndRadius), stylex.props(formStyles.minEditorSize))}>
+                      <div {...mergeStylexClassName(stylex.props(templateFormStyles.flexColumn), stylex.props(templateFormStyles.containerWithBorderAndRadius), stylex.props(templateFormStyles.minEditorSize))}>
                         <div>
                           <EditorColumnHeader
                             label={t('alerting.template-form.label-template-group', 'Template group')}
@@ -350,7 +350,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                               <TemplateEditor
                                 value={getValues('content')}
                                 onBlur={(value) => setValue('content', value)}
-                                containerStyles={stylex.props(formStyles.editorContainer)}
+                                containerStyles={stylex.props(templateFormStyles.editorContainer)}
                                 width={width}
                                 height={height}
                               />
@@ -366,10 +366,10 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                         <div {...columnSplitter.secondaryProps}>
                           <div
                             className={cx(
-                              stylex.props(formStyles.containerWithBorderAndRadius),
-                              stylex.props(formStyles.minEditorSize),
-                              stylex.props(formStyles.payloadEditor),
-                              stylex.props(formStyles.flexFull)
+                              stylex.props(templateFormStyles.containerWithBorderAndRadius),
+                              stylex.props(templateFormStyles.minEditorSize),
+                              stylex.props(templateFormStyles.payloadEditor),
+                              stylex.props(templateFormStyles.flexFull)
                             )}
                           >
                             <PayloadEditor
@@ -395,7 +395,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                       templateContent={watch('content')}
                       setPayloadFormatError={setPayloadFormatError}
                       payloadFormatError={payloadFormatError}
-                      {...mergeStylexClassName(stylex.props(formStyles.templatePreview), stylex.props(formStyles.minEditorSize))}
+                      {...mergeStylexClassName(stylex.props(templateFormStyles.templatePreview), stylex.props(templateFormStyles.minEditorSize))}
                       aiGeneratedTemplate={aiGeneratedTemplate}
                       setAiGeneratedTemplate={setAiGeneratedTemplate}
                     />
@@ -451,7 +451,7 @@ For detailed information about notification templates, refer to our documentatio
           <Trans i18nKey="alerting.templates.editor.auto-complete">
             For auto-completion of common templating code, type the following keywords in the content editor:
           </Trans>
-          <div {...stylex.props(formStyles.code)}>
+          <div {...stylex.props(templateFormStyles.code)}>
             {Object.values(snippets)
               .map((s) => s.label)
               .join(', ')}

@@ -18,13 +18,13 @@ export default function GettingStarted() {
   const atAGlanceImage = theme.name === 'dark' ? atAGlanceDarkSvg : atAGlanceLightSvg;
 
   return (
-    <div {...stylex.props(formStyles.grid)}>
+    <div {...stylex.props(gettingStartedStyles.grid)}>
       <ContentBox>
         <Stack direction="column" gap={1}>
           <Text element="h3">
             <Trans i18nKey="alerting.getting-started.how-it-works">How it works</Trans>
           </Text>
-          <ul {...stylex.props(formStyles.list)}>
+          <ul {...stylex.props(gettingStartedStyles.list)}>
             <li>
               <Trans i18nKey="alerting.getting-started.periodically-queries-data-sources">
                 Grafana alerting periodically queries data sources and evaluates the condition defined in the alert rule
@@ -46,7 +46,7 @@ export default function GettingStarted() {
               </Trans>
             </li>
           </ul>
-          <div {...stylex.props(formStyles.svgContainer)}>
+          <div {...stylex.props(gettingStartedStyles.svgContainer)}>
             <Stack justifyContent={'center'}>
               <SVG src={atAGlanceImage} width={undefined} height={undefined} />
             </Stack>
@@ -58,7 +58,7 @@ export default function GettingStarted() {
           <Text element="h3">
             <Trans i18nKey="alerting.getting-started.get-started">Get started</Trans>
           </Text>
-          <ul {...stylex.props(formStyles.list)}>
+          <ul {...stylex.props(gettingStartedStyles.list)}>
             <li>
               <Trans i18nKey="alerting.getting-started.create-alert-rule">
                 <Text weight="bold">Create an alert rule</Text> to query a data source and evaluate the condition
@@ -96,7 +96,7 @@ export function WelcomeHeader({ className }: { className?: string }) {
 
   return (
     <Stack gap={2} direction="column">
-      <ContentBox {...mergeStylexClassName(stylex.props(formStyles.ctaContainer), className)}>
+      <ContentBox {...mergeStylexClassName(stylex.props(gettingStartedStyles.ctaContainer), className)}>
         {config.featureToggles.alertingTriage && (
           <>
             <WelcomeCTABox
@@ -108,7 +108,7 @@ export function WelcomeHeader({ className }: { className?: string }) {
               href="/alerting/alerts"
               hrefText={t('alerting.welcome-header.href-text-alert-activity', 'View alert activity')}
             />
-            <div {...stylex.props(formStyles.separator)} />
+            <div {...stylex.props(gettingStartedStyles.separator)} />
           </>
         )}
         <WelcomeCTABox
@@ -120,7 +120,7 @@ export function WelcomeHeader({ className }: { className?: string }) {
           href="/alerting/list"
           hrefText="Manage alert rules"
         />
-        <div {...stylex.props(formStyles.separator)} />
+        <div {...stylex.props(gettingStartedStyles.separator)} />
         <WelcomeCTABox
           title={t('alerting.welcome-header.title-contact-points', 'Contact points')}
           description={t(
@@ -130,7 +130,7 @@ export function WelcomeHeader({ className }: { className?: string }) {
           href="/alerting/notifications"
           hrefText="Manage contact points"
         />
-        <div {...stylex.props(formStyles.separator)} />
+        <div {...stylex.props(gettingStartedStyles.separator)} />
         <WelcomeCTABox
           title={t('alerting.welcome-header.title-notification-policies', 'Notification policies')}
           description={t(
@@ -156,56 +156,23 @@ interface WelcomeCTABoxProps {
 function WelcomeCTABox({ title, description, href, hrefText }: WelcomeCTABoxProps) {
 
   return (
-    <div {...stylex.props(formStyles.container)}>
+    <div {...stylex.props(gettingStartedStyles.container)}>
       <Text element="h2" variant="h3">
         {title}
       </Text>
-      <div {...stylex.props(formStyles.desc)}>{description}</div>
-      <div {...stylex.props(formStyles.actionRow)}>
+      <div {...stylex.props(gettingStartedStyles.desc)}>{description}</div>
+      <div {...stylex.props(gettingStartedStyles.actionRow)}>
         <TextLink href={href}>{hrefText}</TextLink>
       </div>
     </div>
   );
 }
 
-const getWelcomeCTAButtonStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    color: theme.colors.text.primary,
-    flex: 1,
-    minWidth: '160px',
-    display: 'grid',
-    rowGap: theme.spacing(1),
-    gridTemplateColumns: 'min-content 1fr 1fr 1fr',
-    gridTemplateRows: 'min-content auto min-content',
-
-    '& h2': {
-      marginBottom: 0,
-      gridColumn: '2 / span 3',
-      gridRow: 1,
-    },
-  }),
-
-  desc: css({
-    gridColumn: '2 / span 3',
-    gridRow: 2,
-  }),
-
-  actionRow: css({
-    gridColumn: '2 / span 3',
-    gridRow: 3,
-    maxWidth: '240px',
-  }),
-});
+;
 
 function ContentBox({ children, className }: React.PropsWithChildren<{ className?: string }>) {
 
-  return <div {...mergeStylexClassName(stylex.props(formStyles.box), className)}>{children}</div>;
+  return <div {...mergeStylexClassName(stylex.props(gettingStartedStyles.box), className)}>{children}</div>;
 }
 
-const getContentBoxStyles = (theme: GrafanaTheme2) => ({
-  box: css({
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.lg,
-  }),
-});
+;

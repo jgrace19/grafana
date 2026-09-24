@@ -38,7 +38,7 @@ import {
 import { PromDurationInput } from './PromDurationInput';
 import * as stylex from '@stylexjs/stylex';
 import { editNotificationPolicyFormStyles } from './EditNotificationPolicyForm.stylex';
-import { formStyles } from './stylex.props(formStyles.stylex)';
+import { editNotificationPolicyFormStyles } from './stylex.props(editNotificationPolicyFormStyles.stylex)';
 import { routeTimingsFields } from './routeTimingsFields';
 
 export interface AmRoutesExpandedFormProps {
@@ -92,7 +92,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
         {fields.length === 0 && (
           <Badge
             color="orange"
-            {...stylex.props(formStyles.noMatchersWarning)}
+            {...stylex.props(editNotificationPolicyFormStyles.noMatchersWarning)}
             icon="exclamation-triangle"
             text={t(
               'alerting.am-routes-expanded-form.badge-no-matchers',
@@ -101,7 +101,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
           />
         )}
         {fields.length > 0 && (
-          <div {...stylex.props(formStyles.matchersContainer)}>
+          <div {...stylex.props(editNotificationPolicyFormStyles.matchersContainer)}>
             {fields.map((field, index) => {
               return (
                 <Stack direction="row" key={field.id} alignItems="center">
@@ -122,7 +122,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
                           {...field}
-                          {...stylex.props(formStyles.matchersOperator)}
+                          {...stylex.props(editNotificationPolicyFormStyles.matchersOperator)}
                           onChange={(value) => onChange(value?.value)}
                           options={matcherFieldOptions}
                           aria-label={t('alerting.am-routes-expanded-form.aria-label-operator', 'Operator')}
@@ -163,7 +163,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
           </div>
         )}
         <Button
-          {...stylex.props(formStyles.addMatcherBtn)}
+          {...stylex.props(editNotificationPolicyFormStyles.addMatcherBtn)}
           icon="plus"
           onClick={() => append(emptyArrayFieldMatcher)}
           variant="secondary"
@@ -192,7 +192,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
               <ExternalAlertmanagerContactPointSelector
                 selectProps={{
                   ...field,
-                  className: stylex.props(formStyles.input),
+                  className: stylex.props(editNotificationPolicyFormStyles.input),
                   onChange: (value) => handleContactPointSelect(value.value?.name, onChange),
                   isClearable: true,
                 }}
@@ -239,7 +239,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                   {...field}
                   invalid={Boolean(error)}
                   allowCustomValue
-                  {...stylex.props(formStyles.input)}
+                  {...stylex.props(editNotificationPolicyFormStyles.input)}
                   onCreateOption={(opt: string) => {
                     setGroupByOptions((opts) => [...opts, stringToSelectableValue(opt)]);
                     setValue('groupBy', [...(field.value || []), opt]);
@@ -269,7 +269,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
             <PromDurationInput
               {...register('groupWaitValue', { validate: promDurationValidator })}
               aria-label={routeTimingsFields.groupWait.ariaLabel}
-              {...stylex.props(formStyles.promDurationInput)}
+              {...stylex.props(editNotificationPolicyFormStyles.promDurationInput)}
             />
           </Field>
           <Field
@@ -281,7 +281,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
             <PromDurationInput
               {...register('groupIntervalValue', { validate: promDurationValidator })}
               aria-label={routeTimingsFields.groupInterval.ariaLabel}
-              {...stylex.props(formStyles.promDurationInput)}
+              {...stylex.props(editNotificationPolicyFormStyles.promDurationInput)}
             />
           </Field>
           <Field
@@ -298,7 +298,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
                 },
               })}
               aria-label={routeTimingsFields.repeatInterval.ariaLabel}
-              {...stylex.props(formStyles.promDurationInput)}
+              {...stylex.props(editNotificationPolicyFormStyles.promDurationInput)}
             />
           </Field>
         </>

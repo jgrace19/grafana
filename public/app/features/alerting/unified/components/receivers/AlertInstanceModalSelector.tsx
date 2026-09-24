@@ -107,11 +107,11 @@ export function AlertInstanceModalSelector({
         type="button"
         title={ruleName}
         style={style}
-        {...mergeStylexClassName(stylex.props(formStyles.rowButton), { [stylex.props(formStyles.rowOdd)]: index % 2 === 1, [stylex.props(formStyles.rowSelected)]: isSelected })}
+        {...mergeStylexClassName(stylex.props(alertInstanceModalSelectorStyles.rowButton), { [stylex.props(alertInstanceModalSelectorStyles.rowOdd)]: index % 2 === 1, [stylex.props(alertInstanceModalSelectorStyles.rowSelected)]: isSelected })}
         onClick={() => handleRuleChange(ruleName)}
       >
-        <div {...mergeStylexClassName(stylex.props(formStyles.ruleTitle), stylex.props(formStyles.rowButtonTitle))}>{ruleName}</div>
-        <div {...stylex.props(formStyles.alertFolder)}>
+        <div {...mergeStylexClassName(stylex.props(alertInstanceModalSelectorStyles.ruleTitle), stylex.props(alertInstanceModalSelectorStyles.rowButtonTitle))}>{ruleName}</div>
+        <div {...stylex.props(alertInstanceModalSelectorStyles.alertFolder)}>
           <Icon name="folder" /> {filteredRules[ruleName][0].labels.grafana_folder ?? ''}
         </div>
       </button>
@@ -150,17 +150,17 @@ export function AlertInstanceModalSelector({
       <button
         type="button"
         style={style}
-        {...mergeStylexClassName(stylex.props(formStyles.rowButton), stylex.props(formStyles.instanceButton), {
-          [stylex.props(formStyles.rowOdd)]: index % 2 === 1,
-          [stylex.props(formStyles.rowSelected)]: isSelected,
+        {...mergeStylexClassName(stylex.props(alertInstanceModalSelectorStyles.rowButton), stylex.props(alertInstanceModalSelectorStyles.instanceButton), {
+          [stylex.props(alertInstanceModalSelectorStyles.rowOdd)]: index % 2 === 1,
+          [stylex.props(alertInstanceModalSelectorStyles.rowSelected)]: isSelected,
         })}
         onClick={handleSelectInstances}
       >
-        <div {...stylex.props(formStyles.rowButtonTitle)} title={alert.labels.alertname}>
+        <div {...stylex.props(alertInstanceModalSelectorStyles.rowButtonTitle)} title={alert.labels.alertname}>
           <Tooltip placement="bottom" content={<pre>{JSON.stringify(alert, null, 2)}</pre>} theme={'info'}>
             <div>
               {tags.map((tag, index) => (
-                <Tag key={index} name={tag} {...stylex.props(formStyles.tag)} />
+                <Tag key={index} name={tag} {...stylex.props(alertInstanceModalSelectorStyles.tag)} />
               ))}
             </div>
           </Tooltip>
@@ -208,13 +208,13 @@ export function AlertInstanceModalSelector({
     <div>
       <Modal
         title={t('alerting.alert-instance-modal-selector.title-select-alert-instances', 'Select alert instances')}
-        {...stylex.props(formStyles.modal)}
+        {...stylex.props(alertInstanceModalSelectorStyles.modal)}
         closeOnEscape
         isOpen={isOpen}
         onDismiss={onDismiss}
-        contentClassName={stylex.props(formStyles.modalContent)}
+        contentClassName={stylex.props(alertInstanceModalSelectorStyles.modalContent)}
       >
-        <div {...stylex.props(formStyles.container)}>
+        <div {...stylex.props(alertInstanceModalSelectorStyles.container)}>
           <FilterInput
             value={ruleFilter}
             onChange={handleSearchRules}
@@ -224,11 +224,11 @@ export function AlertInstanceModalSelector({
           />
           <div>{(selectedRule && 'Select one or more instances from the list below') || ''}</div>
 
-          <div {...stylex.props(formStyles.column)}>
+          <div {...stylex.props(alertInstanceModalSelectorStyles.column)}>
             {loading && (
               <LoadingPlaceholder
                 text={t('alerting.alert-instance-modal-selector.text-loading-rules', 'Loading rules...')}
-                {...stylex.props(formStyles.loadingPlaceholder)}
+                {...stylex.props(alertInstanceModalSelectorStyles.loadingPlaceholder)}
               />
             )}
 
@@ -243,9 +243,9 @@ export function AlertInstanceModalSelector({
             )}
           </div>
 
-          <div {...stylex.props(formStyles.column)}>
+          <div {...stylex.props(alertInstanceModalSelectorStyles.column)}>
             {!selectedRule && !loading && (
-              <div {...stylex.props(formStyles.selectedRulePlaceholder)}>
+              <div {...stylex.props(alertInstanceModalSelectorStyles.selectedRulePlaceholder)}>
                 <div>
                   <Trans i18nKey="alerting.alert-instance-modal-selector.select-alert-rule">
                     Select an alert rule to get a list of available firing instances
@@ -256,7 +256,7 @@ export function AlertInstanceModalSelector({
             {loading && (
               <LoadingPlaceholder
                 text={t('alerting.alert-instance-modal-selector.text-loading-rule', 'Loading rule...')}
-                {...stylex.props(formStyles.loadingPlaceholder)}
+                {...stylex.props(alertInstanceModalSelectorStyles.loadingPlaceholder)}
               />
             )}
 

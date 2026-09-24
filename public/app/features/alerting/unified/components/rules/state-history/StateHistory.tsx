@@ -207,20 +207,15 @@ function renderStateCell(item: StateHistoryRow) {
 
 function renderTimestampCell(item: StateHistoryRow) {
   return (
-    <div className={TimestampStyle}>{item.data.timestamp && <span>{dateTimeFormat(item.data.timestamp)}</span>}</div>
+    <div {...stylex.props(stateHistoryStyles.timestamp)}>
+      {item.data.timestamp && <span>{dateTimeFormat(item.data.timestamp)}</span>}
+    </div>
   );
 }
 
 const LabelsWrapper = ({ children }: React.PropsWithChildren<{}>) => {
-  const { wrapper } = (getStyles);
-  return <div className={wrapper}>{children}</div>;
+  return <div {...stylex.props(stateHistoryStyles.wrapper)}>{children}</div>;
 };
-
-const TimestampStyle = css({
-  display: 'flex',
-  alignItems: 'flex-end',
-  flexDirection: 'column',
-});
 
 
 export default StateHistory;

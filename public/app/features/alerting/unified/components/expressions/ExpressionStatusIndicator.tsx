@@ -29,7 +29,7 @@ export const ExpressionStatusIndicator = ({ isCondition, onSetCondition, refId }
       <button
         key="make-condition"
         type="button"
-        {...stylex.props(formStyles.actionLink)}
+        {...stylex.props(expressionStatusIndicatorStyles.actionLink)}
         onClick={() => onSetCondition && onSetCondition()}
       >
         {makeConditionText}

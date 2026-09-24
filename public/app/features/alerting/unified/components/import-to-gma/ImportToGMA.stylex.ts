@@ -3,13 +3,13 @@ import * as stylex from '@stylexjs/stylex';
 import { grafanaTokens } from '@grafana/ui/unstable';
 
 export const importToGMAStyles = stylex.create({
-  successIcon: {
-    color: grafanaTokens.colors_success_main
+  previewModal_modal: {
+    width: '900px',
+        maxWidth: '90vw',
   },
-  warningIcon: {
-    color: grafanaTokens.colors_warning_main
-  },
-  errorIcon: {
-    color: grafanaTokens.colors_error_main
+  previewModal_editorContainer: {
+    border: `1px solid ${grafanaTokens.colors_border_medium}`,
+        borderRadius: grafanaTokens.shape_radius_default,
+        overflow: 'hidden',
   },
 });

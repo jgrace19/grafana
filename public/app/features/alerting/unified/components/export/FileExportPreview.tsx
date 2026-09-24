@@ -41,9 +41,9 @@ export function FileExportPreview({ format, textDefinition, downloadFileName, on
 
   return (
     // TODO Handle empty content
-    <div {...stylex.props(formStyles.container)}>
+    <div {...stylex.props(fileExportPreviewStyles.container)}>
       <FileExportInlineDocumentation exportProvider={provider} />
-      <div {...stylex.props(formStyles.content)}>
+      <div {...stylex.props(fileExportPreviewStyles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor
@@ -63,7 +63,7 @@ export function FileExportPreview({ format, textDefinition, downloadFileName, on
           )}
         </AutoSizer>
       </div>
-      <div {...stylex.props(formStyles.actions)}>
+      <div {...stylex.props(fileExportPreviewStyles.actions)}>
         <Button variant="secondary" onClick={onClose}>
           <Trans i18nKey="alerting.common.cancel">Cancel</Trans>
         </Button>

@@ -23,12 +23,12 @@ type Props = MergeExclusive<ChildrenProps, LabelActionsProps>;
 export function EditorColumnHeader({ label, actions, id, children }: Props) {
 
   if (children) {
-    return <div {...stylex.props(formStyles.container)}>{children}</div>;
+    return <div {...stylex.props(editorColumnHeaderStyles.container)}>{children}</div>;
   }
 
   return (
-    <div {...stylex.props(formStyles.container)}>
-      <Label {...stylex.props(formStyles.label)} id={id}>
+    <div {...stylex.props(editorColumnHeaderStyles.container)}>
+      <Label {...stylex.props(editorColumnHeaderStyles.label)} id={id}>
         {label}
       </Label>
       {actions && (

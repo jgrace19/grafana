@@ -42,7 +42,7 @@ export const RuleInspector = ({ onClose }: Props) => {
     <Drawer
       title={t('alerting.rule-inspector.title-inspect-alert-rule', 'Inspect Alert rule')}
       subtitle={
-        <div {...stylex.props(formStyles.subtitle)}>
+        <div {...stylex.props(ruleInspectorStyles.subtitle)}>
           <RuleInspectorTabs tabs={cloudRulesTabs} setActiveTab={setActiveTab} activeTab={activeTab} />
         </div>
       }
@@ -97,7 +97,7 @@ const InspectorYamlTab = ({ onSubmit }: YamlTabProps) => {
 
   return (
     <>
-      <div {...stylex.props(formStyles.applyButton)}>
+      <div {...stylex.props(ruleInspectorStyles.applyButton)}>
         <Button type="button" onClick={onApply}>
           <Trans i18nKey="alerting.inspector-yaml-tab.apply">Apply</Trans>
         </Button>
@@ -106,7 +106,7 @@ const InspectorYamlTab = ({ onSubmit }: YamlTabProps) => {
         </Tooltip>
       </div>
 
-      <div {...stylex.props(formStyles.content)}>
+      <div {...stylex.props(ruleInspectorStyles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor

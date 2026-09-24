@@ -1,6 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { type JSX, useMemo } from 'react';
 
+import { ruleDetailsDataSourcesStyles } from './RuleDetailsDataSources.stylex';
+
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { ExpressionDatasourceUID } from 'app/features/expressions/types';
@@ -52,7 +54,7 @@ export function RuleDetailsDataSources(props: Props): JSX.Element | null {
         <div key={name}>
           {icon && (
             <>
-              <img alt={`${name} datasource logo`} {...stylex.props(formStyles.dataSourceIcon)} src={icon} />{' '}
+              <img alt={`${name} datasource logo`} {...stylex.props(ruleDetailsDataSourcesStyles.dataSourceIcon)} src={icon} />{' '}
             </>
           )}
           {name}
@@ -62,13 +64,3 @@ export function RuleDetailsDataSources(props: Props): JSX.Element | null {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const size = theme.spacing(2);
-
-  return {
-    dataSourceIcon: css({
-      width: size,
-      height: size,
-    }),
-  };
-}

@@ -902,17 +902,7 @@ function PreviewContentModal({ isOpen, title, content, isLoading, language, onDi
   );
 }
 
-const getPreviewModalStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '900px',
-    maxWidth: '90vw',
-  }),
-  editorContainer: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-  }),
-});
+;
 
 // Confirm Import Modal Component
 interface ConfirmImportModalProps {

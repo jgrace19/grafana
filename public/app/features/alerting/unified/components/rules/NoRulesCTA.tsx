@@ -142,7 +142,7 @@ export function CloudNoRulesCTA({ dataSourceName }: { dataSourceName: string }) 
   const newRecordingRuleUrl = getNewDataSourceRuleUrl(dataSourceName, RuleFormType.cloudRecording);
 
   return (
-    <div {...stylex.props(formStyles.container)}>
+    <div {...stylex.props(noRulesCTAStyles.container)}>
       <Text variant="h5">
         <Trans i18nKey="alerting.list-view.empty.ds-no-rules">This data source has no rules configured</Trans>
       </Text>
