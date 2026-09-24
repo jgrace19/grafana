@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type DashboardLink } from '@grafana/schema';
-import { Icon, Stack, TagList, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, TagList } from '@grafana/ui';
 
 import { ProvisionedControlsSection, SourceIcon } from '../ProvisionedControlsSection';
 
@@ -11,8 +11,6 @@ const LINK_COLUMNS = [
 ];
 
 export function ProvisionedLinksSection({ links }: { links: DashboardLink[] }) {
-  const styles = useStyles2(getStyles);
-
   return (
     <ProvisionedControlsSection columns={LINK_COLUMNS}>
       {links.map((link, index) => (
@@ -22,12 +20,12 @@ export function ProvisionedLinksSection({ links }: { links: DashboardLink[] }) {
           </td>
           <td role="gridcell">
             <Stack>
-              {link.title && <span className={styles.titleWrapper}>{link.title}</span>}
-              {link.type === 'link' && <span className={styles.urlWrapper}>{link.url}</span>}
+              {link.title && <span {...stylex.props(styles.titleWrapper)}>{link.title}</span>}
+              {link.type === 'link' && <span {...stylex.props(styles.urlWrapper)}>{link.url}</span>}
               {link.type === 'dashboards' && <TagList tags={link.tags ?? []} />}
             </Stack>
           </td>
-          <td role="gridcell" className={styles.sourceCell}>
+          <td role="gridcell" {...stylex.props(styles.sourceCell)}>
             <SourceIcon origin={link.origin} />
           </td>
         </tr>
@@ -36,23 +34,23 @@ export function ProvisionedLinksSection({ links }: { links: DashboardLink[] }) {
   );
 }
 
-const getStyles = () => ({
-  titleWrapper: css({
+const styles = stylex.create({
+  titleWrapper: {
     width: '20vw',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     display: 'inline-block',
-  }),
-  urlWrapper: css({
+  },
+  urlWrapper: {
     width: '40vw',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     display: 'inline-block',
-  }),
-  sourceCell: css({
+  },
+  sourceCell: {
     width: '1%',
-    textAlign: 'center' as const,
-  }),
+    textAlign: 'center',
+  },
 });

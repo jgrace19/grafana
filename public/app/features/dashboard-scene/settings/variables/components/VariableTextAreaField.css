@@ -1,0 +1,18 @@
+/*
+ * Override on TextArea, which takes no xstyle and sets its own size and padding. Unlayered, and the doubled class
+ * outranks TextArea's rules (which may be inserted later) like the Emotion className override it replaces.
+ */
+.gf-variable-textarea.gf-variable-textarea {
+  white-space: pre-wrap;
+  min-height: var(--gf-spacing-x4);
+  height: auto;
+  overflow: auto;
+  padding: calc(var(--gf-spacing-grid-size) * 0.75) var(--gf-spacing-x1);
+  width: inherit;
+}
+
+@media (max-width: 543.95px) {
+  .gf-variable-textarea.gf-variable-textarea {
+    width: 100%;
+  }
+}

@@ -1,0 +1,9 @@
+/*
+ * The GlobalStyles `.filter-table th { width: auto }` rule outranks this one, as it always did: it shares that rule's
+ * `grafana-global` layer so the two still compare by specificity.
+ */
+@layer grafana-global {
+  .gf-provisioned-controls-th-narrow {
+    width: 1%;
+  }
+}

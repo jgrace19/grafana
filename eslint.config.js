@@ -137,6 +137,7 @@ const stylexMigratedAppFiles = [
   'public/app/core/navigation/*.{ts,tsx}',
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  'public/app/plugins/panel/{nodeGraph,timeseries}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
@@ -161,10 +162,8 @@ const stylexMigratedAppFiles = [
   // A1 alerting components
   'public/app/features/alerting/unified/components/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
-  // U8 long tail
-  'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
-  'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
+  // D2 dashboard-scene settings
+  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
