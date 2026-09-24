@@ -1,0 +1,7 @@
+/*
+ * Lifts the active tooltip above other portals. Portal sets its z-index inline, which only `!important`
+ * overrides, so this stays plain CSS.
+ */
+.gf-graveyard-tooltip-wrapper {
+  z-index: 1062 !important;
+}

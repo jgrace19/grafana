@@ -1,11 +1,11 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type HTMLAttributes, useCallback } from 'react';
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useTheme2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type HighlightPart } from '../../types/completion';
 import { PartialHighlighter } from '../Typeahead/PartialHighlighter';
 
@@ -45,8 +45,6 @@ export const Label = forwardRef<HTMLButtonElement, Props>(
     },
     ref
   ) => {
-    const theme = useTheme2();
-    const styles = getLabelStyles(theme);
     const searchWords = searchTerm ? [searchTerm] : [];
 
     const onLabelClick = useCallback(
@@ -69,29 +67,34 @@ export const Label = forwardRef<HTMLButtonElement, Props>(
         key={text}
         ref={ref}
         onClick={onLabelClick}
-        style={style}
         title={title || text}
         type="button"
         role="option"
         aria-selected={!!active}
-        className={cx(
-          styles.base,
-          active && styles.active,
-          loading && styles.loading,
-          hidden && styles.hidden,
-          className,
-          onClick && !hidden && styles.hover
+        {...mergeStylexProps(
+          stylex.props(
+            styles.base,
+            active && styles.active,
+            loading && styles.loading,
+            hidden && styles.hidden,
+            onClick && !hidden && styles.hover
+          ),
+          { className, style }
         )}
         {...rest}
       >
         {highlightParts !== undefined ? (
-          <PartialHighlighter text={text} highlightClassName={styles.matchHighLight} highlightParts={highlightParts} />
+          <PartialHighlighter
+            text={text}
+            highlightClassName={matchHighlightClassName}
+            highlightParts={highlightParts}
+          />
         ) : (
           <Highlighter
             textToHighlight={text}
             searchWords={searchWords}
             autoEscape
-            highlightClassName={styles.matchHighLight}
+            highlightClassName={matchHighlightClassName}
           />
         )}
       </button>
@@ -101,60 +104,65 @@ export const Label = forwardRef<HTMLButtonElement, Props>(
 
 Label.displayName = 'Label';
 
-const getLabelStyles = (theme: GrafanaTheme2) => ({
-  base: css({
+const pulse = stylex.keyframes({
+  '0%': {
+    color: colors['--gf-colors-text-primary'],
+  },
+  '50%': {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  '100%': {
+    color: colors['--gf-colors-text-disabled'],
+  },
+});
+
+const styles = stylex.create({
+  base: {
     display: 'inline-block',
     cursor: 'pointer',
-    fontSize: theme.typography.size.sm,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    backgroundColor: theme.colors.background.secondary,
-    color: theme.colors.text.primary,
+    fontSize: typography['--gf-typography-size-sm'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    color: colors['--gf-colors-text-primary'],
     whiteSpace: 'nowrap',
     textShadow: 'none',
-    padding: theme.spacing(0.5),
-    borderRadius: theme.shape.radius.default,
-    border: 'none',
-    marginRight: theme.spacing(1),
-    marginBottom: theme.spacing(0.5),
-  }),
-  loading: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    backgroundColor: theme.colors.primary.shade,
-    color: theme.colors.text.primary,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      animation: 'pulse 3s ease-out 0s infinite normal forwards',
-    },
-    '@keyframes pulse': {
-      '0%': {
-        color: theme.colors.text.primary,
-      },
-      '50%': {
-        color: theme.colors.text.secondary,
-      },
-      '100%': {
-        color: theme.colors.text.disabled,
-      },
-    },
-  }),
-  active: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    backgroundColor: theme.colors.primary.main,
-    color: theme.colors.primary.contrastText,
-  }),
-  matchHighLight: css({
-    background: 'inherit',
-    color: theme.components.textHighlight.text,
-    backgroundColor: theme.components.textHighlight.background,
-  }),
-  hidden: css({
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderStyle: 'none',
+    marginRight: spacing['--gf-spacing-grid-size'],
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  loading: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    backgroundColor: colors['--gf-colors-primary-shade'],
+    color: colors['--gf-colors-text-primary'],
+    animationName: { default: null, [motion.noPreferenceOrReduce]: pulse },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '3s' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+    animationDelay: { default: null, [motion.noPreferenceOrReduce]: '0s' },
+    animationIterationCount: { default: null, [motion.noPreferenceOrReduce]: 'infinite' },
+    animationDirection: { default: null, [motion.noPreferenceOrReduce]: 'normal' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'forwards' },
+  },
+  active: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    backgroundColor: colors['--gf-colors-primary-main'],
+    color: colors['--gf-colors-primary-contrast-text'],
+  },
+  matchHighLight: {
+    color: components['--gf-components-text-highlight-text'],
+    backgroundColor: components['--gf-components-text-highlight-background'],
+  },
+  hidden: {
     opacity: 0.6,
     cursor: 'default',
-    border: '1px solid transparent',
-  }),
-  hover: css({
-    ['&:hover']: {
-      opacity: 0.85,
-      cursor: 'pointer',
-    },
-  }),
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+  },
+  hover: {
+    opacity: { default: null, ':hover': 0.85 },
+  },
 });
+
+const matchHighlightClassName = stylex.props(styles.matchHighLight).className ?? '';

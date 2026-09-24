@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useLayoutEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import { useMountedState } from 'react-use';
@@ -14,7 +13,6 @@ import {
   formattedValueToString,
   getDisplayProcessor,
   getFieldDisplayName,
-  GrafanaTheme2,
   TimeZone,
 } from '@grafana/data';
 import { TooltipDisplayMode, SortOrder } from '@grafana/schema';
@@ -24,7 +22,9 @@ import { SeriesTable, SeriesTableRowProps } from '../../../components/VizTooltip
 import { UPlotConfigBuilder } from '../../../components/uPlot/config/UPlotConfigBuilder';
 import { VizTooltipContainer } from '../../../components/VizTooltip/VizTooltipContainer';
 import { findMidPointYPosition } from '../../../components/uPlot/utils';
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+
+import './TooltipPlugin.css';
 
 interface TooltipPluginProps {
   timeZone: TimeZone;
@@ -62,8 +62,6 @@ export const TooltipPlugin = ({
   const [isActive, setIsActive] = useState<boolean>(false);
   const isMounted = useMountedState();
   let parentWithFocus: HTMLElement | null = null;
-
-  const style = useStyles2(getStyles);
 
   // Add uPlot hooks to the config, or re-add when the config changed
   useLayoutEffect(() => {
@@ -245,7 +243,7 @@ export const TooltipPlugin = ({
   }
 
   return (
-    <Portal className={isActive ? style.tooltipWrapper : undefined}>
+    <Portal className={isActive ? 'gf-graveyard-tooltip-wrapper' : undefined}>
       {tooltip && coords && (
         <VizTooltipContainer position={{ x: coords.x, y: coords.y }} offset={{ x: TOOLTIP_OFFSET, y: TOOLTIP_OFFSET }}>
           {tooltip}
@@ -293,9 +291,3 @@ export function positionTooltip(u: uPlot, bbox: DOMRect) {
 
   return { x, y };
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  tooltipWrapper: css({
-    'z-index': theme.zIndex.portal + 1 + ' !important',
-  }),
-});

@@ -22,3 +22,4 @@ public/app/plugins/datasource/opentsdb/** # decoupled plugin workspace: no plugi
 public/app/plugins/datasource/parca/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet
+packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures

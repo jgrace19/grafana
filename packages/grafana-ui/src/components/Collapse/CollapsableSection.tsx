@@ -1,12 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { uniqueId } from 'lodash';
 import { type ReactNode, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { Spinner } from '../Spinner/Spinner';
 
@@ -44,7 +44,6 @@ export const CollapsableSection = ({
   unmountContentWhenClosed = true,
 }: Props) => {
   const [internalOpenState, toggleInternalOpenState] = useState<boolean>(isOpen);
-  const styles = useStyles2(collapsableSectionStyles);
 
   const isControlled = isOpen !== undefined && onToggle !== undefined;
   const isSectionOpen = isControlled ? isOpen : internalOpenState;
@@ -70,9 +69,11 @@ export const CollapsableSection = ({
   const content = (
     <div
       id={`collapse-content-${id}`}
-      className={cx(styles.content, contentClassName, {
-        [styles.contentHidden]: !unmountContentWhenClosed && !isSectionOpen,
-      })}
+      className={clsx(
+        stylex.props(styles.content).className,
+        contentClassName,
+        !unmountContentWhenClosed && !isSectionOpen && stylex.props(styles.contentHidden).className
+      )}
       data-testid={contentDataTestId}
     >
       {children}
@@ -84,23 +85,23 @@ export const CollapsableSection = ({
       {/* disabling the a11y rules here as the button handles keyboard interactions */}
       {/* this is just to provide a better experience for mouse users */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div onClick={onClick} className={cx(styles.header, className)}>
+      <div onClick={onClick} {...mergeStylexProps(stylex.props(styles.header), { className })}>
         <button
           type="button"
           id={`collapse-button-${id}`}
-          className={styles.button}
+          {...stylex.props(styles.button)}
           onClick={onClick}
           aria-expanded={isSectionOpen && !loading}
           aria-controls={`collapse-content-${id}`}
           aria-labelledby={buttonLabelId}
         >
           {loading ? (
-            <Spinner className={styles.spinner} />
+            <Spinner className={stylex.props(styles.spinner).className} />
           ) : (
-            <Icon name={isSectionOpen ? 'angle-down' : 'angle-right'} className={styles.icon} />
+            <Icon name={isSectionOpen ? 'angle-down' : 'angle-right'} xstyle={styles.icon} />
           )}
         </button>
-        <div className={styles.label} id={`collapse-label-${id}`} data-testid={headerDataTestId}>
+        <div {...stylex.props(styles.label)} id={`collapse-label-${id}`} data-testid={headerDataTestId}>
           {label}
         </div>
       </div>
@@ -109,48 +110,66 @@ export const CollapsableSection = ({
   );
 };
 
-const collapsableSectionStyles = (theme: GrafanaTheme2) => ({
-  header: css({
+const grid = spacing['--gf-spacing-grid-size'];
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+const styles = stylex.create({
+  header: {
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
     boxSizing: 'border-box',
     position: 'relative',
     justifyContent: 'flex-start',
-    fontSize: theme.typography.size.lg,
-    padding: `${theme.spacing(0.5)} 0`,
-    '&:focus-within': getFocusStyles(theme),
-  }),
-  button: css({
-    all: 'unset',
-    marginRight: theme.spacing(1),
-    '&:focus-visible': {
-      outline: 'none',
-      outlineOffset: 'unset',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'none',
-      },
-      boxShadow: 'none',
+    fontSize: typography['--gf-typography-size-lg'],
+    paddingTop: `calc(${grid} * 0.5)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${grid} * 0.5)`,
+    paddingLeft: 0,
+    outlineStyle: { default: null, ':focus-within': 'dotted' },
+    outlineWidth: { default: null, ':focus-within': '2px' },
+    outlineColor: { default: null, ':focus-within': 'transparent' },
+    outlineOffset: { default: null, ':focus-within': '2px' },
+    boxShadow: { default: null, ':focus-within': focusRing },
+    transitionProperty: { default: null, ':focus-within': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus-within': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus-within': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
     },
-  }),
-  icon: css({
-    color: theme.colors.text.secondary,
-  }),
-  content: css({
-    padding: `${theme.spacing(2)} 0`,
-  }),
-  contentHidden: css({
+  },
+  // The header shows the focus ring, so the button itself shows none.
+  button: {
+    all: 'unset',
+    marginRight: grid,
+    outlineStyle: { default: null, ':focus-visible': 'none' },
+    outlineOffset: { default: null, ':focus-visible': 'unset' },
+    transitionProperty: { default: null, ':focus-visible': { default: null, [motion.noPreferenceOrReduce]: 'none' } },
+    boxShadow: { default: null, ':focus-visible': 'none' },
+  },
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  content: {
+    paddingTop: `calc(${grid} * 2)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${grid} * 2)`,
+    paddingLeft: 0,
+  },
+  contentHidden: {
     display: 'none',
-  }),
-  spinner: css({
+  },
+  spinner: {
     display: 'flex',
     alignItems: 'center',
-    width: theme.spacing(2),
-  }),
-  label: css({
+    width: `calc(${grid} * 2)`,
+  },
+  label: {
     display: 'flex',
-    flex: '1 1 auto',
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.text.maxContrast,
-  }),
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-max-contrast'],
+  },
 });

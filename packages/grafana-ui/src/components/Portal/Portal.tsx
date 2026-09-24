@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren, useLayoutEffect, useRef } from 'react';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { zIndex } from '../../themes/stylex/constants.stylex';
 
 interface Props {
   className?: string;
@@ -53,26 +53,23 @@ export function getPortalContainer() {
 
 /** @internal */
 export function PortalContainer() {
-  const styles = useStyles2(getStyles);
   return (
     <div
       id="grafana-portal-container"
       data-testid={selectors.components.Portal.container}
-      className={styles.grafanaPortalContainer}
+      {...stylex.props(styles.grafanaPortalContainer)}
     />
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    grafanaPortalContainer: css({
-      position: 'fixed',
-      top: 0,
-      width: '100%',
-      zIndex: theme.zIndex.portal,
-    }),
-  };
-};
+const styles = stylex.create({
+  grafanaPortalContainer: {
+    position: 'fixed',
+    top: 0,
+    width: '100%',
+    zIndex: zIndex.portal,
+  },
+});
 
 export const RefForwardingPortal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   return <Portal {...props} forwardedRef={ref} />;

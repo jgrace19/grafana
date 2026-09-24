@@ -105,6 +105,10 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  // U8 long tail
+  'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
+  'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

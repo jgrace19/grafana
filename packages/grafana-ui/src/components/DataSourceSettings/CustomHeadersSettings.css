@@ -1,0 +1,14 @@
+/*
+ * Spaces the form fields and button of a custom header row, which StyleX can't target. Deliberately not in a
+ * cascade layer, like the Emotion rule it replaces.
+ */
+.gf-custom-header-row > * {
+  margin-left: 4px;
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.gf-custom-header-row > *:first-child,
+.gf-custom-header-row > *:last-child {
+  margin-left: 0;
+}
