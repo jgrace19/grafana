@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Visual parity check for a StyleX migration slice (plan §4.5): capture the current checkout with the
-# same harness as the baseline, then diff it against the baseline in the default migration mode.
+# same harness as the baseline, then diff it against the baseline twice:
+#   1. default mode (threshold 0.1, includeAA false, <= 0.1% px per image): the pass/fail bar, sets the exit code;
+#   2. strict mode (threshold 0, includeAA true, 0 px): mandatory; every entry it reports must be fixed or
+#      justified in the PR with its diff image attached.
 #
 #   scripts/stylex/visual/check.sh <slice-id> [capture.mjs args, e.g. --suites storybook --only 'button']
 #
 # Env: STYLEX_BASELINE  baseline dir with manifest.json (default: the project store's media/baseline)
-#      STYLEX_DIFF_OUT  report dir (default: the project store's media/visual-diff/<slice-id>)
+#      STYLEX_DIFF_OUT  report dir (default: the project store's media/visual-diff/<slice-id>); the strict
+#                       report goes to <report dir>/strict
 #      STYLEX_DIFF_ONLY regex on manifest entry ids; required with a partial capture, since entries
 #                       missing from the candidate fail the diff
 #      plus the harness env (VB_GRAFANA_PORT, VB_STORYBOOK_PORT, VB_RUN_DIR, GRAFANA_BIN).
@@ -29,4 +33,16 @@ DIFF_ARGS=(--baseline "${BASELINE}" --candidate "${CANDIDATE}" --out "${OUT}" --
 if [[ -n "${STYLEX_DIFF_ONLY:-}" ]]; then
   DIFF_ARGS+=(--only "${STYLEX_DIFF_ONLY}")
 fi
+set +e
 node "${HERE}/scripts/diff.mjs" "${DIFF_ARGS[@]}"
+DEFAULT_STATUS=$?
+STRICT_ARGS=("${DIFF_ARGS[@]}")
+STRICT_ARGS[5]="${OUT}/strict"
+node "${HERE}/scripts/diff.mjs" "${STRICT_ARGS[@]}" --strict
+STRICT_STATUS=$?
+set -e
+
+echo
+echo "default mode (pass/fail bar): $([[ ${DEFAULT_STATUS} == 0 ]] && echo PASS || echo FAIL) -> ${OUT}/summary.md"
+echo "strict mode (mandatory review): $([[ ${STRICT_STATUS} == 0 ]] && echo '0 px' || echo 'differences: fix or justify each in the PR, with its diff image') -> ${OUT}/strict/summary.md"
+exit "${DEFAULT_STATUS}"

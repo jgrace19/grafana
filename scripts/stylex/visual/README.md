@@ -77,13 +77,21 @@ scripts/stylex/visual/check.sh U2-inputs                   # full manifest, both
 STYLEX_DIFF_ONLY='^storybook' scripts/stylex/visual/check.sh U2-inputs --suites storybook,states
 ```
 
-The report (`summary.md`, `summary.json`, and a `.diff.png` for **every** entry with a non-zero pixel count,
-passing or not) goes to the store's `media/visual-diff/<slice-id>/`. Attach every diff image to the PR.
+`check.sh` runs **both** diffs. Each writes `summary.md`, `summary.json`, and a `.diff.png` for every entry with a
+non-zero pixel count, passing or not: default mode to the store's `media/visual-diff/<slice-id>/`, strict mode to
+`media/visual-diff/<slice-id>/strict/`.
 
-**Pass rule (default mode):** pixelmatch `threshold: 0.1`, `includeAA: false`; identical dimensions; at most
-0.1% of an image's pixels differ. Missing entries, capture errors, changed mask lists and environment
-mismatches (Playwright, Chromium, OS, fonts, viewport, DPR) always fail. `--strict` (`threshold: 0`,
-`includeAA: true`, 0 px) is for run-vs-run determinism checks on the same commit.
+**Rule for every slice (coordinator decision):**
+
+1. **Default mode is the pass/fail bar.** pixelmatch `threshold: 0.1`, `includeAA: false`; identical dimensions;
+   at most 0.1% of an image's pixels differ. `check.sh` exits non-zero if it fails.
+2. **A strict run is mandatory.** pixelmatch `threshold: 0`, `includeAA: true`. Every entry with a non-zero
+   strict pixel count must be **fixed**, or **justified in the PR** with its diff image attached. The 0.1
+   threshold hides small colour shifts over large areas (Phase 0's only regression scored 0 px in default mode).
+3. Attach every non-zero diff image from either mode to the PR.
+
+Missing entries, capture errors, changed mask lists and environment mismatches (Playwright, Chromium, OS,
+fonts, viewport, DPR) fail both modes. Strict mode is also the run-vs-run determinism check on one commit.
 
 Adding or widening a mask, excluding a story, or re-baselining needs coordinator approval. Re-baseline only
 from a newer `main` merge-base, never from a migration branch.
