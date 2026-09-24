@@ -140,6 +140,8 @@ const styles = stylex.create({
     backgroundClip: 'padding-box',
   },
   textContent: {
+    // Initials fill under the border as well; only avatar images clip to the padding box.
+    backgroundClip: 'border-box',
     backgroundColor: colors['--gf-colors-background-primary'],
     padding: 0,
     color: colors['--gf-colors-text-secondary'],
