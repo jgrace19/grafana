@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import * as stylex from '@stylexjs/stylex';
-import { Global } from '@emotion/react';
 import Slider from '@rc-component/slider';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -93,8 +92,6 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
 
   return (
     <div className={clsx(styles.container, styles.slider)}>
-      {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
-      <Global styles={styles.slider} />
       <div className={clsx(styles.sliderInput, ...sliderInputClassNames)}>
         <Slider
           min={min}
