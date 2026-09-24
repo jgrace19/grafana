@@ -2,6 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import grafanaIconSvg from 'img/grafana_icon.svg';
 import headerDarkSvg from 'img/licensing/header_dark.svg';
@@ -23,7 +24,12 @@ export function LicenseChrome({ header, editionNotice, subheader, children }: Pr
 
   return (
     <>
-      <div {...stylex.props(styles.header, styles.headerBackground(`url('${backgroundUrl}')`))}>
+      <div
+        {...mergeStylexProps(stylex.props(styles.header), {
+          // A relative url() in a StyleX dynamic value would resolve against the stylesheet, not the document.
+          style: { backgroundImage: `url('${backgroundUrl}')` },
+        })}
+      >
         <h2 style={title}>{header}</h2>
         {subheader && <h3>{subheader}</h3>}
 
@@ -100,7 +106,4 @@ const styles = stylex.create({
     backgroundPosition: 'right',
     borderRadius: shape['--gf-shape-radius-lg'],
   },
-  headerBackground: (backgroundImage: string) => ({
-    backgroundImage,
-  }),
 });
