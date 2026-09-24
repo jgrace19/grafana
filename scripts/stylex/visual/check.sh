@@ -29,6 +29,9 @@ CANDIDATE="$(mktemp -d)/candidate"
 
 REPO="${REPO}" bash "${HERE}/scripts/run-capture.sh" "${CANDIDATE}" "$@"
 
+# diff.mjs doesn't clear its output directory, so stale diff images from an earlier run would linger.
+rm -rf "${OUT}"
+
 DIFF_ARGS=(--baseline "${BASELINE}" --candidate "${CANDIDATE}" --out "${OUT}" --repo "${REPO}")
 if [[ -n "${STYLEX_DIFF_ONLY:-}" ]]; then
   DIFF_ARGS+=(--only "${STYLEX_DIFF_ONLY}")
