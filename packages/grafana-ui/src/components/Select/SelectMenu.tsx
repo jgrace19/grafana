@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type RefCallback, useLayoutEffect, useMemo, useRef, type JSX } from 'react';
 import * as React from 'react';
 import { FixedSizeList as List } from 'react-window';
@@ -7,12 +7,19 @@ import { type SelectableValue, toIconName } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import {
+  colors,
+  components as componentTokens,
+  shadows,
+  shape,
+  spacing,
+  typography,
+} from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 
-import { getSelectStyles } from './getSelectStyles';
 import { ToggleAllState } from './types';
 
 export interface ToggleAllOptions {
@@ -38,9 +45,6 @@ export const SelectMenu = ({
   innerProps,
   selectProps,
 }: React.PropsWithChildren<SelectMenuProps>) => {
-  const theme = useTheme2();
-  const styles = getSelectStyles(theme);
-
   const { toggleAllOptions, components } = selectProps;
 
   const optionsElement = components?.Option ?? SelectMenuOptions;
@@ -49,8 +53,7 @@ export const SelectMenu = ({
     <div
       {...innerProps}
       data-testid={selectors.components.Select.menu}
-      className={styles.menu}
-      style={{ maxHeight }}
+      {...mergeStylexProps(stylex.props(styles.menu), { style: { maxHeight } })}
       aria-label={t('grafana-ui.select.menu-label', 'Select options menu')}
     >
       <ScrollContainer ref={innerRef} maxHeight="inherit" overflowX="hidden" showScrollIndicators padding={0.5}>
@@ -106,7 +109,6 @@ export const VirtualizedSelectMenu = ({
   focusedOption,
 }: VirtualSelectMenuProps<SelectableValue>) => {
   const theme = useTheme2();
-  const styles = getSelectStyles(theme);
   const listRef = useRef<List>(null);
   const { toggleAllOptions, components } = selectProps;
 
@@ -184,7 +186,7 @@ export const VirtualizedSelectMenu = ({
     <List
       outerRef={scrollRef}
       ref={listRef}
-      className={styles.menu}
+      className={stylex.props(styles.menu).className}
       height={heightEstimate}
       width={widthEstimate}
       aria-label={t('grafana-ui.select.menu-label', 'Select options menu')}
@@ -226,15 +228,10 @@ const ToggleAllOption = ({
   selectedCount?: number;
   optionComponent: (props: React.PropsWithChildren<SelectMenuOptionProps<unknown>>) => JSX.Element;
 }) => {
-  const theme = useTheme2();
-  const styles = getSelectStyles(theme);
-
   return (
     <button
       data-testid={selectors.components.Select.toggleAllOptions}
-      className={css(clearButtonStyles(theme), styles.toggleAllButton, {
-        height: VIRTUAL_LIST_ITEM_HEIGHT,
-      })}
+      {...stylex.props(styles.toggleAllButton)}
       onClick={onClick}
     >
       {optionComponent({
@@ -265,8 +262,6 @@ export const SelectMenuOptions = ({
   isSelected,
   renderOptionLabel,
 }: React.PropsWithChildren<SelectMenuOptionProps<unknown>>) => {
-  const theme = useTheme2();
-  const styles = getSelectStyles(theme);
   const icon = data.icon ? toIconName(data.icon) : undefined;
   // We are removing onMouseMove and onMouseOver from innerProps because they cause the whole
   // list to re-render everytime the user hovers over an option. This is a performance issue.
@@ -276,7 +271,7 @@ export const SelectMenuOptions = ({
   return (
     <div
       ref={innerRef}
-      className={cx(
+      {...stylex.props(
         styles.option,
         isFocused && styles.optionFocused,
         isSelected && styles.optionSelected,
@@ -286,11 +281,13 @@ export const SelectMenuOptions = ({
       data-testid={selectors.components.Select.option}
       title={data.title}
     >
-      {icon && <Icon name={icon} className={styles.optionIcon} />}
-      {data.imgUrl && <img className={styles.optionImage} src={data.imgUrl} alt={data.label || String(data.value)} />}
-      <div className={styles.optionBody}>
+      {icon && <Icon name={icon} xstyle={styles.optionIcon} />}
+      {data.imgUrl && (
+        <img {...stylex.props(styles.optionImage)} src={data.imgUrl} alt={data.label || String(data.value)} />
+      )}
+      <div {...stylex.props(styles.optionBody)}>
         <span>{renderOptionLabel ? renderOptionLabel(data) : children}</span>
-        {data.description && <div className={styles.optionDescription}>{data.description}</div>}
+        {data.description && <div {...stylex.props(styles.optionDescription)}>{data.description}</div>}
         {data.component && <data.component />}
       </div>
     </div>
@@ -298,3 +295,123 @@ export const SelectMenuOptions = ({
 };
 
 SelectMenuOptions.displayName = 'SelectMenuOptions';
+
+const forcedColors = '@media (forced-colors: active), (prefers-contrast: more)';
+
+const styles = stylex.create({
+  menu: {
+    backgroundColor: componentTokens['--gf-components-dropdown-background'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    position: 'relative',
+    minWidth: '100%',
+    overflow: 'hidden',
+    zIndex: 1,
+  },
+  // Every background also keeps the hover colour: the Emotion :hover rule out-ranked the state classes.
+  option: {
+    padding: '8px',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+    borderTopWidth: { default: null, ':hover': { default: null, [forcedColors]: '1px' } },
+    borderRightWidth: { default: null, ':hover': { default: null, [forcedColors]: '1px' } },
+    borderBottomWidth: { default: null, ':hover': { default: null, [forcedColors]: '1px' } },
+    borderLeftWidth: { default: '2px', ':hover': { default: null, [forcedColors]: '1px' } },
+    borderTopStyle: { default: null, ':hover': { default: null, [forcedColors]: 'solid' } },
+    borderRightStyle: { default: null, ':hover': { default: null, [forcedColors]: 'solid' } },
+    borderBottomStyle: { default: null, ':hover': { default: null, [forcedColors]: 'solid' } },
+    borderLeftStyle: 'solid',
+    borderTopColor: {
+      default: null,
+      ':hover': { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    },
+    borderRightColor: {
+      default: null,
+      ':hover': { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    },
+    borderBottomColor: {
+      default: null,
+      ':hover': { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    },
+    borderLeftColor: {
+      default: 'transparent',
+      ':hover': { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    },
+  },
+  optionIcon: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  optionImage: {
+    width: '16px',
+    marginRight: '10px',
+  },
+  optionDescription: {
+    fontWeight: 'normal',
+    fontSize: typography['--gf-typography-size-sm'],
+    color: colors['--gf-colors-text-secondary'],
+    whiteSpace: 'normal',
+    lineHeight: typography['--gf-typography-body-line-height'],
+  },
+  optionBody: {
+    display: 'flex',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  optionFocused: {
+    backgroundColor: { default: colors['--gf-colors-action-focus'], ':hover': colors['--gf-colors-action-hover'] },
+    borderTopWidth: { default: null, [forcedColors]: '1px' },
+    borderRightWidth: { default: null, [forcedColors]: '1px' },
+    borderBottomWidth: { default: null, [forcedColors]: '1px' },
+    borderLeftWidth: { default: '2px', [forcedColors]: '1px' },
+    borderTopStyle: { default: null, [forcedColors]: 'solid' },
+    borderRightStyle: { default: null, [forcedColors]: 'solid' },
+    borderBottomStyle: { default: null, [forcedColors]: 'solid' },
+    borderTopColor: { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    borderRightColor: { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    borderBottomColor: { default: null, [forcedColors]: colors['--gf-colors-primary-border'] },
+    borderLeftColor: { default: 'transparent', [forcedColors]: colors['--gf-colors-primary-border'] },
+  },
+  optionSelected: {
+    backgroundColor: {
+      default: colors['--gf-colors-action-selected'],
+      ':hover': colors['--gf-colors-action-hover'],
+    },
+    '::before': {
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '" "',
+      display: 'block',
+      height: '100%',
+      position: 'absolute',
+      transform: 'translateX(-50%)',
+      width: spacing['--gf-spacing-x0-5'],
+      left: 0,
+    },
+  },
+  optionDisabled: {
+    backgroundColor: {
+      default: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-action-hover'],
+    },
+    color: colors['--gf-colors-action-disabled-text'],
+    cursor: 'not-allowed',
+  },
+  // clearButtonStyles + the fixed virtual list row height
+  toggleAllButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+    width: '100%',
+    textAlign: 'left',
+    height: VIRTUAL_LIST_ITEM_HEIGHT,
+  },
+});

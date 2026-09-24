@@ -1,9 +1,9 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, type JSX } from 'react';
 
 import { Trans } from '@grafana/i18n';
 
-import { stylesFactory } from '../../themes/stylesFactory';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { Button } from '../Button/Button';
 
 import { useLimit } from './hooks';
@@ -21,18 +21,6 @@ interface AbstractListProps<T> extends ListProps<T> {
   limit?: number;
 }
 
-const getStyles = stylesFactory((inlineList = false) => ({
-  list: css({
-    listStyleType: 'none',
-    margin: 0,
-    padding: 0,
-  }),
-
-  item: css({
-    display: (inlineList && 'inline-block') || 'block',
-  }),
-}));
-
 /** @deprecated Use ul/li/arr.map directly instead */
 // no point converting, this is deprecated
 // eslint-disable-next-line react-prefer-function-component/react-prefer-function-component
@@ -44,23 +32,21 @@ export const AbstractList = <T,>({
   inline,
   limit = 0,
 }: AbstractListProps<T>) => {
-  const styles = getStyles(inline);
-
   const [curLimit, setLimit] = useLimit(limit);
 
   const limitedItems = useMemo(() => (curLimit > 0 ? items.slice(0, curLimit) : items), [items, curLimit]);
 
   return (
-    <ul className={cx(styles.list, className)}>
+    <ul {...mergeStylexProps(stylex.props(styles.list), { className })}>
       {limitedItems.map((item, i) => {
         return (
-          <li className={styles.item} key={getItemKey ? getItemKey(item) : i}>
+          <li {...stylex.props(styles.item, inline && styles.inlineItem)} key={getItemKey ? getItemKey(item) : i}>
             {renderItem(item, i)}
           </li>
         );
       })}
       {curLimit > 0 && items.length > curLimit && (
-        <li className={styles.item} key="__limit">
+        <li {...stylex.props(styles.item, inline && styles.inlineItem)} key="__limit">
           <Button fill="text" variant="primary" size="sm" onClick={() => setLimit(0)}>
             <Trans i18nKey={'legend.container.show-all-series'}>...show all {{ total: items.length }} items</Trans>
           </Button>
@@ -69,3 +55,23 @@ export const AbstractList = <T,>({
     </ul>
   );
 };
+
+const styles = stylex.create({
+  list: {
+    listStyleType: 'none',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  item: {
+    display: 'block',
+  },
+  inlineItem: {
+    display: 'inline-block',
+  },
+});
