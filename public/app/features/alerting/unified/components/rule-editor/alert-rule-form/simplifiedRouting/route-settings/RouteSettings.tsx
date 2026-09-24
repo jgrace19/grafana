@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending InlineField and Field migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -19,6 +17,7 @@ import { formStyles } from '../../../../notification-policies/formStyles';
 import { TIMING_OPTIONS_DEFAULTS } from '../../../../notification-policies/timingOptions';
 
 import { RouteTimings } from './RouteTimings';
+import './RouteSettings.css';
 
 const REQUIRED_FIELDS_IN_GROUPBY = ['grafana_folder', 'alertname'];
 
@@ -61,7 +60,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-grouping', 'Override grouping')}
           transparent={true}
-          className={pendingEmotionStyles.switchElement}
+          className="gf-alerting-route-settings-switch"
         >
           <Switch id="override-grouping-toggle" {...register(`contactPoints.${alertManager}.overrideGrouping`)} />
         </InlineField>
@@ -86,7 +85,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
           )}
           {...register(`contactPoints.${alertManager}.groupBy`)}
           invalid={!!errors.contactPoints?.[alertManager]?.groupBy}
-          className={pendingEmotionStyles.optionalField}
+          className="gf-alerting-route-settings-optional-field"
         >
           <Controller
             render={({ field: { onChange, ref, ...field }, fieldState: { error } }) => {
@@ -170,7 +169,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-timings', 'Override timings')}
           transparent={true}
-          className={pendingEmotionStyles.switchElement}
+          className="gf-alerting-route-settings-switch"
         >
           <Switch id="override-timings-toggle" {...register(`contactPoints.${alertManager}.overrideTimings`)} />
         </InlineField>
@@ -197,19 +196,6 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
       )}
     </Stack>
   );
-};
-
-// stylex: pending InlineField and Field migration
-const pendingEmotionStyles = {
-  switchElement: css({
-    flexFlow: 'row-reverse',
-    gap: spacing['--gf-spacing-x1'],
-    alignItems: 'center',
-  }),
-  optionalField: css({
-    marginLeft: '49px',
-    marginBottom: spacing['--gf-spacing-x1'],
-  }),
 };
 
 const styles = stylex.create({

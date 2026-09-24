@@ -1,0 +1,4 @@
+/* InlineField has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX margins. */
+.gf-alerting-am-picker-field {
+  margin: 0;
+}

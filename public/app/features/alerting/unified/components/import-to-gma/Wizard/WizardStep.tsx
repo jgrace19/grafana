@@ -1,16 +1,15 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending FieldSet migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
 import { FieldSet, Stack } from '@grafana/ui';
-import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { CancelButton } from './CancelButton';
 import { NextButton } from './NextButton';
 import { PreviousButton } from './PreviousButton';
 import { useStepperState } from './StepperState';
 import { type StepKey } from './types';
+import './WizardStep.css';
 
 interface WizardStepProps {
   /** Step identifier */
@@ -92,7 +91,7 @@ export const WizardStep = ({
   };
 
   return (
-    <FieldSet label={label} className={pendingEmotionStyles.fieldSet}>
+    <FieldSet label={label} className="gf-alerting-wizard-step">
       {subHeader && <div {...stylex.props(styles.subHeader)}>{subHeader}</div>}
       <div {...stylex.props(styles.content)}>{children}</div>
       <div {...stylex.props(styles.actions)}>
@@ -110,17 +109,6 @@ export const WizardStep = ({
       </div>
     </FieldSet>
   );
-};
-
-// stylex: pending FieldSet migration
-const pendingEmotionStyles = {
-  fieldSet: css({
-    '& legend': {
-      marginBottom: spacing['--gf-spacing-x0-5'],
-      fontSize: typography['--gf-typography-h4-font-size'],
-      fontWeight: typography['--gf-typography-font-weight-medium'],
-    },
-  }),
 };
 
 const styles = stylex.create({
