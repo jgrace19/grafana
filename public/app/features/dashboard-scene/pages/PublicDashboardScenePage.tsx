@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
+import { PageLayoutType } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { type SceneComponentProps, UrlSyncContextProvider } from '@grafana/scenes';
-import { Alert, Box, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Icon, Stack } from '@grafana/ui';
+import { bp, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -33,7 +35,6 @@ export type Props = Omit<
 export function PublicDashboardScenePage({ route }: Props) {
   const { accessToken = '' } = useParams();
   const stateManager = getDashboardScenePageStateManager();
-  const styles = useStyles2(getStyles);
   const { dashboard, isLoading, loadError } = stateManager.useState();
 
   useEffect(() => {
@@ -50,7 +51,11 @@ export function PublicDashboardScenePage({ route }: Props) {
 
   if (!dashboard) {
     return (
-      <Page layout={PageLayoutType.Custom} className={styles.loadingPage} data-testid={selectors.loadingPage}>
+      <Page
+        layout={PageLayoutType.Custom}
+        className={stylex.props(styles.loadingPage).className}
+        data-testid={selectors.loadingPage}
+      >
         {isLoading && <PageLoader />}
       </Page>
     );
@@ -72,7 +77,6 @@ function PublicDashboardSceneRenderer({ model }: SceneComponentProps<DashboardSc
   const [isActive, setIsActive] = useState(false);
   const { controls, title, body } = model.useState();
   const { timePicker, refreshPicker, hideTimeControls } = controls!.useState();
-  const styles = useStyles2(getStyles);
   const conf = useGetPublicDashboardConfig();
 
   useEffect(() => {
@@ -89,15 +93,15 @@ function PublicDashboardSceneRenderer({ model }: SceneComponentProps<DashboardSc
   }
 
   return (
-    <Page layout={PageLayoutType.Custom} className={styles.page} data-testid={selectors.page}>
-      <div className={styles.controls}>
+    <Page layout={PageLayoutType.Custom} className={stylex.props(styles.page).className} data-testid={selectors.page}>
+      <div {...stylex.props(styles.controls)}>
         <Stack alignItems="center">
           {!conf.headerLogoHide && (
-            <div className={styles.iconTitle}>
+            <div {...stylex.props(styles.iconTitle)}>
               <Icon name="grafana" size="lg" aria-hidden />
             </div>
           )}
-          <span className={styles.title}>{title}</span>
+          <span {...stylex.props(styles.title)}>{title}</span>
         </Stack>
         {!hideTimeControls && (
           <Stack>
@@ -106,7 +110,7 @@ function PublicDashboardSceneRenderer({ model }: SceneComponentProps<DashboardSc
           </Stack>
         )}
       </div>
-      <div className={styles.body}>
+      <div {...stylex.props(styles.body)}>
         <body.Component model={body} />
       </div>
       <DashboardBrandingFooter />
@@ -114,56 +118,7 @@ function PublicDashboardSceneRenderer({ model }: SceneComponentProps<DashboardSc
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    loadingPage: css({
-      justifyContent: 'center',
-    }),
-    page: css({
-      padding: theme.spacing(0, 2),
-    }),
-    controls: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      position: 'sticky',
-      top: 0,
-      zIndex: theme.zIndex.navbarFixed,
-      background: theme.colors.background.canvas,
-      padding: theme.spacing(2, 0),
-      [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column',
-        gap: theme.spacing(1),
-        alignItems: 'stretch',
-      },
-    }),
-    iconTitle: css({
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'flex',
-        alignItems: 'center',
-      },
-    }),
-    title: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      fontSize: theme.typography.h4.fontSize,
-      margin: 0,
-    }),
-    body: css({
-      label: 'body',
-      display: 'flex',
-      flex: 1,
-      flexDirection: 'column',
-      overflowY: 'auto',
-    }),
-  };
-}
-
 function PublicDashboardScenePageError({ error }: { error: LoadError }) {
-  const styles = useStyles2(getStyles);
   const statusCode = error.status;
   const messageId = error.messageId;
   const message = error.message;
@@ -184,7 +139,11 @@ function PublicDashboardScenePageError({ error }: { error: LoadError }) {
   }
 
   return (
-    <Page layout={PageLayoutType.Custom} className={styles.loadingPage} data-testid={selectors.loadingPage}>
+    <Page
+      layout={PageLayoutType.Custom}
+      className={stylex.props(styles.loadingPage).className}
+      data-testid={selectors.loadingPage}
+    >
       <Box paddingY={4} display="flex" direction="column" alignItems="center">
         <Alert severity={AppNotificationSeverity.Error} title={message}>
           {message}
@@ -193,3 +152,48 @@ function PublicDashboardScenePageError({ error }: { error: LoadError }) {
     </Page>
   );
 }
+
+const styles = stylex.create({
+  loadingPage: {
+    justifyContent: 'center',
+  },
+  page: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  controls: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: { default: 'center', [bp.smDown]: 'stretch' },
+    position: 'sticky',
+    top: 0,
+    zIndex: zIndex.navbarFixed,
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: 0,
+    flexDirection: { default: null, [bp.smDown]: 'column' },
+    gap: { default: null, [bp.smDown]: spacing['--gf-spacing-x1'] },
+  },
+  iconTitle: {
+    display: { default: 'none', [bp.smUp]: 'flex' },
+    alignItems: { default: null, [bp.smUp]: 'center' },
+  },
+  title: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    fontSize: typography['--gf-typography-h4-font-size'],
+    margin: 0,
+  },
+  body: {
+    display: 'flex',
+    flex: '1',
+    flexDirection: 'column',
+    overflowY: 'auto',
+  },
+});

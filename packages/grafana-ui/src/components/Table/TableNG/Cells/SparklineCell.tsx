@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import * as React from 'react';
 
 import { type FieldConfig, getMinMaxAndDelta, type Field, isDataFrameWithValue } from '@grafana/data';
@@ -15,11 +15,11 @@ import {
   VisibilityMode,
 } from '@grafana/schema';
 
+import { spacing } from '../../../../themes/stylex/tokens.stylex';
 import { measureText } from '../../../../utils/measureText';
 import { FormattedValueDisplay } from '../../../FormattedValueDisplay/FormattedValueDisplay';
 import { Sparkline } from '../../../Sparkline/Sparkline';
 import { MaybeWrapWithLink } from '../components/MaybeWrapWithLink';
-import { isTableCellStylesKeyEqual } from '../styles';
 import { type SparklineCellProps, type TableCellStyles } from '../types';
 import { getAlignmentFactor, getCellOptions, prepareSparklineValue } from '../utils';
 
@@ -112,17 +112,21 @@ function getTableSparklineCellOptions(field: Field): TableSparklineCellOptions {
   throw new Error(`Expected options type ${TableCellDisplayMode.Sparkline} but got ${options.type}`);
 }
 
-export const getStyles: TableCellStyles = memoize(
-  (theme, { textAlign }) =>
-    css({
-      '&, & > a': {
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: theme.spacing(1),
-        ...(textAlign === 'right' && { flexDirection: 'row-reverse' }),
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+// The same layout for the link that may wrap the value and chart is in TableNG.css.
+export const getStyles: TableCellStyles = (_theme, { textAlign }) => ({
+  xstyle: [styles.sparkline, textAlign === 'right' && styles.reverse],
+  className: clsx('gf-table-ng-sparkline', textAlign === 'right' && 'gf-table-ng-sparkline-reverse'),
+});
+
+const styles = stylex.create({
+  sparkline: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  reverse: {
+    flexDirection: 'row-reverse',
+  },
+});

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type SelectableValue, toIconName } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
-import { Icon, Label, Select, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Icon, Label, Select, Spinner, Stack, Text } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import {
   publicDashboardApi,
@@ -31,7 +31,6 @@ export default function ShareTypeSelect({
   options: Array<SelectableValue<PublicDashboardShareType>>;
 }) {
   const { dashboard } = useShareDrawerContext();
-  const styles = useStyles2(getStyles);
 
   const { data: publicDashboard } = publicDashboardApi.endpoints?.getPublicDashboard.useQueryState(
     dashboard.state.uid!
@@ -79,7 +78,7 @@ export default function ShareTypeSelect({
             setShareType(v);
             onUpdateShareType(v.value!);
           }}
-          className={styles.select}
+          className={stylex.props(styles.select).className}
         />
       ) : (
         <Stack gap={1} alignItems="center">
@@ -91,10 +90,8 @@ export default function ShareTypeSelect({
   );
 }
 
-const getStyles = () => {
-  return {
-    select: css({
-      flex: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  select: {
+    flex: '1',
+  },
+});

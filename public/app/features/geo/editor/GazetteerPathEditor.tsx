@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState, useEffect } from 'react';
 
-import { type StandardEditorProps, type SelectableValue, type GrafanaTheme2 } from '@grafana/data';
-import { Alert, Select, useStyles2 } from '@grafana/ui';
+import { type StandardEditorProps, type SelectableValue } from '@grafana/data';
+import { Alert, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { COUNTRIES_GAZETTEER_PATH, type Gazetteer, getGazetteer } from '../gazetteer/gazetteer';
 
@@ -34,7 +35,6 @@ export const GazetteerPathEditor = ({
   context,
   item,
 }: StandardEditorProps<string, GazetteerPathEditorConfigSettings>) => {
-  const styles = useStyles2(getStyles);
   const [gaz, setGaz] = useState<Gazetteer>();
   const settings = item.settings;
 
@@ -72,10 +72,12 @@ export const GazetteerPathEditor = ({
         <>
           {gaz.error && <Alert title={gaz.error} severity={'warning'} />}
           {gaz.count && (
-            <div className={styles.keys}>
+            <div {...stylex.props(styles.keys)}>
               <b>({gaz.count})</b>
               {gaz.examples(10).map((k) => (
-                <span key={k}>{k},</span>
+                <span key={k} {...stylex.props(styles.key)}>
+                  {k},
+                </span>
               ))}
               {gaz.count > 10 && ' ...'}
             </div>
@@ -86,15 +88,14 @@ export const GazetteerPathEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  keys: css({
-    marginTop: theme.spacing(0.5),
+const styles = stylex.create({
+  keys: {
+    marginTop: spacing['--gf-spacing-x0-5'],
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-
-    '> span': {
-      marginLeft: theme.spacing(0.5),
-    },
-  }),
+  },
+  key: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
 });

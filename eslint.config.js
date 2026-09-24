@@ -105,8 +105,7 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Table/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
   // U7 viz
@@ -140,6 +139,8 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
   'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
+  // D2 dashboard-scene: remaining directories
+  'public/app/features/dashboard-scene/{assistant,components,conditional-rendering,embedding,inspect,pages,saving,sharing,solo,utils,v2schema}/**/*.{ts,tsx}',
   // M2 admin and misc features
   'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
   'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,ServerStatsCard,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
@@ -160,8 +161,29 @@ const stylexMigratedAppFiles = [
   // A1 alerting components
   'public/app/features/alerting/unified/components/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // M2b browse/manage dashboards, search, command palette, playlist, bookmarks, annotations
+  'public/app/features/{annotations,bookmarks,commandPalette,playlist}/**/*.{ts,tsx}',
+  'public/app/features/browse-dashboards/{BrowseDashboardsPage,RecentlyDeletedPage}.tsx',
+  'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell,TagsCell}.tsx',
+  'public/app/features/browse-dashboards/components/FolderDetailsActions/FolderDetailsActions.tsx',
+  'public/app/features/manage-dashboards/components/SnapshotListTableRow.tsx',
+  'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
+  'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
+  'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable,columns}.tsx',
   // D2 dashboard-scene settings
   'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
+  // C1 core: forms, login, folder picker, preferences, theme selector
+  'public/app/core/components/{AccessControl,ForgottenPassword,Form,RolePickerDrawer,SharedPreferences,Theme,ThemeSelector}/*.{ts,tsx}',
+  'public/app/core/components/Branding/{Branding,OrangeBadge}.tsx',
+  'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
+  'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
+  'public/app/core/components/Upgrade/ProBadge.tsx',
+  // M3 features long tail
+  'public/app/features/{actions,canvas,dimensions,geo,visualization}/**/*.{ts,tsx}',
+  // D1 dashboard-scene panel edit and edit pane
+  'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

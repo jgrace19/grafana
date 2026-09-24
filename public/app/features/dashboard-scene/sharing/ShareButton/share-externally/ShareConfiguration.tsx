@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Controller, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { sceneGraph } from '@grafana/scenes';
-import { FieldSet, Icon, Label, Spinner, Stack, Switch, Text, TimeRangeLabel, Tooltip, useStyles2 } from '@grafana/ui';
+import { FieldSet, Icon, Label, Spinner, Stack, Switch, Text, TimeRangeLabel, Tooltip } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { publicDashboardApi, useUpdatePublicDashboardMutation } from 'app/features/dashboard/api/publicDashboardApi';
 import { type ConfigPublicDashboardForm } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/ConfigPublicDashboard/ConfigPublicDashboard';
@@ -19,7 +19,6 @@ const selectors = e2eSelectors.pages.ShareDashboardDrawer.ShareExternally.Config
 type FormInput = Omit<ConfigPublicDashboardForm, 'isPaused'>;
 
 export default function ShareConfiguration() {
-  const styles = useStyles2(getStyles);
   const { dashboard } = useShareDrawerContext();
   const [update, { isLoading }] = useUpdatePublicDashboardMutation();
 
@@ -122,10 +121,10 @@ export default function ShareConfiguration() {
                 </Label>
               </Stack>
               <Stack gap={1} alignItems="flex-start">
-                <div className={styles.timeRange}>
+                <div {...stylex.props(styles.timeRange)}>
                   <Trans i18nKey="public-dashboard.configuration.time-range-label">Time range</Trans>
                 </div>
-                <div className={cx(styles.timeRange, styles.timeRangeValue)}>
+                <div {...stylex.props(styles.timeRange, styles.timeRangeValue)}>
                   <TimeRangeLabel value={timeRange.value} />
                 </div>
                 <Tooltip
@@ -147,12 +146,12 @@ export default function ShareConfiguration() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  timeRange: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.bodySmall.fontWeight,
-  }),
-  timeRangeValue: css({
-    color: theme.colors.text.secondary,
-  }),
+const styles = stylex.create({
+  timeRange: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-body-small-font-weight'],
+  },
+  timeRangeValue: {
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom-v5-compat';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Drawer, FilterInput, IconButton, useStyles2, Text, Stack } from '@grafana/ui';
+import { Drawer, FilterInput, IconButton, Text, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useGetFolderQueryFacade, useUpdateFolder } from 'app/api/clients/folder/v1beta1/hooks';
 import { Page } from 'app/core/components/Page/Page';
 import { useDispatch } from 'app/types/store';
@@ -39,7 +39,6 @@ const BrowseDashboardsPage = memo(({ queryParams }: { queryParams: Record<string
   const { uid: folderUID } = useParams();
   const dispatch = useDispatch();
 
-  const styles = useStyles2(getStyles);
   const [searchState, stateManager] = useSearchStateManager();
   const isSearching = stateManager.hasSearchFilters();
   const location = useLocation();
@@ -178,7 +177,7 @@ const BrowseDashboardsPage = memo(({ queryParams }: { queryParams: Record<string
       renderTitle={renderTitle}
       actions={<FolderDetailsActions folderDTO={folderDTO} />}
     >
-      <Page.Contents className={styles.pageContents}>
+      <Page.Contents className={stylex.props(styles.pageContents).className}>
         <ProvisionedFolderPreviewBanner queryParams={queryParams} />
 
         {/* Only shown when viewing a folder (not root) whose managing repository has been deleted — the folder still has ownership annotations pointing to a repo that no longer exists. */}
@@ -199,7 +198,7 @@ const BrowseDashboardsPage = memo(({ queryParams }: { queryParams: Record<string
 
         {hasSelection ? <BrowseActions folderDTO={folderDTO} /> : <BrowseFilters />}
 
-        <div className={styles.subView}>
+        <div {...stylex.props(styles.subView)}>
           <AutoSizer>
             {({ width, height }) =>
               isSearching ? (
@@ -241,21 +240,19 @@ const BrowseDashboardsPage = memo(({ queryParams }: { queryParams: Record<string
   );
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  pageContents: css({
-    label: 'pageContents',
+const styles = stylex.create({
+  pageContents: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     height: '100%',
-  }),
+  },
 
   // AutoSizer needs an element to measure the full height available
-  subView: css({
-    label: 'subView',
+  subView: {
     height: '100%',
     minHeight: '300px',
-  }),
+  },
 });
 
 BrowseDashboardsPage.displayName = 'BrowseDashboardsPage';

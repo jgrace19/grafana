@@ -1,22 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import {
-  Card,
-  EmptyState,
-  LinkButton,
-  Pagination,
-  Spinner,
-  Switch,
-  TextLink,
-  useStyles2,
-  useTheme2,
-} from '@grafana/ui';
+import { Card, EmptyState, LinkButton, Pagination, Spinner, Switch, TextLink, useTheme2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { contextSrv } from 'app/core/services/context_srv';
 import {
@@ -32,9 +23,9 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { type PublicDashboardListResponse } from '../../types';
 
 import { DeletePublicDashboardButton } from './DeletePublicDashboardButton';
+import './PublicDashboardListTable.css';
 
 const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const isMobile = useMedia(`(max-width: ${theme.breakpoints.values.sm}px)`);
 
@@ -59,12 +50,12 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
   const translatedPauseSharingText = t('shared-dashboard-list.toggle.pause-sharing-toggle-text', 'Pause access');
   return (
-    <Card noMargin className={styles.card} href={`/d/${pd.dashboardUid}`}>
-      <Card.Heading className={styles.heading}>
+    <Card noMargin className="gf-public-dashboard-card" href={`/d/${pd.dashboardUid}`}>
+      <Card.Heading className="gf-public-dashboard-card-heading">
         <span>{pd.title}</span>
       </Card.Heading>
-      <CardActions className={styles.actions}>
-        <div className={styles.pauseSwitch}>
+      <CardActions className="gf-public-dashboard-card-actions">
+        <div {...stylex.props(styles.pauseSwitch)}>
           <Switch
             value={!pd.isEnabled}
             label={translatedPauseSharingText}
@@ -119,7 +110,6 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 export const PublicDashboardListTable = () => {
   const [page, setPage] = useState(1);
 
-  const styles = useStyles2(getStyles);
   const { data: paginatedPublicDashboards, isLoading, isError } = useListPublicDashboardsQuery(page);
 
   return (
@@ -147,7 +137,7 @@ export const PublicDashboardListTable = () => {
               </EmptyState>
             ) : (
               <>
-                <ul className={styles.list}>
+                <ul {...stylex.props(styles.list)}>
                   {paginatedPublicDashboards.publicDashboards.map((pd: PublicDashboardListResponse) => (
                     <li key={pd.uid}>
                       <PublicDashboardCard pd={pd} />
@@ -169,50 +159,24 @@ export const PublicDashboardListTable = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  list: css({
+const styles = stylex.create({
+  list: {
     listStyleType: 'none',
-    marginBottom: theme.spacing(2),
+    marginBottom: spacing['--gf-spacing-x2'],
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
-  card: css({
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-    },
-  }),
-  heading: css({
+    gap: spacing['--gf-spacing-x1'],
+  },
+  pauseSwitch: {
     display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
     alignItems: 'center',
-    gap: theme.spacing(1),
-    flex: 1,
-  }),
-  orphanedTitle: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  actions: css({
-    display: 'flex',
-    alignItems: 'center',
-    position: 'relative',
-
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.up('sm')]: {
-      gap: theme.spacing(1),
-    },
-  }),
-  pauseSwitch: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: typography['--gf-typography-body-small-font-size'],
     marginBottom: 0,
-    flex: 1,
-
-    [theme.breakpoints.up('sm')]: {
-      paddingRight: theme.spacing(2),
+    flex: '1',
+    paddingRight: {
+      default: null,
+      [bp.smUp]: spacing['--gf-spacing-x2'],
     },
-  }),
+  },
 });

@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type SceneObject } from '@grafana/scenes';
-import { Box, Icon, ScrollContainer, Sidebar, Text, useElementSelection, useStyles2 } from '@grafana/ui';
+import { Box, Icon, ScrollContainer, Sidebar, Text, useElementSelection, useTheme2 } from '@grafana/ui';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardLinksSet } from '../settings/links/DashboardLinksSet';
 import { LinkEdit } from '../settings/links/LinkAddEditableElement';
@@ -46,7 +46,8 @@ interface DashboardOutlineNodeProps {
 }
 
 function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }: DashboardOutlineNodeProps) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const emphasizedBackground = theme.colors.emphasize(theme.colors.background.primary, 0.05);
   const key = sceneObject.state.key;
   const [isCollapsed, setIsCollapsed] = useState(depth > 0);
   const { isSelected, onSelect } = useElementSelection(key);
@@ -96,20 +97,22 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
     <li
       role="treeitem"
       aria-selected={isSelected}
-      className={styles.container}
+      {...stylex.props(styles.container)}
       onClick={onNodeClicked}
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       style={{ '--depth': depth } as React.CSSProperties}
     >
       <div
-        className={cx(styles.row, isEditing ? styles.rowEditMode : styles.rowViewMode, {
-          [styles.rowSelected]: isSelected,
-        })}
+        {...stylex.props(
+          styles.row,
+          isEditing ? styles.rowEditMode(emphasizedBackground) : styles.rowViewMode,
+          isSelected && styles.rowSelected(emphasizedBackground)
+        )}
       >
-        <div className={styles.indentation}></div>
+        <div {...stylex.props(styles.indentation)}></div>
         {isContainer && (
           <button
-            className={styles.angleButton}
+            {...stylex.props(styles.angleButton)}
             onClick={onToggleCollapse}
             data-testid={selectors.components.PanelEditor.Outline.node(instanceName)}
           >
@@ -117,7 +120,7 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
           </button>
         )}
         <button
-          className={cx(styles.nodeButton, { [styles.nodeButtonClone]: isCloned })}
+          {...stylex.props(styles.nodeButton, isCloned && styles.nodeButtonClone)}
           onDoubleClick={outlineRename.onNameDoubleClicked}
           data-testid={selectors.components.PanelEditor.Outline.item(instanceName)}
         >
@@ -127,19 +130,19 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
               ref={outlineRename.renameInputRef}
               type="text"
               value={elementInfo.instanceName}
-              className={styles.outlineInput}
+              {...stylex.props(styles.outlineInput)}
               onChange={outlineRename.onChangeName}
               onBlur={outlineRename.onInputBlur}
               onKeyDown={outlineRename.onInputKeyDown}
             />
           ) : (
             <>
-              <div className={styles.nodeName}>
+              <div {...stylex.props(styles.nodeName)}>
                 <Text truncate>{instanceName}</Text>
-                {elementInfo.isHidden && <Icon name="eye-slash" size="sm" className={styles.hiddenIcon} />}
+                {elementInfo.isHidden && <Icon name="eye-slash" size="sm" xstyle={styles.hiddenIcon} />}
               </div>
               {isCloned && (
-                <span>
+                <span {...stylex.props(styles.nodeButtonLabel)}>
                   <Trans i18nKey="dashboard.outline.repeated-item">Repeat</Trans>
                 </span>
               )}
@@ -149,7 +152,7 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
       </div>
 
       {isContainer && !isCollapsed && (
-        <ul className={styles.nodeChildren} role="group">
+        <ul {...stylex.props(styles.nodeChildren)} role="group">
           {visibleChildren.length > 0 ? (
             visibleChildren.map((child, i) => (
               <DashboardOutlineNode
@@ -165,12 +168,12 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
             <li
               role="treeitem"
               aria-selected={isSelected}
-              className={styles.container}
+              {...stylex.props(styles.container)}
               // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
               style={{ '--depth': depth + 1 } as React.CSSProperties}
             >
-              <div className={styles.row}>
-                <div className={styles.indentation}></div>
+              <div {...stylex.props(styles.row)}>
+                <div {...stylex.props(styles.indentation)}></div>
                 <Text color="secondary" italic>
                   <Trans i18nKey="dashboard.outline.tree-item.empty">(empty)</Trans>
                 </Text>
@@ -183,114 +186,112 @@ function DashboardOutlineNode({ sceneObject, editPane, isEditing, depth, index }
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      flexGrow: 1,
-      flexDirection: 'column',
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.secondary,
-    }),
-    containerSelected: css({
-      outline: `1px dashed ${theme.colors.primary.border} !important`,
-      outlineOffset: '0px',
-      color: theme.colors.text.primary,
-    }),
-    row: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-    }),
-    rowEditMode: css({
-      '&:hover': {
-        color: theme.colors.text.primary,
-        outline: `1px dashed ${theme.colors.border.strong}`,
-        backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.05),
-      },
-    }),
-    rowViewMode: css({
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-    rowSelected: css({
-      color: theme.colors.text.primary,
-      outline: `1px dashed ${theme.colors.primary.border} !important`,
-      backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.05),
-    }),
-    indentation: css({
-      marginLeft: `calc(var(--depth) * ${theme.spacing(3)})`,
-    }),
-    angleButton: css({
-      boxShadow: 'none',
-      border: 'none',
-      background: 'transparent',
-      borderRadius: theme.shape.radius.default,
-      padding: 0,
-      color: 'inherit',
-      lineHeight: 0,
-    }),
-    nodeButton: css({
-      boxShadow: 'none',
-      border: 'none',
-      background: 'transparent',
-      padding: 0,
-      borderRadius: theme.shape.radius.default,
-      color: 'inherit',
-      display: 'flex',
-      flexGrow: 1,
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      overflow: 'hidden',
-      '> span': {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      },
-    }),
-    nodeName: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      flexGrow: 1,
-      alignItems: 'center',
-      overflow: 'hidden',
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-    nodeButtonClone: css({
-      color: theme.colors.text.secondary,
-    }),
-    outlineInput: css({
-      border: `1px solid ${theme.components.input.borderColor}`,
-      height: theme.spacing(3),
-      borderRadius: theme.shape.radius.default,
-
-      '&:focus': {
-        outline: 'none',
-        boxShadow: 'none',
-      },
-    }),
-    nodeChildren: css({
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      gap: theme.spacing(0.5),
-
-      // tree line
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        width: '1px',
-        height: '100%',
-        pointerEvents: 'none',
-        zIndex: 1,
-        background: theme.colors.border.weak,
-        marginLeft: `calc(11px + ${theme.spacing(3)} * var(--depth))`,
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+    flexGrow: 1,
+    flexDirection: 'column',
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  row: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  rowEditMode: (hoverBackground: string) => ({
+    color: { default: null, ':hover': colors['--gf-colors-text-primary'] },
+    outlineWidth: { default: null, ':hover': '1px' },
+    outlineStyle: { default: null, ':hover': 'dashed' },
+    outlineColor: { default: null, ':hover': colors['--gf-colors-border-strong'] },
+    backgroundColor: { default: null, ':hover': hoverBackground },
+  }),
+  rowViewMode: {
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  rowSelected: (background: string) => ({
+    color: colors['--gf-colors-text-primary'],
+    outlineWidth: '1px',
+    outlineStyle: 'dashed',
+    outlineColor: colors['--gf-colors-primary-border'],
+    backgroundColor: background,
+  }),
+  indentation: {
+    marginLeft: `calc(var(--depth) * ${spacing['--gf-spacing-x3']})`,
+  },
+  angleButton: {
+    // Keeps the global `button:focus-visible` ring, which used to beat the Emotion `box-shadow: none`.
+    boxShadow: { default: null, ':not(:focus-visible)': 'none' },
+    borderStyle: 'none',
+    backgroundColor: 'transparent',
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    color: 'inherit',
+    lineHeight: 0,
+  },
+  nodeButton: {
+    boxShadow: { default: null, ':not(:focus-visible)': 'none' },
+    borderStyle: 'none',
+    backgroundColor: 'transparent',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: 'inherit',
+    display: 'flex',
+    flexGrow: 1,
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    overflow: 'hidden',
+  },
+  nodeButtonLabel: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  nodeName: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+    flexGrow: 1,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  hiddenIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  nodeButtonClone: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  outlineInput: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-input-border-color'],
+    height: spacing['--gf-spacing-x3'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    outlineStyle: { default: null, ':focus': 'none' },
+    boxShadow: { default: null, ':focus': 'none' },
+  },
+  nodeChildren: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    gap: spacing['--gf-spacing-x0-5'],
+    // tree line
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      width: '1px',
+      height: '100%',
+      pointerEvents: 'none',
+      zIndex: 1,
+      backgroundColor: colors['--gf-colors-border-weak'],
+      marginLeft: `calc(11px + ${spacing['--gf-spacing-x3']} * var(--depth))`,
+    },
+  },
+});

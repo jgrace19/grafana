@@ -1,0 +1,195 @@
+/*
+ * TableNG rules that StyleX can't express: react-data-grid's own DOM, and the arbitrary content inside cells
+ * (links, rendered markdown). Deliberately not in a cascade layer, like the Emotion rules they replace, so they
+ * keep beating react-data-grid's `@layer rdg` stylesheet, the global styles and the cells' StyleX styles.
+ * Selectors and specificity match the Emotion rules one for one. Hover rules are skipped on Safari 26 (no
+ * `gf-table-ng-hover` class); `:where()` keeps that check from adding specificity.
+ * z-index values are theme.zIndex.tooltip (1040) minus an offset.
+ */
+
+.gf-table-ng .rdg-cell {
+  padding: 6px;
+}
+
+.gf-table-ng .rdg-cell:last-child {
+  border-inline-end: none;
+}
+
+.gf-table-ng .rdg-cell[aria-selected='true'][role='columnheader'] {
+  outline: none;
+}
+
+/* add a box shadow on hover and selection for all body cells */
+.gf-table-ng > :not(.rdg-summary-row, .rdg-header-row) > .rdg-cell[aria-selected='true'],
+.gf-table-ng:where(.gf-table-ng-hover) > :not(.rdg-summary-row, .rdg-header-row) > .rdg-cell:hover {
+  box-shadow: var(--gf-shadows-z2);
+}
+
+/* selected cells should appear below hovered cells. */
+.gf-table-ng:where(.gf-table-ng-hover) > :not(.rdg-summary-row, .rdg-header-row) > .rdg-cell:hover {
+  z-index: 1033;
+}
+
+.gf-table-ng > :not(.rdg-summary-row, .rdg-header-row) > .rdg-cell[aria-selected='true'] {
+  z-index: 1034;
+}
+
+.gf-table-ng .rdg-cell.rdg-cell-frozen {
+  background-color: var(--rdg-row-background-color);
+  z-index: 1036;
+}
+
+.gf-table-ng:where(.gf-table-ng-hover) .rdg-cell.rdg-cell-frozen:hover {
+  z-index: 1038;
+}
+
+.gf-table-ng .rdg-cell.rdg-cell-frozen[aria-selected='true'] {
+  z-index: 1037;
+}
+
+/* have to override styles for row selection to workaround safari styles workaround */
+.gf-table-ng [role='row'][aria-selected='true']:hover .rdg-cell.rdg-cell-frozen {
+  background-color: var(--rdg-row-selected-hover-background-color);
+}
+
+.gf-table-ng [role='row'][aria-selected='true'] .rdg-cell.rdg-cell-frozen {
+  background-color: var(--rdg-row-selected-background-color);
+}
+
+.gf-table-ng .rdg-header-row .rdg-cell,
+.gf-table-ng .rdg-summary-row .rdg-cell {
+  z-index: 1035;
+}
+
+.gf-table-ng .rdg-header-row .rdg-cell.rdg-cell-frozen,
+.gf-table-ng .rdg-summary-row .rdg-cell.rdg-cell-frozen {
+  z-index: 1039;
+}
+
+.gf-table-ng .rdg-summary-row > .rdg-cell {
+  /* 0.75 padding causes "jumping" on hover. */
+  padding-block: calc(var(--gf-spacing-grid-size) * 0.625);
+}
+
+.gf-table-ng .rdg-summary-row > [aria-selected='true'],
+.gf-table-ng:where(.gf-table-ng-hover) .rdg-summary-row > :hover {
+  white-space: pre-line;
+  height: 100%;
+  min-height: fit-content;
+  overflow-y: visible;
+  box-shadow: var(--gf-shadows-z2);
+}
+
+.gf-table-ng-header-row .rdg-cell {
+  height: 100%;
+  align-items: flex-end;
+}
+
+/* links inside cells */
+.gf-table-ng-links a {
+  cursor: pointer;
+  color: var(--gf-colors-text-link);
+  text-decoration: none;
+}
+
+.gf-table-ng-links a:hover {
+  text-decoration: underline;
+}
+
+.gf-table-ng-links-colorized a {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* markdown cells */
+.gf-table-ng-markdown .markdown-container {
+  width: 100%;
+}
+
+/* for elements like `p`, `h*`, etc. which have an inherent margin, remove the bottom margin of the last one. */
+.gf-table-ng-markdown .markdown-container > :last-child {
+  margin-bottom: 0;
+}
+
+.gf-table-ng-markdown ol,
+.gf-table-ng-markdown ul {
+  padding-left: calc(var(--gf-spacing-grid-size) * 2.5);
+}
+
+.gf-table-ng-markdown p {
+  white-space: pre-line;
+}
+
+/* image cells */
+.gf-table-ng-image,
+.gf-table-ng-image a,
+.gf-table-ng-image img {
+  width: 100%;
+  height: 100%;
+}
+
+.gf-table-ng-image img {
+  object-fit: contain;
+}
+
+/* data links cells */
+.gf-table-ng-data-links > a {
+  flex-wrap: nowrap;
+}
+
+.gf-table-ng-data-links-inline > a {
+  padding-inline: calc(var(--gf-spacing-grid-size) * 0.5);
+  border-right: 2px solid var(--gf-colors-border-medium);
+}
+
+.gf-table-ng-data-links-inline > a:first-child {
+  padding-inline-start: 0;
+}
+
+.gf-table-ng-data-links-inline > a:last-child {
+  padding-inline-end: 0;
+  border-right: none;
+}
+
+/* sparkline cells: the link that may wrap the value and the chart */
+.gf-table-ng-sparkline > a {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gf-spacing-x1);
+}
+
+.gf-table-ng-sparkline-reverse > a {
+  flex-direction: row-reverse;
+}
+
+/*
+ * FilterPopup's Label (Forms) and operator ButtonSelect (ToolbarButton), owned by other slices. Doubled while
+ * they are still Emotion: their rules are inserted after this sheet.
+ */
+.gf-table-ng-filter-label.gf-table-ng-filter-label {
+  margin-bottom: 0;
+}
+
+.gf-table-ng-filter-operator.gf-table-ng-filter-operator {
+  font-size: 12px;
+}
+
+.gf-table-ng-filter-operator.gf-table-ng-filter-operator:hover,
+.gf-table-ng-filter-operator.gf-table-ng-filter-operator:focus,
+.gf-table-ng-filter-operator.gf-table-ng-filter-operator:active {
+  color: var(--gf-colors-text-primary);
+  background: transparent;
+}
+
+/*
+ * The header label resets the browser's button styles. StyleX drops `all`, and this rule is layered so that
+ * the label's own StyleX styles still apply on top of it.
+ */
+@layer grafana-global {
+  .gf-table-ng-header-label {
+    all: unset;
+  }
+}

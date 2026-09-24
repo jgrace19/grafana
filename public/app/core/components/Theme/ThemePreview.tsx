@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Divider, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Box, Divider, Icon, Stack, useTheme2 } from '@grafana/ui';
 import { ScopedThemeVars } from '@grafana/ui/internal';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Branding } from '../Branding/Branding';
 
@@ -22,7 +23,12 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
 }
 
 function ThemePreviewWithContext() {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  // A third of the previewed theme's text size, as in a scaled-down screenshot.
+  const miniText = styles.miniText(
+    Math.round(theme.typography.fontSize / 3),
+    Math.round(theme.typography.body.lineHeight / 3)
+  );
 
   return (
     <Box backgroundColor={'canvas'} display={'flex'} direction={'column'} grow={1}>
@@ -38,15 +44,15 @@ function ThemePreviewWithContext() {
           paddingX={1}
         >
           <Stack alignItems="center" gap={0.5}>
-            <Branding.MenuLogo className={styles.img} />
-            <div className={styles.breadcrumbs}>
+            <Branding.MenuLogo className={stylex.props(styles.img).className} />
+            <div {...stylex.props(styles.breadcrumbs, miniText)}>
               <Trans i18nKey="theme-preview.breadcrumbs.home">Home</Trans>
-              <Icon className={styles.breadcrumbSeparator} name="angle-right" />
+              <Icon xstyle={styles.breadcrumbSeparator} name="angle-right" />
               <Trans i18nKey="theme-preview.breadcrumbs.dashboards">Dashboards</Trans>
             </div>
           </Stack>
           <Stack alignItems="center" gap={0.5}>
-            <div className={styles.formInput} />
+            <div {...stylex.props(styles.formInput)} />
             <Box
               borderStyle="solid"
               borderColor="medium"
@@ -60,20 +66,20 @@ function ThemePreviewWithContext() {
         </Box>
         <Divider spacing={0} />
         <Box padding={2.5} display="flex" direction="column" flex={1}>
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
+          <div {...stylex.props(styles.panel)}>
+            <div {...stylex.props(styles.panelHeader, miniText)}>
               <Trans i18nKey="theme-preview.panel.title">Panel</Trans>
             </div>
             <Box padding={0.5} display="flex" direction="column" gap={0.5} grow={1}>
-              <div className={styles.formLabel}>
+              <div {...stylex.props(styles.formLabel, miniText)}>
                 <Trans i18nKey="theme-preview.panel.form-label">Form label</Trans>
               </div>
-              <div className={styles.formInput} />
+              <div {...stylex.props(styles.formInput)} />
             </Box>
             <Box display="flex" gap={0.5} padding={1} justifyContent="flex-end">
-              <div className={cx(styles.action, styles.actionSecondary)} />
-              <div className={cx(styles.action, styles.actionDanger)} />
-              <div className={cx(styles.action, styles.actionPrimary)} />
+              <div {...stylex.props(styles.action, styles.actionSecondary)} />
+              <div {...stylex.props(styles.action, styles.actionDanger)} />
+              <div {...stylex.props(styles.action, styles.actionPrimary)} />
             </Box>
           </div>
         </Box>
@@ -82,67 +88,67 @@ function ThemePreviewWithContext() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    breadcrumbs: css({
-      alignItems: 'center',
-      color: theme.colors.text.primary,
-      display: 'flex',
-      fontSize: Math.round(theme.typography.fontSize / 3),
-      gap: theme.spacing(0.25),
-      lineHeight: Math.round(theme.typography.body.lineHeight / 3),
-      paddingLeft: theme.spacing(0.5),
-    }),
-    breadcrumbSeparator: css({
-      height: theme.spacing(0.75),
-      width: theme.spacing(0.75),
-    }),
-    img: css({
-      height: theme.spacing(1),
-      width: theme.spacing(1),
-    }),
-    panel: css({
-      background: theme.components.panel.background,
-      border: `1px solid ${theme.components.panel.borderColor}`,
-      borderRadius: theme.shape.radius.default,
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-    }),
-    panelHeader: css({
-      alignItems: 'center',
-      color: theme.colors.text.primary,
-      display: 'flex',
-      fontSize: Math.round(theme.typography.fontSize / 3),
-      height: theme.spacing(2),
-      lineHeight: Math.round(theme.typography.body.lineHeight / 3),
-      padding: theme.spacing(0.5),
-    }),
-    formLabel: css({
-      color: theme.colors.text.primary,
-      fontSize: Math.round(theme.typography.fontSize / 3),
-      lineHeight: Math.round(theme.typography.body.lineHeight / 3),
-    }),
-    formInput: css({
-      background: theme.components.input.background,
-      border: `1px solid ${theme.colors.border.medium}`,
-      borderRadius: theme.shape.radius.default,
-      height: theme.spacing(1),
-      width: theme.spacing(6),
-    }),
-    action: css({
-      borderRadius: theme.shape.radius.default,
-      height: theme.spacing(1),
-      width: theme.spacing(2.5),
-    }),
-    actionSecondary: css({
-      background: theme.colors.secondary.main,
-    }),
-    actionDanger: css({
-      background: theme.colors.error.main,
-    }),
-    actionPrimary: css({
-      background: theme.colors.primary.main,
-    }),
-  };
-};
+const styles = stylex.create({
+  miniText: (fontSize: number, lineHeight: number) => ({ fontSize, lineHeight }),
+  breadcrumbs: {
+    alignItems: 'center',
+    color: colors['--gf-colors-text-primary'],
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  breadcrumbSeparator: {
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+  },
+  img: {
+    height: spacing['--gf-spacing-x1'],
+    width: spacing['--gf-spacing-x1'],
+  },
+  panel: {
+    backgroundColor: components['--gf-components-panel-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  panelHeader: {
+    alignItems: 'center',
+    color: colors['--gf-colors-text-primary'],
+    display: 'flex',
+    height: spacing['--gf-spacing-x2'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  formLabel: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  formInput: {
+    backgroundColor: components['--gf-components-input-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: spacing['--gf-spacing-x1'],
+    width: spacing['--gf-spacing-x6'],
+  },
+  action: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: spacing['--gf-spacing-x1'],
+    width: spacing['--gf-spacing-x2-5'],
+  },
+  actionSecondary: {
+    backgroundColor: colors['--gf-colors-secondary-main'],
+  },
+  actionDanger: {
+    backgroundColor: colors['--gf-colors-error-main'],
+  },
+  actionPrimary: {
+    backgroundColor: colors['--gf-colors-primary-main'],
+  },
+});

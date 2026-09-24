@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { config, useChromeHeaderHeight } from '@grafana/runtime';
 import { type VizPanel, useSceneObjectState } from '@grafana/scenes';
-import { ElementSelectionContext, useSidebar, useStyles2, useTheme2, Sidebar } from '@grafana/ui';
+import { ElementSelectionContext, useSidebar, useTheme2, Sidebar } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import NativeScrollbar, { DivScrollElement } from 'app/core/components/NativeScrollbar';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -28,6 +30,8 @@ import { dynamicDashNavActions } from '../utils/registerDynamicDashNavAction';
 import { type DashboardSidebarPaneName } from './DashboardEditPane';
 import { DashboardEditPaneRenderer } from './DashboardEditPaneRenderer';
 
+import './DashboardEditPaneSplitter.css';
+
 interface Props {
   dashboard: DashboardScene;
   isEditing?: boolean;
@@ -45,14 +49,13 @@ export function DashboardEditPaneSplitter(props: Props) {
 
 function DashboardEditPaneSplitterLegacy({ dashboard, body, controls }: Props) {
   const headerHeight = useChromeHeaderHeight();
-  const styles = useStyles2(getStyles, headerHeight ?? 0);
 
   return (
     <NativeScrollbar onSetScrollRef={dashboard.onSetScrollRef}>
-      <div className={styles.canvasWrappperOld}>
+      <div {...stylex.props(styles.canvasWrappperOld)}>
         <NavToolbarActions dashboard={dashboard} />
-        <div className={styles.controlsWrapperSticky}>{controls}</div>
-        <div className={styles.body}>{body}</div>
+        <div {...stylex.props(styles.controlsWrapperSticky(headerHeight ?? 0))}>{controls}</div>
+        <div {...stylex.props(styles.body)}>{body}</div>
       </div>
     </NativeScrollbar>
   );
@@ -61,7 +64,6 @@ function DashboardEditPaneSplitterLegacy({ dashboard, body, controls }: Props) {
 function DashboardEditPaneSplitterNewLayouts({ dashboard, isEditing, body, controls }: Props) {
   const headerHeight = useChromeHeaderHeight();
   const { editPane } = dashboard.state;
-  const styles = useStyles2(getStyles, headerHeight ?? 0);
   const { chrome } = useGrafana();
   const { kioskMode } = chrome.useState();
   const { isPlaying } = playlistSrv.useState();
@@ -193,7 +195,9 @@ function DashboardEditPaneSplitterNewLayouts({ dashboard, isEditing, body, contr
     if (renderWithoutSidebar) {
       return (
         <div
-          className={cx(styles.bodyWrapper, styles.bodyWrapperKiosk)}
+          {...mergeStylexProps(stylex.props(styles.bodyWrapper, styles.bodyWrapperKiosk), {
+            className: bodyWrapperClass,
+          })}
           data-testid={selectors.components.DashboardEditPaneSplitter.primaryBody}
         >
           <NativeScrollbar onSetScrollRef={dashboard.onSetScrollRef}>{body}</NativeScrollbar>
@@ -203,12 +207,12 @@ function DashboardEditPaneSplitterNewLayouts({ dashboard, isEditing, body, contr
 
     return (
       <div
-        className={styles.bodyWrapper}
+        className={mergeStylexProps(stylex.props(styles.bodyWrapper), { className: bodyWrapperClass }).className}
         data-testid={selectors.components.DashboardEditPaneSplitter.primaryBody}
         {...sidebarContext.outerWrapperProps}
       >
         <div
-          className={styles.scrollContainer}
+          {...stylex.props(styles.scrollContainer)}
           ref={onBodyRef}
           onPointerDown={onClearSelection}
           data-testid={selectors.components.DashboardEditPaneSplitter.bodyContainer}
@@ -227,9 +231,9 @@ function DashboardEditPaneSplitterNewLayouts({ dashboard, isEditing, body, contr
 
   return (
     <AssistantPopoverContext.Provider value={popoverContextValue}>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <ElementSelectionContext.Provider value={selectionContext}>
-          <div className={styles.controlsWrapperSticky} onPointerDown={onClearSelection}>
+          <div {...stylex.props(styles.controlsWrapperSticky(headerHeight ?? 0))} onPointerDown={onClearSelection}>
             {controls}
           </div>
           {renderBody()}
@@ -276,86 +280,68 @@ function renderDynamicNavActions() {
   });
 }
 
-function getStyles(theme: GrafanaTheme2, headerHeight: number) {
-  return {
-    canvasWrappperOld: css({
-      label: 'canvas-wrapper-old',
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-    }),
-    container: css({
-      label: 'container',
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      position: 'relative',
-    }),
-    bodyWrapper: css({
-      label: 'body-wrapper',
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      position: 'relative',
-      flex: '1 1 0',
-      overflow: 'hidden',
+// Carries the unlayered rule in DashboardEditPaneSplitter.css that lifts the Sidebar on small screens.
+const bodyWrapperClass = 'gf-dashboard-edit-pane-body-wrapper';
 
-      [theme.breakpoints.down('sm')]: {
-        flex: 1,
-
-        '> div:nth-child(2)': {
-          zIndex: theme.zIndex.activePanel,
-        },
-      },
-    }),
-    bodyWrapperKiosk: css({
-      padding: theme.spacing(0, 2, 2, 2),
-      overflow: 'unset',
-    }),
-    scrollContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      minHeight: 0,
-      overflow: 'auto',
-      scrollbarWidth: 'thin',
-      scrollbarGutter: 'stable',
-      // without top padding the fixed controls headers is rendered over the selection outline.
-      padding: theme.spacing(0.125, 1, 2, 2),
-    }),
-    scrollContainerNoSidebar: css({
-      paddingRight: theme.spacing(2),
-    }),
-    body: css({
-      label: 'body',
-      display: 'flex',
-      flexGrow: 1,
-      gap: theme.spacing(1),
-      boxSizing: 'border-box',
-      flexDirection: 'column',
-      // without top padding the fixed controls headers is rendered over the selection outline.
-      padding: theme.spacing(0.125, 2, 2, 2),
-    }),
-    bodyEditing: css({
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      overflow: 'auto',
-      scrollbarWidth: 'thin',
-      scrollbarGutter: 'stable',
-      // Because the edit pane splitter handle area adds padding we can reduce it here
-      paddingRight: theme.spacing(1),
-    }),
-    controlsWrapperSticky: css({
-      [theme.breakpoints.up('md')]: {
-        position: 'sticky',
-        // above docked dashboard edit Sidebar (zIndex navBarFixed); otherwise time picker popover stays under it.
-        zIndex: theme.zIndex.sidemenu,
-        background: theme.colors.background.canvas,
-        top: headerHeight,
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  canvasWrappperOld: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    position: 'relative',
+  },
+  bodyWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    position: 'relative',
+    flexShrink: 1,
+    flexBasis: { default: 0, [bp.smDown]: '0%' },
+    overflow: 'hidden',
+  },
+  bodyWrapperKiosk: {
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    overflow: 'unset',
+  },
+  scrollContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    minHeight: 0,
+    overflow: 'auto',
+    scrollbarWidth: 'thin',
+    scrollbarGutter: 'stable',
+    // without top padding the fixed controls headers is rendered over the selection outline.
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.125)`,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  body: {
+    display: 'flex',
+    flexGrow: 1,
+    gap: spacing['--gf-spacing-x1'],
+    boxSizing: 'border-box',
+    flexDirection: 'column',
+    // without top padding the fixed controls headers is rendered over the selection outline.
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.125)`,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  controlsWrapperSticky: (headerHeight: number) => ({
+    position: { default: null, [bp.mdUp]: 'sticky' },
+    // above docked dashboard edit Sidebar (zIndex navBarFixed); otherwise time picker popover stays under it.
+    zIndex: { default: null, [bp.mdUp]: zIndex.sidemenu },
+    backgroundColor: { default: null, [bp.mdUp]: colors['--gf-colors-background-canvas'] },
+    top: { default: null, [bp.mdUp]: headerHeight },
+  }),
+});
