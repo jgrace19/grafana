@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   Checkbox,
@@ -16,8 +15,8 @@ import {
   Stack,
   TextArea,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 import {
   type NotificationChannelOption,
   type NotificationChannelSecureFields,
@@ -161,7 +160,6 @@ const OptionInput: FC<Props & { id: string }> = ({
   secureFields = {},
   getOptionMeta,
 }) => {
-  const styles = useStyles2(getStyles);
   const { control, register, setValue } = useFormContext();
 
   const optionMeta = getOptionMeta?.(option);
@@ -184,7 +182,7 @@ const OptionInput: FC<Props & { id: string }> = ({
           id={id}
           readOnly={readOnly}
           disabled={readOnly}
-          className={styles.checkbox}
+          className={stylex.props(styles.checkbox).className}
           {...register(name)}
           label={option.label}
           description={option.description}
@@ -247,7 +245,7 @@ const OptionInput: FC<Props & { id: string }> = ({
     case 'radio':
       return (
         <>
-          <legend className={styles.legend}>{option.label}</legend>
+          <legend {...stylex.props(styles.legend)}>{option.label}</legend>
           <Controller
             render={({ field: { ref, ...field } }) => (
               <RadioButtonList disabled={readOnly} options={option.selectOptions ?? []} {...field} />
@@ -323,13 +321,13 @@ const OptionInput: FC<Props & { id: string }> = ({
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  checkbox: css({
+const styles = stylex.create({
+  checkbox: {
     height: 'auto', // native checkbox has fixed height which does not take into account description
-  }),
-  legend: css({
-    fontSize: theme.typography.h6.fontSize,
-  }),
+  },
+  legend: {
+    fontSize: typography['--gf-typography-h6-font-size'],
+  },
 });
 
 const validateOption = (value: string, validationRule: string, required: boolean) => {

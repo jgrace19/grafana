@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { compact, uniqueId } from 'lodash';
 import * as React from 'react';
 import type { JSX } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Box, Button, CodeEditor, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Button, CodeEditor } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import {
   type TemplatePreviewErrors,
@@ -18,6 +19,7 @@ import { stringifyErrorLike } from '../../utils/misc';
 import { EditorColumnHeader } from '../EditorColumnHeader';
 
 import { usePreviewTemplate } from './usePreviewTemplate';
+import './TemplateCodeEditor.css';
 
 export function TemplatePreview({
   payload,
@@ -38,8 +40,6 @@ export function TemplatePreview({
   aiGeneratedTemplate?: boolean;
   setAiGeneratedTemplate?: (aiGeneratedTemplate: boolean) => void;
 }) {
-  const styles = useStyles2(getStyles);
-
   const {
     data,
     isLoading,
@@ -50,7 +50,7 @@ export function TemplatePreview({
   const previewToRender = getPreviewResults(previewError, payloadFormatError, data);
 
   return (
-    <div className={cx(styles.container, className)}>
+    <div {...mergeStylexProps(stylex.props(styles.container), { className })}>
       <EditorColumnHeader
         label={t('alerting.template-preview.label-preview', 'Preview')}
         actions={
@@ -69,12 +69,14 @@ export function TemplatePreview({
           </Button>
         }
       />
-      <div className={styles.viewer.feedbackContainer}>
+      <div {...stylex.props(styles.viewerFeedbackContainer)}>
         <AIFeedbackButtonComponent origin="template" shouldShowFeedbackButton={Boolean(aiGeneratedTemplate)} />
       </div>
       <Box flex={1}>
         <AutoSizer disableWidth>
-          {({ height }) => <div className={styles.viewerContainer({ height })}>{previewToRender}</div>}
+          {({ height }) => (
+            <div {...stylex.props(styles.viewerContainer, styles.height(height))}>{previewToRender}</div>
+          )}
         </AutoSizer>
       </Box>
     </div>
@@ -82,7 +84,6 @@ export function TemplatePreview({
 }
 
 function PreviewResultViewer({ previews }: { previews: TemplatePreviewResult[] }) {
-  const styles = useStyles2(getStyles);
   // If there is only one template, we don't need to show the name
   const singleTemplate = previews.length === 1;
 
@@ -96,19 +97,19 @@ function PreviewResultViewer({ previews }: { previews: TemplatePreviewResult[] }
   };
 
   return (
-    <ul className={styles.viewer.container} data-testid="template-preview">
+    <ul {...stylex.props(styles.viewerContainerList)} data-testid="template-preview">
       {previews.map((preview) => {
         const language = isValidJson(preview.text) ? 'json' : 'plaintext';
         return (
-          <li className={styles.viewer.box} key={preview.name}>
+          <li {...stylex.props(styles.viewerBox)} key={preview.name}>
             {singleTemplate ? null : (
-              <header className={styles.viewer.header}>
+              <header {...stylex.props(styles.viewerHeader)}>
                 {preview.name}
-                <div className={styles.viewer.language}>{language}</div>
+                <div {...stylex.props(styles.viewerLanguage)}>{language}</div>
               </header>
             )}
             <CodeEditor
-              containerStyles={styles.editorContainer}
+              containerStyles="gf-alerting-template-preview-editor"
               language={language}
               showLineNumbers={false}
               showMiniMap={false}
@@ -133,68 +134,69 @@ function PreviewErrorViewer({ errors }: { errors: TemplatePreviewErrors[] }) {
   ));
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    label: 'template-preview-container',
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
+  viewerContainer: {
+    overflow: 'auto',
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  height: (height: number) => ({
+    height,
   }),
-  editorContainer: css({
-    width: '100%',
+  viewerContainerList: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'inherit',
+  },
+  viewerBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    height: 'inherit',
+  },
+  viewerHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  viewerLanguage: {
+    marginLeft: 'auto',
+    fontStyle: 'italic',
+  },
+  viewerFeedbackContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    minHeight: 'auto',
+  },
+  viewerEmptyState: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     height: '100%',
-    border: 'none',
-  }),
-  viewerContainer: ({ height }: { height: number }) =>
-    css({
-      height,
-      overflow: 'auto',
-      backgroundColor: theme.colors.background.primary,
-    }),
-  viewer: {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: 'inherit',
-    }),
-    box: css({
-      display: 'flex',
-      flexDirection: 'column',
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      height: 'inherit',
-    }),
-    header: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.bodySmall.fontSize,
-      padding: theme.spacing(1, 2),
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-    language: css({
-      marginLeft: 'auto',
-      fontStyle: 'italic',
-    }),
-    errorText: css({
-      color: theme.colors.error.text,
-    }),
-    feedbackContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      backgroundColor: theme.colors.background.secondary,
-      minHeight: 'auto',
-    }),
-    emptyState: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
   },
 });
 
@@ -206,8 +208,6 @@ export function getPreviewResults(
   // ERRORS IN JSON OR IN REQUEST (endpoint not available, for example)
   const previewErrorRequest = previewError ? stringifyErrorLike(previewError) : undefined;
   const errorToRender = payloadFormatError || previewErrorRequest;
-  const styles = useStyles2(getStyles);
-
   //PREVIEW : RESULTS AND ERRORS
   const previewResponseResults = data?.results ?? [];
   const previewResponseErrors = data?.errors;
@@ -223,7 +223,7 @@ export function getPreviewResults(
       {previewResponseErrors && <PreviewErrorViewer errors={previewResponseErrors} />}
       {previewResponseResults.length > 0 && <PreviewResultViewer previews={previewResponseResults} />}
       {!hasContent && (
-        <div className={styles.viewer.emptyState}>
+        <div {...stylex.props(styles.viewerEmptyState)}>
           <Trans i18nKey="alerting.template-preview.empty-state">Add template content to see preview</Trans>
         </div>
       )}

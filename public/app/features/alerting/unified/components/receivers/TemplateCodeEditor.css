@@ -1,0 +1,14 @@
+/*
+ * CodeEditor has no xstyle, and its container border is StyleX in a cascade layer. Deliberately not in a cascade layer
+ * so these win over it.
+ */
+.gf-alerting-template-code-editor {
+  width: fit-content;
+  border: none;
+}
+
+.gf-alerting-template-preview-editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

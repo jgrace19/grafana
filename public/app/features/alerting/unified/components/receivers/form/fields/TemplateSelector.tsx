@@ -1,23 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useCopyToClipboard } from 'react-use';
 
 import { type TemplateGroupTemplateKind } from '@grafana/api-clients/rtkq/notifications.alerting/v0alpha1';
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import {
-  Button,
-  Drawer,
-  IconButton,
-  Label,
-  RadioButtonGroup,
-  Select,
-  Stack,
-  Text,
-  TextArea,
-  useStyles2,
-} from '@grafana/ui';
+import { Button, Drawer, IconButton, Label, RadioButtonGroup, Select, Stack, Text, TextArea } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   trackEditInputWithTemplate,
   trackUseCustomInputInTemplate,
@@ -131,7 +121,6 @@ interface TemplateSelectorProps {
 }
 
 export function TemplateSelector({ onSelect, onClose, option, valueInForm, filterKind }: TemplateSelectorProps) {
-  const styles = useStyles2(getStyles);
   const valueInFormIsCustom = Boolean(valueInForm) && !matchesOnlyOneTemplate(valueInForm);
   const [template, setTemplate] = useState<SelectableValue<Template> | undefined>(undefined);
   const [customTemplateValue, setCustomTemplateValue] = useState<string>(valueInForm);
@@ -226,7 +215,7 @@ export function TemplateSelector({ onSelect, onClose, option, valueInForm, filte
           options={templateOptions}
           value={templateOption}
           onChange={onTemplateOptionChange}
-          className={styles.templateTabOption}
+          className={stylex.props(styles.templateTabOption).className}
         />
 
         {templateOption === 'Existing' ? (
@@ -264,7 +253,7 @@ export function TemplateSelector({ onSelect, onClose, option, valueInForm, filte
               payload={defaultPayloadString}
               templateName={template?.value?.name ?? defaultTemplateValue?.value?.name ?? ''}
               setPayloadFormatError={() => {}}
-              className={cx(styles.templatePreview, styles.minEditorSize)}
+              className={stylex.props(styles.templatePreview, styles.minEditorSize).className}
               payloadFormatError={null}
             />
           </Stack>
@@ -276,7 +265,7 @@ export function TemplateSelector({ onSelect, onClose, option, valueInForm, filte
           />
         )}
       </Stack>
-      <div className={styles.actions}>
+      <div {...stylex.props(styles.actions)}>
         <Button variant="secondary" onClick={onClose}>
           <Trans i18nKey="alerting.common.cancel">Cancel</Trans>
         </Button>
@@ -354,7 +343,6 @@ export function WrapWithTemplateSelection({
   children,
   readOnly = false,
 }: WrapWithTemplateSelectionProps) {
-  const styles = useStyles2(getStyles);
   const { getValues } = useFormContext();
   const value = getValues(name) ?? '';
   const showTemplatePicker = useTemplates && !readOnly;
@@ -367,7 +355,7 @@ export function WrapWithTemplateSelection({
   // if the value is empty, we only show the template picker
   if (!value) {
     return (
-      <div className={styles.inputContainer}>
+      <div {...stylex.props(styles.inputContainer)}>
         <Stack direction="row" gap={1} alignItems="center">
           {showTemplatePicker && (
             <TemplatesPicker onSelect={onSelectTemplate} option={option} valueInForm={getValues(name) ?? ''} />
@@ -379,7 +367,7 @@ export function WrapWithTemplateSelection({
   const onlyOneTemplate = value ? matchesOnlyOneTemplate(value) : false;
   if (onlyOneTemplate) {
     return (
-      <div className={styles.inputContainer}>
+      <div {...stylex.props(styles.inputContainer)}>
         <Stack direction="row" gap={1} alignItems="center">
           <Text variant="bodySmall">{`Template: ${getTemplateName(value)}`}</Text>
           {showTemplatePicker && (
@@ -391,7 +379,7 @@ export function WrapWithTemplateSelection({
   }
   // custom template field
   return (
-    <div className={styles.inputContainer}>
+    <div {...stylex.props(styles.inputContainer)}>
       <Stack direction="row" gap={1} alignItems="center">
         {children}
         {showTemplatePicker && (
@@ -402,25 +390,25 @@ export function WrapWithTemplateSelection({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  actions: css({
-    flex: 0,
+const styles = stylex.create({
+  actions: {
+    flex: '0',
     justifyContent: 'flex-end',
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
-  templatePreview: css({
-    flex: 1,
+    gap: spacing['--gf-spacing-x1'],
+  },
+  templatePreview: {
+    flex: '1',
     display: 'flex',
-  }),
-  templateTabOption: css({
+  },
+  templateTabOption: {
     width: 'fit-content',
-  }),
-  minEditorSize: css({
-    minHeight: 300,
-    minWidth: 300,
-  }),
-  inputContainer: css({
-    marginTop: theme.spacing(1.5),
-  }),
+  },
+  minEditorSize: {
+    minHeight: '300px',
+    minWidth: '300px',
+  },
+  inputContainer: {
+    marginTop: spacing['--gf-spacing-x1-5'],
+  },
 });

@@ -1,21 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, useCallback, useMemo, useState } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList } from 'react-window';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import {
-  Button,
-  FilterInput,
-  Icon,
-  LoadingPlaceholder,
-  Modal,
-  Tag,
-  Tooltip,
-  clearButtonStyles,
-  useStyles2,
-} from '@grafana/ui';
+import { Button, FilterInput, Icon, LoadingPlaceholder, Modal, Tag, Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type AlertmanagerAlert, type TestTemplateAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { alertmanagerApi } from '../../api/alertmanagerApi';
@@ -32,8 +23,6 @@ export function AlertInstanceModalSelector({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const styles = useStyles2(getStyles);
-
   const [selectedRule, setSelectedRule] = useState<string>();
   const [selectedInstances, setSelectedInstances] = useState<AlertmanagerAlert[] | null>(null);
   const { useGetAlertmanagerAlertsQuery } = alertmanagerApi;
@@ -107,12 +96,14 @@ export function AlertInstanceModalSelector({
       <button
         type="button"
         title={ruleName}
-        style={style}
-        className={cx(styles.rowButton, { [styles.rowOdd]: index % 2 === 1, [styles.rowSelected]: isSelected })}
+        {...mergeStylexProps(
+          stylex.props(styles.rowButton, index % 2 === 1 && styles.rowOdd, isSelected && styles.rowSelected),
+          { style }
+        )}
         onClick={() => handleRuleChange(ruleName)}
       >
-        <div className={cx(styles.ruleTitle, styles.rowButtonTitle)}>{ruleName}</div>
-        <div className={styles.alertFolder}>
+        <div {...stylex.props(styles.ruleTitle, styles.rowButtonTitle)}>{ruleName}</div>
+        <div {...stylex.props(styles.alertFolder)}>
           <Icon name="folder" /> {filteredRules[ruleName][0].labels.grafana_folder ?? ''}
         </div>
       </button>
@@ -150,18 +141,22 @@ export function AlertInstanceModalSelector({
     return (
       <button
         type="button"
-        style={style}
-        className={cx(styles.rowButton, styles.instanceButton, {
-          [styles.rowOdd]: index % 2 === 1,
-          [styles.rowSelected]: isSelected,
-        })}
+        {...mergeStylexProps(
+          stylex.props(
+            styles.rowButton,
+            styles.instanceButton,
+            index % 2 === 1 && styles.rowOdd,
+            isSelected && styles.rowSelected
+          ),
+          { style }
+        )}
         onClick={handleSelectInstances}
       >
-        <div className={styles.rowButtonTitle} title={alert.labels.alertname}>
+        <div {...stylex.props(styles.rowButtonTitle)} title={alert.labels.alertname}>
           <Tooltip placement="bottom" content={<pre>{JSON.stringify(alert, null, 2)}</pre>} theme={'info'}>
             <div>
               {tags.map((tag, index) => (
-                <Tag key={index} name={tag} className={styles.tag} />
+                <Tag key={index} name={tag} className={stylex.props(styles.tag).className} />
               ))}
             </div>
           </Tooltip>
@@ -209,13 +204,13 @@ export function AlertInstanceModalSelector({
     <div>
       <Modal
         title={t('alerting.alert-instance-modal-selector.title-select-alert-instances', 'Select alert instances')}
-        className={styles.modal}
+        className={stylex.props(styles.modal).className}
         closeOnEscape
         isOpen={isOpen}
         onDismiss={onDismiss}
-        contentClassName={styles.modalContent}
+        contentClassName={stylex.props(styles.modalContent).className}
       >
-        <div className={styles.container}>
+        <div {...stylex.props(styles.container)}>
           <FilterInput
             value={ruleFilter}
             onChange={handleSearchRules}
@@ -225,11 +220,11 @@ export function AlertInstanceModalSelector({
           />
           <div>{(selectedRule && 'Select one or more instances from the list below') || ''}</div>
 
-          <div className={styles.column}>
+          <div {...stylex.props(styles.column)}>
             {loading && (
               <LoadingPlaceholder
                 text={t('alerting.alert-instance-modal-selector.text-loading-rules', 'Loading rules...')}
-                className={styles.loadingPlaceholder}
+                className={stylex.props(styles.loadingPlaceholder).className}
               />
             )}
 
@@ -244,9 +239,9 @@ export function AlertInstanceModalSelector({
             )}
           </div>
 
-          <div className={styles.column}>
+          <div {...stylex.props(styles.column)}>
             {!selectedRule && !loading && (
-              <div className={styles.selectedRulePlaceholder}>
+              <div {...stylex.props(styles.selectedRulePlaceholder)}>
                 <div>
                   <Trans i18nKey="alerting.alert-instance-modal-selector.select-alert-rule">
                     Select an alert rule to get a list of available firing instances
@@ -257,7 +252,7 @@ export function AlertInstanceModalSelector({
             {loading && (
               <LoadingPlaceholder
                 text={t('alerting.alert-instance-modal-selector.text-loading-rule', 'Loading rule...')}
-                className={styles.loadingPlaceholder}
+                className={stylex.props(styles.loadingPlaceholder).className}
               />
             )}
 
@@ -301,104 +296,91 @@ export function AlertInstanceModalSelector({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const clearButton = clearButtonStyles(theme);
-
-  return {
-    container: css({
-      display: 'grid',
-      gridTemplateColumns: '1fr 1.5fr',
-      gridTemplateRows: 'min-content auto',
-      gap: theme.spacing(2),
-      flex: 1,
-    }),
-
-    tag: css({
-      margin: '5px',
-    }),
-
-    column: css({
-      flex: '1 1 auto',
-    }),
-
-    alertLabels: css({
-      overflowX: 'auto',
-      height: '32px',
-    }),
-    ruleTitle: css({
-      height: '22px',
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    rowButton: css(clearButton, {
-      padding: theme.spacing(0.5),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      textAlign: 'left',
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      border: '2px solid transparent',
-
-      '&:disabled': {
-        cursor: 'not-allowed',
-        color: theme.colors.text.disabled,
-      },
-    }),
-    rowButtonTitle: css({
-      overflowX: 'auto',
-    }),
-    rowSelected: css({
-      borderColor: theme.colors.primary.border,
-    }),
-    rowOdd: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-    instanceButton: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    }),
-    loadingPlaceholder: css({
-      height: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }),
-    selectedRulePlaceholder: css({
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      textAlign: 'center',
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    modal: css({
-      height: '100%',
-    }),
-    modalContent: css({
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    modalAlert: css({
-      flexGrow: 0,
-    }),
-    warnIcon: css({
-      fill: theme.colors.warning.main,
-    }),
-    labels: css({
-      justifyContent: 'flex-start',
-    }),
-    alertFolder: css({
-      height: '20px',
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      columnGap: theme.spacing(1),
-      alignItems: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1.5fr',
+    gridTemplateRows: 'min-content auto',
+    gap: spacing['--gf-spacing-x2'],
+    flex: '1',
+  },
+  tag: {
+    margin: '5px',
+  },
+  column: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+  },
+  ruleTitle: {
+    height: '22px',
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  rowButton: {
+    backgroundColor: 'transparent',
+    color: {
+      default: colors['--gf-colors-text-primary'],
+      ':disabled': colors['--gf-colors-text-disabled'],
+    },
+    padding: spacing['--gf-spacing-x0-5'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textAlign: 'left',
+    whiteSpace: 'nowrap',
+    cursor: {
+      default: 'pointer',
+      ':disabled': 'not-allowed',
+    },
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+  },
+  rowButtonTitle: {
+    overflowX: 'auto',
+  },
+  rowSelected: {
+    borderColor: colors['--gf-colors-primary-border'],
+  },
+  rowOdd: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  instanceButton: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  loadingPlaceholder: {
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedRulePlaceholder: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    textAlign: 'center',
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  modal: {
+    height: '100%',
+  },
+  modalContent: {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  alertFolder: {
+    height: '20px',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    columnGap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+  },
+});

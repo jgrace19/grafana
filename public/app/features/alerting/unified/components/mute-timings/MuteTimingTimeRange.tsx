@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Icon, IconButton, InlineField, InlineFieldRow, Input, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Field, Icon, IconButton, InlineField, InlineFieldRow, Input, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type MuteTimingFields } from '../../types/mute-timing-form';
 import ConditionalWrap from '../ConditionalWrap';
@@ -17,7 +19,6 @@ interface Props {
 const INVALID_FORMAT_MESSAGE = 'Times must be between 00:00 and 24:00 UTC';
 
 export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
-  const styles = useStyles2(getStyles);
   const { register, formState, getValues, watch } = useFormContext<MuteTimingFields>();
 
   const isDisabled = watch(`time_intervals.${intervalIndex}.disable`);
@@ -36,7 +37,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
   return (
     <div>
       <Field
-        className={styles.field}
+        noMargin
         label={t('alerting.mute-timing-time-range.label-time-range', 'Time range')}
         description={t(
           'alerting.mute-timing-time-range.description-time-range',
@@ -60,7 +61,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
             };
 
             return (
-              <div className={styles.timeRange} key={timeRange.id}>
+              <div {...stylex.props(styles.timeRange)} key={timeRange.id}>
                 <InlineFieldRow>
                   <InlineField
                     label={t('alerting.mute-timing-time-range.label-start-time', 'Start time')}
@@ -85,7 +86,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className={styles.timeRangeInput}
+                      className={pendingEmotionStyles.timeRangeInput}
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -117,7 +118,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className={styles.timeRangeInput}
+                      className={pendingEmotionStyles.timeRangeInput}
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -128,7 +129,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                     />
                   </InlineField>
                   <IconButton
-                    className={styles.deleteTimeRange}
+                    style={deleteTimeRangeStyle}
                     title={t('alerting.mute-timing-time-range.title-remove', 'Remove')}
                     name="trash-alt"
                     onClick={(e) => {
@@ -158,7 +159,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
         )}
       >
         <Button
-          className={styles.addTimeRange}
+          className={stylex.props(styles.addTimeRange).className}
           variant="secondary"
           type="button"
           icon="plus"
@@ -172,20 +173,23 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  field: css({
-    marginBottom: 0,
-  }),
-  timeRange: css({
-    marginBottom: theme.spacing(1),
-  }),
+// stylex: pending Input migration
+const pendingEmotionStyles = {
   timeRangeInput: css({
     width: '90px',
   }),
-  deleteTimeRange: css({
-    margin: `${theme.spacing(1)} 0 0 ${theme.spacing(0.5)}`,
-  }),
-  addTimeRange: css({
-    marginBottom: theme.spacing(2),
-  }),
+};
+
+const styles = stylex.create({
+  timeRange: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  addTimeRange: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });
+
+// IconButton has no xstyle, and its own margins must lose to these.
+const deleteTimeRangeStyle = {
+  margin: `${spacing['--gf-spacing-x1']} 0 0 ${spacing['--gf-spacing-x0-5']}`,
+};

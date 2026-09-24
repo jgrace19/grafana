@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { omit } from 'lodash';
 import moment from 'moment';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   Alert,
@@ -15,8 +14,8 @@ import {
   InteractiveTable,
   Stack,
   Text,
-  useStyles2,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DiffViewer } from 'app/features/dashboard-scene/settings/version-history/DiffViewer';
 import { type AlertManagerCortexConfig } from 'app/plugins/datasource/alertmanager/types';
 
@@ -273,11 +272,9 @@ interface CompareVersionsProps {
 }
 
 function CompareVersions({ left, right, disabled = false, onCancel, onConfirm }: CompareVersionsProps) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.drawerWrapper}>
-      <div className={styles.diffWrapper}>
+    <div {...stylex.props(styles.drawerWrapper)}>
+      <div {...stylex.props(styles.diffWrapper)}>
         {/*
           we're hiding the line numbers because the historical snapshots will have certain parts of the config hidden (ex. auto-generated policies)
           so the line numbers will not match up with what you can see in the JSON modal tab
@@ -310,16 +307,16 @@ const LastAppliedCell = ({ value }: CellProps<VersionData>) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  drawerWrapper: css({
+const styles = stylex.create({
+  drawerWrapper: {
     maxHeight: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
-  diffWrapper: css({
+    gap: spacing['--gf-spacing-x1'],
+  },
+  diffWrapper: {
     overflowY: 'auto',
-  }),
+  },
 });
 
 // these props are part of the historical config response but not the current config, so we remove them for fair comparison

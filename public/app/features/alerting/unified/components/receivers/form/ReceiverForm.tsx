@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { type FieldErrors, FormProvider, type SubmitErrorHandler, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { isFetchError } from '@grafana/runtime';
-import { Alert, Button, Field, Input, LinkButton, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Field, Input, LinkButton, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { useCleanup } from 'app/core/hooks/useCleanup';
 import { useValidateContactPoint } from 'app/features/alerting/unified/components/contact-points/useContactPoints';
@@ -66,7 +66,6 @@ export function ReceiverForm<R extends ChannelValues>({
   canEditProtectedFields,
 }: Props<R>) {
   const notifyApp = useAppNotification();
-  const styles = useStyles2(getStyles);
   const validateContactPointName = useValidateContactPoint({ alertmanager: alertManagerSourceName });
 
   // normalize deprecated and new config values
@@ -131,9 +130,9 @@ export function ReceiverForm<R extends ChannelValues>({
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit(submitCallback, onInvalid)} className={styles.wrapper}>
+      <form onSubmit={handleSubmit(submitCallback, onInvalid)} {...stylex.props(styles.wrapper)}>
         <Stack justifyContent="space-between" alignItems="center">
-          <h2 className={styles.heading}>
+          <h2 {...stylex.props(styles.heading)}>
             {!isEditable && t('alerting.receiver-form.contact-point', 'Contact point')}
             {isEditable && initialValues && t('alerting.receiver-form.contact-point-update', 'Update contact point')}
             {isEditable && !initialValues && t('alerting.receiver-form.contact-point-create', 'Create contact point')}
@@ -218,22 +217,28 @@ export function ReceiverForm<R extends ChannelValues>({
             <Trans i18nKey="alerting.receiver-form.add-contact-point-integration">Add contact point integration</Trans>
           </Button>
         )}
-        <div className={styles.buttons}>
+        <div {...stylex.props(styles.buttons)}>
           {isEditable && (
             <>
               {isSubmitting && (
-                <Button disabled={true} icon="spinner" variant="primary">
+                <Button
+                  className={stylex.props(styles.button).className}
+                  disabled={true}
+                  icon="spinner"
+                  variant="primary"
+                >
                   <Trans i18nKey="alerting.receiver-form.saving">Saving...</Trans>
                 </Button>
               )}
               {!isSubmitting && (
-                <Button type="submit">
+                <Button className={stylex.props(styles.button).className} type="submit">
                   <Trans i18nKey="alerting.receiver-form.save-contact-point">Save contact point</Trans>
                 </Button>
               )}
             </>
           )}
           <LinkButton
+            className={stylex.props(styles.button).className}
             disabled={isSubmitting}
             variant="secondary"
             data-testid="cancel-button"
@@ -247,20 +252,22 @@ export function ReceiverForm<R extends ChannelValues>({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    margin: theme.spacing(2, 0, 3, 0),
-  }),
-  buttons: css({
-    marginTop: theme.spacing(4),
-
-    '& > * + *': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  wrapper: css({
-    maxWidth: `${theme.breakpoints.values.xl}px`,
-  }),
+const styles = stylex.create({
+  heading: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x3'],
+    marginLeft: 0,
+  },
+  buttons: {
+    marginTop: spacing['--gf-spacing-x4'],
+  },
+  button: {
+    marginLeft: { default: null, ':not(:first-child)': spacing['--gf-spacing-x1'] },
+  },
+  wrapper: {
+    maxWidth: '1200px',
+  },
 });
 
 function getErrorMessage(error: unknown) {

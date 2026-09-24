@@ -92,3 +92,5 @@ public/app/features/datasources/components/picker/DataSourceModal.tsx # pending 
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures
 # M1 library-panels, inspector, panel, query
 public/app/features/library-panels/styles.ts # pending Modal migration (U4): library panel modal width override must beat Modal's Emotion width
+public/app/features/alerting/unified/components/mute-timings/MuteTimingForm.tsx # stylex: pending Input migration: keeps Emotion className overrides that must beat Input's own Emotion styles
+public/app/features/alerting/unified/components/mute-timings/MuteTimingTimeRange.tsx # stylex: pending Input migration: keeps Emotion className overrides that must beat Input's own Emotion styles

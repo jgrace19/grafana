@@ -1,11 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { Link } from 'react-router-dom-v5-compat';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Dropdown, Icon, Menu, MenuItem, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Icon, Menu, MenuItem, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { GrafanaReceiversExporter } from '../export/GrafanaReceiversExporter';
 
@@ -31,7 +32,6 @@ export const ReceiversSection = ({
   canReadSecrets = false,
   showExport = false,
 }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
   const showMore = showExport;
   const [showExportDrawer, toggleShowExportDrawer] = useToggle(false);
 
@@ -48,10 +48,10 @@ export const ReceiversSection = ({
 
   return (
     <Stack direction="column" gap={2}>
-      <div className={cx(styles.heading, className)}>
+      <div {...mergeStylexProps(stylex.props(styles.heading), { className })}>
         <div>
           <h4>{title}</h4>
-          <div className={styles.description}>{description}</div>
+          <div {...stylex.props(styles.description)}>{description}</div>
         </div>
         <Stack direction="row" gap={0.5}>
           {showButton && (
@@ -77,13 +77,13 @@ export const ReceiversSection = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
+const styles = stylex.create({
+  heading: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-  }),
-  description: css({
-    color: theme.colors.text.secondary,
-  }),
+  },
+  description: {
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

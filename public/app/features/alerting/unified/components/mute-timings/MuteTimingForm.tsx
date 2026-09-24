@@ -1,10 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import { Alert, Button, Field, FieldSet, Input, LinkButton, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Field, FieldSet, Input, LinkButton, LoadingPlaceholder } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   type MuteTiming,
   useCreateMuteTiming,
@@ -66,7 +68,6 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
   const [updateTimeInterval] = useUpdateMuteTiming(hookArgs);
   const validateMuteTiming = useValidateMuteTiming(hookArgs);
 
-  const styles = useStyles2(getStyles);
   const defaultValues = useDefaultValues(muteTiming);
 
   const formApi = useForm({ defaultValues, values: defaultValues });
@@ -140,14 +141,14 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
                     return validateMuteTiming(value, skipValidation);
                   },
                 })}
-                className={styles.input}
+                className={pendingEmotionStyles.input}
                 data-testid={'mute-timing-name'}
               />
             </Field>
             <MuteTimingTimeInterval />
             <Button
               type="submit"
-              className={styles.submitButton}
+              className={stylex.props(styles.submitButton).className}
               disabled={updating}
               icon={updating ? 'spinner' : undefined}
             >
@@ -167,13 +168,17 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Input migration
+const pendingEmotionStyles = {
   input: css({
     width: '400px',
   }),
-  submitButton: css({
-    marginRight: theme.spacing(1),
-  }),
+};
+
+const styles = stylex.create({
+  submitButton: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });
 
 export default MuteTimingForm;

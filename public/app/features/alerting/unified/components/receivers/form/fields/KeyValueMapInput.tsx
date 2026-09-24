@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Input, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ActionIcon } from '../../../rules/ActionIcon';
 
@@ -14,7 +14,6 @@ interface Props {
 }
 
 export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) => {
-  const styles = useStyles2(getStyles);
   const [pairs, setPairs] = useState(recordToPairs(value));
   const [currentNewPair, setCurrentNewPair] = useState<[string, string] | undefined>(undefined);
 
@@ -34,7 +33,7 @@ export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) =
   return (
     <div>
       {!!pairs.length && (
-        <table className={styles.table}>
+        <table>
           <thead>
             <tr>
               <th>
@@ -49,14 +48,14 @@ export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) =
           <tbody>
             {pairs.map(([key, value], index) => (
               <tr key={index}>
-                <td>
+                <td {...stylex.props(styles.bodyCell)}>
                   <Input readOnly={readOnly} value={key} disabled />
                 </td>
-                <td>
+                <td {...stylex.props(styles.bodyCell)}>
                   <Input readOnly={readOnly} value={value} disabled />
                 </td>
                 {!readOnly && (
-                  <td>
+                  <td {...stylex.props(styles.bodyCell)}>
                     <ActionIcon
                       icon="trash-alt"
                       tooltip={t('alerting.common.delete', 'Delete')}
@@ -70,7 +69,7 @@ export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) =
         </table>
       )}
       {currentNewPair && (
-        <table className={styles.table}>
+        <table>
           <tr>
             <Stack gap={1}>
               <td>
@@ -109,7 +108,7 @@ export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) =
       )}
       {!readOnly && (
         <Button
-          className={styles.addButton}
+          className={stylex.props(styles.addButton).className}
           type="button"
           variant="secondary"
           icon="plus"
@@ -124,15 +123,16 @@ export const KeyValueMapInput = ({ value, onChange, readOnly = false }: Props) =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  addButton: css({
-    marginTop: theme.spacing(1),
-  }),
-  table: css({
-    'tbody td': {
-      padding: `0 ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-    },
-  }),
+const styles = stylex.create({
+  addButton: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  bodyCell: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+  },
 });
 
 const pairsToRecord = (pairs: Array<[string, string]>): Record<string, string> => {

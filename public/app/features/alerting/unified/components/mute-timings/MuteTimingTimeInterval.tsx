@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { concat, uniq, upperFirst, without } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, FieldSet, Icon, InlineSwitch, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Field, FieldSet, Icon, InlineSwitch, Input, Stack } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useAlertmanager } from '../../state/AlertmanagerContext';
 import { type MuteTimingFields } from '../../types/mute-timing-form';
@@ -15,7 +15,6 @@ import { MuteTimingTimeRange } from './MuteTimingTimeRange';
 import { TimezoneSelect } from './timezones';
 
 export const MuteTimingTimeInterval = () => {
-  const styles = useStyles2(getStyles);
   const { formState, register, setValue } = useFormContext<MuteTimingFields>();
   const {
     fields: timeIntervals,
@@ -46,7 +45,7 @@ export const MuteTimingTimeInterval = () => {
             register(`time_intervals.${timeIntervalIndex}.location`);
 
             return (
-              <div key={timeInterval.id} className={styles.timeIntervalSection}>
+              <div key={timeInterval.id} {...stylex.props(styles.timeIntervalSection)}>
                 <MuteTimingTimeRange intervalIndex={timeIntervalIndex} />
                 <Field
                   label={t('alerting.mute-timing-time-interval.label-location', 'Location')}
@@ -176,7 +175,7 @@ export const MuteTimingTimeInterval = () => {
         <Button
           type="button"
           variant="secondary"
-          className={styles.removeTimeIntervalButton}
+          className={stylex.props(styles.removeTimeIntervalButton).className}
           onClick={() => {
             addTimeInterval(defaultTimeInterval);
           }}
@@ -236,7 +235,6 @@ function parseWeekdayRange(input: string): string[] {
 }
 
 const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
-  const styles = useStyles2(getStyles);
   const defaultValues = parseDays(defaultValue);
   const [selectedDays, setSelectedDays] = useState<string[]>(defaultValues);
 
@@ -254,11 +252,16 @@ const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
     <div data-testid="mute-timing-weekdays">
       <Stack gap={1}>
         {DAYS_OF_THE_WEEK.map((day) => {
-          const style = cx(styles.dayOfTheWeek, selectedDays.includes(day) && 'selected');
+          const isSelected = selectedDays.includes(day);
           const abbreviated = day.slice(0, 3);
 
           return (
-            <button type="button" key={day} className={style} onClick={() => toggleDay(day)}>
+            <button
+              type="button"
+              key={day}
+              {...stylex.props(styles.dayOfTheWeek, isSelected && styles.dayOfTheWeekSelected)}
+              onClick={() => toggleDay(day)}
+            >
               {upperFirst(abbreviated)}
             </button>
           );
@@ -268,33 +271,32 @@ const DaysOfTheWeek = ({ defaultValue = '', onChange }: DaysOfTheWeekProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  input: css({
-    width: '400px',
-  }),
-  timeIntervalSection: css({
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(2),
-  }),
-  removeTimeIntervalButton: css({
-    marginTop: theme.spacing(2),
-  }),
-  dayOfTheWeek: css({
+const styles = stylex.create({
+  timeIntervalSection: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x2'],
+  },
+  removeTimeIntervalButton: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+  dayOfTheWeek: {
     cursor: 'pointer',
     userSelect: 'none',
-    padding: `${theme.spacing(1)} ${theme.spacing(3)}`,
-
-    border: `solid 1px ${theme.colors.border.medium}`,
-    background: 'none',
-    borderRadius: theme.shape.radius.default,
-
-    color: theme.colors.text.secondary,
-
-    '&.selected': {
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.primary.text,
-      borderColor: theme.colors.primary.border,
-      background: theme.colors.primary.transparent,
-    },
-  }),
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x3'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x3'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    backgroundColor: 'transparent',
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  dayOfTheWeekSelected: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-primary-text'],
+    borderColor: colors['--gf-colors-primary-border'],
+    backgroundColor: colors['--gf-colors-primary-transparent'],
+  },
 });
