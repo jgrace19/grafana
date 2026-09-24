@@ -53,7 +53,13 @@ const styles = stylex.create({
 });
 
 /** Smoke fixture proving StyleX classes resolve against the active GrafanaTheme2 via the CSS variable bridge. */
-export const StyleXThemeFixture = ({ className, title = 'StyleX theme bridge' }: { className?: string; title?: string }) => (
+export const StyleXThemeFixture = ({
+  className,
+  title = 'StyleX theme bridge',
+}: {
+  className?: string;
+  title?: string;
+}) => (
   <div data-testid="stylex-theme-fixture" {...mergeStylexProps(stylex.props(styles.card), className)}>
     <strong>{title}</strong>
     <span data-testid="stylex-theme-fixture-caption" {...stylex.props(styles.caption)}>

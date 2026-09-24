@@ -11,7 +11,10 @@ module.exports = function stylexLoader(source, inputSourceMap) {
     return;
   }
 
-  transformStylex(source, this.resourcePath, { sourceMaps: this.sourceMap, inputSourceMap: inputSourceMap || undefined })
+  transformStylex(source, this.resourcePath, {
+    sourceMaps: this.sourceMap,
+    inputSourceMap: inputSourceMap || undefined,
+  })
     .then(({ code, map }) => callback(null, code, map || undefined))
     .catch((err) => callback(err));
 };

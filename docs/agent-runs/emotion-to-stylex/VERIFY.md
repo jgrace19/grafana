@@ -19,12 +19,12 @@ Cloud Agent artifacts under `/opt/cursor/artifacts/stylex/`.
 
 - Date (UTC): 2026-09-24T02:41:49Z
 - Base commit: `09be20147b` plus working tree
-- Paths: `packages/grafana-ui/src/themes/stylex` `packages/grafana-ui/src/utils/storybook` `packages/grafana-ui/src/internal/index.ts` `public/app/core/utils/ConfigProvider.tsx` `scripts/stylex` 
+- Paths: `packages/grafana-ui/src/themes/stylex` `packages/grafana-ui/src/utils/storybook` `packages/grafana-ui/src/internal/index.ts` `public/app/core/utils/ConfigProvider.tsx` `scripts/stylex`
 
 ### Residual Emotion imports: FAIL
 
 ```sh
-rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} -g \!StyleXThemeFixture.test.tsx packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} -g \!StyleXThemeFixture.test.tsx packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 0 (pass = 1)
@@ -39,7 +39,7 @@ packages/grafana-ui/src/utils/storybook/withStoryContainer.tsx:1:import { css, c
 ### Unit tests: PASS
 
 ```sh
-yarn jest --no-watch packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+yarn jest --no-watch packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 0 (pass = 0)
@@ -60,18 +60,19 @@ Ran all test suites matching /packages\/grafana-ui\/src\/themes\/stylex|packages
 ### @grafana/ui typecheck: PASS
 
 ```sh
-yarn workspace @grafana/ui typecheck 
+yarn workspace @grafana/ui typecheck
 ```
 
 Exit code: 0 (pass = 0)
 
 ```text
+
 ```
 
 ### ESLint: PASS
 
 ```sh
-yarn eslint --cache packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+yarn eslint --cache packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 0 (pass = 0)
@@ -84,23 +85,24 @@ Exit code: 0 (pass = 0)
 
 - Date (UTC): 2026-09-24T02:42:26Z
 - Base commit: `09be20147b` plus working tree
-- Paths: `packages/grafana-ui/src/themes/stylex` `packages/grafana-ui/src/utils/storybook/fixtures` `packages/grafana-ui/src/utils/storybook/withTheme.tsx` `packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx` `packages/grafana-ui/src/internal/index.ts` `public/app/core/utils/ConfigProvider.tsx` `scripts/stylex` 
+- Paths: `packages/grafana-ui/src/themes/stylex` `packages/grafana-ui/src/utils/storybook/fixtures` `packages/grafana-ui/src/utils/storybook/withTheme.tsx` `packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx` `packages/grafana-ui/src/internal/index.ts` `public/app/core/utils/ConfigProvider.tsx` `scripts/stylex`
 
 ### Residual Emotion imports: PASS
 
 ```sh
-rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} -g \!StyleXThemeFixture.test.tsx packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} -g \!StyleXThemeFixture.test.tsx packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 1 (pass = 1)
 
 ```text
+
 ```
 
 ### Unit tests: PASS
 
 ```sh
-yarn jest --no-watch packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+yarn jest --no-watch packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 0 (pass = 0)
@@ -121,18 +123,19 @@ Ran all test suites matching /packages\/grafana-ui\/src\/themes\/stylex|packages
 ### @grafana/ui typecheck: PASS
 
 ```sh
-yarn workspace @grafana/ui typecheck 
+yarn workspace @grafana/ui typecheck
 ```
 
 Exit code: 0 (pass = 0)
 
 ```text
+
 ```
 
 ### ESLint: PASS
 
 ```sh
-yarn eslint --cache packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex 
+yarn eslint --cache packages/grafana-ui/src/themes/stylex packages/grafana-ui/src/utils/storybook/fixtures packages/grafana-ui/src/utils/storybook/withTheme.tsx packages/grafana-ui/src/utils/storybook/ThemedDocsContainer.tsx packages/grafana-ui/src/internal/index.ts public/app/core/utils/ConfigProvider.tsx scripts/stylex
 ```
 
 Exit code: 0 (pass = 0)
@@ -150,3 +153,145 @@ Storybook (`yarn workspace @grafana/ui storybook`) was loaded in headless Chromi
 - **Computed styles:** `phase0-computed.json`. The fixture card resolves `background-color` to `rgb(34, 37, 43)` in dark and
   `rgb(244, 245, 245)` in light (`theme.colors.background.secondary`), `padding` to `16px` (`theme.spacing(2)`), and the
   StyleX sheet is the first element in `<head>` in both themes.
+
+## Phase 1 — Lane Tags (Tag, TagList)
+
+- Date (UTC): 2026-09-24T02:47:29Z
+- Base commit: `5abf3bdc28` plus working tree
+- Paths: `packages/grafana-ui/src/components/Tags`
+
+### Residual Emotion imports: PASS
+
+```sh
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 1 (pass = 1)
+
+```text
+
+```
+
+### Unit tests: PASS
+
+```sh
+yarn jest --no-watch packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+PASS packages/grafana-ui/src/components/Tags/Tag.test.tsx
+PASS packages/grafana-ui/src/components/Tags/TagList.test.tsx
+PASS packages/grafana-ui/src/components/TagsInput/TagsInput.test.tsx
+
+Test Suites: 3 passed, 3 total
+Tests:       20 passed, 20 total
+Snapshots:   0 total
+Time:        1.953 s, estimated 2 s
+Ran all test suites matching /packages\/grafana-ui\/src\/components\/Tags/i.
+```
+
+### @grafana/ui typecheck: PASS
+
+```sh
+yarn workspace @grafana/ui typecheck
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+
+```
+
+### ESLint: FAIL
+
+```sh
+yarn eslint --cache packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 1 (pass = 0)
+
+```text
+[@stylistic/eslint-plugin-ts] This package is deprecated in favor of the unified @stylistic/eslint-plugin, please consider migrating to the main package
+
+/workspace/packages/grafana-ui/src/components/Tags/Tag.test.tsx
+  113:18  error  Use toHaveStyle instead of asserting on element style  jest-dom/prefer-to-have-style
+
+✖ 1 problem (1 error, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
+```
+
+## Phase 1 — Lane Tags (re-run after lint fix)
+
+- Date (UTC): 2026-09-24T02:48:03Z
+- Base commit: `5abf3bdc28` plus working tree
+- Paths: `packages/grafana-ui/src/components/Tags`
+
+### Residual Emotion imports: PASS
+
+```sh
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 1 (pass = 1)
+
+```text
+
+```
+
+### Unit tests: PASS
+
+```sh
+yarn jest --no-watch packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+PASS packages/grafana-ui/src/components/Tags/Tag.test.tsx
+PASS packages/grafana-ui/src/components/Tags/TagList.test.tsx
+PASS packages/grafana-ui/src/components/TagsInput/TagsInput.test.tsx
+
+Test Suites: 3 passed, 3 total
+Tests:       20 passed, 20 total
+Snapshots:   0 total
+Time:        1.984 s, estimated 2 s
+Ran all test suites matching /packages\/grafana-ui\/src\/components\/Tags/i.
+```
+
+### @grafana/ui typecheck: PASS
+
+```sh
+yarn workspace @grafana/ui typecheck
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+
+```
+
+### ESLint: PASS
+
+```sh
+yarn eslint --cache packages/grafana-ui/src/components/Tags
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+[@stylistic/eslint-plugin-ts] This package is deprecated in favor of the unified @stylistic/eslint-plugin, please consider migrating to the main package
+```
+
+### Lane Tags browser style proof
+
+Emotion baseline and StyleX builds of `information-tag--single` and `information-taglist--list` were captured in headless
+Chromium in dark and light. Every element's computed `display`, flex, gap, padding, margin, border, radius, colors,
+typography, `white-space`, `opacity`, `cursor`, size, and non-class attributes were compared, plus the hover state of
+the first clickable tag.
+
+- **Result:** `compared 1020 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-tags.json`).
+- **Screenshots:** `information-tag--single-{dark,light}-{baseline,stylex-tags}.png`,
+  `information-taglist--list-{dark,light}-{baseline,stylex-tags}.png`.

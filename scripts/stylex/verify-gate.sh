@@ -66,4 +66,5 @@ step "Unit tests" 0 yarn jest --no-watch "${paths[@]}"
 step "@grafana/ui typecheck" 0 yarn workspace @grafana/ui typecheck
 step "ESLint" 0 yarn eslint --cache "${paths[@]}"
 
+(cd "$root" && yarn prettier --write --log-level=warn "$out")
 exit $failed
