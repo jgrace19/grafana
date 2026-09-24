@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { type ButtonHTMLAttributes } from 'react';
 
-import { type GrafanaTheme2, type IconName, isIconName } from '@grafana/data';
+import { type IconName, isIconName } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles, getMouseFocusStyles } from '../../themes/mixins';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type ButtonVariant } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -21,31 +23,39 @@ export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const SidebarButton = React.forwardRef<HTMLButtonElement, Props>(
   ({ icon, active, onClick, title, tooltip, variant, ...restProps }, ref) => {
-    const styles = useStyles2(getStyles);
+    const theme = useTheme2();
     const sidebarContext = useSidebarContext();
 
     if (!sidebarContext) {
       throw new Error('Sidebar.Button must be used within a Sidebar component');
     }
 
-    const buttonClass = cx(
-      styles.button,
-      sidebarContext.compact && styles.compact,
-      sidebarContext.position === 'left' && styles.leftButton
-    );
+    const isPrimary = variant === 'primary';
 
     return (
       <Tooltip ref={ref} content={tooltip ?? title} placement={sidebarContext.position === 'left' ? 'right' : 'left'}>
         <button
-          className={buttonClass}
+          {...stylex.props(styles.button, sidebarContext.compact && styles.compact)}
           aria-label={title}
           aria-expanded={active}
           type="button"
           onClick={onClick}
           {...restProps}
         >
-          <div className={cx(styles.iconWrapper, variant, active && styles.iconActive)}>{renderIcon(icon)}</div>
-          {!sidebarContext.compact && <div className={cx(styles.title, active && styles.titleActive)}>{title}</div>}
+          <div
+            {...mergeStylexProps(
+              stylex.props(
+                styles.iconWrapper,
+                active && styles.iconActive,
+                isPrimary && styles.primary,
+                isPrimary && styles.primaryColor(theme.colors.getContrastText(theme.colors.primary.main))
+              ),
+              { className: variant }
+            )}
+          >
+            {renderIcon(icon, active)}
+          </div>
+          {!sidebarContext.compact && <div {...stylex.props(styles.title, active && styles.titleActive)}>{title}</div>}
         </button>
       </Tooltip>
     );
@@ -54,123 +64,122 @@ export const SidebarButton = React.forwardRef<HTMLButtonElement, Props>(
 
 SidebarButton.displayName = 'SidebarButton';
 
-function renderIcon(icon: IconName | React.ReactNode) {
+function renderIcon(icon: IconName | React.ReactNode, active?: boolean) {
   if (!icon) {
     return null;
   }
 
   if (isIconName(icon)) {
-    return <Icon name={icon} size="lg" />;
+    return <Icon name={icon} size="lg" xstyle={active && styles.iconTransition} />;
   }
 
   return icon;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      label: 'toolbar-button',
-      position: 'relative',
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: theme.spacing(theme.components.height.sm),
-      padding: theme.spacing(0, 1),
+const grid = spacing['--gf-spacing-grid-size'];
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+// Any focus shows the ring above its siblings; a mouse focus (:focus:not(:focus-visible)) removes the ring again.
+const styles = stylex.create({
+  button: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: `calc(${grid} * ${components['--gf-components-height-sm']})`,
+    paddingTop: 0,
+    paddingRight: grid,
+    paddingBottom: 0,
+    paddingLeft: grid,
+    width: '100%',
+    overflow: 'hidden',
+    lineHeight: `calc(${components['--gf-components-height-sm']} * ${grid} - 2px)`,
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-secondary'],
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    zIndex: { default: null, ':focus': 1 },
+    outlineStyle: { default: null, ':focus': { default: 'dotted', ':not(:focus-visible)': 'none' } },
+    outlineWidth: { default: null, ':focus': '2px' },
+    outlineColor: { default: null, ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    boxShadow: { default: null, ':focus': { default: focusRing, ':not(:focus-visible)': 'none' } },
+    transitionProperty: { default: null, ':focus': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    opacity: { default: null, ':disabled': colors['--gf-colors-action-disabled-opacity'] },
+  },
+  compact: {
+    width: `calc(${grid} * 5)`,
+  },
+  iconWrapper: {
+    paddingTop: '3px',
+    paddingRight: '3px',
+    paddingBottom: '3px',
+    paddingLeft: '3px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    position: 'relative',
+    borderRadius: shape['--gf-shape-radius-sm'],
+    backgroundColor: {
+      default: null,
+      ':hover': colors['--gf-colors-action-hover'],
+      ':focus-visible': colors['--gf-colors-action-hover'],
+    },
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background-color, color' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: durations.short },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+  },
+  iconActive: {
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: {
+      default: colors['--gf-colors-secondary-main'],
+      ':hover': colors['--gf-colors-action-hover'],
+      ':focus-visible': colors['--gf-colors-action-hover'],
+    },
+    '::before': {
+      display: 'block',
+      content: '" "',
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
       width: '100%',
-      overflow: 'hidden',
-      lineHeight: `${theme.components.height.sm * theme.spacing.gridSize - 2}px`,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.secondary,
-      background: 'transparent',
-      border: `none`,
-
-      '&:focus, &:focus-visible': {
-        ...getFocusStyles(theme),
-        zIndex: 1,
-      },
-
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-
-      '&[disabled], &:disabled': {
-        cursor: 'not-allowed',
-        opacity: theme.colors.action.disabledOpacity,
-      },
-    }),
-    compact: css({
-      padding: theme.spacing(0, 1),
-      width: theme.spacing(5),
-    }),
-    iconWrapper: css({
-      padding: 3,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      alignSelf: 'center',
-      position: 'relative',
-      borderRadius: theme.shape.radius.sm,
-      '&:hover, &:focus-visible': {
-        background: theme.colors.action.hover,
-      },
-      '&.primary': {
-        background: theme.colors.primary.main,
-        color: theme.colors.getContrastText(theme.colors.primary.main),
-        '&:hover': {
-          backgroundColor: theme.colors.primary.shade,
-        },
-      },
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        ...getIconTransitionStyles(theme),
-      },
-    }),
-    iconActive: css({
-      color: theme.colors.text.primary,
-      background: theme.colors.secondary.main,
-      '&::before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        width: '100%',
-        height: '2px',
-        borderBottomLeftRadius: theme.shape.radius.sm,
-        borderBottomRightRadius: theme.shape.radius.sm,
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-        [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-          ...getIconTransitionStyles(theme),
-        },
-      },
-      svg: {
-        [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-          ...getIconTransitionStyles(theme),
-        },
-      },
-    }),
-    title: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      textAlign: 'center',
-      whiteSpace: 'nowrap',
-    }),
-    titleActive: css({
-      color: theme.colors.text.primary,
-    }),
-    leftButton: css({
-      '&::before': {
-        right: 'unset',
-        left: 0,
-        top: 0,
-        height: '100%',
-      },
-    }),
-  };
-};
-
-function getIconTransitionStyles(theme: GrafanaTheme2) {
-  return {
-    transition: theme.transitions.create(['background-color', 'color'], {
-      duration: theme.transitions.duration.short,
-    }),
-  };
-}
+      height: '2px',
+      borderBottomLeftRadius: shape['--gf-shape-radius-sm'],
+      borderBottomRightRadius: shape['--gf-shape-radius-sm'],
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background-color, color' },
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: durations.short },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+      transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+    },
+  },
+  // The Emotion `&.primary` rule outranked the active background, but not its own hover.
+  primary: {
+    backgroundColor: { default: colors['--gf-colors-primary-main'], ':hover': colors['--gf-colors-primary-shade'] },
+  },
+  primaryColor: (color: string) => ({ color }),
+  iconTransition: {
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background-color, color' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: durations.short },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+  },
+  title: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+  },
+  titleActive: {
+    color: colors['--gf-colors-text-primary'],
+  },
+});

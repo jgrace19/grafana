@@ -115,6 +115,8 @@ const stylexMigratedUiFiles = [
   // U8 chrome/globals
   'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
   'packages/grafana-ui/src/utils/skeleton.tsx',
+  // U8 chrome
+  'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
