@@ -67,7 +67,7 @@ export function ModalBase({
 
   return (
     <OverlayContainer>
-      <div role="presentation" {...stylex.props(styles.modalBackdrop)} />
+      <div role="presentation" {...stylex.props(modalStyles.modalBackdrop)} />
       <FloatingFocusManager context={context} modal={trapFocus} getInsideElements={() => [getPortalContainer()]}>
         <div
           {...mergeStylexProps(stylex.props(styles.modal, xstyle), { className })}
@@ -110,6 +110,10 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
   },
+});
+
+/** Modal styles shared with components that render their own modal-like overlay (the date/time pickers). */
+export const modalStyles = stylex.create({
   modalBackdrop: {
     position: 'fixed',
     zIndex: zIndex.modalBackdrop,

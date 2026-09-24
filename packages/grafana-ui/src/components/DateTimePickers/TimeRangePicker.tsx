@@ -21,6 +21,7 @@ import { bp, zIndex } from '../../themes/stylex/constants.stylex';
 import { components, spacing, typography, v1 } from '../../themes/stylex/tokens.stylex';
 import { getFeatureToggle } from '../../utils/featureToggle';
 import { ButtonGroup } from '../Button/ButtonGroup';
+import { modalStyles } from '../Modal/ModalBase';
 import { getPortalContainer } from '../Portal/Portal';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -189,7 +190,7 @@ export function TimeRangePicker(props: TimeRangePickerProps) {
       </Tooltip>
       {isOpen && (
         <div data-testid={selectors.components.TimePicker.overlayContent}>
-          <div role="presentation" {...stylex.props(styles.modalBackdrop, styles.backdrop)} {...underlayProps} />
+          <div role="presentation" {...stylex.props(modalStyles.modalBackdrop, styles.backdrop)} {...underlayProps} />
           <FocusScope contain autoFocus restoreFocus>
             <section {...stylex.props(styles.content)} ref={overlayRef} {...overlayProps} {...dialogProps}>
               <TimePickerContent
@@ -313,15 +314,6 @@ const styles = stylex.create({
     position: 'relative',
     display: 'flex',
     verticalAlign: 'middle',
-  },
-  modalBackdrop: {
-    position: 'fixed',
-    zIndex: zIndex.modalBackdrop,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: components['--gf-components-overlay-background'],
   },
   backdrop: {
     display: { default: 'none', [bp.smDown]: 'block' },
