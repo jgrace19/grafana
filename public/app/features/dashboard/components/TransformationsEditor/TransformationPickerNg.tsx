@@ -13,8 +13,6 @@ import { getCategoriesLabels } from 'app/features/transformers/utils';
 import { SqlExpressionsBanner } from './SqlExpressions/SqlExpressionsBanner';
 import { TransformationCard } from './TransformationCard';
 import { type FilterCategory } from './TransformationsEditor';
-import './TransformationPickerNg.css';
-
 const VIEW_ALL_VALUE = 'viewAll';
 
 interface TransformationPickerNgProps {
@@ -74,7 +72,7 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
         <div {...stylex.props(styles.searchWrapper)}>
           <Input
             data-testid={selectors.components.Transforms.searchInput}
-            className="gf-transformation-picker-search"
+            xstyle={styles.search}
             value={search ?? ''}
             placeholder={t(
               'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -129,6 +127,10 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
 }
 
 const styles = stylex.create({
+  search: {
+    flexGrow: 1,
+    width: 'initial',
+  },
   searchWrapper: {
     display: 'flex',
     flexWrap: 'wrap',

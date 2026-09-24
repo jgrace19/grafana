@@ -1,11 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
 import { Modal } from '@grafana/ui';
 
 import { type OnRowOptionsUpdate, RowOptionsForm } from './RowOptionsForm';
-import './RowOptionsModal.css';
-
 export interface RowOptionsModalProps {
   title: string;
   repeat?: string;
@@ -20,9 +19,15 @@ export const RowOptionsModal = ({ repeat, title, onDismiss, onUpdate, warning }:
       isOpen={true}
       title={t('dashboard.row-options-modal.title-row-options', 'Row options')}
       onDismiss={onDismiss}
-      className="gf-row-options-modal"
+      xstyle={styles.modal}
     >
       <RowOptionsForm repeat={repeat} title={title} onCancel={onDismiss} onUpdate={onUpdate} warning={warning} />
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

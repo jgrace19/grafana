@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { connect, type ConnectedProps } from 'react-redux';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
@@ -9,8 +10,6 @@ import { cleanUpDashboardAndVariables } from 'app/features/dashboard/state/actio
 
 import { useDeleteDashboardsMutation } from '../../../browse-dashboards/api/browseDashboardsAPI';
 import { DeleteDashboardModal as DeleteModal } from '../../../dashboard-scene/settings/DeleteDashboardButton';
-
-import './DeleteDashboardModal.css';
 
 type DeleteDashboardModalProps = {
   hideModal(): void;
@@ -56,7 +55,7 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
       isOpen={true}
       title={t('dashboard-settings.provisioned-delete-modal.title', 'Cannot delete provisioned dashboard')}
       onDismiss={hideModal}
-      className="gf-provisioned-delete-modal"
+      xstyle={styles.modal}
     >
       <Text element="p">
         <Trans i18nKey="dashboard-settings.provisioned-delete-modal.text-1">
@@ -87,3 +86,9 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
 };
 
 export const DeleteDashboardModal = connector(DeleteDashboardModalUnconnected);
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

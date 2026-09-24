@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending ToolbarButton migration (see toolbarButtonNotice)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
@@ -20,7 +18,7 @@ export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
   if (notice.inspect && onClick) {
     return (
       <ToolbarButton
-        className={toolbarButtonNotice}
+        xstyle={styles.toolbarButtonNotice}
         icon={iconName}
         iconSize="md"
         key={notice.severity}
@@ -47,16 +45,23 @@ export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
   );
 };
 
-// stylex: pending ToolbarButton migration. ToolbarButton's own Emotion background and border would beat StyleX.
-const toolbarButtonNotice = css({
-  background: 'inherit',
-  border: 'none',
-  borderRadius: shape['--gf-shape-radius-default'],
-});
-
 const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
 const styles = stylex.create({
+  // ToolbarButton's own :hover, :active and :disabled backgrounds still win over `inherit`.
+  toolbarButtonNotice: {
+    backgroundColor: {
+      default: 'inherit',
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-action-hover'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    backgroundImage: 'inherit',
+    borderStyle: 'none',
+  },
   notice: {
     backgroundColor: 'inherit',
     borderStyle: 'none',

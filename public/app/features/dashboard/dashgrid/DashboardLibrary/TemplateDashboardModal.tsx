@@ -7,10 +7,10 @@ import { useAsync } from 'react-use';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { Box, Grid, Modal, Text } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardCard } from './DashboardCard';
-import './TemplateDashboardModal.css';
 import { NewTemplateDashboardInteractions } from './analytics/main';
 import {
   CONTENT_KINDS,
@@ -129,9 +129,9 @@ export const TemplateDashboardModal = () => {
     <Modal
       isOpen={isOpen}
       onDismiss={onClose}
-      className="gf-template-dashboard-modal"
+      xstyle={styles.modal}
       title={t('dashboard-library.template-dashboard-modal.title', 'Start a dashboard from a template')}
-      contentClassName="gf-template-dashboard-modal-content"
+      contentXstyle={styles.modalContent}
     >
       <div {...stylex.props(styles.stickyHeader)}>
         <Text element="p">
@@ -179,6 +179,14 @@ export const TemplateDashboardModal = () => {
 };
 
 const styles = stylex.create({
+  modal: {
+    width: '1200px',
+  },
+  // Modal's own small-screen top padding still wins.
+  modalContent: {
+    paddingTop: { default: 0, [bp.smDown]: spacing['--gf-spacing-x1'] },
+    height: '100%',
+  },
   stickyHeader: {
     position: 'sticky',
     top: 0,

@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { memo, type ReactNode } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { useLocation } from 'react-router-dom-v5-compat';
@@ -38,8 +39,6 @@ import {
 
 import { DashNavTimeControls } from './DashNavTimeControls';
 import { ShareButton } from './ShareButton';
-
-import './DashNav.css';
 
 const mapDispatchToProps = {
   updateTimeZoneForSession,
@@ -94,7 +93,7 @@ export const DashNav = memo<Props>((props) => {
                 'dashboard.dash-nav.on-open-snapshot-original.title.proceed-to-external-site',
                 'Proceed to external site?'
               ),
-              modalClass: 'gf-dash-nav-external-link-modal',
+              modalXstyle: styles.externalLinkModal,
               body: (
                 <>
                   <p>
@@ -303,3 +302,10 @@ export const DashNav = memo<Props>((props) => {
 DashNav.displayName = 'DashNav';
 
 export default connector(DashNav);
+
+const styles = stylex.create({
+  externalLinkModal: {
+    width: 'max-content',
+    maxWidth: '80vw',
+  },
+});

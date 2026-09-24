@@ -1,17 +1,27 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
-
-import './TransformationCard.css';
-
-/** Classes for the Card itself, which has no xstyle (see TransformationCard.css). */
-export const cardClassNames = {
-  baseCard: 'gf-transformation-card',
-  baseCardFullWidth: 'gf-transformation-card gf-transformation-card--full-width',
-  cardDisabled: 'gf-transformation-card--disabled',
-};
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export const cardStyles = stylex.create({
+  baseCard: {
+    maxWidth: '200px',
+    width: 'auto',
+    marginBottom: 0,
+  },
+  baseCardFullWidth: {
+    maxWidth: 'none',
+    width: '100%',
+    marginBottom: 0,
+  },
+  // Replaces Card's background, so Card's own :hover background is passed in.
+  cardDisabled: (hoverBackground: string) => ({
+    backgroundColor: { default: colors['--gf-colors-action-disabled-background'], ':hover': hoverBackground },
+  }),
+  infoButton: {
+    position: 'absolute',
+    bottom: spacing['--gf-spacing-x1'],
+    right: spacing['--gf-spacing-x1'],
+  },
   image: {
     display: 'block',
     maxWidth: '100%',

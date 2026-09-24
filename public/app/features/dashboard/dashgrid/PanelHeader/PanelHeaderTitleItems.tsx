@@ -1,16 +1,8 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on PanelChrome.TitleItem (see getStyles)
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import {
-  AlertState,
-  type DataLink,
-  type GrafanaTheme2,
-  type LinkModel,
-  type PanelData,
-  type PanelModel,
-} from '@grafana/data';
-// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on PanelChrome.TitleItem (see getStyles)
-import { Icon, PanelChrome, TimePickerTooltip, Tooltip, useStyles2 } from '@grafana/ui';
+import { AlertState, type DataLink, type LinkModel, type PanelData, type PanelModel } from '@grafana/data';
+import { Icon, PanelChrome, TimePickerTooltip, Tooltip, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { PanelLinks } from '../PanelLinks';
 
@@ -32,18 +24,21 @@ export interface Props {
 
 export function PanelHeaderTitleItems(props: Props) {
   const { alertState, data, panelId, onShowPanelLinks, panelLinks } = props;
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const stateColor = (color: string) => styles.color(color, theme.colors.emphasize(color, 0.03));
+  const alertColor =
+    alertState === AlertState.OK
+      ? theme.colors.success.text
+      : alertState === AlertState.Pending || alertState === AlertState.Recovering
+        ? theme.colors.warning.text
+        : alertState === AlertState.Alerting
+          ? theme.colors.error.text
+          : undefined;
 
   // panel health
   const alertStateItem = (
     <Tooltip content={alertState ?? 'unknown'}>
-      <PanelChrome.TitleItem
-        className={cx({
-          [styles.ok]: alertState === AlertState.OK,
-          [styles.pending]: alertState === AlertState.Pending || alertState === AlertState.Recovering,
-          [styles.alerting]: alertState === AlertState.Alerting,
-        })}
-      >
+      <PanelChrome.TitleItem xstyle={alertColor !== undefined && stateColor(alertColor)}>
         <Icon name={alertState === 'alerting' ? 'heart-break' : 'heart'} size="md" />
       </PanelChrome.TitleItem>
     </Tooltip>
@@ -53,7 +48,7 @@ export function PanelHeaderTitleItems(props: Props) {
     <>
       {data.request && data.request.timeInfo && (
         <Tooltip content={<TimePickerTooltip timeRange={data.request?.range} timeZone={data.request?.timezone} />}>
-          <PanelChrome.TitleItem className={styles.timeshift}>
+          <PanelChrome.TitleItem xstyle={[styles.timeshift, stateColor(theme.colors.text.link)]}>
             <Icon name="clock-nine" size="md" /> {data.request?.timeInfo}
           </PanelChrome.TitleItem>
         </Tooltip>
@@ -74,39 +69,13 @@ export function PanelHeaderTitleItems(props: Props) {
   );
 }
 
-// stylex: pending an xstyle on PanelChrome.TitleItem. Every class here overrides TitleItem's own color and
-// :hover color; the hover colours are JS colour math, so they can't move to a static stylesheet.
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    ok: css({
-      color: theme.colors.success.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.success.text, 0.03),
-      },
-    }),
-    pending: css({
-      color: theme.colors.warning.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.warning.text, 0.03),
-      },
-    }),
-    alerting: css({
-      color: theme.colors.error.text,
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.error.text, 0.03),
-      },
-    }),
-    timeshift: css({
-      color: theme.colors.text.link,
-      gap: theme.spacing(0.5),
-      whiteSpace: 'nowrap',
-
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.text.link, 0.03),
-      },
-    }),
-    angularNotice: css({
-      color: theme.colors.warning.text,
-    }),
-  };
-};
+// The :hover colours replace TitleItem's own.
+const styles = stylex.create({
+  color: (color: string, hoverColor: string) => ({
+    color: { default: color, ':hover': hoverColor },
+  }),
+  timeshift: {
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    whiteSpace: 'nowrap',
+  },
+});
