@@ -1,0 +1,8 @@
+/*
+ * Sizes whatever logo `Branding.MenuLogo` renders (it can be replaced). Deliberately not in a cascade layer: like
+ * the Emotion rule it replaces, it must win over the logo's own styles.
+ */
+.gf-home-link img {
+  max-height: 100%;
+  max-width: 100%;
+}
