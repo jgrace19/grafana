@@ -112,7 +112,7 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
                 <RadioButtonGroup value={status} options={alertOptions} onChange={(value) => setStatus(value)} />
                 <Button
                   onClick={onAdd}
-                  style={onAddButtonStyle}
+                  xstyle={styles.onAddButton}
                   icon="plus-circle"
                   type="button"
                   variant="secondary"
@@ -157,6 +157,12 @@ export const GenerateAlertDataModal = ({ isOpen, onDismiss, onAccept }: Props) =
 };
 
 const styles = stylex.create({
+  onAddButton: {
+    flex: 'none',
+    width: 'fit-content',
+    paddingRight: spacing['--gf-spacing-x1'],
+    marginLeft: 'auto',
+  },
   section: {
     marginBottom: spacing['--gf-spacing-x2'],
   },
@@ -179,11 +185,3 @@ const styles = stylex.create({
     height: '363px',
   },
 });
-
-// Button has no xstyle, and its own padding must lose to this.
-const onAddButtonStyle = {
-  flex: 'none',
-  width: 'fit-content',
-  paddingRight: spacing['--gf-spacing-x1'],
-  marginLeft: 'auto',
-};

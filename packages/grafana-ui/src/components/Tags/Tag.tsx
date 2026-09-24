@@ -22,36 +22,40 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   /** Use constant color from TAG_COLORS. Using index instead of color directly so we can match other styling. */
   colorIndex?: number;
   onClick?: OnTagClick;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
-const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, className, colorIndex, ...rest }, ref) => {
-  const colors = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
+const TagComponent = forwardRef<HTMLElement, Props>(
+  ({ name, onClick, icon, className, colorIndex, xstyle, ...rest }, ref) => {
+    const colors = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
 
-  const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+    const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    onClick?.(name, event);
-  };
+      onClick?.(name, event);
+    };
 
-  const { style, ...domProps } = rest;
-  const classes = mergeStylexProps(
-    stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover),
-    { className, style }
-  );
+    const { style, ...domProps } = rest;
+    const classes = mergeStylexProps(
+      stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover, xstyle),
+      { className, style }
+    );
 
-  return onClick ? (
-    <button {...domProps} {...classes} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </button>
-  ) : (
-    <span {...domProps} {...classes} ref={ref}>
-      {icon && <Icon name={icon} />}
-      {name}
-    </span>
-  );
-});
+    return onClick ? (
+      <button {...domProps} {...classes} onClick={onTagClick} ref={ref as React.ForwardedRef<HTMLButtonElement>}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </button>
+    ) : (
+      <span {...domProps} {...classes} ref={ref}>
+        {icon && <Icon name={icon} />}
+        {name}
+      </span>
+    );
+  }
+);
 TagComponent.displayName = 'Tag';
 
 const TagSkeleton: SkeletonComponent = ({ rootProps }) => {

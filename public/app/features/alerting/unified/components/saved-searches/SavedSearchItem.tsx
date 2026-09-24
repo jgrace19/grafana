@@ -95,7 +95,7 @@ export function SavedSearchItem({
             tooltip={t('alerting.saved-searches.delete-button', 'Delete')}
             size="md"
             variant="secondary"
-            style={deleteIconStyle}
+            xstyle={styles.deleteIcon}
           />
         </Stack>
       </div>
@@ -199,6 +199,9 @@ function ActionMenu({ isDefault, isDisabled, onSetDefault, onRename, onDelete, p
 // ============================================================================
 
 const styles = stylex.create({
+  deleteIcon: {
+    color: { default: colors['--gf-colors-error-main'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+  },
   item: {
     padding: spacing['--gf-spacing-x0-5'],
     borderRadius: shape['--gf-shape-radius-default'],
@@ -216,8 +219,3 @@ const styles = stylex.create({
     alignItems: 'center',
   },
 });
-
-// IconButton has no xstyle, and its own colour must lose to this one in every state.
-const deleteIconStyle = {
-  color: colors['--gf-colors-error-main'],
-};

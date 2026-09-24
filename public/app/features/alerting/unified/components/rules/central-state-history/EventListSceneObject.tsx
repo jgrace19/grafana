@@ -229,7 +229,7 @@ function EventRow({ record, addFilter, timeRange, hideAlertRuleColumn }: EventRo
   return (
     <Stack direction="column" gap={0}>
       <div {...stylex.props(styles.header, isCollapsed && styles.collapsedHeader)} data-testid="event-row-header">
-        <CollapseToggle size="sm" style={collapseToggleStyle} isCollapsed={isCollapsed} onToggle={setIsCollapsed} />
+        <CollapseToggle size="sm" xstyle={styles.collapseToggle} isCollapsed={isCollapsed} onToggle={setIsCollapsed} />
         <Stack gap={0.5} direction={'row'} alignItems={'center'}>
           <div {...stylex.props(styles.timeCol)}>
             <Timestamp time={record.timestamp} />
@@ -434,6 +434,11 @@ const Timestamp = ({ time }: TimestampProps) => {
 export default withErrorBoundary(HistoryEventsList, { style: 'page' });
 
 const styles = stylex.create({
+  collapseToggle: {
+    borderStyle: 'none',
+    marginTop: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+    marginBottom: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+  },
   header: {
     display: 'flex',
     flexDirection: 'row',
@@ -524,14 +529,6 @@ const styles = stylex.create({
     paddingLeft: spacing['--gf-spacing-x2'],
   },
 });
-
-// CollapseToggle's Button has no xstyle, and this override must also win in its :hover state.
-const collapseToggleStyle = {
-  background: 'none',
-  border: 'none',
-  marginTop: `calc(${spacing['--gf-spacing-x1']} * -1)`,
-  marginBottom: `calc(${spacing['--gf-spacing-x1']} * -1)`,
-};
 
 /**
  * This is a scene object that displays a list of history events.

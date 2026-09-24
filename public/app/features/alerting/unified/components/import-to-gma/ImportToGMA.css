@@ -1,7 +1,0 @@
-/*
- * The review rows size the Text label they start with, which StyleX can't target. Deliberately not in a cascade
- * layer, like the rule it replaces.
- */
-.gf-alerting-import-review-row > span:first-of-type {
-  min-width: 150px;
-}

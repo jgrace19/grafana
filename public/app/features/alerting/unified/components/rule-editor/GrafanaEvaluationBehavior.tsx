@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -500,7 +498,7 @@ export function EvaluationGroupCreationModal({
 
   return (
     <Modal
-      className={pendingEmotionStyles.modal}
+      xstyle={styles.modal}
       isOpen={true}
       title={t('alerting.evaluation-group-creation-modal.title-new-evaluation-group', 'New evaluation group')}
       onDismiss={onCancel}
@@ -769,14 +767,10 @@ function getDescription(isGrafanaRecordingRule: boolean) {
   );
 }
 
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
-    width: '544px',
-  }),
-};
-
 const styles = stylex.create({
+  modal: {
+    width: '544px',
+  },
   evaluationContainer: {
     color: colors['--gf-colors-text-secondary'],
     maxWidth: '544px',

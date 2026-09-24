@@ -1,4 +1,0 @@
-/* TagList has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX alignment. */
-.gf-alerting-silence-matchers {
-  justify-content: flex-start;
-}

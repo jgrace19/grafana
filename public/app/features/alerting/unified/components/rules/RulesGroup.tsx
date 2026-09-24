@@ -179,7 +179,7 @@ export const RulesGroup = React.memo(({ group, namespace, expandAll, viewMode }:
       <div {...stylex.props(styles.header)} data-testid="rule-group-header">
         <CollapseToggle
           size="sm"
-          style={collapseToggleStyle}
+          xstyle={styles.collapseToggle}
           isCollapsed={isCollapsed}
           onToggle={setIsCollapsed}
           data-testid={selectors.components.AlertRules.groupToggle}
@@ -262,6 +262,11 @@ const FolderIcon = React.memo(({ isCollapsed }: { isCollapsed: boolean }) => {
 FolderIcon.displayName = 'FolderIcon';
 
 const styles = stylex.create({
+  collapseToggle: {
+    borderStyle: 'none',
+    marginTop: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+    marginBottom: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+  },
   header: {
     display: 'flex',
     flexDirection: 'row',
@@ -319,11 +324,3 @@ const styles = stylex.create({
     marginLeft: 0,
   },
 });
-
-// CollapseToggle's Button has no xstyle, and this override must also win in its :hover state.
-const collapseToggleStyle = {
-  background: 'none',
-  border: 'none',
-  marginTop: `calc(${spacing['--gf-spacing-x1']} * -1)`,
-  marginBottom: `calc(${spacing['--gf-spacing-x1']} * -1)`,
-};

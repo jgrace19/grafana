@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import './QueryOptions.css';
 import { useState } from 'react';
 
 import { type RelativeTimeRange, getDefaultRelativeTimeRange } from '@grafana/data';
@@ -35,17 +34,28 @@ export const QueryOptions = ({
     <>
       <Toggletip
         content={
-          <div className="gf-alerting-query-options">
+          <div>
             {onChangeTimeRange && (
-              <InlineField label={t('alerting.query-options.label-time-range', 'Time Range')}>
+              <InlineField
+                xstyle={styles.optionField}
+                label={t('alerting.query-options.label-time-range', 'Time Range')}
+              >
                 <RelativeTimeRangePicker
                   timeRange={query.relativeTimeRange ?? getDefaultRelativeTimeRange()}
                   onChange={(range) => onChangeTimeRange(range, index)}
                 />
               </InlineField>
             )}
-            <MaxDataPointsOption options={queryOptions} onChange={(options) => onChangeQueryOptions(options, index)} />
-            <MinIntervalOption options={queryOptions} onChange={(options) => onChangeQueryOptions(options, index)} />
+            <MaxDataPointsOption
+              xstyle={styles.optionField}
+              options={queryOptions}
+              onChange={(options) => onChangeQueryOptions(options, index)}
+            />
+            <MinIntervalOption
+              xstyle={styles.optionField}
+              options={queryOptions}
+              onChange={(options) => onChangeQueryOptions(options, index)}
+            />
           </div>
         }
         closeButton={true}
@@ -87,6 +97,9 @@ export const QueryOptions = ({
 };
 
 const styles = stylex.create({
+  optionField: {
+    justifyContent: 'space-between',
+  },
   staticValues: {
     color: colors['--gf-colors-text-secondary'],
     marginRight: spacing['--gf-spacing-x1'],

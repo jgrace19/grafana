@@ -17,7 +17,6 @@ import { formStyles } from '../../../../notification-policies/formStyles';
 import { TIMING_OPTIONS_DEFAULTS } from '../../../../notification-policies/timingOptions';
 
 import { RouteTimings } from './RouteTimings';
-import './RouteSettings.css';
 
 const REQUIRED_FIELDS_IN_GROUPBY = ['grafana_folder', 'alertname'];
 
@@ -60,7 +59,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-grouping', 'Override grouping')}
           transparent={true}
-          className="gf-alerting-route-settings-switch"
+          xstyle={styles.switchField}
         >
           <Switch id="override-grouping-toggle" {...register(`contactPoints.${alertManager}.overrideGrouping`)} />
         </InlineField>
@@ -85,7 +84,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
           )}
           {...register(`contactPoints.${alertManager}.groupBy`)}
           invalid={!!errors.contactPoints?.[alertManager]?.groupBy}
-          className="gf-alerting-route-settings-optional-field"
+          xstyle={styles.optionalField}
         >
           <Controller
             render={({ field: { onChange, ref, ...field }, fieldState: { error } }) => {
@@ -169,7 +168,7 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
         <InlineField
           label={t('alerting.routing-settings.label-override-timings', 'Override timings')}
           transparent={true}
-          className="gf-alerting-route-settings-switch"
+          xstyle={styles.switchField}
         >
           <Switch id="override-timings-toggle" {...register(`contactPoints.${alertManager}.overrideTimings`)} />
         </InlineField>
@@ -199,6 +198,16 @@ export const RoutingSettings = ({ alertManager }: RoutingSettingsProps) => {
 };
 
 const styles = stylex.create({
+  switchField: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'nowrap',
+    gap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+  },
+  optionalField: {
+    marginLeft: '49px',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
   optionalContent: {
     marginLeft: '49px',
     marginBottom: spacing['--gf-spacing-x1'],

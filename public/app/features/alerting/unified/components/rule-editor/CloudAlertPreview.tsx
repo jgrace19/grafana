@@ -9,7 +9,6 @@ import { labelsToTags } from '../../utils/labels';
 import { AlertStateTag } from '../rules/AlertStateTag';
 
 import { mapDataFrameToAlertPreview } from './preview';
-import './CloudAlertPreview.css';
 
 interface CloudAlertPreviewProps {
   preview: DataFrame;
@@ -51,7 +50,7 @@ export function CloudAlertPreview({ preview }: CloudAlertPreviewProps) {
             <tr key={index} {...stylex.props(styles.row)}>
               <td {...stylex.props(styles.cell)}>{<AlertStateTag state={state} />}</td>
               <td {...stylex.props(styles.cell, styles.cellAfterFirst)}>
-                <TagList tags={instanceTags} className="gf-alerting-cloud-preview-tags" />
+                <TagList tags={instanceTags} xstyle={styles.previewTags} />
               </td>
               <td {...stylex.props(styles.cell, styles.cellAfterFirst, styles.infoCell)}>
                 {info && (
@@ -69,6 +68,9 @@ export function CloudAlertPreview({ preview }: CloudAlertPreviewProps) {
 }
 
 const styles = stylex.create({
+  previewTags: {
+    justifyContent: 'flex-start',
+  },
   table: {
     width: '100%',
     marginTop: spacing['--gf-spacing-x2'],
