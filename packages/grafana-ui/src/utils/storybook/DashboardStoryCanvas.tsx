@@ -1,23 +1,24 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 export interface Props {
   children?: React.ReactNode;
 }
 
 export const DashboardStoryCanvas = ({ children }: Props) => {
-  const theme = useTheme2();
-  const style = css({
-    width: '100%',
-    height: '100%',
-    padding: '32px',
-    background: theme.colors.background.canvas,
-    overflow: 'auto',
-  });
-
-  return <div className={style}>{children}</div>;
+  return <div {...stylex.props(styles.canvas)}>{children}</div>;
 };
 
 DashboardStoryCanvas.displayName = 'DashboardStoryCanvas';
+
+const styles = stylex.create({
+  canvas: {
+    width: '100%',
+    height: '100%',
+    padding: '32px',
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    overflow: 'auto',
+  },
+});

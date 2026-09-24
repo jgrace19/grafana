@@ -1,0 +1,7 @@
+/*
+ * Raises the variables modal above other modals. Modal is still Emotion, whose rules are inserted after this
+ * stylesheet, so the doubled class keeps this override winning the way the Emotion `cx` merge did.
+ */
+.gf-variables-input-modal.gf-variables-input-modal {
+  z-index: 10000;
+}

@@ -1,0 +1,13 @@
+/*
+ * Hides the Button's own icon and label while the success overlay shows. Deliberately not in a cascade layer:
+ * like the Emotion class it replaces, it styles the Button's internal elements.
+ */
+
+/* Zero specificity so a consumer's className (e.g. `position: absolute`) wins whatever the stylesheet order. */
+:where(.gf-clipboard-button) {
+  position: relative;
+}
+
+.gf-clipboard-button--success > * {
+  visibility: hidden;
+}

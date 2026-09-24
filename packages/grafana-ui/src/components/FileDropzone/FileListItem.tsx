@@ -1,15 +1,18 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 
-import { formattedValueToString, getValueFormat, type GrafanaTheme2 } from '@grafana/data';
+import { formattedValueToString, getValueFormat } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { trimFileName } from '../../utils/file';
 import { Button } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
 
 import { type DropzoneFile } from './FileDropzone';
+
+import './FileListItem.css';
 
 export const REMOVE_FILE = 'Remove file';
 export interface FileListItemProps {
@@ -23,14 +26,13 @@ export interface FileListItemProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-filelistitem--docs
  */
 export function FileListItem({ file: customFile, removeFile }: FileListItemProps) {
-  const styles = useStyles2(getStyles);
   const { file, progress, error, abortUpload, retryUpload } = customFile;
 
   const renderRightSide = () => {
     if (error) {
       return (
         <>
-          <span className={styles.error}>{error.message}</span>
+          <span {...stylex.props(styles.error)}>{error.message}</span>
           {retryUpload && (
             <IconButton
               name="sync"
@@ -41,7 +43,7 @@ export function FileListItem({ file: customFile, removeFile }: FileListItemProps
           )}
           {removeFile && (
             <IconButton
-              className={retryUpload ? styles.marginLeft : ''}
+              className={retryUpload ? 'gf-file-list-item-remove' : ''}
               name="trash-alt"
               onClick={() => removeFile(customFile)}
               tooltip={REMOVE_FILE}
@@ -54,8 +56,12 @@ export function FileListItem({ file: customFile, removeFile }: FileListItemProps
     if (progress && file.size > progress) {
       return (
         <>
-          <progress className={styles.progressBar} max={file.size} value={progress} />
-          <span className={styles.paddingLeft}>
+          <progress
+            className={clsx('gf-file-list-item-progress', stylex.props(styles.progressBar).className)}
+            max={file.size}
+            value={progress}
+          />
+          <span {...stylex.props(styles.paddingLeft)}>
             {Math.round((progress / file.size) * 100)}
             {'%'}
           </span>
@@ -82,60 +88,54 @@ export function FileListItem({ file: customFile, removeFile }: FileListItemProps
   const valueFormat = getValueFormat('decbytes')(file.size);
 
   return (
-    <div className={styles.fileListContainer}>
-      <span className={styles.fileNameWrapper}>
+    <div {...stylex.props(styles.fileListContainer)}>
+      <span {...stylex.props(styles.fileNameWrapper)}>
         <Icon name="file-blank" size="lg" aria-hidden={true} />
-        <span className={styles.padding}>{trimFileName(file.name)}</span>
+        <span {...stylex.props(styles.padding)}>{trimFileName(file.name)}</span>
         <span>{formattedValueToString(valueFormat)}</span>
       </span>
 
-      <div className={styles.fileNameWrapper}>{renderRightSide()}</div>
+      <div {...stylex.props(styles.fileNameWrapper)}>{renderRightSide()}</div>
     </div>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    fileListContainer: css({
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(2),
-      border: `1px dashed ${theme.colors.border.medium}`,
-      backgroundColor: `${theme.colors.background.secondary}`,
-      marginTop: theme.spacing(1),
-    }),
-    fileNameWrapper: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-    }),
-    padding: css({
-      padding: theme.spacing(0, 1),
-    }),
-    paddingLeft: css({
-      paddingLeft: theme.spacing(2),
-    }),
-    marginLeft: css({
-      marginLeft: theme.spacing(1),
-    }),
-    error: css({
-      paddingRight: theme.spacing(2),
-      color: theme.colors.error.text,
-    }),
-    progressBar: css({
-      borderRadius: theme.shape.radius.default,
-      height: '4px',
-      '::-webkit-progress-bar': {
-        backgroundColor: theme.colors.border.weak,
-        borderRadius: theme.shape.radius.default,
-      },
-      '::-webkit-progress-value': {
-        backgroundColor: theme.colors.primary.main,
-        borderRadius: theme.shape.radius.default,
-      },
-    }),
-  };
-}
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  fileListContainer: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: `calc(${grid} * 2)`,
+    borderWidth: '1px',
+    borderStyle: 'dashed',
+    borderColor: colors['--gf-colors-border-medium'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    marginTop: grid,
+  },
+  fileNameWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  padding: {
+    paddingTop: 0,
+    paddingRight: grid,
+    paddingBottom: 0,
+    paddingLeft: grid,
+  },
+  paddingLeft: {
+    paddingLeft: `calc(${grid} * 2)`,
+  },
+  error: {
+    paddingRight: `calc(${grid} * 2)`,
+    color: colors['--gf-colors-error-text'],
+  },
+  progressBar: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: '4px',
+  },
+});

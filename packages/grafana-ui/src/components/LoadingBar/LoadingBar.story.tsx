@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 import { type Meta, type StoryFn } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { components, shape } from '../../themes/stylex/tokens.stylex';
 import { DashboardStoryCanvas } from '../../utils/storybook/DashboardStoryCanvas';
 
 import { LoadingBar, type LoadingBarProps } from './LoadingBar';
@@ -20,26 +18,10 @@ const meta: Meta<typeof LoadingBar> = {
   },
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const { borderColor } = theme.components.panel;
-
-  return {
-    container: css({
-      label: 'placeholder-container',
-      width: '400px',
-      height: '200px',
-      border: `1px solid ${borderColor}`,
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-};
-
 export const Basic: StoryFn<typeof LoadingBar> = (args: LoadingBarProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <DashboardStoryCanvas>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <LoadingBar {...args} />
       </div>
     </DashboardStoryCanvas>
@@ -49,5 +31,16 @@ export const Basic: StoryFn<typeof LoadingBar> = (args: LoadingBarProps) => {
 Basic.args = {
   width: 400,
 };
+
+const styles = stylex.create({
+  container: {
+    width: '400px',
+    height: '200px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+});
 
 export default meta;

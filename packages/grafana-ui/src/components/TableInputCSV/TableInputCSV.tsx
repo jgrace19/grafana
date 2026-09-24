@@ -1,18 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { PureComponent } from 'react';
 import * as React from 'react';
 
-import { type DataFrame, type CSVConfig, readCSV, type GrafanaTheme2 } from '@grafana/data';
+import { type DataFrame, type CSVConfig, readCSV } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { withTheme2 } from '../../themes/ThemeContext';
-import { stylesFactory } from '../../themes/stylesFactory';
-import { type Themeable2 } from '../../types/theme';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { TextArea } from '../TextArea/TextArea';
 
-interface Props extends Themeable2 {
+interface Props {
   config?: CSVConfig;
   text: string;
   width: string | number;
@@ -68,20 +66,19 @@ export class UnThemedTableInputCSV extends PureComponent<Props, State> {
   };
 
   render() {
-    const { width, height, theme } = this.props;
+    const { width, height } = this.props;
     const { data } = this.state;
-    const styles = getStyles(theme);
     return (
-      <div className={styles.tableInputCsv}>
+      <div {...stylex.props(styles.tableInputCsv)}>
         <TextArea
           style={{ width, height }}
           placeholder={t('grafana-ui.table.csv-placeholder', 'Enter CSV here...')}
           value={this.state.text}
           onChange={this.onTextChange}
-          className={styles.textarea}
+          className={stylex.props(styles.textarea).className}
         />
         {data && (
-          <footer className={styles.footer}>
+          <footer {...stylex.props(styles.footer)}>
             {data.map((frame, index) => {
               const rows = frame.length;
               const columns = frame.fields.length;
@@ -107,27 +104,30 @@ export class UnThemedTableInputCSV extends PureComponent<Props, State> {
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-deprecated-tableinputcsv--docs
  */
-export const TableInputCSV = withTheme2(UnThemedTableInputCSV);
+export const TableInputCSV: React.FunctionComponent<Props> = (props) => <UnThemedTableInputCSV {...props} />;
 TableInputCSV.displayName = 'TableInputCSV';
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => {
-  return {
-    tableInputCsv: css({
-      position: 'relative',
-    }),
-    textarea: css({
-      height: '100%',
-      width: '100%',
-    }),
-    footer: css({
-      position: 'absolute',
-      bottom: '15px',
-      right: '15px',
-      border: `1px solid ${theme.colors.success.border}`,
-      background: theme.colors.success.main,
-      color: theme.colors.success.contrastText,
-      padding: `1px ${theme.spacing(0.5)}`,
-      fontSize: '80%',
-    }),
-  };
+const styles = stylex.create({
+  tableInputCsv: {
+    position: 'relative',
+  },
+  textarea: {
+    height: '100%',
+    width: '100%',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: '15px',
+    right: '15px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-success-border'],
+    backgroundColor: colors['--gf-colors-success-main'],
+    color: colors['--gf-colors-success-contrast-text'],
+    paddingTop: '1px',
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingBottom: '1px',
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    fontSize: '80%',
+  },
 });

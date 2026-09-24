@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
 import { Source } from '@storybook/blocks';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { Children, isValidElement, type ReactNode, useMemo, useState } from 'react';
 import reactElementToJSXString from 'react-element-to-jsx-string';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
 import { Stack } from '../../components/Layout/Stack/Stack';
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
+
+import './ExampleFrame.css';
 
 interface ExampleFrameProps {
   children: ReactNode;
@@ -19,7 +21,6 @@ interface ExampleFrameProps {
 export function ExampleFrame(props: ExampleFrameProps) {
   const { children } = props;
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const sourceString = useMemo(() => {
@@ -31,15 +32,15 @@ export function ExampleFrame(props: ExampleFrameProps) {
   }, [children]);
 
   return (
-    <div className={cx(styles.wrapper, 'sb-unstyled')}>
+    <div className={clsx(stylex.props(styles.wrapper).className, 'sb-unstyled')}>
       <Stack gap={0} direction="column">
-        <div className={styles.preview}>{children}</div>
+        <div {...stylex.props(styles.preview)}>{children}</div>
         {isExpanded && (
-          <div className={styles.source}>
+          <div className={clsx('gf-example-frame-source', stylex.props(styles.source).className)}>
             <Source dark={theme.isDark} code={sourceString} language="tsx" />
           </div>
         )}
-        <button className={styles.toggle} onClick={() => setIsExpanded(!isExpanded)}>
+        <button {...stylex.props(styles.toggle)} onClick={() => setIsExpanded(!isExpanded)}>
           {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
           {isExpanded ? 'Hide code' : 'Show code'}
         </button>
@@ -48,41 +49,39 @@ export function ExampleFrame(props: ExampleFrameProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      border: `1px solid ${theme.colors.border.medium}`,
-      borderRadius: theme.shape.radius.default,
-      margin: theme.spacing(2, 0),
-      overflow: 'hidden',
-    }),
-    preview: css({
-      padding: theme.spacing(2),
-    }),
-    source: css({
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      // Reset Storybook Source margins/border-radius so it sits flush
-      '& .docblock-source': {
-        border: 'none',
-        borderRadius: 'unset',
-        margin: 0,
+const grid = spacing['--gf-spacing-grid-size'];
 
-        '& pre': {
-          border: 'none',
-        },
-      },
-    }),
-    toggle: css({
-      background: 'none',
-      border: 'unset',
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1.5)}`,
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      '&:hover': {
-        color: theme.colors.text.primary,
-        background: theme.colors.action.hover,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginTop: `calc(${grid} * 2)`,
+    marginRight: 0,
+    marginBottom: `calc(${grid} * 2)`,
+    marginLeft: 0,
+    overflow: 'hidden',
+  },
+  preview: {
+    padding: `calc(${grid} * 2)`,
+  },
+  source: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+  },
+  toggle: {
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    borderStyle: 'unset',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    paddingTop: `calc(${grid} * 0.5)`,
+    paddingRight: `calc(${grid} * 1.5)`,
+    paddingBottom: `calc(${grid} * 0.5)`,
+    paddingLeft: `calc(${grid} * 1.5)`,
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});

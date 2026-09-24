@@ -3,8 +3,8 @@ import { type GrafanaTheme2 } from '@grafana/data';
 export type GlobalThemeVarName = `--gf-global-${string}`;
 
 /**
- * Theme values that GlobalStyles.global.css needs but that aren't `--gf-*` tokens: color math and
- * `theme.isDark` branches, computed from the theme exactly as the Emotion global styles did.
+ * Theme values that global and shared stylesheets need but that aren't `--gf-*` tokens: color math and
+ * `theme.isDark` branches, computed from the theme exactly as the Emotion styles did.
  */
 export function getGlobalThemeVars(theme: GrafanaTheme2): Record<GlobalThemeVarName, string> {
   const { colors, isDark } = theme;
@@ -34,5 +34,6 @@ export function getGlobalThemeVars(theme: GrafanaTheme2): Record<GlobalThemeVarN
     '--gf-global-typeahead-selected-background': isDark ? palette.dark9 : palette.gray6,
     '--gf-global-btn-inverse-start': isDark ? palette.dark6 : palette.gray5,
     '--gf-global-btn-inverse-end': isDark ? palette.dark5 : palette.gray4,
+    '--gf-global-drag-handle-grip-color': colors.emphasize(colors.background.secondary, 0.15),
   };
 }

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { Stack } from '../../components/Layout/Stack/Stack';
@@ -10,13 +10,8 @@ export interface Props {
 }
 
 export const StoryExample = ({ name, children }: Props) => {
-  const style = css({
-    width: '100%',
-    padding: '16px',
-  });
-
   return (
-    <div className={style}>
+    <div {...stylex.props(styles.example)}>
       <Stack gap={2} direction="column">
         <Text variant="h5">{name}</Text>
         {children}
@@ -26,3 +21,10 @@ export const StoryExample = ({ name, children }: Props) => {
 };
 
 StoryExample.displayName = 'StoryExample';
+
+const styles = stylex.create({
+  example: {
+    width: '100%',
+    padding: '16px',
+  },
+});
