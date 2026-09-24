@@ -1,14 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Stack, useTheme2 } from '@grafana/ui';
+import { durations, easings, motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import { FOOTER_HEIGHT, getQueryEditorColors, TIME_OPTION_PLACEHOLDER } from '../../constants';
+import { getQueryEditorColors, TIME_OPTION_PLACEHOLDER } from '../../constants';
 import { trackQueryOptionsToggle } from '../../tracking';
 import { useDatasourceContext, useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
 import { QueryOptionField } from '../types';
+
+import './QueryEditorFooter.css';
 
 interface FooterLabelValue {
   id: QueryOptionField;
@@ -18,7 +21,7 @@ interface FooterLabelValue {
 }
 
 export function QueryEditorFooter() {
-  const styles = useStyles2(getStyles);
+  const themeColors = getQueryEditorColors(useTheme2());
 
   const { queryOptions } = useQueryEditorUIContext();
   const { options, openSidebar, closeSidebar, isQueryOptionsOpen } = queryOptions;
@@ -84,8 +87,8 @@ export function QueryEditorFooter() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.queryOptionsWrapper}>
+    <div {...stylex.props(styles.container, styles.background(themeColors.footerBackground))}>
+      <div {...stylex.props(styles.queryOptionsWrapper)}>
         <Button
           fill="text"
           size="sm"
@@ -94,24 +97,24 @@ export function QueryEditorFooter() {
         >
           <Stack direction="row" alignItems="center" gap={0.5}>
             <Trans i18nKey="query-editor-next.footer.query-options">Query Options</Trans>
-            <Icon name="angle-down" className={cx(styles.chevron, { [styles.chevronOpen]: isQueryOptionsOpen })} />
+            <Icon name="angle-down" xstyle={[styles.chevron, isQueryOptionsOpen && styles.chevronOpen]} />
           </Stack>
         </Button>
       </div>
 
-      <ul className={styles.itemsList}>
+      <ul {...stylex.props(styles.itemsList)}>
         {items.map((item) => (
           <li key={item.id}>
             <Button
               fill="text"
               size="sm"
-              className={styles.itemButton}
+              className="gf-query-editor-footer-item"
               onClick={(e) => handleItemClick(e, item.id)}
               aria-label={t('query-editor-next.footer.edit-option', 'Edit {{label}}', { label: item.label })}
             >
-              {item.isActive && <span className={styles.activeIndicator} />}
-              <span className={styles.label}>{item.label}</span>
-              <span className={cx(styles.value, item.isActive && styles.valueActive)}>{item.value}</span>
+              {item.isActive && <span {...stylex.props(styles.activeIndicator)} />}
+              <span {...stylex.props(styles.label)}>{item.label}</span>
+              <span {...stylex.props(styles.value, item.isActive && styles.valueActive)}>{item.value}</span>
             </Button>
           </li>
         ))}
@@ -120,90 +123,76 @@ export function QueryEditorFooter() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const themeColors = getQueryEditorColors(theme);
-  return {
-    container: css({
-      position: 'sticky',
-      bottom: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      backgroundColor: themeColors.footerBackground,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      borderBottomLeftRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      padding: theme.spacing(0, 0.5, 0, 1.5),
-      zIndex: theme.zIndex.navbarFixed,
-      height: FOOTER_HEIGHT,
-      overflow: 'hidden',
-    }),
-    itemsList: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      flex: 1,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-    }),
-    itemButton: css({
-      // Override Button's default padding and add gap for children
-      padding: theme.spacing(0, 0.5),
-
-      '& > span': {
-        display: 'flex',
-        alignItems: 'center',
-        gap: theme.spacing(0.5),
-      },
-    }),
-    label: css({
-      color: theme.colors.text.primary,
-    }),
-    value: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-    }),
-    valueActive: css({
-      color: theme.colors.success.text,
-    }),
-    activeIndicator: css({
-      width: 6,
-      height: 6,
-      borderRadius: theme.shape.radius.circle,
-      backgroundColor: theme.colors.success.text,
-      flexShrink: 0,
-    }),
-    chevron: css({
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create('transform', {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-    }),
-    chevronOpen: css({
-      transform: 'rotate(180deg)',
-    }),
-    queryOptionsWrapper: css({
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-
-      // TODO: Add this back once all the new colors are finalized
-      // '&::before': {
-      //   content: '""',
-      //   position: 'absolute',
-      //   right: '100%',
-      //   top: 0,
-      //   bottom: 0,
-      //   width: theme.spacing(4),
-      //   background: `linear-gradient(to right, transparent, ${getQueryEditorColors(theme).footerBackground})`,
-      //   pointerEvents: 'none',
-      // },
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    position: 'sticky',
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    zIndex: zIndex.navbarFixed,
+    // FOOTER_HEIGHT in ../../constants.ts
+    height: 32,
+    overflow: 'hidden',
+  },
+  background: (backgroundColor: string) => ({ backgroundColor }),
+  itemsList: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    listStyle: 'none',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  label: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  value: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  valueActive: {
+    color: colors['--gf-colors-success-text'],
+  },
+  activeIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: shape['--gf-shape-radius-circle'],
+    backgroundColor: colors['--gf-colors-success-text'],
+    flexShrink: 0,
+  },
+  chevron: {
+    transitionProperty: { default: null, [motion.noPreference]: 'transform' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shorter },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeInOut },
+  },
+  chevronOpen: {
+    transform: 'rotate(180deg)',
+  },
+  queryOptionsWrapper: {
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+  },
+});

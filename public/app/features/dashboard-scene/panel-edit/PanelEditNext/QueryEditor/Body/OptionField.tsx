@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FocusEvent, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, Input, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Input, Tooltip } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import { CONTENT_SIDE_BAR, QUERY_OPTION_FIELD_CONFIG } from '../../constants';
+import { QUERY_OPTION_FIELD_CONFIG } from '../../constants';
 import { type QueryOptionField } from '../types';
+
+import './OptionField.css';
 
 export interface OptionFieldProps {
   field: QueryOptionField;
@@ -28,18 +30,17 @@ export function OptionField({
   disabled,
   children,
 }: OptionFieldProps) {
-  const styles = useStyles2(getStyles);
   const config = QUERY_OPTION_FIELD_CONFIG[field];
   const tooltip = config.getTooltip();
   const label = config.getLabel();
 
   return (
-    <div className={styles.field}>
+    <div {...stylex.props(styles.field)}>
       <Tooltip content={tooltip}>
-        <Icon name="info-circle" size="md" className={styles.infoIcon} />
+        <Icon name="info-circle" size="md" xstyle={styles.infoIcon} />
       </Tooltip>
-      <span className={styles.fieldLabel}>{label}</span>
-      <div className={styles.fieldContent}>
+      <span {...stylex.props(styles.fieldLabel)}>{label}</span>
+      <div {...stylex.props(styles.fieldContent)}>
         {children ?? (
           <Input
             type={config.inputType ?? 'text'}
@@ -50,54 +51,54 @@ export function OptionField({
             autoFocus={!disabled && focusedField === field}
             disabled={disabled}
             aria-label={label}
-            className={styles.fieldInput}
+            className="gf-query-option-field-input"
           />
         )}
-        {hint && <span className={styles.hint}>{`= ${hint}`}</span>}
+        {hint && <span {...stylex.props(styles.hint)}>{`= ${hint}`}</span>}
       </div>
     </div>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    field: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5, 0),
-    }),
-    fieldLabel: css({
-      width: CONTENT_SIDE_BAR.fieldLabelWidth,
-      flexShrink: 0,
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      whiteSpace: 'nowrap',
-    }),
-    fieldContent: css({
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      minWidth: 0,
-    }),
-    fieldInput: css({
-      width: CONTENT_SIDE_BAR.labelWidth,
-      flexShrink: 0,
-    }),
-    infoIcon: css({
-      color: theme.colors.text.secondary,
-      flexShrink: 0,
-    }),
-    hint: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      minWidth: 0,
-    }),
-  };
-}
+const styles = stylex.create({
+  field: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0'],
+  },
+  fieldLabel: {
+    // CONTENT_SIDE_BAR.fieldLabelWidth in ../../constants.ts
+    width: 130,
+    flexShrink: 0,
+    color: colors['--gf-colors-text-primary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    whiteSpace: 'nowrap',
+  },
+  fieldContent: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    minWidth: 0,
+  },
+  infoIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    flexShrink: 0,
+  },
+  hint: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    minWidth: 0,
+  },
+});

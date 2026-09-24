@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type Map from 'ol/Map';
 import { type Coordinate } from 'ol/coordinate';
 import { transform } from 'ol/proj';
 import { PureComponent } from 'react';
 import tinycolor from 'tinycolor2';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   map: Map;
@@ -20,8 +20,6 @@ interface State {
 }
 
 export class DebugOverlay extends PureComponent<Props, State> {
-  style = getStyles(config.theme2);
-
   constructor(props: Props) {
     super(props);
     this.state = { zoom: 0, center: [0, 0] };
@@ -44,7 +42,13 @@ export class DebugOverlay extends PureComponent<Props, State> {
     const { zoom, center } = this.state;
 
     return (
-      <div className={this.style.infoWrap} data-testid={selectors.components.DebugOverlay.wrapper}>
+      <div
+        {...stylex.props(
+          styles.infoWrap,
+          styles.background(tinycolor(config.theme2.components.panel.background).setAlpha(0.7).toString())
+        )}
+        data-testid={selectors.components.DebugOverlay.wrapper}
+      >
         <table>
           <tbody>
             <tr>
@@ -68,11 +72,13 @@ export class DebugOverlay extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoWrap: css({
-    color: theme.colors.text.primary,
-    background: tinycolor(theme.components.panel.background).setAlpha(0.7).toString(),
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(1),
+const styles = stylex.create({
+  infoWrap: {
+    color: colors['--gf-colors-text-primary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: spacing['--gf-spacing-x1'],
+  },
+  background: (backgroundColor: string) => ({
+    backgroundColor,
   }),
 });

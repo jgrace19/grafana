@@ -136,6 +136,7 @@ const stylexMigratedAppFiles = [
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   'public/app/plugins/panel/{nodeGraph,timeseries}/**/*.{ts,tsx}',
+  'public/app/plugins/panel/{canvas,geomap}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
@@ -194,6 +195,7 @@ const stylexMigratedAppFiles = [
   'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
   'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
