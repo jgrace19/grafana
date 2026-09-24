@@ -1,4 +1,5 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type HTMLProps } from 'react';
 import * as React from 'react';
 import { useAsyncFn } from 'react-use';
@@ -7,12 +8,11 @@ import { type AsyncState } from 'react-use/lib/useAsync';
 import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineLabel } from '../Forms/InlineLabel';
 import { getLabelFromValue } from '../Select/utils';
 
 import { SegmentSelect } from './SegmentSelect';
-import { getSegmentStyles } from './styles';
+import { SEGMENT_PLACEHOLDER_CLASS, segmentStyles } from './styles';
 import { type SegmentProps } from './types';
 import { useExpandableLabel } from './useExpandableLabel';
 
@@ -53,7 +53,6 @@ export function SegmentAsync<T>({
   const [state, fetchOptions] = useAsyncFn(loadOptions, [loadOptions]);
   const [Label, labelWidth, expanded, setExpanded] = useExpandableLabel(autofocus, onExpandedChange);
   const width = inputMinWidth ? Math.max(inputMinWidth, labelWidth) : labelWidth;
-  const styles = useStyles2(getSegmentStyles);
 
   if (!expanded) {
     const label = getLabelFromValue(value);
@@ -65,12 +64,10 @@ export function SegmentAsync<T>({
         Component={
           Component || (
             <InlineLabel
-              className={cx(
-                styles.segment,
-                {
-                  [styles.queryPlaceholder]: placeholder !== undefined && !value,
-                  [styles.disabled]: disabled,
-                },
+              width="auto"
+              className={clsx(
+                stylex.props(segmentStyles.segment, disabled && segmentStyles.disabled).className,
+                placeholder !== undefined && !value && SEGMENT_PLACEHOLDER_CLASS,
                 className
               )}
             >
