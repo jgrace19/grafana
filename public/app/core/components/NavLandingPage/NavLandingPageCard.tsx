@@ -32,7 +32,7 @@ export function NavLandingPageCard({ description, text, url, category, onClick }
   );
 }
 
-// stylex: pending Card migration (U6). These override Card's own Emotion grid, border and background.
+// stylex: pending Card `xstyle`. Overrides Card's own grid, border and background, including on hover.
 const getStyles = (theme: GrafanaTheme2) => ({
   card: css({
     gridTemplateRows: '1fr 0 2fr',

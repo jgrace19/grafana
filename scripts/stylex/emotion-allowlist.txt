@@ -26,5 +26,5 @@ public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin 
 public/app/core/components/AppChrome/OrganizationSwitcher/OrganizationSelect.tsx # C1: overrides Select's own Emotion styles; migrate with U3 (Select)
 public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides ToolbarButton's own Emotion padding and avatar styles; migrate with ToolbarButton
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
-public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's own Emotion grid, border and background; migrate with U6 (Card)
+public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
