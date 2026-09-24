@@ -1,0 +1,34 @@
+/*
+ * Overrides for react-colorful's DOM. react-colorful injects its own unlayered stylesheet, so these are
+ * deliberately unlayered too and keep the Emotion rules' selectors and specificity.
+ */
+.gf-spectrum-palette.react-colorful {
+  width: auto;
+}
+
+.gf-spectrum-palette .react-colorful__saturation {
+  border-radius: var(--gf-shape-radius-default) var(--gf-shape-radius-default) 0 0;
+}
+
+.gf-spectrum-palette .react-colorful__alpha {
+  border-radius: 0 0 var(--gf-shape-radius-default) var(--gf-shape-radius-default);
+}
+
+.gf-spectrum-palette .react-colorful__alpha,
+.gf-spectrum-palette .react-colorful__hue {
+  height: calc(var(--gf-spacing-grid-size) * 2);
+  position: relative;
+}
+
+.gf-spectrum-palette .react-colorful__pointer {
+  height: calc(var(--gf-spacing-grid-size) * 2);
+  width: calc(var(--gf-spacing-grid-size) * 2);
+}
+
+/* ColorPickerInput's popover; must come after the width above. */
+.gf-color-picker-input-popover.react-colorful {
+  position: absolute;
+  width: 100%;
+  z-index: 11;
+  bottom: 36px;
+}
