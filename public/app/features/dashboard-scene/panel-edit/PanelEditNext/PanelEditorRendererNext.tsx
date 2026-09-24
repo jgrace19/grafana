@@ -24,7 +24,10 @@ export function PanelEditorRendererNext({ model }: SceneComponentProps<PanelEdit
       <NavToolbarActions dashboard={dashboard} />
       <div
         {...containerProps}
-        className={mergeStylexProps({ className: containerProps.className }, { className: 'gf-panel-editor-next-content' }).className}
+        className={
+          mergeStylexProps({ className: containerProps.className }, { className: 'gf-panel-editor-next-content' })
+            .className
+        }
         data-testid={selectors.components.PanelEditor.General.content}
       >
         <div {...primaryProps} className={mergeClassNames(primaryProps.className, styles.body)}>
