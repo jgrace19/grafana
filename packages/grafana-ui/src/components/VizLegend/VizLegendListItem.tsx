@@ -124,7 +124,7 @@ const styles = stylex.create({
     display: 'flex',
     whiteSpace: 'nowrap',
     alignItems: 'center',
-    gap: spacing['--gf-spacing-x1'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     flexGrow: 1,
   },
 });

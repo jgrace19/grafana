@@ -119,7 +119,7 @@ const styles = stylex.create({
     backgroundColor: colors['--gf-colors-background-elevated'],
     boxShadow: shadows['--gf-shadows-z2'],
     maxWidth: '800px',
-    padding: spacing['--gf-spacing-x1'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     borderRadius: shape['--gf-shape-radius-default'],
     zIndex: zIndex.tooltip,
   },

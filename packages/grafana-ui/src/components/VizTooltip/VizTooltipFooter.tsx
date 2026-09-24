@@ -158,13 +158,13 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     flex: '1',
-    padding: spacing['--gf-spacing-x0'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0)`,
   },
   footerSection: {
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
     borderTopColor: colors['--gf-colors-border-medium'],
-    padding: spacing['--gf-spacing-x1'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   oneClickWrapper: {
     display: 'flex',
@@ -172,6 +172,6 @@ const styles = stylex.create({
   },
   infoIcon: {
     color: colors['--gf-colors-primary-main'],
-    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
 });

@@ -55,10 +55,10 @@ export const VizTooltipColorIndicator = ({
 // @TODO Update classes/add svgs
 const styles = stylex.create({
   leading: {
-    marginRight: spacing['--gf-spacing-x0-5'],
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
   trailing: {
-    marginLeft: spacing['--gf-spacing-x0-5'],
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
   seriesIndicator: {
     position: 'relative',

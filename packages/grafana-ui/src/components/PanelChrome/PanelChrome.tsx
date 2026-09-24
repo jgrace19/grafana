@@ -607,39 +607,39 @@ const styles = stylex.create({
   headerContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: spacing['--gf-spacing-x1'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   // remove logic after newPanelPadding feature toggle is removed
   headerPaddingNew: {
     paddingTop: 0,
-    paddingRight: spacing['--gf-spacing-x1'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     paddingBottom: 0,
-    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   headerPaddingLegacy: {
     paddingTop: 0,
-    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     paddingBottom: 0,
-    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   subHeader: {
     display: 'flex',
     alignItems: 'center',
     maxHeight: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-panel-header-height']})`,
     overflow: 'hidden',
-    gap: spacing['--gf-spacing-x1'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   subHeaderPaddingNew: {
     paddingTop: 0,
-    paddingRight: spacing['--gf-spacing-x1'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     paddingBottom: 0,
-    paddingLeft: spacing['--gf-spacing-x1-5'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
   },
   subHeaderPaddingLegacy: {
     paddingTop: 0,
-    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     paddingBottom: 0,
-    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   streaming: {
     marginRight: 0,
@@ -664,7 +664,7 @@ const styles = stylex.create({
   clearButtonStyles: {
     alignItems: 'center',
     display: 'flex',
-    gap: spacing['--gf-spacing-x0-5'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     backgroundColor: 'transparent',
     borderStyle: 'none',
     padding: 0,

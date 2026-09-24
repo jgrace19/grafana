@@ -129,10 +129,10 @@ const styles = stylex.create({
     backgroundColor: { default: null, ':hover': hoverBackground },
   }),
   cell: {
-    paddingTop: spacing['--gf-spacing-x0-25'],
-    paddingRight: spacing['--gf-spacing-x1'],
-    paddingBottom: spacing['--gf-spacing-x0-25'],
-    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     whiteSpace: 'nowrap',
   },
   label: {
@@ -154,7 +154,7 @@ const styles = stylex.create({
     display: 'flex',
     whiteSpace: 'nowrap',
     alignItems: 'center',
-    gap: spacing['--gf-spacing-x1'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   value: {
     textAlign: 'right',

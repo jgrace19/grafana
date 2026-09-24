@@ -102,17 +102,17 @@ const styles = stylex.create({
     whiteSpace: 'nowrap',
   },
   itemRight: {
-    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
   rightWrapper: {
-    padding: spacing['--gf-spacing-x0-5'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
   bottomWrapper: {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     width: '100%',
-    padding: spacing['--gf-spacing-x0-5'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     rowGap: '15px',
     columnGap: '25px',
   },

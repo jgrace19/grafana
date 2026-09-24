@@ -70,7 +70,7 @@ export const SeriesTable = ({ timestamp, series }: SeriesTableProps) => {
 
 const styles = stylex.create({
   icon: {
-    marginRight: spacing['--gf-spacing-x1'],
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     verticalAlign: 'middle',
   },
   seriesTableRow: {
@@ -84,7 +84,7 @@ const styles = stylex.create({
     wordBreak: 'break-all',
   },
   value: {
-    paddingLeft: spacing['--gf-spacing-x2'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
     textAlign: 'right',
   },
   activeSeries: {

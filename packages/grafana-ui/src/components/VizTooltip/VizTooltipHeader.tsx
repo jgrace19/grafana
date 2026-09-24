@@ -30,7 +30,7 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     flex: '1',
-    padding: spacing['--gf-spacing-x1'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
     lineHeight: 1,
   },
 });

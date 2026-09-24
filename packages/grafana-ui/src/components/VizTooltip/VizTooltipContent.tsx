@@ -59,6 +59,6 @@ const styles = stylex.create({
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
     borderTopColor: colors['--gf-colors-border-weak'],
-    padding: spacing['--gf-spacing-x1'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
 });

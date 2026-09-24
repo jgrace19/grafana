@@ -4,9 +4,12 @@ import { useCallback, useState } from 'react';
 import { FIELD_NAME_FACET_KEY } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Checkbox } from '../Forms/Checkbox';
 import { Icon } from '../Icon/Icon';
+
+import './FacetedLabelsFilter.global.css';
 
 export interface FacetedLabelsFilterProps {
   /** Map of label keys to their sorted unique values, from extractFacetedLabels */
@@ -70,7 +73,11 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
             className={stylex.props(styles.checkbox).className}
           />
         ))}
-        <button type="button" {...stylex.props(styles.toggleAll)} onClick={() => toggleAllForKey(key)}>
+        <button
+          type="button"
+          {...mergeStylexProps(stylex.props(styles.toggleAll), { className: 'gf-faceted-labels-filter-button' })}
+          onClick={() => toggleAllForKey(key)}
+        >
           {selectedValues.length === values.length ? (
             <Trans i18nKey="grafana-ui.viz-legend.faceted-deselect-all">Deselect all</Trans>
           ) : (
@@ -102,7 +109,11 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
             const isExpanded = expandedKeys[key] ?? false;
             return (
               <div key={key} {...stylex.props(styles.labelGroup)}>
-                <button type="button" {...stylex.props(styles.labelKey)} onClick={() => toggleExpanded(key)}>
+                <button
+                  type="button"
+                  {...mergeStylexProps(stylex.props(styles.labelKey), { className: 'gf-faceted-labels-filter-button' })}
+                  onClick={() => toggleExpanded(key)}
+                >
                   <Icon name={isExpanded ? 'angle-down' : 'angle-right'} size="sm" />
                   <span {...stylex.props(styles.keyName)}>{key}</span>
                   {selectedValues.length > 0 && <span {...stylex.props(styles.count)}>{selectedValues.length}</span>}
@@ -125,11 +136,11 @@ const styles = stylex.create({
     flexDirection: 'column',
     alignItems: 'stretch',
     minWidth: '150px',
-    paddingTop: spacing['--gf-spacing-x1-5'],
-    paddingRight: spacing['--gf-spacing-x1'],
-    paddingBottom: spacing['--gf-spacing-x1'],
-    paddingLeft: spacing['--gf-spacing-x1'],
-    gap: spacing['--gf-spacing-x1'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
   },
   dimmed: {
     opacity: 0.5,
@@ -142,14 +153,13 @@ const styles = stylex.create({
     fontSize: typography['--gf-typography-body-small-font-size'],
     fontWeight: typography['--gf-typography-font-weight-medium'],
     color: colors['--gf-colors-text-secondary'],
-    marginBottom: spacing['--gf-spacing-x0-25'],
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
   },
   toggleAll: {
-    all: 'unset',
     cursor: 'pointer',
     fontSize: typography['--gf-typography-body-small-font-size'],
     color: colors['--gf-colors-text-link'],
-    marginTop: spacing['--gf-spacing-x0-25'],
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
     textDecoration: { default: null, ':hover': 'underline' },
   },
   labelGroup: {
@@ -157,14 +167,13 @@ const styles = stylex.create({
     flexDirection: 'column',
   },
   labelKey: {
-    all: 'unset',
     display: 'flex',
     alignItems: 'center',
-    gap: spacing['--gf-spacing-x0-5'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     cursor: 'pointer',
-    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
     paddingRight: 0,
-    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
     paddingLeft: 0,
     fontSize: typography['--gf-typography-body-small-font-size'],
     color: { default: colors['--gf-colors-text-primary'], ':hover': colors['--gf-colors-text-max-contrast'] },
@@ -182,21 +191,21 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: spacing['--gf-spacing-x0-25'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
     paddingTop: 0,
     paddingRight: 0,
-    paddingBottom: spacing['--gf-spacing-x0-5'],
-    paddingLeft: spacing['--gf-spacing-x0-5'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
   },
   checkboxListIndented: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: spacing['--gf-spacing-x0-25'],
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
     paddingTop: 0,
     paddingRight: 0,
-    paddingBottom: spacing['--gf-spacing-x0-5'],
-    paddingLeft: spacing['--gf-spacing-x2-5'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2.5)`,
   },
   checkbox: {
     fontSize: typography['--gf-typography-body-small-font-size'],

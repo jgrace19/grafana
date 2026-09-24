@@ -7,7 +7,7 @@
   color: var(--gf-colors-text-secondary);
   border: none;
   border-radius: var(--gf-shape-radius-default);
-  padding: 0px var(--gf-spacing-x1);
+  padding: 0px calc(var(--gf-spacing-grid-size) * 1);
   height: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-md));
   display: flex;
   align-items: center;
