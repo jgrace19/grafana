@@ -42,7 +42,7 @@ export const ColorSwatch = React.forwardRef<HTMLDivElement, Props>(
           {...stylex.props(
             styles.swatch,
             isSmall ? styles.swatchSmall : styles.swatchLarge,
-            styles.background(color),
+            color !== '' && styles.background(color),
             tinycolor(color).getAlpha() < 0.1 && styles.transparentBorder,
             isSelected &&
               styles.selected(`inset 0 0 0 2px ${color}, inset 0 0 0 4px ${theme.colors.getContrastText(color)}`)
@@ -91,6 +91,7 @@ const styles = stylex.create({
     width: '32px',
     height: '32px',
   },
+  // Not applied for an empty colour: Emotion emitted an invalid declaration there, leaving the UA background.
   background: (color: string) => ({
     backgroundColor: color,
   }),

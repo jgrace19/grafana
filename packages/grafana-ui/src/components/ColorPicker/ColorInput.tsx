@@ -87,7 +87,7 @@ const ColorPreview = ({ color, onClick, disabled, ariaLabel }: ColorPreviewProps
       onClick={onClick}
       aria-label={ariaLabel}
       disabled={disabled || !onClick}
-      {...stylex.props(styles.preview, styles.background(color))}
+      {...stylex.props(styles.preview, color !== '' && styles.background(color))}
     />
   );
 };
@@ -104,6 +104,7 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderColor: colors['--gf-colors-border-medium'],
   },
+  // Not applied for an empty colour: Emotion emitted an invalid declaration there, leaving the UA background.
   background: (color: string) => ({
     backgroundColor: color,
   }),
