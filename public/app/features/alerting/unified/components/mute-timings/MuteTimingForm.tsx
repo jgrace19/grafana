@@ -21,7 +21,6 @@ import { ALERTING_PATHS } from '../../utils/navigation';
 import { ImportedTimeIntervalAlert, ProvisionedResource, ProvisioningAlert } from '../Provisioning';
 
 import { MuteTimingTimeInterval } from './MuteTimingTimeInterval';
-import './MuteTimingForm.css';
 
 interface Props {
   muteTiming?: MuteTiming;
@@ -140,7 +139,7 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
                     return validateMuteTiming(value, skipValidation);
                   },
                 })}
-                className="gf-alerting-mute-timing-name-input"
+                xstyle={styles.nameInput}
                 data-testid={'mute-timing-name'}
               />
             </Field>
@@ -168,6 +167,9 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
 };
 
 const styles = stylex.create({
+  nameInput: {
+    width: '400px',
+  },
   submitButton: {
     marginRight: spacing['--gf-spacing-x1'],
   },

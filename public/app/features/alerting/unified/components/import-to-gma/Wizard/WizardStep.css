@@ -1,6 +1,0 @@
-/* FieldSet renders the legend and has no xstyle. Deliberately not in a cascade layer, so this owned rule wins over the legend's StyleX. */
-.gf-alerting-wizard-step legend {
-  margin-bottom: var(--gf-spacing-x0-5);
-  font-size: var(--gf-typography-h4-font-size);
-  font-weight: var(--gf-typography-font-weight-medium);
-}

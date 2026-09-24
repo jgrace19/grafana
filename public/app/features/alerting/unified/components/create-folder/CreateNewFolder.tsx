@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -74,7 +73,7 @@ function FolderCreationModal({
 
   return (
     <Modal
-      className={pendingEmotionStyles.modal}
+      xstyle={styles.modal}
       isOpen
       title={t('alerting.create-new-folder.title-new-folder', 'New folder')}
       onDismiss={onClose}
@@ -115,9 +114,8 @@ function FolderCreationModal({
   );
 }
 
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
+const styles = stylex.create({
+  modal: {
     width: '544px',
-  }),
-};
+  },
+});

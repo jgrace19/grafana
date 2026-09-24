@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import { produce } from 'immer';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
@@ -21,7 +20,6 @@ import { DashboardPicker, type PanelDTO, getVisualPanels } from './DashboardPick
 import { NeedHelpInfo } from './NeedHelpInfo';
 import { RuleEditorSection } from './RuleEditorSection';
 import { type DashboardResponse, useDashboardQuery } from './useDashboardQuery';
-import './AnnotationsStep.css';
 
 const AnnotationsStep = () => {
   const [showPanelSelector, setShowPanelSelector] = useToggle(false);
@@ -169,7 +167,7 @@ const AnnotationsStep = () => {
                     hidden={
                       annotationField.key === Annotation.dashboardUID || annotationField.key === Annotation.panelID
                     }
-                    className="gf-alerting-annotation-field"
+                    xstyle={styles.annotationField}
                     invalid={!!errors.annotations?.[index]?.value?.message}
                     error={errors.annotations?.[index]?.value?.message}
                     noMargin
@@ -177,10 +175,7 @@ const AnnotationsStep = () => {
                     <ValueInputComponent
                       data-testid={`annotation-value-${index}`}
                       id={`annotation-${index}`}
-                      className={clsx(
-                        'gf-alerting-annotation-value-input',
-                        !isUrl && 'gf-alerting-annotation-value-textarea'
-                      )}
+                      xstyle={[styles.annotationValueInput, !isUrl && styles.annotationValueTextarea]}
                       {...register(`annotations.${index}.value`)}
                       placeholder={
                         isUrl
@@ -201,7 +196,7 @@ const AnnotationsStep = () => {
                   {!annotationLabels[annotation] && (
                     <Button
                       type="button"
-                      style={deleteAnnotationButtonStyle}
+                      xstyle={styles.deleteAnnotationButton}
                       aria-label={t('alerting.annotations-step.aria-label-delete-annotation', 'delete annotation')}
                       icon="trash-alt"
                       variant="secondary"
@@ -248,6 +243,21 @@ const AnnotationsStep = () => {
 };
 
 const styles = stylex.create({
+  deleteAnnotationButton: {
+    display: 'inline-block',
+    marginTop: '10px',
+    marginLeft: '10px',
+  },
+  annotationField: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  annotationValueInput: {
+    width: '394px',
+  },
+  annotationValueTextarea: {
+    height: '76px',
+  },
   addAnnotationsButtonContainer: {
     marginTop: spacing['--gf-spacing-x1'],
     gap: spacing['--gf-spacing-x1'],
@@ -262,12 +272,5 @@ const styles = stylex.create({
     display: 'flex',
   },
 });
-
-// Button has no xstyle, and its own display must lose to this one.
-const deleteAnnotationButtonStyle = {
-  display: 'inline-block',
-  marginTop: '10px',
-  marginLeft: '10px',
-};
 
 export default AnnotationsStep;
