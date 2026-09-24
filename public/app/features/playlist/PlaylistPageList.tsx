@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 
 import { type Playlist } from '../../api/clients/playlist/v1';
@@ -15,11 +14,10 @@ interface Props {
 }
 
 const PlaylistPageListComponent = ({ playlists, setStartPlaylist, setPlaylistToDelete }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <ul className={styles.list}>
+    <ul {...stylex.props(styles.list)}>
       {playlists.map((playlist) => (
-        <li className={styles.listItem} key={playlist.metadata?.name}>
+        <li {...stylex.props(styles.listItem)} key={playlist.metadata?.name}>
           <PlaylistCard
             playlist={playlist}
             setStartPlaylist={setStartPlaylist}
@@ -32,9 +30,8 @@ const PlaylistPageListComponent = ({ playlists, setStartPlaylist, setPlaylistToD
 };
 
 const PlaylistPageListSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div data-testid="playlist-page-list-skeleton" className={styles.list} {...rootProps}>
+    <div data-testid="playlist-page-list-skeleton" {...stylex.props(styles.list)} {...rootProps}>
       <PlaylistCard.Skeleton />
       <PlaylistCard.Skeleton />
       <PlaylistCard.Skeleton />
@@ -44,14 +41,12 @@ const PlaylistPageListSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 export const PlaylistPageList = attachSkeleton(PlaylistPageListComponent, PlaylistPageListSkeleton);
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    list: css({
-      display: 'grid',
-      gap: theme.spacing(1),
-    }),
-    listItem: css({
-      listStyle: 'none',
-    }),
-  };
-}
+const styles = stylex.create({
+  list: {
+    display: 'grid',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  listItem: {
+    listStyle: 'none',
+  },
+});

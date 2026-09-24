@@ -1,17 +1,12 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import {
-  type GrafanaTheme2,
-  MappingType,
-  type SelectableValue,
-  SpecialValueMatch,
-  type ValueMapping,
-} from '@grafana/data';
+import { MappingType, type SelectableValue, SpecialValueMatch, type ValueMapping } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Modal, ValuePicker, Button } from '@grafana/ui';
+import { Modal, ValuePicker, Button } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ValueMappingEditRow, type ValueMappingEditRowModel } from './ValueMappingEditRow';
 
@@ -23,7 +18,6 @@ export interface Props {
 }
 
 export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPicker }: Props) {
-  const styles = useStyles2(getStyles);
   const [rows, updateRows] = useState<ValueMappingEditRowModel[]>([]);
 
   useEffect(() => {
@@ -120,26 +114,26 @@ export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPic
 
   return (
     <>
-      <div className={styles.tableWrap}>
-        <table className={styles.editTable}>
+      <div {...stylex.props(styles.tableWrap)}>
+        <table {...stylex.props(styles.editTable)}>
           <thead>
             <tr>
-              <th style={{ width: '1%' }}></th>
-              <th style={{ width: '40%', textAlign: 'left' }} colSpan={2}>
+              <th {...stylex.props(styles.headerCell)} style={{ width: '1%' }}></th>
+              <th {...stylex.props(styles.headerCell)} style={{ width: '40%', textAlign: 'left' }} colSpan={2}>
                 <Trans i18nKey="dimensions.value-mappings-editor-modal.condition">Condition</Trans>
               </th>
-              <th style={{ textAlign: 'left' }}>
+              <th {...stylex.props(styles.headerCell)} style={{ textAlign: 'left' }}>
                 <Trans i18nKey="dimensions.value-mappings-editor-modal.display-text">Display text</Trans>
               </th>
-              <th style={{ width: '10%' }}>
+              <th {...stylex.props(styles.headerCell)} style={{ width: '10%' }}>
                 <Trans i18nKey="dimensions.value-mappings-editor-modal.color">Color</Trans>
               </th>
               {showIconPicker && (
-                <th style={{ width: '10%' }}>
+                <th {...stylex.props(styles.headerCell)} style={{ width: '10%' }}>
                   <Trans i18nKey="dimensions.value-mappings-editor-modal.icon">Icon</Trans>
                 </th>
               )}
-              <th style={{ width: '1%' }}></th>
+              <th {...stylex.props(styles.headerCell)} style={{ width: '1%' }}></th>
             </tr>
           </thead>
           <DragDropContext onDragEnd={onDragEnd}>
@@ -190,27 +184,21 @@ export function ValueMappingsEditorModal({ value, onChange, onClose, showIconPic
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  tableWrap: css({
+const styles = stylex.create({
+  tableWrap: {
     minHeight: '40px',
-  }),
-
-  editTable: css({
+  },
+  editTable: {
     width: '100%',
-    marginBottom: theme.spacing(2),
-
-    'thead th': {
-      textAlign: 'center',
-    },
-
-    'tbody tr:hover': {
-      background: theme.colors.action.hover,
-    },
-
-    ' th, td': {
-      padding: theme.spacing(1),
-    },
-  }),
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  headerCell: {
+    textAlign: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
 });
 
 function getRowUniqueId(): string {

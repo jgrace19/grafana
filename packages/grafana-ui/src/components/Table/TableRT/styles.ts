@@ -8,13 +8,9 @@ import { motion } from '../../../themes/stylex/constants.stylex';
 import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { colors, components, shape, spacing, typography } from '../../../themes/stylex/tokens.stylex';
 import { cellContainerMarker } from '../markers.stylex';
+import { type TableStyleProps } from '../types';
 
 import './TableRT.css';
-
-/** Anything `stylex.props()` accepts: styles, dynamic styles and markers. */
-export type TableStyleProps = stylex.StyleXArray<
-  null | undefined | boolean | stylex.CompiledStyles | Readonly<[stylex.CompiledStyles, stylex.InlineStyles]>
->;
 
 export function useTableStyles(theme: GrafanaTheme2, cellHeightOption: TableCellHeight) {
   const cellPadding = 6;

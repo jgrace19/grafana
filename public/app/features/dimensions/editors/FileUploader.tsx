@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Dispatch, type SetStateAction, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { FileDropzone, useStyles2, Button, type DropzoneFile, Field } from '@grafana/ui';
+import { FileDropzone, Button, type DropzoneFile, Field } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
 import { MediaType } from '../types';
@@ -19,11 +19,9 @@ interface ErrorResponse {
   message: string;
 }
 export function FileDropzoneCustomChildren({ secondaryText = 'Drag and drop here or browse' }) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.iconWrapper}>
-      <small className={styles.small}>{secondaryText}</small>
+    <div {...stylex.props(styles.iconWrapper)}>
+      <small {...stylex.props(styles.small)}>{secondaryText}</small>
       <Button type="button" icon="upload">
         <Trans i18nKey="dimensions.file-dropzone-custom-children.upload">Upload</Trans>
       </Button>
@@ -31,15 +29,16 @@ export function FileDropzoneCustomChildren({ secondaryText = 'Drag and drop here
   );
 }
 export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props) => {
-  const styles = useStyles2(getStyles);
   const [dropped, setDropped] = useState<boolean>(false);
   const [file, setFile] = useState<string>('');
 
   const Preview = () => (
     <Field label={t('dimensions.file-uploader.preview.label-preview', 'Preview')}>
-      <div className={styles.iconPreview}>
-        {mediaType === MediaType.Icon && <SanitizedSVG src={file} className={styles.img} />}
-        {mediaType === MediaType.Image && <img src={file} alt="Preview of the uploaded file" className={styles.img} />}
+      <div {...stylex.props(styles.iconPreview)}>
+        {mediaType === MediaType.Icon && <SanitizedSVG src={file} className={stylex.props(styles.img).className} />}
+        {mediaType === MediaType.Image && (
+          <img src={file} alt="Preview of the uploaded file" {...stylex.props(styles.img)} />
+        )}
       </div>
     </Field>
   );
@@ -80,55 +79,29 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   );
 };
 
-function getStyles(theme: GrafanaTheme2, isDragActive?: boolean) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-    }),
-    dropzone: css({
-      display: 'flex',
-      flex: 1,
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: theme.spacing(6),
-      borderRadius: theme.shape.radius.default,
-      border: `2px dashed ${theme.colors.border.medium}`,
-      backgroundColor: isDragActive ? theme.colors.background.secondary : theme.colors.background.primary,
-      cursor: 'pointer',
-    }),
-    iconWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }),
-    acceptMargin: css({
-      margin: theme.spacing(2, 0, 1),
-    }),
-    small: css({
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing(2),
-    }),
-    iconContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '80%',
-      alignItems: 'center',
-      alignSelf: 'center',
-    }),
-    iconPreview: css({
-      width: '238px',
-      height: '198px',
-      border: `1px solid ${theme.colors.border.medium}`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    img: css({
-      width: '147px',
-      height: '147px',
-      fill: theme.colors.text.primary,
-    }),
-  };
-}
+const styles = stylex.create({
+  iconWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  small: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  iconPreview: {
+    width: '238px',
+    height: '198px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  img: {
+    width: '147px',
+    height: '147px',
+    fill: colors['--gf-colors-text-primary'],
+  },
+});

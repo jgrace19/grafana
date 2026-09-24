@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, MultiSelect, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, MultiSelect, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useSearchTeamsQuery } from 'app/api/clients/legacy';
 import { extractErrorMessage } from 'app/api/utils';
 import { teamOwnerRef } from 'app/features/browse-dashboards/utils/dashboards';
@@ -21,7 +22,6 @@ interface OwnersFilterProps {
  * A filter component that allows selecting multiple existing teams.
  */
 export function OwnersFilter({ values, onChange }: OwnersFilterProps) {
-  const styles = useStyles2(getStyles);
   // At this point we have hard limit for number of items we show. The issue is we are using MultiSelect because of
   // UX bug https://github.com/grafana/grafana/issues/121586 in Combobox but Multiselect
   // then does not allow for async options loading.
@@ -87,7 +87,7 @@ export function OwnersFilter({ values, onChange }: OwnersFilterProps) {
   }, [allTeamsValue, hasMoreTeamsThanLimit, teamOptions]);
 
   return (
-    <div className={styles.ownerFilter}>
+    <div {...stylex.props(styles.ownerFilter)}>
       <MultiSelect<string>
         aria-label={t('browse-dashboards.filters.owner-aria-label', 'Owner filter')}
         options={options}
@@ -116,7 +116,6 @@ export function OwnersFilter({ values, onChange }: OwnersFilterProps) {
 }
 
 function TruncatedListTooltip({ totalCount }: { totalCount: number | undefined }) {
-  const styles = useStyles2(getStyles);
   return (
     <Tooltip
       content={t(
@@ -128,7 +127,7 @@ function TruncatedListTooltip({ totalCount }: { totalCount: number | undefined }
     >
       <span
         aria-label={t('browse-dashboards.filters.owner-limit-warning-icon', 'Owner filter limit warning')}
-        className={styles.warningIcon}
+        {...stylex.props(styles.warningIcon)}
       >
         <Icon name="exclamation-triangle" size="sm" />
       </span>
@@ -137,8 +136,6 @@ function TruncatedListTooltip({ totalCount }: { totalCount: number | undefined }
 }
 
 function LoadErrorTooltip({ error }: { error: unknown }) {
-  const styles = useStyles2(getStyles);
-
   const errorMessage =
     t('browse-dashboards.filters.owner-load-error-prefix', 'Failed to load teams because of error:') +
     ' ' +
@@ -148,7 +145,7 @@ function LoadErrorTooltip({ error }: { error: unknown }) {
     <Tooltip content={errorMessage} placement="top">
       <span
         aria-label={t('browse-dashboards.filters.owner-load-error-icon', 'Owner filter load error')}
-        className={styles.errorIcon}
+        {...stylex.props(styles.errorIcon)}
       >
         <Icon name="exclamation-circle" size="sm" />
       </span>
@@ -156,24 +153,26 @@ function LoadErrorTooltip({ error }: { error: unknown }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  ownerFilter: css({
+const styles = stylex.create({
+  ownerFilter: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     minWidth: '180px',
     flexGrow: 1,
-  }),
-  warningIcon: css({
+  },
+
+  warningIcon: {
     display: 'inline-flex',
     alignItems: 'center',
-    color: theme.colors.warning.text,
+    color: colors['--gf-colors-warning-text'],
     cursor: 'help',
-  }),
-  errorIcon: css({
+  },
+
+  errorIcon: {
     display: 'inline-flex',
     alignItems: 'center',
-    color: theme.colors.error.text,
+    color: colors['--gf-colors-error-text'],
     cursor: 'help',
-  }),
+  },
 });

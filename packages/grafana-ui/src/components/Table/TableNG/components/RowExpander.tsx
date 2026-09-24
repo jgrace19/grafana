@@ -1,14 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../../themes/ThemeContext';
 import { Icon } from '../../../Icon/Icon';
 import { type RowExpanderNGProps } from '../types';
 
 export function RowExpander({ onCellExpand, isExpanded, rowId }: RowExpanderNGProps) {
-  const styles = useStyles2(getStyles);
   function handleKeyDown(e: React.KeyboardEvent<HTMLSpanElement>) {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
@@ -22,7 +20,7 @@ export function RowExpander({ onCellExpand, isExpanded, rowId }: RowExpanderNGPr
     <div
       role="button"
       tabIndex={0}
-      className={styles.expanderCell}
+      {...stylex.props(styles.expanderCell)}
       onClick={onCellExpand}
       onKeyDown={handleKeyDown}
       aria-label={label}
@@ -35,13 +33,11 @@ export function RowExpander({ onCellExpand, isExpanded, rowId }: RowExpanderNGPr
   );
 }
 
-const styles = {
-  expanderCell: css({
+const styles = stylex.create({
+  expanderCell: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     cursor: 'pointer',
-  }),
-};
-
-const getStyles = () => styles;
+  },
+});

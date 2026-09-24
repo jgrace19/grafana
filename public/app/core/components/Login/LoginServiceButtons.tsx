@@ -1,9 +1,11 @@
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { pickBy } from 'lodash';
 
 import { type GrafanaTheme2, DEFAULT_SAML_NAME } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { Icon, type IconName, LinkButton, Stack, useStyles2, useTheme2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 
 export interface LoginService {
@@ -75,48 +77,28 @@ const loginServices: () => LoginServices = () => {
   };
 };
 
+// stylex: pending Button `xstyle`. The per-provider colours override Button's own background and hover
+// states, which a StyleX class passed as `className` can't do.
 const getServiceStyles = (theme: GrafanaTheme2) => {
   return {
     button: css({
       color: '#d8d9da',
       position: 'relative',
     }),
-    buttonIcon: css({
-      position: 'absolute',
-      left: theme.spacing(1),
-      top: '50%',
-      transform: 'translateY(-50%)',
-    }),
-    divider: {
-      base: css({
-        color: theme.colors.text.primary,
-        display: 'flex',
-        marginBottom: theme.spacing(1),
-        justifyContent: 'space-between',
-        textAlign: 'center',
-        width: '100%',
-      }),
-      line: css({
-        width: 100,
-        height: 10,
-        borderBottom: `1px solid ${theme.colors.text}`,
-      }),
-    },
   };
 };
 
 const LoginDivider = () => {
-  const styles = useStyles2(getServiceStyles);
   return (
-    <div className={styles.divider.base}>
+    <div {...stylex.props(styles.divider)}>
       <div>
-        <div className={styles.divider.line} />
+        <div {...stylex.props(styles.dividerLine)} />
       </div>
       <div>
         <span>{!config.disableLoginForm && <Trans i18nKey="login.divider.connecting-text">or</Trans>}</span>
       </div>
       <div>
-        <div className={styles.divider.line} />
+        <div {...stylex.props(styles.dividerLine)} />
       </div>
     </div>
   );
@@ -141,7 +123,7 @@ export const LoginServiceButtons = () => {
   const enabledServices = pickBy(loginServices(), (service) => service.enabled);
   const hasServices = Object.keys(enabledServices).length > 0;
   const theme = useTheme2();
-  const styles = useStyles2(getServiceStyles);
+  const serviceStyles = useStyles2(getServiceStyles);
 
   if (hasServices) {
     return (
@@ -152,12 +134,12 @@ export const LoginServiceButtons = () => {
           return (
             <LinkButton
               key={key}
-              className={getButtonStyleFor(service, styles, theme)}
+              className={getButtonStyleFor(service, serviceStyles, theme)}
               href={`login/${service.hrefName ? service.hrefName : key}`}
               target="_self"
               fullWidth
             >
-              <Icon className={styles.buttonIcon} name={service.icon} />
+              <Icon xstyle={styles.buttonIcon} name={service.icon} />
               <Trans i18nKey="login.services.sing-in-with-prefix">Sign in with {{ serviceName }}</Trans>
             </LinkButton>
           );
@@ -168,3 +150,24 @@ export const LoginServiceButtons = () => {
 
   return null;
 };
+
+const styles = stylex.create({
+  buttonIcon: {
+    position: 'absolute',
+    left: spacing['--gf-spacing-x1'],
+    top: '50%',
+    transform: 'translateY(-50%)',
+  },
+  divider: {
+    color: colors['--gf-colors-text-primary'],
+    display: 'flex',
+    marginBottom: spacing['--gf-spacing-x1'],
+    justifyContent: 'space-between',
+    textAlign: 'center',
+    width: '100%',
+  },
+  dividerLine: {
+    width: 100,
+    height: 10,
+  },
+});

@@ -1,5 +1,4 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
 import {
@@ -13,8 +12,10 @@ import {
 } from '@grafana/data';
 import { FieldColorModeId } from '@grafana/schema';
 
-import { getActiveCellSelector, isTableCellStylesKeyEqual } from '../styles';
+import { spacing, shape, typography } from '../../../../themes/stylex/tokens.stylex';
+import { rdgCellMarker, rdgSelectableMarker } from '../../markers.stylex';
 import { type PillCellProps, type TableCellStyles, type TableCellValue } from '../types';
+import { IS_SAFARI_26 } from '../utils';
 
 export function PillCell({ rowIdx, field, theme, getTextColorForBackground }: PillCellProps) {
   const value = field.values[rowIdx];
@@ -42,6 +43,7 @@ export function PillCell({ rowIdx, field, theme, getTextColorForBackground }: Pi
   return pills.map((pill) => (
     <span
       key={pill.key}
+      {...stylex.props(styles.pill)}
       style={{
         backgroundColor: pill.bgColor,
         color: pill.color,
@@ -109,27 +111,64 @@ function getPillColor(value: unknown, field: Field, theme: GrafanaTheme2): strin
   return getColorByStringHash(colors, String(value));
 }
 
-export const getStyles: TableCellStyles = memoize(
-  (theme, { textWrap, shouldOverflow, maxHeight }) =>
-    css({
-      display: 'inline-flex',
-      gap: theme.spacing(0.5),
-      flexWrap: textWrap ? 'wrap' : 'nowrap',
+export const getStyles: TableCellStyles = (_theme, { textWrap, shouldOverflow, maxHeight }) => ({
+  xstyle: [
+    styles.pills,
+    textWrap
+      ? styles.wrap
+      : shouldOverflow
+        ? Boolean(maxHeight)
+          ? IS_SAFARI_26
+            ? styles.wrapWhenNestedSelected
+            : styles.wrapWhenNestedActive
+          : IS_SAFARI_26
+            ? styles.wrapWhenSelected
+            : styles.wrapWhenActive
+        : styles.noWrap,
+  ],
+});
 
-      ...(shouldOverflow && {
-        [getActiveCellSelector(Boolean(maxHeight))]: {
-          flexWrap: 'wrap',
-        },
-      }),
+const selected = ':is([aria-selected="true"])';
 
-      '> span': {
-        display: 'flex',
-        padding: theme.spacing(0.25, 0.75),
-        borderRadius: theme.shape.radius.default,
-        fontSize: theme.typography.bodySmall.fontSize,
-        lineHeight: theme.typography.bodySmall.lineHeight,
-        whiteSpace: 'nowrap',
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+const styles = stylex.create({
+  pills: {
+    display: 'inline-flex',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  wrap: {
+    flexWrap: 'wrap',
+  },
+  noWrap: {
+    flexWrap: 'nowrap',
+  },
+  wrapWhenActive: {
+    flexWrap: { default: 'nowrap', [selected]: 'wrap', ':hover': 'wrap' },
+  },
+  wrapWhenSelected: {
+    flexWrap: { default: 'nowrap', [selected]: 'wrap' },
+  },
+  wrapWhenNestedActive: {
+    flexWrap: {
+      default: 'nowrap',
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: 'wrap',
+      [stylex.when.ancestor(':hover', rdgCellMarker)]: 'wrap',
+    },
+  },
+  wrapWhenNestedSelected: {
+    flexWrap: {
+      default: 'nowrap',
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: 'wrap',
+    },
+  },
+  pill: {
+    display: 'flex',
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    whiteSpace: 'nowrap',
+  },
+});

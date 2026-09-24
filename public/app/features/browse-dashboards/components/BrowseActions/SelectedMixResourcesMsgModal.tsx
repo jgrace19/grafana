@@ -22,6 +22,7 @@ export const SelectedMixResourcesMsgModal = ({ onDismiss }: { onDismiss: () => v
   );
 };
 
+// stylex: pending Modal migration
 const getStyles = () => ({
   modal: css({
     label: 'RowOptionsModal',

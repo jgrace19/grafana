@@ -1,17 +1,17 @@
-import { css } from '@emotion/css';
-import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useMemo } from 'react';
 
-import { type GrafanaTheme2, type Field, fieldReducers, ReducerID } from '@grafana/data';
+import { type Field, fieldReducers, ReducerID } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type TableFooterOptions } from '@grafana/schema';
 
-import { useStyles2, useTheme2 } from '../../../../themes/ThemeContext';
+import { useTheme2 } from '../../../../themes/ThemeContext';
+import { colors, spacing, typography } from '../../../../themes/stylex/tokens.stylex';
 import { useReducerEntries } from '../hooks';
 import { getDefaultCellStyles } from '../styles';
 import { type TableRow } from '../types';
-import { getDisplayName, getJustifyContent, type TextAlign } from '../utils';
+import { getDisplayName, type TextAlign } from '../utils';
 
 interface SummaryCellProps {
   rows: TableRow[];
@@ -39,7 +39,6 @@ export const SummaryCell = ({
   rowLabel = false,
   textAlign,
 }: SummaryCellProps) => {
-  const styles = useStyles2(getStyles, textAlign, hideLabel);
   const theme = useTheme2();
   const defaultFooterCellStyles = getDefaultCellStyles(theme, {
     textAlign: 'left', // alignment is set in footerItem
@@ -48,7 +47,6 @@ export const SummaryCell = ({
   });
   const displayName = getDisplayName(field);
   const reducerResultsEntries = useReducerEntries(field, rows, displayName, colIdx);
-  const cellClass = clsx(styles.footerCell, defaultFooterCellStyles);
   const firstFooterReducers = useMemo(() => {
     for (const footer of footers) {
       if (footer?.reducers?.length ?? 0 > 0) {
@@ -60,12 +58,14 @@ export const SummaryCell = ({
   const renderRowLabel = rowLabel && reducerResultsEntries.length === 0 && Boolean(firstFooterReducers);
 
   const SummaryCellItem = ({ children }: { children: ReactNode }) => (
-    <div className={styles.footerItem}>{children}</div>
+    <div {...stylex.props(styles.footerItem, hideLabel ? justifyContentStyles[textAlign] : styles.spaceBetween)}>
+      {children}
+    </div>
   );
   const SummaryCellLabel = ({ children }: { children: ReactNode }) => (
     <div
       data-testid={selectors.components.Panels.Visualization.TableNG.Footer.ReducerLabel}
-      className={styles.footerItemLabel}
+      {...stylex.props(styles.footerItemLabel)}
     >
       {children}
     </div>
@@ -73,7 +73,7 @@ export const SummaryCell = ({
   const SummaryCellValue = ({ children }: { children: ReactNode }) => (
     <div
       data-testid={selectors.components.Panels.Visualization.TableNG.Footer.Value}
-      className={styles.footerItemValue}
+      {...stylex.props(styles.footerItemValue)}
     >
       {children}
     </div>
@@ -82,7 +82,7 @@ export const SummaryCell = ({
   // Render each reducer in the footer
   return (
     <div
-      className={cellClass}
+      {...stylex.props(defaultFooterCellStyles, styles.footerCell)}
       data-testid={reducerResultsEntries.length === 0 && !renderRowLabel ? 'summary-cell-empty' : undefined}
     >
       {reducerResultsEntries.map(([reducerId, reducerResult]) => {
@@ -113,34 +113,42 @@ export const SummaryCell = ({
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2, textAlign: TextAlign, hideLabel: boolean) => ({
-  footerCell: css({
+const styles = stylex.create({
+  footerCell: {
     flexDirection: 'column',
     minHeight: '100%',
     width: '100%',
-  }),
-  footerItem: css({
+  },
+  footerItem: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: hideLabel ? getJustifyContent(textAlign) : 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    gap: theme.spacing(0.5),
-  }),
-  footerItemLabel: css({
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  footerItemLabel: {
     flexShrink: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightLight,
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-light'],
     textTransform: 'uppercase',
     lineHeight: '22px',
-  }),
-  footerItemValue: css({
+  },
+  footerItemValue: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+});
+
+const justifyContentStyles = stylex.create({
+  left: { justifyContent: 'flex-start' },
+  right: { justifyContent: 'flex-end' },
+  center: { justifyContent: 'center' },
 });

@@ -3,5 +3,7 @@
  * is imported first by the app entry, whose stylesheet index.html links before the theme stylesheet.
  * StyleX layers (stylex.*) are appended after these by the StyleX compiler; unlayered CSS (Emotion
  * component styles and consumer overrides) beats every layer.
+ * react-data-grid ships its stylesheet in `@layer rdg`, loaded with the table chunks; declaring it first keeps it
+ * below everything else, as it was when the rest of the app was unlayered.
  */
-@layer grafana-legacy, grafana-global;
+@layer rdg, grafana-legacy, grafana-global;
