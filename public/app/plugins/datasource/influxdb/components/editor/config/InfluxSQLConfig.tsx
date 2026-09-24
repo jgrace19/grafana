@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { uniqueId } from 'lodash';
 
 import {
@@ -13,6 +12,8 @@ import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 import { WIDTH_SHORT } from './constants';
 import { trackInfluxDBConfigV1SQLDatabaseInputField, trackInfluxDBConfigV1SQLTokenInputField } from './trackingv1';
 
+import './InfluxConfigField.css';
+
 export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecureJsonData>;
 
 export const InfluxSqlConfig = (props: Props) => {
@@ -25,7 +26,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-dbName`}
       >
         <Input
@@ -45,7 +46,7 @@ export const InfluxSqlConfig = (props: Props) => {
           onBlur={trackInfluxDBConfigV1SQLDatabaseInputField}
         />
       </Field>
-      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} className={styles.horizontalField}>
+      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} className="gf-influx-config-field">
         <SecretInput
           label="Token"
           aria-label="Token"
@@ -60,7 +61,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Insecure Connection</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
       >
         <InlineSwitch
           id={`${htmlPrefix}-insecure-grpc`}
@@ -78,13 +79,4 @@ export const InfluxSqlConfig = (props: Props) => {
       </Field>
     </div>
   );
-};
-
-// stylex: pending Field migration. Field sets its own justifyContent and marginBottom in Emotion, which beat a StyleX
-// override.
-const styles = {
-  horizontalField: css({
-    justifyContent: 'initial',
-    margin: '0 var(--gf-spacing-x0-5) var(--gf-spacing-x0-5) 0',
-  }),
 };

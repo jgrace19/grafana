@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import moment, { type Moment } from 'moment/moment';
 import { type ChangeEvent, useState } from 'react';
@@ -10,6 +9,8 @@ import { TimeZoneOffset, TimeZoneTitle } from '@grafana/ui/internal';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type TimeRegionConfig, type TimeRegionMode } from 'app/core/utils/timeRegions';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
+
+import './TimeRegionEditor.css';
 
 interface Props {
   value: TimeRegionConfig;
@@ -138,7 +139,7 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   const to = getTime(value.to);
 
   return (
-    <FieldSet className={`${stylex.props(styles.wrapper).className} ${fieldSetMarginBottom}`}>
+    <FieldSet className={`gf-grafana-time-region-editor ${stylex.props(styles.wrapper).className}`}>
       <Field
         label={t('dashboard-settings.time-regions.advanced-label', 'Advanced')}
         description={
@@ -248,6 +249,3 @@ const styles = stylex.create({
     marginRight: '5px',
   },
 });
-
-// stylex: pending FieldSet migration. FieldSet sets its own marginBottom in Emotion, which beats a StyleX override.
-const fieldSetMarginBottom = css({ marginBottom: 'var(--gf-spacing-x2)' });

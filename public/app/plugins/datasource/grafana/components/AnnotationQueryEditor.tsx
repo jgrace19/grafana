@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import * as React from 'react';
@@ -14,6 +13,7 @@ import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { type GrafanaAnnotationQuery, GrafanaAnnotationType, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { TimeRegionEditor } from './TimeRegionEditor';
+import './AnnotationQueryEditor.css';
 
 const matchTooltipContent = 'Enabling this returns annotations that match any of the tags specified below';
 
@@ -109,7 +109,7 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
   };
 
   return (
-    <FieldSet className={`${stylex.props(styles.container).className} ${fieldSetMarginBottom}`}>
+    <FieldSet className={`gf-grafana-annotation-query-editor ${stylex.props(styles.container).className}`}>
       <Field label="Query type">
         <Select
           inputId="grafana-annotations__query-type"
@@ -167,6 +167,3 @@ const styles = stylex.create({
     maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
   },
 });
-
-// stylex: pending FieldSet migration. FieldSet sets its own marginBottom in Emotion, which beats a StyleX override.
-const fieldSetMarginBottom = css({ marginBottom: 'var(--gf-spacing-x2)' });

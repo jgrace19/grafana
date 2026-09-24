@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import debouncePromise from 'debounce-promise';
 import { useEffect, useState, type JSX } from 'react';
@@ -8,6 +7,8 @@ import { type SelectableValue } from '@grafana/data';
 import { AsyncSelect, InlineLabel, Input, Select } from '@grafana/ui';
 
 import { useShadowedState } from '../hooks/useShadowedState';
+
+import './Seg.css';
 
 // this file is a simpler version of `grafana-ui / SegmentAsync.tsx`
 // with some changes:
@@ -163,13 +164,6 @@ const Inp = ({ initialValue, onChange, onClose }: InpProps): JSX.Element => {
   );
 };
 
-// stylex: pending InlineLabel migration. InlineLabel sets its own width in Emotion, which beats a StyleX override, and
-// buttonClassName is an Emotion class that must merge with it.
-const defaultButtonClass = css({
-  width: 'auto',
-  cursor: 'pointer',
-});
-
 export const Seg = ({
   value,
   buttonClassName,
@@ -180,7 +174,7 @@ export const Seg = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false);
   if (!isOpen) {
-    const className = cx(defaultButtonClass, buttonClassName);
+    const className = buttonClassName ? `gf-influx-seg ${buttonClassName}` : 'gf-influx-seg';
     return (
       <InlineLabel
         as="button"

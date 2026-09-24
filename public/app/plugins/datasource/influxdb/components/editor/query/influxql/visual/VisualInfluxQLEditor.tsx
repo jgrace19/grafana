@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useId, useMemo, type JSX } from 'react';
 
 import { InlineLabel, SegmentSection } from '@grafana/ui';
@@ -33,6 +32,7 @@ import { InputSection } from './InputSection';
 import { OrderByTimeSection } from './OrderByTimeSection';
 import { PartListSection } from './PartListSection';
 import { TagsSection } from './TagsSection';
+import './VisualInfluxQLEditor.css';
 
 type Props = {
   query: InfluxQuery;
@@ -123,7 +123,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
           }
           onChange={handleFromSectionChange}
         />
-        <InlineLabel width="auto" className={styles.inlineLabel}>
+        <InlineLabel width="auto" className="gf-influx-section-label">
           WHERE
         </InlineLabel>
         <TagsSection
@@ -180,7 +180,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, tz });
           }}
         />
-        <InlineLabel htmlFor={orderByTimeId} width="auto" className={styles.inlineLabel}>
+        <InlineLabel htmlFor={orderByTimeId} width="auto" className="gf-influx-section-label">
           ORDER BY TIME
         </InlineLabel>
         <OrderByTimeSection
@@ -204,7 +204,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, limit });
           }}
         />
-        <InlineLabel width="auto" className={styles.inlineLabel}>
+        <InlineLabel width="auto" className="gf-influx-section-label">
           SLIMIT
         </InlineLabel>
         <InputSection
@@ -225,7 +225,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
         />
         {query.resultFormat !== 'table' && (
           <>
-            <InlineLabel width="auto" className={styles.inlineLabel}>
+            <InlineLabel width="auto" className="gf-influx-section-label">
               ALIAS
             </InlineLabel>
             <InputSection
@@ -241,11 +241,4 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
       </SegmentSection>
     </div>
   );
-};
-
-// stylex: pending InlineLabel migration. InlineLabel sets its own color in Emotion, which beats a StyleX override.
-const styles = {
-  inlineLabel: css({
-    color: 'var(--gf-colors-primary-text)',
-  }),
 };

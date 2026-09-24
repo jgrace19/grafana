@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -115,7 +114,12 @@ export const LogGroupsSelector = ({
 
   return (
     <>
-      <Modal className={pendingStyles.modal} title="Select log groups" isOpen={isModalOpen} onDismiss={toggleModal}>
+      <Modal
+        className="gf-cloudwatch-log-groups-modal"
+        title="Select log groups"
+        isOpen={isModalOpen}
+        onDismiss={toggleModal}
+      >
         <div {...stylex.props(styles.logGroupSelectionArea)}>
           <div {...stylex.props(styles.searchField)}>
             <EditorField label="Log group name prefix">
@@ -207,7 +211,7 @@ export const LogGroupsSelector = ({
           </div>
         </div>
         <Space layout="block" v={2} />
-        <Label className={pendingStyles.logGroupCountLabel}>
+        <Label className="gf-cloudwatch-log-group-count">
           {selectedLogGroupsCounter} log group{selectedLogGroupsCounter !== 1 && 's'} selected
         </Label>
         <Space layout="block" v={1} />
@@ -315,9 +319,3 @@ const styles = stylex.create({
     marginRight: spacing['--gf-spacing-x1'],
   },
 });
-
-// stylex: pending Modal and Label migration. Both set width/color/maxWidth in Emotion, which beats a StyleX override.
-const pendingStyles = {
-  modal: css({ width: '992px' }),
-  logGroupCountLabel: css({ color: 'var(--gf-colors-text-secondary)', maxWidth: 'none' }),
-};

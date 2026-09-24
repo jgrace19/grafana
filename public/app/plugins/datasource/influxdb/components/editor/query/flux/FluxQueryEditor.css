@@ -1,0 +1,4 @@
+/* CodeEditor is still Emotion and sets its own container overflow: the doubled class wins that tie. */
+.gf-influx-flux-editor.gf-influx-flux-editor {
+  overflow: auto;
+}

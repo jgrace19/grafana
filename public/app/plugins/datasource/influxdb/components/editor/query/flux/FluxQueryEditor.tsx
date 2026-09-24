@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import {
   CodeEditor,
@@ -12,15 +11,16 @@ import {
   LinkButton,
   type MonacoEditor,
   Segment,
-  type Themeable2,
-  withTheme2,
+  useTheme2,
 } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import type InfluxDatasource from '../../../../datasource';
 import { type InfluxQuery } from '../../../../types';
 
-interface Props extends Themeable2 {
+import './FluxQueryEditor.css';
+
+interface Props {
   onChange: (query: InfluxQuery) => void;
   query: InfluxQuery;
   // `datasource` is not used internally, but this component is used at some places
@@ -96,7 +96,7 @@ v1.tagValues(
   },
 ];
 
-class UnthemedFluxQueryEditor extends PureComponent<Props> {
+class UnthemedFluxQueryEditor extends PureComponent<Props & { isDark: boolean }> {
   onFluxQueryChange = (query: string) => {
     this.props.onChange({ ...this.props.query, query });
   };
@@ -165,7 +165,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
   };
 
   render() {
-    const { query, theme } = this.props;
+    const { query, isDark } = this.props;
 
     const helpTooltip = (
       <div>
@@ -178,7 +178,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
       <>
         <CodeEditor
           height={'100%'}
-          containerStyles={getEditorContainerStyles(theme)}
+          containerStyles={`gf-influx-flux-editor ${stylex.props(styles.editorContainerStyles, backgroundStyles[isDark ? 'dark' : 'light']).className}`}
           language="sql"
           value={query.query || ''}
           onBlur={this.onFluxQueryChange}
@@ -216,6 +216,12 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
 }
 
 const styles = stylex.create({
+  editorContainerStyles: {
+    height: '200px',
+    maxWidth: '100%',
+    resize: 'vertical',
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
   editorActions: {
     marginTop: '6px',
   },
@@ -225,16 +231,12 @@ const styles = stylex.create({
   },
 });
 
-// stylex: pending CodeEditor migration. CodeEditor sets its own container overflow in Emotion, which beats a StyleX
-// override.
-const getEditorContainerStyles = (theme: GrafanaTheme2) =>
-  css({
-    height: '200px',
-    maxWidth: '100%',
-    resize: 'vertical',
-    overflow: 'auto',
-    backgroundColor: theme.isDark ? theme.colors.background.canvas : theme.colors.background.primary,
-    paddingBottom: theme.spacing(1),
-  });
+const backgroundStyles = stylex.create({
+  dark: { backgroundColor: colors['--gf-colors-background-canvas'] },
+  light: { backgroundColor: colors['--gf-colors-background-primary'] },
+});
 
-export const FluxQueryEditor = withTheme2(UnthemedFluxQueryEditor);
+export const FluxQueryEditor = (props: Props) => {
+  const theme = useTheme2();
+  return <UnthemedFluxQueryEditor {...props} isDark={theme.isDark} />;
+};

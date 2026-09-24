@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { uniqueId } from 'lodash';
 
 import {
@@ -20,6 +19,8 @@ import {
   trackInfluxDBConfigV1InfluxQLPasswordInputField,
   trackInfluxDBConfigV1InfluxQLUserInputField,
 } from './trackingv1';
+
+import './InfluxConfigField.css';
 
 const httpModes: SelectableValue[] = [
   { label: 'GET', value: 'GET' },
@@ -51,7 +52,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-db`}
         noMargin
       >
@@ -75,7 +76,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>User</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-user`}
         noMargin
       >
@@ -90,7 +91,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Password</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <SecretInput
@@ -117,7 +118,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
           </InlineLabel>
         }
         htmlFor={`${htmlPrefix}-http-method`}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Select
@@ -140,7 +141,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Min time interval
           </InlineLabel>
         }
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Input
@@ -161,7 +162,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Autocomplete range
           </InlineLabel>
         }
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Input
@@ -173,13 +174,4 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       </Field>
     </>
   );
-};
-
-// stylex: pending Field migration. Field sets its own justifyContent and marginBottom in Emotion, which beat a StyleX
-// override.
-const styles = {
-  horizontalField: css({
-    justifyContent: 'initial',
-    margin: '0 var(--gf-spacing-x0-5) var(--gf-spacing-x0-5) 0',
-  }),
 };
