@@ -12,18 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
-
-import { useStyles2 } from '@grafana/ui';
-
-const getStyles = () => ({
-  BreakableText: css({
-    label: 'BreakableText',
-    display: 'inline-block',
-    whiteSpace: 'pre',
-  }),
-});
 
 const WORD_RX = /\W*\w+\W*/g;
 
@@ -34,7 +24,6 @@ type Props = {
 };
 
 export default function BreakableText({ text, className, wordRegexp = WORD_RX }: Props): React.ReactElement | null {
-  const styles = useStyles2(getStyles);
   if (!text) {
     return null;
   }
@@ -44,7 +33,7 @@ export default function BreakableText({ text, className, wordRegexp = WORD_RX }:
   let match: RegExpExecArray | string[] | null = wordRegexp.exec(text) || [text];
   while (match) {
     spans.push(
-      <span key={`${text}-${spans.length}`} className={className || styles.BreakableText}>
+      <span key={`${text}-${spans.length}`} className={className || stylex.props(styles.BreakableText).className}>
         {match[0]}
       </span>
     );
@@ -52,3 +41,10 @@ export default function BreakableText({ text, className, wordRegexp = WORD_RX }:
   }
   return <>{spans}</>;
 }
+
+const styles = stylex.create({
+  BreakableText: {
+    display: 'inline-block',
+    whiteSpace: 'pre',
+  },
+});

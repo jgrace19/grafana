@@ -1,7 +1,9 @@
+import * as stylex from '@stylexjs/stylex';
 import WKT from 'ol/format/WKT';
 import { Geometry } from 'ol/geom';
 import type { JSX } from 'react';
 
+import { getCellContainerProps } from '../TableRT/styles';
 import { type TableCellProps } from '../types';
 
 export function GeoCell(props: TableCellProps): JSX.Element {
@@ -19,8 +21,8 @@ export function GeoCell(props: TableCellProps): JSX.Element {
   }
 
   return (
-    <div {...cellProps} className={tableStyles.cellContainer}>
-      <div className={tableStyles.cellText} style={{ fontFamily: 'monospace' }}>
+    <div {...cellProps} {...getCellContainerProps(tableStyles.cellContainer, cellProps.style)}>
+      <div {...stylex.props(tableStyles.cellText)} style={{ fontFamily: 'monospace' }}>
         {disp}
       </div>
     </div>

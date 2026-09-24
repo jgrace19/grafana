@@ -1,0 +1,16 @@
+/*
+ * The reset-zoom Button is hidden until the viewing layer is hovered. Button is migrated to StyleX and has no
+ * xstyle, so this stays unlayered (like the Emotion rules it replaces) to beat Button's own display. `unset`
+ * computes to `inline`, exactly as before.
+ */
+.gf-trace-viewing-layer-reset-zoom {
+  display: none;
+  position: absolute;
+  right: 1%;
+  top: 10%;
+  z-index: 1;
+}
+
+.gf-trace-viewing-layer:hover > .gf-trace-viewing-layer-reset-zoom {
+  display: unset;
+}

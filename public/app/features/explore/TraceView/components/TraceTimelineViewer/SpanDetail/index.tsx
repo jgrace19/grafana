@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
 import { SpanStatusCode } from '@opentelemetry/api';
+import * as stylex from '@stylexjs/stylex';
 import React, { useCallback, useMemo, useRef } from 'react';
 
 import {
   type CoreApp,
   type DataFrame,
   dateTimeFormat,
-  type GrafanaTheme2,
   type LinkModel,
   type TimeRange,
   type TraceKeyValuePair,
@@ -33,12 +32,13 @@ import { t } from '@grafana/i18n';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { usePluginLinks } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { pyroscopeProfileIdTagKey } from '../../../createSpanLink';
-import { autoColor } from '../../Theme';
 import LabeledList from '../../common/LabeledList';
 import { KIND, LIBRARY_NAME, LIBRARY_VERSION, STATUS, STATUS_MESSAGE, TRACE_STATE } from '../../constants/span';
+import { traceColors } from '../../traceColors.stylex';
 import { type SpanLinkFunc } from '../../types/links';
 import { type TraceProcess, type TraceSpan, type TraceSpanReference } from '../../types/trace';
 import { formatDuration } from '../../utils/date';
@@ -122,115 +122,13 @@ const useResourceAttributesExtensionLinks = ({
   return resourceLinksGetter;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      ':not(:empty)': {
-        border: '1px solid ' + theme.colors.border.weak,
-        '&:hover': {
-          border: '1px solid ' + theme.colors.border.strong,
-        },
-      },
-      borderRadius: theme.shape.radius.md,
-      margin: '6px',
-      padding: '5px',
-    }),
-    header: css({
-      label: 'SpanDetailHeader',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      gap: '0 1rem',
-      marginBottom: '0.25rem',
-      flexDirection: 'column',
-    }),
-    content: css({
-      label: 'SpanDetailContent',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    listWrapper: css({
-      label: 'SpanDetailListWrapper',
-      overflow: 'hidden',
-      flexGrow: 1,
-      display: 'flex',
-      justifyContent: 'flex-end',
-    }),
-    list: css({
-      textAlign: 'left',
-    }),
-    spanDetailComponent: css({
-      label: 'SpanDetailComponent',
-      display: 'flex',
-      flexDirection: 'column', // On bigger screens display attributes below service name
-    }),
-    serviceNameAndLinks: css({
-      label: 'ServiceNameAndLinks',
-      display: 'flex',
-      width: '100%',
-      marginBottom: theme.spacing(1),
-    }),
-    operationName: css({
-      label: 'SpanDetailOperationName',
-      margin: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      maxWidth: '50%',
-      flexGrow: 1,
-      flexShrink: 0,
-    }),
-    AccordianWarnings: css({
-      label: 'AccordianWarnings',
-      background: autoColor(theme, '#fafafa'),
-      border: `1px solid ${autoColor(theme, '#e4e4e4')}`,
-      marginBottom: '0.25rem',
-    }),
-    AccordianWarningsHeader: css({
-      label: 'AccordianWarningsHeader',
-      background: autoColor(theme, '#fff7e6'),
-      padding: '0.25rem 0.5rem',
-    }),
-    AccordianWarningsHeaderOpen: css({
-      label: 'AccordianWarningsHeaderOpen',
-      borderBottom: `1px solid ${autoColor(theme, '#e8e8e8')}`,
-    }),
-    AccordianWarningsLabel: css({
-      label: 'AccordianWarningsLabel',
-      color: autoColor(theme, '#d36c08'),
-    }),
-    Textarea: css({
-      wordBreak: 'break-all',
-      whiteSpace: 'pre',
-    }),
-    linkList: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '10px',
-      marginBottom: theme.spacing(2),
-    }),
-    debugInfo: css({
-      label: 'debugInfo',
-      display: 'block',
-      letterSpacing: '0.25px',
-      margin: '0.5em 0 -0.75em',
-      textAlign: 'right',
-      clear: 'both',
-    }),
-    debugLabel: css({
-      label: 'debugLabel',
-      '&::before': {
-        color: autoColor(theme, '#bbb'),
-        content: 'attr(data-label)',
-      },
-    }),
-    LinkIcon: css({
-      fontSize: '1.5em',
-    }),
-  };
-};
-
-export const alignIcon = css({
-  margin: '-0.2rem 0.25rem 0 0',
+export const alignIconStyles = stylex.create({
+  alignIcon: {
+    marginTop: '-0.2rem',
+    marginRight: '0.25rem',
+    marginBottom: 0,
+    marginLeft: 0,
+  },
 });
 
 export type TraceFlameGraphs = {
@@ -351,7 +249,6 @@ export default function SpanDetail(props: SpanDetailProps) {
 
   const mainContainerRef = useRef<HTMLDivElement>(null);
 
-  const styles = useStyles2(getStyles);
   if (span.kind) {
     overviewItems.push({
       key: KIND,
@@ -519,22 +416,22 @@ export default function SpanDetail(props: SpanDetailProps) {
   }
 
   return (
-    <div data-testid="span-detail-component" ref={mainContainerRef} className={styles.spanDetailComponent}>
-      <div className={styles.header}>
-        <div className={styles.serviceNameAndLinks}>
-          <h6 className={styles.operationName} title={operationName}>
+    <div data-testid="span-detail-component" ref={mainContainerRef} {...stylex.props(styles.spanDetailComponent)}>
+      <div {...stylex.props(styles.header)}>
+        <div {...stylex.props(styles.serviceNameAndLinks)}>
+          <h6 {...stylex.props(styles.operationName)} title={operationName}>
             {operationName}
           </h6>
           {linksComponent}
         </div>
-        <div className={styles.listWrapper}>
-          <LabeledList className={styles.list} divider={false} items={overviewItems} color={color} />
+        <div {...stylex.props(styles.listWrapper)}>
+          <LabeledList xstyle={styles.list} divider={false} items={overviewItems} color={color} />
         </div>
       </div>
-      <div className={styles.content}>
+      <div {...stylex.props(styles.content)}>
         <CardsContainer listOfContentCards={listOfContentCards} mainContainerRef={mainContainerRef} />
 
-        <small className={styles.debugInfo}>
+        <small {...stylex.props(styles.debugInfo)}>
           {/* TODO: fix keyboard a11y */}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <a
@@ -553,9 +450,9 @@ export default function SpanDetail(props: SpanDetailProps) {
               }
             }}
           >
-            <Icon name={'link'} className={cx(alignIcon, styles.LinkIcon)}></Icon>
+            <Icon name={'link'} xstyle={[alignIconStyles.alignIcon, styles.LinkIcon]}></Icon>
           </a>
-          <span className={styles.debugLabel} data-label="SpanID:" /> {spanID}
+          <span {...stylex.props(styles.debugLabel)} data-label="SpanID:" /> {spanID}
         </small>
       </div>
     </div>
@@ -576,28 +473,26 @@ const CardsContainer = ({
   listOfContentCards: React.ReactNode[];
   mainContainerRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
-  const styles = useStyles2(getStyles);
-
   const useTwoColumns =
     mainContainerRef && mainContainerRef.current && mainContainerRef.current.getBoundingClientRect().width > 1000;
 
   if (useTwoColumns) {
     return (
       <>
-        <div className={css({ float: 'left', width: '50%' })}>
+        <div {...stylex.props(styles.columnLeft)}>
           {listOfContentCards.map((card, index) =>
             index % 2 === 0 ? (
-              <div className={styles.card} key={index}>
+              <div {...stylex.props(styles.card)} key={index}>
                 {card}
               </div>
             ) : null
           )}
         </div>
 
-        <div className={css({ float: 'right', width: '50%' })}>
+        <div {...stylex.props(styles.columnRight)}>
           {listOfContentCards.map((card, index) =>
             index % 2 === 1 ? (
-              <div className={styles.card} key={index}>
+              <div {...stylex.props(styles.card)} key={index}>
                 {card}
               </div>
             ) : null
@@ -608,12 +503,94 @@ const CardsContainer = ({
   }
 
   return (
-    <div className={css({ clear: 'both', width: '100%' })}>
+    <div {...stylex.props(styles.singleColumn)}>
       {listOfContentCards.map((card, index) => (
-        <div className={styles.card} key={index}>
+        <div {...stylex.props(styles.card)} key={index}>
           {card}
         </div>
       ))}
     </div>
   );
 };
+
+const styles = stylex.create({
+  card: {
+    // `:not(:empty)` border: an empty card (SpanFlameGraph without data) draws none.
+    borderWidth: '1px',
+    borderStyle: { default: 'solid', ':empty': 'none' },
+    borderColor: { default: colors['--gf-colors-border-weak'], ':hover': colors['--gf-colors-border-strong'] },
+    borderRadius: shape['--gf-shape-radius-md'],
+    margin: '6px',
+    padding: '5px',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    rowGap: 0,
+    columnGap: '1rem',
+    marginBottom: '0.25rem',
+    flexDirection: 'column',
+  },
+  content: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  listWrapper: {
+    overflow: 'hidden',
+    flexGrow: 1,
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  list: {
+    textAlign: 'left',
+  },
+  spanDetailComponent: {
+    display: 'flex',
+    flexDirection: 'column', // On bigger screens display attributes below service name
+  },
+  serviceNameAndLinks: {
+    display: 'flex',
+    width: '100%',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  operationName: {
+    margin: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: '50%',
+    flexGrow: 1,
+    flexShrink: 0,
+  },
+  debugInfo: {
+    display: 'block',
+    letterSpacing: '0.25px',
+    marginTop: '0.5em',
+    marginRight: 0,
+    marginBottom: '-0.75em',
+    marginLeft: 0,
+    textAlign: 'right',
+    clear: 'both',
+  },
+  debugLabel: {
+    '::before': {
+      color: traceColors['--gf-trace-bbb'],
+      content: 'attr(data-label)',
+    },
+  },
+  LinkIcon: {
+    fontSize: '1.5em',
+  },
+  columnLeft: {
+    float: 'left',
+    width: '50%',
+  },
+  columnRight: {
+    float: 'right',
+    width: '50%',
+  },
+  singleColumn: {
+    clear: 'both',
+    width: '100%',
+  },
+});

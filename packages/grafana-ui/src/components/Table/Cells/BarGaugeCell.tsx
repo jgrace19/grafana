@@ -5,6 +5,7 @@ import { BarGaugeDisplayMode, BarGaugeValueMode, TableCellDisplayMode } from '@g
 
 import { BarGauge } from '../../BarGauge/BarGauge';
 import { DataLinksActionsTooltip, renderSingleLink } from '../DataLinksActionsTooltip';
+import { getCellContainerProps } from '../TableRT/styles';
 import { type TableCellProps } from '../types';
 import {
   type DataLinksActionsTooltipCoords,
@@ -91,8 +92,10 @@ export const BarGaugeCell = (props: TableCellProps) => {
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       {...cellProps}
-      className={tableStyles.cellContainer}
-      style={{ ...cellProps.style, cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto' }}
+      {...getCellContainerProps(tableStyles.cellContainer, {
+        ...cellProps.style,
+        cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto',
+      })}
       onClick={({ clientX, clientY }) => {
         setTooltipCoords({ clientX, clientY });
       }}

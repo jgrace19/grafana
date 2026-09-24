@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent, type RefObject } from 'react';
 
-import { type CoreApp, type GrafanaTheme2, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
+import { type CoreApp, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
 import { type SpanBarOptions, type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-import { autoColor } from '../Theme';
 import { merge as mergeShortcuts } from '../keyboard-shortcuts';
+import { traceColors } from '../traceColors.stylex';
 import type TNil from '../types/TNil';
 import type TTraceTimeline from '../types/TTraceTimeline';
 import { type SpanLinkFunc } from '../types/links';
@@ -33,38 +33,7 @@ import TimelineHeaderRow from './TimelineHeaderRow/TimelineHeaderRow';
 import VirtualizedTraceView from './VirtualizedTraceView';
 import { type TUpdateViewRangeTimeFunction, type ViewRange, type ViewRangeTimeUpdate } from './types';
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  TraceTimelineViewer: css({
-    label: 'TraceTimelineViewer',
-    borderBottom: `1px solid ${autoColor(theme, '#bbb')}`,
-
-    '& .json-markup': {
-      lineHeight: '17px',
-      fontFamily: 'monospace',
-      whiteSpace: 'pre-wrap',
-    },
-
-    '& .json-markup-key': {
-      fontWeight: 'bold',
-    },
-
-    '& .json-markup-bool': {
-      color: autoColor(theme, 'firebrick'),
-    },
-
-    '& .json-markup-string': {
-      color: autoColor(theme, 'teal'),
-    },
-
-    '& .json-markup-null': {
-      color: autoColor(theme, 'teal'),
-    },
-
-    '& .json-markup-number': {
-      color: autoColor(theme, 'blue', 'black'),
-    },
-  }),
-}));
+import './TraceTimelineViewer.global.css';
 
 export type TProps = {
   findMatchesIDs: Set<string> | TNil;
@@ -97,7 +66,6 @@ export type TProps = {
   detailToggle: (spanID: string) => void;
   addHoverIndentGuideId: (spanID: string) => void;
   removeHoverIndentGuideId: (spanID: string) => void;
-  theme: GrafanaTheme2;
   createSpanLink?: SpanLinkFunc;
   scrollElement?: Element;
   focusedSpanId?: string;
@@ -186,17 +154,15 @@ export class UnthemedTraceTimelineViewer extends PureComponent<TProps, State> {
       updateViewRangeTime,
       viewRange,
       traceTimeline,
-      theme,
       topOfViewRef,
       focusedSpanIdForSearch,
       ...rest
     } = this.props;
     const { trace } = rest;
-    const styles = getStyles(theme);
 
     return (
       <div
-        className={styles.TraceTimelineViewer}
+        {...mergeStylexProps(stylex.props(styles.TraceTimelineViewer), { className: 'gf-trace-timeline-viewer' })}
         ref={(ref) => {
           if (ref) {
             this.setState({ height: ref.getBoundingClientRect().height });
@@ -232,4 +198,12 @@ export class UnthemedTraceTimelineViewer extends PureComponent<TProps, State> {
   }
 }
 
-export default withTheme2(UnthemedTraceTimelineViewer);
+export default UnthemedTraceTimelineViewer;
+
+const styles = stylex.create({
+  TraceTimelineViewer: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: traceColors['--gf-trace-bbb'],
+  },
+});
