@@ -1,0 +1,22 @@
+/*
+ * Overrides Card, which takes no StyleX override for these properties. Not in a cascade layer, so it wins over
+ * Card's (layered) StyleX styles like the Emotion className merge did. The hover gradient is theme colour math,
+ * set on the card as a custom property.
+ */
+.gf-dashlist-card-container {
+  display: block;
+  height: 100%;
+  padding-top: calc(var(--gf-spacing-grid-size) * 1.25);
+  padding-bottom: calc(var(--gf-spacing-grid-size) * 1.25);
+}
+
+.gf-dashlist-card-container:has(a:hover) {
+  background-image: var(--dashlist-card-hover-gradient);
+  color: var(--gf-colors-text-primary);
+}
+
+/* The dashboard name, a Text rendered inside the Link. */
+.gf-dashlist-link a:hover > p:first-child {
+  color: var(--gf-colors-text-link);
+  text-decoration: underline;
+}

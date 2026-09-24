@@ -1,0 +1,4 @@
+/* Spaces the AlertLabel components. Not in a cascade layer, like the Emotion child rule it replaces. */
+.gf-alertlist-labels > * {
+  margin-right: var(--gf-spacing-x0-5);
+}
