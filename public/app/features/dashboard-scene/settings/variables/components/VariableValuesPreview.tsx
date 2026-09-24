@@ -1,13 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneVariable, type VariableValueOption, type VariableValueOptionProperties } from '@grafana/scenes';
-import { Button, InlineFieldRow, InlineLabel, InteractiveTable, Text, useStyles2 } from '@grafana/ui';
+import { Button, InlineFieldRow, InlineLabel, InteractiveTable, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ALL_VARIABLE_VALUE } from 'app/features/variables/constants';
+
+import './VariableValuesPreview.css';
 
 export interface VariableValuesPreviewProps {
   options: VariableValueOption[];
@@ -63,13 +65,12 @@ export const useGetPropertiesFromOptions = (
   }, [options, staticOptions]);
 
 export const VariableValuesPreview = ({ options, staticOptions }: VariableValuesPreviewProps) => {
-  const styles = useStyles2(getStyles);
   const properties = useGetPropertiesFromOptions(options, staticOptions);
   const hasOptions = options.length > 0;
   const displayMultiPropsPreview = config.featureToggles.multiPropsVariables && hasOptions && properties.length > 2;
 
   return (
-    <div className={styles.previewContainer} style={{ gap: '8px' }}>
+    <div {...stylex.props(styles.previewContainer)} style={{ gap: '8px' }}>
       <Text variant="bodySmall" weight="medium">
         <Trans i18nKey="dashboard-scene.variable-values-preview.preview-of-values" values={{ count: options.length }}>
           Preview of values ({'{{count}}'})
@@ -90,8 +91,6 @@ function VariableValuesWithPropsPreview({
   options: VariableValueOption[];
   properties: string[];
 }) {
-  const styles = useStyles2(getStyles);
-
   const { data, columns } = useMemo(() => {
     const data = options.map(({ label, value, properties }) => ({
       text: label,
@@ -112,7 +111,7 @@ function VariableValuesWithPropsPreview({
   return (
     <div data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.CustomVariable.previewTable}>
       <InteractiveTable
-        className={styles.table}
+        className="gf-variable-values-preview-table"
         columns={columns}
         data={data}
         getRowId={(r) => JSON.stringify(r)}
@@ -125,7 +124,6 @@ const sanitizeKey = (key: string) => key.replace(/\./g, '__dot__');
 const unsanitizeKey = (key: string) => key.replace(/__dot__/g, '.');
 
 export function VariableValuesWithoutPropsPreview({ options }: { options: VariableValueOption[] }) {
-  const styles = useStyles2(getStyles);
   const [previewLimit, setPreviewLimit] = useState(20);
   const [previewOptions, setPreviewOptions] = useState<VariableValueOption[]>([]);
   const showMoreOptions = useCallback(
@@ -141,15 +139,15 @@ export function VariableValuesWithoutPropsPreview({ options }: { options: Variab
     <>
       <InlineFieldRow>
         {previewOptions.map((o, index) => (
-          <InlineFieldRow key={`${o.value}-${index}`} className={styles.optionContainer}>
+          <InlineFieldRow key={`${o.value}-${index}`} className={stylex.props(styles.optionContainer).className}>
             <InlineLabel data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.General.previewOfValuesOption}>
-              <div className={styles.label}>{o.label || String(o.value)}</div>
+              <div {...stylex.props(styles.label)}>{o.label || String(o.value)}</div>
             </InlineLabel>
           </InlineFieldRow>
         ))}
       </InlineFieldRow>
       {options.length > previewLimit && (
-        <InlineFieldRow className={styles.optionContainer}>
+        <InlineFieldRow className={stylex.props(styles.optionContainer).className}>
           <Button onClick={showMoreOptions} variant="secondary" size="sm">
             <Trans i18nKey="dashboard-scene.variable-values-preview.show-more">Show more</Trans>
           </Button>
@@ -160,28 +158,22 @@ export function VariableValuesWithoutPropsPreview({ options }: { options: Variab
 }
 VariableValuesWithoutPropsPreview.displayName = 'VariableValuesWithoutPropsPreview';
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    previewContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      marginTop: theme.spacing(2),
-    }),
-    optionContainer: css({
-      marginLeft: theme.spacing(0.5),
-      marginBottom: theme.spacing(0.5),
-    }),
-    label: css({
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      maxWidth: '50vw',
-    }),
-    table: css({
-      td: css({
-        padding: theme.spacing(0.5, 1),
-      }),
-    }),
-  };
-}
+// The preview table's cells are padded by VariableValuesPreview.css.
+const styles = stylex.create({
+  previewContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+  optionContainer: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  label: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '50vw',
+  },
+});

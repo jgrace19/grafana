@@ -1,0 +1,11 @@
+/*
+ * Styles links in the annotation text, which is sanitized HTML. Not in a cascade layer, like the Emotion
+ * descendant rule it replaces.
+ */
+.gf-annotation-tooltip-body a {
+  color: var(--gf-colors-text-link);
+}
+
+.gf-annotation-tooltip-body a:hover {
+  text-decoration: underline;
+}

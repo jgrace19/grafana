@@ -1,13 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import ReactDiffViewer, { type ReactDiffViewerProps, DiffMethod } from 'react-diff-viewer-continued';
 import tinycolor from 'tinycolor2';
 
 import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './DiffViewer.css';
 
 export const DiffViewer = ({ oldValue, newValue, ...diffProps }: ReactDiffViewerProps) => {
   const theme = useTheme2();
 
-  const styles = {
+  const diffStyles = {
     variables: {
       // the light theme supplied by ReactDiffViewer is very similar to Grafana
       // the dark theme needs some tweaks.
@@ -50,17 +54,9 @@ export const DiffViewer = ({ oldValue, newValue, ...diffProps }: ReactDiffViewer
   };
 
   return (
-    <div
-      className={css({
-        fontSize: theme.typography.bodySmall.fontSize,
-        // prevent global styles interfering with diff viewer
-        pre: {
-          all: 'revert',
-        },
-      })}
-    >
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className: 'gf-diff-viewer' })}>
       <ReactDiffViewer
-        styles={styles}
+        styles={diffStyles}
         oldValue={oldValue}
         newValue={newValue}
         splitView={false}
@@ -71,3 +67,10 @@ export const DiffViewer = ({ oldValue, newValue, ...diffProps }: ReactDiffViewer
     </div>
   );
 };
+
+// DiffViewer.css keeps global styles from interfering with the diff viewer's <pre>s.
+const styles = stylex.create({
+  wrapper: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});

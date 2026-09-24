@@ -1,0 +1,15 @@
+/*
+ * The control buttons and the annotation text (sanitized HTML) aren't rendered by this component, so StyleX
+ * can't target them. Not in a cascade layer, like the Emotion descendant rules they replace.
+ */
+.gf-annotation-tooltip-controls > :last-child {
+  margin-left: 0;
+}
+
+.gf-annotation-tooltip-body a {
+  color: var(--gf-colors-text-link);
+}
+
+.gf-annotation-tooltip-body a:hover {
+  text-decoration: underline;
+}

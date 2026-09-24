@@ -1,0 +1,15 @@
+/*
+ * Cells wrap, unlike the GlobalStyles `.filter-table td` default. Unlayered, so the old `!important` isn't needed to
+ * beat that layered rule.
+ */
+.gf-version-history-table td {
+  white-space: normal;
+}
+
+/*
+ * Override on Checkbox, which takes no xstyle and sets its own display. The doubled class outranks Checkbox's rule
+ * (which may be inserted later) like the Emotion className override it replaces.
+ */
+.gf-version-history-checkbox.gf-version-history-checkbox {
+  display: inline;
+}

@@ -1,0 +1,9 @@
+/*
+ * Override on FieldSet, which takes no xstyle and sets its own bottom margin. Unlayered, and the doubled class
+ * outranks FieldSet's base rule (which may be inserted later) like the Emotion className override it replaces;
+ * FieldSet's `:last-child` rule still wins, as before.
+ */
+.gf-annotation-settings-form.gf-annotation-settings-form {
+  max-width: calc(var(--gf-spacing-grid-size) * 60);
+  margin-bottom: var(--gf-spacing-x2);
+}
