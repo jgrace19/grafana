@@ -1,21 +1,18 @@
-import { css } from '@emotion/css';
 import { autoUpdate } from '@floating-ui/dom';
 import { useFloating } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { type ReactNode, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import {
-  type ActionModel,
-  type DataFrame,
-  type GrafanaTheme2,
-  type InterpolateFunction,
-  type LinkModel,
-} from '@grafana/data';
+import { type ActionModel, type DataFrame, type InterpolateFunction, type LinkModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type TimeZone } from '@grafana/schema';
-import { ClickOutsideWrapper, floatingUtils, useStyles2 } from '@grafana/ui';
+import { ClickOutsideWrapper, floatingUtils } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape } from '@grafana/ui/stylex/tokens.stylex';
 import { getDataLinks, getFieldActions } from 'app/plugins/panel/status-history/utils';
 
 import { AnnotationEditor2 } from './AnnotationEditor2';
@@ -61,7 +58,6 @@ export const AnnotationMarker2 = ({
   showTooltipOnHover,
   isPinned,
 }: AnnotationMarkerProps) => {
-  const styles = useStyles2(getStyles);
   const placement = 'bottom';
   const isRegion = annoVals?.isRegion?.[annoIdx] === true;
 
@@ -159,8 +155,9 @@ export const AnnotationMarker2 = ({
           : t('timeseries.annotation-marker.annotation-label', 'Annotation')
       }
       ref={refs.setReference}
-      className={isRegion ? styles.annoRegion : styles.annoMarker}
-      style={style!}
+      {...mergeStylexProps(stylex.props(isRegion ? styles.annoRegion : styles.annoMarker), {
+        style: style ?? undefined,
+      })}
       onFocus={() => setIsHovering(true)}
       onBlur={() => setIsHovering(false)}
       onClick={() => setPinned(true)}
@@ -170,7 +167,11 @@ export const AnnotationMarker2 = ({
     >
       {contents &&
         createPortal(
-          <div ref={refs.setFloating} className={styles.annoBox} style={floatingStyles} data-testid="annotation-marker">
+          <div
+            ref={refs.setFloating}
+            {...mergeStylexProps(stylex.props(styles.annoBox), { style: floatingStyles })}
+            data-testid="annotation-marker"
+          >
             <ClickOutsideWrapper includeButtonPress={false} useCapture={true} onClick={() => setPinned(false)}>
               {contents}
             </ClickOutsideWrapper>
@@ -181,42 +182,51 @@ export const AnnotationMarker2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  annoMarker: css({
+const styles = stylex.create({
+  annoMarker: {
     position: 'absolute',
     width: 0,
     height: 0,
-    border: 'none',
-    borderLeft: '5px solid transparent',
-    borderRight: '5px solid transparent',
+    borderTopStyle: 'none',
+    borderLeftWidth: '5px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: 'transparent',
+    borderRightWidth: '5px',
+    borderRightStyle: 'solid',
+    borderRightColor: 'transparent',
     borderBottomWidth: '5px',
     borderBottomStyle: 'solid',
+    borderBottomColor: 'currentcolor',
     transform: 'translateX(-50%)',
     cursor: 'pointer',
     zIndex: 1,
     padding: 0,
-    background: 'none',
-  }),
-  annoRegion: css({
-    border: 'none',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+  },
+  annoRegion: {
+    borderStyle: 'none',
     position: 'absolute',
     height: '5px',
     cursor: 'pointer',
     zIndex: 1,
     padding: 0,
-    background: 'none',
-  }),
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+  },
   // NOTE: shares much with TooltipPlugin2
-  annoBox: css({
+  annoBox: {
     top: 0,
     left: 0,
-    zIndex: theme.zIndex.tooltip,
-    borderRadius: theme.shape.radius.default,
+    zIndex: zIndex.tooltip,
+    borderRadius: shape['--gf-shape-radius-default'],
     position: 'absolute',
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z2,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z2'],
     userSelect: 'text',
     minWidth: '300px',
-  }),
+  },
 });
