@@ -78,5 +78,5 @@ public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.t
 # D3 dashboard: className overrides that must keep Emotion's cascade until the child migrates (conventions §3.9)
 public/app/features/dashboard/components/PublicDashboardNotAvailable/PublicDashboardNotAvailable.tsx # stylex: pending core Branding/LoginLayout migration (LoginBackground :before override, getLoginStyles)
 public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderNotice.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)
-public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderTitleItems.tsx # stylex: pending PanelChrome.TitleItem migration (color and JS-computed :hover color overrides)
+public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderTitleItems.tsx # stylex: PanelChrome.TitleItem has no xstyle and its :hover colour override is JS colour math (emphasize)
 public/app/features/dashboard/dashgrid/PanelLinks.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)

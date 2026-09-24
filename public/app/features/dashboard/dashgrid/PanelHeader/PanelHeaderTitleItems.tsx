@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending PanelChrome.TitleItem migration (see getStyles)
+// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on PanelChrome.TitleItem (see getStyles)
 import { css, cx } from '@emotion/css';
 
 import {
@@ -9,7 +9,7 @@ import {
   type PanelData,
   type PanelModel,
 } from '@grafana/data';
-// eslint-disable-next-line no-restricted-imports -- stylex: pending PanelChrome.TitleItem migration (see getStyles)
+// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on PanelChrome.TitleItem (see getStyles)
 import { Icon, PanelChrome, TimePickerTooltip, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { PanelLinks } from '../PanelLinks';
@@ -74,8 +74,8 @@ export function PanelHeaderTitleItems(props: Props) {
   );
 }
 
-// stylex: pending PanelChrome.TitleItem migration. Every class here overrides TitleItem's own Emotion color (and
-// :hover color), which would beat a StyleX override.
+// stylex: pending an xstyle on PanelChrome.TitleItem. Every class here overrides TitleItem's own color and
+// :hover color; the hover colours are JS colour math, so they can't move to a static stylesheet.
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     ok: css({
