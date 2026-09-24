@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, isUnsignedPluginSignature, type PanelPluginMeta, PluginState } from '@grafana/data';
+import { isUnsignedPluginSignature, type PanelPluginMeta, PluginState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { IconButton, PluginSignatureBadge, useStyles2 } from '@grafana/ui';
+import { IconButton, PluginSignatureBadge, useTheme2 } from '@grafana/ui';
+import { durations, easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
@@ -35,18 +37,25 @@ const PanelTypeCardComponent = ({
   children,
   tabIndex = 0,
 }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   const isDisabled = disabled || plugin.state === PluginState.deprecated;
-  const cssClass = cx({
-    [styles.item]: true,
-    [styles.itemDisabled]: isDisabled,
-    [styles.current]: isCurrent,
-  });
+  const background = isCurrent
+    ? theme.colors.action.selected
+    : isDisabled
+      ? theme.colors.action.disabledBackground
+      : theme.colors.background.secondary;
+  const hoverBackground = isDisabled
+    ? theme.colors.action.disabledBackground
+    : theme.colors.emphasize(theme.colors.background.secondary, 0.03);
 
   return (
     <div
-      className={cssClass}
+      {...stylex.props(
+        styles.item,
+        styles.background(background, hoverBackground),
+        isCurrent && styles.current
+      )}
       data-testid={selectors.components.PluginVisualization.item(plugin.name)}
       onClick={isDisabled ? undefined : (ev) => onSelect(ev.metaKey || ev.ctrlKey || ev.altKey)}
       role="button"
@@ -66,18 +75,18 @@ const PanelTypeCardComponent = ({
       }
     >
       <img
-        className={cx(styles.img, { [styles.disabled]: isDisabled })}
+        {...stylex.props(styles.img, isDisabled && styles.disabled)}
         src={plugin.info.logos.small || undefined}
         alt=""
       />
 
-      <div className={cx(styles.itemContent, { [styles.disabled]: isDisabled })}>
-        <div className={styles.name}>{title}</div>
-        {description ? <span className={styles.description}>{description}</span> : null}
+      <div {...stylex.props(styles.itemContent, isDisabled && styles.disabled)}>
+        <div {...stylex.props(styles.name)}>{title}</div>
+        {description ? <span {...stylex.props(styles.description)}>{description}</span> : null}
         {children}
       </div>
       {showBadge && (
-        <div className={cx(styles.badge, { [styles.disabled]: isDisabled })}>
+        <div {...stylex.props(styles.badge, isDisabled && styles.disabled)}>
           <PanelPluginBadge plugin={plugin} />
         </div>
       )}
@@ -88,7 +97,7 @@ const PanelTypeCardComponent = ({
             e.stopPropagation();
             onDelete();
           }}
-          className={styles.deleteButton}
+          style={deleteButtonStyle}
           aria-label={t(
             'panel.panel-type-card.aria-label-delete-button-on-panel-type-card',
             'Delete button on panel type card'
@@ -112,21 +121,29 @@ const PanelTypeCardSkeleton: SkeletonComponent<React.PropsWithChildren<SkeletonP
   hasDelete,
   rootProps,
 }) => {
-  const styles = useStyles2(getStyles);
-  const skeletonStyles = useStyles2(getSkeletonStyles);
   return (
-    <div className={styles.item} {...rootProps}>
-      <Skeleton className={cx(styles.img, skeletonStyles.image)} width={IMAGE_SIZE} height={IMAGE_SIZE} />
+    <div {...stylex.props(styles.item, styles.itemBackground)} {...rootProps}>
+      <Skeleton
+        className={stylex.props(styles.img, skeletonStyles.image).className}
+        width={IMAGE_SIZE}
+        height={IMAGE_SIZE}
+      />
 
-      <div className={styles.itemContent}>
-        <div className={styles.name}>
+      <div {...stylex.props(styles.itemContent)}>
+        <div {...stylex.props(styles.name)}>
           <Skeleton width={160} />
         </div>
-        {hasDescription ? <Skeleton containerClassName={styles.description} width={80} /> : null}
+        {hasDescription ? (
+          <Skeleton containerClassName={stylex.props(styles.description).className} width={80} />
+        ) : null}
         {children}
       </div>
       {hasDelete && (
-        <Skeleton containerClassName={cx(styles.deleteButton, skeletonStyles.deleteButton)} width={16} height={16} />
+        <Skeleton
+          containerClassName={stylex.props(styles.deleteButton, skeletonStyles.deleteButton).className}
+          width={16}
+          height={16}
+        />
       )}
     </div>
   );
@@ -134,95 +151,97 @@ const PanelTypeCardSkeleton: SkeletonComponent<React.PropsWithChildren<SkeletonP
 
 export const PanelTypeCard = attachSkeleton(PanelTypeCardComponent, PanelTypeCardSkeleton);
 
-const getSkeletonStyles = () => {
-  return {
-    deleteButton: css({
-      lineHeight: 1,
-    }),
-    image: css({
-      lineHeight: 1,
-    }),
-  };
+// IconButton is StyleX and sets its own margin: override it through its inline style.
+const deleteButtonStyle: React.CSSProperties = {
+  cursor: 'pointer',
+  marginLeft: 'auto',
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    item: css({
-      position: 'relative',
-      display: 'flex',
-      flexShrink: 0,
-      cursor: 'pointer',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z1,
-      border: `1px solid ${theme.colors.background.secondary}`,
-      alignItems: 'center',
-      padding: theme.spacing(1),
-      width: '100%',
-      overflow: 'hidden',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['background'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
+const skeletonStyles = stylex.create({
+  deleteButton: {
+    lineHeight: 1,
+  },
+  image: {
+    lineHeight: 1,
+  },
+});
 
-      '&:hover': {
-        background: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-      },
-    }),
-    itemContent: css({
-      overflow: 'hidden',
-      position: 'relative',
-      padding: theme.spacing(0, 1),
-    }),
-    itemDisabled: css({
-      '&, &:hover': {
-        background: theme.colors.action.disabledBackground,
-      },
-    }),
-    current: css({
-      label: 'currentVisualizationItem',
-      border: `1px solid ${theme.colors.primary.border}`,
-      background: theme.colors.action.selected,
-    }),
-    disabled: css({
-      opacity: 0.6,
-      filter: 'grayscale(1)',
-      cursor: 'default',
-      pointerEvents: 'none',
-    }),
-    name: css({
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      fontSize: theme.typography.size.sm,
-      fontWeight: theme.typography.fontWeightMedium,
-      width: '100%',
-    }),
-    description: css({
-      display: 'block',
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightLight,
-      width: '100%',
-      maxHeight: '4.5em',
-    }),
-    img: css({
-      maxHeight: IMAGE_SIZE,
-      width: IMAGE_SIZE,
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    badge: css({
-      background: theme.colors.background.primary,
-    }),
-    deleteButton: css({
-      cursor: 'pointer',
-      marginLeft: 'auto',
-    }),
-  };
-};
+const styles = stylex.create({
+  item: {
+    position: 'relative',
+    display: 'flex',
+    flexShrink: 0,
+    cursor: 'pointer',
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-background-secondary'],
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    width: '100%',
+    overflow: 'hidden',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: durations.short },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+  },
+  itemBackground: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  background: (background: string, hover: string) => ({
+    backgroundColor: { default: background, ':hover': hover },
+  }),
+  itemContent: {
+    overflow: 'hidden',
+    position: 'relative',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  current: {
+    borderColor: colors['--gf-colors-primary-border'],
+  },
+  disabled: {
+    opacity: 0.6,
+    filter: 'grayscale(1)',
+    cursor: 'default',
+    pointerEvents: 'none',
+  },
+  name: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    fontSize: typography['--gf-typography-size-sm'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    width: '100%',
+  },
+  description: {
+    display: 'block',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-light'],
+    width: '100%',
+    maxHeight: '4.5em',
+  },
+  img: {
+    maxHeight: IMAGE_SIZE,
+    width: IMAGE_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  badge: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  deleteButton: {
+    cursor: 'pointer',
+    marginLeft: 'auto',
+  },
+});
 
 interface PanelPluginBadgeProps {
   plugin: PanelPluginMeta;

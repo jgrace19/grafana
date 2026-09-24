@@ -1,7 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending dashboard-scene SaveLibraryVizPanelModal and Modal migration
 import { css } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+/**
+ * @deprecated Still used by dashboard-scene's library panel save modal. Library panel modals use the StyleX
+ * `modalStyles`, plus `modalWidthClassName`.
+ */
 export function getModalStyles(theme: GrafanaTheme2) {
   return {
     myTable: css({
@@ -51,3 +56,8 @@ export function getModalStyles(theme: GrafanaTheme2) {
     }),
   };
 }
+
+// stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
+export const modalWidthClassName = css({
+  width: '500px',
+});

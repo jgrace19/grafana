@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { cloneDeep } from 'lodash';
 import { PureComponent } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -22,7 +23,7 @@ import { type GetDataOptions } from 'app/features/query/state/PanelQueryRunner';
 import { dataFrameToLogsModel } from '../logs/logsModel';
 
 import { InspectDataOptions } from './InspectDataOptions';
-import { getPanelInspectorStyles } from './styles';
+import { panelInspectorStyles as styles } from './panelInspectorStyles';
 import { downloadAsJson, downloadDataFrameAsCsv, downloadLogsModelAsTxt, downloadTraceAsJson } from './utils/download';
 
 interface Props {
@@ -244,7 +245,6 @@ export class InspectDataTab extends PureComponent<Props, State> {
   render() {
     const { isLoading, options, data, formattedDataDescription, onOptionsChange, hasTransformations } = this.props;
     const { dataFrameIndex, transformationOptions, selectedDataFrame, excelCompatibilityMode } = this.state;
-    const styles = getPanelInspectorStyles();
 
     if (isLoading) {
       return (
@@ -272,8 +272,8 @@ export class InspectDataTab extends PureComponent<Props, State> {
     const hasServiceGraph = dataFrames.some((df) => df?.meta?.preferredVisualisationType === 'nodeGraph');
 
     return (
-      <div className={styles.wrap} data-testid={selectors.components.PanelInspector.Data.content}>
-        <div className={styles.toolbar}>
+      <div {...stylex.props(styles.wrap)} data-testid={selectors.components.PanelInspector.Data.content}>
+        <div {...stylex.props(styles.toolbar)}>
           <InspectDataOptions
             data={data}
             hasTransformations={hasTransformations}
@@ -289,7 +289,7 @@ export class InspectDataTab extends PureComponent<Props, State> {
             actions={this.renderActions(dataFrames, hasLogs, hasTraces, hasServiceGraph)}
           />
         </div>
-        <div className={styles.content}>
+        <div {...stylex.props(styles.content)}>
           <AutoSizer>
             {({ width, height }) => {
               if (width === 0) {

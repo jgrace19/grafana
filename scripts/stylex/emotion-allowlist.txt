@@ -91,3 +91,6 @@ public/app/features/datasources/components/DataSourceTypeCard.tsx # pending Card
 public/app/features/datasources/components/picker/DataSourceCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card padding, background, heading, figure, selected state
 public/app/features/datasources/components/picker/DataSourceModal.tsx # pending Modal migration (U4): modal width override must beat Modal's Emotion width
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures
+# M1 library-panels, inspector, panel, query
+public/app/features/inspector/styles.ts # deprecated Emotion getPanelInspectorStyles2, still used by dashboard-scene/inspect (D slice); the inspector uses panelInspectorStyles.ts
+public/app/features/library-panels/styles.ts # deprecated Emotion getModalStyles, still used by dashboard-scene SaveLibraryVizPanelModal (D slice); plus the pending-Modal width class

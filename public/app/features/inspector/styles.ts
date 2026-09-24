@@ -1,14 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending dashboard-scene/inspect migration
 import { css } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
-import { config } from '@grafana/runtime';
-import { stylesFactory } from '@grafana/ui';
 
-/** @deprecated */
-export const getPanelInspectorStyles = stylesFactory(() => {
-  return getPanelInspectorStyles2(config.theme2);
-});
-
+/**
+ * @deprecated Still used by dashboard-scene's inspect drawer. The inspector itself uses the StyleX
+ * `panelInspectorStyles`.
+ */
 export const getPanelInspectorStyles2 = (theme: GrafanaTheme2) => {
   return {
     heading: css({

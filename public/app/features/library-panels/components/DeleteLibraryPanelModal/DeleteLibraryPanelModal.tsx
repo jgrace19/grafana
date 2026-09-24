@@ -1,10 +1,12 @@
+import * as stylex from '@stylexjs/stylex';
 import { type FC, useEffect, useMemo, useReducer } from 'react';
 
 import { LoadingState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Modal } from '@grafana/ui';
 
-import { getModalStyles } from '../../styles';
+import { modalStyles as styles } from '../../modalStyles';
+import { modalWidthClassName } from '../../styles';
 import { type LibraryElementDTO } from '../../types';
 import { asyncDispatcher } from '../LibraryPanelsView/actions';
 
@@ -18,7 +20,6 @@ interface Props {
 }
 
 export const DeleteLibraryPanelModal: FC<Props> = ({ libraryPanel, onDismiss, onConfirm }) => {
-  const styles = useStyles2(getModalStyles);
   const [{ dashboardTitles, loadingState }, dispatch] = useReducer(
     deleteLibraryPanelModalReducer,
     initialDeleteLibraryPanelModalState
@@ -33,7 +34,7 @@ export const DeleteLibraryPanelModal: FC<Props> = ({ libraryPanel, onDismiss, on
 
   return (
     <Modal
-      className={styles.modal}
+      className={modalWidthClassName}
       title={t('library-panels.delete-library-panel-modal.title-delete-library-panel', 'Delete library panel')}
       onDismiss={onDismiss}
       isOpen={true}
@@ -65,17 +66,14 @@ const LoadingIndicator = () => (
 );
 
 const Confirm = () => {
-  const styles = useStyles2(getModalStyles);
-
   return (
-    <div className={styles.modalText}>
+    <div {...stylex.props(styles.modalText)}>
       <Trans i18nKey="library-panels.confirm.delete-panel">Do you want to delete this panel?</Trans>
     </div>
   );
 };
 
 const HasConnectedDashboards: FC<{ dashboardTitles: string[] }> = ({ dashboardTitles }) => {
-  const styles = useStyles2(getModalStyles);
   const suffix = dashboardTitles.length === 1 ? 'dashboard.' : 'dashboards.';
   const message = `${dashboardTitles.length} ${suffix}`;
   if (dashboardTitles.length === 0) {
@@ -84,23 +82,23 @@ const HasConnectedDashboards: FC<{ dashboardTitles: string[] }> = ({ dashboardTi
 
   return (
     <div>
-      <p className={styles.textInfo}>
+      <p {...stylex.props(styles.textInfo)}>
         {'This library panel can not be deleted because it is connected to '}
         <strong>{message}</strong>
         {' Remove the library panel from the dashboards listed below and retry.'}
       </p>
-      <table className={styles.myTable}>
-        <thead>
+      <table {...stylex.props(styles.myTable)}>
+        <thead {...stylex.props(styles.myTableHead)}>
           <tr>
-            <th>
+            <th {...stylex.props(styles.myTableCell)}>
               <Trans i18nKey="library-panels.has-connected-dashboards.dashboard-name">Dashboard name</Trans>
             </th>
           </tr>
         </thead>
         <tbody>
           {dashboardTitles.map((title, i) => (
-            <tr key={`dash-title-${i}`}>
-              <td>{title}</td>
+            <tr key={`dash-title-${i}`} {...stylex.props(styles.myTableBodyRow)}>
+              <td {...stylex.props(styles.myTableCell)}>{title}</td>
             </tr>
           ))}
         </tbody>

@@ -1,15 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, type ReactNode, useMemo } from 'react';
 import { useMeasure } from 'react-use';
 
-import {
-  type GrafanaTheme2,
-  type PanelData,
-  type PanelPluginMeta,
-  type PanelPluginVisualizationSuggestion,
-} from '@grafana/data';
+import { type PanelData, type PanelPluginMeta, type PanelPluginVisualizationSuggestion } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Text, useStyles2 } from '@grafana/ui';
+import { Text } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { MIN_MULTI_COLUMN_SIZE } from 'app/features/panel/suggestions/constants';
 
 import { VisualizationSuggestionCard } from './VisualizationSuggestionCard';
@@ -42,7 +38,7 @@ export function VisualizationCardGrid({
   maxCardWidth,
   getBadge,
 }: Props) {
-  const styles = useStyles2(getStyles, minColumnWidth, maxCardWidth);
+  const gridProps = stylex.props(styles.grid, styles.gridColumns(minColumnWidth ?? MIN_MULTI_COLUMN_SIZE));
   const [firstCardRef, { width }] = useMeasure<HTMLDivElement>();
 
   const itemIndexMap = useMemo(() => {
@@ -72,7 +68,7 @@ export function VisualizationCardGrid({
     return (
       <div
         key={itemKey}
-        className={styles.cardContainer}
+        {...stylex.props(styles.cardContainer, maxCardWidth !== undefined && styles.maxWidth(maxCardWidth))}
         tabIndex={0}
         role="button"
         onKeyDown={(ev) => {
@@ -97,12 +93,14 @@ export function VisualizationCardGrid({
 
   if (groups) {
     return (
-      <div className={styles.grid}>
+      <div {...gridProps}>
         {groups.map((group, groupIndex) => (
           <Fragment key={group.meta?.id || `unknown-viz-type-${groupIndex}`}>
-            <div className={styles.vizTypeHeader}>
+            <div {...stylex.props(styles.vizTypeHeader)}>
               <Text variant="body" weight="medium">
-                {group.meta?.info && <img className={styles.vizTypeLogo} src={group.meta.info.logos.small} alt="" />}
+                {group.meta?.info && (
+                  <img {...stylex.props(styles.vizTypeLogo)} src={group.meta.info.logos.small} alt="" />
+                )}
                 {group.meta?.name ||
                   t('panel.visualization-suggestions.unknown-viz-type', 'Unknown visualization type')}
               </Text>
@@ -114,36 +112,40 @@ export function VisualizationCardGrid({
     );
   }
 
-  return <div className={styles.grid}>{items?.map((item, index) => renderCard(item, index === 0))}</div>;
+  return <div {...gridProps}>{items?.map((item, index) => renderCard(item, index === 0))}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2, minColumnWidth = MIN_MULTI_COLUMN_SIZE, maxCardWidth?: number) => ({
-  grid: css({
+const bodyLineHeight = `calc(${typography['--gf-typography-body-line-height']} * 1em)`;
+
+const styles = stylex.create({
+  grid: {
     display: 'grid',
-    gridGap: theme.spacing(1),
+    gridGap: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  gridColumns: (minColumnWidth: number) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(${minColumnWidth}px, 1fr))`,
-    marginBottom: theme.spacing(1),
   }),
-  cardContainer: css({
+  cardContainer: {
     position: 'relative',
     width: '100%',
-    maxWidth: maxCardWidth,
     justifySelf: 'start',
+  },
+  maxWidth: (maxWidth: number) => ({
+    maxWidth,
   }),
-  vizTypeHeader: css({
-    gridColumn: '1 / -1',
-    marginBottom: theme.spacing(0.5),
-    marginTop: theme.spacing(2),
-    '&:first-of-type': {
-      marginTop: 0,
-    },
-  }),
-  vizTypeLogo: css({
+  vizTypeHeader: {
+    gridColumnEnd: '-1',
+    gridColumnStart: '1',
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginTop: { default: spacing['--gf-spacing-x2'], ':first-of-type': 0 },
+  },
+  vizTypeLogo: {
     filter: 'grayscale(100%)',
-    maxHeight: `${theme.typography.body.lineHeight}em`,
-    width: `${theme.typography.body.lineHeight}em`,
+    maxHeight: bodyLineHeight,
+    width: bodyLineHeight,
     alignItems: 'center',
     display: 'inline-block',
-    marginRight: theme.spacing(1),
-  }),
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });
