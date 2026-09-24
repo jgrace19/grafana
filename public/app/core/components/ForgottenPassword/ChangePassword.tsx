@@ -1,12 +1,13 @@
+import * as stylex from '@stylexjs/stylex';
 import { type SyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Tooltip, Field, Button, Alert, useStyles2, Stack } from '@grafana/ui';
+import { Tooltip, Field, Button, Alert, Stack } from '@grafana/ui';
 
-import { getStyles } from '../Login/LoginForm';
+import { loginFormStyles } from '../Login/LoginForm';
 import { PasswordField } from '../PasswordField/PasswordField';
 import {
   ValidationLabels,
@@ -26,8 +27,6 @@ interface PasswordDTO {
 }
 
 export const ChangePassword = ({ onSubmit, onSkip, showDefaultPasswordWarning }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const [displayValidationLabels, setDisplayValidationLabels] = useState(false);
   const [pristine, setPristine] = useState(true);
 
@@ -98,7 +97,7 @@ export const ChangePassword = ({ onSubmit, onSkip, showDefaultPasswordWarning }:
         />
       </Field>
       <Stack direction="column">
-        <Button type="submit" className={styles.submitButton}>
+        <Button type="submit" className={stylex.props(loginFormStyles.submitButton).className}>
           <Trans i18nKey="forgot-password.change-password.submit-button">Submit</Trans>
         </Button>
 
@@ -111,7 +110,7 @@ export const ChangePassword = ({ onSubmit, onSkip, showDefaultPasswordWarning }:
             placement="bottom"
           >
             <Button
-              className={styles.skipButton}
+              className={stylex.props(loginFormStyles.skipButton).className}
               fill="text"
               onClick={onSkip}
               type="button"

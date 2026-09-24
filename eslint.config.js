@@ -160,6 +160,12 @@ const stylexMigratedAppFiles = [
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
   // D2 dashboard-scene settings
   'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
+  // C1 core: forms, login, folder picker, preferences, theme selector
+  'public/app/core/components/{AccessControl,ForgottenPassword,Form,RolePickerDrawer,SharedPreferences,Theme,ThemeSelector}/*.{ts,tsx}',
+  'public/app/core/components/Branding/{Branding,OrangeBadge}.tsx',
+  'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
+  'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
+  'public/app/core/components/Upgrade/ProBadge.tsx',
 ];
 
 const stylexRestrictedImports = {
