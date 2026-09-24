@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useEffect } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FilterInput, useStyles2 } from '@grafana/ui';
+import { FilterInput } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { ActionRow } from 'app/features/search/page/components/ActionRow';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
@@ -20,7 +20,6 @@ import { setAllSelection } from './state/slice';
 
 const RecentlyDeletedPage = memo(() => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
 
   const [searchState, stateManager] = useRecentlyDeletedStateManager();
   const hasSelection = useHasSelection();
@@ -42,7 +41,7 @@ const RecentlyDeletedPage = memo(() => {
 
   return (
     <Page navId="dashboards/recently-deleted">
-      <Page.Contents className={styles.pageContents}>
+      <Page.Contents className={stylex.props(styles.pageContents).className}>
         <div>
           <FilterInput
             placeholder={t('recentlyDeleted.filter.placeholder', 'Search for dashboards')}
@@ -69,7 +68,7 @@ const RecentlyDeletedPage = memo(() => {
           />
         )}
 
-        <div className={styles.subView}>
+        <div {...stylex.props(styles.subView)}>
           <AutoSizer>
             {({ width, height }) => (
               <SearchView
@@ -88,19 +87,19 @@ const RecentlyDeletedPage = memo(() => {
   );
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  pageContents: css({
+const styles = stylex.create({
+  pageContents: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     height: '100%',
-  }),
+  },
 
   // AutoSizer needs an element to measure the full height available
-  subView: css({
+  subView: {
     height: '100%',
     minHeight: '300px',
-  }),
+  },
 });
 
 RecentlyDeletedPage.displayName = 'RecentlyDeletedPage';

@@ -29,6 +29,7 @@ export function TagsCell({ row: { original: data }, onTagClick }: TagsCellProps)
   return <TagList className={styles.tagList} tags={item.tags} onClick={onTagClick} />;
 }
 
+// stylex: pending TagList migration
 function getStyles(theme: GrafanaTheme2) {
   return {
     // TagList is annoying and has weird default alignment

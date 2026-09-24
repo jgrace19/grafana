@@ -1,4 +1,5 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import { useMedia } from 'react-use';
 
@@ -17,6 +18,8 @@ import {
   useStyles2,
   useTheme2,
 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { contextSrv } from 'app/core/services/context_srv';
 import {
@@ -34,7 +37,7 @@ import { type PublicDashboardListResponse } from '../../types';
 import { DeletePublicDashboardButton } from './DeletePublicDashboardButton';
 
 const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
   const theme = useTheme2();
   const isMobile = useMedia(`(max-width: ${theme.breakpoints.values.sm}px)`);
 
@@ -59,12 +62,12 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
   const translatedPauseSharingText = t('shared-dashboard-list.toggle.pause-sharing-toggle-text', 'Pause access');
   return (
-    <Card noMargin className={styles.card} href={`/d/${pd.dashboardUid}`}>
-      <Card.Heading className={styles.heading}>
+    <Card noMargin className={pendingStyles.card} href={`/d/${pd.dashboardUid}`}>
+      <Card.Heading className={pendingStyles.heading}>
         <span>{pd.title}</span>
       </Card.Heading>
-      <CardActions className={styles.actions}>
-        <div className={styles.pauseSwitch}>
+      <CardActions className={pendingStyles.actions}>
+        <div {...stylex.props(styles.pauseSwitch)}>
           <Switch
             value={!pd.isEnabled}
             label={translatedPauseSharingText}
@@ -119,7 +122,6 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 export const PublicDashboardListTable = () => {
   const [page, setPage] = useState(1);
 
-  const styles = useStyles2(getStyles);
   const { data: paginatedPublicDashboards, isLoading, isError } = useListPublicDashboardsQuery(page);
 
   return (
@@ -147,7 +149,7 @@ export const PublicDashboardListTable = () => {
               </EmptyState>
             ) : (
               <>
-                <ul className={styles.list}>
+                <ul {...stylex.props(styles.list)}>
                   {paginatedPublicDashboards.publicDashboards.map((pd: PublicDashboardListResponse) => (
                     <li key={pd.uid}>
                       <PublicDashboardCard pd={pd} />
@@ -169,14 +171,8 @@ export const PublicDashboardListTable = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  list: css({
-    listStyleType: 'none',
-    marginBottom: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
+// stylex: pending Card migration
+const getPendingStyles = (theme: GrafanaTheme2) => ({
   card: css({
     [theme.breakpoints.up('sm')]: {
       display: 'flex',
@@ -188,11 +184,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(1),
     flex: 1,
   }),
-  orphanedTitle: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
   actions: css({
     display: 'flex',
     alignItems: 'center',
@@ -203,16 +194,26 @@ const getStyles = (theme: GrafanaTheme2) => ({
       gap: theme.spacing(1),
     },
   }),
-  pauseSwitch: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-    fontSize: theme.typography.bodySmall.fontSize,
-    marginBottom: 0,
-    flex: 1,
+});
 
-    [theme.breakpoints.up('sm')]: {
-      paddingRight: theme.spacing(2),
+const styles = stylex.create({
+  list: {
+    listStyleType: 'none',
+    marginBottom: spacing['--gf-spacing-x2'],
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  pauseSwitch: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    marginBottom: 0,
+    flex: '1',
+    paddingRight: {
+      default: null,
+      [bp.smUp]: spacing['--gf-spacing-x2'],
     },
-  }),
+  },
 });

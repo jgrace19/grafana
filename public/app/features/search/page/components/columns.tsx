@@ -1,4 +1,5 @@
-import { cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { intervalToDuration } from 'date-fns';
 import Skeleton from 'react-loading-skeleton';
 
@@ -14,6 +15,7 @@ import { Trans, t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { type PanelPluginMetas } from '@grafana/runtime/internal';
 import { Checkbox, Icon, type IconName, TagList, Text, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { formatDate, formatDuration } from 'app/core/internationalization/dates';
 import { PluginIconName } from 'app/features/plugins/admin/types';
@@ -36,7 +38,6 @@ export const generateColumns = (
   selection: SelectionChecker | undefined,
   selectionToggle: SelectionToggle | undefined,
   clearSelection: () => void,
-  styles: { [key: string]: string },
   onTagSelected: (tag: string) => void,
   onDatasourceChange?: (datasource?: string) => void,
   showingEverything?: boolean,
@@ -95,7 +96,7 @@ export const generateColumns = (
         const hasUID = uid != null; // Panels don't have UID! Likely should not be shown on pages with manage options
         const { key, ...cellProps } = p.cellProps;
         return (
-          <div key={key} {...cellProps} className={styles.cell}>
+          <div key={key} {...cellProps} className={stylex.props(styles.cell).className}>
             <Checkbox
               disabled={!hasUID}
               value={selected && hasUID}
@@ -115,19 +116,20 @@ export const generateColumns = (
   width = Math.max(availableWidth * 0.2, 300);
   columns.push({
     Cell: (p) => {
-      let classNames = cx(styles.nameCellStyle);
+      let isMissingTitle = false;
       let name = access.name.values[p.row.index];
       const isDeleted = access.isDeleted?.values[p.row.index];
 
       if (!name?.length) {
         const loading = p.row.index >= response.view.dataFrame.length;
         name = loading ? 'Loading...' : 'Missing title'; // normal for panels
-        classNames += ' ' + styles.missingTitleText;
+        isMissingTitle = true;
       }
+      const classNames = stylex.props(styles.nameCellStyle, isMissingTitle && styles.missingTitleText).className;
       const { key, ...cellProps } = p.cellProps;
 
       return (
-        <div key={key} className={styles.cell} {...cellProps}>
+        <div key={key} className={stylex.props(styles.cell).className} {...cellProps}>
           {!response.isItemLoaded(p.row.index) ? (
             <Skeleton width={200} />
           ) : isDeleted || !p.userProps.href ? (
@@ -152,27 +154,18 @@ export const generateColumns = (
 
   if (showDeletedRemaining && access.permanentlyDeleteDate) {
     width = DURATION_COLUMN_WIDTH;
-    columns.push(makeDeletedRemainingColumn(response, access.permanentlyDeleteDate, width, styles));
+    columns.push(makeDeletedRemainingColumn(response, access.permanentlyDeleteDate, width));
     availableWidth -= width;
   } else {
     width = TYPE_COLUMN_WIDTH;
-    columns.push(makeTypeColumn(response, access.kind, access.panel_type, width, styles, panelPluginMetas));
+    columns.push(makeTypeColumn(response, access.kind, access.panel_type, width, panelPluginMetas));
     availableWidth -= width;
   }
 
   // Show datasources if we have any
   if (access.ds_uid && onDatasourceChange) {
     width = Math.min(availableWidth / 2.5, DATASOURCE_COLUMN_WIDTH);
-    columns.push(
-      makeDataSourceColumn(
-        access.ds_uid,
-        width,
-        styles.typeIcon,
-        styles.datasourceItem,
-        styles.invalidDatasourceItem,
-        onDatasourceChange
-      )
-    );
+    columns.push(makeDataSourceColumn(access.ds_uid, width, onDatasourceChange));
     availableWidth -= width;
   }
 
@@ -186,11 +179,11 @@ export const generateColumns = (
         const parts = (access.location?.values[p.row.index] ?? '').split('/');
         const { key, ...cellProps } = p.cellProps;
         return (
-          <div key={key} {...cellProps} className={styles.cell}>
+          <div key={key} {...cellProps} className={stylex.props(styles.cell).className}>
             {!response.isItemLoaded(p.row.index) ? (
               <Skeleton width={150} />
             ) : (
-              <div className={styles.locationContainer}>
+              <div {...stylex.props(styles.locationContainer)}>
                 {parts.map((p) => {
                   let info = meta.locationInfo[p];
                   if (!info && p === 'general') {
@@ -210,14 +203,14 @@ export const generateColumns = (
 
                     if (info.url) {
                       return (
-                        <a key={p} href={info.url} className={styles.locationItem}>
+                        <a key={p} href={info.url} {...stylex.props(styles.locationItem)}>
                           {content}
                         </a>
                       );
                     }
 
                     return (
-                      <div key={p} className={styles.locationItem}>
+                      <div key={p} {...stylex.props(styles.locationItem)}>
                         {content}
                       </div>
                     );
@@ -238,7 +231,7 @@ export const generateColumns = (
   }
 
   if (availableWidth > 0 && showTags) {
-    columns.push(makeTagsColumn(response, access.tags, availableWidth, styles, onTagSelected));
+    columns.push(makeTagsColumn(response, access.tags, availableWidth, onTagSelected));
   }
 
   if (sortField && sortFieldWith) {
@@ -249,7 +242,7 @@ export const generateColumns = (
       Cell: (p) => {
         const { key, ...cellProps } = p.cellProps;
         return (
-          <div key={key} {...cellProps} className={styles.cell}>
+          <div key={key} {...cellProps} className={stylex.props(styles.cell).className}>
             {getDisplayValue({
               sortField,
               getDisplay: disp,
@@ -283,7 +276,7 @@ export const generateColumns = (
 
     columns.push({
       Header: () => (
-        <div className={styles.sortedHeader}>
+        <div>
           <Trans i18nKey="search.generate-columns.score">Score</Trans>
         </div>
       ),
@@ -295,7 +288,7 @@ export const generateColumns = (
           <div
             key={key}
             {...cellProps}
-            className={cx(styles.cell, styles.explainItem)}
+            className={stylex.props(styles.cell, styles.explainItem).className}
             onClick={() => showExplainPopup(p.row.index)}
           >
             {vals[p.row.index]}
@@ -323,9 +316,6 @@ function hasValue(f: Field): boolean {
 function makeDataSourceColumn(
   field: Field<string[]>,
   width: number,
-  iconClass: string,
-  datasourceItemClass: string,
-  invalidDatasourceItemClass: string,
   onDatasourceChange: (datasource?: string) => void
 ): TableColumn {
   const srv = getDataSourceSrv();
@@ -340,7 +330,7 @@ function makeDataSourceColumn(
       }
       const { key, ...cellProps } = p.cellProps;
       return (
-        <div key={key} {...cellProps} className={cx(datasourceItemClass)}>
+        <div key={key} {...cellProps}>
           {dslist.map((v, i) => {
             const settings = srv.getInstanceSettings(v);
             const icon = settings?.meta?.info?.logos?.small;
@@ -350,19 +340,27 @@ function makeDataSourceColumn(
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                 <span
                   key={i}
+                  {...stylex.props(styles.datasourceItem)}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     onDatasourceChange(settings.uid);
                   }}
                 >
-                  <img src={icon} alt="" width={14} height={14} title={settings.type} className={iconClass} />
+                  <img
+                    src={icon}
+                    alt=""
+                    width={14}
+                    height={14}
+                    title={settings.type}
+                    {...stylex.props(styles.typeIcon)}
+                  />
                   {settings.name}
                 </span>
               );
             }
             return (
-              <span className={invalidDatasourceItemClass} key={i}>
+              <span {...stylex.props(styles.invalidDatasourceItem)} key={i}>
                 {v}
               </span>
             );
@@ -377,8 +375,7 @@ function makeDataSourceColumn(
 function makeDeletedRemainingColumn(
   response: QueryResponse,
   deletedField: Field<Date | undefined>,
-  width: number,
-  styles: Record<string, string>
+  width: number
 ): TableColumn {
   return {
     id: 'column-delete-age',
@@ -392,7 +389,7 @@ function makeDeletedRemainingColumn(
 
       if (!deletedDate || !response.isItemLoaded(p.row.index)) {
         return (
-          <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+          <div key={key} {...cellProps} className={stylex.props(styles.cell, styles.typeCell).className}>
             <Skeleton width={100} />
           </div>
         );
@@ -405,7 +402,7 @@ function makeDeletedRemainingColumn(
         : formatDuration(duration, { style: 'long' });
 
       return (
-        <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+        <div key={key} {...cellProps} className={stylex.props(styles.cell, styles.typeCell).className}>
           <Tooltip content={formatDate(deletedDate, { dateStyle: 'medium', timeStyle: 'short' })}>
             <span>{formatted}</span>
           </Tooltip>
@@ -420,7 +417,6 @@ function makeTypeColumn(
   kindField: Field<string>,
   typeField: Field<string>,
   width: number,
-  styles: Record<string, string>,
   panelPluginMetas: PanelPluginMetas
 ): TableColumn {
   return {
@@ -471,12 +467,12 @@ function makeTypeColumn(
       }
       const { key, ...cellProps } = p.cellProps;
       return (
-        <div key={key} {...cellProps} className={cx(styles.cell, styles.typeCell)}>
+        <div key={key} {...cellProps} className={stylex.props(styles.cell, styles.typeCell).className}>
           {!response.isItemLoaded(p.row.index) ? (
             <Skeleton width={100} />
           ) : (
             <>
-              <Icon name={icon} size="sm" title={txt} className={styles.typeIcon} />
+              <Icon name={icon} size="sm" title={txt} xstyle={styles.typeIcon} />
               {txt}
             </>
           )}
@@ -491,7 +487,6 @@ function makeTagsColumn(
   response: QueryResponse,
   field: Field<string[]>,
   width: number,
-  styles: Record<string, string>,
   onTagSelected: (tag: string) => void
 ): TableColumn {
   return {
@@ -499,11 +494,11 @@ function makeTagsColumn(
       const tags = field.values[p.row.index];
       const { key, ...cellProps } = p.cellProps;
       return (
-        <div key={key} {...cellProps} className={styles.cell}>
+        <div key={key} {...cellProps} className={stylex.props(styles.cell).className}>
           {!response.isItemLoaded(p.row.index) ? (
             <TagList.Skeleton />
           ) : (
-            <>{tags ? <TagList className={styles.tagList} tags={tags} onClick={onTagSelected} /> : null}</>
+            <>{tags ? <TagList className={pendingTagListClass} tags={tags} onClick={onTagSelected} /> : null}</>
           )}
         </div>
       );
@@ -551,3 +546,60 @@ function calcCoarseDuration(start: Date, end: Date) {
 
   return { minutes };
 }
+
+// stylex: pending TagList migration
+const pendingTagListClass = css({
+  justifyContent: 'flex-start',
+  flexWrap: 'nowrap',
+});
+
+const styles = stylex.create({
+  cell: {
+    padding: spacing['--gf-spacing-x1'],
+    overflow: 'hidden', // Required so flex children can do text-overflow: ellipsis
+    display: 'flex',
+    alignItems: 'center',
+  },
+  nameCellStyle: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+    whiteSpace: 'nowrap',
+  },
+  typeCell: {
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  typeIcon: {
+    fill: colors['--gf-colors-text-secondary'],
+  },
+  datasourceItem: {
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+  },
+  missingTitleText: {
+    color: colors['--gf-colors-text-disabled'],
+    fontStyle: 'italic',
+  },
+  // Hovering any data source item shows the link color, invalid ones included.
+  invalidDatasourceItem: {
+    color: { default: colors['--gf-colors-error-main'], ':hover': colors['--gf-colors-text-link'] },
+    textDecoration: 'line-through',
+  },
+  locationContainer: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gap: spacing['--gf-spacing-x1'],
+    // No overflow:hidden here — it would clip the focus ring (box-shadow) from child <a> elements.
+    // The parent cell already clips the container width. Each locationItem handles its own truncation.
+  },
+  locationItem: {
+    alignItems: 'center',
+    color: colors['--gf-colors-text-secondary'],
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gap: '4px',
+    overflow: 'hidden',
+  },
+  explainItem: {
+    cursor: 'pointer',
+  },
+});

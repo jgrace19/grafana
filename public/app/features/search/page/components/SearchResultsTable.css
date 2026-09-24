@@ -1,0 +1,10 @@
+/*
+ * Truncates the cells of a search result row unless it's hovered. The cells are rendered by TableCell, so StyleX
+ * can't target them. Deliberately not in a cascade layer: like the Emotion rule it replaces, it must win over the
+ * cells' own styles.
+ */
+.gf-search-results-row:not(:hover) div[role='cell'] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
