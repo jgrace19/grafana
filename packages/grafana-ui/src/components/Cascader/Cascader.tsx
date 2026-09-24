@@ -1,19 +1,20 @@
-import { css } from '@emotion/css';
 import RCCascader from '@rc-component/cascader';
-import { memo, useCallback, useMemo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, memo, useCallback, useMemo, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Icon } from '../Icon/Icon';
+import { getIconPath } from '../Icon/utils';
 import { IconButton } from '../IconButton/IconButton';
 import { Input } from '../Input/Input';
 import { Stack } from '../Layout/Stack/Stack';
 import { Select } from '../Select/Select';
 
 import { onChangeCascader } from './optionMappings';
-import { getCascaderStyles } from './styles';
+
+import './Cascader.global.css';
 
 export interface CascaderProps {
   /** The separator between levels in the search */
@@ -65,12 +66,6 @@ export interface CascaderOption {
   /**  Children will be shown in a submenu. Use 'items' instead, as 'children' exist to ensure backwards compatibility.*/
   children?: CascaderOption[];
 }
-
-const disableDivFocus = css({
-  '&:focus': {
-    outline: 'none',
-  },
-});
 
 const DEFAULT_SEPARATOR = ' / ';
 
@@ -164,7 +159,11 @@ export const Cascader = memo(
     const [rcValue, setRcValue] = useState<SelectableValue<string[]>>(initialRCValue);
     const [activeLabel, setActiveLabel] = useState(initialActiveLabel);
     const [inputValue, setInputValue] = useState('');
-    const styles = useStyles2(getCascaderStyles);
+    const popupStyle = useMemo(
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      () => ({ '--gf-cascader-expand-icon': `url(${getIconPath('angle-right')})` }) as CSSProperties,
+      []
+    );
 
     // For rc-cascader
     const handleChange = (value: string[], selectedOptions: CascaderOption[]) => {
@@ -265,9 +264,10 @@ export const Cascader = memo(
             expandIcon={null}
             open={alwaysOpen}
             disabled={disabled}
-            popupClassName={styles.dropdown}
+            popupClassName="gf-cascader-dropdown"
+            popupStyle={popupStyle}
           >
-            <div className={disableDivFocus}>
+            <div {...stylex.props(styles.disableDivFocus)}>
               <Input
                 autoFocus={autoFocus}
                 width={width}
@@ -310,3 +310,9 @@ export const Cascader = memo(
 );
 
 Cascader.displayName = 'Cascader';
+
+const styles = stylex.create({
+  disableDivFocus: {
+    outlineStyle: { default: null, ':focus': 'none' },
+  },
+});

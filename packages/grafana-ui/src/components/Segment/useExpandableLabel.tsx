@@ -1,8 +1,8 @@
+import * as stylex from '@stylexjs/stylex';
 import { useState, useRef, type ReactElement } from 'react';
 import * as React from 'react';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 interface LabelProps {
   Component: ReactElement;
@@ -15,7 +15,6 @@ export const useExpandableLabel = (
   onExpandedChange?: (expanded: boolean) => void
 ): [React.ComponentType<LabelProps>, number, boolean, (expanded: boolean) => void] => {
   const ref = useRef<HTMLButtonElement>(null);
-  const buttonStyles = useStyles2(clearButtonStyles);
   const [expanded, setExpanded] = useState<boolean>(initialExpanded);
   const [width, setWidth] = useState(0);
 
@@ -29,7 +28,7 @@ export const useExpandableLabel = (
   const Label = ({ Component, onClick, disabled }: LabelProps) => (
     <button
       type="button"
-      className={buttonStyles}
+      {...stylex.props(styles.clearButton)}
       ref={ref}
       disabled={disabled}
       onClick={() => {
@@ -46,3 +45,13 @@ export const useExpandableLabel = (
 
   return [Label, width, expanded, setExpandedWrapper];
 };
+
+const styles = stylex.create({
+  // clearButtonStyles
+  clearButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+  },
+});
