@@ -1,7 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties, PureComponent } from 'react';
+import { PureComponent } from 'react';
 import * as React from 'react';
-import tinycolor from 'tinycolor2';
 
 import { type LogRowModel, dateTimeFormat, LogsSortOrder } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -12,12 +11,11 @@ import { motion } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LogMessageAnsi } from '../../logs/components/LogMessageAnsi';
-import { getLogRowStyles } from '../../logs/components/getLogRowStyles';
+import { getLogRowStyles, LOGS_ROW_CLASS, logRowStyles } from '../../logs/components/getLogRowStyles';
+import { logRowVars } from '../../logs/components/logRows.stylex';
 import { sortLogRows } from '../../logs/utils';
 import { ElapsedTime } from '../ElapsedTime';
 import { filterLogRowsByIndex } from '../state/utils';
-
-import { liveLogsVars } from './LiveLogs.stylex';
 
 export interface Props extends Themeable2 {
   logRows?: LogRowModel[];
@@ -90,24 +88,31 @@ class LiveLogs extends PureComponent<Props, State> {
 
   render() {
     const { theme, timeZone, onPause, onResume, onClear, isPaused } = this.props;
-    const { logsRow, logsRowLocalTime, logsRowMessage } = getLogRowStyles(theme);
-    const freshRowColor: CSSProperties & Record<string, string> = {
-      '--gf-live-logs-fresh-row': tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-    };
+    // Sets the row hover and highlight colours that logRowStyles and the fade read.
+    const { vars: rowVars } = getLogRowStyles(theme);
 
     return (
       <div>
         <table {...stylex.props(styles.fullWidth)}>
           <tbody
             onScroll={isPaused ? undefined : this.onScroll}
-            {...mergeStylexProps(stylex.props(styles.logsRowsLive), { style: freshRowColor })}
+            {...stylex.props(styles.logsRowsLive, rowVars)}
             ref={this.scrollContainerRef}
           >
             {this.rowsToRender().map((row: LogRowModel) => {
               return (
-                <tr {...mergeStylexProps(stylex.props(styles.logsRowFade), { className: logsRow })} key={row.uid}>
-                  <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
-                  <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
+                <tr
+                  {...mergeStylexProps(stylex.props(logRowStyles.logsRow, styles.logsRowFade), {
+                    className: LOGS_ROW_CLASS,
+                  })}
+                  key={row.uid}
+                >
+                  <td {...stylex.props(logRowStyles.logsRowLocalTime)}>
+                    {dateTimeFormat(row.timeEpochMs, { timeZone })}
+                  </td>
+                  <td {...stylex.props(logRowStyles.logsRowMessage)}>
+                    {row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}
+                  </td>
                 </tr>
               );
             })}
@@ -173,7 +178,7 @@ export function LiveLogsWithTheme(props: Omit<Props, 'theme'>) {
 
 const fade = stylex.keyframes({
   from: {
-    backgroundColor: liveLogsVars['--gf-live-logs-fresh-row'],
+    backgroundColor: logRowVars['--gf-logs-row-highlight-background'],
   },
   to: {
     backgroundColor: 'transparent',
@@ -193,7 +198,11 @@ const styles = stylex.create({
   },
   logsRowFade: {
     color: colors['--gf-colors-text-primary'],
-    backgroundColor: liveLogsVars['--gf-live-logs-fresh-row'],
+    // Replaces logsRow's backgroundColor, so it repeats its hover (the row hover won over the fade before).
+    backgroundColor: {
+      default: logRowVars['--gf-logs-row-highlight-background'],
+      ':hover': logRowVars['--gf-logs-row-hover-background'],
+    },
     animationName: { default: null, [motion.noPreferenceOrReduce]: fade },
     animationDuration: { default: null, [motion.noPreferenceOrReduce]: '1s' },
     animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
