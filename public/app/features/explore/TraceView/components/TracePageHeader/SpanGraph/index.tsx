@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import memoizeOne from 'memoize-one';
 import { memo } from 'react';
 
@@ -27,14 +27,6 @@ import { getServiceColorKey } from '../../utils/service-name';
 import CanvasSpanGraph from './CanvasSpanGraph';
 import TickLabels from './TickLabels';
 import ViewingLayer from './ViewingLayer';
-
-const getStyles = () => {
-  return {
-    canvasContainer: css({
-      position: 'relative',
-    }),
-  };
-};
 
 const DEFAULT_HEIGHT = 60;
 export const TIMELINE_TICK_INTERVAL = 4;
@@ -69,8 +61,6 @@ const memoizedGetitems = memoizeOne(getItems);
 
 const SpanGraph = memo(
   ({ height = DEFAULT_HEIGHT, trace, viewRange, updateNextViewRangeTime, updateViewRangeTime }: SpanGraphProps) => {
-    const styles = getStyles();
-
     if (!trace) {
       return <div />;
     }
@@ -79,7 +69,7 @@ const SpanGraph = memo(
     return (
       <div>
         <TickLabels numTicks={TIMELINE_TICK_INTERVAL} duration={trace.duration} />
-        <div className={styles.canvasContainer}>
+        <div {...stylex.props(styles.canvasContainer)}>
           <CanvasSpanGraph valueWidth={trace.duration} items={items} />
           <ViewingLayer
             viewRange={viewRange}
@@ -97,3 +87,9 @@ const SpanGraph = memo(
 SpanGraph.displayName = 'SpanGraph';
 
 export default SpanGraph;
+
+const styles = stylex.create({
+  canvasContainer: {
+    position: 'relative',
+  },
+});

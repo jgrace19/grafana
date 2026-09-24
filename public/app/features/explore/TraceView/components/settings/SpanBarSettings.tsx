@@ -1,15 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import {
   type DataSourceJsonData,
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   toOption,
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ConfigDescriptionLink, ConfigSubSection } from '@grafana/plugin-ui';
-import { InlineField, InlineFieldRow, Input, Select, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Input, Select } from '@grafana/ui';
 
 export interface SpanBarOptions {
   type?: string;
@@ -27,13 +26,11 @@ export const TAG = 'Tag';
 interface Props extends DataSourcePluginOptionsEditorProps<SpanBarOptionsData> {}
 
 export default function SpanBarSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
-
   const selectOptions = [NONE, DURATION, TAG].map(toOption);
 
   return (
-    <div className={css({ width: '100%' })}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(styles.container)}>
+      <InlineFieldRow className={stylex.props(styles.row).className}>
         <InlineField
           label={t('explore.span-bar-settings.label-label', 'Label')}
           labelWidth={26}
@@ -58,7 +55,7 @@ export default function SpanBarSettings({ options, onOptionsChange }: Props) {
         </InlineField>
       </InlineFieldRow>
       {options.jsonData.spanBar?.type === TAG && (
-        <InlineFieldRow className={styles.row}>
+        <InlineFieldRow className={stylex.props(styles.row).className}>
           <InlineField
             label={t('explore.span-bar-settings.label-tag-key', 'Tag key')}
             labelWidth={26}
@@ -109,14 +106,11 @@ export const SpanBarSection = ({ options, onOptionsChange }: DataSourcePluginOpt
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    label: 'infoText',
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  row: css({
-    label: 'row',
+const styles = stylex.create({
+  container: {
+    width: '100%',
+  },
+  row: {
     alignItems: 'baseline',
-  }),
+  },
 });

@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 
-import { Icon, useStyles2 } from '@grafana/ui';
-
-export const getStyles = () => {
-  return {
-    NewWindowIconLarge: css({
-      label: 'NewWindowIconLarge',
-      fontSize: '1.5em',
-    }),
-  };
-};
+import { Icon } from '@grafana/ui';
 
 type Props = {
   isLarge?: boolean;
@@ -32,7 +22,11 @@ type Props = {
 };
 
 export default function NewWindowIcon({ isLarge = false, className }: Props) {
-  const styles = useStyles2(getStyles);
-  const cls = cx({ [styles.NewWindowIconLarge]: isLarge }, className);
-  return <Icon className={cls} name={'anchor'} />;
+  return <Icon className={className} xstyle={isLarge && styles.NewWindowIconLarge} name={'anchor'} />;
 }
+
+const styles = stylex.create({
+  NewWindowIconLarge: {
+    fontSize: '1.5em',
+  },
+});
