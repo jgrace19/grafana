@@ -154,7 +154,7 @@ describe('PluginDetailsPanel', () => {
     render(<PluginDetailsPanel plugin={mockPlugin} pluginExtentionsInfo={mockInfo} width="300px" />);
     const panel = screen.getByTestId('plugin-details-panel');
     // Stack's width is a StyleX dynamic style: the value is set as an inline custom property.
-    expect(panel.getAttribute('style')).toContain('300px');
+    expect(panel).toHaveAttribute('style', expect.stringContaining('300px'));
   });
 
   it('should render license, documentation, repository, raise issue, sponsorship links', () => {

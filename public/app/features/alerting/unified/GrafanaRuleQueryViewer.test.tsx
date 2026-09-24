@@ -12,9 +12,14 @@ describe('GrafanaRuleQueryViewer', () => {
     const expressions = [getExpression('F'), getExpression('G'), getExpression('H'), getExpression('I')];
     render(<GrafanaRuleQueryViewer queries={[...queries, ...expressions]} condition="A" rule={rule} />);
 
-    // Stack's wrap is a StyleX dynamic style: the value is set as an inline custom property.
-    await waitFor(() => expect(screen.getByTestId('queries-container').getAttribute('style')).toContain('wrap'));
-    expect(screen.getByTestId('expressions-container').getAttribute('style')).toContain('wrap');
+    // Stack's wrap is a StyleX dynamic style: jsdom has no StyleX CSS, only the inline custom property
+    // carrying the value, whose name is a hash, so toHaveStyle can't be used.
+    await waitFor(() =>
+      // eslint-disable-next-line jest-dom/prefer-to-have-style
+      expect(screen.getByTestId('queries-container')).toHaveAttribute('style', expect.stringContaining('wrap'))
+    );
+    // eslint-disable-next-line jest-dom/prefer-to-have-style
+    expect(screen.getByTestId('expressions-container')).toHaveAttribute('style', expect.stringContaining('wrap'));
   });
 
   it('should catch cyclical references', async () => {
