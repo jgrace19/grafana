@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Button, type ButtonProps } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { InlineToast } from '../InlineToast/InlineToast';
+
+import './ClipboardButton.css';
 
 export type Props = ButtonProps & {
   /** A function that returns text to be copied */
@@ -35,7 +36,6 @@ export function ClipboardButton({
   variant,
   ...buttonProps
 }: Props) {
-  const styles = useStyles2(getStyles);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
 
   useEffect(() => {
@@ -79,13 +79,17 @@ export function ClipboardButton({
         icon={icon}
         variant={showCopySuccess ? 'success' : variant}
         {...buttonProps}
-        className={cx(styles.button, showCopySuccess && styles.successButton, buttonProps.className)}
+        className={clsx(
+          'gf-clipboard-button',
+          showCopySuccess && 'gf-clipboard-button--success',
+          buttonProps.className
+        )}
         ref={buttonRef}
       >
         {children}
 
         {showCopySuccess && (
-          <div className={styles.successOverlay}>
+          <div {...stylex.props(styles.successOverlay)}>
             <Icon name="check" />
           </div>
         )}
@@ -114,23 +118,13 @@ const copyText = async (text: string, buttonRef: React.MutableRefObject<HTMLButt
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      position: 'relative',
-    }),
-    successButton: css({
-      '> *': css({
-        visibility: 'hidden',
-      }),
-    }),
-    successOverlay: css({
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      right: 0,
-      left: 0,
-      visibility: 'visible', // re-visible the overlay
-    }),
-  };
-};
+const styles = stylex.create({
+  successOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    visibility: 'visible', // re-visible the overlay
+  },
+});

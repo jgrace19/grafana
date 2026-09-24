@@ -1,0 +1,7 @@
+/*
+ * Removes the IconButton's own right margin. Deliberately not in a cascade layer: like the Emotion class it
+ * replaces, it must win over the IconButton's styles.
+ */
+.gf-collapse-button {
+  margin-right: 0;
+}

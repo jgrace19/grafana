@@ -1,5 +1,5 @@
-import { css, cx } from '@emotion/css';
 import { type Args, type Decorator } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 interface Props {
@@ -9,37 +9,10 @@ interface Props {
 }
 
 const StoryContainer = ({ width, height, showBoundaries, children }: React.PropsWithChildren<Props>) => {
-  const checkColor = '#f0f0f0';
   const finalWidth = width ? `${width}px` : '100%';
   const finalHeight = height !== 0 ? `${height}px` : 'auto';
-  const bgStyles =
-    showBoundaries &&
-    css({
-      backgroundColor: 'white',
-      backgroundSize: '30px 30px',
-      backgroundPosition: '0 0, 15px 15px',
-      backgroundImage: `linear-gradient(
-          45deg,
-          ${checkColor} 25%,
-          transparent 25%,
-          transparent 75%,
-          ${checkColor} 75%,
-          ${checkColor}
-        ),
-        linear-gradient(45deg, ${checkColor} 25%, transparent 25%, transparent 75%, ${checkColor} 75%, ${checkColor})`,
-    });
   return (
-    <div
-      className={cx(
-        css({
-          width: finalWidth,
-          height: finalHeight,
-        }),
-        bgStyles
-      )}
-    >
-      {children}
-    </div>
+    <div {...stylex.props(styles.size(finalWidth, finalHeight), showBoundaries && styles.boundaries)}>{children}</div>
   );
 };
 
@@ -50,3 +23,18 @@ export const withStoryContainer: Decorator<Args> = (story, { args }) => {
     </StoryContainer>
   );
 };
+
+const checkColor = '#f0f0f0';
+
+const styles = stylex.create({
+  size: (width: string, height: string) => ({
+    width,
+    height,
+  }),
+  boundaries: {
+    backgroundColor: 'white',
+    backgroundSize: '30px 30px',
+    backgroundPosition: '0 0, 15px 15px',
+    backgroundImage: `linear-gradient(45deg, ${checkColor} 25%, transparent 25%, transparent 75%, ${checkColor} 75%, ${checkColor}), linear-gradient(45deg, ${checkColor} 25%, transparent 25%, transparent 75%, ${checkColor} 75%, ${checkColor})`,
+  },
+});

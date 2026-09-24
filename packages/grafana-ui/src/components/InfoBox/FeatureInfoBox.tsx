@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, forwardRef } from 'react';
 
-import { type FeatureState, type GrafanaTheme2 } from '@grafana/data';
+import { type FeatureState } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { FeatureBadge } from '../FeatureBadge/FeatureBadge';
 
 import { InfoBox, type InfoBoxProps } from './InfoBox';
@@ -16,11 +16,9 @@ export interface FeatureInfoBoxProps extends Omit<InfoBoxProps, 'title' | 'urlTi
 /** @deprecated use Alert with severity info */
 export const FeatureInfoBox = memo(
   forwardRef<HTMLDivElement, FeatureInfoBoxProps>(({ title, featureState, ...otherProps }, ref) => {
-    const styles = useStyles2(getFeatureInfoBoxStyles);
-
     const titleEl = featureState ? (
       <>
-        <div className={styles.badge}>
+        <div {...stylex.props(styles.badge)}>
           <FeatureBadge featureState={featureState} />
         </div>
         <h3>{title}</h3>
@@ -34,10 +32,8 @@ export const FeatureInfoBox = memo(
 
 FeatureInfoBox.displayName = 'FeatureInfoBox';
 
-const getFeatureInfoBoxStyles = (theme: GrafanaTheme2) => {
-  return {
-    badge: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  badge: {
+    marginBottom: spacing['--gf-spacing-grid-size'],
+  },
+});

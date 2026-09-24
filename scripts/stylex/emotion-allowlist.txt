@@ -89,3 +89,4 @@ public/app/features/datasources/components/BuildDashboardButton.tsx # pending Me
 public/app/features/datasources/components/DataSourceTypeCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, description, meta, actions
 public/app/features/datasources/components/picker/DataSourceCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card padding, background, heading, figure, selected state
 public/app/features/datasources/components/picker/DataSourceModal.tsx # pending Modal migration (U4): modal width override must beat Modal's Emotion width
+packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures

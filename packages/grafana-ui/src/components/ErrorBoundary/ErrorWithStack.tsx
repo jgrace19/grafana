@@ -1,6 +1,4 @@
-import { css } from '@emotion/css';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import * as stylex from '@stylexjs/stylex';
 
 import { type ErrorBoundaryApi } from './ErrorBoundary';
 
@@ -9,10 +7,8 @@ export interface Props extends ErrorBoundaryApi {
 }
 
 export const ErrorWithStack = ({ error, errorInfo, title }: Props) => {
-  const style = useStyles2(getStyles);
-
   return (
-    <div className={style}>
+    <div {...stylex.props(styles.container)}>
       <h2>{title}</h2>
       <details style={{ whiteSpace: 'pre-wrap' }}>
         {error && error.toString()}
@@ -25,9 +21,12 @@ export const ErrorWithStack = ({ error, errorInfo, title }: Props) => {
 
 ErrorWithStack.displayName = 'ErrorWithStack';
 
-const getStyles = () => {
-  return css({
+const styles = stylex.create({
+  container: {
     width: '500px',
-    margin: '64px auto',
-  });
-};
+    marginTop: '64px',
+    marginRight: 'auto',
+    marginBottom: '64px',
+    marginLeft: 'auto',
+  },
+});

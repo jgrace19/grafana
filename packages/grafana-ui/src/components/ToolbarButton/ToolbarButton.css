@@ -1,0 +1,9 @@
+/*
+ * Below the md breakpoint toolbar buttons shrink to their content, even when a consumer sets a width. StyleX
+ * can't emit `!important`, and like the Emotion rule it replaces this stays out of the cascade layers.
+ */
+@media (max-width: 768.95px) {
+  .gf-toolbar-button {
+    width: auto !important;
+  }
+}

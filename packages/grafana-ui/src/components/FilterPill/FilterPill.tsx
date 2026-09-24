@@ -1,10 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
 
@@ -21,49 +18,47 @@ export interface FilterPillProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-filterpill--docs
  */
 export const FilterPill = ({ label, selected, onClick, icon = 'check' }: FilterPillProps) => {
-  const styles = useStyles2(getStyles);
-  const clearButton = useStyles2(clearButtonStyles);
   return (
-    <button type="button" className={cx(clearButton, styles.wrapper, selected && styles.selected)} onClick={onClick}>
+    <button type="button" {...stylex.props(styles.wrapper, selected && styles.selected)} onClick={onClick}>
       <span>{label}</span>
-      {selected && <Icon name={icon} className={styles.icon} data-testid="filter-pill-icon" />}
+      {selected && <Icon name={icon} xstyle={styles.icon} data-testid="filter-pill-icon" />}
     </button>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.pill,
-      padding: theme.spacing(0, 2),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      alignItems: 'center',
-      height: '32px',
-      position: 'relative',
-      border: `1px solid ${theme.colors.background.secondary}`,
-      whiteSpace: 'nowrap',
-
-      '&:hover': {
-        background: theme.colors.action.hover,
-        color: theme.colors.text.primary,
-      },
-    }),
-    selected: css({
-      color: theme.colors.text.primary,
-      background: theme.colors.action.selected,
-      border: `1px solid ${theme.colors.action.selectedBorder}`,
-
-      '&:hover': {
-        background: theme.colors.action.focus,
-      },
-    }),
-    icon: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    backgroundColor: {
+      default: colors['--gf-colors-background-secondary'],
+      ':hover': colors['--gf-colors-action-hover'],
+    },
+    borderRadius: shape['--gf-shape-radius-pill'],
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    display: 'flex',
+    alignItems: 'center',
+    height: '32px',
+    position: 'relative',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-background-secondary'],
+    whiteSpace: 'nowrap',
+  },
+  selected: {
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: {
+      default: colors['--gf-colors-action-selected'],
+      ':hover': colors['--gf-colors-action-focus'],
+    },
+    borderColor: colors['--gf-colors-action-selected-border'],
+  },
+  icon: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+});

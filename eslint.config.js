@@ -119,6 +119,10 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
   // U7 viz (part 2)
   'packages/grafana-ui/src/components/{BarGauge,BigValue,ColorPicker,DataLinks,Slider}/**/*.{ts,tsx}',
+  // U8 long tail
+  'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
+  'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
   // U2 inputs
   'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
 ];
