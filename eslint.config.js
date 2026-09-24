@@ -107,23 +107,8 @@ const stylexMigratedUiFiles = [
 
 // public/app files migrated to StyleX. Same bans as stylexMigratedUiFiles, without the library-package restrictions.
 const stylexMigratedAppFiles = [
-  // P2 datasource plugins
-  'public/app/plugins/datasource/cloudwatch/components/CheatSheet/LogsCheatSheet.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/ConfigEditor/{ConfigEditor,XrayLinkConfig}.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/QueryEditor/LogsQueryEditor/LogsQueryField.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/QueryEditor/MetricsQueryEditor/SQLBuilderEditor/SQLFilter.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/shared/Dimensions/FilterItem.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/shared/LogGroups/{LegacyLogGroupNamesSelection,SelectedLogGroups}.tsx',
-  'public/app/plugins/datasource/cloudwatch/components/VariableQueryEditor/{MultiFilterItem,VariableQueryEditor}.tsx',
-  'public/app/plugins/datasource/dashboard/DashboardQueryEditor.tsx',
-  'public/app/plugins/datasource/grafana/components/QueryEditor.tsx',
-  'public/app/plugins/datasource/influxdb/components/editor/config-v2/{AdvancedHttpSettings,AuthSettings,ConfigEditor,LeftSideBar,UrlAndAuthenticationSection}.tsx',
-  'public/app/plugins/datasource/influxdb/components/editor/config-v2/constants.ts',
-  'public/app/plugins/datasource/influxdb/components/editor/query/QueryEditor.tsx',
-  'public/app/plugins/datasource/influxdb/components/editor/query/fsql/FSQLEditor.tsx',
-  'public/app/plugins/datasource/influxdb/components/editor/query/influxql/InfluxCheatSheet.tsx',
-  'public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/InputSection.tsx',
-  'public/app/plugins/datasource/prometheus/configuration/{AzureAuthSettings,AzureCredentialsForm,ConfigEditorPackage}.tsx',
+  // P2 core-bundled datasource plugins
+  'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

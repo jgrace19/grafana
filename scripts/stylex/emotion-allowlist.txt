@@ -22,18 +22,3 @@ public/app/plugins/datasource/opentsdb/** # decoupled plugin workspace: no plugi
 public/app/plugins/datasource/parca/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin CSS delivery story yet
 public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet
-
-# P2 datasource plugins: className overrides of properties the unmigrated child also sets stay Emotion until that
-# child migrates (conventions §3.9, marked `stylex: pending` in each file). Remove each entry once its child is StyleX.
-public/app/plugins/datasource/cloudwatch/components/QueryEditor/MetricsQueryEditor/DynamicLabelsField.tsx # pending Input (getInputStyles, U2) and CodeEditor (U8): overrides CodeEditor's container border
-public/app/plugins/datasource/cloudwatch/components/shared/LogGroups/LogGroupsSelector.tsx # pending Modal (U4) and Label (U2): overrides Modal width, Label color/maxWidth
-public/app/plugins/datasource/cloudwatch/components/styles.ts # pending Field (U2): EditorField forwards removeMarginBottom to Field, which sets marginBottom
-public/app/plugins/datasource/grafana/components/AnnotationQueryEditor.tsx # pending FieldSet (U2): overrides FieldSet marginBottom
-public/app/plugins/datasource/grafana/components/TimeRegionEditor.tsx # pending FieldSet (U2): overrides FieldSet marginBottom
-public/app/plugins/datasource/influxdb/components/editor/config/InfluxInfluxQLConfig.tsx # pending Field (U2): overrides horizontal Field justifyContent/marginBottom
-public/app/plugins/datasource/influxdb/components/editor/config/InfluxSQLConfig.tsx # pending Field (U2): overrides horizontal Field justifyContent/marginBottom
-public/app/plugins/datasource/influxdb/components/editor/query/flux/FluxQueryEditor.tsx # pending CodeEditor (U8): overrides container overflow; withTheme2 only feeds that override's isDark background
-public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/PartListSection.tsx # pending InlineLabel (U2): Seg buttonClassName overrides InlineLabel padding/margin
-public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/Seg.tsx # pending InlineLabel (U2): overrides InlineLabel width; buttonClassName is an Emotion class
-public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/styles.ts # pending Select (U3): paddingRightClass overrides the Select container padding
-public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/VisualInfluxQLEditor.tsx # pending InlineLabel (U2): overrides InlineLabel color
