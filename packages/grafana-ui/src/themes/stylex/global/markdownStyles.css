@@ -1,0 +1,4 @@
+/* GENERATED — yarn stylex:emit-global-css */
+@layer grafana-global {
+.markdown-html{img{max-width:var(--grafana-shape-radius-circle);}ul, ol{padding-left:var(--grafana-spacing-xvar(--grafana-colors-contrast-threshold));margin-bottom:var(--grafana-spacing-x2);}table{margin-bottom:var(--grafana-spacing-x2);td, th{padding:var(--grafana-spacing-x0-5) var(--grafana-spacing-x1);}th{font-weight:var(--grafana-typography-h6-font-weight);background:var(--grafana-colors-background-secondary);}}table, th, td{border:1px solid var(--grafana-colors-scrollbar);border-collapse:collapse;}a{color:var(--grafana-colors-text-link);text-decoration:none;&:hover{color:var(--grafana-colors-text-link);text-decoration:underline;}}p:last-child{margin-bottom:0;}table:last-child, ul:last-child, ol:last-child{margin-bottom:0;}}
+}

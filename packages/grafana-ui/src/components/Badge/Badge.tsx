@@ -1,17 +1,20 @@
-import { css, cx } from '@emotion/css';
-import { type HTMLAttributes } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, type HTMLAttributes } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import tinycolor from 'tinycolor2';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
 import { type IconName } from '../../types/icon';
 import { type SkeletonComponent, attachSkeleton } from '../../utils/skeleton';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { type PopoverContent } from '../Tooltip/types';
+
+import { badgeStyles } from './Badge.stylex';
 
 export type BadgeColor = 'blue' | 'red' | 'green' | 'orange' | 'purple' | 'darkgrey' | 'brand';
 
@@ -22,79 +25,42 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
   tooltip?: PopoverContent;
 }
 
-const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, className, ...otherProps }) => {
-  const styles = useStyles2(getStyles, color);
+function badgeColorVars(theme: GrafanaTheme2, color: BadgeColor): CSSProperties {
+  if (color === 'brand') return {};
+  const sourceColor = theme.visualization.getColorByName(color);
+  if (theme.isDark) {
+    return {
+      '--grafana-badge-bg': tinycolor(sourceColor).setAlpha(0.15).toString(),
+      '--grafana-badge-border': tinycolor(sourceColor).setAlpha(0.25).toString(),
+      '--grafana-badge-text': tinycolor(sourceColor).lighten(15).toString(),
+    } as CSSProperties;
+  }
+  return {
+    '--grafana-badge-bg': tinycolor(sourceColor).setAlpha(0.15).toString(),
+    '--grafana-badge-border': tinycolor(sourceColor).setAlpha(0.25).toString(),
+    '--grafana-badge-text': tinycolor(sourceColor).darken(25).toString(),
+  } as CSSProperties;
+}
+
+const BadgeComponent = React.memo<BadgeProps>(({ icon, color, text, tooltip, className, style, ...otherProps }) => {
+  const theme = useTheme2();
+  const styleProps = mergeStylexClassName(
+    stylex.props(badgeStyles.wrapper, color === 'brand' && badgeStyles.brand),
+    className
+  );
   const badge = (
-    <div className={cx(styles.wrapper, className)} {...otherProps}>
+    <div {...styleProps} style={{ ...badgeColorVars(theme, color), ...style }} {...otherProps}>
       {icon && <Icon name={icon} size="sm" />}
       {text}
     </div>
   );
-
-  return tooltip ? (
-    <Tooltip content={tooltip} placement="auto">
-      {badge}
-    </Tooltip>
-  ) : (
-    badge
-  );
+  return tooltip ? <Tooltip content={tooltip} placement="auto">{badge}</Tooltip> : badge;
 });
 BadgeComponent.displayName = 'Badge';
 
 const BadgeSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
-
-  return <Skeleton width={60} height={22} containerClassName={styles.container} {...rootProps} />;
+  const { className } = stylex.props(badgeStyles.skeletonContainer);
+  return <Skeleton width={60} height={22} containerClassName={className} {...rootProps} />;
 };
 
-/**
- * The badge component adds meta information to other content, for example about release status or new elements. You can add any `Icon` component or use the badge without an icon.
- *
- * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-badge--docs
- */
 export const Badge = attachSkeleton(BadgeComponent, BadgeSkeleton);
-
-const getSkeletonStyles = () => ({
-  container: css({
-    lineHeight: 1,
-  }),
-});
-
-const getStyles = (theme: GrafanaTheme2, color: BadgeColor) => {
-  let sourceColor = theme.visualization.getColorByName(color);
-  let borderColor = '';
-  let bgColor = '';
-  let textColor = '';
-
-  if (theme.isDark) {
-    bgColor = tinycolor(sourceColor).setAlpha(0.15).toString();
-    borderColor = tinycolor(sourceColor).setAlpha(0.25).toString();
-    textColor = tinycolor(sourceColor).lighten(15).toString();
-  } else {
-    bgColor = tinycolor(sourceColor).setAlpha(0.15).toString();
-    borderColor = tinycolor(sourceColor).setAlpha(0.25).toString();
-    textColor = tinycolor(sourceColor).darken(25).toString();
-  }
-
-  if (color === 'brand') {
-    bgColor = theme.colors.gradients.brandHorizontal;
-    borderColor = 'transparent';
-    textColor = theme.colors.primary.contrastText;
-  }
-
-  return {
-    wrapper: css({
-      display: 'inline-flex',
-      padding: '1px 4px',
-      borderRadius: theme.shape.radius.sm,
-      background: bgColor,
-      border: `1px solid ${borderColor}`,
-      color: textColor,
-      fontWeight: theme.typography.fontWeightRegular,
-      gap: theme.spacing(0.5),
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      alignItems: 'center',
-    }),
-  };
-};

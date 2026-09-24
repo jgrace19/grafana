@@ -15,6 +15,7 @@ const WebpackBar = require('webpackbar');
 
 const getEnvConfig = require('./env-util.js');
 const common = require('./webpack.common.js');
+const { stylexWebpackPlugin } = require('./stylex.webpack.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
 // esbuild-loader 3.0.0+ requires format to be set to prevent it
 // from defaulting to 'iife' which breaks monaco/loader once minified.
@@ -118,6 +119,7 @@ module.exports = (env = {}) => {
     },
 
     plugins: [
+      stylexWebpackPlugin({ dev: true }),
       ...(parseInt(env.liveReload, 10)
         ? [
             new LiveReloadPlugin({

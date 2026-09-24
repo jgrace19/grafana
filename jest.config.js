@@ -43,6 +43,7 @@ module.exports = {
     customExportConditions: ['@grafana-app/source', 'browser'],
   },
   transform: {
+    '^.+\\.stylex\\.(ts|tsx)$': ['babel-jest', { configFile: './babel.config.stylex.js' }],
     '^.+\\.(ts|tsx|js|jsx)$': [require.resolve('ts-jest')],
   },
   transformIgnorePatterns: [

@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
+import { type ThemeSpacingTokens } from '@grafana/data';
 
-import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { dividerStyleProps } from './Divider.stylex';
 
 interface DividerProps {
   direction?: 'vertical' | 'horizontal';
@@ -13,28 +11,12 @@ interface DividerProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/layout-divider--docs
  */
 export const Divider = ({ direction = 'horizontal', spacing = 2 }: DividerProps) => {
-  const styles = useStyles2(getStyles, spacing);
+  const styleProps = dividerStyleProps(direction, spacing);
 
   if (direction === 'vertical') {
-    return <div className={styles.verticalDivider}></div>;
-  } else {
-    return <hr className={styles.horizontalDivider} />;
+    return <div {...styleProps} />;
   }
+  return <hr {...styleProps} />;
 };
 
 Divider.displayName = 'Divider';
-
-const getStyles = (theme: GrafanaTheme2, spacing: ThemeSpacingTokens) => {
-  return {
-    horizontalDivider: css({
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(spacing, 0),
-      width: '100%',
-    }),
-    verticalDivider: css({
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(0, spacing),
-      height: '100%',
-    }),
-  };
-};

@@ -1,0 +1,10 @@
+{
+  "description": "Maximum allowed regression vs Phase 0 baseline (ratio). 1.0 = no regression.",
+  "webpackProdBuildTimeRatio": 1.15,
+  "webpackDevColdCompileRatio": 1.2,
+  "jestUnitTimeRatio": 1.1,
+  "jsBundleSizeRatio": 1.05,
+  "cssBundleSizeRatio": 1.1,
+  "dashboard50PanelFirstRenderMsRatio": 1.05,
+  "styleRecalcMsRatio": 1.1
+}

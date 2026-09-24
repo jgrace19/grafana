@@ -1,0 +1,4 @@
+/* GENERATED — yarn stylex:emit-global-css */
+@layer grafana-global {
+iframe.intercom-borderless-frame{color-scheme:var(--grafana-colors-mode);}
+}

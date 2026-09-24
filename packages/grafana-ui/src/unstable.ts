@@ -12,3 +12,8 @@
 export * from './utils/skeleton';
 
 export { TableNG } from './components/Table/TableNG/TableNG';
+
+export { StyleXThemeScope } from './themes/stylex/StyleXThemeScope';
+export { themeToCssVars } from './themes/stylex/themeToCssVars.generated';
+export { grafanaTokens, grafanaDarkTheme } from './themes/stylex/tokens.generated.stylex';
+export { mergeStylexClassName } from './themes/stylex/mergeClassNames';

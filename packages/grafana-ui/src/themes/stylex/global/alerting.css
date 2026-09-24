@@ -1,0 +1,4 @@
+/* GENERATED — yarn stylex:emit-global-css */
+@layer grafana-global {
+.alert-state-paused, .alert-state-pending{color:var(--grafana-colors-text-var(--grafana-colors-secondary-name));font-weight:var(--grafana-typography-h6-font-weight);}.alert-state-ok{color:var(--grafana-colors-var(--grafana-colors-success-name)-text);font-weight:var(--grafana-typography-h6-font-weight);}.alert-state-var(--grafana-colors-warning-name){color:var(--grafana-colors-var(--grafana-colors-warning-name)-text);font-weight:var(--grafana-typography-h6-font-weight);}.alert-state-critical{color:var(--grafana-colors-var(--grafana-colors-error-name)-text);font-weight:var(--grafana-typography-h6-font-weight);}
+}

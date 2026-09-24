@@ -15,6 +15,7 @@ const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 const getEnvConfig = require('./env-util.js');
 const FeatureFlaggedSRIPlugin = require('./plugins/FeatureFlaggedSriPlugin');
 const common = require('./webpack.common.js');
+const { stylexWebpackPlugin } = require('./stylex.webpack.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
 
 // esbuild-loader 3.0.0+ requires format to be set to prevent it
@@ -75,6 +76,7 @@ module.exports = (env = {}) =>
           },
 
     plugins: [
+      stylexWebpackPlugin({ dev: false }),
       new MiniCssExtractPlugin({
         filename: env.react19 ? 'grafana.[name]-react19.[contenthash].css' : 'grafana.[name].[contenthash].css',
       }),

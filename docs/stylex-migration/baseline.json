@@ -1,0 +1,10 @@
+{
+  "capturedAt": "2026-09-24T00:00:00.000Z",
+  "gitSha": "pending-run-yarn-stylex-baseline",
+  "jestUnitMs": null,
+  "webpackProdBuildMs": null,
+  "appJsBytes": null,
+  "darkCssBytes": null,
+  "lightCssBytes": null,
+  "notes": ["Placeholder baseline. Run yarn stylex:baseline on CI to refresh metrics."]
+}

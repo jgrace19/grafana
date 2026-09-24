@@ -1,0 +1,22 @@
+/* Grafana global styles (CSS variables: --grafana-*) */
+@import './accessibility.css';
+@import './alerting.css';
+@import './card.css';
+@import './code.css';
+@import './dashboardGrid.css';
+@import './dashdiff.css';
+@import './elements.css';
+@import './extra.css';
+@import './filterTable.css';
+@import './fonts.css';
+@import './forms.css';
+@import './hacks.css';
+@import './jsonFormatter.css';
+@import './legacySelect.css';
+@import './markdownStyles.css';
+@import './page.css';
+@import './queryEditor.css';
+@import './skeletonStyles.css';
+@import './slate.css';
+@import './uPlot.css';
+@import './utilityClasses.css';
