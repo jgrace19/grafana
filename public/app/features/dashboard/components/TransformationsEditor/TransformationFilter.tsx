@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type DataFrame, type DataTransformerConfig, type GrafanaTheme2 } from '@grafana/data';
+import { type DataFrame, type DataTransformerConfig } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { DataTopic } from '@grafana/schema';
-import { Field, Select, useStyles2 } from '@grafana/ui';
+import { Field, Select } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { FrameMultiSelectionEditor } from 'app/plugins/panel/geomap/editor/FrameSelectionEditor';
 
 interface TransformationFilterProps {
@@ -17,8 +18,6 @@ interface TransformationFilterProps {
 }
 
 export const TransformationFilter = ({ index, annotations, config, onChange, data }: TransformationFilterProps) => {
-  const styles = useStyles2(getStyles);
-
   const opts = useMemo(() => {
     return {
       // eslint-disable-next-line
@@ -33,7 +32,7 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
   }, [data, annotations?.length, config.topic]);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <Field label={t('dashboard.transformation-filter.label-apply-transformation-to', 'Apply transformation to')}>
         <>
           {opts.showTopic && (
@@ -42,7 +41,7 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
               options={opts.source}
               value={opts.source.find((v) => v.value === config.topic)}
               placeholder={opts.source[0].label}
-              className={styles.padded}
+              className={stylex.props(styles.padded).className}
               onChange={(option) => {
                 onChange(index, {
                   ...config,
@@ -64,20 +63,21 @@ export const TransformationFilter = ({ index, annotations, config, onChange, dat
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const borderRadius = theme.shape.radius.default;
-
-  return {
-    wrapper: css({
-      padding: theme.spacing(2),
-      border: `2px solid ${theme.colors.background.secondary}`,
-      borderTop: `none`,
-      borderRadius: `0 0 ${borderRadius} ${borderRadius}`,
-      position: `relative`,
-      top: `-4px`,
-    }),
-    padded: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    padding: spacing['--gf-spacing-x2'],
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-background-secondary'],
+    borderTopStyle: 'none',
+    borderTopLeftRadius: 'unset',
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    position: 'relative',
+    top: '-4px',
+  },
+  padded: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});

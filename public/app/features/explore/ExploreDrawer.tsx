@@ -1,11 +1,12 @@
 // Libraries
-import { css, cx, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import * as React from 'react';
 
 // Services & Utils
-import { type GrafanaTheme2 } from '@grafana/data';
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragStyles, useTheme2 } from '@grafana/ui';
+import { motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, shadows } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   children: React.ReactNode;
@@ -16,14 +17,15 @@ export interface Props {
 export function ExploreDrawer(props: Props) {
   const { children, onResize, initialHeight } = props;
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const dragStyles = getDragStyles(theme);
 
   const height = initialHeight || `${theme.components.horizontalDrawer.defaultHeight}px`;
 
   return (
     <Resizable
-      className={cx(styles.fixed, styles.container, styles.drawerActive)}
+      className={stylex.props(styles.container, styles.drawerActive).className}
+      // Resizable writes `position: relative` inline; its style prop is merged over that.
+      style={{ position: 'absolute' }}
       defaultSize={{ width: '100%', height }}
       handleClasses={{ top: dragStyles.dragHandleHorizontal }}
       enable={{
@@ -44,32 +46,29 @@ export function ExploreDrawer(props: Props) {
   );
 }
 
-const drawerSlide = (theme: GrafanaTheme2) => keyframes`
-  0% {
-    transform: translateY(${theme.components.horizontalDrawer.defaultHeight}px);
-  }
+const drawerSlide = stylex.keyframes({
+  '0%': {
+    transform: `translateY(calc(${components['--gf-components-horizontal-drawer-default-height']} * 1px))`,
+  },
+  '100%': {
+    transform: 'translateY(0px)',
+  },
+});
 
-  100% {
-    transform: translateY(0px);
-  }
-`;
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  // @ts-expect-error csstype doesn't allow !important. see https://github.com/frenic/csstype/issues/114
-  fixed: css({
-    position: 'absolute !important',
-  }),
-  container: css({
+const styles = stylex.create({
+  container: {
     bottom: 0,
-    background: theme.colors.background.primary,
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
-    zIndex: theme.zIndex.navbarFixed,
-  }),
-  drawerActive: css({
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    zIndex: zIndex.navbarFixed,
+  },
+  drawerActive: {
     opacity: 1,
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `0.5s ease-out ${drawerSlide(theme)}`,
-    },
-  }),
+    animationName: { default: null, [motion.noPreference]: drawerSlide },
+    animationDuration: { default: null, [motion.noPreference]: '0.5s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'ease-out' },
+  },
 });

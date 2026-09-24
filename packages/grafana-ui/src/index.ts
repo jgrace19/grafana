@@ -326,7 +326,7 @@ export { Avatar } from './components/UsersIndicator/Avatar';
 // Export this until we've figured out a good approach to inline form styles.
 export { InlineFormLabel } from './components/FormLabel/FormLabel';
 export { Divider } from './components/Divider/Divider';
-export { getDragStyles, type DragHandlePosition } from './components/DragHandle/DragHandle';
+export { getDragStyles, type DragHandlePosition } from './compat/emotion/getDragStyles';
 export { useSplitter } from './components/Splitter/useSplitter';
 
 /** @deprecated Please use non-legacy versions of these components */

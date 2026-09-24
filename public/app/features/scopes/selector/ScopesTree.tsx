@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, type Scope } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { type Scope } from '@grafana/data';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { RecentScopes } from './RecentScopes';
 import { ScopesTreeHeadline } from './ScopesTreeHeadline';
@@ -33,7 +33,6 @@ export function ScopesTree({
   scopeNodes,
 }: ScopesTreeProps) {
   const { selectScope, deselectScope, toggleExpandedNode } = useScopeActions();
-  const styles = useStyles2(getStyles);
 
   // Used for a11y reference
   const selectedNodesToShowId = useId();
@@ -100,7 +99,7 @@ export function ScopesTree({
         !tree.query && <RecentScopes recentScopes={recentScopes} onSelect={onRecentScopesSelect} />}
 
       {nodeLoading ? (
-        <Skeleton count={5} className={styles.loader} />
+        <Skeleton count={5} className={stylex.props(styles.loader).className} />
       ) : (
         <>
           <ScopesTreeItemList
@@ -139,10 +138,11 @@ export function ScopesTree({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    loader: css({
-      margin: theme.spacing(0.5, 0),
-    }),
-  };
-};
+const styles = stylex.create({
+  loader: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0'],
+  },
+});

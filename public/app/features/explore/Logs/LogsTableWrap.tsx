@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -6,7 +6,6 @@ import {
   type AbsoluteTimeRange,
   type DataFrame,
   type ExploreLogsPanelState,
-  type GrafanaTheme2,
   type Labels,
   type LogRowModel,
   type LogsSortOrder,
@@ -17,7 +16,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, InlineField, Select, useStyles2 } from '@grafana/ui';
+import { getDragStyles, InlineField, Select, useTheme2 } from '@grafana/ui';
 import { FIELD_SELECTOR_MIN_WIDTH } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { LogsTableFieldSelector } from 'app/features/logs/components/fieldSelector/LogsTableFieldSelector';
 import { getFieldSelectorWidth } from 'app/features/logs/components/fieldSelector/fieldSelectorUtils';
@@ -71,7 +70,9 @@ export function LogsTableWrap(props: Props) {
   const propsColumns = panelState?.columns;
   // Save the normalized cardinality of each label
   const [columnsWithMeta, setColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);
-  const dragStyles = useStyles2(getDragStyles);
+  const theme = useTheme2();
+  // getDragStyles is an Emotion helper owned by the Splitter/drag components.
+  const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
 
   // Filtered copy of columnsWithMeta that only includes matching results
   const [filteredColumnsWithMeta, setFilteredColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);
@@ -279,8 +280,6 @@ export function LogsTableWrap(props: Props) {
 
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(SETTING_KEY_ROOT));
   const tableWidth = props.width - sidebarWidth;
-
-  const styles = useStyles2(getStyles, height, sidebarWidth);
 
   const onSortByChange = useCallback(
     (sortBy: Array<{ displayName: string; desc?: boolean }>) => {
@@ -498,7 +497,7 @@ export function LogsTableWrap(props: Props) {
           </div>
         )}
       </div>
-      <div className={styles.wrapper}>
+      <div {...stylex.props(styles.wrapper)}>
         <Resizable
           enable={{
             right: true,
@@ -521,8 +520,8 @@ export function LogsTableWrap(props: Props) {
             toggle={toggleColumn}
           />
         </Resizable>
-        <div className={styles.tableContainer}>
-          <div className={styles.tableWrapper}>
+        <div {...stylex.props(styles.tableContainer)}>
+          <div {...stylex.props(styles.tableWrapper)}>
             <LogsTable
               logsFrame={logsFrame}
               onClickFilterLabel={props.onClickFilterLabel}
@@ -554,30 +553,21 @@ const normalize = (value: number, total: number): number => {
   return Math.ceil((100 * value) / total);
 };
 
-function getStyles(theme: GrafanaTheme2, height: number, width: number) {
-  return {
-    wrapper: css({
-      display: 'flex',
-    }),
-    sidebar: css({
-      height: height,
-      fontSize: theme.typography.pxToRem(11),
-      overflowY: 'hidden',
-      width: width,
-      paddingRight: theme.spacing(3),
-    }),
-    tableContainer: css({
-      position: 'relative',
-      overflow: 'hidden',
-      flex: 1,
-    }),
-    tableWrapper: css({
-      position: 'absolute',
-      left: 0,
-      top: 0,
-    }),
-  };
-}
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+  },
+  tableContainer: {
+    position: 'relative',
+    overflow: 'hidden',
+    flex: '1',
+  },
+  tableWrapper: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+});
 
 export const getLogsTableHeight = () => {
   // Instead of making the height of the table based on the content (like in the table panel itself), let's try to use the vertical space that is available.

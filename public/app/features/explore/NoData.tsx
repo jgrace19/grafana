@@ -1,34 +1,37 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, PanelContainer } from '@grafana/ui';
+import { PanelContainer } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './NoData.css';
 
 export const NoData = () => {
-  const css = useStyles2(getStyles);
   return (
     <>
-      <PanelContainer data-testid="explore-no-data" className={css.wrapper}>
-        <span className={css.message}>{'No data'}</span>
+      <PanelContainer
+        data-testid="explore-no-data"
+        className={mergeStylexProps(stylex.props(styles.wrapper), { className: 'gf-explore-no-data' }).className}
+      >
+        <span {...stylex.props(styles.message)}>{'No data'}</span>
       </PanelContainer>
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    label: 'no-data-card',
-    padding: theme.spacing(3),
-    background: theme.colors.background.primary,
-    borderRadius: theme.shape.radius.default,
+const styles = stylex.create({
+  wrapper: {
+    padding: spacing['--gf-spacing-x3'],
+    borderRadius: shape['--gf-shape-radius-default'],
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
-  }),
-  message: css({
-    fontSize: theme.typography.h2.fontSize,
-    padding: theme.spacing(4),
-    color: theme.colors.text.disabled,
-  }),
+  },
+  message: {
+    fontSize: typography['--gf-typography-h2-font-size'],
+    padding: spacing['--gf-spacing-x4'],
+    color: colors['--gf-colors-text-disabled'],
+  },
 });

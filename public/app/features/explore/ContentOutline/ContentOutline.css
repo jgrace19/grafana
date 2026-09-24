@@ -1,0 +1,7 @@
+/*
+ * PanelContainer is still Emotion and sets its own background; the element-qualified selector (0,1,1) outranks
+ * its single class, as the merged Emotion override did.
+ */
+div.gf-explore-content-outline {
+  background-color: var(--gf-colors-background-primary);
+}

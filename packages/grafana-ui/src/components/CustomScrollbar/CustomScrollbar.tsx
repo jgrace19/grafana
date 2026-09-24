@@ -1,12 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type RefCallback, useCallback, useEffect, useRef, type JSX } from 'react';
 import * as React from 'react';
 import Scrollbars, { type positionValues } from 'react-custom-scrollbars-2';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
-
+import './CustomScrollbar.global.css';
 import { ScrollIndicators } from './ScrollIndicators';
 
 export type ScrollbarPosition = positionValues;
@@ -54,7 +52,6 @@ export const CustomScrollbar = ({
   divId,
 }: React.PropsWithChildren<Props>) => {
   const ref = useRef<Scrollbars & { view: HTMLDivElement; update: () => void }>(null);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     if (ref.current && scrollRefCallback) {
@@ -130,9 +127,12 @@ export const CustomScrollbar = ({
     <Scrollbars
       data-testid={testId}
       ref={ref}
-      className={cx(styles.customScrollbar, className, {
-        [styles.scrollbarWithScrollIndicators]: showScrollIndicators,
-      })}
+      className={clsx(
+        'gf-custom-scrollbar',
+        stylex.props(styles.customScrollbar).className,
+        className,
+        showScrollIndicators && 'gf-custom-scrollbar--with-indicators'
+      )}
       onScrollStop={onScrollStop}
       autoHeight={true}
       autoHide={autoHide}
@@ -156,67 +156,6 @@ export const CustomScrollbar = ({
 
 export default CustomScrollbar;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    customScrollbar: css({
-      // Fix for Firefox. For some reason sometimes .view container gets a height of its content, but in order to
-      // make scroll working it should fit outer container size (scroll appears only when inner container size is
-      // greater than outer one).
-      display: 'flex',
-      flexGrow: 1,
-      '.scrollbar-view': {
-        display: 'flex',
-        flexGrow: 1,
-        flexDirection: 'column',
-      },
-      '.track-vertical': {
-        borderRadius: theme.shape.borderRadius(2),
-        width: `${theme.spacing(1)} !important`,
-        right: 0,
-        bottom: theme.spacing(0.25),
-        top: theme.spacing(0.25),
-      },
-      '.track-horizontal': {
-        borderRadius: theme.shape.borderRadius(2),
-        height: `${theme.spacing(1)} !important`,
-        right: theme.spacing(0.25),
-        bottom: theme.spacing(0.25),
-        left: theme.spacing(0.25),
-      },
-      '.thumb-vertical': {
-        background: theme.colors.action.focus,
-        borderRadius: theme.shape.borderRadius(2),
-        opacity: 0,
-      },
-      '.thumb-horizontal': {
-        background: theme.colors.action.focus,
-        borderRadius: theme.shape.borderRadius(2),
-        opacity: 0,
-      },
-      '&:hover': {
-        '.thumb-vertical, .thumb-horizontal': {
-          opacity: 1,
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            transition: 'opacity 0.3s ease-in-out',
-          },
-        },
-      },
-    }),
-    // override the scroll container position so that the scroll indicators
-    // are positioned at the top and bottom correctly.
-    // react-custom-scrollbars doesn't provide any way for us to hook in nicely,
-    // so we have to override with !important. feelsbad.
-    scrollbarWithScrollIndicators: css({
-      '.scrollbar-view': {
-        // Need type assertion here due to the use of !important
-        // see https://github.com/frenic/csstype/issues/114#issuecomment-697201978
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        position: 'static !important' as 'static',
-      },
-    }),
-  };
-};
-
 /**
  * Calling scrollTop on a scrollbar ref in a useEffect can race with internal state in react-custom-scrollbars-2, causing scrollTop to get called on a stale reference, which prevents the element from scrolling as desired.
  * Adding the reference to the useEffect dependency array not notify react that the reference has changed (and is an eslint violation), so we create a custom hook so updates to the reference trigger another render, fixing the race condition bug.
@@ -234,3 +173,10 @@ function useScrollTop(
     }
   }, [scrollTop, scrollBar]);
 }
+
+const styles = stylex.create({
+  customScrollbar: {
+    display: 'flex',
+    flexGrow: 1,
+  },
+});

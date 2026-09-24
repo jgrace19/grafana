@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useObservable } from 'react-use';
 import { Observable } from 'rxjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { useScopes } from '@grafana/runtime';
-import { Button, LoadingPlaceholder, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Button, LoadingPlaceholder, ScrollContainer } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -13,7 +13,6 @@ import { ScopesDashboardsTree } from './ScopesDashboardsTree';
 import { ScopesDashboardsTreeSearch } from './ScopesDashboardsTreeSearch';
 
 export function ScopesDashboards() {
-  const styles = useStyles2(getStyles);
   const scopes = useScopes();
   const scopeServices = useScopesServices();
 
@@ -34,18 +33,18 @@ export function ScopesDashboards() {
   if (!loading) {
     if (forScopeNames.length === 0) {
       return (
-        <div className={styles.container} data-testid="scopes-dashboards-container">
+        <div {...stylex.props(styles.container)} data-testid="scopes-dashboards-container">
           <ScopesDashboardsTreeSearch disabled={loading} query={searchQuery} onChange={changeSearchQuery} />
 
-          <div className={styles.noResultsContainer} data-testid="scopes-dashboards-notFoundNoScopes">
+          <div {...stylex.props(styles.noResultsContainer)} data-testid="scopes-dashboards-notFoundNoScopes">
             <Trans i18nKey="scopes.dashboards.noResultsNoScopes">No scopes selected</Trans>
           </div>
         </div>
       );
     } else if (dashboards.length === 0 && scopeNavigations.length === 0) {
       return (
-        <div className={styles.container} data-testid="scopes-dashboards-container">
-          <div className={styles.noResultsContainer} data-testid="scopes-dashboards-notFoundForScope">
+        <div {...stylex.props(styles.container)} data-testid="scopes-dashboards-container">
+          <div {...stylex.props(styles.noResultsContainer)} data-testid="scopes-dashboards-notFoundForScope">
             <Trans i18nKey="scopes.dashboards.noResultsForScopes">
               No dashboards or links found for the selected scopes
             </Trans>
@@ -56,12 +55,12 @@ export function ScopesDashboards() {
   }
 
   return (
-    <div className={styles.container} data-testid="scopes-dashboards-container">
+    <div {...stylex.props(styles.container)} data-testid="scopes-dashboards-container">
       <ScopesDashboardsTreeSearch disabled={loading} query={searchQuery} onChange={changeSearchQuery} />
 
       {loading ? (
         <LoadingPlaceholder
-          className={styles.loadingIndicator}
+          className={stylex.props(styles.loadingIndicator).className}
           text={t('scopes.dashboards.loading', 'Loading dashboards')}
           data-testid="scopes-dashboards-loading"
         />
@@ -75,7 +74,7 @@ export function ScopesDashboards() {
           />
         </ScrollContainer>
       ) : (
-        <p className={styles.noResultsContainer} data-testid="scopes-dashboards-notFoundForFilter">
+        <p {...stylex.props(styles.noResultsContainer)} data-testid="scopes-dashboards-notFoundForFilter">
           <Trans i18nKey="scopes.dashboards.noResultsForFilter">No results found for your query</Trans>
 
           <Button
@@ -91,31 +90,40 @@ export function ScopesDashboards() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      backgroundColor: theme.colors.background.canvas,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0, 2),
-      margin: theme.spacing(2, 0),
-      width: theme.spacing(37.5),
-    }),
-    noResultsContainer: css({
-      alignItems: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      height: '100%',
-      justifyContent: 'center',
-      margin: 0,
-      textAlign: 'center',
-    }),
-    loadingIndicator: css({
-      alignSelf: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 37.5)`,
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+    height: '100%',
+    justifyContent: 'center',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    textAlign: 'center',
+  },
+  loadingIndicator: {
+    alignSelf: 'center',
+  },
+});

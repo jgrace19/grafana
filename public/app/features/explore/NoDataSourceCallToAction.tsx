@@ -1,22 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { LinkButton, CallToActionCard, Icon, useStyles2 } from '@grafana/ui';
+import { LinkButton, CallToActionCard, Icon } from '@grafana/ui';
+import { breakpointWidths } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 
-function getCardStyles(theme: GrafanaTheme2) {
-  return css({
-    maxWidth: `${theme.breakpoints.values.lg}px`,
-    marginTop: theme.spacing(2),
-    alignSelf: 'center',
-  });
-}
-
 export const NoDataSourceCallToAction = () => {
-  const cardStyles = useStyles2(getCardStyles);
-
   const canCreateDataSource =
     contextSrv.hasPermission(AccessControlAction.DataSourcesCreate) &&
     contextSrv.hasPermission(AccessControlAction.DataSourcesWrite);
@@ -49,5 +40,20 @@ export const NoDataSourceCallToAction = () => {
     </LinkButton>
   );
 
-  return <CallToActionCard callToActionElement={ctaElement} className={cardStyles} footer={footer} message={message} />;
+  return (
+    <CallToActionCard
+      callToActionElement={ctaElement}
+      className={stylex.props(styles.card).className}
+      footer={footer}
+      message={message}
+    />
+  );
 };
+
+const styles = stylex.create({
+  card: {
+    maxWidth: breakpointWidths.lg,
+    marginTop: spacing['--gf-spacing-x2'],
+    alignSelf: 'center',
+  },
+});

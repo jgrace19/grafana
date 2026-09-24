@@ -1,0 +1,8 @@
+/*
+ * Badge has no xstyle, and a StyleX class string would race its own padding (conventions §3.9). Unlayered, this
+ * beats its layered StyleX.
+ */
+.gf-compatibility-badge-clickable {
+  padding-top: calc(var(--gf-spacing-grid-size) * 0.8);
+  padding-bottom: calc(var(--gf-spacing-grid-size) * 0.8);
+}

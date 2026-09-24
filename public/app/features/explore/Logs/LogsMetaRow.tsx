@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
 import {
@@ -14,7 +14,9 @@ import {
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Button, Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Menu, ToolbarButton } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LogLabels, LogLabelsList, type Props as LogLabelsProps } from '../../logs/components/LogLabels';
 import { DownloadFormat, downloadLogs } from '../../logs/utils';
@@ -23,17 +25,7 @@ import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
 
-const getStyles = () => ({
-  metaContainer: css({
-    flex: 1,
-    display: 'flex',
-    flexWrap: 'wrap',
-    '& span': {
-      fontWeight: 'normal',
-      lineHeight: '1.25em',
-    },
-  }),
-});
+import './LogsMetaRow.css';
 
 export type Props = {
   meta: LogsMetaItem[];
@@ -57,7 +49,6 @@ export const LogsMetaRow = memo(
     defaultDisplayedFields,
     visualisationType,
   }: Props) => {
-    const style = useStyles2(getStyles);
     const logsPanelControlsEnabled = useBooleanFlagValue('logsPanelControls', true);
     const newLogsPanelEnabled = useBooleanFlagValue('newLogsPanel', true);
 
@@ -127,7 +118,7 @@ export const LogsMetaRow = memo(
     return (
       <>
         {logsMetaItem && (
-          <div className={style.metaContainer}>
+          <div {...mergeStylexProps(stylex.props(styles.metaContainer), { className: 'gf-explore-logs-meta' })}>
             <MetaInfoText
               metaItems={logsMetaItem.map((item) => {
                 return {
@@ -160,8 +151,23 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
     return <LogLabels labels={value} {...logLabelsProps} />;
   }
   if (kind === LogsMetaKind.Error) {
-    return <span className="logs-meta-item__error">{value.toString()}</span>;
+    return (
+      <span {...mergeStylexProps(stylex.props(styles.metaItemError), { className: 'logs-meta-item__error' })}>
+        {value.toString()}
+      </span>
+    );
   }
   console.error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }
+
+const styles = stylex.create({
+  metaContainer: {
+    flex: '1',
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  metaItemError: {
+    color: colors['--gf-colors-error-text'],
+  },
+});

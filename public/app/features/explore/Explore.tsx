@@ -1,6 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { get, groupBy } from 'lodash';
-import { PureComponent } from 'react';
+import { type ComponentProps, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import AutoSizer, { type HorizontalSize } from 'react-virtualized-auto-sizer';
 
@@ -28,9 +28,10 @@ import {
   PanelContainer,
   ScrollContainer,
   type Themeable2,
-  withTheme2,
+  useTheme2,
 } from '@grafana/ui';
-import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR } from '@grafana/ui/internal';
+import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR, mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { supportedFeatures } from 'app/core/history/richHistoryStorageProvider';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 import { type StoreState } from 'app/types/store';
@@ -70,39 +71,6 @@ import {
 } from './state/query';
 import { isSplit, selectExploreDSMaps } from './state/selectors';
 import { updateTimeRange } from './state/time';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    exploreMain: css({
-      label: 'exploreMain',
-      // Is needed for some transition animations to work.
-      position: 'relative',
-      marginTop: theme.spacing(3),
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
-    queryContainer: css({
-      label: 'queryContainer',
-      padding: theme.spacing(1),
-    }),
-    exploreContainer: css({
-      label: 'exploreContainer',
-      display: 'flex',
-      flexDirection: 'column',
-      paddingRight: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    }),
-    wrapper: css({
-      position: 'absolute',
-      top: 0,
-      left: theme.spacing(2),
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-    }),
-  };
-};
 
 export interface ExploreProps extends Themeable2 {
   exploreId: string;
@@ -351,9 +319,9 @@ export class Explore extends PureComponent<Props, ExploreState> {
     this.setState({ contentOutlineVisible: true });
   };
 
-  renderEmptyState(exploreContainerStyles: string) {
+  renderEmptyState(exploreContainerStyles: stylex.StyleXStyles) {
     return (
-      <div className={cx(exploreContainerStyles)}>
+      <div {...stylex.props(exploreContainerStyles)}>
         <NoDataSourceCallToAction />
       </div>
     );
@@ -453,18 +421,13 @@ export class Explore extends PureComponent<Props, ExploreState> {
   renderLogsPanel(width: number) {
     const { exploreId, syncedTimes, theme, queryResponse } = this.props;
     const spacing = parseInt(theme.spacing(2).slice(0, -2), 10);
-    // Need to make ContentOutlineItem a flex container so the gap works
-    const logsContentOutlineWrapper = css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    });
     return (
       <ContentOutlineItem
         panelId="Logs"
         title={t('explore.explore.title-logs', 'Logs')}
         icon="gf-logs"
-        className={logsContentOutlineWrapper}
+        // Need to make ContentOutlineItem a flex container so the gap works
+        className={stylex.props(styles.logsContentOutlineWrapper).className}
       >
         <LogsContainer
           exploreId={exploreId}
@@ -598,7 +561,6 @@ export class Explore extends PureComponent<Props, ExploreState> {
       queryLibraryRef,
     } = this.props;
     const { contentOutlineVisible } = this.state;
-    const styles = getStyles(theme);
     const showPanels = queryResponse && queryResponse.state !== LoadingState.NotStarted;
     const richHistoryRowButtonHidden = !supportedFeatures().queryHistoryAvailable;
     const showNoData =
@@ -636,7 +598,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
             paddingLeft: theme.spacing(2),
           }}
         >
-          <div className={styles.wrapper}>
+          <div {...stylex.props(styles.wrapper)}>
             {contentOutlineVisible && !compact && (
               <ContentOutline scroller={this.scrollElement} panelId={`content-outline-container-${exploreId}`} />
             )}
@@ -646,7 +608,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                 this.scrollElement = scrollElement || undefined;
               }}
             >
-              <div className={styles.exploreContainer}>
+              <div {...stylex.props(styles.exploreContainer)}>
                 {datasourceInstance ? (
                   <>
                     <ContentOutlineItem
@@ -655,7 +617,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                       icon="arrow"
                       mergeSingleChild={true}
                     >
-                      <PanelContainer className={styles.queryContainer}>
+                      <PanelContainer className={stylex.props(styles.queryContainer).className}>
                         {correlationsBox}
                         <QueryRows
                           exploreId={exploreId}
@@ -713,7 +675,7 @@ export class Explore extends PureComponent<Props, ExploreState> {
                         }
 
                         return (
-                          <main className={cx(styles.exploreMain)} style={{ width }}>
+                          <main {...mergeStylexProps(stylex.props(styles.exploreMain), { style: { width } })}>
                             <ErrorBoundaryAlert boundaryName="explore-main">
                               {showPanels && (
                                 <>
@@ -869,4 +831,42 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
-export default withTheme2(connector(Explore));
+const ConnectedExplore = connector(Explore);
+
+export default function ExploreWithTheme(props: Omit<ComponentProps<typeof ConnectedExplore>, 'theme'>) {
+  const theme = useTheme2();
+  return <ConnectedExplore {...props} theme={theme} />;
+}
+
+const styles = stylex.create({
+  exploreMain: {
+    // Is needed for some transition animations to work.
+    position: 'relative',
+    marginTop: spacing['--gf-spacing-x3'],
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  queryContainer: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  exploreContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingRight: spacing['--gf-spacing-x2'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  wrapper: {
+    position: 'absolute',
+    top: 0,
+    left: spacing['--gf-spacing-x2'],
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+  },
+  logsContentOutlineWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

@@ -1,0 +1,20 @@
+/*
+ * Modal sets these properties in its own Emotion styles, which a StyleX override can't beat
+ * (conventions §3.9). The doubled class outranks that rule whatever order the stylesheets load in.
+ */
+.gf-suggested-dashboards-modal.gf-suggested-dashboards-modal {
+  width: 90%;
+  max-width: 1200px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.gf-suggested-dashboards-modal-content.gf-suggested-dashboards-modal-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--gf-spacing-x2);
+  margin-bottom: 0;
+  height: 100%;
+}

@@ -15,16 +15,8 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import {
-  Button,
-  ConfirmModal,
-  Container,
-  type Themeable,
-  withTheme,
-  IconButton,
-  ButtonGroup,
-  ScrollContainer,
-} from '@grafana/ui';
+import { Button, ConfirmModal, Container, IconButton, ButtonGroup, ScrollContainer } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { EmptyTransformationsMessage } from 'app/features/dashboard-scene/panel-edit/PanelDataPane/EmptyTransformationsMessage';
 
 import { type PanelModel } from '../../state/PanelModel';
@@ -34,7 +26,7 @@ import { TransformationOperationRows } from './TransformationOperationRows';
 import { TransformationPickerNg } from './TransformationPickerNg';
 import { type TransformationsEditorTransformation } from './types';
 
-interface TransformationsEditorProps extends Themeable {
+interface TransformationsEditorProps {
   panel: PanelModel;
 }
 
@@ -360,7 +352,7 @@ class UnThemedTransformationsEditor extends React.PureComponent<TransformationsE
           icon="times"
           variant="secondary"
           onClick={() => this.setState({ showRemoveAllModal: true })}
-          style={{ marginLeft: this.props.theme.spacing.md }}
+          style={{ marginLeft: spacing['--gf-spacing-x2'] }}
         >
           <Trans i18nKey="dashboard.un-themed-transformations-editor.delete-all-transformations">
             Delete all transformations
@@ -439,4 +431,4 @@ class UnThemedTransformationsEditor extends React.PureComponent<TransformationsE
   }
 }
 
-export const TransformationsEditor = withTheme(UnThemedTransformationsEditor);
+export const TransformationsEditor = UnThemedTransformationsEditor;

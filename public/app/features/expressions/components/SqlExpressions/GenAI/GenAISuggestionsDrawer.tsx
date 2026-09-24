@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, renderMarkdown } from '@grafana/data';
+import { renderMarkdown } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { CodeEditor, Drawer, useStyles2, Stack, Button, Card, Text, ClipboardButton } from '@grafana/ui';
+import { CodeEditor, Drawer, Stack, Button, Card, Text, ClipboardButton } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { parseSuggestion } from './utils';
 
@@ -19,8 +20,6 @@ export const GenAISuggestionsDrawer = ({
   onClose,
   suggestions,
 }: AISuggestionsDrawerProps) => {
-  const styles = useStyles2(getStyles);
-
   if (!isOpen) {
     return null;
   }
@@ -31,30 +30,37 @@ export const GenAISuggestionsDrawer = ({
       size="lg"
       title={<Trans i18nKey="sql-expressions.sql-suggestion-history">SQL Suggestion History</Trans>}
     >
-      <div className={styles.content} data-testid="suggestions-drawer">
+      <div {...stylex.props(styles.content)} data-testid="suggestions-drawer">
         <Stack direction="column" gap={3}>
-          <div className={styles.timelineContainer}>
+          <div {...stylex.props(styles.timelineContainer)}>
             {/* Vertical timeline line */}
-            <div className={styles.timelineLine} />
+            <div {...stylex.props(styles.timelineLine)} />
 
-            <div className={styles.suggestionsList}>
+            <div {...stylex.props(styles.suggestionsList)}>
               {suggestions.map((suggestion, index) => {
                 const parsedSuggestion = parseSuggestion(suggestion);
                 const isLatest = index === 0;
 
                 return (
-                  <div key={index} className={styles.timelineItem}>
+                  <div key={index} {...stylex.props(styles.timelineItem)}>
                     {/* Timeline node */}
                     <div
-                      className={`${styles.timelineNode} ${isLatest ? styles.timelineNodeActive : styles.timelineNodeInactive}`}
+                      {...stylex.props(
+                        styles.timelineNode,
+                        isLatest ? styles.timelineNodeActive : styles.timelineNodeInactive
+                      )}
                     />
-                    <Card noMargin key={index} className={isLatest ? styles.latestSuggestion : ''}>
-                      <div className={styles.suggestionContent}>
+                    <Card
+                      noMargin
+                      key={index}
+                      className={isLatest ? stylex.props(styles.latestSuggestion).className : ''}
+                    >
+                      <div {...stylex.props(styles.suggestionContent)}>
                         {parsedSuggestion.map(({ type, content, language }, partIndex) => (
-                          <div key={partIndex} className={styles.suggestionPart}>
+                          <div key={partIndex} {...stylex.props(styles.suggestionPart)}>
                             {type === 'code' ? (
-                              <div className={styles.codeBlock}>
-                                <div className={styles.codeHeader}>
+                              <div {...stylex.props(styles.codeBlock)}>
+                                <div {...stylex.props(styles.codeHeader)}>
                                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                                     <Text variant="bodySmall" weight="bold">
                                       <Trans
@@ -129,109 +135,114 @@ export const GenAISuggestionsDrawer = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  content: css({
+const styles = stylex.create({
+  content: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-  }),
-  emptyState: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    textAlign: 'center',
-    gap: theme.spacing(2),
-  }),
-  timelineContainer: css({
+  },
+  timelineContainer: {
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    flex: 1,
-    paddingLeft: theme.spacing(4.5), // Space for timeline line and nodes
-  }),
-  timelineLine: css({
+    flex: '1',
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 4.5)`, // Space for timeline line and nodes
+  },
+  timelineLine: {
     position: 'absolute',
     // Offset the 2px width of the timeline line
-    left: `calc(${theme.spacing(1)} + 2px)`,
-    top: theme.spacing(1),
+    left: `calc(${spacing['--gf-spacing-x1']} + 2px)`,
+    top: spacing['--gf-spacing-x1'],
     bottom: 0,
     width: '2px',
-    backgroundColor: theme.colors.border.strong,
+    backgroundColor: colors['--gf-colors-border-strong'],
     zIndex: 1,
-  }),
-  suggestionsList: css({
+  },
+  suggestionsList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2),
+    gap: spacing['--gf-spacing-x2'],
     position: 'relative',
-  }),
-  timelineItem: css({
+  },
+  timelineItem: {
     position: 'relative',
     display: 'flex',
     alignItems: 'flex-start',
-    gap: theme.spacing(2),
-  }),
-  timelineNode: css({
+    gap: spacing['--gf-spacing-x2'],
+  },
+  timelineNode: {
     position: 'absolute',
-    left: theme.spacing(-4.5), // Position on the timeline line
-    top: theme.spacing(1), // Align with card content
-    width: theme.spacing(3),
-    height: theme.spacing(3),
-    borderRadius: theme.shape.radius.pill,
-    border: `2px solid ${theme.colors.primary.main}`,
-    backgroundColor: theme.colors.background.primary,
+    left: `calc(${spacing['--gf-spacing-grid-size']} * -4.5)`, // Position on the timeline line
+    top: spacing['--gf-spacing-x1'], // Align with card content
+    width: spacing['--gf-spacing-x3'],
+    height: spacing['--gf-spacing-x3'],
+    borderRadius: shape['--gf-shape-radius-pill'],
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-primary-main'],
+    backgroundColor: colors['--gf-colors-background-primary'],
     zIndex: 2,
     flexShrink: 0,
-  }),
-  timelineNodeActive: css({
-    backgroundColor: theme.colors.primary.main, // Filled circle for current/latest
-    boxShadow: `0 0 0 4px ${theme.colors.background.primary}`, // White ring around filled circle
-  }),
-  timelineNodeInactive: css({
-    backgroundColor: theme.colors.background.primary, // Empty circle for others
-    boxShadow: `0 0 0 4px ${theme.colors.background.primary}`, // White ring around filled circle
-  }),
-  latestSuggestion: css({
-    border: `2px solid ${theme.colors.primary.main}`,
+  },
+  timelineNodeActive: {
+    backgroundColor: colors['--gf-colors-primary-main'], // Filled circle for current/latest
+    boxShadow: `0 0 0 4px ${colors['--gf-colors-background-primary']}`, // White ring around filled circle
+  },
+  timelineNodeInactive: {
+    backgroundColor: colors['--gf-colors-background-primary'], // Empty circle for others
+    boxShadow: `0 0 0 4px ${colors['--gf-colors-background-primary']}`, // White ring around filled circle
+  },
+  latestSuggestion: {
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-primary-main'],
     position: 'relative',
-    '&::before': {
+    '::before': {
       content: '"Latest"',
       position: 'absolute',
-      top: theme.spacing(-0.5),
-      right: theme.spacing(1),
-      backgroundColor: theme.colors.primary.main,
-      color: theme.colors.primary.contrastText,
-      padding: theme.spacing(0.25, 1),
-      borderRadius: theme.shape.radius.default,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
+      top: `calc(${spacing['--gf-spacing-grid-size']} * -0.5)`,
+      right: spacing['--gf-spacing-x1'],
+      backgroundColor: colors['--gf-colors-primary-main'],
+      color: colors['--gf-colors-primary-contrast-text'],
+      paddingTop: spacing['--gf-spacing-x0-25'],
+      paddingRight: spacing['--gf-spacing-x1'],
+      paddingBottom: spacing['--gf-spacing-x0-25'],
+      paddingLeft: spacing['--gf-spacing-x1'],
+      borderRadius: shape['--gf-shape-radius-default'],
+      fontSize: typography['--gf-typography-body-small-font-size'],
+      fontWeight: typography['--gf-typography-font-weight-medium'],
     },
-  }),
-  suggestionContent: css({
+  },
+  suggestionContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1.5),
+    gap: spacing['--gf-spacing-x1-5'],
     width: '100%',
     overflowX: 'auto',
-  }),
-  suggestionPart: css({
+  },
+  suggestionPart: {
     display: 'block',
     width: '100%',
-  }),
-  codeBlock: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
+  },
+  codeBlock: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
     overflow: 'hidden',
-    marginBottom: theme.spacing(1),
+    marginBottom: spacing['--gf-spacing-x1'],
     width: '100%',
     minWidth: '600px',
-  }),
-  codeHeader: css({
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(1, 1.5),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
+  },
+  codeHeader: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
 });

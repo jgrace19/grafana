@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, urlUtil } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { urlUtil } from '@grafana/data';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 import { ScopesDashboardsTreeFolderItem } from './ScopesDashboardsTreeFolderItem';
@@ -24,7 +24,6 @@ export function ScopesDashboardsTree({
   onFolderUpdate,
 }: ScopesDashboardsTreeProps) {
   const [queryParams] = useQueryParams();
-  const styles = useStyles2(getStyles);
 
   const folderId = folderPath[folderPath.length - 1];
   const folder = folders[folderId];
@@ -70,7 +69,7 @@ export function ScopesDashboardsTree({
       ))}
 
       {/* Separator between regular and subScope sections */}
-      {hasRegularContent && hasSubScopeContent && <hr className={styles.separator} />}
+      {hasRegularContent && hasSubScopeContent && <hr {...stylex.props(styles.separator)} />}
 
       {/* SubScope folders */}
       {subScopeFolders.map(([subFolderId, subFolder]) => (
@@ -87,10 +86,15 @@ export function ScopesDashboardsTree({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  separator: css({
-    border: 'none',
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    margin: theme.spacing(1, 0),
-  }),
+const styles = stylex.create({
+  separator: {
+    borderStyle: 'none',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
 });

@@ -1,15 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { createElement, useMemo } from 'react';
 
-import {
-  type DataFrame,
-  type DataTransformerConfig,
-  type GrafanaTheme2,
-  type TransformerRegistryItem,
-} from '@grafana/data';
+import { type DataFrame, type DataTransformerConfig, type TransformerRegistryItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, JSONFormatter, useStyles2, Drawer } from '@grafana/ui';
+import { Icon, JSONFormatter, Drawer, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography, v1 } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type TransformationsEditorTransformation } from './types';
 
@@ -34,7 +30,11 @@ export const TransformationEditor = ({
   onChange,
   toggleShowDebug,
 }: TransformationEditorProps) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const debugProps = stylex.props(
+    styles.debug,
+    theme.isLight ? styles.debugBackgroundLight : styles.debugBackgroundDark
+  );
   const config = useMemo(() => configs[index], [configs, index]);
 
   const editor = useMemo(
@@ -62,25 +62,25 @@ export const TransformationEditor = ({
           onClose={toggleShowDebug}
         >
           <div
-            className={styles.debugWrapper}
+            {...stylex.props(styles.debugWrapper)}
             data-testid={selectors.components.TransformTab.transformationEditorDebugger(uiConfig.name)}
           >
-            <div className={styles.debug}>
-              <div className={styles.debugTitle}>
+            <div {...debugProps}>
+              <div {...stylex.props(styles.debugTitle)}>
                 <Trans i18nKey="dashboard.transformation-editor.input-data">Input data</Trans>
               </div>
-              <div className={styles.debugJson}>
+              <div {...stylex.props(styles.debugJson)}>
                 <JSONFormatter json={input} />
               </div>
             </div>
-            <div className={styles.debugSeparator}>
+            <div {...stylex.props(styles.debugSeparator)}>
               <Icon name="arrow-right" />
             </div>
-            <div className={styles.debug}>
-              <div className={styles.debugTitle}>
+            <div {...debugProps}>
+              <div {...stylex.props(styles.debugTitle)}>
                 <Trans i18nKey="dashboard.transformation-editor.output-data">Output data</Trans>
               </div>
-              <div className={styles.debugJson}>{output && <JSONFormatter json={output} />}</div>
+              <div {...stylex.props(styles.debugJson)}>{output && <JSONFormatter json={output} />}</div>
             </div>
           </div>
         </Drawer>
@@ -89,48 +89,64 @@ export const TransformationEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    debugWrapper: css({
-      display: 'flex',
-      flexDirection: 'row',
-    }),
-    debugSeparator: css({
-      width: '48px',
-      minHeight: '300px',
-      display: 'flex',
-      alignItems: 'center',
-      alignSelf: 'stretch',
-      justifyContent: 'center',
-      margin: `0 ${theme.spacing(0.5)}`,
-      color: theme.colors.primary.text,
-    }),
-    debugTitle: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(0.25)}`,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.primary,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      flexGrow: 0,
-      flexShrink: 1,
-    }),
-    debug: css({
-      marginTop: theme.spacing(1),
-      padding: `0 ${theme.spacing(1, 1, 1)}`,
-      border: `1px solid ${theme.colors.border.weak}`,
-      background: `${theme.isLight ? theme.v1.palette.white : theme.v1.palette.gray05}`,
-      borderRadius: theme.shape.radius.default,
-      width: '100%',
-      minHeight: '300px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignSelf: 'stretch',
-    }),
-    debugJson: css({
-      flexGrow: 1,
-      height: '100%',
-      overflow: 'hidden',
-      padding: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  debugWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  debugSeparator: {
+    width: '48px',
+    minHeight: '300px',
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    color: colors['--gf-colors-primary-text'],
+  },
+  debugTitle: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x0-25'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x0-25'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-primary'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    flexGrow: 0,
+    flexShrink: 1,
+  },
+  debug: {
+    marginTop: spacing['--gf-spacing-x1'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    width: '100%',
+    minHeight: '300px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignSelf: 'stretch',
+  },
+  debugBackgroundLight: {
+    backgroundColor: v1['--gf-v1-palette-white'],
+  },
+  debugBackgroundDark: {
+    backgroundColor: v1['--gf-v1-palette-gray05'],
+  },
+  debugJson: {
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'hidden',
+    padding: spacing['--gf-spacing-x0-5'],
+  },
+});

@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { useRef, type JSX } from 'react';
 
 import {
   CoreApp,
   type DataQueryResponse,
   type DataSourceApi,
-  type GrafanaTheme2,
   hasSupplementaryQuerySupport,
   LoadingState,
   LogsDedupStrategy,
@@ -18,7 +17,8 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery, LogsSortOrder, type TimeZone } from '@grafana/schema';
-import { Button, Collapse, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Collapse, Icon, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { LogList } from 'app/features/logs/components/panel/LogList';
 
 import { LogRows } from '../../logs/components/LogRows';
@@ -41,8 +41,6 @@ type Props = {
 export function LogsSamplePanel(props: Props) {
   const { queryResponse, timeZone, enabled, setLogsSampleEnabled, datasourceInstance, queries, splitOpen } = props;
   const newLogsPanelEnabled = useBooleanFlagValue('newLogsPanel', true);
-
-  const styles = useStyles2(getStyles, newLogsPanelEnabled);
 
   const logsContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,7 +77,7 @@ export function LogsSamplePanel(props: Props) {
     };
 
     return (
-      <Button size="sm" className={styles.logSamplesButton} onClick={onSplitOpen}>
+      <Button size="sm" className={stylex.props(styles.logSamplesButton).className} onClick={onSplitOpen}>
         <Trans i18nKey="explore.logs-sample-panel.open-in-split-view-button.open-logs-in-split-view">
           Open logs in split view
         </Trans>
@@ -153,7 +151,7 @@ export function LogsSamplePanel(props: Props) {
           <Tooltip
             content={t('explore.logs-sample-panel.tooltip', 'Show log lines that contributed to visualized metrics')}
           >
-            <Icon name="info-circle" className={styles.infoTooltip} />
+            <Icon name="info-circle" xstyle={styles.infoTooltip} />
           </Tooltip>
         </div>
       }
@@ -161,25 +159,29 @@ export function LogsSamplePanel(props: Props) {
       onToggle={onToggleLogsSampleCollapse}
     >
       <OpenInSplitViewButton />
-      <div className={styles.logContainer} ref={logsContainerRef}>
+      <div
+        {...stylex.props(styles.logContainer, newLogsPanelEnabled && styles.logContainerVisible)}
+        ref={logsContainerRef}
+      >
         {LogsSamplePanelContent}
       </div>
     </Collapse>
   ) : null;
 }
 
-const getStyles = (theme: GrafanaTheme2, newLogsPanelEnabled: boolean) => {
-  return {
-    logSamplesButton: css({
-      position: 'absolute',
-      top: theme.spacing(1),
-      right: theme.spacing(1),
-    }),
-    logContainer: css({
-      overflow: newLogsPanelEnabled ? 'visible' : 'scroll',
-    }),
-    infoTooltip: css({
-      marginLeft: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  logSamplesButton: {
+    position: 'absolute',
+    top: spacing['--gf-spacing-x1'],
+    right: spacing['--gf-spacing-x1'],
+  },
+  logContainer: {
+    overflow: 'scroll',
+  },
+  logContainerVisible: {
+    overflow: 'visible',
+  },
+  infoTooltip: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});

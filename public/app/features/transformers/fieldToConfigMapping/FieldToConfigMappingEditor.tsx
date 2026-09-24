@@ -1,15 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { capitalize } from 'lodash';
 
-import {
-  type DataFrame,
-  getFieldDisplayName,
-  type GrafanaTheme2,
-  ReducerID,
-  type SelectableValue,
-} from '@grafana/data';
+import { type DataFrame, getFieldDisplayName, ReducerID, type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Select, StatsPicker, useStyles2 } from '@grafana/ui';
+import { Select, StatsPicker } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import {
   configMapHandlers,
@@ -34,7 +29,6 @@ export interface Props {
 }
 
 export function FieldToConfigMappingEditor({ frame, mappings, onChange, withReducers, withNameAndValue }: Props) {
-  const styles = useStyles2(getStyles);
   const rows = getViewModelRows(frame, mappings, withNameAndValue);
   const configProps = configMapHandlers.map((def) => configHandlerToSelectOption(def, false)) as Array<
     SelectableValue<string>
@@ -89,22 +83,22 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
   };
 
   return (
-    <table className={styles.table}>
+    <table {...stylex.props(styles.table)}>
       <thead>
         <tr>
-          <th>
+          <th {...stylex.props(styles.cell, styles.headerCell)}>
             <Trans i18nKey="transformers.field-to-config-mapping-editor.field">Field</Trans>
           </th>
-          <th>
+          <th {...stylex.props(styles.cell, styles.headerCell)}>
             <Trans i18nKey="transformers.field-to-config-mapping-editor.use-as">Use as</Trans>
           </th>
           {withReducers && (
-            <th>
+            <th {...stylex.props(styles.cell, styles.headerCell)}>
               <Trans i18nKey="transformers.field-to-config-mapping-editor.select">Select</Trans>
             </th>
           )}
           {hasAdditionalSettings && (
-            <th>
+            <th {...stylex.props(styles.cell, styles.headerCell)}>
               <Trans i18nKey="transformers.field-to-config-mapping-editor.additional-settings">
                 Additional settings
               </Trans>
@@ -115,8 +109,8 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
       <tbody>
         {rows.map((row) => (
           <tr key={row.fieldName}>
-            <td className={styles.labelCell}>{row.fieldName}</td>
-            <td className={styles.selectCell} data-testid={`${row.fieldName}-config-key`}>
+            <td {...stylex.props(styles.cell, styles.labelCell)}>{row.fieldName}</td>
+            <td {...stylex.props(styles.cell, styles.selectCell)} data-testid={`${row.fieldName}-config-key`}>
               <Select
                 options={configProps}
                 value={row.configOption}
@@ -126,7 +120,7 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
               />
             </td>
             {withReducers && (
-              <td data-testid={`${row.fieldName}-reducer`} className={styles.selectCell}>
+              <td data-testid={`${row.fieldName}-reducer`} {...stylex.props(styles.cell, styles.selectCell)}>
                 <StatsPicker
                   stats={[row.reducerId]}
                   defaultStat={row.reducerId}
@@ -135,7 +129,7 @@ export function FieldToConfigMappingEditor({ frame, mappings, onChange, withRedu
               </td>
             )}
             {hasAdditionalSettings && (
-              <td data-testid={`${row.fieldName}-handler-arg`} className={styles.selectCell}>
+              <td data-testid={`${row.fieldName}-handler-arg`} {...stylex.props(styles.cell, styles.selectCell)}>
                 <FieldConfigMappingHandlerArgumentsEditor
                   handlerKey={row.handlerKey}
                   handlerArguments={row.handlerArguments}
@@ -222,32 +216,44 @@ function configHandlerToSelectOption(
   };
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    marginTop: theme.spacing(1),
-
-    'td, th': {
-      borderRight: `4px solid ${theme.colors.background.primary}`,
-      borderBottom: `4px solid ${theme.colors.background.primary}`,
-      whiteSpace: 'nowrap',
-    },
-    th: {
-      fontSize: theme.typography.bodySmall.fontSize,
-      lineHeight: theme.spacing(4),
-      padding: theme.spacing(0, 1),
-    },
-  }),
-  labelCell: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(0, 1),
+const styles = stylex.create({
+  table: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  cell: {
+    borderRightWidth: '4px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-background-primary'],
+    borderBottomWidth: '4px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-background-primary'],
+    whiteSpace: 'nowrap',
+  },
+  headerCell: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: spacing['--gf-spacing-x4'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  labelCell: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
     maxWidth: '400px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     minWidth: '140px',
-  }),
-  selectCell: css({
-    padding: 0,
+  },
+  selectCell: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     minWidth: '161px',
-  }),
+  },
 });

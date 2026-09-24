@@ -1,18 +1,10 @@
-import { css, cx } from '@emotion/css';
+import cx from 'classnames';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import {
-  type NavModel,
-  type NavModelItem,
-  type TimeRange,
-  PageLayoutType,
-  locationUtil,
-  type GrafanaTheme2,
-} from '@grafana/data';
+import { type NavModel, type NavModelItem, type TimeRange, PageLayoutType, locationUtil } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { locationService } from '@grafana/runtime';
-import { type Themeable2, withTheme2 } from '@grafana/ui';
 import { type ScrollRefElement } from 'app/core/components/NativeScrollbar';
 import { Page } from 'app/core/components/Page/Page';
 import { GrafanaContext, type GrafanaContextType } from 'app/core/context/GrafanaContext';
@@ -49,6 +41,7 @@ import { type DashboardPageRouteParams, type DashboardPageRouteSearchParams } fr
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import './DashboardPage.global.css';
 
 export const mapStateToProps = (state: StoreState) => ({
   initPhase: state.dashboard.initPhase,
@@ -68,8 +61,10 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 export type DashboardPageParams = { slug: string; uid: string; type: string; accessToken: string };
-export type Props = Themeable2 &
-  Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> &
+export type Props = Omit<
+  GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>,
+  'match'
+> &
   // The params returned from useParams are all optional, so we need to match that type here
   ConnectedProps<typeof connector> & { params: Partial<DashboardPageParams> };
 
@@ -87,43 +82,9 @@ export interface State {
   sectionNav?: NavModel;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  fullScreenPanel: css({
-    '.react-grid-layout': {
-      height: 'auto !important',
-      // eslint-disable-next-line @grafana/no-unreduced-motion
-      transitionProperty: 'none',
-    },
-    '.react-grid-item': {
-      display: 'none !important',
-      // eslint-disable-next-line @grafana/no-unreduced-motion
-      transitionProperty: 'none !important',
-
-      '&--fullscreen': {
-        display: 'block !important',
-        // can't avoid type assertion here due to !important
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        position: 'unset !important' as 'unset',
-        transform: 'translate(0px, 0px) !important',
-      },
-    },
-
-    // Disable grid interaction indicators in fullscreen panels
-    '.panel-header:hover': {
-      backgroundColor: 'inherit',
-    },
-
-    '.panel-title-container': {
-      cursor: 'pointer',
-    },
-
-    '.react-resizable-handle': {
-      display: 'none',
-    },
-  }),
-});
-
 export class UnthemedDashboardPage extends PureComponent<Props, State> {
+  static displayName = 'DashboardPage';
+
   declare context: GrafanaContextType;
   static contextType = GrafanaContext;
 
@@ -361,11 +322,10 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
   };
 
   render() {
-    const { dashboard, initError, queryParams, theme, params } = this.props;
+    const { dashboard, initError, queryParams, params } = this.props;
 
     const { editPanel, viewPanel, pageNav, sectionNav } = this.state;
     const kioskMode = getKioskMode(this.props.queryParams);
-    const styles = getStyles(theme);
 
     if (!dashboard || !pageNav || !sectionNav) {
       return <DashboardLoading initPhase={this.props.initPhase} />;
@@ -377,7 +337,7 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
     const showToolbar = kioskMode !== KioskMode.Full && !queryParams.editview && !initError;
 
     const pageClassName = cx({
-      [styles.fullScreenPanel]: Boolean(viewPanel),
+      'gf-dashboard-page--view-panel': Boolean(viewPanel),
       'page-hidden': Boolean(queryParams.editview || editPanel),
     });
 
@@ -501,6 +461,5 @@ function updateStatePageNavFromProps(props: Props, state: State): State {
   };
 }
 
-export const DashboardPage = withTheme2(UnthemedDashboardPage);
-DashboardPage.displayName = 'DashboardPage';
+export const DashboardPage = UnthemedDashboardPage;
 export default connector(DashboardPage);

@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
-
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
+
+import './CorrelationUnsavedChangesModal.css';
 
 interface UnsavedChangesModalProps {
   message: string;
@@ -19,7 +19,7 @@ export const CorrelationUnsavedChangesModal = ({ onSave, onDiscard, onCancel, me
         'Unsaved changes to correlation'
       )}
       onDismiss={onCancel}
-      className={css({ width: '600px' })}
+      className="gf-explore-correlation-unsaved-modal"
     >
       <h5>{message}</h5>
       <Modal.ButtonRow>

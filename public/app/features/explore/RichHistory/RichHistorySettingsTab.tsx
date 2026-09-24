@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getAppEvents } from '@grafana/runtime';
-import { useStyles2, Select, Button, Field, InlineField, InlineSwitch, Alert } from '@grafana/ui';
+import { Select, Button, Field, InlineField, InlineSwitch, Alert } from '@grafana/ui';
+import { typography, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { MAX_HISTORY_ITEMS } from 'app/core/history/RichHistoryLocalStorage';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -11,6 +12,8 @@ import { dispatch } from 'app/store/store';
 
 import { supportedFeatures } from '../../../core/history/richHistoryStorageProvider';
 import { ShowConfirmModalEvent } from '../../../types/events';
+
+import './RichHistorySettingsTab.css';
 
 export interface RichHistorySettingsProps {
   retentionPeriod: number;
@@ -22,25 +25,20 @@ export interface RichHistorySettingsProps {
   deleteRichHistory: () => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    spaceBetween: css({
-      marginBottom: theme.spacing(3),
-    }),
-    input: css({
-      maxWidth: '200px',
-    }),
-    bold: css({
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    bottomMargin: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  input: {
+    maxWidth: '200px',
+  },
+  bold: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  bottomMargin: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});
 
 export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
   const {
@@ -52,7 +50,6 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
     toggleActiveDatasourcesOnly,
     deleteRichHistory,
   } = props;
-  const styles = useStyles2(getStyles);
 
   const retentionPeriodOptions = [
     { value: 2, label: t('explore.rich-history-settings-tab.retention-period.2-days', '2 days') },
@@ -86,7 +83,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {supportedFeatures().changeRetention ? (
         <Field
           label={t('explore.rich-history-settings-tab.history-time-span', 'History time span')}
@@ -96,7 +93,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
             { MAX_HISTORY_ITEMS }
           )}
         >
-          <div className={styles.input}>
+          <div {...stylex.props(styles.input)}>
             <Select value={selectedOption} options={retentionPeriodOptions} onChange={onChangeRetentionPeriod}></Select>
           </div>
         </Field>
@@ -116,7 +113,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
           'explore.rich-history-settings-tab.change-default-tab',
           'Change the default active tab from “Query history” to “Starred”'
         )}
-        className={styles.spaceBetween}
+        className="gf-explore-rich-history-setting"
       >
         <InlineSwitch
           id="explore-query-history-settings-default-active-tab"
@@ -130,7 +127,7 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
             'explore.rich-history-settings-tab.only-show-active-datasource',
             'Only show queries for data source currently active in Explore'
           )}
-          className={styles.spaceBetween}
+          className="gf-explore-rich-history-setting"
         >
           <InlineSwitch
             id="explore-query-history-settings-data-source-behavior"
@@ -141,10 +138,10 @@ export function RichHistorySettingsTab(props: RichHistorySettingsProps) {
       )}
       {supportedFeatures().clearHistory && (
         <div>
-          <div className={styles.bold}>
+          <div {...stylex.props(styles.bold)}>
             <Trans i18nKey="explore.rich-history-settings-tab.clear-query-history">Clear query history</Trans>
           </div>
-          <div className={styles.bottomMargin}>
+          <div {...stylex.props(styles.bottomMargin)}>
             <Trans i18nKey="explore.rich-history-settings-tab.clear-history-info">
               Delete all of your query history, permanently.
             </Trans>

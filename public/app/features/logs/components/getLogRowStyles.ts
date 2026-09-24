@@ -32,9 +32,8 @@ export function getLogLevelStyle(theme: GrafanaTheme2, logLevel?: LogLevel) {
 }
 
 /**
- * `vars` sets the theme-derived colors of the rows below it (apply it to the `LogRows` root). The class names are
- * for callers outside features/logs that compose log rows themselves (Explore live tailing); `gf-logs-row` brings
- * the cell rules of `LogRows.css`.
+ * `vars` sets the theme-derived colors of the rows below it: apply it to the `LogRows` root, or to the root of rows
+ * composed elsewhere from `logRowStyles` and `LOGS_ROW_CLASS` (Explore live tailing).
  */
 export const getLogRowStyles = memoizeOne((theme: GrafanaTheme2) => ({
   vars: varStyles.vars(
@@ -42,9 +41,6 @@ export const getLogRowStyles = memoizeOne((theme: GrafanaTheme2) => ({
     tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
     colorManipulator.alpha(theme.colors.text.primary, 0.12)
   ),
-  logsRow: `${LOGS_ROW_CLASS} ${stylex.props(logRowStyles.logsRow).className ?? ''}`,
-  logsRowLocalTime: stylex.props(logRowStyles.logsRowLocalTime).className ?? '',
-  logsRowMessage: stylex.props(logRowStyles.logsRowMessage).className ?? '',
 }));
 
 /** Class names styled in LogRows.css: rules for elements the row components don't all render themselves. */

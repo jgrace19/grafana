@@ -1,46 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
-import { rawListItemColumnWidth, rawListPaddingToHoldSpaceForCopyIcon, type RawListValue } from './RawListItem';
+import { type RawListValue } from './RawListItem';
+import { rawListLayout } from './rawListLayout.stylex';
 import { RawPrometheusListItemEmptyValue } from './utils/getRawPrometheusListItemsFromDataFrame';
-
-const getStyles = (theme: GrafanaTheme2, totalNumberOfValues: number) => ({
-  rowWrapper: css({
-    position: 'relative',
-    minWidth: rawListItemColumnWidth,
-    paddingRight: '5px',
-  }),
-  rowValue: css({
-    whiteSpace: 'nowrap',
-    overflowX: 'auto',
-    MsOverflowStyle: 'none' /* IE and Edge */,
-    scrollbarWidth: 'none' /* Firefox */,
-    display: 'block',
-    paddingRight: '10px',
-
-    '&::-webkit-scrollbar': {
-      display: 'none' /* Chrome, Safari and Opera */,
-    },
-
-    '&:before': {
-      pointerEvents: 'none',
-      content: "''",
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      background: `linear-gradient(to right, transparent calc(100% - 25px), ${theme.colors.background.primary})`,
-    },
-  }),
-  rowValuesWrap: css({
-    paddingLeft: rawListPaddingToHoldSpaceForCopyIcon,
-    width: `calc(${totalNumberOfValues} * ${rawListItemColumnWidth})`,
-    display: 'flex',
-  }),
-});
 
 export const ItemValues = ({
   totalNumberOfValues,
@@ -51,20 +15,54 @@ export const ItemValues = ({
   values: RawListValue[];
   hideFieldsWithoutValues: boolean;
 }) => {
-  const styles = useStyles2(getStyles, totalNumberOfValues);
   return (
-    <div role={'cell'} className={styles.rowValuesWrap}>
+    <div role={'cell'} {...stylex.props(styles.rowValuesWrap, styles.rowValuesWrapWidth(totalNumberOfValues))}>
       {values?.map((value) => {
         if (hideFieldsWithoutValues && (value.value === undefined || value.value === RawPrometheusListItemEmptyValue)) {
           return null;
         }
 
         return (
-          <span key={value.key} className={styles.rowWrapper}>
-            <span className={styles.rowValue}>{value.value}</span>
+          <span key={value.key} {...stylex.props(styles.rowWrapper)}>
+            <span {...stylex.props(styles.rowValue)}>{value.value}</span>
           </span>
         );
       })}
     </div>
   );
 };
+
+const styles = stylex.create({
+  rowWrapper: {
+    position: 'relative',
+    minWidth: rawListLayout.columnWidth,
+    paddingRight: '5px',
+  },
+  rowValue: {
+    whiteSpace: 'nowrap',
+    overflowX: 'auto',
+    scrollbarWidth: 'none' /* Firefox */,
+    display: 'block',
+    paddingRight: '10px',
+    '::-webkit-scrollbar': {
+      display: 'none' /* Chrome, Safari and Opera */,
+    },
+    '::before': {
+      pointerEvents: 'none',
+      content: "''",
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      backgroundImage: `linear-gradient(to right, transparent calc(100% - 25px), ${colors['--gf-colors-background-primary']})`,
+    },
+  },
+  rowValuesWrap: {
+    paddingLeft: rawListLayout.copyIconSpace,
+    display: 'flex',
+  },
+  rowValuesWrapWidth: (totalNumberOfValues: number) => ({
+    width: `calc(${totalNumberOfValues} * ${rawListLayout.columnWidth})`,
+  }),
+});

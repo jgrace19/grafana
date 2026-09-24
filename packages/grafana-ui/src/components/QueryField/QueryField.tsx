@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import classnames from 'classnames';
 import { debounce } from 'lodash';
 import { PureComponent } from 'react';
@@ -17,8 +17,9 @@ import { NewlinePlugin } from '../../slate-plugins/newline';
 import { RunnerPlugin } from '../../slate-plugins/runner';
 import { SelectionShortcutsPlugin } from '../../slate-plugins/selection_shortcuts';
 import { SuggestionsPlugin } from '../../slate-plugins/suggestions';
-import { withTheme2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { colors } from '../../themes/stylex/tokens.stylex';
 import {
   type CompletionItemGroup,
   type SuggestionsState,
@@ -207,14 +208,17 @@ export class UnThemedQueryField extends PureComponent<QueryFieldProps, QueryFiel
   }
 
   render() {
-    const { disabled, theme, ['aria-labelledby']: ariaLabelledby } = this.props;
-    const wrapperClassName = classnames('slate-query-field__wrapper', {
-      'slate-query-field__wrapper--disabled': disabled,
-    });
-    const styles = getStyles(theme);
+    const { disabled, ['aria-labelledby']: ariaLabelledby } = this.props;
+    const wrapperClassName = classnames(
+      'slate-query-field__wrapper',
+      {
+        'slate-query-field__wrapper--disabled': disabled,
+      },
+      stylex.props(styles.wrapper).className
+    );
 
     return (
-      <div className={cx(wrapperClassName, styles.wrapper)}>
+      <div className={wrapperClassName}>
         <div className="slate-query-field" data-testid={selectors.components.QueryField.container}>
           <Editor
             ref={(editor) => {
@@ -250,13 +254,26 @@ export class UnThemedQueryField extends PureComponent<QueryFieldProps, QueryFiel
  *
  * @deprecated
  */
-export const QueryField = withTheme2(UnThemedQueryField);
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const focusStyles = getFocusStyles(theme);
-  return {
-    wrapper: css({
-      '&:focus-within': focusStyles,
-    }),
-  };
+export const QueryField: React.FunctionComponent<Omit<QueryFieldProps, 'theme'>> = (props) => {
+  const theme = useTheme2();
+  return <UnThemedQueryField {...props} theme={theme} />;
 };
+QueryField.displayName = 'QueryField';
+
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+const styles = stylex.create({
+  wrapper: {
+    outlineStyle: { default: null, ':focus-within': 'dotted' },
+    outlineWidth: { default: null, ':focus-within': '2px' },
+    outlineColor: { default: null, ':focus-within': 'transparent' },
+    outlineOffset: { default: null, ':focus-within': '2px' },
+    boxShadow: { default: null, ':focus-within': focusRing },
+    transitionProperty: { default: null, ':focus-within': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus-within': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus-within': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+  },
+});

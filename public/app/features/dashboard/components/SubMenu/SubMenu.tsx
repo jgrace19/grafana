@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import * as React from 'react';
 import { connect, type MapStateToProps } from 'react-redux';
 
-import { type AnnotationQuery, type DataQuery, type TypedVariableModel, type GrafanaTheme2 } from '@grafana/data';
+import { type AnnotationQuery, type DataQuery, type TypedVariableModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type DashboardLink } from '@grafana/schema';
-import { stylesFactory, type Themeable2, withTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type StoreState } from 'app/types/store';
 
 import { getSubMenuVariables, getVariablesState } from '../../../variables/state/selectors';
@@ -16,7 +16,7 @@ import { Annotations } from './Annotations';
 import { DashboardLinks } from './DashboardLinks';
 import { SubMenuItems } from './SubMenuItems';
 
-interface OwnProps extends Themeable2 {
+interface OwnProps {
   dashboard: DashboardModel;
   links: DashboardLink[];
   annotations: AnnotationQuery[];
@@ -49,17 +49,15 @@ class SubMenuUnConnected extends PureComponent<Props> {
   };
 
   render() {
-    const { dashboard, variables, links, annotations, theme } = this.props;
-
-    const styles = getStyles(theme);
+    const { dashboard, variables, links, annotations } = this.props;
 
     const readOnlyVariables = dashboard.meta.isSnapshot ?? false;
 
     return (
-      <div className={styles.submenu}>
+      <div {...stylex.props(styles.submenu)}>
         <form
           aria-label={t('dashboard.sub-menu-un-connected.aria-label-template-variables', 'Template variables')}
-          className={styles.formStyles}
+          {...stylex.props(styles.formStyles)}
           onSubmit={this.disableSubmitOnEnter}
         >
           <SubMenuItems variables={variables} readOnly={readOnlyVariables} />
@@ -69,7 +67,7 @@ class SubMenuUnConnected extends PureComponent<Props> {
           onAnnotationChanged={this.onAnnotationStateChanged}
           events={dashboard.events}
         />
-        <div className={styles.spacer} />
+        <div {...stylex.props(styles.spacer)} />
         {dashboard && <DashboardLinks dashboard={dashboard} links={links} />}
       </div>
     );
@@ -84,27 +82,29 @@ const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (
   };
 };
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => {
-  return {
-    formStyles: css({
-      display: 'contents',
-      flexWrap: 'wrap',
-    }),
-    submenu: css({
-      display: 'flex',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignContent: 'flex-start',
-      alignItems: 'flex-start',
-      gap: `${theme.spacing(1)} ${theme.spacing(2)}`,
-      padding: `0 0 ${theme.spacing(1)} 0`,
-    }),
-    spacer: css({
-      flexGrow: 1,
-    }),
-  };
+const styles = stylex.create({
+  formStyles: {
+    display: 'contents',
+    flexWrap: 'wrap',
+  },
+  submenu: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+    alignItems: 'flex-start',
+    rowGap: spacing['--gf-spacing-x1'],
+    columnGap: spacing['--gf-spacing-x2'],
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+  },
+  spacer: {
+    flexGrow: 1,
+  },
 });
 
-export const SubMenu = withTheme2(connect(mapStateToProps)(SubMenuUnConnected));
+export const SubMenu = connect(mapStateToProps)(SubMenuUnConnected);
 
 SubMenu.displayName = 'SubMenu';

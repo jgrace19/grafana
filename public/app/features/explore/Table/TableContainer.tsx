@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
@@ -15,7 +15,8 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { config, getTemplateSrv, PanelRenderer } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { type AdHocFilterItem, PanelChrome, withTheme2, type Themeable2, PanelContextProvider } from '@grafana/ui';
+import { type AdHocFilterItem, PanelChrome, PanelContextProvider } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   hasDeprecatedParentRowIndex,
   migrateFromParentRowIndexToNestedFrames,
@@ -30,7 +31,7 @@ import { exploreDataLinkPostProcessorFactory } from '../utils/links';
 
 const MAX_NUMBER_OF_COLUMNS = 20;
 
-interface TableContainerProps extends Themeable2 {
+interface TableContainerProps {
   exploreId: string;
   width: number;
   timeZone: TimeZone;
@@ -91,8 +92,7 @@ export class TableContainer extends PureComponent<Props, State> {
   }
 
   render() {
-    const { loading, onCellFilterAdded, tableResult, width, splitOpenFn, range, timeZone, theme, eventBus } =
-      this.props;
+    const { loading, onCellFilterAdded, tableResult, width, splitOpenFn, range, timeZone, eventBus } = this.props;
 
     const { showAll } = this.state;
 
@@ -151,7 +151,7 @@ export class TableContainer extends PureComponent<Props, State> {
           </PanelChrome>
         )}
         {frames && frames.length > 0 && (
-          <div className={css({ display: 'flex', flexDirection: 'column', gap: theme.spacing(1) })}>
+          <div {...stylex.props(styles.tables)}>
             {frames.map((data, i) => (
               <PanelChrome
                 key={data.refId || `table-${i}`}
@@ -210,6 +210,14 @@ export class TableContainer extends PureComponent<Props, State> {
   }
 }
 
-export const TableContainerWithTheme = withTheme2(TableContainer);
+export const TableContainerWithTheme = TableContainer;
 
-export default withTheme2(connector(TableContainer));
+export default connector(TableContainer);
+
+const styles = stylex.create({
+  tables: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

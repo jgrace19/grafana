@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { lastValueFrom } from 'rxjs';
 
@@ -21,7 +21,6 @@ import {
   type ExploreLogsPanelState,
   type AbsoluteTimeRange,
   type LogRowModel,
-  type GrafanaTheme2,
 } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import {
@@ -30,9 +29,9 @@ import {
   type TableSortByFieldState,
   Table,
   TableCellDisplayMode,
-  useStyles2,
 } from '@grafana/ui';
 import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DATAPLANE_ID_NAME, type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { getFieldLinksForExplore } from '../utils/links';
@@ -79,7 +78,6 @@ export function LogsTable(props: Props) {
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
   const [columnWidthMap, setColumnWidthMap] = useState<Record<string, number>>({});
   const timeIndex = logsFrame?.timeField.index;
-  const styles = useStyles2(getStyles);
 
   // Extract selected log ID from URL parameter
   const selectedLogInfo = useMemo(() => {
@@ -203,7 +201,7 @@ export function LogsTable(props: Props) {
                         absoluteRange={props.absoluteRange}
                         logRows={props.logRows}
                       />
-                      <span className={styles.firstColumnCell}>
+                      <span {...stylex.props(styles.firstColumnCell)}>
                         {cellProps.field.display?.(cellProps.value).text ?? String(cellProps.value)}
                       </span>
                     </>
@@ -212,7 +210,7 @@ export function LogsTable(props: Props) {
               : field.config.custom?.cellOptions,
             headerComponent: isFirstField
               ? (headerProps: { defaultContent: React.ReactNode }) => (
-                  <div className={styles.firstColumnHeader}>{headerProps.defaultContent}</div>
+                  <div {...stylex.props(styles.firstColumnHeader)}>{headerProps.defaultContent}</div>
                 )
               : field.config.custom?.headerComponent,
           },
@@ -234,8 +232,6 @@ export function LogsTable(props: Props) {
       columnWidthMap,
       logsFrame,
       timeIndex,
-      styles.firstColumnCell,
-      styles.firstColumnHeader,
       props.displayedFields,
       props.exploreId,
       props.panelState,
@@ -436,14 +432,13 @@ function getInitialFieldWidth(field: Field): number | undefined {
   return undefined;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  firstColumnHeader: css({
+const styles = stylex.create({
+  firstColumnHeader: {
     display: 'flex',
-    label: 'wrapper',
-    marginLeft: theme.spacing(7),
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 7)`,
     width: '100%',
-  }),
-  firstColumnCell: css({
-    paddingLeft: theme.spacing(7),
-  }),
+  },
+  firstColumnCell: {
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 7)`,
+  },
 });
