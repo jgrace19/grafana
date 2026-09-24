@@ -7,8 +7,6 @@ import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 
-import './Collapse.css';
-
 export interface Props {
   /** Expand or collapse te content */
   isOpen?: boolean;
@@ -20,6 +18,8 @@ export interface Props {
   onToggle?: (isOpen: boolean) => void;
   /** Additional class name for the root element */
   className?: string;
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
   /** @deprecated this prop is no longer used and will be removed in Grafana 13 */
   collapsible?: boolean;
 }
@@ -45,7 +45,15 @@ export const ControlledCollapse = ({ isOpen, onToggle, ...otherProps }: React.Pr
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/layout-collapse--docs
  */
-export const Collapse = ({ isOpen, label, loading, onToggle, className, children }: React.PropsWithChildren<Props>) => {
+export const Collapse = ({
+  isOpen,
+  label,
+  loading,
+  onToggle,
+  className,
+  xstyle,
+  children,
+}: React.PropsWithChildren<Props>) => {
   const labelId = useId();
   const contentId = useId();
 
@@ -55,7 +63,7 @@ export const Collapse = ({ isOpen, label, loading, onToggle, className, children
     }
   };
   return (
-    <div {...mergeStylexProps(stylex.props(styles.collapse), { className })}>
+    <div {...mergeStylexProps(stylex.props(styles.collapse, xstyle), { className })}>
       {/* the inner button handles keyboard a11y. this is a convenience for mouse users */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div {...stylex.props(styles.header)} onClick={onClickToggle}>
@@ -63,7 +71,7 @@ export const Collapse = ({ isOpen, label, loading, onToggle, className, children
           aria-describedby={labelId}
           aria-expanded={isOpen}
           aria-controls={contentId}
-          className="gf-collapse-button"
+          xstyle={styles.button}
           aria-labelledby={labelId}
           name={isOpen ? 'angle-down' : 'angle-right'}
         />
@@ -97,6 +105,9 @@ const loader = stylex.keyframes({
 const grid = spacing['--gf-spacing-grid-size'];
 
 const styles = stylex.create({
+  button: {
+    marginRight: 0,
+  },
   collapse: {
     marginBottom: grid,
     backgroundColor: colors['--gf-colors-background-primary'],

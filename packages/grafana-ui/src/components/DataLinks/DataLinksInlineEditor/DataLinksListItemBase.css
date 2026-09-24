@@ -1,7 +1,0 @@
-/*
- * Recolours IconButton, which has no StyleX override prop. Deliberately not in a cascade layer: like the Emotion
- * class it replaces, it must win over IconButton's own colour.
- */
-.gf-data-links-list-item-icon {
-  color: var(--gf-colors-text-secondary);
-}

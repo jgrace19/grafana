@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { type ActionModel, type ActionVariableInput } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
@@ -6,8 +8,6 @@ import { Field } from '../Forms/Field';
 import { FieldSet } from '../Forms/FieldSet';
 import { Input } from '../Input/Input';
 import { Modal } from '../Modal/Modal';
-
-import './VariablesInputModal.css';
 
 interface Props {
   action: ActionModel;
@@ -31,7 +31,7 @@ export function VariablesInputModal({ action, onDismiss, onShowConfirm, variable
       isOpen={true}
       title={t('grafana-ui.action-editor.button.action-variables-title', 'Action variables')}
       onDismiss={onDismiss}
-      className="gf-variables-input-modal"
+      xstyle={styles.modal}
     >
       <FieldSet>
         {action.variables!.map((variable) => (
@@ -59,3 +59,10 @@ export function VariablesInputModal({ action, onDismiss, onShowConfirm, variable
     </Modal>
   );
 }
+
+const styles = stylex.create({
+  // Raises the variables modal above other modals.
+  modal: {
+    zIndex: 10000,
+  },
+});

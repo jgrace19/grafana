@@ -1,19 +1,8 @@
 /*
- * Data link buttons in the tooltip footer restyle Button (and its label span), which StyleX can't override
- * from outside. Deliberately not in a cascade layer: like the Emotion class it replaces, it must win over
- * Button's own styles.
+ * The label span inside the data link Buttons wraps instead of truncating. It's Button's internal element, which
+ * no StyleX override prop reaches. Deliberately not in a cascade layer: like the Emotion rule it replaces, it must
+ * win over Button's own span styles.
  */
-.gf-viz-tooltip-footer-link {
-  cursor: pointer;
-  padding: 0;
-  height: auto;
-}
-
-.gf-viz-tooltip-footer-link:hover {
-  text-decoration: underline;
-  background: none;
-}
-
 .gf-viz-tooltip-footer-link span {
   white-space: normal;
   text-align: left;

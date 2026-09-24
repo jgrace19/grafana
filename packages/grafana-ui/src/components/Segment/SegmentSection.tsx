@@ -5,7 +5,7 @@ import { spacing } from '../../themes/stylex/tokens.stylex';
 import { InlineFieldRow } from '../Forms/InlineFieldRow';
 import { InlineLabel } from '../Forms/InlineLabel';
 
-import './Segment.css';
+import { segmentStyles } from './styles';
 
 /**
  * Horizontal section for editor components.
@@ -30,7 +30,7 @@ export const SegmentSection = ({
   return (
     <>
       <InlineFieldRow>
-        <InlineLabel htmlFor={htmlFor} width={12} className="gf-segment-section-label">
+        <InlineLabel htmlFor={htmlFor} width={12} xstyle={segmentStyles.sectionLabel}>
           {label}
         </InlineLabel>
         {children}

@@ -1,12 +1,7 @@
 /*
- * Spaces the remove button after the retry button (it must win over the IconButton's own margin) and styles
- * the upload progress bar's pseudo-elements, which StyleX doesn't support. Deliberately not in a cascade
+ * Styles the upload progress bar's pseudo-elements, which StyleX doesn't support. Deliberately not in a cascade
  * layer, like the Emotion rules they replace.
  */
-.gf-file-list-item-remove {
-  margin-left: var(--gf-spacing-grid-size);
-}
-
 .gf-file-list-item-progress::-webkit-progress-bar {
   background-color: var(--gf-colors-border-weak);
   border-radius: var(--gf-shape-radius-default);

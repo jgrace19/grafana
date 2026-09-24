@@ -11,8 +11,6 @@ import { Icon } from '../Icon/Icon';
 
 import { PanelMenu } from './PanelMenu';
 
-import './HoverWidget.css';
-
 interface Props {
   children?: React.ReactNode;
   menu?: ReactElement | (() => ReactElement);
@@ -66,7 +64,7 @@ export function HoverWidget({ menu, title, dragClass, children, offset = -32, on
           menu={menu}
           title={title}
           placement="bottom"
-          menuButtonClass="gf-hover-widget-menu-button"
+          menuButtonXstyle={styles.menuButton}
           onOpenMenu={onOpenMenu}
         />
       )}
@@ -74,7 +72,18 @@ export function HoverWidget({ menu, title, dragClass, children, offset = -32, on
   );
 }
 
+// Button's own hover, focus and active backgrounds still apply on top, as they did over the Emotion class.
 const styles = stylex.create({
+  menuButton: {
+    backgroundColor: {
+      default: 'inherit',
+      ':hover': colors['--gf-colors-secondary-shade'],
+      ':focus': colors['--gf-colors-secondary-shade'],
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    backgroundImage: 'inherit',
+    borderStyle: 'none',
+  },
   container: {
     transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'all' },
     transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '.1s' },

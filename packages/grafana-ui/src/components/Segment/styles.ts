@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-import './Segment.css';
+import { colors } from '../../themes/stylex/tokens.stylex';
 
 export const segmentStyles = stylex.create({
   segment: {
@@ -12,7 +12,12 @@ export const segmentStyles = stylex.create({
     opacity: 0.65,
     boxShadow: 'none',
   },
-});
 
-/** Recolours InlineLabel, which sets its own colour: see Segment.css. */
-export const SEGMENT_PLACEHOLDER_CLASS = 'gf-segment-placeholder';
+  placeholder: {
+    color: colors['--gf-colors-text-disabled'],
+  },
+
+  sectionLabel: {
+    color: colors['--gf-colors-primary-text'],
+  },
+});

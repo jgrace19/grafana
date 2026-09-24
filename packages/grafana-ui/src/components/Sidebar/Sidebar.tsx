@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import { type ReactNode } from 'react';
 import { useMedia } from 'react-use';
 
@@ -11,8 +10,6 @@ import { durations, easings, motion, zIndex } from '../../themes/stylex/constant
 import { colors, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 import { getPortalContainer } from '../Portal/Portal';
-
-import './Sidebar.css';
 
 import { SidebarButton } from './SidebarButton';
 import { SidebarPaneHeader } from './SidebarPaneHeader';
@@ -52,10 +49,7 @@ export function SidebarComp({ children, contextValue }: Props) {
     return (
       <SidebarContext.Provider value={contextValue}>
         <IconButton
-          className={clsx(
-            'gf-sidebar-show-button',
-            position === 'left' ? 'gf-sidebar-show-button--left' : 'gf-sidebar-show-button--right'
-          )}
+          xstyle={[styles.showButton, position === 'left' ? styles.showButtonLeft : styles.showButtonRight]}
           variant="secondary"
           name={'arrow-to-right'}
           tooltip={t('grafana-ui.sidebar.show', 'Show')}
@@ -169,6 +163,23 @@ export { useSidebar, useSidebarContext, type SidebarContextValue, type SidebarPo
 const grid = spacing['--gf-spacing-grid-size'];
 
 const styles = stylex.create({
+  showButton: {
+    position: 'fixed',
+    top: '50%',
+    zIndex: 1000,
+    padding: spacing['--gf-spacing-grid-size'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-strong'],
+  },
+  showButtonRight: {
+    right: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    transform: 'scaleX(-1)',
+  },
+  showButtonLeft: {
+    left: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
   container: {
     display: 'flex',
     position: 'absolute',

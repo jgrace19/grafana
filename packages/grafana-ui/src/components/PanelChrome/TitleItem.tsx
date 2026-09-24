@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import { forwardRef } from 'react';
 import * as React from 'react';
 
@@ -10,8 +9,6 @@ import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { colors, components, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Button } from '../Button/Button';
 
-import './TitleItem.css';
-
 type TitleItemProps = {
   className?: string;
   children: React.ReactNode;
@@ -19,12 +16,14 @@ type TitleItemProps = {
   href?: string;
   target?: LinkTarget;
   title?: string;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 };
 
 type TitleItemElement = HTMLAnchorElement & HTMLButtonElement;
 
 export const TitleItem = forwardRef<TitleItemElement, TitleItemProps>(
-  ({ className, children, href, onClick, target, title, ...rest }, ref) => {
+  ({ className, children, href, onClick, target, title, xstyle, ...rest }, ref) => {
     if (href) {
       return (
         <a
@@ -33,7 +32,7 @@ export const TitleItem = forwardRef<TitleItemElement, TitleItemProps>(
           onClick={onClick}
           target={target}
           title={title}
-          {...mergeStylexProps(stylex.props(styles.item, styles.pointer), { className })}
+          {...mergeStylexProps(stylex.props(styles.item, styles.pointer, xstyle), { className })}
           {...rest}
         >
           {children}
@@ -43,7 +42,8 @@ export const TitleItem = forwardRef<TitleItemElement, TitleItemProps>(
       return (
         <Button
           ref={ref}
-          className={clsx('gf-panel-header-item', className)}
+          className={className}
+          xstyle={[styles.buttonItem, xstyle]}
           variant="secondary"
           fill="text"
           onClick={onClick}
@@ -53,7 +53,7 @@ export const TitleItem = forwardRef<TitleItemElement, TitleItemProps>(
       );
     } else {
       return (
-        <span ref={ref} {...mergeStylexProps(stylex.props(styles.item), { className })} {...rest}>
+        <span ref={ref} {...mergeStylexProps(stylex.props(styles.item, xstyle), { className })} {...rest}>
           {children}
         </span>
       );
@@ -100,5 +100,48 @@ const styles = stylex.create({
   },
   pointer: {
     cursor: 'pointer',
+  },
+  // `styles.item` over Button's secondary text look. Button's focus and active backgrounds and its mouse-focus reset
+  // still apply, and `item`'s :hover rules came after Button's state rules, as in the merged Emotion class.
+  buttonItem: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-secondary-shade'],
+      ':focus': {
+        default: colors['--gf-colors-secondary-transparent'],
+        ':hover': colors['--gf-colors-secondary-shade'],
+      },
+      ':active': { default: 'transparent', ':hover': colors['--gf-colors-secondary-shade'] },
+    },
+    boxShadow: {
+      default: null,
+      ':hover': shadows['--gf-shadows-z1'],
+      ':focus': {
+        default: focusRing,
+        ':hover': { default: shadows['--gf-shadows-z1'], ':not(:focus-visible)': 'none' },
+        ':not(:focus-visible)': 'none',
+      },
+    },
+    outlineStyle: { default: null, ':hover': 'none', ':focus': { default: 'dotted', ':not(:focus-visible)': 'none' } },
+    outlineWidth: { default: null, ':focus': '2px' },
+    outlineColor: { default: null, ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    transitionProperty: {
+      default: null,
+      [motion.noPreferenceOrReduce]: {
+        default: 'background-color, border-color, color',
+        ':focus': 'outline, outline-offset, box-shadow',
+      },
+    },
+    zIndex: { default: null, ':focus': 1 },
   },
 });

@@ -9,8 +9,6 @@ import { Badge } from '../../Badge/Badge';
 import { Icon } from '../../Icon/Icon';
 import { IconButton } from '../../IconButton/IconButton';
 
-import './DataLinksListItemBase.css';
-
 export interface DataLinksListItemBaseProps<T extends DataLink | Action> {
   index: number;
   item: T;
@@ -64,13 +62,13 @@ export function DataLinksListItemBase<T extends DataLink | Action>({
             <IconButton
               name="pen"
               onClick={onEdit}
-              className="gf-data-links-list-item-icon"
+              xstyle={styles.icon}
               tooltip={t('grafana-ui.data-links-inline-editor.tooltip-edit', 'Edit')}
             />
             <IconButton
               name="trash-alt"
               onClick={onRemove}
-              className="gf-data-links-list-item-icon"
+              xstyle={styles.icon}
               tooltip={t('grafana-ui.data-links-inline-editor.tooltip-remove', 'Remove')}
             />
             <div {...stylex.props(styles.dragIcon)} {...provided.dragHandleProps}>
@@ -90,6 +88,9 @@ export function DataLinksListItemBase<T extends DataLink | Action>({
 }
 
 const styles = stylex.create({
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
   wrapper: {
     display: 'flex',
     flexGrow: 1,
