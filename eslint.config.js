@@ -137,6 +137,8 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
   'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
+  // D2 dashboard-scene: remaining directories
+  'public/app/features/dashboard-scene/{assistant,components,conditional-rendering,embedding,inspect,pages,saving,sharing,solo,utils,v2schema}/**/*.{ts,tsx}',
   // M2 admin and misc features
   'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
   'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,ServerStatsCard,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
