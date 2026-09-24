@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, type IconName, useStyles2 } from '@grafana/ui';
+import { Icon, type IconName, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props extends HTMLAttributes<HTMLButtonElement> {
   icon: IconName;
@@ -12,11 +13,16 @@ interface Props extends HTMLAttributes<HTMLButtonElement> {
 }
 
 export const CardButton = React.forwardRef<HTMLButtonElement, Props>(
-  ({ icon, children, onClick, ...restProps }, ref) => {
-    const styles = useStyles2(getStyles);
+  ({ icon, children, onClick, style, ...restProps }, ref) => {
+    const theme = useTheme2();
+    const hoverBackground = theme.colors.emphasize(theme.colors.background.secondary);
 
     return (
-      <button {...restProps} className={styles.action} onClick={onClick}>
+      <button
+        {...restProps}
+        {...mergeStylexProps(stylex.props(styles.action, styles.hoverBackground(hoverBackground)), { style })}
+        onClick={onClick}
+      >
         <Icon name={icon} size="xl" />
         {children}
       </button>
@@ -26,28 +32,24 @@ export const CardButton = React.forwardRef<HTMLButtonElement, Props>(
 
 CardButton.displayName = 'CardButton';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    action: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-
-      justifySelf: 'center',
-      cursor: 'pointer',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.primary,
-      border: 'unset',
-      width: '100%',
-
-      justifyContent: 'center',
-      alignItems: 'center',
-      textAlign: 'center',
-
-      '&:hover': {
-        background: theme.colors.emphasize(theme.colors.background.secondary),
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  action: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    justifySelf: 'center',
+    cursor: 'pointer',
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-primary'],
+    borderWidth: 'unset',
+    borderStyle: 'unset',
+    borderColor: 'unset',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  hoverBackground: (hover: string) => ({
+    backgroundColor: { default: colors['--gf-colors-background-secondary'], ':hover': hover },
+  }),
+});

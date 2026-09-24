@@ -1,5 +1,6 @@
-import { css, cx } from '@emotion/css';
 import { autoUpdate, offset, useFloating } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import Prism, { type Grammar, type LanguageMap } from 'prismjs';
 import { memo, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
@@ -8,16 +9,18 @@ import { type Value } from 'slate';
 import Plain from 'slate-plain-serializer';
 import { Editor } from 'slate-react';
 
-import { DataLinkBuiltInVars, type GrafanaTheme2, VariableOrigin, type VariableSuggestion } from '@grafana/data';
+import { DataLinkBuiltInVars, VariableOrigin, type VariableSuggestion } from '@grafana/data';
 
-import { getInputStyles } from '../../compat/emotion/inputStyles';
 import { SlatePrism } from '../../slate-plugins/slate-prism';
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { SCHEMA, makeValue } from '../../utils/slate';
+import { inputBorderStyles, inputStyles } from '../Input/Input';
 import { Portal } from '../Portal/Portal';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
+
+import './DataLinkInput.css';
 
 import { DataLinkSuggestions } from './DataLinkSuggestions';
 import { SelectionReference } from './SelectionReference';
@@ -47,32 +50,6 @@ const plugins = [
   ),
 ];
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  input: getInputStyles({ theme, invalid: false }).input,
-  editor: css({
-    '.token.builtInVariable': {
-      color: theme.colors.success.text,
-    },
-    '.token.variable': {
-      color: theme.colors.primary.text,
-    },
-  }),
-  suggestionsWrapper: css({
-    boxShadow: theme.shadows.z2,
-  }),
-  // Wrapper with child selector needed.
-  // When classnames are applied to the same element as the wrapper, it causes the suggestions to stop working
-  wrapperOverrides: css({
-    width: '100%',
-    '> .slate-query-field__wrapper': {
-      padding: 0,
-      backgroundColor: 'transparent',
-      border: 'none',
-      '&:focus-within': getFocusStyles(theme),
-    },
-  }),
-});
-
 // This memoised also because rerendering the slate editor grabs focus which created problem in some cases this
 // was used and changes to different state were propagated here.
 export const DataLinkInput = memo(
@@ -83,7 +60,12 @@ export const DataLinkInput = memo(
     placeholder = 'http://your-grafana.com/d/000000010/annotations',
   }: DataLinkInputProps) => {
     const editorRef = useRef<Editor>(null);
-    const styles = useStyles2(getStyles);
+    const theme = useTheme2();
+    // The editor reuses Input's input styles; DataLinkInput.css overrides their padding.
+    const inputClassName = stylex.props(
+      inputStyles.input,
+      inputBorderStyles[theme.isDark ? 'dark' : 'light']
+    ).className;
     const [showingSuggestions, setShowingSuggestions] = useState(false);
     const [suggestionsIndex, setSuggestionsIndex] = useState(0);
     const [linkUrl, setLinkUrl] = useState<Value>(makeValue(value));
@@ -204,7 +186,7 @@ export const DataLinkInput = memo(
     };
 
     return (
-      <div className={styles.wrapperOverrides}>
+      <div {...mergeStylexProps(stylex.props(styles.wrapperOverrides), { className: 'gf-data-link-input' })}>
         <div className="slate-query-field__wrapper">
           <div id="data-link-input" className="slate-query-field">
             {showingSuggestions && (
@@ -234,13 +216,7 @@ export const DataLinkInput = memo(
               onChange={onUrlChange}
               onKeyDown={(event, _editor, next) => onKeyDown(event, next)}
               plugins={plugins}
-              className={cx(
-                styles.editor,
-                styles.input,
-                css({
-                  padding: '3px 8px',
-                })
-              )}
+              className={clsx(inputClassName, 'gf-data-link-input-editor')}
             />
           </div>
         </div>
@@ -254,3 +230,9 @@ DataLinkInput.displayName = 'DataLinkInput';
 function getElementPosition(suggestionElement: HTMLElement | null, activeIndex: number) {
   return (suggestionElement?.clientHeight ?? 0) * activeIndex;
 }
+
+const styles = stylex.create({
+  wrapperOverrides: {
+    width: '100%',
+  },
+});

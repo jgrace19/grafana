@@ -1,10 +1,11 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type MouseEventHandler } from 'react';
 
 import { type DisplayValue, type DisplayValueAlignmentFactors, type FieldSparkline } from '@grafana/data';
 import { type PercentChangeColorMode, type VizTextDisplayOptions } from '@grafana/schema';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors } from '../../themes/stylex/tokens.stylex';
 import { type Themeable2 } from '../../types/theme';
 import { FormattedValueDisplay } from '../FormattedValueDisplay/FormattedValueDisplay';
 
@@ -88,7 +89,7 @@ export interface Props extends Themeable2 {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/plugins-bigvalue--docs
  */
 export const BigValue = memo<Props>((props) => {
-  const { onClick, className, hasLinks, theme, justifyMode = BigValueJustifyMode.Auto } = props;
+  const { onClick, className, hasLinks, justifyMode = BigValueJustifyMode.Auto } = props;
 
   const layout = buildLayout({ ...props, justifyMode });
   const panelStyles = layout.getPanelStyles();
@@ -124,7 +125,7 @@ export const BigValue = memo<Props>((props) => {
   return (
     <button
       type="button"
-      className={cx(clearButtonStyles(theme), className)}
+      className={mergeStylexProps(stylex.props(styles.clearButton), { className }).className}
       style={panelStyles}
       onClick={onClick}
       title={tooltip}
@@ -139,3 +140,12 @@ export const BigValue = memo<Props>((props) => {
 });
 
 BigValue.displayName = 'BigValue';
+
+const styles = stylex.create({
+  clearButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+  },
+});

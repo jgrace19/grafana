@@ -117,6 +117,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/utils/skeleton.tsx',
   // U8 chrome
   'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
+  // U7 viz (part 2)
+  'packages/grafana-ui/src/components/{BarGauge,BigValue,ColorPicker,DataLinks,Slider}/**/*.{ts,tsx}',
   // U2 inputs
   'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
 ];
@@ -207,8 +209,15 @@ const stylexMigratedAppFiles = [
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
-/** @type {string[]} */
-const stylexNotMigratedAppFiles = [];
+const stylexNotMigratedAppFiles = [
+  // C1 core: notifications, options UI, query rows, splash screen, tags and the rest of core/components
+  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,QueryOperationRow,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
+  'public/app/core/components/CardButton.tsx',
+  'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
+  'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
+  'public/app/core/components/SplashScreenModal/{SplashScreenNav,SplashScreenSlide}.tsx',
+  'public/app/core/components/TagFilter/*.{ts,tsx}',
+];
 
 const stylexRestrictedImports = {
   patterns: [
