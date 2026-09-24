@@ -1,9 +1,15 @@
-import { clsx } from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 
 import { Legend } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import './VariableLegend.css';
-
-export function VariableLegend({ className, ...rest }: Parameters<typeof Legend>['0']) {
-  return <Legend {...rest} className={clsx('gf-variable-legend', className)} />;
+export function VariableLegend({ xstyle, ...rest }: Parameters<typeof Legend>['0']) {
+  return <Legend {...rest} xstyle={[styles.legend, xstyle]} />;
 }
+
+const styles = stylex.create({
+  legend: {
+    marginTop: spacing['--gf-spacing-x3'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});

@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import type * as H from 'history';
 import { memo, useContext, useEffect, useMemo } from 'react';
 
@@ -16,8 +17,6 @@ import { type DashboardMeta } from 'app/types/dashboard';
 import { SaveLibraryVizPanelModal } from '../panel-edit/SaveLibraryVizPanelModal';
 import { type DashboardScene } from '../scene/DashboardScene';
 import { getLibraryPanelBehavior, hasActualSaveChanges, isLibraryPanel } from '../utils/utils';
-
-import './DashboardPrompt.css';
 
 interface DashboardPromptProps {
   dashboard: DashboardScene;
@@ -137,7 +136,7 @@ export const UnsavedChangesModal = ({ onDiscard, onDismiss, onSaveDashboardClick
       isOpen={true}
       title={t('dashboard-scene.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className="gf-unsaved-changes-modal"
+      xstyle={styles.modal}
     >
       <h5>
         <Trans i18nKey="dashboard-scene.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>
@@ -215,3 +214,9 @@ export function isEmptyDashboard(
 
   return hasNoPanels && hasNoLinks && hasNoTemplates && hasNoUid;
 }
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

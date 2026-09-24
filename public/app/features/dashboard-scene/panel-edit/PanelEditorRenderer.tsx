@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type SceneComponentProps, type VizPanel } from '@grafana/scenes';
-import { Button, Spinner, ToolbarButton, useTheme2 } from '@grafana/ui';
+import { Button, Icon, Spinner, ToolbarButton, useTheme2 } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
@@ -18,8 +18,6 @@ import { type PanelEditor } from './PanelEditor';
 import { SaveLibraryVizPanelModal } from './SaveLibraryVizPanelModal';
 import { useSnappingSplitter } from './splitter/useSnappingSplitter';
 import { useScrollReflowLimit } from './useScrollReflowLimit';
-
-import './PanelEditorRenderer.css';
 
 export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>) {
   const dashboard = getDashboardSceneFor(model);
@@ -39,6 +37,7 @@ export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>)
       collapsed: isInitiallyCollapsed,
       collapseBelowPixels: MIN_SUGGESTIONS_PANE_WIDTH + panePadding,
       disabled: isScrollingLayout,
+      containerXstyle: styles.content,
     });
 
   useEffect(() => {
@@ -48,13 +47,7 @@ export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>)
   return (
     <>
       <NavToolbarActions dashboard={dashboard} />
-      <div
-        {...containerProps}
-        className={
-          mergeStylexProps({ className: containerProps.className }, { className: 'gf-panel-editor-content' }).className
-        }
-        data-testid={selectors.components.PanelEditor.General.content}
-      >
+      <div {...containerProps} data-testid={selectors.components.PanelEditor.General.content}>
         <div {...primaryProps} className={mergeClassNames(primaryProps.className, styles.body)}>
           <VizAndDataPane model={model} />
         </div>
@@ -147,11 +140,11 @@ function VizAndDataPane({ model }: SceneComponentProps<PanelEditor>) {
                 <div {...stylex.props(styles.expandDataPane)}>
                   <Button
                     tooltip={t('dashboard-scene.viz-and-data-pane.tooltip-open-query-pane', 'Open query pane')}
-                    icon={'arrow-to-right'}
+                    icon={<Icon name="arrow-to-right" xstyle={styles.openDataPaneIcon} />}
                     onClick={onToggleCollapse}
                     variant="secondary"
                     size="sm"
-                    className="gf-panel-editor-open-data-pane-button"
+                    xstyle={styles.openDataPaneButton}
                     aria-label={t('dashboard-scene.viz-and-data-pane.aria-label-open-query-pane', 'Open query pane')}
                   />
                 </div>
@@ -190,6 +183,24 @@ function mergeClassNames(className: string | undefined, style: stylex.StyleXStyl
 const scrollReflowMediaQuery = '@media (max-height: 540px)';
 
 const styles = stylex.create({
+  // Over the splitter container's own styles; it stays when the splitter is disabled for the scroll layout.
+  content: {
+    position: { default: 'absolute', [scrollReflowMediaQuery]: 'static' },
+    width: '100%',
+    height: { default: '100%', [scrollReflowMediaQuery]: 'auto' },
+    overflow: 'unset',
+    display: { default: 'flex', [scrollReflowMediaQuery]: 'grid' },
+    gridTemplateColumns: { default: null, [scrollReflowMediaQuery]: 'minmax(470px, 1fr) 330px' },
+    gridTemplateRows: { default: null, [scrollReflowMediaQuery]: '1fr' },
+    gap: { default: null, [scrollReflowMediaQuery]: spacing['--gf-spacing-x1'] },
+  },
+  openDataPaneButton: {
+    width: spacing['--gf-spacing-x8'],
+    justifyContent: 'center',
+  },
+  openDataPaneIcon: {
+    rotate: '-90deg',
+  },
   pageContainer: {
     display: 'grid',
     gridTemplateAreas: `

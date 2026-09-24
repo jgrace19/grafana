@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
@@ -5,8 +7,6 @@ import { ConfirmModal, ToolbarButton } from '@grafana/ui';
 
 import { appEvents } from '../../../core/app_events';
 import { ShowModalReactEvent } from '../../../types/events';
-
-import './GoToSnapshotOriginButton.css';
 
 export function GoToSnapshotOriginButton(props: { originalURL: string }) {
   return (
@@ -35,7 +35,7 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
               'dashboard-scene.on-open-snapshot-original-dashboard.title.proceed-to-external-site',
               'Proceed to external site?'
             ),
-            modalClass: 'gf-snapshot-origin-modal',
+            modalXstyle: styles.externalLinkModal,
             body: (
               <>
                 <p>
@@ -59,3 +59,10 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
     console.error('Failed to open original dashboard', err);
   }
 };
+
+const styles = stylex.create({
+  externalLinkModal: {
+    width: 'max-content',
+    maxWidth: '80vw',
+  },
+});

@@ -9,7 +9,6 @@ import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { type SceneComponentProps } from '@grafana/scenes';
 import { Box, Icon, Tab, TabContent, Tooltip, useElementSelection, usePointerDistance } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useIsConditionallyHidden } from '../../conditional-rendering/hooks/useIsConditionallyHidden';
@@ -22,8 +21,6 @@ import { DASHBOARD_DROP_TARGET_KEY_ATTR } from '../types/DashboardDropTarget';
 import { type TabItem } from './TabItem';
 
 import '../layouts-shared/canvasControls.global.css';
-import './TabItemRenderer.css';
-
 export function TabItemRenderer({ model }: SceneComponentProps<TabItem>) {
   const { title, isDropTarget, layout, key, repeatSourceKey } = model.useState();
   const parentLayout = model.getParentLayout();
@@ -166,9 +163,8 @@ export function TabItemLayoutRenderer({ tab, isEditing }: TabItemLayoutRendererP
 
   return (
     <TabContent
-      {...mergeStylexProps(stylex.props(styles.tabContentContainer), {
-        className: clsx('gf-tab-content', isEditing && conditionalRenderingClass),
-      })}
+      className={clsx('gf-tab-content', isEditing && conditionalRenderingClass)}
+      xstyle={styles.tabContentContainer}
       {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: key }}
     >
       {sectionVariablesEnabled && tabVariablesSet && <SectionVariableControls variableSet={tabVariablesSet} />}
@@ -178,8 +174,7 @@ export function TabItemLayoutRenderer({ tab, isEditing }: TabItemLayoutRendererP
   );
 }
 
-// TabContent's own background is overridden in TabItemRenderer.css; the `.dashboard-canvas-controls` hover rules
-// live in layouts-shared/canvasControls.global.css.
+// The `.dashboard-canvas-controls` hover rules live in layouts-shared/canvasControls.global.css.
 const styles = stylex.create({
   // Only while it also has the global `dashboard-selected-element` class, which sets a 0 offset.
   selectedTab: {
@@ -192,6 +187,7 @@ const styles = stylex.create({
     opacity: { default: 0.4, ':hover': 1 },
   },
   tabContentContainer: {
+    backgroundColor: 'transparent',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',

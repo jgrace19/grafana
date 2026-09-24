@@ -1,9 +1,0 @@
-/*
- * Override on PanelChrome.TitleItem, which takes no xstyle and sets its own color. Unlayered, and the doubled class
- * outranks TitleItem's rules (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-panel-time-shift.gf-panel-time-shift {
-  color: var(--gf-colors-text-link);
-  gap: var(--gf-spacing-x0-5);
-  white-space: nowrap;
-}

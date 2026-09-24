@@ -14,8 +14,6 @@ import { useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorCo
 
 import { useTransformationSearchAndFilter } from './useTransformationSearchAndFilter';
 
-import './TransformationTypePicker.css';
-
 export function TransformationTypePicker() {
   const { finalizePendingTransformation } = useQueryEditorUIContext();
   const { data } = useQueryRunnerContext();
@@ -57,7 +55,7 @@ export function TransformationTypePicker() {
         <Input
           autoFocus
           data-testid={selectors.components.Transforms.searchInput}
-          className="gf-transformation-picker-search"
+          xstyle={styles.search}
           value={search}
           placeholder={t(
             'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -125,6 +123,10 @@ export function TransformationTypePicker() {
 }
 
 const styles = stylex.create({
+  search: {
+    flexGrow: 1,
+    width: 'initial',
+  },
   searchWrapper: {
     display: 'flex',
     flexWrap: 'wrap',

@@ -1,9 +1,11 @@
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
 import { useTheme2 } from '@grafana/ui';
 import { getDragHandleClassNames } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../../edit-pane/shared';
@@ -150,6 +152,7 @@ export function usePanelEditorShell(model: PanelEditor) {
     collapsed: isInitiallyCollapsed,
     collapseBelowPixels: MIN_SUGGESTIONS_PANE_WIDTH + panePadding,
     disabled: isScrollingLayout,
+    containerXstyle: shellStyles.content,
   });
 
   useEffect(() => {
@@ -316,3 +319,21 @@ export function buildVizAndDataPaneGrid({
     gridTemplateColumns: columns,
   };
 }
+
+// Must match scrollReflowMediaCondition in ../useScrollReflowLimit.ts.
+const scrollReflowMediaQuery = '@media (max-height: 540px)';
+
+// Over the splitter container's own styles; it stays when the splitter is disabled for the scroll layout.
+const shellStyles = stylex.create({
+  content: {
+    position: { default: 'absolute', [scrollReflowMediaQuery]: 'static' },
+    width: '100%',
+    height: { default: '100%', [scrollReflowMediaQuery]: 'auto' },
+    overflow: 'unset',
+    paddingTop: spacing['--gf-spacing-x2'],
+    display: { default: 'flex', [scrollReflowMediaQuery]: 'grid' },
+    gridTemplateColumns: { default: null, [scrollReflowMediaQuery]: 'minmax(470px, 1fr) 330px' },
+    gridTemplateRows: { default: null, [scrollReflowMediaQuery]: '1fr' },
+    gap: { default: null, [scrollReflowMediaQuery]: spacing['--gf-spacing-x1'] },
+  },
+});

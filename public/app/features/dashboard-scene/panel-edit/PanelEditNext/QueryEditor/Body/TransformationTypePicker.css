@@ -1,7 +1,0 @@
-/*
- * Lets the search Input grow instead of taking its own full width. Unlayered, and the class is doubled because Input's Emotion rules load after this lazy chunk's stylesheet.
- */
-.gf-transformation-picker-search.gf-transformation-picker-search {
-  flex-grow: 1;
-  width: initial;
-}

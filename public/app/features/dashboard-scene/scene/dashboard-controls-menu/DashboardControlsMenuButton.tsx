@@ -1,13 +1,14 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { Dropdown, ToolbarButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type DashboardScene } from '../DashboardScene';
 
 import { DashboardControlsMenu } from './DashboardControlsMenu';
 import { useDashboardControls } from './utils';
-
-import './DashboardControlsMenuButton.css';
 
 export const DASHBOARD_CONTROLS_MENU_ARIA_LABEL = 'Dashboard controls menu';
 export const DASHBOARD_CONTROLS_MENU_TITLE = 'Dashboard controls';
@@ -43,10 +44,18 @@ export function DashboardControlsButton({ dashboard }: { dashboard: DashboardSce
         icon="sliders-v-alt"
         iconSize="md"
         variant="canvas"
-        className="gf-dashboard-controls-button"
+        xstyle={styles.button}
       >
         + {dashboardControlsCount}
       </ToolbarButton>
     </Dropdown>
   );
 }
+
+const styles = stylex.create({
+  button: {
+    display: 'inline-flex',
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});

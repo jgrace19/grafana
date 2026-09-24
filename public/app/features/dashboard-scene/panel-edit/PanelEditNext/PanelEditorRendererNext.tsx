@@ -13,8 +13,6 @@ import { type PanelEditor } from '../PanelEditor';
 import { VizAndDataPaneNext } from './VizAndDataPaneNext';
 import { usePanelEditorShell } from './hooks';
 
-import './PanelEditorRendererNext.css';
-
 export function PanelEditorRendererNext({ model }: SceneComponentProps<PanelEditor>) {
   const { dashboard, optionsPane, splitter } = usePanelEditorShell(model);
   const { containerProps, primaryProps, secondaryProps, splitterProps, splitterState, onToggleCollapse } = splitter;
@@ -22,14 +20,7 @@ export function PanelEditorRendererNext({ model }: SceneComponentProps<PanelEdit
   return (
     <div {...stylex.props(styles.container)}>
       <NavToolbarActions dashboard={dashboard} />
-      <div
-        {...containerProps}
-        className={
-          mergeStylexProps({ className: containerProps.className }, { className: 'gf-panel-editor-next-content' })
-            .className
-        }
-        data-testid={selectors.components.PanelEditor.General.content}
-      >
+      <div {...containerProps} data-testid={selectors.components.PanelEditor.General.content}>
         <div {...primaryProps} className={mergeClassNames(primaryProps.className, styles.body)}>
           <VizAndDataPaneNext model={model} />
         </div>

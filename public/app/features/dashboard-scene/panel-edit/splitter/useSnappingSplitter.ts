@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useState, useCallback } from 'react';
 
 import { type ComponentSize, type DragHandlePosition, useSplitter } from '@grafana/ui';
@@ -19,6 +20,8 @@ export interface UseSnappingSplitterOptions {
 
   /* Disables the splitter, hiding all of its styles */
   disabled?: boolean;
+  /** StyleX overrides (static styles only) for the container, applied last. They stay when the splitter is disabled. */
+  containerXstyle?: stylex.StyleXStyles;
 }
 
 interface PaneState {
@@ -35,6 +38,7 @@ export function useSnappingSplitter({
   handleSize,
   usePixels,
   disabled,
+  containerXstyle,
 }: UseSnappingSplitterOptions) {
   const [state, setState] = useState<PaneState>({
     collapsed: collapsed ?? false,
@@ -93,13 +97,14 @@ export function useSnappingSplitter({
     usePixels: usePixels,
     onResizing,
     onSizeChanged,
+    containerXstyle,
   });
 
   // This does cause the loss of the adjustment position when toggling disabled on and off again.
   // Fixing this properly would require changing how useSplitter works to not both pass and
   // adjust styles directly on the element by ref. That causes a React conflict.
   if (disabled) {
-    containerProps.className = '';
+    containerProps.className = stylex.props(containerXstyle).className ?? '';
     primaryProps.className = '';
     primaryProps.style = {};
     secondaryProps.className = '';

@@ -7,8 +7,6 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardSchemaEditor, type SchemaEditorFormat } from '../v2schema/DashboardSchemaEditor';
 
-import './DashboardCodePane.css';
-
 export interface DashboardCodePaneProps {
   initialValue: string;
   onApply: (jsonText: string) => { success: boolean; error?: string };
@@ -93,8 +91,8 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
           title={t('dashboard.code-pane.modal-title', 'Edit dashboard as code')}
           isOpen
           onDismiss={() => setIsExpanded(false)}
-          className="gf-dashboard-code-pane-modal"
-          contentClassName="gf-dashboard-code-pane-modal-content"
+          xstyle={styles.modal}
+          contentXstyle={styles.modalContent}
           closeOnBackdropClick={false}
           closeOnEscape={false}
         >
@@ -118,6 +116,18 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
 }
 
 const styles = stylex.create({
+  modal: {
+    width: '90vw',
+    height: '90vh',
+    maxWidth: '90vw',
+  },
+  modalContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1',
+    minHeight: 0,
+    overflow: 'hidden',
+  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',

@@ -3,8 +3,6 @@ import * as stylex from '@stylexjs/stylex';
 import { CollapsableSection, Stack, Text } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import './SidebarCollapsableHeader.css';
-
 interface SidebarCollapsableHeaderProps {
   label: string;
   children: React.ReactNode;
@@ -45,7 +43,7 @@ export const SidebarCollapsableHeader = ({
       isOpen={isOpen}
       onToggle={onToggle}
       className={stylex.props(styles.collapsableSection).className}
-      contentClassName="gf-sidebar-collapsable-content"
+      contentXstyle={styles.content}
     >
       <div {...stylex.props(styles.queryStackCardsContainer)}>{children}</div>
     </CollapsableSection>
@@ -53,6 +51,12 @@ export const SidebarCollapsableHeader = ({
 };
 
 const styles = stylex.create({
+  content: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
   collapsableSection: {
     marginTop: spacing['--gf-spacing-x0-5'],
   },
