@@ -8,7 +8,6 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useAlertmanager } from '../state/AlertmanagerContext';
 import { type AlertManagerDataSource, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
-import './AlertManagerPicker.css';
 
 interface Props {
   disabled?: boolean;
@@ -60,12 +59,7 @@ export const AlertManagerPicker = ({ disabled = false }: Props) => {
   const label = isDisabled ? 'Alertmanager' : 'Choose Alertmanager';
 
   return (
-    <InlineField
-      className="gf-alerting-am-picker-field"
-      label={label}
-      disabled={isDisabled}
-      data-testid="alertmanager-picker"
-    >
+    <InlineField xstyle={styles.pickerField} label={label} disabled={isDisabled} data-testid="alertmanager-picker">
       <Select
         aria-label={label}
         width={29}
@@ -100,6 +94,12 @@ const CustomOption = (props: ComponentProps<typeof SelectMenuOptions>) => {
 };
 
 const styles = stylex.create({
+  pickerField: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   optionContent: {
     display: 'flex',
     alignItems: 'center',

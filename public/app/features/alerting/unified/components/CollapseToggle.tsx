@@ -1,3 +1,4 @@
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 
 import { Button, type IconSize } from '@grafana/ui';
@@ -9,6 +10,7 @@ interface Props extends Omit<HTMLAttributes<HTMLButtonElement>, 'onToggle'> {
   idControlled?: string;
   size?: IconSize;
   className?: string;
+  xstyle?: StyleXStyles;
   text?: string;
 }
 
@@ -17,6 +19,7 @@ export const CollapseToggle = ({
   onToggle,
   idControlled,
   className,
+  xstyle,
   text,
   size = 'xl',
   ...restOfProps
@@ -29,6 +32,7 @@ export const CollapseToggle = ({
       aria-expanded={!isCollapsed}
       aria-controls={idControlled}
       className={className}
+      xstyle={xstyle}
       icon={isCollapsed ? 'angle-right' : 'angle-down'}
       onClick={() => onToggle(!isCollapsed)}
       {...restOfProps}

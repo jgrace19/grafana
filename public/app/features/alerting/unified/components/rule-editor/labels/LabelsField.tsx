@@ -20,7 +20,6 @@ import { NeedHelpInfo } from '../NeedHelpInfo';
 import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
 
 import { AddButton, RemoveButton } from './LabelsButtons';
-import './LabelsField.css';
 
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
@@ -285,7 +284,7 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
                 }}
               />
             </Field>
-            <InlineLabel className="gf-alerting-labels-equal-sign">=</InlineLabel>
+            <InlineLabel xstyle={styles.equalSign}>=</InlineLabel>
             <Field
               noMargin
               className={stylex.props(styles.labelInput).className}
@@ -363,7 +362,7 @@ export const LabelsWithoutSuggestions: FC = () => {
                   defaultValue={field.key}
                 />
               </Field>
-              <InlineLabel className="gf-alerting-labels-equal-sign">=</InlineLabel>
+              <InlineLabel xstyle={styles.equalSign}>=</InlineLabel>
               <Field
                 noMargin
                 className={stylex.props(styles.labelInput).className}
@@ -440,6 +439,15 @@ function getDescriptionText() {
 }
 
 const styles = stylex.create({
+  equalSign: {
+    alignSelf: 'flex-start',
+    width: '28px',
+    justifyContent: 'center',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   flexRow: {
     display: 'flex',
     flexDirection: 'row',

@@ -1,4 +1,5 @@
-import { type CSSProperties, type ReactNode } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type ReactNode } from 'react';
 
 import { Card } from '@grafana/ui';
 
@@ -24,7 +25,7 @@ const RuleType = (props: Props) => {
   return (
     <Card
       noMargin
-      style={disabled ? disabledCardStyle : cardStyle}
+      xstyle={[styles.card, disabled && styles.disabledCard]}
       isSelected={selected}
       onClick={() => onClick(value)}
       disabled={disabled}
@@ -38,16 +39,15 @@ const RuleType = (props: Props) => {
   );
 };
 
-// Card has no xstyle for consumers, and these must win over its own width and cursor in every state.
-const cardStyle: CSSProperties = {
-  width: '380px',
-  cursor: 'pointer',
-  userSelect: 'none',
-};
-
-const disabledCardStyle: CSSProperties = {
-  ...cardStyle,
-  opacity: 0.5,
-};
+const styles = stylex.create({
+  card: {
+    width: '380px',
+    cursor: 'pointer',
+    userSelect: 'none',
+  },
+  disabledCard: {
+    opacity: 0.5,
+  },
+});
 
 export { RuleType };

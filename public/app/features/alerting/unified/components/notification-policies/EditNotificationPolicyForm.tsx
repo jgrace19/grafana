@@ -92,7 +92,7 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
         {fields.length === 0 && (
           <Badge
             color="orange"
-            style={noMatchersWarningStyle}
+            xstyle={styles.noMatchersWarning}
             icon="exclamation-triangle"
             text={t(
               'alerting.am-routes-expanded-form.badge-no-matchers',
@@ -357,6 +357,13 @@ export const AmRoutesExpandedForm = ({ actionButtons, route, onSubmit, defaults 
 };
 
 const styles = stylex.create({
+  noMatchersWarning: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
   addMatcherBtn: {
     marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 3.5)`,
   },
@@ -372,9 +379,3 @@ const styles = stylex.create({
     minWidth: '120px',
   },
 });
-
-// Badge has no xstyle, and its own padding must lose to this one.
-const noMatchersWarningStyle = {
-  padding: `${spacing['--gf-spacing-x1']} ${spacing['--gf-spacing-x2']}`,
-  marginBottom: spacing['--gf-spacing-x1'],
-};

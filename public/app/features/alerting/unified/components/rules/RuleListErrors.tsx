@@ -117,7 +117,7 @@ export function RuleListErrors(): ReactElement {
               <div>{errors[0]}</div>
               {errors.length >= 2 && (
                 <Button
-                  style={{ padding: 0 }}
+                  xstyle={styles.expandButton}
                   fill="text"
                   icon="angle-right"
                   size="sm"
@@ -159,6 +159,12 @@ const ErrorSummaryButton: FC<ErrorSummaryProps> = ({ count, onClick }) => {
 };
 
 const styles = stylex.create({
+  expandButton: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
   floatRight: {
     display: 'flex',
     justifyContent: 'flex-end',

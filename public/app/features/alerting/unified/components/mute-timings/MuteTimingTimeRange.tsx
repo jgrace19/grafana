@@ -9,7 +9,6 @@ import { type MuteTimingFields } from '../../types/mute-timing-form';
 import ConditionalWrap from '../ConditionalWrap';
 
 import { isValidStartAndEndTime, isvalidTimeFormat } from './util';
-import './MuteTimingTimeRange.css';
 
 interface Props {
   intervalIndex: number;
@@ -85,7 +84,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className="gf-alerting-mute-timing-time-input"
+                      xstyle={styles.timeRangeInput}
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -117,7 +116,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className="gf-alerting-mute-timing-time-input"
+                      xstyle={styles.timeRangeInput}
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -128,7 +127,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                     />
                   </InlineField>
                   <IconButton
-                    style={deleteTimeRangeStyle}
+                    xstyle={styles.deleteTimeRange}
                     title={t('alerting.mute-timing-time-range.title-remove', 'Remove')}
                     name="trash-alt"
                     onClick={(e) => {
@@ -173,6 +172,15 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
 };
 
 const styles = stylex.create({
+  deleteTimeRange: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  timeRangeInput: {
+    width: '90px',
+  },
   timeRange: {
     marginBottom: spacing['--gf-spacing-x1'],
   },
@@ -180,8 +188,3 @@ const styles = stylex.create({
     marginBottom: spacing['--gf-spacing-x2'],
   },
 });
-
-// IconButton has no xstyle, and its own margins must lose to these.
-const deleteTimeRangeStyle = {
-  margin: `${spacing['--gf-spacing-x1']} 0 0 ${spacing['--gf-spacing-x0-5']}`,
-};
