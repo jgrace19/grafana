@@ -1,5 +1,0 @@
-/* ConfirmModal passes its own xstyle to Modal and forwards only modalClass. Deliberately not in a cascade layer, so
-   this owned class wins over both widths. */
-.gf-alerting-deleted-rule-modal {
-  width: 700px;
-}

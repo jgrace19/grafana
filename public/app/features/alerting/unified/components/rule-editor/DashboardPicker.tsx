@@ -202,7 +202,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           severity="info"
           topSpacing={0}
           bottomSpacing={1}
-          style={modalAlertStyle}
+          xstyle={styles.modalAlert}
         >
           <div>
             <Trans
@@ -401,12 +401,10 @@ const isValidPanel = (panel: PanelDTO): boolean => {
   return hasValidID && (isValidPanelType || isLibraryPanel);
 };
 
-// Alert has no xstyle, and its own flexGrow must lose to this.
-const modalAlertStyle = {
-  flexGrow: 0,
-};
-
 const styles = stylex.create({
+  modalAlert: {
+    flexGrow: 0,
+  },
   container: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',

@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
@@ -5,7 +6,6 @@ import { ConfirmModal, Stack } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 
 import { alertRuleApi } from '../../../api/alertRuleApi';
-import './DeletedRuleModal.css';
 
 type ModalProps = Pick<ComponentProps<typeof ConfirmModal>, 'isOpen' | 'onDismiss'> & {
   isOpen: boolean;
@@ -40,7 +40,7 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass="gf-alerting-deleted-rule-modal"
+      modalXstyle={styles.modal}
       confirmButtonVariant="destructive"
       body={
         <Stack direction="column" gap={2}>
@@ -54,3 +54,9 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
     />
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '700px',
+  },
+});

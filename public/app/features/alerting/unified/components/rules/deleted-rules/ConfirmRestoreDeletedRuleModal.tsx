@@ -20,7 +20,6 @@ import { stringifyErrorLike } from '../../../utils/misc';
 import { grafanaRuleDtoToFormValues } from '../../../utils/rule-form';
 import { rulerRuleType } from '../../../utils/rules';
 import { createRelativeUrl } from '../../../utils/url';
-import './DeletedRuleModal.css';
 
 type ModalProps = Pick<ComponentProps<typeof ConfirmModal>, 'isOpen' | 'onDismiss'> & {
   isOpen: boolean;
@@ -72,7 +71,7 @@ export const ConfirmRestoreDeletedRuleModal = ({
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass="gf-alerting-deleted-rule-modal"
+      modalXstyle={styles.modal}
       confirmButtonVariant={!error ? 'destructive' : 'primary'}
       body={
         <Stack direction="column" gap={2}>
@@ -122,6 +121,9 @@ function RulePreview({ rule }: { rule: RulerRuleDTO }) {
 }
 
 const styles = stylex.create({
+  modal: {
+    width: '700px',
+  },
   content: {
     flexGrow: 1,
     flexShrink: 1,
