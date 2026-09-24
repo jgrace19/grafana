@@ -28,7 +28,9 @@ export const LoginLogo: FC<BrandComponentProps & { logo?: string }> = ({ classNa
 /** Adding the `gf-login-anim` class fades the background image in. */
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
   const theme = useTheme2();
-  const backgroundImage = `url(${theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg})`;
+  // A url() inside a custom property resolves against the stylesheet that uses it, not the document, so the
+  // relative asset path has to be made absolute first.
+  const backgroundImage = `url(${new URL(theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg, document.baseURI).href})`;
 
   return (
     <div {...mergeStylexProps(stylex.props(styles.background, styles.backgroundImage(backgroundImage)), { className })}>

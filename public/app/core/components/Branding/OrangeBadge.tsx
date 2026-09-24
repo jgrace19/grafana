@@ -5,6 +5,8 @@ import { Icon } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
+import './OrangeBadge.css';
+
 interface Props extends HTMLAttributes<HTMLDivElement> {
   text?: string;
   className?: string;
@@ -13,7 +15,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 export function OrangeBadge({ text, className, style, ...htmlProps }: Props) {
   return (
     <div {...mergeStylexProps(stylex.props(styles.wrapper), { className, style })} {...htmlProps}>
-      <Icon name="cloud" size="sm" xstyle={text === undefined && styles.iconWithoutText} />
+      <Icon name="cloud" size="sm" className={text === undefined ? 'gf-orange-badge-icon-only' : undefined} />
       {text}
     </div>
   );
@@ -34,8 +36,5 @@ const styles = stylex.create({
     fontSize: typography['--gf-typography-body-small-font-size'],
     lineHeight: typography['--gf-typography-body-small-line-height'],
     alignItems: 'center',
-  },
-  iconWithoutText: {
-    marginRight: 0,
   },
 });
