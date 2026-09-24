@@ -219,6 +219,8 @@ export const textItem: CanvasElementItem<TextConfig, TextData> = {
   },
 };
 
+type CssValue = string | null;
+
 const styles = stylex.create({
   container: {
     position: 'absolute',
@@ -239,12 +241,7 @@ const styles = stylex.create({
   span: {
     display: 'table-cell',
   },
-  spanStyle: (
-    verticalAlign: string | null,
-    textAlign: string | null,
-    fontSize: string | null,
-    color: string | null
-  ) => ({
+  spanStyle: (verticalAlign: CssValue, textAlign: CssValue, fontSize: CssValue, color: CssValue) => ({
     verticalAlign,
     textAlign,
     fontSize,

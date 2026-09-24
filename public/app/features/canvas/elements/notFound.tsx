@@ -40,7 +40,9 @@ export const notFoundItem: CanvasElementItem = {
 };
 
 const styles = stylex.create({
-  container: { backgroundColor: colors['--gf-colors-background-canvas'] },
+  container: {
+    backgroundColor: colors['--gf-colors-background-canvas'],
+  },
   heading: {
     fontFamily: typography['--gf-typography-h3-font-family'],
     fontWeight: typography['--gf-typography-h3-font-weight'],
