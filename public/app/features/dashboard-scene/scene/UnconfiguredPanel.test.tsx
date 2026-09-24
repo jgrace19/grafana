@@ -498,5 +498,83 @@ describe('UnconfiguredPanelComp', () => {
         expect(screen.getByRole('button', { name: /use library panel/i })).toBeInTheDocument();
       });
     });
+
+    describe('reveal animation', () => {
+      const getButtonWrappers = () =>
+        [/configure visualization/i, /use library panel/i].map(
+          (name) => screen.getByRole('button', { name }).parentElement!
+        );
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      function renderEditingPanel() {
+        buildDashboard({ isEditing: true });
+        const { root } = renderPanel();
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+        return { root, user };
+      }
+
+      it('staggers the buttons while they are entering', async () => {
+        const { root, user } = renderEditingPanel();
+
+        await user.hover(root);
+
+        expect(getButtonWrappers().map((wrapper) => wrapper.style.animationDelay)).toEqual(['0ms', '60ms']);
+      });
+
+      it('drops the stagger once the buttons have settled', async () => {
+        const { root, user } = renderEditingPanel();
+
+        await user.hover(root);
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(TRANSITION_MS);
+        });
+
+        expect(getButtonWrappers().map((wrapper) => wrapper.style.animationDelay)).toEqual(['', '']);
+      });
+
+      it('staggers the buttons while they are exiting', async () => {
+        const { root, user } = renderEditingPanel();
+
+        await user.hover(root);
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(TRANSITION_MS);
+        });
+        await user.unhover(root);
+
+        expect(getButtonWrappers().map((wrapper) => wrapper.style.animationDelay)).toEqual(['0ms', '60ms']);
+      });
+
+      it('keeps the quiet state visible while the buttons are entering', async () => {
+        const { root, user } = renderEditingPanel();
+
+        await user.hover(root);
+
+        expect(screen.getByLabelText('Unconfigured panel. Tab to see configuration options.')).toHaveAttribute(
+          'aria-hidden',
+          'false'
+        );
+      });
+
+      it('hides the quiet state once the buttons have settled', async () => {
+        const { root, user } = renderEditingPanel();
+
+        await user.hover(root);
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(TRANSITION_MS);
+        });
+
+        expect(screen.getByLabelText('Unconfigured panel. Tab to see configuration options.')).toHaveAttribute(
+          'aria-hidden',
+          'true'
+        );
+      });
+    });
   });
 });

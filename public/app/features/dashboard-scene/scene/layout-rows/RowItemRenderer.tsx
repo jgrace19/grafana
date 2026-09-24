@@ -1,13 +1,16 @@
-import { css, cx } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { clearButtonStyles, Icon, Tooltip, useElementSelection, usePointerDistance, useStyles2 } from '@grafana/ui';
+import { Icon, Tooltip, useElementSelection, usePointerDistance } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useIsConditionallyHidden } from '../../conditional-rendering/hooks/useIsConditionallyHidden';
 import { isRepeatCloneOrChildOf } from '../../utils/clone';
@@ -19,6 +22,9 @@ import { DASHBOARD_DROP_TARGET_KEY_ATTR } from '../types/DashboardDropTarget';
 import { isDashboardLayoutGrid } from '../types/DashboardLayoutGrid';
 
 import { type RowItem } from './RowItem';
+import { rowHeaderMarker } from './markers.stylex';
+
+import '../layouts-shared/canvasControls.global.css';
 
 export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
   const {
@@ -40,8 +46,6 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
   const { isSelected: isSourceSelected } = useElementSelection(repeatSourceKey);
   const title = useInterpolatedTitle(model);
   const { rows } = model.getParentLayout().useState();
-  const styles = useStyles2(getStyles);
-  const clearStyles = useStyles2(clearButtonStyles);
   const isTopLevel = model.parent?.parent instanceof DashboardScene;
   const pointerDistance = usePointerDistance();
   const soloPanelContext = useSoloPanelContext();
@@ -59,6 +63,7 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
   const onHeaderLeave = useCallback(() => setSelectableHighlight(false), []);
 
   const isDraggable = !isClone && isEditing;
+  const isHeaderRendered = !isHeaderHidden || isEditing;
 
   if (isHidden) {
     return null;
@@ -70,7 +75,7 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
 
   const titleElement = (
     <span
-      className={cx(
+      {...stylex.props(
         styles.rowTitle,
         isHeaderHidden && styles.rowTitleHidden,
         !isTopLevel && styles.rowTitleNested,
@@ -101,17 +106,23 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
             model.containerRef.current = ref;
           }}
           {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: isDashboardLayoutGrid(layout) ? model.state.key : undefined }}
-          className={cx(
-            styles.wrapper,
-            'dashboard-row-wrapper',
-            !isCollapsed && styles.wrapperNotCollapsed,
-            dragSnapshot.isDragging && styles.dragging,
-            isCollapsed && styles.wrapperCollapsed,
-            shouldGrow && styles.wrapperGrow,
-            conditionalRenderingClass,
-            !isSelected && !isSourceSelected && selectableHighlight && 'dashboard-selectable-element',
-            (isSelected || isSourceSelected) && 'dashboard-selected-element',
-            isDropTarget && 'dashboard-drop-target'
+          {...mergeStylexProps(
+            stylex.props(
+              styles.wrapper,
+              dragSnapshot.isDragging && styles.dragging,
+              isCollapsed && styles.wrapperCollapsed,
+              shouldGrow && styles.wrapperGrow
+            ),
+            {
+              className: clsx(
+                'gf-row-item',
+                'dashboard-row-wrapper',
+                conditionalRenderingClass,
+                !isSelected && !isSourceSelected && selectableHighlight && 'dashboard-selectable-element',
+                (isSelected || isSourceSelected) && 'dashboard-selected-element',
+                isDropTarget && 'dashboard-drop-target'
+              ),
+            }
           )}
           onPointerDown={(evt) => {
             evt.stopPropagation();
@@ -134,9 +145,12 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
           data-testid={selectors.components.DashboardRow.wrapper(title!)}
           {...dragProvided.draggableProps}
         >
-          {(!isHeaderHidden || isEditing) && (
+          {isHeaderRendered && (
             <div
-              className={cx(styles.rowHeader, 'dashboard-row-header')}
+              {...mergeStylexProps(
+                stylex.props(styles.rowHeader, isCollapsed && styles.rowHeaderCollapsed, rowHeaderMarker),
+                { className: 'dashboard-row-header' }
+              )}
               onMouseEnter={isSelectable ? onHeaderEnter : undefined}
               onMouseLeave={isSelectable ? onHeaderLeave : undefined}
               {...dragProvided.dragHandleProps}
@@ -146,7 +160,7 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
                   model.onCollapseToggle();
                   onClearSelection?.();
                 }}
-                className={cx(clearStyles, styles.rowTitleButton)}
+                {...stylex.props(styles.rowTitleButton)}
                 aria-label={
                   isCollapsed
                     ? t('dashboard.rows-layout.row.expand', 'Expand row {{title}}', { title })
@@ -158,11 +172,13 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
                 {!isEditing && titleElement}
               </button>
               {isEditing && titleElement}
-              {isDraggable && <Icon name="draggabledots" className="dashboard-row-header-drag-handle" />}
+              {isDraggable && (
+                <Icon name="draggabledots" className="dashboard-row-header-drag-handle" xstyle={styles.dragHandle} />
+              )}
             </div>
           )}
           {!isCollapsed && (
-            <div>
+            <div {...stylex.props(isHeaderRendered && styles.content)}>
               {sectionVariablesEnabled && rowVariablesSet && <SectionVariableControls variableSet={rowVariablesSet} />}
               <layout.Component model={layout} />
             </div>
@@ -174,129 +190,101 @@ export function RowItemRenderer({ model }: SceneComponentProps<RowItem>) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    rowHeader: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5, 0.5, 0.5, 0),
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: theme.spacing(1),
-
-      '& .dashboard-row-header-drag-handle': css({
-        opacity: 0,
-
-        [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-          transition: 'opacity 0.25s',
-        },
-      }),
-
-      '&:hover': css({
-        '& .dashboard-row-header-drag-handle': css({
-          opacity: 1,
-        }),
-      }),
-    }),
-    rowTitleButton: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      background: 'transparent',
-      border: 'none',
-      minWidth: 0,
-      gap: theme.spacing(1),
-    }),
-    rowTitle: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      ...theme.typography.h5,
-      fontWeight: theme.typography.fontWeightMedium,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      maxWidth: '100%',
-      flexGrow: 1,
-      minWidth: 0,
-    }),
-    rowTitleHidden: css({
-      textDecoration: 'line-through',
-      opacity: 0.6,
-
-      '&:hover': css({
-        opacity: 1,
-      }),
-    }),
-    rowTitleNested: css({
-      fontSize: theme.typography.body.fontSize,
-      fontWeight: theme.typography.fontWeightRegular,
-    }),
-    rowTitleCollapsed: css({
-      color: theme.colors.text.secondary,
-    }),
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      // Without this min height, the custom grid (SceneGridLayout) wont render
-      // should be 1px more than row header + padding + margin
-      // consist of lineHeight + paddingBlock + margin + 0.125 = 39px
-      minHeight: theme.spacing(2.75 + 1 + 1 + 0.125),
-
-      // Show grid controls when hovering anywhere on the row
-      '&:hover .dashboard-canvas-controls': {
-        opacity: 1,
-      },
-      // But hide controls inside nested rows (they'll show when that row is hovered)
-      '&:hover .dashboard-row-wrapper .dashboard-canvas-controls': {
-        opacity: 0,
-      },
-      // Re-enable for the specific nested row being hovered
-      '&:hover .dashboard-row-wrapper:hover .dashboard-canvas-controls': {
-        opacity: 1,
-      },
-    }),
-    wrapperNotCollapsed: css({
-      '> div:nth-child(2)': {
-        marginLeft: theme.spacing(3),
-        position: 'relative',
-        width: 'auto',
-
-        '&:before': {
-          content: '""',
-          position: 'absolute',
-          top: `-8px`,
-          bottom: 0,
-          left: '-16px',
-          width: '1px',
-          backgroundColor: theme.colors.border.weak,
-        },
-      },
-    }),
-    dragging: css({
-      cursor: 'move',
-      backgroundColor: theme.colors.background.canvas,
-    }),
-    wrapperGrow: css({
-      flexGrow: 1,
-    }),
-    wrapperCollapsed: css({
-      flexGrow: 0,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      minHeight: 'unset',
-
-      '.dashboard-row-header': {
-        marginBottom: theme.spacing(0),
-      },
-    }),
-    rowActions: css({
-      display: 'flex',
-      opacity: 0,
-    }),
-    checkboxWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-      paddingLeft: theme.spacing(1),
-    }),
-  };
-}
+// The `.dashboard-canvas-controls` hover rules live in layouts-shared/canvasControls.global.css.
+const styles = stylex.create({
+  rowHeader: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  rowHeaderCollapsed: {
+    marginBottom: spacing['--gf-spacing-x0'],
+  },
+  dragHandle: {
+    opacity: { default: 0, [stylex.when.ancestor(':hover', rowHeaderMarker)]: 1 },
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.25s' },
+  },
+  // Includes clearButtonStyles.
+  rowTitleButton: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+    minWidth: 0,
+    gap: spacing['--gf-spacing-x1'],
+  },
+  rowTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x2'],
+    fontFamily: typography['--gf-typography-h5-font-family'],
+    fontSize: typography['--gf-typography-h5-font-size'],
+    lineHeight: typography['--gf-typography-h5-line-height'],
+    letterSpacing: typography['--gf-typography-h5-letter-spacing'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '100%',
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  rowTitleHidden: {
+    textDecoration: 'line-through',
+    opacity: { default: 0.6, ':hover': 1 },
+  },
+  rowTitleNested: {
+    fontSize: typography['--gf-typography-body-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+  },
+  rowTitleCollapsed: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    // Without this min height, the custom grid (SceneGridLayout) wont render
+    // should be 1px more than row header + padding + margin
+    // consist of lineHeight + paddingBlock + margin + 0.125 = 39px
+    minHeight: `calc(${spacing['--gf-spacing-grid-size']} * 4.875)`,
+  },
+  // The row content, when it follows the header.
+  content: {
+    marginLeft: spacing['--gf-spacing-x3'],
+    position: 'relative',
+    width: 'auto',
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      top: '-8px',
+      bottom: 0,
+      left: '-16px',
+      width: '1px',
+      backgroundColor: colors['--gf-colors-border-weak'],
+    },
+  },
+  dragging: {
+    cursor: 'move',
+    backgroundColor: colors['--gf-colors-background-canvas'],
+  },
+  wrapperGrow: {
+    flexGrow: 1,
+  },
+  wrapperCollapsed: {
+    flexGrow: 0,
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    minHeight: 'unset',
+  },
+});

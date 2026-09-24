@@ -1,0 +1,11 @@
+/* Styles the panel description markdown (rendered HTML), which StyleX can't target. */
+@layer grafana-global {
+  .gf-panel-header-corner-content code {
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .gf-panel-header-corner-content pre > code {
+    display: block;
+  }
+}
