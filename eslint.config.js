@@ -103,6 +103,9 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
   // U1 primitives
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
+  // U8 chrome/globals
+  'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/utils/skeleton.tsx',
 ];
 
 const stylexRestrictedImports = {

@@ -1,17 +1,8 @@
-import { keyframes } from '@emotion/css';
 import * as React from 'react';
 
-const fadeIn = keyframes({
-  '0%': {
-    opacity: 0,
-  },
-  '100%': {
-    opacity: 1,
-  },
-});
-
 export const skeletonAnimation = {
-  animationName: fadeIn,
+  // Declared in themes/GlobalStyles/GlobalStyles.global.css.
+  animationName: 'gf-skeleton-fade-in',
   animationDelay: '100ms',
   animationTimingFunction: 'ease-in',
   animationDuration: '100ms',
