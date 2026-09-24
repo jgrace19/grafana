@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import * as React from 'react';
 
@@ -28,7 +29,7 @@ import { getSelectableThemes } from '../ThemeSelector/getSelectableThemes';
 import {
   getLanguageOptions,
   getRegionalFormatOptions,
-  getStyles,
+  sharedPreferencesStyles as styles,
   getTranslatedThemeName,
   type Props,
   type State,
@@ -171,11 +172,10 @@ export class SharedPreferences extends PureComponent<Props, State> {
     const { theme, timezone, weekStart, homeDashboardUID, language, isLoading, isSubmitting, regionalFormat } =
       this.state;
     const { disabled } = this.props;
-    const styles = getStyles();
     const currentThemeOption = this.themeOptions.find((x) => x.value === theme) ?? this.themeOptions[0];
 
     return (
-      <form onSubmit={this.onSubmitForm} className={styles.form}>
+      <form onSubmit={this.onSubmitForm} {...stylex.props(styles.form)}>
         <FieldSet label={<Trans i18nKey="shared-preferences.title">Preferences</Trans>} disabled={disabled}>
           <Field
             loading={isLoading}
@@ -209,7 +209,7 @@ export class SharedPreferences extends PureComponent<Props, State> {
             disabled={isLoading}
             label={
               <Label htmlFor="home-dashboard-select">
-                <span className={styles.labelText}>
+                <span {...stylex.props(styles.labelText)}>
                   <Trans i18nKey="shared-preferences.fields.home-dashboard-label">Home Dashboard</Trans>
                 </span>
               </Label>
@@ -258,7 +258,7 @@ export class SharedPreferences extends PureComponent<Props, State> {
             disabled={isLoading}
             label={
               <Label htmlFor="language-preference-select">
-                <span className={styles.labelText}>
+                <span {...stylex.props(styles.labelText)}>
                   <Trans i18nKey="shared-preferences.fields.language-preference-label">Language</Trans>
                 </span>
                 <FeatureBadge featureState={FeatureState.preview} />
@@ -280,7 +280,7 @@ export class SharedPreferences extends PureComponent<Props, State> {
               disabled={isLoading}
               label={
                 <Label htmlFor="locale-preference">
-                  <span className={styles.labelText}>
+                  <span {...stylex.props(styles.labelText)}>
                     <Trans i18nKey="shared-preferences.fields.locale-preference-label">Region format</Trans>
                   </span>
                   <FeatureBadge featureState={FeatureState.preview} />

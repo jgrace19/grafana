@@ -20,7 +20,11 @@ describe('PillCell', () => {
   const ser = new XMLSerializer();
 
   const expectHTML = (result: RenderResult, expected: string) => {
-    let actual = ser.serializeToString(result.asFragment()).replace(/xmlns=".*?" /g, '');
+    // StyleX debug class names are not part of the contract.
+    let actual = ser
+      .serializeToString(result.asFragment())
+      .replace(/xmlns=".*?" /g, '')
+      .replace(/ class=".*?"/g, '');
     expect(actual).toEqual(expected.replace(/^\s*|\n/gm, ''));
   };
 

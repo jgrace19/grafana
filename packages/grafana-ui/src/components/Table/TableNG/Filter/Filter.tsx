@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
-import { clsx } from 'clsx';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useRef, useState } from 'react';
 
-import { type Field, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type Field, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../../themes/ThemeContext';
+import { colors, spacing } from '../../../../themes/stylex/tokens.stylex';
 import { Icon } from '../../../Icon/Icon';
 import { Popover } from '../../../Tooltip/Popover';
 import { FilterOperator, type FilterType, type TableRow } from '../types';
@@ -22,7 +20,7 @@ interface Props {
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   field?: Field;
-  iconClassName?: string;
+  iconXstyle?: stylex.StyleXStyles;
   parentIndex?: number;
   /** Cross-filter rows keyed by filter key. Each entry holds the rows available *before* that filter was applied.  */
   crossFilterRows: Record<string, TableRow[]>;
@@ -31,23 +29,12 @@ interface Props {
 }
 
 export const Filter = memo(
-  ({
-    name,
-    rows,
-    filter,
-    setFilter,
-    field,
-    iconClassName,
-    parentIndex,
-    crossFilterRows,
-    crossFilterTailRows,
-  }: Props) => {
+  ({ name, rows, filter, setFilter, field, iconXstyle, parentIndex, crossFilterRows, crossFilterTailRows }: Props) => {
     const filterKey = typeof parentIndex === 'number' ? `${name}-${parentIndex}` : name;
     const filterValue = filter[filterKey]?.filtered;
 
     const ref = useRef<HTMLButtonElement>(null);
     const [isPopoverVisible, setPopoverVisible] = useState<boolean>(false);
-    const styles = useStyles2(getStyles);
     const filterEnabled = Boolean(filterValue);
     const [searchFilter, setSearchFilter] = useState(filter[filterKey]?.searchFilter || '');
     const [operator, setOperator] = useState<SelectableValue<FilterOperator>>(
@@ -62,7 +49,7 @@ export const Filter = memo(
 
     return (
       <button
-        className={styles.headerFilter}
+        {...stylex.props(styles.headerFilter)}
         ref={ref}
         type="button"
         aria-haspopup="dialog"
@@ -87,7 +74,7 @@ export const Filter = memo(
           }
         }}
       >
-        <Icon name="filter" className={clsx(iconClassName, filterEnabled ? styles.filterIconEnabled : '')} />
+        <Icon name="filter" xstyle={[iconXstyle, filterEnabled && styles.filterIconEnabled]} />
         {isPopoverVisible && ref.current && (
           <Popover
             content={
@@ -118,17 +105,21 @@ export const Filter = memo(
 
 Filter.displayName = 'Filter';
 
-const getStyles = memoize((theme: GrafanaTheme2) => ({
-  headerFilter: css({
-    background: 'transparent',
-    border: 'none',
-    label: 'headerFilter',
-    padding: 0,
+const styles = stylex.create({
+  headerFilter: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    borderWidth: 'medium',
+    borderColor: 'currentcolor',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     alignSelf: 'flex-end',
-    borderRadius: theme.spacing(0.25),
-  }),
-  filterIconEnabled: css({
-    label: 'filterIconEnabled',
-    color: theme.colors.primary.text,
-  }),
-}));
+    borderRadius: spacing['--gf-spacing-x0-25'],
+  },
+  filterIconEnabled: {
+    color: colors['--gf-colors-primary-text'],
+  },
+});

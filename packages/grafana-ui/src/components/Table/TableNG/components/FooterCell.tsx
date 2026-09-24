@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Property } from 'csstype';
 
 import { fieldReducers, type KeyValue, ReducerID } from '@grafana/data';
@@ -11,35 +11,17 @@ export interface FooterProps {
 }
 
 export const FooterCell = (props: FooterProps) => {
-  const cell = css({
-    width: '100%',
-    listStyle: 'none',
-  });
-
-  const item = css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: props.justifyContent || 'space-between',
-  });
-
-  const list = css({
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  });
-
   if (props.value && !Array.isArray(props.value)) {
-    return <span className={item}>{props.value}</span>;
+    return <span {...stylex.props(styles.item(props.justifyContent || 'space-between'))}>{props.value}</span>;
   }
 
   if (props.value && Array.isArray(props.value) && props.value.length > 0) {
     return (
-      <ul className={cell}>
+      <ul {...stylex.props(styles.cell)}>
         {props.value.map((v: KeyValue<string>, i) => {
           const key = Object.keys(v)[0];
           return (
-            <li className={list} key={i}>
+            <li {...stylex.props(styles.list)} key={i}>
               <span>{key}</span>
               <span>{v[key]}</span>
             </li>
@@ -78,3 +60,21 @@ export function getFooterValue(
 
   return FooterCell({ value: footerValues[index], justifyContent });
 }
+
+const styles = stylex.create({
+  cell: {
+    width: '100%',
+    listStyleType: 'none',
+  },
+  item: (justifyContent: Property.JustifyContent) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent,
+  }),
+  list: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+});

@@ -51,3 +51,16 @@ public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex:
 public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
+public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx # stylex: pending CollapsableSection migration (U8); overrides of its header, content and icon
+public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx # stylex: pending Label migration (U2); className override of Label max width
+public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.LoginBoxBackground() returns a class name, and BrandingSettings.loginBoxBackground overrides it with one
+public/app/core/components/FormPrompt/FormPrompt.tsx # C1: overrides Modal's own Emotion width; migrate with U4 (Modal)
+public/app/core/components/Login/LoginLayout.tsx # C1: still exports the Emotion getLoginStyles for PublicDashboardNotAvailable (D3); LoginLayout itself is StyleX
+public/app/core/components/Login/LoginServiceButtons.tsx # C1: per-provider colours override Button background and hover; Button has no xstyle
+public/app/core/components/NestedFolderPicker/NestedFolderPicker.tsx # C1: overrides the cursor of Input's own Emotion <input>; migrate with U2 (Input)
+public/app/core/components/NestedFolderPicker/Skeleton.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
+public/app/core/components/NestedFolderPicker/Trigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
+public/app/core/components/RolePicker/** # C1: own styles share elements with getSelectStyles/getInputStyles/Checkbox Emotion classes; needs a dedicated rewrite after U2
+public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
+public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order

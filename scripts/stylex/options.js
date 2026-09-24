@@ -13,7 +13,7 @@ const tokensDir = path.join(rootDir, 'packages/grafana-ui/src/themes/stylex');
  * all of them. Keep in sync with public/app/stylex-layers.css and the Storybook preview.
  */
 const cssLayers = {
-  before: ['grafana-legacy', 'grafana-global'],
+  before: ['rdg', 'grafana-legacy', 'grafana-global'],
   prefix: 'stylex',
 };
 

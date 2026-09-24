@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Avatar, Icon, IconButton, Link, Spinner, Text, useStyles2 } from '@grafana/ui';
-import { getSvgSize } from '@grafana/ui/internal';
+import { Avatar, Icon, IconButton, Link, Spinner, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getIconForItem } from 'app/features/search/service/utils';
 
 import { Indent } from '../../../core/components/Indent/Indent';
@@ -22,7 +21,6 @@ type NameCellProps = DashboardsTreeCellProps & {
 };
 
 export function NameCell({ row: { original: data }, onFolderClick, treeID }: NameCellProps) {
-  const styles = useStyles2(getStyles);
   const { item, level, isOpen } = data;
   const childrenByParentUID = useChildrenByParentUIDState();
 
@@ -40,9 +38,9 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
             md: 3,
           }}
         />
-        <span className={styles.folderButtonSpacer} />
+        <span {...stylex.props(styles.folderButtonSpacer)} />
         {item.uiKind === 'empty-folder' ? (
-          <em className={styles.emptyText}>
+          <em {...stylex.props(styles.emptyText)}>
             <Text variant="body" color="secondary" truncate>
               <Trans i18nKey="browse-dashboards.name-cell.no-items">No items</Trans>
             </Text>
@@ -67,7 +65,7 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
       {item.kind === 'folder' ? (
         <IconButton
           size={CHEVRON_SIZE}
-          className={styles.chevron}
+          style={chevronStyle}
           onClick={() => {
             onFolderClick(item.uid, !isOpen);
           }}
@@ -83,10 +81,10 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
           }
         />
       ) : (
-        <span className={styles.folderButtonSpacer} />
+        <span {...stylex.props(styles.folderButtonSpacer)} />
       )}
 
-      <div className={styles.iconNameContainer}>
+      <div {...stylex.props(styles.iconNameContainer)}>
         {isLoading ? <Spinner size={ICON_SIZE} /> : <Icon size={ICON_SIZE} name={iconName} />}
 
         <Text variant="body" truncate id={treeID && makeRowID(treeID, item)}>
@@ -101,7 +99,7 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
                 });
               }}
               href={item.url}
-              className={styles.link}
+              {...stylex.props(styles.link)}
             >
               {item.title}
             </Link>
@@ -113,7 +111,7 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
         <FolderRepo folder={item} />
 
         {ownerReference && (
-          <div className={styles.ownerReference}>
+          <div {...stylex.props(styles.ownerReference)}>
             {ownerReference.avatarUrl && <Avatar src={ownerReference.avatarUrl} alt={ownerReference.title} />}
             <Text truncate color="secondary" variant="bodySmall">
               {ownerReference.title}
@@ -125,40 +123,38 @@ export function NameCell({ row: { original: data }, onFolderClick, treeID }: Nam
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    chevron: css({
-      marginRight: theme.spacing(1),
-      width: getSvgSize(CHEVRON_SIZE),
-    }),
-    emptyText: css({
-      // needed for text to truncate correctly
-      overflow: 'hidden',
-    }),
-    // Should be the same size as the <IconButton /> so Dashboard name is aligned to Folder name siblings
-    folderButtonSpacer: css({
-      paddingLeft: `calc(${getSvgSize(CHEVRON_SIZE)}px + ${theme.spacing(1)})`,
-    }),
-    iconNameContainer: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(1),
-      overflow: 'hidden',
-    }),
-    link: css({
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-    ownerReference: css({
-      display: 'flex',
-      marginLeft: theme.spacing(1),
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      minWidth: 0,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      flex: '0 1 auto',
-    }),
-  };
-};
+// IconButton has no xstyle; an inline style wins over its own margin in every state, like the old className did.
+// 16 is getSvgSize(CHEVRON_SIZE).
+const chevronStyle = { marginRight: 'var(--gf-spacing-x1)', width: 16 };
+
+const styles = stylex.create({
+  emptyText: {
+    // needed for text to truncate correctly
+    overflow: 'hidden',
+  },
+  // Should be the same size as the <IconButton /> so Dashboard name is aligned to Folder name siblings
+  folderButtonSpacer: {
+    paddingLeft: `calc(16px + ${spacing['--gf-spacing-x1']})`,
+  },
+  iconNameContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    overflow: 'hidden',
+  },
+  link: {
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  ownerReference: {
+    display: 'flex',
+    marginLeft: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    flexGrow: '0',
+    flexShrink: '1',
+    flexBasis: 'auto',
+  },
+});
