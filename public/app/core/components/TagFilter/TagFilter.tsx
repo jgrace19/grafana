@@ -190,7 +190,8 @@ const styles = stylex.create({
     cursor: 'pointer',
   },
   clear: {
-    background: 'none',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
     borderStyle: 'none',
     textDecoration: 'underline',
     fontSize: '12px',
