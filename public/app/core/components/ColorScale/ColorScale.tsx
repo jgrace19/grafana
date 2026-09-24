@@ -27,7 +27,6 @@ export const ColorScale = ({ colorPalette, min, max, display, hoverValue, useSto
   const [scaleHover, setScaleHover] = useState<HoverState>({ isShown: false, value: 0 });
   const [percent, setPercent] = useState<number | null>(null); // 0-100 for CSS percentage
 
-
   useEffect(() => {
     setColors(getGradientStops({ colorArray: colorPalette, stops: GRADIENT_STOPS, useStopsPercentage }));
   }, [colorPalette, useStopsPercentage]);

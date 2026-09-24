@@ -80,9 +80,14 @@ const EmptyListCTA = ({
     </ButtonEl>
   );
 
-  return <CallToActionCard
+  return (
+    <CallToActionCard
       className={stylex.props(styles.cta).className}
-      message={title} footer={footer()} callToActionElement={ctaElement} />;
+      message={title}
+      footer={footer()}
+      callToActionElement={ctaElement}
+    />
+  );
 };
 
 export default EmptyListCTA;

@@ -32,7 +32,12 @@ export function SplashScreenSlide({ feature, footer }: SplashScreenSlideProps) {
     <div {...stylex.props(styles.slide)}>
       <div {...stylex.props(styles.heroPanel, styles.heroBackground(heroBackground))} />
       <div {...stylex.props(styles.contentPanel)}>
-        <Badge text={feature.badgeText} icon={feature.badgeIcon} color="green" className={stylex.props(styles.badge).className} />
+        <Badge
+          text={feature.badgeText}
+          icon={feature.badgeIcon}
+          color="green"
+          className={stylex.props(styles.badge).className}
+        />
         <h2 {...stylex.props(styles.title)}>{feature.title}</h2>
         <div {...stylex.props(styles.body)}>
           <div {...stylex.props(styles.iconBox, styles.iconBoxBackground(colorManipulator.alpha(accentColor, 0.12)))}>

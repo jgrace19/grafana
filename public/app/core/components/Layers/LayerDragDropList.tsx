@@ -40,7 +40,6 @@ export const LayerDragDropList = <T extends LayerElement>({
   onNameChange,
   verifyLayerNameUniqueness,
 }: LayerDragDropListProps<T>) => {
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="droppable">

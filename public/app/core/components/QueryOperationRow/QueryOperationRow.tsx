@@ -112,10 +112,7 @@ export function QueryOperationRow({
         {(provided) => {
           return (
             <>
-              <div
-                ref={provided.innerRef}
-                {...stylex.props(styles.wrapper)}
-                {...provided.draggableProps}>
+              <div ref={provided.innerRef} {...stylex.props(styles.wrapper)} {...provided.draggableProps}>
                 <div>
                   <QueryOperationRowHeader
                     id={contentId}

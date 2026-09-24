@@ -1,6 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
 
-
 import { type SelectableValue } from '@grafana/data';
 import { LinkButton, FilterInput, InlineField, Checkbox } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';

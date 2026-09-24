@@ -8,7 +8,6 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 type Props = StandardEditorProps<string, UnitFieldConfigSettings>;
 
 export function UnitValueEditor({ value, onChange, item, id }: Props) {
-
   if (item?.settings?.isClearable && value != null) {
     return (
       <div {...stylex.props(styles.wrapper)}>

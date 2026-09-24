@@ -18,7 +18,9 @@ export const OperationRowHelp = React.memo(
     ({ className, style, children, markdown, styleOverrides, onRemove, ...otherProps }, ref) => {
       const theme = useTheme2();
       // `styleOverrides.borderTop` is a partial border shorthand (e.g. '2px solid') completed with the background colour.
-      const borderTop = styleOverrides?.borderTop ? styleOverrides.borderTop + theme.colors.background.secondary : 'none';
+      const borderTop = styleOverrides?.borderTop
+        ? styleOverrides.borderTop + theme.colors.background.secondary
+        : 'none';
 
       return (
         <div

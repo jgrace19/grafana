@@ -7,7 +7,12 @@ import { Branding } from '../Branding/Branding';
 
 export function BouncingLoader() {
   return (
-    <div {...stylex.props(styles.container)} aria-live="polite" role="status" aria-label={t('bouncing-loader.label', 'Loading')}>
+    <div
+      {...stylex.props(styles.container)}
+      aria-live="polite"
+      role="status"
+      aria-label={t('bouncing-loader.label', 'Loading')}
+    >
       <div {...stylex.props(styles.bounce)}>
         <Branding.LoginLogo className={stylex.props(styles.logo).className} />
       </div>

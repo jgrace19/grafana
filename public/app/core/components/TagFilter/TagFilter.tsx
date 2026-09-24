@@ -48,7 +48,6 @@ export const TagFilter = ({
   width,
   disabled,
 }: Props) => {
-
   const currentlySelectedTags = tags.map((tag) => ({ value: tag, label: tag, count: 0 }));
   const [options, setOptions] = useState<TagSelectOption[]>(currentlySelectedTags);
   const [isLoading, setIsLoading] = useState(false);
