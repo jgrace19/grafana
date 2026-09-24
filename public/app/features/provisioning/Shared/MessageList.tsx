@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Text, useStyles2 } from '@grafana/ui';
+import { Box, Text } from '@grafana/ui';
+import { durations, easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface MessageListProps {
   messages: string[];
@@ -11,7 +12,6 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, variant }: MessageListProps) {
-  const styles = useStyles2(getStyles);
   const [showFull, setShowFull] = useState(false);
   const hasMultipleMessages = messages.length > 1;
 
@@ -27,8 +27,8 @@ export function MessageList({ messages, variant }: MessageListProps) {
 
   return (
     <>
-      <div className={cx(styles.messageListWrapper, { [styles.messageListWrapperExpanded]: showFull })}>
-        <ul className={styles.messageList}>
+      <div {...stylex.props(styles.messageListWrapper, showFull && styles.messageListWrapperExpanded)}>
+        <ul {...stylex.props(styles.messageList)}>
           {displayMessages.map((msg, index) => (
             <li key={index}>
               {variant ? <Text variant={variant}>{msg}</Text> : msg}
@@ -41,7 +41,7 @@ export function MessageList({ messages, variant }: MessageListProps) {
                   </span>
                   <button
                     type="button"
-                    className={cx(styles.showMore, styles.showMoreInline)}
+                    {...stylex.props(styles.showMore, styles.showMoreInline)}
                     onClick={handleExpand}
                     aria-expanded={false}
                   >
@@ -55,7 +55,7 @@ export function MessageList({ messages, variant }: MessageListProps) {
       </div>
       {showFull && hasMultipleMessages && (
         <Box paddingLeft={3} paddingTop={0.5}>
-          <button type="button" className={styles.showMore} onClick={handleCollapse} aria-expanded={true}>
+          <button type="button" {...stylex.props(styles.showMore)} onClick={handleCollapse} aria-expanded={true}>
             <Trans i18nKey="provisioning.message.show-less">show less</Trans>
           </button>
         </Box>
@@ -64,35 +64,41 @@ export function MessageList({ messages, variant }: MessageListProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  messageListWrapper: css({
+const styles = stylex.create({
+  messageListWrapper: {
     overflow: 'hidden',
     maxHeight: '200px',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: theme.transitions.create('max-height', {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.easeInOut,
-      }),
-    },
-  }),
-  messageListWrapperExpanded: css({
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'max-height' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: durations.standard },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+  },
+  messageListWrapperExpanded: {
     maxHeight: '9999px',
-  }),
-  messageList: css({
-    margin: 0,
-    paddingLeft: theme.spacing(3),
+  },
+  messageList: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingLeft: spacing['--gf-spacing-x3'],
     listStyle: 'disc',
-  }),
-  showMore: css({
+  },
+  showMore: {
     backgroundColor: 'transparent',
-    border: 'none',
-    padding: 0,
-    margin: 0,
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
     textDecoration: 'underline',
     cursor: 'pointer',
-    color: theme.colors.text.primary,
-  }),
-  showMoreInline: css({
-    marginLeft: theme.spacing(0.5),
-  }),
+    color: colors['--gf-colors-text-primary'],
+  },
+  showMoreInline: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
 });

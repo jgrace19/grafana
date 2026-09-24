@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Modal, Button, useStyles2, Stack, Text } from '@grafana/ui';
+import { Modal, Button, Stack, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { SetupStep } from './SetupStep';
 import { Sidebar } from './Sidebar';
@@ -19,8 +21,6 @@ export interface Props {
 }
 
 export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const [currentStep, setCurrentStep] = useState(0);
 
   const isFirstStep = currentStep === 0;
@@ -31,7 +31,7 @@ export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Pro
   const handlePrevious = () => !isFirstStep && setCurrentStep(currentStep - 1);
 
   return (
-    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={styles.modal}>
+    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={modalClassName}>
       <Stack direction={'column'} gap={4}>
         <Text variant="body" color="secondary">
           {description}
@@ -39,7 +39,7 @@ export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Pro
         <Stack direction="row" height="100%">
           <Sidebar steps={stepTitles} currentStep={currentStep} onStepClick={setCurrentStep} />
 
-          <div className={styles.contentWrapper}>
+          <div {...stylex.props(styles.contentWrapper)}>
             <SetupStep step={steps[currentStep]} />
           </div>
         </Stack>
@@ -66,25 +66,23 @@ export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Pro
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '1100px',
-    maxWidth: '95%',
-  }),
-  description: css({
-    marginBottom: theme.spacing(3),
-    padding: theme.spacing(0, 1),
-  }),
-  contentWrapper: css({
-    flex: 1,
+// stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
+const modalClassName = css({
+  width: '1100px',
+  maxWidth: '95%',
+});
+
+const styles = stylex.create({
+  contentWrapper: {
+    flex: '1',
     overflowY: 'auto',
     minWidth: 0,
-    padding: theme.spacing(2),
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
-  }),
-  footer: css({
-    padding: theme.spacing(2),
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    marginTop: theme.spacing(2),
-  }),
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
 });

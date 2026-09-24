@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { Icon, useStyles2 } from '@grafana/ui';
-import { getSvgSize } from '@grafana/ui/internal';
+import { Icon } from '@grafana/ui';
 
 import { type RepoType } from '../Wizard/types';
 import { getRepositoryTypeConfig } from '../utils/repositoryTypes';
 
 export function RepoIcon({ type }: { type: RepoType | undefined }) {
-  const styles = useStyles2(getStyles);
   const config = type ? getRepositoryTypeConfig(type) : undefined;
 
   if (!config) {
@@ -16,7 +14,7 @@ export function RepoIcon({ type }: { type: RepoType | undefined }) {
   return (
     <>
       {config.logo ? (
-        <img src={config.logo} alt={config.label} className={styles.logo} />
+        <img src={config.logo} alt={config.label} {...stylex.props(styles.logo)} />
       ) : (
         <Icon name={config.icon} size="xxl" />
       )}
@@ -24,11 +22,10 @@ export function RepoIcon({ type }: { type: RepoType | undefined }) {
   );
 }
 
-function getStyles() {
-  return {
-    logo: css({
-      width: getSvgSize('xxl'),
-      height: getSvgSize('xxl'),
-    }),
-  };
-}
+const styles = stylex.create({
+  // getSvgSize('xxl')
+  logo: {
+    width: 36,
+    height: 36,
+  },
+});

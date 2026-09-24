@@ -1,0 +1,5 @@
+/* EditorField forwards this class to Field, which is still Emotion and sets its own margin-bottom: the doubled
+   class wins that tie. */
+.gf-cloudwatch-remove-margin-bottom.gf-cloudwatch-remove-margin-bottom {
+  margin-bottom: 8px;
+}

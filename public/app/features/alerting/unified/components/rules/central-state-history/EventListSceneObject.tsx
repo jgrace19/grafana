@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { type ReactElement, useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 import { useMeasure } from 'react-use';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type IconName, type TimeRange } from '@grafana/data';
+import { type IconName, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   CustomVariable,
@@ -16,7 +17,8 @@ import {
   type VariableValue,
   sceneGraph,
 } from '@grafana/scenes';
-import { Alert, Icon, LoadingBar, Pagination, Stack, Text, Tooltip, useStyles2, withErrorBoundary } from '@grafana/ui';
+import { Alert, Icon, LoadingBar, Pagination, Stack, Text, Tooltip, withErrorBoundary } from '@grafana/ui';
+import { colors, components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   type GrafanaAlertStateWithReason,
   isAlertStateWithReason,
@@ -153,14 +155,12 @@ interface HistoryLogEventsProps {
 }
 function HistoryLogEvents({ logRecords, addFilter, timeRange, hideAlertRuleColumn }: HistoryLogEventsProps) {
   const { page, pageItems, numberOfPages, onPageChange } = usePagination(logRecords, 1, PAGE_SIZE);
-  const styles = useStyles2(getStyles);
-
   return (
     <Stack direction="column" gap={0}>
-      <div className={styles.headerContainer}>
+      <div {...stylex.props(styles.headerContainer)}>
         <ListHeader hideAlertRuleColumn={hideAlertRuleColumn} />
 
-        <div className={styles.triageButtonContainer}>
+        <div {...stylex.props(styles.triageButtonContainer)}>
           <AITriageButtonComponent logRecords={logRecords} timeRange={timeRange} />
         </div>
       </div>
@@ -184,27 +184,26 @@ function HistoryLogEvents({ logRecords, addFilter, timeRange, hideAlertRuleColum
 }
 
 function ListHeader({ hideAlertRuleColumn }: { hideAlertRuleColumn?: boolean }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.mainHeader}>
-      <div className={styles.timeCol}>
+    <div {...stylex.props(styles.mainHeader)}>
+      <div {...stylex.props(styles.timeCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.timestamp">Timestamp</Trans>
         </Text>
       </div>
-      <div className={styles.transitionCol}>
+      <div {...stylex.props(styles.transitionCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.state">State</Trans>
         </Text>
       </div>
       {!hideAlertRuleColumn && (
-        <div className={styles.alertNameCol}>
+        <div {...stylex.props(styles.alertNameCol)}>
           <Text variant="body">
             <Trans i18nKey="alerting.central-alert-history.details.header.alert-rule">Alert rule</Trans>
           </Text>
         </div>
       )}
-      <div className={styles.labelsCol}>
+      <div {...stylex.props(styles.labelsCol)}>
         <Text variant="body">
           <Trans i18nKey="alerting.central-alert-history.details.header.instance">Instance</Trans>
         </Text>
@@ -220,7 +219,6 @@ interface EventRowProps {
   hideAlertRuleColumn?: boolean;
 }
 function EventRow({ record, addFilter, timeRange, hideAlertRuleColumn }: EventRowProps) {
-  const styles = useStyles2(getStyles);
   const [isCollapsed, setIsCollapsed] = useState(true);
   function onLabelClick([value, label]: [string | undefined, string | undefined]) {
     if (label && value) {
@@ -230,35 +228,27 @@ function EventRow({ record, addFilter, timeRange, hideAlertRuleColumn }: EventRo
 
   return (
     <Stack direction="column" gap={0}>
-      <div
-        className={cx(styles.header, isCollapsed ? styles.collapsedHeader : styles.notCollapsedHeader)}
-        data-testid="event-row-header"
-      >
-        <CollapseToggle
-          size="sm"
-          className={styles.collapseToggle}
-          isCollapsed={isCollapsed}
-          onToggle={setIsCollapsed}
-        />
+      <div {...stylex.props(styles.header, isCollapsed && styles.collapsedHeader)} data-testid="event-row-header">
+        <CollapseToggle size="sm" style={collapseToggleStyle} isCollapsed={isCollapsed} onToggle={setIsCollapsed} />
         <Stack gap={0.5} direction={'row'} alignItems={'center'}>
-          <div className={styles.timeCol}>
+          <div {...stylex.props(styles.timeCol)}>
             <Timestamp time={record.timestamp} />
           </div>
-          <div className={styles.transitionCol}>
+          <div {...stylex.props(styles.transitionCol)}>
             <EventTransition previous={record.line.previous} current={record.line.current} addFilter={addFilter} />
           </div>
           {!hideAlertRuleColumn && (
-            <div className={styles.alertNameCol}>
+            <div {...stylex.props(styles.alertNameCol)}>
               {record.line.labels ? <AlertRuleName labels={record.line.labels} ruleUID={record.line.ruleUID} /> : null}
             </div>
           )}
-          <div className={styles.labelsCol}>
+          <div {...stylex.props(styles.labelsCol)}>
             <AlertLabels labels={record.line.labels ?? {}} size="xs" onClick={onLabelClick} />
           </div>
         </Stack>
       </div>
       {!isCollapsed && (
-        <div className={styles.expandedRow}>
+        <div {...stylex.props(styles.expandedRow)}>
           <EventDetails record={record} addFilter={addFilter} timeRange={timeRange} />
         </div>
       )}
@@ -271,7 +261,6 @@ interface AlertRuleNameProps {
   ruleUID?: string;
 }
 function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
-  const styles = useStyles2(getStyles);
   const { pathname, search } = useLocation();
   const returnTo = `${pathname}${search}`;
   const alertRuleName = labels.alertname;
@@ -288,7 +277,7 @@ function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
   });
   return (
     <Tooltip content={alertRuleName ?? ''}>
-      <a href={ruleViewUrl} className={styles.alertName}>
+      <a href={ruleViewUrl} {...stylex.props(styles.alertName)}>
         {alertRuleName}
       </a>
     </Tooltip>
@@ -312,7 +301,7 @@ function EventTransition({ previous, current, addFilter }: EventTransitionProps)
 
 interface StateIconProps {
   iconName: IconName;
-  iconColor: string;
+  iconColor?: StyleXStyles;
   tooltipContent: string;
   labelText: ReactElement;
   showLabel: boolean;
@@ -320,7 +309,7 @@ interface StateIconProps {
 const StateIcon = ({ iconName, iconColor, tooltipContent, labelText, showLabel }: StateIconProps) => (
   <Tooltip content={tooltipContent} placement="top">
     <Stack gap={0.5} direction={'row'} alignItems="center">
-      <Icon name={iconName} size="md" className={iconColor} />
+      <Icon name={iconName} size="md" xstyle={iconColor} />
       {showLabel && (
         <Text variant="body" weight="light">
           {labelText}
@@ -337,8 +326,6 @@ interface EventStateProps {
   type: 'from' | 'to';
 }
 export function EventState({ state, showLabel = false, addFilter, type }: EventStateProps) {
-  const styles = useStyles2(getStyles);
-
   const toolTip = t('alerting.central-alert-history.details.no-recognized-state', 'No recognized state');
   if (!isGrafanaAlertState(state) && !isAlertStateWithReason(state)) {
     return (
@@ -355,7 +342,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
   const reason = mapStateWithReasonToReason(state);
   interface StateConfig {
     iconName: IconName;
-    iconColor: string;
+    iconColor: StyleXStyles;
     tooltipContent: string;
     labelText: ReactElement;
   }
@@ -413,7 +400,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
           onStateClick();
         }
       }}
-      className={styles.state}
+      {...stylex.props(styles.state)}
       role="button"
       tabIndex={0}
     >
@@ -446,104 +433,104 @@ const Timestamp = ({ time }: TimestampProps) => {
 
 export default withErrorBoundary(HistoryEventsList, { style: 'page' });
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      flexWrap: 'nowrap',
-      '&:hover': {
-        backgroundColor: theme.components.table.rowHoverBackground,
-      },
-    }),
-    collapsedHeader: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    notCollapsedHeader: css({
-      borderBottom: 'none',
-    }),
+const styles = stylex.create({
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    flexWrap: 'nowrap',
+    backgroundColor: {
+      default: null,
+      ':hover': components['--gf-components-table-row-hover-background'],
+    },
+  },
+  collapsedHeader: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  normalColor: {
+    fill: colors['--gf-colors-success-text'],
+  },
+  warningColor: {
+    fill: colors['--gf-colors-warning-text'],
+  },
+  alertingColor: {
+    fill: colors['--gf-colors-error-text'],
+  },
+  timeCol: {
+    width: '150px',
+  },
+  transitionCol: {
+    width: '80px',
+  },
+  alertNameCol: {
+    width: '300px',
+  },
+  labelsCol: {
+    display: 'flex',
+    overflow: 'hidden',
+    alignItems: 'center',
+    paddingRight: spacing['--gf-spacing-x2'],
+    flex: '1',
+  },
+  alertName: {
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: 'block',
+    color: colors['--gf-colors-text-link'],
+  },
+  expandedRow: {
+    padding: spacing['--gf-spacing-x2'],
+    marginLeft: spacing['--gf-spacing-x2'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
+  state: {
+    opacity: { default: null, ':hover': 0.8 },
+    cursor: { default: null, ':hover': 'pointer' },
+  },
+  mainHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    marginLeft: '30px',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  headerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  triageButtonContainer: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+});
 
-    collapseToggle: css({
-      background: 'none',
-      border: 'none',
-      marginTop: `-${theme.spacing(1)}`,
-      marginBottom: `-${theme.spacing(1)}`,
-
-      svg: {
-        marginBottom: 0,
-      },
-    }),
-    normalColor: css({
-      fill: theme.colors.success.text,
-    }),
-    warningColor: css({
-      fill: theme.colors.warning.text,
-    }),
-    alertingColor: css({
-      fill: theme.colors.error.text,
-    }),
-    timeCol: css({
-      width: '150px',
-    }),
-    transitionCol: css({
-      width: '80px',
-    }),
-    alertNameCol: css({
-      width: '300px',
-    }),
-    labelsCol: css({
-      display: 'flex',
-      overflow: 'hidden',
-      alignItems: 'center',
-      paddingRight: theme.spacing(2),
-      flex: 1,
-    }),
-    alertName: css({
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: 'block',
-      color: theme.colors.text.link,
-    }),
-    expandedRow: css({
-      padding: theme.spacing(2),
-      marginLeft: theme.spacing(2),
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-    colorIcon: css({
-      color: theme.colors.primary.text,
-      '&:hover': {
-        opacity: 0.8,
-      },
-    }),
-    state: css({
-      '&:hover': {
-        opacity: 0.8,
-        cursor: 'pointer',
-      },
-    }),
-    mainHeader: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      marginLeft: '30px',
-      padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
-      gap: theme.spacing(0.5),
-    }),
-    headerContainer: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    triageButtonContainer: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-    }),
-  };
+// CollapseToggle's Button has no xstyle, and this override must also win in its :hover state.
+const collapseToggleStyle = {
+  background: 'none',
+  border: 'none',
+  marginTop: `calc(${spacing['--gf-spacing-x1']} * -1)`,
+  marginBottom: `calc(${spacing['--gf-spacing-x1']} * -1)`,
 };
 
 /**

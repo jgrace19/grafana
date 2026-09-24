@@ -1,0 +1,26 @@
+/*
+ * HorizontalGroup spaces whatever children it's given, which StyleX can't target.
+ *
+ * With Emotion the outcome against a child's own margins (Field's margin-bottom) depended on insertion order: a plain
+ * group lost, while a group given a consumer override got a later-inserted merged class and won. The layered rules
+ * reproduce the first case, the doubled-class rules (applied when an override is passed) the second.
+ */
+@layer grafana-global {
+  .gf-plugins-horizontal-group > * {
+    margin-bottom: var(--gf-spacing-x1);
+    margin-right: var(--gf-spacing-x1);
+  }
+
+  .gf-plugins-horizontal-group > *:last-child {
+    margin-right: 0;
+  }
+}
+
+.gf-plugins-horizontal-group-override.gf-plugins-horizontal-group-override > * {
+  margin-bottom: var(--gf-spacing-x1);
+  margin-right: var(--gf-spacing-x1);
+}
+
+.gf-plugins-horizontal-group-override.gf-plugins-horizontal-group-override > *:last-child {
+  margin-right: 0;
+}

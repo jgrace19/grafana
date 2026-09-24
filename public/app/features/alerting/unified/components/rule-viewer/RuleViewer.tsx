@@ -1,23 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { chain, truncate } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useMeasure } from 'react-use';
 
 import { AlertLabels, StateText } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type NavModelItem, type UrlQueryValue } from '@grafana/data';
+import { type NavModelItem, type UrlQueryValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import {
-  Alert,
-  LinkButton,
-  LoadingBar,
-  Stack,
-  TabContent,
-  Text,
-  TextLink,
-  useStyles2,
-  withErrorBoundary,
-} from '@grafana/ui';
+import { Alert, LinkButton, LoadingBar, Stack, TabContent, Text, TextLink, withErrorBoundary } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type PageInfoItem } from 'app/core/components/Page/types';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import InfoPausedRule from 'app/features/alerting/unified/components/InfoPausedRule';
@@ -93,8 +85,6 @@ const alertingListViewV2 = shouldUseAlertingListViewV2();
 const RuleViewer = () => {
   const { rule, identifier } = useAlertRule();
   const { pageNav, activeTab } = usePageNav(rule);
-  const styles = useStyles2(getStyles);
-
   // GMA /api/v1/rules endpoint is strongly consistent, so we don't need to check for consistency
   const shouldUseConsistencyCheck = isGrafanaRuleIdentifier(identifier)
     ? false
@@ -144,7 +134,7 @@ const RuleViewer = () => {
         />
       )}
       actions={<RuleActionsButtons rule={rule} rulesSource={rule.namespace.rulesSource} />}
-      info={createMetadata(rule, styles)}
+      info={createMetadata(rule)}
       subTitle={
         <Stack direction="column">
           {summary}
@@ -170,7 +160,7 @@ const RuleViewer = () => {
       }
     >
       {shouldUseConsistencyCheck && <PrometheusConsistencyCheck ruleIdentifier={identifier} />}
-      <div className={styles.layout}>
+      <div {...stylex.props(styles.layout)}>
         <Stack direction="column" gap={2}>
           {/* tabs and tab content */}
           <TabContent>
@@ -191,7 +181,7 @@ const RuleViewer = () => {
             )}
           </TabContent>
         </Stack>
-        <aside className={styles.sidebar}>
+        <aside {...stylex.props(styles.sidebar)}>
           <Details rule={rule} />
         </aside>
       </div>
@@ -207,7 +197,7 @@ const RuleViewer = () => {
   );
 };
 
-const createMetadata = (rule: CombinedRule, styles: ReturnType<typeof getStyles>): PageInfoItem[] => {
+const createMetadata = (rule: CombinedRule): PageInfoItem[] => {
   const { labels, annotations, group, rulerRule } = rule;
   const metadata: PageInfoItem[] = [];
 
@@ -237,7 +227,7 @@ const createMetadata = (rule: CombinedRule, styles: ReturnType<typeof getStyles>
     /* TODO instead of truncating the string, we should use flex and text overflow properly to allow it to take up all of the horizontal space available */
     const truncatedUrl = truncate(runbookUrl, { length: 42 });
     const valueToAdd = isValidRunbookURL(runbookUrl) ? (
-      <TextLink variant="bodySmall" className={styles.url} href={runbookUrl} external>
+      <TextLink variant="bodySmall" className={stylex.props(styles.url).className} href={runbookUrl} external>
         {truncatedUrl}
       </TextLink>
     ) : (
@@ -559,31 +549,29 @@ export const calculateTotalInstances = (stats: AlertInstanceTotals) => {
     .value();
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  url: css({
+const styles = stylex.create({
+  url: {
     wordBreak: 'break-all',
-  }),
-  layout: css({
+  },
+  layout: {
     display: 'grid',
-    gridTemplateColumns: '1fr 320px',
-    gap: theme.spacing(3),
+    gridTemplateColumns: {
+      default: '1fr 320px',
+      [bp.lgDown]: '1fr',
+    },
+    gap: spacing['--gf-spacing-x3'],
     alignItems: 'start',
-
-    [theme.breakpoints.down('lg')]: {
-      gridTemplateColumns: '1fr',
-    },
-  }),
-  sidebar: css({
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
-    paddingLeft: theme.spacing(3),
-
-    [theme.breakpoints.down('lg')]: {
-      borderLeft: 'none',
-      paddingLeft: 0,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      paddingTop: theme.spacing(3),
-    },
-  }),
+  },
+  sidebar: {
+    borderLeftWidth: { default: '1px', [bp.lgDown]: 'medium' },
+    borderLeftStyle: { default: 'solid', [bp.lgDown]: 'none' },
+    borderLeftColor: { default: colors['--gf-colors-border-weak'], [bp.lgDown]: 'currentcolor' },
+    paddingLeft: { default: spacing['--gf-spacing-x3'], [bp.lgDown]: 0 },
+    borderTopWidth: { default: null, [bp.lgDown]: '1px' },
+    borderTopStyle: { default: null, [bp.lgDown]: 'solid' },
+    borderTopColor: { default: null, [bp.lgDown]: colors['--gf-colors-border-weak'] },
+    paddingTop: { default: null, [bp.lgDown]: spacing['--gf-spacing-x3'] },
+  },
 });
 
 function isValidRunbookURL(url: string) {

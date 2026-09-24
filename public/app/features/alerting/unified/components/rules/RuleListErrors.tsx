@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
 import { type SerializedError } from '@reduxjs/toolkit';
+import * as stylex from '@stylexjs/stylex';
 import { type FC, type JSX, type ReactElement, useMemo, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Tooltip } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
 import { GRAFANA_RULES_SOURCE_NAME, getRulesDataSources } from '../../utils/datasource';
@@ -17,8 +18,6 @@ export function RuleListErrors(): ReactElement {
   const [closed, setClosed] = useLocalStorage('grafana.unifiedalerting.hideErrors', false);
   const promRuleRequests = useUnifiedAlertingSelector((state) => state.promRules);
   const rulerRuleRequests = useUnifiedAlertingSelector((state) => state.rulerRules);
-  const styles = useStyles2(getStyles);
-
   const errors = useMemo((): JSX.Element[] => {
     const [promRequestErrors, rulerRequestErrors] = [promRuleRequests, rulerRuleRequests].map((requests) =>
       getRulesDataSources().reduce<Array<{ error: SerializedError; dataSource: DataSourceInstanceSettings }>>(
@@ -68,7 +67,7 @@ export function RuleListErrors(): ReactElement {
             values={{ dataSource: dataSource.name }}
           >
             Failed to load rules state from{' '}
-            <a href={makeDataSourceLink(dataSource.uid)} className={styles.dsLink}>
+            <a href={makeDataSourceLink(dataSource.uid)} {...stylex.props(styles.dsLink)}>
               {'{{dataSource}}'}
             </a>
           </Trans>
@@ -85,7 +84,7 @@ export function RuleListErrors(): ReactElement {
             values={{ dataSource: dataSource.name }}
           >
             Failed to load rules config from{' '}
-            <a href={makeDataSourceLink(dataSource.uid)} className={styles.dsLink}>
+            <a href={makeDataSourceLink(dataSource.uid)} {...stylex.props(styles.dsLink)}>
               {'{{dataSource}}'}
             </a>
           </Trans>
@@ -95,7 +94,7 @@ export function RuleListErrors(): ReactElement {
     );
 
     return result;
-  }, [promRuleRequests, rulerRuleRequests, styles.dsLink]);
+  }, [promRuleRequests, rulerRuleRequests]);
 
   return (
     <>
@@ -118,7 +117,7 @@ export function RuleListErrors(): ReactElement {
               <div>{errors[0]}</div>
               {errors.length >= 2 && (
                 <Button
-                  className={styles.moreButton}
+                  style={{ padding: 0 }}
                   fill="text"
                   icon="angle-right"
                   size="sm"
@@ -143,10 +142,8 @@ interface ErrorSummaryProps {
 }
 
 const ErrorSummaryButton: FC<ErrorSummaryProps> = ({ count, onClick }) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.floatRight}>
+    <div {...stylex.props(styles.floatRight)}>
       <Tooltip
         content={t('alerting.error-summary-button.content-show-all-errors', 'Show all errors')}
         placement="bottom"
@@ -161,16 +158,13 @@ const ErrorSummaryButton: FC<ErrorSummaryProps> = ({ count, onClick }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  moreButton: css({
-    padding: 0,
-  }),
-  floatRight: css({
+const styles = stylex.create({
+  floatRight: {
     display: 'flex',
     justifyContent: 'flex-end',
-  }),
-  dsLink: css({
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.colors.text.link,
-  }),
+  },
+  dsLink: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-text-link'],
+  },
 });

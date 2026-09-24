@@ -1,37 +1,37 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type DataSourceInformation } from '../home/Insights';
 
 export function DataSourcesInfo({ datasources }: { datasources: DataSourceInformation[] }) {
-  const styles = useStyles2(getStyles);
-
   const displayDs = datasources.map((ds) => (
     <div key={ds.uid}>
       {ds.settings?.meta.info.logos.small && (
-        <img className={styles.dsImage} src={ds.settings?.meta.info.logos.small} alt={ds.settings?.name || ds.uid} />
+        <img
+          {...stylex.props(styles.dsImage)}
+          src={ds.settings?.meta.info.logos.small}
+          alt={ds.settings?.name || ds.uid}
+        />
       )}
       <span>{ds.settings?.name || ds.uid}</span>
     </div>
   ));
 
-  return <div className={styles.dsContainer}>{displayDs}</div>;
+  return <div {...stylex.props(styles.dsContainer)}>{displayDs}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dsImage: css({
-    label: 'ds-image',
+const styles = stylex.create({
+  dsImage: {
     width: '16px',
     marginRight: '3px',
-  }),
-  dsContainer: css({
+  },
+  dsContainer: {
     display: 'flex',
     flexDirection: 'row',
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: typography['--gf-typography-body-small-font-size'],
     gap: '10px',
     marginBottom: '10px',
     justifyContent: 'flex-end',
-  }),
+  },
 });

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 /**
  * A simple "flex: 1;" component you can use in combination with the Stack component(s), like so
@@ -10,10 +10,10 @@ import { css } from '@emotion/css';
  *  </Stack>
  */
 
-export const Spacer = () => (
-  <span
-    className={css({
-      flex: 1,
-    })}
-  />
-);
+export const Spacer = () => <span {...stylex.props(styles.spacer)} />;
+
+const styles = stylex.create({
+  spacer: {
+    flex: '1',
+  },
+});

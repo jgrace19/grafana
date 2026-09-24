@@ -1,0 +1,7 @@
+/*
+ * IconButton (StyleX) sets its own margins. An unlayered rule beats its layered styles, as the Emotion class did.
+ */
+.gf-generic-row-toggle {
+  align-self: flex-start;
+  margin-top: var(--gf-spacing-x0-5);
+}

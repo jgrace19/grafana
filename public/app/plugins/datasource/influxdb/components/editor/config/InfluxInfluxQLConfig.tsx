@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 import { uniqueId } from 'lodash';
 
 import {
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   onUpdateDatasourceJsonDataOption,
   onUpdateDatasourceJsonDataOptionSelect,
   onUpdateDatasourceOption,
@@ -11,7 +9,7 @@ import {
   type SelectableValue,
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
-import { Alert, Field, InlineLabel, Input, SecretInput, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Field, InlineLabel, Input, SecretInput, Select } from '@grafana/ui';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
@@ -21,6 +19,8 @@ import {
   trackInfluxDBConfigV1InfluxQLPasswordInputField,
   trackInfluxDBConfigV1InfluxQLUserInputField,
 } from './trackingv1';
+
+import './InfluxConfigField.css';
 
 const httpModes: SelectableValue[] = [
   { label: 'GET', value: 'GET' },
@@ -32,7 +32,6 @@ export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecu
 export const InfluxInfluxQLConfig = (props: Props) => {
   const { options, onOptionsChange } = props;
   const { database, jsonData, secureJsonData, secureJsonFields } = options;
-  const styles = useStyles2(getStyles);
 
   const htmlPrefix = uniqueId('influxdb-influxql-config');
 
@@ -53,7 +52,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-db`}
         noMargin
       >
@@ -77,7 +76,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>User</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         htmlFor={`${htmlPrefix}-user`}
         noMargin
       >
@@ -92,7 +91,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Password</InlineLabel>}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <SecretInput
@@ -119,7 +118,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
           </InlineLabel>
         }
         htmlFor={`${htmlPrefix}-http-method`}
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Select
@@ -142,7 +141,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Min time interval
           </InlineLabel>
         }
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Input
@@ -163,7 +162,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Autocomplete range
           </InlineLabel>
         }
-        className={styles.horizontalField}
+        className="gf-influx-config-field"
         noMargin
       >
         <Input
@@ -176,10 +175,3 @@ export const InfluxInfluxQLConfig = (props: Props) => {
     </>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  horizontalField: css({
-    justifyContent: 'initial',
-    margin: `0 ${theme.spacing(0.5)} ${theme.spacing(0.5)} 0`,
-  }),
-});
