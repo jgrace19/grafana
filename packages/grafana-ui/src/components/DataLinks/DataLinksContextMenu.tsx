@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, type JSX } from 'react';
 import * as React from 'react';
 
-import { type ActionModel, type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type ActionModel, type LinkModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { linkModelToContextMenuItems } from '../../utils/dataLinks';
 import { WithContextMenu } from '../ContextMenu/WithContextMenu';
 import { MenuGroup, type MenuItemsGroup } from '../Menu/MenuGroup';
@@ -27,8 +26,6 @@ export interface DataLinksContextMenuApi {
 }
 
 export const DataLinksContextMenu = ({ children, links, style }: DataLinksContextMenuProps) => {
-  const styles = useStyles2(getStyles);
-
   const itemsGroup: MenuItemsGroup[] = [
     { items: linkModelToContextMenuItems(links), label: Boolean(links().length) ? 'Data links' : '' },
   ];
@@ -46,7 +43,7 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
             icon={item.icon}
             active={item.active}
             onClick={item.onClick}
-            className={styles.itemWrapper}
+            className={stylex.props(styles.itemWrapper).className}
           />
         ))}
       </MenuGroup>
@@ -54,9 +51,7 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
   };
 
   // Use this class name (exposed via render prop) to add context menu indicator to the click target of the visualization
-  const targetClassName = css({
-    cursor: 'context-menu',
-  });
+  const targetClassName = stylex.props(styles.target).className;
 
   if (linksCounter > 1) {
     return (
@@ -83,8 +78,11 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  itemWrapper: css({
+const styles = stylex.create({
+  itemWrapper: {
     fontSize: 12,
-  }),
+  },
+  target: {
+    cursor: 'context-menu',
+  },
 });

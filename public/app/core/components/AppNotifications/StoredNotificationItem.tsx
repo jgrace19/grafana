@@ -51,6 +51,7 @@ export const StoredNotificationItem = ({
   );
 };
 
+// stylex: pending Card migration (U6). Overrides Card.Tags' own Emotion alignSelf.
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     trace: css({

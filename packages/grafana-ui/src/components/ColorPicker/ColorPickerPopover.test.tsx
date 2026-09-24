@@ -30,7 +30,10 @@ describe('ColorPickerPopover', () => {
       expect(colorSwatchWrapper[0]).toBeInTheDocument();
 
       await userEvent.click(colorSwatchWrapper[0]);
-      expect(color).toHaveStyle('box-shadow: inset 0 0 0 2px #73BF69,inset 0 0 0 4px #000000');
+      // StyleX dynamic value: jsdom only sees the inline custom property, so check the value reached the swatch.
+      const selectedShadow = 'inset 0 0 0 2px #73BF69, inset 0 0 0 4px #000000';
+      // eslint-disable-next-line jest-dom/prefer-to-have-style
+      expect(color).toHaveAttribute('style', expect.stringContaining(selectedShadow));
     });
   });
 
