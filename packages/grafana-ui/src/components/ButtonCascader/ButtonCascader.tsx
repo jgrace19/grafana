@@ -1,16 +1,15 @@
-import { css, cx } from '@emotion/css';
 import RCCascader, { type FieldNames } from '@rc-component/cascader';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, useMemo } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { getCascaderStyles } from '../../compat/emotion/cascaderStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
 import { type IconName } from '../../types/icon';
 import { Button, type ButtonProps } from '../Button/Button';
 import { type CascaderOption } from '../Cascader/Cascader';
+import '../Cascader/Cascader.global.css';
 import { onChangeCascader, onLoadDataCascader } from '../Cascader/optionMappings';
 import { Icon } from '../Icon/Icon';
+import { getIconPath } from '../Icon/utils';
 
 export interface ButtonCascaderProps {
   options: CascaderOption[];
@@ -33,21 +32,25 @@ export interface ButtonCascaderProps {
  */
 export const ButtonCascader = (props: ButtonCascaderProps) => {
   const { onChange, className, loadData, icon, buttonProps, hideDownIcon, variant, disabled, ...rest } = props;
-  const styles = useStyles2(getStyles);
-  const cascaderStyles = useStyles2(getCascaderStyles);
+  const popupStyle = useMemo(
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    () => ({ '--gf-cascader-expand-icon': `url(${getIconPath('angle-right')})` }) as CSSProperties,
+    []
+  );
 
   // Weird way to do this bit it goes around a styling issue in Button where even null/undefined child triggers
   // styling change which messes up the look if there is only single icon content.
   let content: React.ReactNode = props.children;
   if (!hideDownIcon) {
-    content = [props.children, <Icon key={'down-icon'} name="angle-down" className={styles.icons.right} />];
+    content = [props.children, <Icon key={'down-icon'} name="angle-down" xstyle={styles.downIcon} />];
   }
 
   return (
     <RCCascader
       onChange={onChangeCascader(onChange)}
       loadData={onLoadDataCascader(loadData)}
-      popupClassName={cx(cascaderStyles.dropdown, styles.popup)}
+      popupClassName="gf-cascader-dropdown"
+      popupStyle={popupStyle}
       {...rest}
       expandIcon={null}
     >
@@ -60,19 +63,11 @@ export const ButtonCascader = (props: ButtonCascaderProps) => {
 
 ButtonCascader.displayName = 'ButtonCascader';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    popup: css({
-      label: 'popup',
-      zIndex: theme.zIndex.dropdown,
-    }),
-    icons: {
-      right: css({
-        margin: '1px 0 0 4px',
-      }),
-      left: css({
-        margin: '-1px 4px 0 0',
-      }),
-    },
-  };
-};
+const styles = stylex.create({
+  downIcon: {
+    marginTop: '1px',
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: '4px',
+  },
+});
