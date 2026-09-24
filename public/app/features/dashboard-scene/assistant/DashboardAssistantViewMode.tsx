@@ -1,13 +1,13 @@
-import { css, keyframes } from '@emotion/css';
 import { useEffect } from 'react';
 
 import { useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type SceneObject } from '@grafana/scenes';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
 
 import { useAssistantPanelHints } from './PanelAssistantHint';
+
+import './DashboardAssistantViewMode.css';
 
 interface DashboardAssistantViewModeProps {
   dashboard: SceneObject;
@@ -57,35 +57,11 @@ if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
   }
 }
 
-const selectionBorderAnimation = keyframes({
-  '0%': { '--border-angle': '0deg' },
-  '100%': { '--border-angle': '360deg' },
-});
-
 /**
- * Returns a CSS class that applies an animated gradient border to the given element.
- * Used by ViewModePanelPromptCard to highlight the active panel.
+ * The CSS class that applies an animated gradient border to a panel's <section>.
+ * Used by ViewModePanelPromptCard to highlight the active panels; styled in DashboardAssistantViewMode.css.
  */
-export function getAnimatedBorderClass(theme: GrafanaTheme2) {
-  const bg = theme.colors.background.canvas;
-  const c1 = 'rgb(168, 85, 247)';
-  const c2 = 'rgb(249, 115, 22)';
-
-  return css({
-    label: 'assistant-animated-border',
-    outline: 'none',
-    border: '1px solid transparent',
-    backgroundImage: `
-      linear-gradient(${bg}, ${bg}),
-      conic-gradient(from var(--border-angle), transparent 60%, ${c1} 80%, ${c2} 100%, transparent 15%)
-    `,
-    backgroundOrigin: 'border-box',
-    backgroundClip: 'padding-box, border-box',
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `${selectionBorderAnimation} 2s linear infinite`,
-    },
-  });
-}
+export const ANIMATED_BORDER_CLASS = 'gf-assistant-animated-border';
 
 /**
  * Registers a global click-outside listener that calls `onDismiss` when the user

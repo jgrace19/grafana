@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { saveAs } from 'file-saver';
 import { useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneComponentProps, SceneObjectBase } from '@grafana/scenes';
-import { Alert, Button, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, Button, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { getDashboardSceneFor } from 'app/features/dashboard-scene/utils/utils';
 
@@ -27,7 +27,6 @@ export class ExportAsImage extends SceneObjectBase<SceneShareTabState> implement
 function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
   const { onDismiss } = model.useState();
   const dashboard = getDashboardSceneFor(model);
-  const styles = useStyles2(getStyles);
 
   const [{ loading: isLoading, value: imageBlob, error }, onExport] = useAsyncFn(async () => {
     try {
@@ -89,12 +88,12 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
   return (
     <main>
-      <p className={styles.info}>
+      <p {...stylex.props(styles.info)}>
         <Trans i18nKey="share-modal.image.info-text">Save this dashboard as an image</Trans>
       </p>
 
       <div
-        className={styles.buttonRow}
+        {...stylex.props(styles.buttonRow)}
         role="group"
         aria-label={t('share-modal.image.actions', 'Image export actions')}
       >
@@ -162,13 +161,13 @@ function RendererAlert() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  info: css({
-    marginBottom: theme.spacing(2),
-  }),
-  buttonRow: css({
+const styles = stylex.create({
+  info: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  buttonRow: {
     display: 'flex',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  }),
+    gap: spacing['--gf-spacing-x2'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });
