@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
 import { t } from '@grafana/i18n';
@@ -16,7 +16,6 @@ type Props = {
 
 export function RuleDetailsExpression(props: Props): JSX.Element | null {
   const { annotations, rulesSource, rule } = props;
-  const styles = getStyles();
 
   if (!isCloudRulesSource(rulesSource)) {
     return null;
@@ -26,15 +25,15 @@ export function RuleDetailsExpression(props: Props): JSX.Element | null {
     <DetailsField
       label={t('alerting.rule-details-expression.label-expression', 'Expression')}
       horizontal={true}
-      className={cx({ [styles.exprRow]: !!annotations.length })}
+      xstyle={!!annotations.length && styles.exprRow}
     >
       <Expression expression={rule.query} rulesSource={rulesSource} />
     </DetailsField>
   );
 }
 
-const getStyles = () => ({
-  exprRow: css({
+const styles = stylex.create({
+  exprRow: {
     marginBottom: '46px',
-  }),
+  },
 });

@@ -1,7 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DynamicTable, type DynamicTableProps } from './DynamicTable';
 
@@ -12,28 +12,27 @@ export const DynamicTableWithGuidelines = <T extends object>({
   renderExpandedContent,
   ...props
 }: DynamicTableWithGuidelinesProps<T>) => {
-  const styles = useStyles2(getStyles);
   return (
     <DynamicTable
       renderExpandedContent={
         renderExpandedContent
           ? (item, index, items) => (
               <>
-                {!(index === items.length - 1) && <div className={cx(styles.contentGuideline, styles.guideline)} />}
+                {!(index === items.length - 1) && <div {...stylex.props(styles.guideline, styles.contentGuideline)} />}
                 {renderExpandedContent(item, index, items)}
               </>
             )
           : undefined
       }
       renderPrefixHeader={() => (
-        <div className={styles.relative}>
-          <div className={cx(styles.headerGuideline, styles.guideline)} />
+        <div {...stylex.props(styles.relative)}>
+          <div {...stylex.props(styles.guideline, styles.headerGuideline)} />
         </div>
       )}
       renderPrefixCell={(_, index, items) => (
-        <div className={styles.relative}>
-          <div className={cx(styles.topGuideline, styles.guideline)} />
-          {!(index === items.length - 1) && <div className={cx(styles.bottomGuideline, styles.guideline)} />}
+        <div {...stylex.props(styles.relative)}>
+          <div {...stylex.props(styles.guideline, styles.topGuideline)} />
+          {!(index === items.length - 1) && <div {...stylex.props(styles.guideline, styles.bottomGuideline)} />}
         </div>
       )}
       {...props}
@@ -41,37 +40,40 @@ export const DynamicTableWithGuidelines = <T extends object>({
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  relative: css({
+const styles = stylex.create({
+  // Hidden on small screens, where DynamicTable's grid has no prefix column.
+  relative: {
     position: 'relative',
     height: '100%',
-  }),
-  guideline: css({
+    display: { default: null, [bp.smDown]: 'none' },
+  },
+  guideline: {
     left: '-19px',
-    borderLeft: `1px solid ${theme.colors.border.weak}`,
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
     position: 'absolute',
-
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  }),
-  topGuideline: css({
+    display: { default: null, [bp.mdDown]: 'none' },
+  },
+  topGuideline: {
     width: '18px',
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
     top: 0,
     bottom: '50%',
-  }),
-  bottomGuideline: css({
+  },
+  bottomGuideline: {
     top: '50%',
     bottom: 0,
-  }),
-  contentGuideline: css({
+  },
+  contentGuideline: {
     top: 0,
     bottom: 0,
-    left: '-49px !important',
-  }),
-  headerGuideline: css({
+    left: '-49px',
+  },
+  headerGuideline: {
     top: '-17px',
     bottom: 0,
-  }),
+  },
 });

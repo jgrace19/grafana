@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
 import { dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Badge, Button, Checkbox, type Column, InteractiveTable, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Badge, Button, Checkbox, type Column, InteractiveTable, Stack, Text } from '@grafana/ui';
 import { GRAFANA_RULES_SOURCE_NAME } from 'app/features/alerting/unified/utils/datasource';
 import { computeVersionDiff } from 'app/features/alerting/unified/utils/diff';
 import { type RuleIdentifier } from 'app/types/unified-alerting';
@@ -34,7 +34,6 @@ export function VersionHistoryTable({
   onRestoreError,
   canRestore,
 }: VersionHistoryTableProps) {
-  const styles = useStyles2(getStyles);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [ruleToRestore, setRuleToRestore] = useState<RulerGrafanaRuleDTO<GrafanaRuleDefinition>>();
   const ruleToRestoreUid = ruleToRestore?.grafana_alert?.uid ?? '';
@@ -105,7 +104,9 @@ export function VersionHistoryTable({
           return unknown;
         }
         return (
-          <span className={styles.nowrap}>{dateTimeFormat(value) + ' (' + dateTimeFormatTimeAgo(value) + ')'}</span>
+          <span {...stylex.props(styles.nowrap)}>
+            {dateTimeFormat(value) + ' (' + dateTimeFormatTimeAgo(value) + ')'}
+          </span>
         );
       },
     },
@@ -196,8 +197,8 @@ export function VersionHistoryTable({
   );
 }
 
-const getStyles = () => ({
-  nowrap: css({
+const styles = stylex.create({
+  nowrap: {
     whiteSpace: 'nowrap',
-  }),
+  },
 });

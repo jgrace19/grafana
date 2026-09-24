@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type Rule } from 'app/types/unified-alerting';
 
 import { isErrorHealth } from '../rule-viewer/RuleViewer';
@@ -12,12 +12,10 @@ interface Prom {
 }
 
 export const RuleHealth = ({ rule }: Prom) => {
-  const style = useStyles2(getStyle);
-
   if (isErrorHealth(rule.health)) {
     return (
       <Tooltip theme="error" content={rule.lastError || 'No error message provided.'}>
-        <div className={style.warn}>
+        <div {...stylex.props(styles.warn)}>
           <Icon name="exclamation-triangle" />
           <span>
             <Trans i18nKey="alerting.rule-health.error">error</Trans>
@@ -30,13 +28,12 @@ export const RuleHealth = ({ rule }: Prom) => {
   return <>{rule.health}</>;
 };
 
-const getStyle = (theme: GrafanaTheme2) => ({
-  warn: css({
+const styles = stylex.create({
+  warn: {
     display: 'inline-flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing(1),
-
-    color: theme.colors.warning.text,
-  }),
+    gap: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-warning-text'],
+  },
 });
