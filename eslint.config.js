@@ -126,6 +126,8 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
+  // P1 core-bundled panels
+  'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   // P2 core-bundled datasource plugins
   'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
 ];

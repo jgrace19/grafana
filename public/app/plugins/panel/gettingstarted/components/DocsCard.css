@@ -1,0 +1,10 @@
+/*
+ * Styles the TextLink anchor, which doesn't take StyleX overrides. Not in a cascade layer, so it wins over
+ * TextLink's own styles like the Emotion descendant rule it replaces.
+ */
+.gf-docs-card-learn-url a {
+  border-top: 1px solid var(--gf-colors-border-weak);
+  display: inline-block;
+  padding: var(--gf-spacing-x1) var(--gf-spacing-x2);
+  width: 100%;
+}

@@ -1,0 +1,8 @@
+/*
+ * Overrides Monaco's editor background, which StyleX can't target. Not in a cascade layer: Monaco's own
+ * styles are unlayered, and a layered rule would lose to them.
+ */
+.gf-text-panel-code-editor .monaco-editor .margin,
+.gf-text-panel-code-editor .monaco-editor-background {
+  background-color: var(--gf-colors-background-primary);
+}

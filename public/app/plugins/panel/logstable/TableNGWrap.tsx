@@ -1,17 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
-import {
-  type FieldConfigSource,
-  type GrafanaTheme2,
-  LogSortOrderChangeEvent,
-  LogsSortOrder,
-  type PanelProps,
-  store,
-} from '@grafana/data';
+import { type FieldConfigSource, LogSortOrderChangeEvent, LogsSortOrder, type PanelProps, store } from '@grafana/data';
 import { getAppEvents } from '@grafana/runtime';
 import { type TableOptions } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getDefaultFieldSelectorWidth } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { getDefaultControlsExpandedMode } from 'app/features/logs/components/panel/LogListContext';
 import { CONTROLS_WIDTH_EXPANDED } from 'app/features/logs/components/panel/LogListControls';
@@ -62,7 +55,6 @@ export function TableNGWrap({
 
   const [controlsExpanded, setControlsExpanded] = useState(controlsExpandedFromStore);
   const controlsWidth = !showControls ? 0 : controlsExpanded ? CONTROLS_WIDTH_EXPANDED : LOG_LIST_CONTROLS_WIDTH;
-  const styles = useStyles2(getStyles, fieldSelectorWidth, height, tableWidth, controlsWidth, !!title);
 
   // Callbacks
   const onTableOptionsChange = useCallback(
@@ -101,9 +93,15 @@ export function TableNGWrap({
   );
 
   return (
-    <div className={styles.tableWrapper}>
+    <div {...stylex.props(styles.tableWrapper(fieldSelectorWidth, controlsWidth, height, tableWidth))}>
       {showControls && (
-        <div className={styles.listControlsWrapper}>
+        <div
+          {...stylex.props(
+            styles.listControlsWrapper,
+            styles.listControlsWidth(controlsWidth),
+            !title && styles.listControlsWrapperNoTitle
+          )}
+        >
           <LogTableControls
             logOptionsStorageKey={logOptionsStorageKey}
             controlsExpanded={controlsExpanded}
@@ -141,34 +139,27 @@ export function TableNGWrap({
   );
 }
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  fieldSelectorWidth: number,
-  height: number,
-  tableWidth: number,
-  controlsWidth: number,
-  hasTitle: boolean
-) => {
-  const listControlsWrapperTableHeaderOffset = '-5px';
-  return {
-    listControlsWrapper: css({
-      height: '100%',
-      width: controlsWidth,
-      label: 'listControlsWrapper',
-      // Needed to keep the panel menu from overlapping the logs options when there's no title
-      marginTop: hasTitle
-        ? 0
-        : `calc(${theme.spacing.gridSize * theme.components.panel.headerHeight}px + ${listControlsWrapperTableHeaderOffset})`,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-    }),
-    tableWrapper: css({
-      position: 'relative',
-      paddingLeft: fieldSelectorWidth,
-      paddingRight: controlsWidth,
-      height,
-      width: tableWidth,
-    }),
-  };
-};
+const styles = stylex.create({
+  listControlsWrapper: {
+    height: '100%',
+    marginTop: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  listControlsWidth: (width: number) => ({
+    width,
+  }),
+  // Needed to keep the panel menu from overlapping the logs options when there's no title; -5px is the table
+  // header offset.
+  listControlsWrapperNoTitle: {
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-panel-header-height']} + -5px)`,
+  },
+  tableWrapper: (paddingLeft: number, paddingRight: number, height: number, width: number) => ({
+    position: 'relative',
+    paddingLeft,
+    paddingRight,
+    height,
+    width,
+  }),
+});
