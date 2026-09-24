@@ -4,7 +4,7 @@ import { memo, useMemo, useState } from 'react';
 import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Checkbox, type ComboboxOption, Icon, MultiSelect, Select, Tooltip } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
+import { inputStyles, mergeStylexProps } from '@grafana/ui/internal';
 import { colors, components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import './FiltersOverviewRow.css';
@@ -115,7 +115,7 @@ export const FilterRow = memo(
       }
       return {
         IndicatorsContainer: (props: React.PropsWithChildren) => (
-          <div {...stylex.props(rowStyles.indicators)}>
+          <div {...stylex.props(inputStyles.prefixSuffix, inputStyles.suffix, rowStyles.indicators)}>
             <Tooltip content={t('dashboard.filters-overview.restore', 'Restore default value')}>
               <span
                 role="button"
@@ -300,26 +300,9 @@ const rowStyles = stylex.create({
     minWidth: 0,
     marginLeft: -1,
   },
-  // getInputStyles().suffix, positioned in the flow instead of absolutely.
+  // Input's suffix, positioned in the flow instead of absolutely.
   indicators: {
     position: 'relative',
-    top: 0,
-    zIndex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 0,
-    flexShrink: 0,
-    fontSize: typography['--gf-typography-size-md'],
-    height: '100%',
-    minWidth: '28px',
-    color: colors['--gf-colors-text-secondary'],
-    paddingLeft: spacing['--gf-spacing-x1'],
-    paddingRight: spacing['--gf-spacing-x1'],
-    borderLeftStyle: 'none',
-    borderTopLeftRadius: 'unset',
-    borderBottomLeftRadius: 'unset',
-    right: 0,
   },
   restoreButton: {
     display: 'flex',

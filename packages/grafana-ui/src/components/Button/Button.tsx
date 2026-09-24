@@ -622,3 +622,10 @@ const disabledStyles = stylex.create({
     borderColor: { default: null, ':disabled': 'transparent' },
   },
 });
+
+/**
+ * Button's StyleX styles, for first-party components that look like a Button without rendering one (FileUpload).
+ *
+ * @internal
+ */
+export { getButtonStyles as getButtonStylexStyles };

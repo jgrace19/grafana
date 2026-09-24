@@ -1,0 +1,14 @@
+/*
+ * DOM the group option doesn't render itself: Portal's own wrapper, and the tick of Checkbox's checkmark (a
+ * pseudo-element of an inner <span>). Unlayered, at the specificity of the Emotion rules these replace.
+ */
+.gf-role-picker-submenu-portal,
+.gf-role-picker-submenu-portal > div {
+  height: 100%;
+}
+
+/* A partially selected group turns the tick into a bar. */
+.gf-role-picker-checkbox-partial input:checked + span::after {
+  border-width: 0 3px 0 0;
+  transform: rotate(90deg);
+}

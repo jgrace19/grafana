@@ -24,7 +24,6 @@ public/app/plugins/datasource/tempo/** # decoupled plugin workspace: no plugin C
 public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin CSS delivery story yet
 
 public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides ToolbarButton's own Emotion padding and avatar styles; migrate with ToolbarButton
-public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
 public/app/features/logs/components/panel/LogLineContext.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/height/padding
@@ -58,10 +57,6 @@ public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.
 public/app/core/components/FormPrompt/FormPrompt.tsx # C1: overrides Modal's own Emotion width; migrate with U4 (Modal)
 public/app/core/components/Login/LoginLayout.tsx # C1: still exports the Emotion getLoginStyles for PublicDashboardNotAvailable (D3); LoginLayout itself is StyleX
 public/app/core/components/Login/LoginServiceButtons.tsx # C1: per-provider colours override Button background and hover; Button has no xstyle
-public/app/core/components/NestedFolderPicker/NestedFolderPicker.tsx # C1: overrides the cursor of Input's own Emotion <input>; migrate with U2 (Input)
-public/app/core/components/NestedFolderPicker/Skeleton.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
-public/app/core/components/NestedFolderPicker/Trigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
-public/app/core/components/RolePicker/** # C1: own styles share elements with getSelectStyles/getInputStyles/Checkbox Emotion classes; needs a dedicated rewrite after U2
 public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
 
@@ -74,7 +69,6 @@ public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderNotice.tsx # style
 public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderTitleItems.tsx # stylex: PanelChrome.TitleItem has no xstyle and its :hover colour override is JS colour math (emphasize)
 public/app/features/dashboard/dashgrid/PanelLinks.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)
 public/app/core/components/AppNotifications/StoredNotificationItem.tsx # C1: overrides Card.Tags' own alignSelf with a theme-computed font size; Card.Tags has no xstyle or style prop
-public/app/core/components/OptionsUI/slider.tsx # C1: renders the frozen compat getSliderStyles Emotion classes and <Global> rc-slider overrides; needs a StyleX rewrite along the lines of U7's Slider
 public/app/core/components/SplashScreenModal/SplashScreenModal.tsx # C1: overrides ModalBase's own Emotion size and padding; migrate with U4 (Modal)
 # M1 datasources, connections, correlations
 public/app/features/connections/tabs/ConnectData/NoAccessModal/NoAccessModal.tsx # pending Modal migration (U4): overrides Modal width and content overflow

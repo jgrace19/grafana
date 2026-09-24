@@ -1,15 +1,15 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, ScrollContainer, Stack, useStyles2, useTheme2 } from '@grafana/ui';
-import { getSelectStyles } from '@grafana/ui/internal';
+import { Button, ScrollContainer, Stack } from '@grafana/ui';
+import { colors, components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { isNotDelegatable } from 'app/core/utils/roles';
 import { type Role } from 'app/types/accessControl';
 
 import { RoleMenuOption } from './RoleMenuOption';
 import { MENU_MAX_HEIGHT } from './constants';
-import { getStyles } from './styles';
+import { optionStyles } from './styles';
 
 interface RolePickerSubMenuProps {
   options: Role[];
@@ -28,10 +28,6 @@ export const RolePickerSubMenu = ({
   onClear,
   showOnLeft,
 }: RolePickerSubMenuProps): JSX.Element => {
-  const theme = useTheme2();
-  const styles = getSelectStyles(theme);
-  const customStyles = useStyles2(getStyles);
-
   const onClearInternal = async () => {
     if (onClear) {
       onClear();
@@ -40,11 +36,11 @@ export const RolePickerSubMenu = ({
 
   return (
     <div
-      className={cx(customStyles.subMenu, { [customStyles.subMenuLeft]: showOnLeft })}
+      {...stylex.props(styles.subMenu, showOnLeft && styles.subMenuLeft)}
       aria-label={t('role-picker.sub-menu-aria-label', 'Role picker submenu')}
     >
-      <ScrollContainer maxHeight={`${MENU_MAX_HEIGHT}px`}>
-        <div className={styles.optionBody}>
+      <ScrollContainer maxHeight={`${MENU_MAX_HEIGHT}px`} paddingTop={1}>
+        <div {...stylex.props(optionStyles.optionBody)}>
           {options.map((option, i) => (
             <RoleMenuOption
               data={option}
@@ -67,7 +63,7 @@ export const RolePickerSubMenu = ({
           ))}
         </div>
       </ScrollContainer>
-      <div className={customStyles.subMenuButtonRow}>
+      <div {...stylex.props(styles.subMenuButtonRow)}>
         <Stack justifyContent="flex-end">
           <Button size="sm" fill="text" onClick={onClearInternal}>
             <Trans i18nKey="role-picker.sub-menu.clear-button">Clear</Trans>
@@ -77,3 +73,29 @@ export const RolePickerSubMenu = ({
     </div>
   );
 };
+
+// ROLE_PICKER_SUBMENU_MIN_WIDTH / ROLE_PICKER_SUBMENU_MAX_WIDTH: stylex.create can't read imported values.
+const styles = stylex.create({
+  subMenu: {
+    height: '100%',
+    minWidth: '320px',
+    maxWidth: '360px',
+    display: 'flex',
+    flexDirection: 'column',
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: components['--gf-components-input-border-color'],
+  },
+  subMenuLeft: {
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: components['--gf-components-input-border-color'],
+    borderLeftWidth: 'unset',
+    borderLeftStyle: 'unset',
+    borderLeftColor: 'unset',
+  },
+  subMenuButtonRow: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+});
