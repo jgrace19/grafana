@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Box, Stack, TabContent, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Stack, TabContent, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { AppNotificationSeverity } from 'app/types/appNotifications';
 
@@ -55,7 +56,6 @@ export function PluginDetailsPage({
   const { actions, info, subtitle } = usePluginPageExtensions(plugin);
   const { isLoading: isFetchLoading } = useFetchStatus();
   const { isLoading: isFetchDetailsLoading } = useFetchDetailsStatus();
-  const styles = useStyles2(getStyles);
 
   if (isFetchLoading || isFetchDetailsLoading) {
     return (
@@ -83,10 +83,10 @@ export function PluginDetailsPage({
     <Page navId={navId} pageNav={navModel} actions={actions} subTitle={subtitle}>
       <Stack gap={4} justifyContent="space-between" direction={{ xs: 'column-reverse', sm: 'row' }}>
         <Page.Contents>
-          <TabContent className={styles.tabContent}>
-            <PluginDetailsSignature plugin={plugin} className={styles.alert} />
-            <PluginDetailsDisabledError plugin={plugin} className={styles.alert} />
-            <PluginDetailsDeprecatedWarning plugin={plugin} className={styles.alert} />
+          <TabContent className={stylex.props(styles.tabContent).className}>
+            <PluginDetailsSignature plugin={plugin} className={stylex.props(styles.alert).className} />
+            <PluginDetailsDisabledError plugin={plugin} className={stylex.props(styles.alert).className} />
+            <PluginDetailsDeprecatedWarning plugin={plugin} className={stylex.props(styles.alert).className} />
             <PluginDetailsBody
               queryParams={Object.fromEntries(queryParams)}
               plugin={plugin}
@@ -101,24 +101,6 @@ export function PluginDetailsPage({
     </Page>
   );
 }
-
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    alert: css({
-      marginBottom: theme.spacing(2),
-    }),
-    subtitle: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
-    // Needed due to block formatting context
-    tabContent: css({
-      paddingLeft: '5px',
-      width: '100%',
-    }),
-  };
-};
 
 function NotFoundPlugin() {
   return (
@@ -137,3 +119,14 @@ function NotFoundPlugin() {
     </Stack>
   );
 }
+
+const styles = stylex.create({
+  alert: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  // Needed due to block formatting context
+  tabContent: {
+    paddingLeft: '5px',
+    width: '100%',
+  },
+});
