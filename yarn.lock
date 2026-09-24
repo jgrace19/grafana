@@ -4501,7 +4501,7 @@ __metadata:
     "@storybook/react-webpack5": "npm:^8.6.17"
     "@storybook/test-runner": "npm:^0.23.0"
     "@storybook/theming": "npm:^8.6.17"
-    "@stylexjs/babel-plugin": "npm:0.19.1"
+    "@stylexjs/babel-plugin": "patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch"
     "@stylexjs/stylex": "npm:0.19.1"
     "@stylexjs/unplugin": "npm:0.19.1"
     "@tanstack/react-virtual": "npm:^3.5.1"
@@ -9559,6 +9559,22 @@ __metadata:
     "@stylexjs/stylex": "npm:0.19.1"
     postcss-value-parser: "npm:^4.1.0"
   checksum: 10/df196b5487af8c50f552559b0bd49d771672d38a6da0f87303ef1a55d19caa5c60c93cd8638272500e0e6a221ba04329a322c152a28d67367d6291cdb0c81b3f
+  languageName: node
+  linkType: hard
+
+"@stylexjs/babel-plugin@patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch":
+  version: 0.19.1
+  resolution: "@stylexjs/babel-plugin@patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch::version=0.19.1&hash=eaac29"
+  dependencies:
+    "@babel/core": "npm:^7.26.8"
+    "@babel/helper-module-imports": "npm:^7.25.9"
+    "@babel/traverse": "npm:^7.26.8"
+    "@babel/types": "npm:^7.26.8"
+    "@dual-bundle/import-meta-resolve": "npm:^4.1.0"
+    "@stylexjs/shared": "npm:0.19.1"
+    "@stylexjs/stylex": "npm:0.19.1"
+    postcss-value-parser: "npm:^4.1.0"
+  checksum: 10/4fc0b06bf43193874ea18784dd417f23861f248d93e30528abba4fb698763af2c5a9465991d0a387cdd019c71710c19231484cb1d55efc1e7a5311663af5982e
   languageName: node
   linkType: hard
 
@@ -20832,7 +20848,7 @@ __metadata:
     "@rsdoctor/webpack-plugin": "npm:^1.0.0"
     "@rtk-query/codegen-openapi": "npm:^2.0.0"
     "@rtsao/plugin-proposal-class-properties": "npm:7.0.1-patch.1"
-    "@stylexjs/babel-plugin": "npm:0.19.1"
+    "@stylexjs/babel-plugin": "patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch"
     "@stylexjs/eslint-plugin": "npm:0.19.1"
     "@stylexjs/stylex": "npm:0.19.1"
     "@stylexjs/unplugin": "npm:0.19.1"

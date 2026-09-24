@@ -159,7 +159,7 @@
     "@storybook/react-webpack5": "^8.6.17",
     "@storybook/test-runner": "^0.23.0",
     "@storybook/theming": "^8.6.17",
-    "@stylexjs/babel-plugin": "0.19.1",
+    "@stylexjs/babel-plugin": "patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch",
     "@stylexjs/unplugin": "0.19.1",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "6.6.4",

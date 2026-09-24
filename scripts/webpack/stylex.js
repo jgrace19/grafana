@@ -1,6 +1,7 @@
 'use strict';
 
 const stylex = require('@stylexjs/unplugin').default;
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -34,8 +35,15 @@ function getStylexWebpackPlugins({ dev, cssInjectionTarget = (fileName) => /(^|\
 const packageVersion = (name) =>
   JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve(name)), '..', 'package.json'), 'utf8')).version;
 
+// Hash the compiler source too: it carries a local yarn patch that doesn't change its version.
+const compilerHash = crypto
+  .createHash('sha1')
+  .update(fs.readFileSync(require.resolve('@stylexjs/babel-plugin')))
+  .digest('hex');
+
 const stylexCacheVersion = [
   packageVersion('@stylexjs/babel-plugin'),
+  compilerHash,
   packageVersion('@stylexjs/unplugin'),
   JSON.stringify({ ...getStylexBabelOptions(), cssLayers }),
 ].join('|');

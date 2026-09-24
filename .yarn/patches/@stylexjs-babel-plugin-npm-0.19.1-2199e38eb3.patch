@@ -1,0 +1,22 @@
+diff --git a/lib/index.js b/lib/index.js
+index f22b4c7bd8d084b6f5c624c10a986d8005a08d00..327ebb8e72e3a28e8d4f20fb7bfba2dec825af15 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -7189,12 +7189,15 @@ function transformStyleXCreate(path, state) {
+                   const clsWithSpace = isLast ? cls : cls + ' ';
+                   if (expr && !isSafeToSkipNullCheck(expr)) {
+                     isStatic = false;
+-                    exprList.push(t__namespace.conditionalExpression(t__namespace.binaryExpression('!=', expr, t__namespace.nullLiteral()), t__namespace.stringLiteral(clsWithSpace), expr));
++                    // Patched (Grafana): styleq only accepts a string or null, and a nullish branch must not be
++                    // concatenated into the class string ("undefinedx1…", NaN).
++                    exprList.push(t__namespace.conditionalExpression(t__namespace.binaryExpression('!=', expr, t__namespace.nullLiteral()), t__namespace.stringLiteral(clsWithSpace), classList.length > 1 ? t__namespace.stringLiteral('') : t__namespace.nullLiteral()));
+                   } else {
+                     exprList.push(t__namespace.stringLiteral(clsWithSpace));
+                   }
+                 });
+-                const joined = exprList.length === 0 ? t__namespace.stringLiteral('') : exprList.reduce((acc, curr) => t__namespace.binaryExpression('+', acc, curr));
++                const concatenated = exprList.length === 0 ? t__namespace.stringLiteral('') : exprList.reduce((acc, curr) => t__namespace.binaryExpression('+', acc, curr));
++                const joined = !isStatic && classList.length > 1 ? t__namespace.logicalExpression('||', concatenated, t__namespace.nullLiteral()) : concatenated;
+                 if (isStatic) {
+                   staticProps.push(t__namespace.objectProperty(objProp.key, joined));
+                 } else {

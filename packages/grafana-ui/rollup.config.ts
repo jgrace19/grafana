@@ -24,23 +24,26 @@ const iconSrcPaths = icons.map((iconSubPath) => {
  * `dist/stylex.css` (exported as `@grafana/ui/stylex.css`) for consumers that bundle @grafana/ui.
  */
 function stylexPrecompile(): Plugin {
-  const transformPlugin = stylex({ ...getStylexBabelOptions({ dev: false }), useCSSLayers: cssLayers }) as Plugin;
+  const transformPlugin: Plugin = stylex({ ...getStylexBabelOptions({ dev: false }), useCSSLayers: cssLayers });
   return {
     ...transformPlugin,
     name: 'grafana-stylex-precompile',
     generateBundle() {},
     async writeBundle() {
-      const store = (globalThis as { __stylex_unplugin_store?: { rulesById: Map<string, unknown[]> } })
-        .__stylex_unplugin_store;
+      // The unplugin collects every transformed module's rules in this global store.
+      const store: StylexRuleStore | undefined = Reflect.get(globalThis, '__stylex_unplugin_store');
       const rules = store ? Array.from(store.rulesById.values()).flat() : [];
-      const css = stylexPlugin.processStylexRules(rules as Parameters<typeof stylexPlugin.processStylexRules>[0], {
-        useLayers: cssLayers,
-      });
+      const css = stylexPlugin.processStylexRules(rules, { useLayers: cssLayers });
       const outFile = resolve(dirname(pkg.main), '..', 'stylex.css');
       await mkdir(dirname(outFile), { recursive: true });
       await writeFile(outFile, css);
     },
   };
+}
+
+type StylexRule = Parameters<typeof stylexPlugin.processStylexRules>[0][number];
+interface StylexRuleStore {
+  rulesById: Map<string, StylexRule[]>;
 }
 
 export default [

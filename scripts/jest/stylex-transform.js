@@ -13,7 +13,11 @@ const { getStylexBabelOptions } = require('../stylex/options');
 const STYLEX_IMPORT = /from\s*['"]@stylexjs\/stylex['"]/;
 const CACHE_VERSION = [
   'stylex-transform-v1',
-  require('@stylexjs/babel-plugin/package.json').version,
+  // Hash of the compiler source: it carries a local yarn patch that doesn't change its version.
+  require('crypto')
+    .createHash('sha1')
+    .update(require('fs').readFileSync(require.resolve('@stylexjs/babel-plugin')))
+    .digest('hex'),
   JSON.stringify(getStylexBabelOptions({ test: true })),
 ].join(':');
 

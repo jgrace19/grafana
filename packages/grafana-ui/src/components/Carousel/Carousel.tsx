@@ -7,9 +7,9 @@ import { useState, useEffect, useRef, useId } from 'react';
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { Alert } from '../Alert/Alert';
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { IconButton } from '../IconButton/IconButton';
 
 // Define the image item interface

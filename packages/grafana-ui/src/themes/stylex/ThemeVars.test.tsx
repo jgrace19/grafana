@@ -40,9 +40,9 @@ describe('ScopedThemeVars', () => {
         <span>content</span>
       </ScopedThemeVars>
     );
-    const wrapper = container.firstElementChild as HTMLElement;
+    const wrapper = container.firstElementChild;
 
-    expect(wrapper.style.display).toBe('contents');
-    expect(wrapper.style.getPropertyValue('--gf-colors-text-primary')).toBe(light.colors.text.primary);
+    expect(wrapper).toHaveStyle({ display: 'contents' });
+    expect(wrapper).toHaveStyle({ '--gf-colors-text-primary': light.colors.text.primary });
   });
 });

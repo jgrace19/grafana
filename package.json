@@ -114,7 +114,7 @@
     "@rsdoctor/webpack-plugin": "^1.0.0",
     "@rtk-query/codegen-openapi": "^2.0.0",
     "@rtsao/plugin-proposal-class-properties": "7.0.1-patch.1",
-    "@stylexjs/babel-plugin": "0.19.1",
+    "@stylexjs/babel-plugin": "patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch",
     "@stylexjs/eslint-plugin": "0.19.1",
     "@stylexjs/unplugin": "0.19.1",
     "@stylistic/eslint-plugin-ts": "^4.0.0",
@@ -482,7 +482,8 @@
     "js-yaml@npm:4.1.0": "^4.1.0",
     "js-yaml@npm:=4.1.0": "^4.1.0",
     "nodemailer": "7.0.12",
-    "@storybook/core@npm:8.6.18": "patch:@storybook/core@npm%3A8.6.18#~/.yarn/patches/@storybook-core-npm-8.6.18-cff02a3017.patch"
+    "@storybook/core@npm:8.6.18": "patch:@storybook/core@npm%3A8.6.18#~/.yarn/patches/@storybook-core-npm-8.6.18-cff02a3017.patch",
+    "@stylexjs/babel-plugin@npm:0.19.1": "patch:@stylexjs/babel-plugin@npm%3A0.19.1#~/.yarn/patches/@stylexjs-babel-plugin-npm-0.19.1-2199e38eb3.patch"
   },
   "workspaces": {
     "packages": [

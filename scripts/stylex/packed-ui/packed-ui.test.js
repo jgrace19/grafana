@@ -11,6 +11,15 @@ const { createTheme, ThemeContext } = require('@grafana/data');
 const withTheme = (element) => React.createElement(ThemeContext.Provider, { value: createTheme() }, element);
 
 describe('packed @grafana/ui', () => {
+  let consoleError;
+  beforeEach(() => {
+    consoleError = jest.spyOn(console, 'error');
+  });
+  afterEach(() => {
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it('resolves the CommonJS dist, not the source', () => {
     expect(require.resolve('@grafana/ui')).toMatch(/node_modules\/@grafana\/ui\/dist\/cjs\/index\.cjs$/);
   });
@@ -25,12 +34,16 @@ describe('packed @grafana/ui', () => {
     render(
       withTheme(React.createElement(ui.Stack, { gap: 2 }, React.createElement(ui.Input, { placeholder: 'Name' })))
     );
-    expect(screen.getByPlaceholderText('Name')).toBeTruthy();
+    const input = screen.getByPlaceholderText('Name');
+    expect(input.closest('[class]').parentElement.className).not.toMatch(/undefined|NaN/);
   });
 
   it('ships stylex.css with the rules the compiled classes use', () => {
-    const cssPath = require.resolve('@grafana/ui/stylex.css');
-    const css = fs.readFileSync(cssPath, 'utf8');
+    // Resolved by hand: Jest's moduleNameMapper stubs `*.css` even for require.resolve.
+    const pkgDir = path.dirname(require.resolve('@grafana/ui/package.json'));
+    const pkg = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
+    expect(pkg.exports['./stylex.css']).toBe('./dist/stylex.css');
+    const css = fs.readFileSync(path.join(pkgDir, pkg.exports['./stylex.css']), 'utf8');
     render(withTheme(React.createElement(ui.Button, null, 'Apply')));
     const classes = screen.getByRole('button', { name: 'Apply' }).className.split(/\s+/);
 
