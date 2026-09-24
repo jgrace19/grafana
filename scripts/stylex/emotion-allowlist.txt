@@ -26,14 +26,9 @@ public/app/plugins/datasource/zipkin/** # decoupled plugin workspace: no plugin 
 
 # M1 plugins, provisioning. Remove each `pending` entry once that @grafana/ui component migrates.
 public/app/features/plugins/admin/mocks/catalogPlugin.mock.ts # false positive: "@emotion/css" appears in fixture changelog text, not an import
-public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
-public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.LoginBoxBackground() returns a class name, and BrandingSettings.loginBoxBackground overrides it with one
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
 
-public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
-public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
-public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 # M1 datasources, connections, correlations
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures
 # M1 library-panels, inspector, panel, query

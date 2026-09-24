@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { capitalize } from 'lodash';
 
 import { Trans } from '@grafana/i18n';
@@ -29,7 +30,7 @@ export const AlertInstanceStateFilter = ({
   const getOptionComponent = (state: InstanceStateFilter) => {
     return function InstanceStateCounter() {
       return itemPerStateStats && itemPerStateStats[state] ? (
-        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} style={tagStyle} />
+        <Tag name={itemPerStateStats[state].toFixed(0)} colorIndex={9} xstyle={styles.tag} />
       ) : null;
     };
   };
@@ -68,11 +69,15 @@ export const AlertInstanceStateFilter = ({
   );
 };
 
-// Tag has no xstyle, and these must win over its own font and padding.
-const tagStyle = {
-  fontSize: '11px',
-  fontWeight: 'normal',
-  padding: `${spacing['--gf-spacing-x0-25']} ${spacing['--gf-spacing-x0-5']}`,
-  verticalAlign: 'middle',
-  marginLeft: spacing['--gf-spacing-x0-5'],
-};
+const styles = stylex.create({
+  tag: {
+    fontSize: '11px',
+    fontWeight: 'normal',
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    verticalAlign: 'middle',
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

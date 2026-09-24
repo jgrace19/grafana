@@ -19,7 +19,6 @@ import { stringifyErrorLike } from '../../utils/misc';
 import { EditorColumnHeader } from '../EditorColumnHeader';
 
 import { usePreviewTemplate } from './usePreviewTemplate';
-import './TemplateCodeEditor.css';
 
 export function TemplatePreview({
   payload,
@@ -109,7 +108,7 @@ function PreviewResultViewer({ previews }: { previews: TemplatePreviewResult[] }
               </header>
             )}
             <CodeEditor
-              containerStyles="gf-alerting-template-preview-editor"
+              containerXstyle={styles.editorContainer}
               language={language}
               showLineNumbers={false}
               showMiniMap={false}
@@ -135,6 +134,11 @@ function PreviewErrorViewer({ errors }: { errors: TemplatePreviewErrors[] }) {
 }
 
 const styles = stylex.create({
+  editorContainer: {
+    width: '100%',
+    height: '100%',
+    borderStyle: 'none',
+  },
   container: {
     display: 'flex',
     flexDirection: 'column',

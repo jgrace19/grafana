@@ -55,7 +55,6 @@ import { GlobalTemplateDataExamples } from './TemplateDataExamples';
 import { TemplateEditor } from './TemplateEditor';
 import { TemplatePreview } from './TemplatePreview';
 import { snippets } from './editor/templateDataSuggestions';
-import './TemplateCodeEditor.css';
 
 export interface TemplateFormValues {
   title: string;
@@ -351,7 +350,7 @@ export const TemplateForm = ({ originalTemplate, prefill, alertmanager }: Props)
                               <TemplateEditor
                                 value={getValues('content')}
                                 onBlur={(value) => setValue('content', value)}
-                                containerStyles="gf-alerting-template-code-editor"
+                                containerXstyle={styles.editorContainer}
                                 width={width}
                                 height={height}
                               />
@@ -472,6 +471,10 @@ function TemplatingCheatSheet() {
 }
 
 const styles = stylex.create({
+  editorContainer: {
+    width: 'fit-content',
+    borderStyle: 'none',
+  },
   flexFull: {
     flex: '1',
   },

@@ -32,7 +32,7 @@ export const CollapsibleSection = ({
   return (
     <div {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })}>
       <CollapseToggle
-        style={toggleStyle}
+        xstyle={styles.toggle}
         size={size}
         onToggle={toggleCollapse}
         isCollapsed={isCollapsed}
@@ -45,6 +45,16 @@ export const CollapsibleSection = ({
 };
 
 const styles = stylex.create({
+  toggle: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
   wrapper: {
     marginTop: spacing['--gf-spacing-x1'],
     paddingBottom: spacing['--gf-spacing-x1'],
@@ -62,9 +72,3 @@ const styles = stylex.create({
     paddingLeft: spacing['--gf-spacing-x3'],
   },
 });
-
-// CollapseToggle's Button has no xstyle, and its own padding must lose to this.
-const toggleStyle = {
-  margin: `${spacing['--gf-spacing-x1']} 0`,
-  padding: 0,
-};

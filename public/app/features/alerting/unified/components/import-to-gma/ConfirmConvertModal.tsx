@@ -18,7 +18,6 @@ import { getRuleName, isPluginProvidedRule } from '../../utils/rules';
 import { type ImportFormValues } from './ImportToGMARules';
 import { useGetRulesThatMightBeOverwritten, useGetRulesToBeImported } from './hooks';
 import { parseYamlFileToRulerRulesConfigDTO } from './yamlToRulerConverter';
-import './ConfirmConvertModal.css';
 
 export const SYNTHETICS_RULE_NAMES = [
   'SyntheticMonitoringCheckFailureAtHighSensitivity',
@@ -228,7 +227,7 @@ export const ConfirmConversionModal = ({ importPayload, isOpen, onDismiss }: Mod
       title={title}
       confirmText={confirmText}
       confirmButtonVariant="primary"
-      modalClass="gf-alerting-confirm-convert-modal"
+      modalXstyle={styles.modal}
       body={
         <Stack direction="column" gap={2}>
           {!isEmpty(rulesThatMightBeOverwritten) && (
@@ -355,6 +354,9 @@ function RulesPreview({ rules }: { rules: RulerRulesConfigDTO }) {
 }
 
 const styles = stylex.create({
+  modal: {
+    width: '800px',
+  },
   content: {
     flexGrow: 1,
     flexShrink: 1,

@@ -402,7 +402,7 @@ const Header: FC<HeaderProps> = ({
         <IconButton
           name="trash-alt"
           variant="secondary"
-          style={mutedIconStyle}
+          xstyle={styles.mutedIcon}
           onClick={onRemoveExpression}
           tooltip={t('alerting.header.tooltip-remove', 'Remove expression "{{refId}}"', { refId })}
         />
@@ -535,6 +535,9 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
 };
 
 const styles = stylex.create({
+  mutedIcon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+  },
   expressionWrapper: {
     display: 'flex',
     borderWidth: '1px',
@@ -689,8 +692,3 @@ const styles = stylex.create({
     padding: spacing['--gf-spacing-x1'],
   },
 });
-
-// IconButton has no xstyle, and its own colour must lose to this one in every state.
-const mutedIconStyle = {
-  color: colors['--gf-colors-text-secondary'],
-};

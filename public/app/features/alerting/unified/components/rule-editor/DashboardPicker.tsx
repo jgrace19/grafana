@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Alert migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { noop } from 'lodash';
 import { type CSSProperties, useCallback, useMemo, useState } from 'react';
@@ -194,7 +192,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
       closeOnEscape
       isOpen={isOpen}
       onDismiss={onDismiss}
-      className={stylex.props(styles.modal).className}
+      xstyle={styles.modal}
       contentClassName={stylex.props(styles.modalContent).className}
     >
       {/* This alert shows if the selected dashboard is not found in the first page of dashboards */}
@@ -204,7 +202,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           severity="info"
           topSpacing={0}
           bottomSpacing={1}
-          className={pendingEmotionStyles.modalAlert}
+          xstyle={styles.modalAlert}
         >
           <div>
             <Trans
@@ -403,14 +401,10 @@ const isValidPanel = (panel: PanelDTO): boolean => {
   return hasValidID && (isValidPanelType || isLibraryPanel);
 };
 
-// stylex: pending Alert migration
-const pendingEmotionStyles = {
-  modalAlert: css({
-    flexGrow: 0,
-  }),
-};
-
 const styles = stylex.create({
+  modalAlert: {
+    flexGrow: 0,
+  },
   container: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',

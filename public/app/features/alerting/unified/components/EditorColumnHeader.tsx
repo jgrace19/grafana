@@ -4,7 +4,6 @@ import { type MergeExclusive } from 'type-fest';
 
 import { Label, Stack } from '@grafana/ui';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
-import './EditorColumnHeader.css';
 
 interface BaseProps {
   id?: string;
@@ -28,7 +27,7 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
 
   return (
     <div {...stylex.props(styles.container)}>
-      <Label className="gf-alerting-editor-column-label" id={id}>
+      <Label xstyle={styles.columnLabel} id={id}>
         {label}
       </Label>
       {actions && (
@@ -41,6 +40,12 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
 }
 
 const styles = stylex.create({
+  columnLabel: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   container: {
     display: 'flex',
     flexDirection: 'row',

@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
@@ -41,7 +40,7 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass={pendingEmotionStyles.modal}
+      modalXstyle={styles.modal}
       confirmButtonVariant="destructive"
       body={
         <Stack direction="column" gap={2}>
@@ -56,9 +55,8 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
   );
 };
 
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
+const styles = stylex.create({
+  modal: {
     width: '700px',
-  }),
-};
+  },
+});

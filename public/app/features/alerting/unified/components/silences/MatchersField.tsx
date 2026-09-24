@@ -118,7 +118,7 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
                   {(matchers.length > 1 || !required) && (
                     <IconButton
                       aria-label={t('alerting.matchers-field.aria-label-remove-matcher', 'Remove matcher')}
-                      style={removeButtonStyle}
+                      xstyle={styles.removeButton}
                       name="trash-alt"
                       onClick={() => remove(index)}
                     >
@@ -152,6 +152,10 @@ const MatchersField = ({ className, required, ruleUid }: Props) => {
 };
 
 const styles = stylex.create({
+  removeButton: {
+    marginLeft: spacing['--gf-spacing-x1'],
+    marginTop: spacing['--gf-spacing-x2-5'],
+  },
   row: {
     marginTop: spacing['--gf-spacing-x1'],
     display: 'flex',
@@ -181,11 +185,5 @@ const styles = stylex.create({
     marginLeft: spacing['--gf-spacing-x2'],
   },
 });
-
-// IconButton has no xstyle, and its own margins must lose to these.
-const removeButtonStyle = {
-  marginLeft: spacing['--gf-spacing-x1'],
-  marginTop: spacing['--gf-spacing-x2-5'],
-};
 
 export default MatchersField;

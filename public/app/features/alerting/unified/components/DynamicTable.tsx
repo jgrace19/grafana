@@ -11,7 +11,8 @@ import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { usePagination } from '../hooks/usePagination';
-import './alertingPagination.css';
+
+import { alertingPaginationStyles } from './alertingPagination';
 
 interface DynamicTablePagination {
   itemsPerPage: number;
@@ -176,7 +177,8 @@ export const DynamicTable = <T extends object>({
       </div>
       {pagination && (
         <Pagination
-          className={clsx('gf-alerting-pagination', paginationStyles)}
+          className={paginationStyles}
+          xstyle={alertingPaginationStyles.pagination}
           currentPage={page}
           numberOfPages={numberOfPages}
           onNavigate={onPageChange}

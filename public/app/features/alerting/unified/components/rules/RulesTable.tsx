@@ -29,13 +29,13 @@ import { DynamicTableWithGuidelines } from '../DynamicTableWithGuidelines';
 import { ProvisioningBadge } from '../Provisioning';
 import { RuleLocation } from '../RuleLocation';
 import { Tokenize } from '../Tokenize';
+import { alertingPaginationStyles } from '../alertingPagination';
 
 import { RuleActionsButtons } from './RuleActionsButtons';
 import { RuleConfigStatus } from './RuleConfigStatus';
 import { RuleDetails } from './RuleDetails';
 import { RuleHealth } from './RuleHealth';
 import { RuleState } from './RuleState';
-import '../alertingPagination.css';
 
 type RuleTableColumnProps = DynamicTableColumnProps<CombinedRule>;
 type RuleTableItemProps = DynamicTableItemProps<CombinedRule>;
@@ -107,7 +107,7 @@ export const RulesTable = ({
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
         hideWhenSinglePage
-        className="gf-alerting-rules-table-pagination"
+        xstyle={alertingPaginationStyles.rulesTable}
       />
     </div>
   );
