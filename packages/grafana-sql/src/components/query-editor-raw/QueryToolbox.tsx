@@ -1,9 +1,12 @@
-import { css } from '@emotion/css';
-import { useMemo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { useState } from 'react';
 
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Stack, Icon, IconButton, Tooltip, useTheme2 } from '@grafana/ui';
+import { Stack, Icon, IconButton, Tooltip } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 import { QueryValidator, type QueryValidatorProps } from './QueryValidator';
 
@@ -16,47 +19,16 @@ interface QueryToolboxProps extends Omit<QueryValidatorProps, 'onValidate'> {
 }
 
 export function QueryToolbox({ showTools, onFormatCode, onExpand, isExpanded, ...validatorProps }: QueryToolboxProps) {
-  const theme = useTheme2();
   const [validationResult, setValidationResult] = useState<boolean>();
-
-  const styles = useMemo(() => {
-    return {
-      container: css({
-        border: `1px solid ${theme.colors.border.medium}`,
-        borderTop: 'none',
-        padding: theme.spacing(0.5, 0.5, 0.5, 0.5),
-        display: 'flex',
-        flexGrow: 1,
-        justifyContent: 'space-between',
-        fontSize: theme.typography.bodySmall.fontSize,
-      }),
-      error: css({
-        color: theme.colors.error.text,
-        fontSize: theme.typography.bodySmall.fontSize,
-        fontFamily: theme.typography.fontFamilyMonospace,
-      }),
-      valid: css({
-        color: theme.colors.success.text,
-      }),
-      info: css({
-        color: theme.colors.text.secondary,
-      }),
-      hint: css({
-        color: theme.colors.text.disabled,
-        whiteSpace: 'nowrap',
-        cursor: 'help',
-      }),
-    };
-  }, [theme]);
 
   let style = {};
 
   if (!showTools && validationResult === undefined) {
-    style = { height: 0, padding: 0, visibility: 'hidden' };
+    style = { height: 0, padding: 0, visibility: 'hidden' as const };
   }
 
   return (
-    <div className={styles.container} style={style}>
+    <div {...stylex.props(sqlEditorStyles.queryToolboxContainer)} style={style}>
       <div>
         {validatorProps.onValidate && (
           <QueryValidator
@@ -109,7 +81,7 @@ export function QueryToolbox({ showTools, onFormatCode, onExpand, isExpanded, ..
                 'Hit CTRL/CMD+Return to run query'
               )}
             >
-              <Icon className={styles.hint} name="keyboard" />
+              <Icon className={mergeStylexClassName(stylex.props(sqlEditorStyles.queryToolboxHint)).className} name="keyboard" />
             </Tooltip>
           </Stack>
         </div>

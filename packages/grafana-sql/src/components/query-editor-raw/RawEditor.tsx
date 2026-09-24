@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import { useMeasure } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Modal, useStyles2, useTheme2 } from '@grafana/ui';
+import { Modal, useTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 import { type SQLQuery, type QueryEditorProps } from '../../types';
 
@@ -22,7 +24,6 @@ interface RawEditorProps extends Omit<QueryEditorProps, 'onChange'> {
 
 export function RawEditor({ db, query, onChange, onRunQuery, onValidate, queryToValidate, range }: RawEditorProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const [isExpanded, setIsExpanded] = useState(false);
   const [toolboxRef, toolboxMeasure] = useMeasure<HTMLDivElement>();
   const [editorRef, editorMeasure] = useMeasure<HTMLDivElement>();
@@ -99,8 +100,8 @@ export function RawEditor({ db, query, onChange, onRunQuery, onValidate, queryTo
           })}
           closeOnBackdropClick={false}
           closeOnEscape={false}
-          className={styles.modal}
-          contentClassName={styles.modalContent}
+          className={mergeStylexClassName(stylex.props(sqlEditorStyles.rawModal)).className}
+          contentClassName={mergeStylexClassName(stylex.props(sqlEditorStyles.rawModalContent)).className}
           isOpen={isExpanded}
           onDismiss={() => {
             reportInteraction('grafana_sql_editor_expand', {
@@ -117,15 +118,3 @@ export function RawEditor({ db, query, onChange, onRunQuery, onValidate, queryTo
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    modal: css({
-      width: '95vw',
-      height: '95vh',
-    }),
-    modalContent: css({
-      height: '100%',
-      paddingTop: 0,
-    }),
-  };
-}

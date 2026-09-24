@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { useCallback } from 'react';
 
@@ -6,7 +6,10 @@ import { type SelectableValue, toOption } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { EditorField } from '@grafana/plugin-ui';
-import { Button, Select, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Select, Stack } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 import { QueryEditorExpressionType, type QueryEditorFunctionExpression } from '../../expressions';
 import { type DB, QueryFormat, type SQLExpression, type SQLQuery } from '../../types';
@@ -23,7 +26,6 @@ interface SelectRowProps {
 }
 
 export function SelectRow({ query, onQueryChange, db, columns }: SelectRowProps) {
-  const styles = useStyles2(getStyles);
   const { onSqlChange } = useSqlChange({ query, onQueryChange, db });
   const timeSeriesAliasOpts: Array<SelectableValue<string>> = [];
 
@@ -170,19 +172,9 @@ export function SelectRow({ query, onQueryChange, db, columns }: SelectRowProps)
         aria-label={t('grafana-sql.components.select-row.title-add-column', 'Add column')}
         size="md"
         icon="plus"
-        className={styles.addButton}
+        className={mergeStylexClassName(stylex.props(sqlEditorStyles.selectAddButton)).className}
       />
     </Stack>
   );
 }
 
-const getStyles = () => {
-  return {
-    addButton: css({ alignSelf: 'flex-start' }),
-    label: css({
-      padding: 0,
-      margin: 0,
-      width: 'unset',
-    }),
-  };
-};

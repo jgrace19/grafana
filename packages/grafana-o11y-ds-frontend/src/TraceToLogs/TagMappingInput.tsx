@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { InlineLabel, SegmentInput, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { InlineLabel, SegmentInput, ToolbarButton } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
+import { tagMappingStyles } from './TagMappingInput.stylex';
 import { type TraceToLogsTag } from './TraceToLogsSettings';
 
 interface Props {
@@ -12,13 +13,11 @@ interface Props {
 }
 
 export const TagMappingInput = ({ values, onChange, id }: Props) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(tagMappingStyles.wrapper)}>
       {values.length ? (
         values.map((value, idx) => (
-          <div className={styles.pair} key={idx}>
+          <div {...stylex.props(tagMappingStyles.pair)} key={idx}>
             <SegmentInput
               id={`${id}-key-${idx}`}
               placeholder={'Tag name'}
@@ -34,7 +33,10 @@ export const TagMappingInput = ({ values, onChange, id }: Props) => {
                 );
               }}
             />
-            <InlineLabel aria-label="equals" className={styles.operator}>
+            <InlineLabel
+              aria-label="equals"
+              className={mergeStylexClassName(stylex.props(tagMappingStyles.operator)).className}
+            >
               as
             </InlineLabel>
             <SegmentInput
@@ -54,7 +56,7 @@ export const TagMappingInput = ({ values, onChange, id }: Props) => {
             />
             <ToolbarButton
               onClick={() => onChange([...values.slice(0, idx), ...values.slice(idx + 1)])}
-              className={cx(styles.removeTag, 'query-part')}
+              className={mergeStylexClassName(stylex.props(tagMappingStyles.removeTag), 'query-part').className}
               aria-label="Remove tag"
               type="button"
               icon="times"
@@ -83,23 +85,3 @@ export const TagMappingInput = ({ values, onChange, id }: Props) => {
     </div>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: `${theme.spacing(0.5)} 0`,
-  }),
-  pair: css({
-    display: 'flex',
-    justifyContent: 'start',
-    alignItems: 'center',
-  }),
-  operator: css({
-    color: theme.v1.palette.orange,
-    width: 'auto',
-  }),
-  removeTag: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});

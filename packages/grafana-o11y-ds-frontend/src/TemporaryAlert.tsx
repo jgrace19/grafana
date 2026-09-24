@@ -1,8 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Alert, type AlertVariant, useTheme2 } from '@grafana/ui';
+import { Alert, type AlertVariant } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { temporaryAlertStyles } from './TemporaryAlert.stylex';
 
 enum AlertTimeout {
   Error = 7000,
@@ -10,15 +12,6 @@ enum AlertTimeout {
   Success = 3000,
   Warning = 5000,
 }
-
-const getStyle = (theme: GrafanaTheme2) => {
-  return css({
-    position: 'absolute',
-    zIndex: theme.zIndex.portal,
-    top: 0,
-    right: 10,
-  });
-};
 
 const timeoutMap = {
   ['error']: AlertTimeout.Error,
@@ -28,14 +21,11 @@ const timeoutMap = {
 };
 
 type AlertProps = {
-  // Severity of the alert. Controls the style of the alert (e.g., background color)
   severity: AlertVariant;
-  // Displayed message. If set to empty string, the alert is not displayed
   text: string;
 };
 
 export const TemporaryAlert = (props: AlertProps) => {
-  const style = getStyle(useTheme2());
   const [visible, setVisible] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout>();
 
@@ -62,7 +52,7 @@ export const TemporaryAlert = (props: AlertProps) => {
     <>
       {visible && (
         <Alert
-          className={style}
+          className={mergeStylexClassName(stylex.props(temporaryAlertStyles.alert)).className}
           elevated={true}
           onRemove={() => setVisible(false)}
           severity={props.severity}

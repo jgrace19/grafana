@@ -1,10 +1,11 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { upperFirst } from 'lodash';
 import { type ComponentProps, memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, type IconName, Text, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Icon, type IconName, Text, Tooltip } from '@grafana/ui';
+import { grafanaTokens, mergeStylexClassName } from '@grafana/ui/unstable';
 
+import { stateIconStyles } from '../alertingRules.stylex';
 import type { Health, State, Type } from './types';
 
 type TextProps = ComponentProps<typeof Text>;
@@ -62,15 +63,8 @@ const operationIcons: Record<RuleOperation, IconName> = {
   deleting: 'minus-circle',
 };
 
-// ⚠️ not trivial to update this, you have to re-do the math for the loading spinner
 const ICON_SIZE = 15;
 
-/**
- * Make sure that the order of importance here matches the one we use in the StateBadge component for the detail view
- * This component is often rendered tens or hundreds of times in a single page, so it's performance is important
- *
- * @TODO support translations
- */
 export const StateIcon = memo(function StateIcon({
   state,
   health,
@@ -78,9 +72,6 @@ export const StateIcon = memo(function StateIcon({
   isPaused = false,
   operation,
 }: StateIconProps) {
-  const styles = useStyles2(getStyles);
-  const theme = useTheme2();
-
   let iconName: IconName = state ? icons[state] : 'circle';
   let iconColor: TextProps['color'] = state ? color[state] : 'secondary';
   let stateName: string = state ? stateNames[state] : 'unknown';
@@ -115,16 +106,20 @@ export const StateIcon = memo(function StateIcon({
     stateName = upperFirst(operation);
   }
 
+  const iconOverlayClass = mergeStylexClassName(stylex.props(stateIconStyles.iconOverlay)).className;
+
   return (
     <Tooltip content={stateName} placement="right">
       <div>
         <Text color={iconColor}>
-          <div className={styles.iconsContainer}>
-            <Icon name={iconName} width={ICON_SIZE} height={ICON_SIZE} aria-label={stateName} />
-            {/* this loading spinner works by using an optical illusion;
-              the actual icon is static and the "spinning" part is just a semi-transparent darker circle overlayed on top.
-              This makes it look like there is a small bright colored spinner rotating.
-            */}
+          <div {...stylex.props(stateIconStyles.iconsContainer)}>
+            <Icon
+              name={iconName}
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              aria-label={stateName}
+              className={iconOverlayClass}
+            />
             {operation && (
               <svg
                 width={ICON_SIZE}
@@ -132,14 +127,13 @@ export const StateIcon = memo(function StateIcon({
                 viewBox="0 0 20 20"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
-                className={styles.spinning}
+                className={mergeStylexClassName(stylex.props(stateIconStyles.spinning, stateIconStyles.iconOverlay)).className}
               >
                 <circle
                   r={ICON_SIZE / 2}
                   cx="10"
                   cy="10"
-                  // make sure to match this color to the color of the list item background where it's being used! Works for both light and dark themes.
-                  stroke={theme.colors.background.primary}
+                  stroke={grafanaTokens.colors_background_primary}
                   strokeWidth="2"
                   strokeLinecap="round"
                   fill="transparent"
@@ -153,35 +147,4 @@ export const StateIcon = memo(function StateIcon({
       </div>
     </Tooltip>
   );
-});
-
-const spin = keyframes({
-  '0%': {
-    transform: 'rotate(0deg)',
-  },
-  '50%': {
-    transform: 'rotate(180deg)',
-  },
-  '100%': {
-    transform: 'rotate(360deg)',
-  },
-});
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  iconsContainer: css({
-    position: 'relative',
-    width: ICON_SIZE,
-    height: ICON_SIZE,
-    '> *': {
-      position: 'absolute',
-    },
-  }),
-  spinning: css({
-    [theme.transitions.handleMotion('no-preference')]: {
-      animationName: spin,
-      animationIterationCount: 'infinite',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-    },
-  }),
 });

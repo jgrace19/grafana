@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useRef, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Icon, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Modal } from '@grafana/ui';
+
+import { sqlEditorStyles } from './sqlComponents.stylex';
 
 type ConfirmModalProps = {
   isOpen: boolean;
@@ -13,8 +14,6 @@ type ConfirmModalProps = {
 };
 export function ConfirmModal({ isOpen, onCancel, onDiscard, onCopy }: ConfirmModalProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const styles = useStyles2(getStyles);
-
   // Moved from grafana/ui
   useEffect(() => {
     // for some reason autoFocus property did no work on this button, but this does
@@ -26,9 +25,9 @@ export function ConfirmModal({ isOpen, onCancel, onDiscard, onCopy }: ConfirmMod
   return (
     <Modal
       title={
-        <div className={styles.modalHeaderTitle}>
+        <div {...stylex.props(sqlEditorStyles.confirmModalHeaderTitle)}>
           <Icon name="exclamation-triangle" size="lg" />
-          <span className={styles.titleText}>
+          <span {...stylex.props(sqlEditorStyles.confirmTitleText)}>
             <Trans i18nKey="grafana-sql.components.confirm-modal.warning">Warning</Trans>
           </span>
         </div>
@@ -63,14 +62,3 @@ export function ConfirmModal({ isOpen, onCancel, onDiscard, onCopy }: ConfirmMod
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  titleText: css({
-    paddingLeft: theme.spacing(2),
-  }),
-  modalHeaderTitle: css({
-    fontSize: theme.typography.size.lg,
-    float: 'left',
-    paddingTop: theme.spacing(1),
-    margin: theme.spacing(0, 2),
-  }),
-});

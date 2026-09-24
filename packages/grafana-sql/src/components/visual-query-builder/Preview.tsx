@@ -1,10 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCopyToClipboard } from 'react-use';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { CodeEditor, Field, IconButton, useStyles2 } from '@grafana/ui';
+import { CodeEditor, Field, IconButton } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 import { formatSQL } from '../../utils/formatSQL';
 
@@ -16,7 +19,6 @@ type PreviewProps = {
 export function Preview({ rawSql, datasourceType }: PreviewProps) {
   // TODO: use zero index to give feedback about copy success
   const [_, copyToClipboard] = useCopyToClipboard();
-  const styles = useStyles2(getStyles);
 
   const copyPreview = (rawSql: string) => {
     copyToClipboard(rawSql);
@@ -26,8 +28,8 @@ export function Preview({ rawSql, datasourceType }: PreviewProps) {
   };
 
   const labelElement = (
-    <div className={styles.labelWrapper}>
-      <span className={styles.label}>
+    <div {...stylex.props(sqlEditorStyles.previewLabelWrapper)}>
+      <span {...stylex.props(sqlEditorStyles.previewLabel)}>
         <Trans i18nKey="grafana-sql.components.preview.label-element.preview">Preview</Trans>
       </span>
       <IconButton
@@ -39,7 +41,7 @@ export function Preview({ rawSql, datasourceType }: PreviewProps) {
   );
 
   return (
-    <Field label={labelElement} className={styles.grow}>
+    <Field label={labelElement} className={mergeStylexClassName(stylex.props(sqlEditorStyles.previewGrow)).className}>
       <CodeEditor
         language="sql"
         height={80}
@@ -52,10 +54,3 @@ export function Preview({ rawSql, datasourceType }: PreviewProps) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    grow: css({ flexGrow: 1 }),
-    label: css({ fontSize: 12, fontWeight: theme.typography.fontWeightMedium }),
-    labelWrapper: css({ display: 'flex', justifyContent: 'space-between', paddingBottom: theme.spacing(0.5) }),
-  };
-}

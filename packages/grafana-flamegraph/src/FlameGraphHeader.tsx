@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 import { useDebounce, usePrevious } from 'react-use';
 
 import { type ChatContextItem, OpenAssistantButton } from '@grafana/assistant';
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Button, ButtonGroup, Dropdown, IconButton, Input, Menu, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { type SelectableValue } from '@grafana/data';
+import { Button, ButtonGroup, Dropdown, IconButton, Input, Menu, RadioButtonGroup } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { ColorSchemeButton } from './ColorSchemeButton';
+import { flameGraphHeaderStyles } from './FlameGraphHeader.stylex';
 import { type CollapsedMap } from './FlameGraph/dataTransform';
 import { MIN_WIDTH_TO_SHOW_BOTH_TOPTABLE_AND_FLAMEGRAPH, MIN_WIDTH_TO_SHOW_SPLIT_PANE_SELECTORS } from './constants';
 import { type ColorScheme, type ColorSchemeDiff, PaneView, SelectedView, type TextAlign, ViewMode } from './types';
@@ -66,7 +68,6 @@ function isNewUI(props: Props): props is NewUIProps {
 }
 
 const FlameGraphHeader = (props: Props) => {
-  const styles = useStyles2(getStyles);
   const [localSearch, setLocalSearch] = useSearchInput(props.search, props.setSearch);
 
   const suffix =
@@ -89,8 +90,14 @@ const FlameGraphHeader = (props: Props) => {
     const effectiveViewMode = props.canShowSplitView ? props.viewMode : ViewMode.Single;
 
     return (
-      <div className={cx(styles.header, styles.headerNew, { [styles.stickyHeader]: props.stickyHeader })}>
-        <div className={styles.inputContainerNew}>
+      <div
+        {...stylex.props(
+          flameGraphHeaderStyles.header,
+          flameGraphHeaderStyles.headerNew,
+          props.stickyHeader && flameGraphHeaderStyles.stickyHeader
+        )}
+      >
+        <div {...stylex.props(flameGraphHeaderStyles.inputContainerNew)}>
           <Input
             value={localSearch || ''}
             onChange={(v) => {
@@ -102,7 +109,7 @@ const FlameGraphHeader = (props: Props) => {
         </div>
 
         {effectiveViewMode === ViewMode.Split && (
-          <div className={styles.middleContainer}>
+          <div {...stylex.props(flameGraphHeaderStyles.middleContainer)}>
             {props.containerWidth >= MIN_WIDTH_TO_SHOW_SPLIT_PANE_SELECTORS ? (
               <>
                 <RadioButtonGroup<PaneView>
@@ -110,7 +117,7 @@ const FlameGraphHeader = (props: Props) => {
                   options={paneViewOptions}
                   value={props.leftPaneView}
                   onChange={props.setLeftPaneView}
-                  className={styles.buttonSpacing}
+                  className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
                 />
                 <IconButton name="exchange-alt" size="sm" tooltip="Swap views" onClick={props.onSwapPanes} />
                 <RadioButtonGroup<PaneView>
@@ -118,7 +125,7 @@ const FlameGraphHeader = (props: Props) => {
                   options={paneViewOptions}
                   value={props.rightPaneView}
                   onChange={props.setRightPaneView}
-                  className={styles.buttonSpacing}
+                  className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
                 />
               </>
             ) : (
@@ -137,7 +144,7 @@ const FlameGraphHeader = (props: Props) => {
                     </Menu>
                   }
                 >
-                  <Button variant="secondary" size="sm" className={styles.paneDropdownButton}>
+                  <Button variant="secondary" size="sm" className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.paneDropdownButton)).className}>
                     {paneViewOptions.find((o) => o.value === props.leftPaneView)?.label}
                   </Button>
                 </Dropdown>
@@ -156,7 +163,7 @@ const FlameGraphHeader = (props: Props) => {
                     </Menu>
                   }
                 >
-                  <Button variant="secondary" size="sm" className={styles.paneDropdownButton}>
+                  <Button variant="secondary" size="sm" className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.paneDropdownButton)).className}>
                     {paneViewOptions.find((o) => o.value === props.rightPaneView)?.label}
                   </Button>
                 </Dropdown>
@@ -165,9 +172,9 @@ const FlameGraphHeader = (props: Props) => {
           </div>
         )}
 
-        <div className={styles.rightContainer}>
+        <div {...stylex.props(flameGraphHeaderStyles.rightContainer)}>
           {!!props.assistantContext?.length && (
-            <div className={styles.buttonSpacing}>
+            <div className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}>
               <OpenAssistantButton
                 origin="grafana/flame-graph"
                 prompt="Analyze this flamegraph by querying the current datasource"
@@ -185,7 +192,7 @@ const FlameGraphHeader = (props: Props) => {
               onClick={() => {
                 props.onReset();
               }}
-              className={styles.buttonSpacing}
+              className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
               aria-label={'Reset focus and sandwich state'}
             />
           )}
@@ -195,7 +202,7 @@ const FlameGraphHeader = (props: Props) => {
               options={paneViewOptions}
               value={props.singleView}
               onChange={props.setSingleView}
-              className={styles.buttonSpacing}
+              className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
             />
           )}
           {props.canShowSplitView && (
@@ -204,10 +211,10 @@ const FlameGraphHeader = (props: Props) => {
               options={viewModeOptions}
               value={props.viewMode}
               onChange={props.setViewMode}
-              className={styles.buttonSpacing}
+              className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
             />
           )}
-          {props.extraHeaderElements && <div className={styles.extraElements}>{props.extraHeaderElements}</div>}
+          {props.extraHeaderElements && <div {...stylex.props(flameGraphHeaderStyles.extraElements)}>{props.extraHeaderElements}</div>}
         </div>
       </div>
     );
@@ -234,8 +241,8 @@ const FlameGraphHeader = (props: Props) => {
   } = props;
 
   return (
-    <div className={cx(styles.header, { [styles.stickyHeader]: stickyHeader })}>
-      <div className={styles.inputContainer}>
+    <div {...stylex.props(flameGraphHeaderStyles.header, stickyHeader && flameGraphHeaderStyles.stickyHeader)}>
+      <div {...stylex.props(flameGraphHeaderStyles.inputContainer)}>
         <Input
           value={localSearch || ''}
           onChange={(v) => {
@@ -246,9 +253,9 @@ const FlameGraphHeader = (props: Props) => {
         />
       </div>
 
-      <div className={styles.rightContainer}>
+      <div {...stylex.props(flameGraphHeaderStyles.rightContainer)}>
         {!!assistantContext?.length && (
-          <div className={styles.buttonSpacing}>
+          <div className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}>
             <OpenAssistantButton
               origin="grafana/flame-graph"
               prompt="Analyze this flamegraph by querying the current datasource"
@@ -266,12 +273,12 @@ const FlameGraphHeader = (props: Props) => {
             onClick={() => {
               onReset();
             }}
-            className={styles.buttonSpacing}
+            className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
             aria-label={'Reset focus and sandwich state'}
           />
         )}
         <ColorSchemeButton value={colorScheme} onChange={onColorSchemeChange} isDiffMode={isDiffMode} />
-        <ButtonGroup className={styles.buttonSpacing}>
+        <ButtonGroup className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}>
           <Button
             variant={'secondary'}
             fill={'outline'}
@@ -303,7 +310,7 @@ const FlameGraphHeader = (props: Props) => {
           options={alignOptions}
           value={textAlign}
           onChange={onTextAlignChange}
-          className={styles.buttonSpacing}
+          className={mergeStylexClassName(stylex.props(flameGraphHeaderStyles.buttonSpacing)).className}
         />
         <RadioButtonGroup<SelectedView>
           size="sm"
@@ -311,7 +318,7 @@ const FlameGraphHeader = (props: Props) => {
           value={selectedView}
           onChange={setSelectedView}
         />
-        {extraHeaderElements && <div className={styles.extraElements}>{extraHeaderElements}</div>}
+        {extraHeaderElements && <div {...stylex.props(flameGraphHeaderStyles.extraElements)}>{extraHeaderElements}</div>}
       </div>
     </div>
   );
@@ -377,78 +384,5 @@ function useSearchInput(
   return [localSearchState, setLocalSearchState];
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
-    label: 'header',
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    width: '100%',
-    top: 0,
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  }),
-  headerNew: css({
-    label: 'headerNew',
-    alignItems: 'flex-start',
-    position: 'relative',
-  }),
-  stickyHeader: css({
-    zIndex: theme.zIndex.navbarFixed,
-    position: 'sticky',
-    background: theme.colors.background.primary,
-  }),
-  inputContainer: css({
-    label: 'inputContainer',
-    flexGrow: 1,
-    minWidth: '150px',
-    maxWidth: '350px',
-  }),
-  inputContainerNew: css({
-    label: 'inputContainerNew',
-    flexGrow: 0,
-    minWidth: '150px',
-    maxWidth: '350px',
-  }),
-  middleContainer: css({
-    label: 'middleContainer',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: theme.spacing(1),
-    position: 'absolute',
-    left: '50%',
-    transform: 'translateX(-50%)',
-  }),
-  rightContainer: css({
-    label: 'rightContainer',
-    display: 'flex',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-  }),
-  buttonSpacing: css({
-    label: 'buttonSpacing',
-    marginRight: theme.spacing(1),
-  }),
-  resetButton: css({
-    label: 'resetButton',
-    display: 'flex',
-    marginRight: theme.spacing(2),
-  }),
-  resetButtonIconWrapper: css({
-    label: 'resetButtonIcon',
-    padding: '0 5px',
-    color: theme.colors.text.disabled,
-  }),
-  extraElements: css({
-    label: 'extraElements',
-    marginLeft: theme.spacing(1),
-  }),
-  paneDropdownButton: css({
-    label: 'paneDropdownButton',
-    minWidth: '95px',
-    justifyContent: 'center',
-  }),
-});
 
 export default FlameGraphHeader;

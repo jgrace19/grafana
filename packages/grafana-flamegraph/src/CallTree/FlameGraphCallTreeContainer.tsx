@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useTable, useSortBy, useExpanded, type Column, type Row, type UseExpandedRowProps } from 'react-table';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, Icon, IconButton, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, Icon, IconButton, Tooltip, useTheme2 } from '@grafana/ui';
+
+import { callTreeContainerStyles } from './FlameGraphCallTreeContainer.stylex';
 
 import { type GetExtraContextMenuButtonsFunction } from '../FlameGraph/FlameGraphContextMenu';
 import { type FlameGraphDataContainer } from '../FlameGraph/dataTransform';
@@ -62,7 +64,6 @@ const FlameGraphCallTreeContainer = memo(
     paneView,
   }: Props) => {
     const [isCompact, setIsCompact] = useState(false);
-    const styles = useStyles2(getStyles);
     const theme = useTheme2();
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -423,7 +424,7 @@ const FlameGraphCallTreeContainer = memo(
               focusedNodeId={focusedNodeId}
               callersNodeLabel={callersNodeLabel}
               isSearchMatch={searchNodes?.includes(row.original.id) ?? false}
-              actionsCellClass={styles.actionsCell}
+              actionsCellClass={stylex.props(callTreeContainerStyles.actionsCell).className}
               getExtraContextMenuButtons={getExtraContextMenuButtons}
               data={data}
               viewMode={viewMode}
@@ -552,9 +553,9 @@ const FlameGraphCallTreeContainer = memo(
                 const displaySelf = data.valueDisplayProcessor(row.original.self);
                 const formattedValue = displaySelf.suffix ? displaySelf.text + displaySelf.suffix : displaySelf.text;
                 return (
-                  <div className={styles.valueCell}>
-                    <span className={styles.valueNumber}>{formattedValue}</span>
-                    <span className={styles.percentNumber}>{row.original.selfPercent.toFixed(2)}%</span>
+                  <div {...stylex.props(callTreeContainerStyles.valueCell)}>
+                    <span {...stylex.props(callTreeContainerStyles.valueNumber)}>{formattedValue}</span>
+                    <span {...stylex.props(callTreeContainerStyles.percentNumber)}>{row.original.selfPercent.toFixed(2)}%</span>
                   </div>
                 );
               },
@@ -572,9 +573,9 @@ const FlameGraphCallTreeContainer = memo(
             const displayValue = data.valueDisplayProcessor(row.original.total);
             const formattedValue = displayValue.suffix ? displayValue.text + displayValue.suffix : displayValue.text;
             return (
-              <div className={styles.valueCell}>
-                <span className={styles.valueNumber}>{formattedValue}</span>
-                <span className={styles.percentNumber}>{row.original.totalPercent.toFixed(2)}%</span>
+              <div {...stylex.props(callTreeContainerStyles.valueCell)}>
+                <span {...stylex.props(callTreeContainerStyles.valueNumber)}>{formattedValue}</span>
+                <span {...stylex.props(callTreeContainerStyles.percentNumber)}>{row.original.totalPercent.toFixed(2)}%</span>
               </div>
             );
           },
@@ -616,14 +617,14 @@ const FlameGraphCallTreeContainer = memo(
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
     return (
-      <div className={styles.container} data-testid="callTree">
-        <div className={styles.toolbar}>
-          <div className={styles.toolbarLeft}>
+      <div {...stylex.props(callTreeContainerStyles.container)} data-testid="callTree">
+        <div {...stylex.props(callTreeContainerStyles.toolbar)}>
+          <div {...stylex.props(callTreeContainerStyles.toolbarLeft)}>
             {searchQuery && (
-              <div className={styles.searchContainer}>
+              <div {...stylex.props(callTreeContainerStyles.searchContainer)}>
                 {searchNodes.length > 0 && (
-                  <div className={styles.searchNavigation}>
-                    <span className={styles.searchCounter}>
+                  <div {...stylex.props(callTreeContainerStyles.searchNavigation)}>
+                    <span {...stylex.props(callTreeContainerStyles.searchCounter)}>
                       {currentMatchIndex + 1} of {searchNodes.length}
                       {searchNodes.length >= 50 && '+'}
                     </span>
@@ -646,21 +647,21 @@ const FlameGraphCallTreeContainer = memo(
                   </div>
                 )}
                 {searchQuery && searchNodes.length === 0 && !searchError && (
-                  <span className={styles.searchNoResults}>No matches found</span>
+                  <span {...stylex.props(callTreeContainerStyles.searchNoResults)}>No matches found</span>
                 )}
-                {searchError && <span className={styles.searchError}>{searchError}</span>}
+                {searchError && <span {...stylex.props(callTreeContainerStyles.searchError)}>{searchError}</span>}
               </div>
             )}
 
             {focusedNode && (
               <Tooltip content={focusedNode.label} placement="top">
-                <div className={styles.focusedItem}>
+                <div {...stylex.props(callTreeContainerStyles.focusedItem)}>
                   <Icon size="sm" name="compress-arrows" />
-                  <span className={styles.focusedItemLabel}>
+                  <span {...stylex.props(callTreeContainerStyles.focusedItemLabel)}>
                     {focusedNode.label.substring(focusedNode.label.lastIndexOf('/') + 1)}
                   </span>
                   <IconButton
-                    className={styles.modePillCloseButton}
+                    {...stylex.props(callTreeContainerStyles.modePillCloseButton)}
                     name="times"
                     size="sm"
                     onClick={() => handleSetFocusMode(undefined)}
@@ -673,13 +674,13 @@ const FlameGraphCallTreeContainer = memo(
 
             {callersNode && (
               <Tooltip content={callersNodeLabel || ''} placement="top">
-                <div className={styles.callersItem}>
+                <div {...stylex.props(callTreeContainerStyles.callersItem)}>
                   <Icon size="sm" name="expand-arrows-alt" />
-                  <span className={styles.callersItemLabel}>
+                  <span {...stylex.props(callTreeContainerStyles.callersItemLabel)}>
                     {(callersNodeLabel || '').substring((callersNodeLabel || '').lastIndexOf('/') + 1)}
                   </span>
                   <IconButton
-                    className={styles.modePillCloseButton}
+                    {...stylex.props(callTreeContainerStyles.modePillCloseButton)}
                     name="times"
                     size="sm"
                     onClick={() => handleSetCallersMode(undefined)}
@@ -725,124 +726,3 @@ FlameGraphCallTreeContainer.displayName = 'FlameGraphCallTreeContainer';
 
 export default FlameGraphCallTreeContainer;
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      width: '100%',
-      height: '100%',
-      backgroundColor: theme.colors.background.primary,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    toolbar: css({
-      display: 'flex',
-      alignItems: 'center',
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
-      gap: theme.spacing(1),
-      flexWrap: 'wrap',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      '&:not(:has(> :not(:empty)))': {
-        display: 'none',
-      },
-    }),
-    toolbarLeft: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    searchContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      flexWrap: 'wrap',
-    }),
-    searchNavigation: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      padding: `0 ${theme.spacing(1)}`,
-    }),
-    searchCounter: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      whiteSpace: 'nowrap',
-    }),
-    searchNoResults: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      fontStyle: 'italic',
-    }),
-    searchError: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.error.text,
-    }),
-    actionsCell: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '20px',
-    }),
-    valueCell: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '8px',
-      fontVariantNumeric: 'tabular-nums',
-      height: '20px',
-    }),
-    valueNumber: css({
-      flex: '1 1 auto',
-      textAlign: 'right',
-      whiteSpace: 'nowrap',
-      minWidth: '60px',
-    }),
-    percentNumber: css({
-      flex: '0 0 60px',
-      width: '60px',
-      textAlign: 'right',
-      color: theme.colors.text.secondary,
-      whiteSpace: 'nowrap',
-    }),
-    focusedItem: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0.5, 1),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      color: theme.colors.text.secondary,
-    }),
-    focusedItemLabel: css({
-      maxWidth: '200px',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      marginLeft: theme.spacing(0.5),
-    }),
-    callersItem: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0.5, 1),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: theme.typography.bodySmall.lineHeight,
-      color: theme.colors.text.secondary,
-    }),
-    callersItemLabel: css({
-      maxWidth: '200px',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      marginLeft: theme.spacing(0.5),
-    }),
-    modePillCloseButton: css({
-      verticalAlign: 'text-bottom',
-      margin: theme.spacing(0, 0.5),
-    }),
-  };
-}

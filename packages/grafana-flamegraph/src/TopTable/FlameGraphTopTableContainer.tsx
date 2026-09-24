@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo, useState } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -8,7 +8,6 @@ import {
   type DataLinkClickEvent,
   type Field,
   FieldType,
-  type GrafanaTheme2,
   MappingType,
   escapeStringForRegex,
 } from '@grafana/data';
@@ -19,9 +18,11 @@ import {
   type TableCustomCellOptions,
   type TableFieldOptions,
   type TableSortByFieldState,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { topTableStyles } from './FlameGraphTopTableContainer.stylex';
 
 import { diffColorBlindColors, diffDefaultColors } from '../FlameGraph/colors';
 import { type FlameGraphDataContainer } from '../FlameGraph/dataTransform';
@@ -56,13 +57,12 @@ const FlameGraphTopTableContainer = memo(
   }: Props) => {
     const table = useMemo(() => buildFilteredTable(data, matchedLabels), [data, matchedLabels]);
 
-    const styles = useStyles2(getStyles);
     const theme = useTheme2();
 
     const [sort, setSort] = useState<TableSortByFieldState[]>([{ displayName: 'Self', desc: true }]);
 
     return (
-      <div className={styles.topTableContainer} data-testid="topTable">
+      <div {...stylex.props(topTableStyles.topTableContainer)} data-testid="topTable">
         <AutoSizer style={{ width: '100%' }}>
           {({ width, height }) => {
             if (width < 3 || height < 3) {
@@ -332,15 +332,14 @@ type ActionCellProps = {
 };
 
 function ActionCell(props: ActionCellProps) {
-  const styles = getStylesActionCell();
   const symbol = props.frame.fields.find((f: Field) => f.name === 'Symbol')?.values[props.rowIndex];
   const isSearched = props.search === `^${escapeStringForRegex(String(symbol))}$`;
   const isSandwiched = props.sandwichItem === symbol;
 
   return (
-    <div className={styles.actionCellWrapper}>
+    <div {...stylex.props(topTableStyles.actionCellWrapper)}>
       <IconButton
-        className={styles.actionCellButton}
+        className={mergeStylexClassName(stylex.props(topTableStyles.actionCellButton)).className}
         name={'search'}
         variant={isSearched ? 'primary' : 'secondary'}
         tooltip={isSearched ? 'Clear from search' : 'Search for symbol'}
@@ -350,7 +349,7 @@ function ActionCell(props: ActionCellProps) {
         }}
       />
       <IconButton
-        className={styles.actionCellButton}
+        className={mergeStylexClassName(stylex.props(topTableStyles.actionCellButton)).className}
         name={'gf-show-context'}
         tooltip={isSandwiched ? 'Remove from sandwich view' : 'Show in sandwich view'}
         variant={isSandwiched ? 'primary' : 'secondary'}
@@ -362,32 +361,6 @@ function ActionCell(props: ActionCellProps) {
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    topTableContainer: css({
-      label: 'topTableContainer',
-      padding: theme.spacing(1),
-      backgroundColor: theme.colors.background.secondary,
-      height: '100%',
-    }),
-  };
-};
-
-const getStylesActionCell = () => {
-  return {
-    actionCellWrapper: css({
-      label: 'actionCellWrapper',
-      display: 'flex',
-      height: '24px',
-    }),
-    actionCellButton: css({
-      label: 'actionCellButton',
-      marginRight: 0,
-      width: '24px',
-    }),
-  };
-};
 
 export { buildFilteredTable };
 

@@ -1,10 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useId, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { EditorField } from '@grafana/plugin-ui';
-import { InlineLabel, Input, Select, Stack, useStyles2 } from '@grafana/ui';
+import { InlineLabel, Input, Select, Stack } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 import { QueryEditorExpressionType } from '../../expressions';
 import { type DB, type SQLExpression, type SQLQuery } from '../../types';
@@ -24,7 +27,7 @@ interface Props {
 export function SelectFunctionParameters({ query, onSqlChange, currentColumnIndex, db, columns }: Props) {
   const selectInputId = useId();
   const macroOrFunction = query.sql?.columns?.[currentColumnIndex];
-  const styles = useStyles2(getStyles);
+  const labelClassName = mergeStylexClassName(stylex.props(sqlEditorStyles.selectLabel)).className;
   const func = db.functions().find((f) => f.name === macroOrFunction?.name);
 
   const [fieldsFromFunction, setFieldsFromFunction] = useState<Array<Array<SelectableValue<string>>>>([]);
@@ -115,7 +118,7 @@ export function SelectFunctionParameters({ query, onSqlChange, currentColumnInde
               )}
             </>
           </EditorField>
-          {func.parameters!.length !== index + 1 && <InlineLabel className={styles.label}>,</InlineLabel>}
+          {func.parameters!.length !== index + 1 && <InlineLabel className={labelClassName}>,</InlineLabel>}
         </Stack>
       );
     });
@@ -149,19 +152,10 @@ export function SelectFunctionParameters({ query, onSqlChange, currentColumnInde
   // Else we render the function parameters based on the provided settings
   return (
     <>
-      <InlineLabel className={styles.label}>(</InlineLabel>
+      <InlineLabel className={labelClassName}>(</InlineLabel>
       {renderParametersWithFunctions()}
-      <InlineLabel className={styles.label}>)</InlineLabel>
+      <InlineLabel className={labelClassName}>)</InlineLabel>
     </>
   );
 }
 
-const getStyles = () => {
-  return {
-    label: css({
-      padding: 0,
-      margin: 0,
-      width: 'unset',
-    }),
-  };
-};

@@ -92,7 +92,7 @@
     "react-dom": "^18.0.0"
   },
   "dependencies": {
-    "@emotion/css": "11.13.5",
+    "@stylexjs/stylex": "0.19.1",
     "@faker-js/faker": "^9.8.0",
     "@grafana/api-clients": "13.0.0-pre",
     "@grafana/i18n": "13.0.0-pre",

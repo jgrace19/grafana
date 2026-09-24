@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import {
@@ -8,7 +8,10 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { ConfigDescriptionLink, ConfigSubSection } from '@grafana/plugin-ui';
-import { InlineField, InlineFieldRow, InlineSwitch, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, InlineSwitch } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { o11yInfoTextStyles } from '../o11ySettings.stylex';
 
 export interface NodeGraphOptions {
   enabled?: boolean;
@@ -21,11 +24,11 @@ export interface NodeGraphData extends DataSourceJsonData {
 interface Props extends DataSourcePluginOptionsEditorProps<NodeGraphData> {}
 
 export function NodeGraphSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
+  const rowClassName = mergeStylexClassName(stylex.props(o11yInfoTextStyles.row)).className;
 
   return (
-    <div className={styles.container}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(o11yInfoTextStyles.container)}>
+      <InlineFieldRow className={rowClassName}>
         <InlineField
           tooltip="Displays the node graph above the trace view. Default: disabled"
           label="Enable node graph"
@@ -67,18 +70,3 @@ export const NodeGraphSection = ({ options, onOptionsChange }: DataSourcePluginO
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    label: 'infoText',
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  container: css({
-    label: 'container',
-    width: '100%',
-  }),
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-});

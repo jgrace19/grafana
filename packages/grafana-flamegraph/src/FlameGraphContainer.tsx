@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import uFuzzy from '@leeoniya/ufuzzy';
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import * as React from 'react';
 import { useMeasure, usePrevious } from 'react-use';
 
-import { type DataFrame, type GrafanaTheme2, escapeStringForRegex } from '@grafana/data';
+import { type DataFrame, escapeStringForRegex } from '@grafana/data';
 import { ThemeContext } from '@grafana/ui';
 
 import FlameGraph from './FlameGraph/FlameGraph';
@@ -20,6 +20,7 @@ import {
 } from './constants';
 import { useColorScheme } from './hooks';
 import { type ClickedItemData, PaneView, SelectedView, type TextAlign, ViewMode } from './types';
+import { flameGraphContainerStyles } from './FlameGraphContainer.stylex';
 import { getAssistantContextFromDataFrame } from './utils';
 
 const ufuzzy = new uFuzzy();
@@ -222,7 +223,6 @@ const LegacyContainer = ({
     return container;
   }, [data, theme, disableCollapsing]);
   const [colorScheme, setColorScheme] = useColorScheme(dataContainer);
-  const styles = getStyles(theme);
   const matchedLabels = useLabelSearch(search, dataContainer);
 
   // If user resizes window with both as the selected view
@@ -367,20 +367,20 @@ const LegacyContainer = ({
   if (showFlameGraphOnly || selectedView === SelectedView.FlameGraph) {
     body = flameGraph;
   } else if (selectedView === SelectedView.TopTable) {
-    body = <div className={styles.tableContainer}>{table}</div>;
+    body = <div {...stylex.props(flameGraphContainerStyles.tableContainer)}>{table}</div>;
   } else if (selectedView === SelectedView.Both) {
     if (vertical) {
       body = (
         <div>
-          <div className={styles.verticalGraphContainer}>{flameGraph}</div>
-          <div className={styles.verticalTableContainer}>{table}</div>
+          <div {...stylex.props(flameGraphContainerStyles.verticalGraphContainer)}>{flameGraph}</div>
+          <div {...stylex.props(flameGraphContainerStyles.verticalTableContainer)}>{table}</div>
         </div>
       );
     } else {
       body = (
-        <div className={styles.horizontalContainer}>
-          <div className={styles.horizontalTableContainer}>{table}</div>
-          <div className={styles.horizontalGraphContainer}>{flameGraph}</div>
+        <div {...stylex.props(flameGraphContainerStyles.horizontalContainer)}>
+          <div {...stylex.props(flameGraphContainerStyles.horizontalTableContainer)}>{table}</div>
+          <div {...stylex.props(flameGraphContainerStyles.horizontalGraphContainer)}>{flameGraph}</div>
         </div>
       );
     }
@@ -390,7 +390,7 @@ const LegacyContainer = ({
     // We add the theme context to bridge the gap if this is rendered in non grafana environment where the context
     // isn't already provided.
     <ThemeContext.Provider value={theme}>
-      <div ref={sizeRef} className={styles.container}>
+      <div ref={sizeRef} {...stylex.props(flameGraphContainerStyles.container)}>
         {!showFlameGraphOnly && (
           <FlameGraphHeader
             search={search}
@@ -423,7 +423,7 @@ const LegacyContainer = ({
           />
         )}
 
-        <div className={styles.body}>{body}</div>
+        <div {...stylex.props(flameGraphContainerStyles.body)}>{body}</div>
       </div>
     </ThemeContext.Provider>
   );
@@ -488,7 +488,6 @@ const NewUIContainer = ({
     return new FlameGraphDataContainer(data, { collapsing: !disableCollapsing }, theme);
   }, [data, theme, disableCollapsing]);
 
-  const styles = getStyles(theme);
   const matchedLabels = useLabelSearch(search, dataContainer);
 
   const effectiveViewMode = canShowSplitView ? viewMode : ViewMode.Single;
@@ -578,22 +577,22 @@ const NewUIContainer = ({
 
     if (vertical) {
       body = (
-        <div className={styles.verticalContainer}>
-          <div className={styles.verticalPaneContainer} style={{ order: panesSwapped ? 2 : 1 }}>
+        <div {...stylex.props(flameGraphContainerStyles.verticalContainer)}>
+          <div {...stylex.props(flameGraphContainerStyles.verticalPaneContainer)} style={{ order: panesSwapped ? 2 : 1 }}>
             {leftPane}
           </div>
-          <div className={styles.verticalPaneContainer} style={{ order: panesSwapped ? 1 : 2 }}>
+          <div {...stylex.props(flameGraphContainerStyles.verticalPaneContainer)} style={{ order: panesSwapped ? 1 : 2 }}>
             {rightPane}
           </div>
         </div>
       );
     } else {
       body = (
-        <div className={styles.horizontalContainer}>
-          <div className={styles.horizontalPaneContainer} style={{ order: panesSwapped ? 2 : 1 }}>
+        <div {...stylex.props(flameGraphContainerStyles.horizontalContainer)}>
+          <div {...stylex.props(flameGraphContainerStyles.horizontalPaneContainer)} style={{ order: panesSwapped ? 2 : 1 }}>
             {leftPane}
           </div>
-          <div className={styles.horizontalPaneContainer} style={{ order: panesSwapped ? 1 : 2 }}>
+          <div {...stylex.props(flameGraphContainerStyles.horizontalPaneContainer)} style={{ order: panesSwapped ? 1 : 2 }}>
             {rightPane}
           </div>
         </div>
@@ -603,7 +602,7 @@ const NewUIContainer = ({
 
   return (
     <ThemeContext.Provider value={theme}>
-      <div ref={sizeRef} className={styles.container}>
+      <div ref={sizeRef} {...stylex.props(flameGraphContainerStyles.container)}>
         {!showFlameGraphOnly && (
           <FlameGraphHeader
             enableNewUI={true}
@@ -641,7 +640,7 @@ const NewUIContainer = ({
           />
         )}
 
-        <div className={styles.body}>{body}</div>
+        <div {...stylex.props(flameGraphContainerStyles.body)}>{body}</div>
       </div>
     </ThemeContext.Provider>
   );
@@ -715,77 +714,6 @@ export function labelSearch(search: string, data: FlameGraphDataContainer): Set<
   }
 
   return foundLabels;
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      label: 'container',
-      overflow: 'auto',
-      height: '100%',
-      display: 'flex',
-      flex: '1 1 0',
-      flexDirection: 'column',
-      minHeight: 0,
-      gap: theme.spacing(1),
-    }),
-    body: css({
-      label: 'body',
-      flexGrow: 1,
-    }),
-
-    tableContainer: css({
-      // This is not ideal for dashboard panel where it creates a double scroll. In a panel it should be 100% but then
-      // in explore we need a specific height.
-      height: FLAMEGRAPH_CONTAINER_HEIGHT,
-    }),
-
-    horizontalContainer: css({
-      label: 'horizontalContainer',
-      display: 'flex',
-      minHeight: 0,
-      flexDirection: 'row',
-      columnGap: theme.spacing(1),
-      width: '100%',
-    }),
-
-    horizontalGraphContainer: css({
-      flexBasis: '50%',
-    }),
-
-    horizontalTableContainer: css({
-      flexBasis: '50%',
-      maxHeight: FLAMEGRAPH_CONTAINER_HEIGHT,
-    }),
-
-    verticalGraphContainer: css({
-      marginBottom: theme.spacing(1),
-    }),
-
-    verticalTableContainer: css({
-      height: FLAMEGRAPH_CONTAINER_HEIGHT,
-    }),
-
-    verticalContainer: css({
-      label: 'verticalContainer',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-
-    horizontalPaneContainer: css({
-      label: 'horizontalPaneContainer',
-      flexBasis: '50%',
-      maxHeight: FLAMEGRAPH_CONTAINER_HEIGHT,
-      minWidth: 0,
-      overflow: 'auto',
-    }),
-
-    verticalPaneContainer: css({
-      label: 'verticalPaneContainer',
-      marginBottom: theme.spacing(1),
-      height: FLAMEGRAPH_CONTAINER_HEIGHT,
-    }),
-  };
 }
 
 export default FlameGraphContainer;

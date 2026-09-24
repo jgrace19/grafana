@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type ReactNode } from 'react';
 
-import { getValueFormat, type GrafanaTheme2 } from '@grafana/data';
-import { Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
+import { getValueFormat } from '@grafana/data';
+import { Icon, IconButton, Tooltip } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type ClickedItemData } from '../types';
 
 import { type FlameGraphDataContainer } from './dataTransform';
+import { flameGraphMetadataStyles } from './FlameGraphMetadata.stylex';
 
 type Props = {
   data: FlameGraphDataContainer;
@@ -19,7 +21,6 @@ type Props = {
 
 const FlameGraphMetadata = memo(
   ({ data, focusedItem, totalTicks, sandwichedLabel, onFocusPillClick, onSandwichPillClick }: Props) => {
-    const styles = useStyles2(getStyles);
     const parts: ReactNode[] = [];
     const ticksVal = getValueFormat('short')(totalTicks);
 
@@ -28,13 +29,12 @@ const FlameGraphMetadata = memo(
     const unitTitle = data.getUnitTitle();
     if (unitTitle === 'Count') {
       if (!displayValue.suffix) {
-        // Makes sure we don't show 123undefined or something like that if suffix isn't defined
         unitValue = displayValue.text;
       }
     }
 
     parts.push(
-      <div className={styles.metadataPill} key={'default'}>
+      <div {...stylex.props(flameGraphMetadataStyles.metadataPill)} key={'default'}>
         {unitValue} | {ticksVal.text}
         {ticksVal.suffix} samples ({unitTitle})
       </div>
@@ -45,13 +45,13 @@ const FlameGraphMetadata = memo(
         <Tooltip key={'sandwich'} content={sandwichedLabel} placement="top">
           <div>
             <Icon size={'sm'} name={'angle-right'} />
-            <div className={styles.metadataPill}>
+            <div {...stylex.props(flameGraphMetadataStyles.metadataPill)}>
               <Icon size={'sm'} name={'gf-show-context'} />{' '}
-              <span className={styles.metadataPillName}>
+              <span {...stylex.props(flameGraphMetadataStyles.metadataPillName)}>
                 {sandwichedLabel.substring(sandwichedLabel.lastIndexOf('/') + 1)}
               </span>
               <IconButton
-                className={styles.pillCloseButton}
+                className={mergeStylexClassName(stylex.props(flameGraphMetadataStyles.pillCloseButton)).className}
                 name={'times'}
                 size={'sm'}
                 onClick={onSandwichPillClick}
@@ -72,11 +72,11 @@ const FlameGraphMetadata = memo(
         <Tooltip key={'focus'} content={focusedItem.label} placement="top">
           <div>
             <Icon size={'sm'} name={'angle-right'} />
-            <div className={styles.metadataPill}>
+            <div {...stylex.props(flameGraphMetadataStyles.metadataPill)}>
               <Icon size={'sm'} name={iconName} />
               &nbsp;{percentValue}% of total
               <IconButton
-                className={styles.pillCloseButton}
+                className={mergeStylexClassName(stylex.props(flameGraphMetadataStyles.pillCloseButton)).className}
                 name={'times'}
                 size={'sm'}
                 onClick={onFocusPillClick}
@@ -89,44 +89,10 @@ const FlameGraphMetadata = memo(
       );
     }
 
-    return <div className={styles.metadata}>{parts}</div>;
+    return <div {...stylex.props(flameGraphMetadataStyles.metadata)}>{parts}</div>;
   }
 );
 
 FlameGraphMetadata.displayName = 'FlameGraphMetadata';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  metadataPill: css({
-    label: 'metadataPill',
-    display: 'inline-flex',
-    alignItems: 'center',
-    background: theme.colors.background.secondary,
-    borderRadius: theme.shape.borderRadius(8),
-    padding: theme.spacing(0.5, 1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    color: theme.colors.text.secondary,
-  }),
-  pillCloseButton: css({
-    label: 'pillCloseButton',
-    verticalAlign: 'text-bottom',
-    margin: theme.spacing(0, 0.5),
-  }),
-  metadata: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '8px 0',
-  }),
-  metadataPillName: css({
-    label: 'metadataPillName',
-    maxWidth: '200px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    marginLeft: theme.spacing(0.5),
-  }),
-});
 
 export default FlameGraphMetadata;

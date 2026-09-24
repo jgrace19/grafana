@@ -1,15 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import {
   type DataSourceInstanceSettings,
   type DataSourceJsonData,
   type DataSourcePluginOptionsEditorProps,
-  type GrafanaTheme2,
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { ConfigDescriptionLink, ConfigSection } from '@grafana/plugin-ui';
 import { DataSourcePicker } from '@grafana/runtime';
-import { Button, InlineField, InlineFieldRow, Input, useStyles2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Input } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { o11yFullWidth, o11yInfoTextStyles } from '../o11ySettings.stylex';
 
 import { IntervalInput } from '../IntervalInput/IntervalInput';
 import { TagMappingInput } from '../TraceToLogs/TagMappingInput';
@@ -39,11 +41,11 @@ export function TraceToMetricsSettings({ options, onOptionsChange }: Props) {
     'prometheus',
     'victoriametrics-metrics-datasource', // external
   ];
-  const styles = useStyles2(getStyles);
+  const rowClassName = mergeStylexClassName(stylex.props(o11yInfoTextStyles.row)).className;
 
   return (
-    <div className={css({ width: '100%' })}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(o11yFullWidth.fullWidth)}>
+      <InlineFieldRow className={rowClassName}>
         <InlineField
           tooltip="The Prometheus data source the trace is going to navigate to"
           label="Data source"
@@ -118,7 +120,7 @@ export function TraceToMetricsSettings({ options, onOptionsChange }: Props) {
       </InlineFieldRow>
 
       {options.jsonData.tracesToMetrics?.queries?.map((query, i) => (
-        <div key={i} className={styles.queryRow}>
+        <div key={i} {...stylex.props(o11yInfoTextStyles.queryRow)}>
           <InlineField label="Link Label" labelWidth={26} tooltip="Descriptive label for the linked query">
             <Input
               label="Link Label"
@@ -220,18 +222,3 @@ export const TraceToMetricsSection = ({ options, onOptionsChange }: DataSourcePl
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: {
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  },
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-  queryRow: css({
-    label: 'queryRow',
-    display: 'flex',
-    flexFlow: 'wrap',
-  }),
-});

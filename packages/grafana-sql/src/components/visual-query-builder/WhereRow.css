@@ -1,0 +1,33 @@
+@layer grafana-global {
+  .group--header {
+    display: flex;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .group-or-rule {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .group-or-rule .rule {
+    flex-direction: row;
+  }
+
+  .rule--body {
+    display: flex;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .group--children {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .group--conjunctions:empty {
+    display: none;
+  }
+}

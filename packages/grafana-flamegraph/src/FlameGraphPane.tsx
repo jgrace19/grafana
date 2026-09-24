@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { escapeStringForRegex } from '@grafana/data';
@@ -75,8 +75,6 @@ const FlameGraphPane = ({
   );
   const [collapsedMap, setCollapsedMap] = useState(() => dataContainer.getCollapsedMap());
   const [colorScheme, setColorScheme] = useColorScheme(dataContainer);
-
-  const styles = getStyles();
 
   useLayoutEffect(() => {
     setCollapsedMap(dataContainer.getCollapsedMap());
@@ -229,7 +227,7 @@ const FlameGraphPane = ({
   switch (paneView) {
     case PaneView.TopTable:
       content = (
-        <div className={styles.tableContainer}>
+        <div {...stylex.props(paneStyles.tableContainer)}>
           <FlameGraphTopTableContainer
             data={dataContainer}
             onSymbolClick={onSymbolClick}
@@ -289,7 +287,7 @@ const FlameGraphPane = ({
       break;
     case PaneView.CallTree:
       content = (
-        <div className={styles.tableContainer}>
+        <div {...stylex.props(paneStyles.tableContainer)}>
           <FlameGraphCallTreeContainer
             data={dataContainer}
             onSymbolClick={onCallTreeSymbolClick}
@@ -309,21 +307,19 @@ const FlameGraphPane = ({
       break;
   }
 
-  return <div className={styles.paneWrapper}>{content}</div>;
+  return <div {...stylex.props(paneStyles.paneWrapper)}>{content}</div>;
 };
 
-function getStyles() {
-  return {
-    paneWrapper: css({
-      width: '100%',
-      height: '100%',
-    }),
-    tableContainer: css({
-      height: FLAMEGRAPH_CONTAINER_HEIGHT,
-      minWidth: 0,
-      overflow: 'hidden',
-    }),
-  };
-}
+const paneStyles = stylex.create({
+  paneWrapper: {
+    width: '100%',
+    height: '100%',
+  },
+  tableContainer: {
+    height: FLAMEGRAPH_CONTAINER_HEIGHT,
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+});
 
 export default FlameGraphPane;

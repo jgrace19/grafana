@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { chain } from 'lodash';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Stack, Toggletip, useStyles2 } from '@grafana/ui';
+import { Button, Stack, Toggletip } from '@grafana/ui';
+
+import { alertLabelsStyles } from '../alertingRules.stylex';
 
 import { findCommonLabels, isPrivateLabel } from '../../utils/labels';
 
@@ -27,7 +28,6 @@ export const AlertLabels = ({
   onClick,
   commonLabelsMode = 'expand',
 }: AlertLabelsProps) => {
-  const styles = useStyles2(getStyles, size);
   const [showCommonLabels, setShowCommonLabels] = useState(false);
 
   const computedCommonLabels = useMemo(
@@ -57,7 +57,11 @@ export const AlertLabels = ({
   );
 
   return (
-    <div className={styles.wrapper} role="list" aria-label={t('alerting.alert-labels.aria-label-labels', 'Labels')}>
+    <div
+      {...stylex.props(size === 'md' ? alertLabelsStyles.wrapperMd : alertLabelsStyles.wrapperSm, alertLabelsStyles.wrapper)}
+      role="list"
+      aria-label={t('alerting.alert-labels.aria-label-labels', 'Labels')}
+    >
       {labelsToShow.map(([label, value]) => {
         return (
           <AlertLabel
@@ -115,14 +119,3 @@ export const AlertLabels = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, size?: LabelSize) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-
-      gap: size === 'md' ? theme.spacing() : theme.spacing(0.5),
-    }),
-  };
-};

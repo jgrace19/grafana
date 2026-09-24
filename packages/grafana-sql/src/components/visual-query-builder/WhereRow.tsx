@@ -1,10 +1,10 @@
-import { injectGlobal } from '@emotion/css';
 import { Builder, type Config, type ImmutableTree, Query, Utils } from '@react-awesome-query-builder/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type SQLExpression } from '../../types';
 
 import { emptyInitTree, raqbConfig } from './AwesomeQueryBuilder';
+import './WhereRow.css';
 
 interface SQLBuilderWhereRowProps {
   sql: SQLExpression;
@@ -17,7 +17,6 @@ export function WhereRow({ sql, config, onSqlChange }: SQLBuilderWhereRowProps) 
   const configWithDefaults = useMemo(() => ({ ...raqbConfig, ...config }), [config]);
 
   useEffect(() => {
-    // Set the initial tree
     if (!tree) {
       const initTree = Utils.checkTree(Utils.loadTree(sql.whereJsonTree ?? emptyInitTree), configWithDefaults);
       setTree(initTree);
@@ -57,36 +56,3 @@ export function WhereRow({ sql, config, onSqlChange }: SQLBuilderWhereRowProps) 
     />
   );
 }
-
-function flex(direction: string) {
-  return `
-    display: flex;
-    gap: 8px;
-    flex-direction: ${direction};`;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-injectGlobal`
-  .group--header {
-    ${flex('row')}
-  }
-
-  .group-or-rule {
-    ${flex('column')}
-    .rule {
-      flex-direction: row;
-    }
-  }
-
-  .rule--body {
-    ${flex('row')}
-  }
-
-  .group--children {
-    ${flex('column')}
-  }
-
-  .group--conjunctions:empty {
-    display: none;
-  }
-`;

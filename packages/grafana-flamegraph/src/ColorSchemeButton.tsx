@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Menu } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
-import { byPackageGradient, byValueGradient, diffColorBlindGradient, diffDefaultGradient } from './FlameGraph/colors';
+import { colorSchemeButtonStyles } from './ColorSchemeButton.stylex';
 import { ColorScheme, ColorSchemeDiff } from './types';
 
 type ColorSchemeButtonProps = {
@@ -13,7 +13,6 @@ type ColorSchemeButtonProps = {
 };
 
 export function ColorSchemeButton(props: ColorSchemeButtonProps) {
-  const styles = useStyles2(getStyles);
   let menu = (
     <Menu>
       <Menu.Item label="By package name" onClick={() => props.onChange(ColorScheme.PackageBased)} />
@@ -21,16 +20,15 @@ export function ColorSchemeButton(props: ColorSchemeButtonProps) {
     </Menu>
   );
 
-  // Show a bit different gradient as a way to indicate selected value
   const colorDotStyle =
     {
-      [ColorScheme.ValueBased]: styles.colorDotByValue,
-      [ColorScheme.PackageBased]: styles.colorDotByPackage,
-      [ColorSchemeDiff.DiffColorBlind]: styles.colorDotDiffColorBlind,
-      [ColorSchemeDiff.Default]: styles.colorDotDiffDefault,
-    }[props.value] || styles.colorDotByValue;
+      [ColorScheme.ValueBased]: colorSchemeButtonStyles.colorDotByValue,
+      [ColorScheme.PackageBased]: colorSchemeButtonStyles.colorDotByPackage,
+      [ColorSchemeDiff.DiffColorBlind]: colorSchemeButtonStyles.colorDotDiffColorBlind,
+      [ColorSchemeDiff.Default]: colorSchemeButtonStyles.colorDotDiffDefault,
+    }[props.value] || colorSchemeButtonStyles.colorDotByValue;
 
-  let contents = <span className={cx(styles.colorDot, colorDotStyle)} />;
+  let contents = <span {...stylex.props(colorSchemeButtonStyles.colorDot, colorDotStyle)} />;
 
   if (props.isDiffMode) {
     menu = (
@@ -41,7 +39,7 @@ export function ColorSchemeButton(props: ColorSchemeButtonProps) {
     );
 
     contents = (
-      <div className={cx(styles.colorDotDiff, colorDotStyle)}>
+      <div {...stylex.props(colorSchemeButtonStyles.colorDotDiff, colorDotStyle)}>
         <div>-100% (removed)</div>
         <div>0%</div>
         <div>+100% (added)</div>
@@ -57,7 +55,7 @@ export function ColorSchemeButton(props: ColorSchemeButtonProps) {
         size={'sm'}
         tooltip={'Change color scheme'}
         onClick={() => {}}
-        className={styles.buttonSpacing}
+        className={mergeStylexClassName(stylex.props(colorSchemeButtonStyles.buttonSpacing)).className}
         aria-label={'Change color scheme'}
       >
         {contents}
@@ -65,47 +63,3 @@ export function ColorSchemeButton(props: ColorSchemeButtonProps) {
     </Dropdown>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonSpacing: css({
-    label: 'buttonSpacing',
-    marginRight: theme.spacing(1),
-  }),
-  colorDot: css({
-    label: 'colorDot',
-    display: 'inline-block',
-    width: '10px',
-    height: '10px',
-    borderRadius: theme.shape.radius.circle,
-  }),
-  colorDotDiff: css({
-    label: 'colorDotDiff',
-    display: 'flex',
-    width: '200px',
-    height: '12px',
-    color: 'white',
-    fontSize: 9,
-    lineHeight: 1.3,
-    fontWeight: 300,
-    justifyContent: 'space-between',
-    padding: '0 2px',
-    // eslint-disable-next-line @grafana/no-border-radius-literal
-    borderRadius: '2px',
-  }),
-  colorDotByValue: css({
-    label: 'colorDotByValue',
-    background: byValueGradient,
-  }),
-  colorDotByPackage: css({
-    label: 'colorDotByPackage',
-    background: byPackageGradient,
-  }),
-  colorDotDiffDefault: css({
-    label: 'colorDotDiffDefault',
-    background: diffDefaultGradient,
-  }),
-  colorDotDiffColorBlind: css({
-    label: 'colorDotDiffColorBlind',
-    background: diffColorBlindGradient,
-  }),
-});

@@ -1,8 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type DisplayValue, getValueFormat, type GrafanaTheme2, type ValueFormatter } from '@grafana/data';
-import { InteractiveTable, Portal, useStyles2, VizTooltipContainer } from '@grafana/ui';
+import { type DisplayValue, getValueFormat, type ValueFormatter } from '@grafana/data';
+import { InteractiveTable, Portal, VizTooltipContainer } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
+import { flameGraphTooltipStyles } from './FlameGraphTooltip.stylex';
 import { type CollapseConfig, type FlameGraphDataContainer, type LevelItem } from './dataTransform';
 
 type Props = {
@@ -14,8 +16,6 @@ type Props = {
 };
 
 const FlameGraphTooltip = ({ data, item, totalTicks, position, collapseConfig }: Props) => {
-  const styles = useStyles2(getStyles);
-
   if (!(item && position)) {
     return null;
   }
@@ -26,7 +26,7 @@ const FlameGraphTooltip = ({ data, item, totalTicks, position, collapseConfig }:
     const tableData = getDiffTooltipData(data, item, totalTicks);
     content = (
       <InteractiveTable
-        className={styles.tooltipTable}
+        className={mergeStylexClassName(stylex.props(flameGraphTooltipStyles.tooltipTable)).className}
         columns={[
           { id: 'label', header: '' },
           { id: 'baseline', header: 'Baseline' },
@@ -40,7 +40,7 @@ const FlameGraphTooltip = ({ data, item, totalTicks, position, collapseConfig }:
   } else {
     const tooltipData = getTooltipData(data, item, totalTicks);
     content = (
-      <p className={styles.lastParagraph}>
+      <p {...stylex.props(flameGraphTooltipStyles.lastParagraph)}>
         {tooltipData.unitTitle}
         <br />
         Total: <b>{tooltipData.unitValue}</b> ({tooltipData.percentValue}%)
@@ -54,9 +54,13 @@ const FlameGraphTooltip = ({ data, item, totalTicks, position, collapseConfig }:
 
   return (
     <Portal>
-      <VizTooltipContainer className={styles.tooltipContainer} position={position} offset={{ x: 15, y: 0 }}>
-        <div className={styles.tooltipContent}>
-          <p className={styles.tooltipName}>
+      <VizTooltipContainer
+        className={mergeStylexClassName(stylex.props(flameGraphTooltipStyles.tooltipContainer)).className}
+        position={position}
+        offset={{ x: 15, y: 0 }}
+      >
+        <div {...stylex.props(flameGraphTooltipStyles.tooltipContent)}>
+          <p {...stylex.props(flameGraphTooltipStyles.tooltipName)}>
             {data.getLabel(item.itemIndexes[0])}
             {collapseConfig && collapseConfig.collapsed ? (
               <span>
@@ -185,34 +189,5 @@ function getValueWithUnit(data: FlameGraphDataContainer, displayValue: DisplayVa
   return unitValue;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tooltipContainer: css({
-    title: 'tooltipContainer',
-    overflow: 'hidden',
-  }),
-  tooltipContent: css({
-    title: 'tooltipContent',
-    fontSize: theme.typography.bodySmall.fontSize,
-    width: '100%',
-  }),
-  tooltipName: css({
-    title: 'tooltipName',
-    marginTop: 0,
-    wordBreak: 'break-all',
-  }),
-  lastParagraph: css({
-    title: 'lastParagraph',
-    marginBottom: 0,
-  }),
-  name: css({
-    title: 'name',
-    marginBottom: '10px',
-  }),
-
-  tooltipTable: css({
-    title: 'tooltipTable',
-    maxWidth: '400px',
-  }),
-});
 
 export default FlameGraphTooltip;

@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, useMemo, useEffect } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
 
 import { formattedValueToString, getValueFormat, type TimeRange } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Spinner, useTheme2 } from '@grafana/ui';
+import { Icon, Spinner } from '@grafana/ui';
 
 import { type DB, type SQLQuery, type ValidationResults } from '../../types';
+import { sqlEditorStyles } from '../sqlComponents.stylex';
 
 export interface QueryValidatorProps {
   db: DB;
@@ -17,24 +18,7 @@ export interface QueryValidatorProps {
 
 export function QueryValidator({ db, query, onValidate, range }: QueryValidatorProps) {
   const [validationResult, setValidationResult] = useState<ValidationResults | null>();
-  const theme = useTheme2();
   const valueFormatter = useMemo(() => getValueFormat('bytes'), []);
-
-  const styles = useMemo(() => {
-    return {
-      error: css({
-        color: theme.colors.error.text,
-        fontSize: theme.typography.bodySmall.fontSize,
-        fontFamily: theme.typography.fontFamilyMonospace,
-      }),
-      valid: css({
-        color: theme.colors.success.text,
-      }),
-      info: css({
-        color: theme.colors.text.secondary,
-      }),
-    };
-  }, [theme]);
 
   const [state, validateQuery] = useAsyncFn(
     async (q: SQLQuery) => {
@@ -78,7 +62,7 @@ export function QueryValidator({ db, query, onValidate, range }: QueryValidatorP
   return (
     <>
       {state.loading && (
-        <div className={styles.info}>
+        <div {...stylex.props(sqlEditorStyles.validatorInfo)}>
           <Spinner inline={true} size="xs" />{' '}
           <Trans i18nKey="grafana-sql.components.query-validator.validating-query">Validating query...</Trans>
         </div>
@@ -87,7 +71,7 @@ export function QueryValidator({ db, query, onValidate, range }: QueryValidatorP
         <>
           <>
             {state.value.isValid && state.value.statistics && (
-              <div className={styles.valid}>
+              <div {...stylex.props(sqlEditorStyles.validatorValid)}>
                 <Trans
                   i18nKey="grafana-sql.components.query-validator.query-will-process"
                   values={{ bytes: formattedValueToString(valueFormatter(state.value.statistics.TotalBytesProcessed)) }}
@@ -98,7 +82,7 @@ export function QueryValidator({ db, query, onValidate, range }: QueryValidatorP
             )}
           </>
 
-          <>{state.value.isError && <div className={styles.error}>{error}</div>}</>
+          <>{state.value.isError && <div {...stylex.props(sqlEditorStyles.validatorError)}>{error}</div>}</>
         </>
       )}
     </>

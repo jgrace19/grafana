@@ -1,8 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Row, type UseExpandedRowProps } from 'react-table';
 
 import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { functionCellStyles } from './FunctionCellWithExpander.stylex';
 
 import { type CallTreeNode } from './utils';
 
@@ -27,7 +30,6 @@ export function FunctionCellWithExpander({
   compact?: boolean;
   toggleRowExpanded: (id: string[], value?: boolean) => void;
 }) {
-  const styles = useStyles2(getStyles);
 
   const expandSingleChildChain = (node: CallTreeNode) => {
     if (node.children?.length === 1) {
@@ -128,14 +130,14 @@ export function FunctionCellWithExpander({
   const connector = buildTreeConnector();
 
   return (
-    <div className={styles.functionCellContainer}>
-      {connector && <span className={styles.treeConnector}>{connector} </span>}
-      <span className={styles.functionNameWrapper}>
-        <Button fill="text" size="sm" onClick={handleClick} className={styles.functionButton}>
+    <div {...stylex.props(functionCellStyles.functionCellContainer)}>
+      {connector && <span {...stylex.props(functionCellStyles.treeConnector)}>{connector} </span>}
+      <span {...stylex.props(functionCellStyles.functionNameWrapper)}>
+        <Button fill="text" size="sm" onClick={handleClick} className={mergeStylexClassName(stylex.props(functionCellStyles.functionButton)).className}>
           {value}
         </Button>
         {!compact && row.original.children && row.original.children.length > 0 && (
-          <span className={styles.nodeBadge}>
+          <span {...stylex.props(functionCellStyles.nodeBadge)}>
             {row.original.children.length} {row.original.children.length === 1 ? 'child' : 'children'},{' '}
             {row.original.subtreeSize} {row.original.subtreeSize === 1 ? 'node' : 'nodes'}
           </span>
@@ -145,49 +147,3 @@ export function FunctionCellWithExpander({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    functionCellContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: '2px',
-      height: '20px',
-      lineHeight: '1',
-      overflow: 'hidden',
-      minWidth: 0,
-    }),
-    treeConnector: css({
-      color: theme.colors.text.secondary,
-      fontSize: '16px',
-      lineHeight: '1',
-      fontFamily: 'monospace',
-      whiteSpace: 'pre',
-      display: 'inline-block',
-      verticalAlign: 'middle',
-      flexShrink: 0,
-    }),
-    functionNameWrapper: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      overflow: 'hidden',
-      minWidth: 0,
-    }),
-    functionButton: css({
-      padding: 0,
-      fontSize: theme.typography.fontSize,
-      textAlign: 'left',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      minWidth: 0,
-      flexShrink: 1,
-    }),
-    nodeBadge: css({
-      marginLeft: theme.spacing(0.5),
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-    }),
-  };
-}

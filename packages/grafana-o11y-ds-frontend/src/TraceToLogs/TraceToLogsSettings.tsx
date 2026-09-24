@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { o11yFullWidth } from '../o11ySettings.stylex';
 import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 
@@ -113,7 +115,7 @@ export function TraceToLogsSettings({ options, onOptionsChange }: Props) {
   );
 
   return (
-    <div className={css({ width: '100%' })}>
+    <div {...stylex.props(o11yFullWidth.fullWidth)}>
       <InlineFieldRow>
         <InlineField
           tooltip="The logs data source the trace is going to navigate to"

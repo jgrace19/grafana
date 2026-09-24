@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
@@ -10,6 +12,9 @@ import VirtualModulesPlugin from 'webpack-virtual-modules';
 
 import { DIST_DIR } from './constants.ts';
 import { getPackageJson, getPluginJson, getEntries, hasLicense } from './utils.ts';
+
+const require = createRequire(import.meta.url);
+const { stylexWebpackPlugin } = require('../../scripts/webpack/stylex.webpack.js');
 
 function skipFiles(f: string): boolean {
   if (f.includes('/dist/')) {
@@ -241,6 +246,7 @@ const config = async (env: Env): Promise<Configuration> => {
     },
 
     plugins: [
+      stylexWebpackPlugin({ dev: !env.production }),
       virtualPublicPath,
       // Insert create plugin version information into the bundle so Grafana will load from cdn with script tags.
       new webpack.BannerPlugin({

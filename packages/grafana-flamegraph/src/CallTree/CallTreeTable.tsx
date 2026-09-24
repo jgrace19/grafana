@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import {
   type Row,
@@ -9,9 +9,10 @@ import {
   type TableBodyProps,
 } from 'react-table';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
+import { callTreeTableStyles } from './CallTreeTable.stylex';
 import { type CallTreeNode } from './utils';
 
 type CallTreeTableProps = {
@@ -51,7 +52,6 @@ export function CallTreeTable({
   focusedNodeId,
   callersNodeLabel,
 }: CallTreeTableProps) {
-  const styles = useStyles2(getStyles);
   const SCROLLBAR_WIDTH = 16;
   const availableWidth = width - SCROLLBAR_WIDTH;
   const shouldBeCompact = availableWidth > 0 && availableWidth < compactModeThreshold;
@@ -71,10 +71,18 @@ export function CallTreeTable({
     return null;
   }
 
+  const fixedTableProps = getTableProps();
+  const scrollTableProps = getTableProps();
+  const bodyProps = getTableBodyProps();
+
   return (
     <div style={{ width, height, display: 'flex', flexDirection: 'column' }}>
-      <table {...getTableProps()} className={styles.table} style={{ flexShrink: 0 }}>
-        <thead className={styles.thead}>
+      <table
+        {...fixedTableProps}
+        {...mergeStylexClassName(stylex.props(callTreeTableStyles.table), fixedTableProps.className)}
+        style={{ flexShrink: 0, ...(fixedTableProps.style as object) }}
+      >
+        <thead {...stylex.props(callTreeTableStyles.thead)}>
           {headerGroups.map((headerGroup) => {
             const { key, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
             return (
@@ -86,7 +94,7 @@ export function CallTreeTable({
                     <th
                       key={headerKey}
                       {...headerProps}
-                      className={styles.th}
+                      {...mergeStylexClassName(stylex.props(callTreeTableStyles.th), headerProps.className)}
                       style={{
                         ...(columnWidth !== undefined && { width: columnWidth }),
                         textAlign: column.id === 'self' || column.id === 'total' ? 'right' : undefined,
@@ -98,7 +106,7 @@ export function CallTreeTable({
                         <Icon
                           name={column.isSortedDesc ? 'arrow-down' : 'arrow-up'}
                           size="lg"
-                          className={styles.sortIcon}
+                          className={stylex.props(callTreeTableStyles.sortIcon).className}
                         />
                       )}
                     </th>
@@ -112,10 +120,16 @@ export function CallTreeTable({
       <div
         ref={scrollContainerRef}
         style={{ flex: 1, overflowY: 'scroll', overflowX: 'auto' }}
-        className={styles.scrollContainer}
+        {...stylex.props(callTreeTableStyles.scrollContainer)}
       >
-        <table {...getTableProps()} className={styles.table}>
-          <tbody {...getTableBodyProps()} className={styles.tbody}>
+        <table
+          {...scrollTableProps}
+          {...mergeStylexClassName(stylex.props(callTreeTableStyles.table), scrollTableProps.className)}
+        >
+          <tbody
+            {...bodyProps}
+            {...mergeStylexClassName(stylex.props(callTreeTableStyles.tbody), bodyProps.className)}
+          >
             {rows.map((row, rowIndex) => {
               prepareRow(row);
               const { key, ...rowProps } = row.getRowProps();
@@ -128,13 +142,17 @@ export function CallTreeTable({
                   key={key}
                   {...rowProps}
                   ref={isSearchMatchRow ? searchMatchRowRef : null}
-                  className={cx(
-                    styles.tr,
-                    (isFocusedRow ||
-                      (focusedNodeId?.startsWith('label:') && focusedNodeId.substring(6) === row.original.label)) &&
-                      styles.focusedRow,
-                    isCallersTargetRow && styles.callersTargetRow,
-                    isSearchMatchRow && styles.searchMatchRow
+                  {...mergeStylexClassName(
+                    stylex.props(
+                      callTreeTableStyles.tr,
+                      (isFocusedRow ||
+                        (focusedNodeId?.startsWith('label:') &&
+                          focusedNodeId.substring(6) === row.original.label)) &&
+                        callTreeTableStyles.focusedRow,
+                      isCallersTargetRow && callTreeTableStyles.callersTargetRow,
+                      isSearchMatchRow && callTreeTableStyles.searchMatchRow
+                    ),
+                    rowProps.className
                   )}
                 >
                   {row.cells.map((cell) => {
@@ -146,10 +164,13 @@ export function CallTreeTable({
                       <td
                         key={cellKey}
                         {...cellProps}
-                        className={cx(
-                          styles.td,
-                          isActionsColumn && styles.actionsColumnCell,
-                          isValueColumn && styles.valueColumnCell
+                        {...mergeStylexClassName(
+                          stylex.props(
+                            callTreeTableStyles.td,
+                            isActionsColumn && callTreeTableStyles.actionsColumnCell,
+                            isValueColumn && callTreeTableStyles.valueColumnCell
+                          ),
+                          cellProps.className
                         )}
                         style={{
                           ...(columnWidth !== undefined && { width: columnWidth }),
@@ -170,96 +191,3 @@ export function CallTreeTable({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    scrollContainer: css({
-      '&::-webkit-scrollbar': {
-        width: '8px',
-      },
-      '&::-webkit-scrollbar-track': {
-        background: theme.colors.background.secondary,
-      },
-      '&::-webkit-scrollbar-thumb': {
-        background: theme.colors.text.disabled,
-        borderRadius: theme.shape.radius.default,
-      },
-      '&::-webkit-scrollbar-thumb:hover': {
-        background: theme.colors.text.secondary,
-      },
-    }),
-    table: css({
-      width: '100%',
-      tableLayout: 'fixed',
-      borderCollapse: 'collapse',
-      fontSize: theme.typography.fontSize,
-      color: theme.colors.text.primary,
-    }),
-    thead: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-    th: css({
-      padding: '4px 6px',
-      height: '36px',
-      textAlign: 'left',
-      fontWeight: theme.typography.fontWeightMedium,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      cursor: 'pointer',
-      userSelect: 'none',
-      '&:hover': {
-        backgroundColor: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-      },
-    }),
-    tbody: css({
-      backgroundColor: theme.colors.background.primary,
-    }),
-    tr: css({
-      '&:hover': {
-        backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.03),
-      },
-    }),
-    focusedRow: css({
-      backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.08),
-      borderLeft: `3px solid ${theme.colors.primary.main}`,
-      fontWeight: theme.typography.fontWeightMedium,
-      '&:hover': {
-        backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.1),
-      },
-    }),
-    callersTargetRow: css({
-      backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.08),
-      borderLeft: `3px solid ${theme.colors.info.main}`,
-      fontWeight: theme.typography.fontWeightMedium,
-      '&:hover': {
-        backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.1),
-      },
-    }),
-    searchMatchRow: css({
-      backgroundColor: theme.colors.warning.transparent,
-      borderLeft: `3px solid ${theme.colors.warning.main}`,
-      fontWeight: theme.typography.fontWeightMedium,
-      '&:hover': {
-        backgroundColor: theme.colors.emphasize(theme.colors.warning.transparent, 0.1),
-      },
-    }),
-    td: css({
-      padding: '0px 6px',
-      borderBottom: 'none',
-      height: '20px',
-      verticalAlign: 'middle',
-      overflow: 'hidden',
-    }),
-    sortIcon: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-    actionsColumnCell: css({
-      backgroundColor: theme.colors.background.secondary,
-      '&:hover': {
-        backgroundColor: theme.colors.background.secondary,
-      },
-    }),
-    valueColumnCell: css({
-      overflow: 'visible',
-      textAlign: 'right',
-    }),
-  };
-}

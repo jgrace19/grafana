@@ -16,11 +16,11 @@
 // OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 // TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 // THIS SOFTWARE.
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, ButtonGroup, Icon, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Button, ButtonGroup, Icon, RadioButtonGroup } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { ColorSchemeButton } from '../ColorSchemeButton';
 import { alignOptions } from '../FlameGraphHeader';
@@ -35,6 +35,7 @@ import {
   type TextAlign,
 } from '../types';
 
+import { flameGraphStyles } from './FlameGraph.stylex';
 import FlameGraphCanvas from './FlameGraphCanvas';
 import { type GetExtraContextMenuButtonsFunction } from './FlameGraphContextMenu';
 import FlameGraphMetadata from './FlameGraphMetadata';
@@ -104,8 +105,7 @@ const FlameGraph = ({
   isDiffMode,
 }: Props) => {
   const isNewUI = enableNewUI === true;
-  const newStyles = useStyles2(getStylesNew);
-  const legacyStyles = getStylesLegacy();
+  const sandwichMargin = `${PIXELS_PER_LEVEL / window.devicePixelRatio}px`;
 
   const [levels, setLevels] = useState<LevelItem[][]>();
   const [levelsCallers, setLevelsCallers] = useState<LevelItem[][]>();
@@ -167,16 +167,13 @@ const FlameGraph = ({
   };
   let canvas = null;
 
-  // Both style objects share sandwich/canvas styles, pick the right one based on mode.
-  const canvasStyles = isNewUI ? newStyles : legacyStyles;
-
   if (levelsCallers?.length) {
     canvas = (
       <>
-        <div className={canvasStyles.sandwichCanvasWrapper}>
-          <div className={canvasStyles.sandwichMarker}>
+        <div {...stylex.props(flameGraphStyles.sandwichCanvasWrapper)} style={{ marginBottom: sandwichMargin }}>
+          <div {...stylex.props(flameGraphStyles.sandwichMarker)}>
             Callers
-            <Icon className={canvasStyles.sandwichMarkerIcon} name={'arrow-down'} />
+            <Icon className={mergeStylexClassName(stylex.props(flameGraphStyles.sandwichMarkerIcon)).className} name={'arrow-down'} />
           </div>
           <FlameGraphCanvas
             {...commonCanvasProps}
@@ -188,9 +185,9 @@ const FlameGraph = ({
           />
         </div>
 
-        <div className={canvasStyles.sandwichCanvasWrapper}>
-          <div className={cx(canvasStyles.sandwichMarker, canvasStyles.sandwichMarkerCalees)}>
-            <Icon className={canvasStyles.sandwichMarkerIcon} name={'arrow-up'} />
+        <div {...stylex.props(flameGraphStyles.sandwichCanvasWrapper)} style={{ marginBottom: sandwichMargin }}>
+          <div {...stylex.props(flameGraphStyles.sandwichMarker, flameGraphStyles.sandwichMarkerCalees)}>
+            <Icon className={mergeStylexClassName(stylex.props(flameGraphStyles.sandwichMarkerIcon)).className} name={'arrow-up'} />
             Callees
           </div>
           <FlameGraphCanvas
@@ -211,8 +208,8 @@ const FlameGraph = ({
 
   if (isNewUI) {
     return (
-      <div className={newStyles.graph}>
-        <div className={newStyles.toolbar}>
+      <div {...stylex.props(flameGraphStyles.graph)}>
+        <div {...stylex.props(flameGraphStyles.toolbar)}>
           <FlameGraphMetadata
             data={data}
             focusedItem={focusedItemData}
@@ -221,11 +218,11 @@ const FlameGraph = ({
             onFocusPillClick={onFocusPillClick}
             onSandwichPillClick={onSandwichPillClick}
           />
-          <div className={newStyles.controls}>
+          <div {...stylex.props(flameGraphStyles.controls)}>
             {onColorSchemeChange && (
               <ColorSchemeButton value={colorScheme} onChange={onColorSchemeChange} isDiffMode={isDiffMode ?? false} />
             )}
-            <ButtonGroup className={newStyles.buttonSpacing}>
+            <ButtonGroup className={mergeStylexClassName(stylex.props(flameGraphStyles.buttonSpacing)).className}>
               <Button
                 variant={'secondary'}
                 fill={'outline'}
@@ -265,7 +262,7 @@ const FlameGraph = ({
   }
 
   return (
-    <div className={legacyStyles.graph}>
+    <div {...stylex.props(flameGraphStyles.graph)}>
       <FlameGraphMetadata
         data={data}
         focusedItem={focusedItemData}
@@ -279,78 +276,5 @@ const FlameGraph = ({
   );
 };
 
-const getStylesLegacy = () => ({
-  graph: css({
-    label: 'graph',
-    overflow: 'auto',
-    flexGrow: 1,
-    flexBasis: '50%',
-  }),
-  sandwichCanvasWrapper: css({
-    label: 'sandwichCanvasWrapper',
-    display: 'flex',
-    marginBottom: `${PIXELS_PER_LEVEL / window.devicePixelRatio}px`,
-  }),
-  sandwichMarker: css({
-    label: 'sandwichMarker',
-    writingMode: 'vertical-lr',
-    transform: 'rotate(180deg)',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-  }),
-  sandwichMarkerCalees: css({
-    label: 'sandwichMarkerCalees',
-    textAlign: 'right',
-  }),
-  sandwichMarkerIcon: css({
-    label: 'sandwichMarkerIcon',
-    verticalAlign: 'baseline',
-  }),
-});
-
-const getStylesNew = (theme: GrafanaTheme2) => ({
-  graph: css({
-    label: 'graph',
-    overflow: 'auto',
-    flexGrow: 1,
-    flexBasis: '50%',
-  }),
-  toolbar: css({
-    label: 'toolbar',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-  controls: css({
-    label: 'controls',
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  buttonSpacing: css({
-    label: 'buttonSpacing',
-    marginRight: theme.spacing(1),
-  }),
-  sandwichCanvasWrapper: css({
-    label: 'sandwichCanvasWrapper',
-    display: 'flex',
-    marginBottom: `${PIXELS_PER_LEVEL / window.devicePixelRatio}px`,
-  }),
-  sandwichMarker: css({
-    label: 'sandwichMarker',
-    writingMode: 'vertical-lr',
-    transform: 'rotate(180deg)',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-  }),
-  sandwichMarkerCalees: css({
-    label: 'sandwichMarkerCalees',
-    textAlign: 'right',
-  }),
-  sandwichMarkerIcon: css({
-    label: 'sandwichMarkerIcon',
-    verticalAlign: 'baseline',
-  }),
-});
 
 export default FlameGraph;

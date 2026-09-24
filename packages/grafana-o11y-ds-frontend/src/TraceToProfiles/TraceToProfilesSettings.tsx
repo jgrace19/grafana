@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { o11yFullWidth } from '../o11ySettings.stylex';
 import { useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -62,7 +64,7 @@ export function TraceToProfilesSettings({ options, onOptionsChange }: Props) {
   }, [pTypes]);
 
   return (
-    <div className={css({ width: '100%' })}>
+    <div {...stylex.props(o11yFullWidth.fullWidth)}>
       <InlineFieldRow>
         <InlineField
           tooltip="The profiles data source the trace is going to navigate to"

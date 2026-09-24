@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import {
   type DataSourceJsonData,
@@ -8,7 +8,10 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { ConfigDescriptionLink, ConfigSubSection } from '@grafana/plugin-ui';
-import { InlineField, InlineFieldRow, Input, Select, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Input, Select } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { o11yFullWidth, o11yInfoTextStyles } from '../o11ySettings.stylex';
 
 export interface SpanBarOptions {
   type?: string;
@@ -26,12 +29,12 @@ export const TAG = 'Tag';
 interface Props extends DataSourcePluginOptionsEditorProps<SpanBarOptionsData> {}
 
 export default function SpanBarSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
   const selectOptions = [NONE, DURATION, TAG].map(toOption);
+  const rowClassName = mergeStylexClassName(stylex.props(o11yInfoTextStyles.row)).className;
 
   return (
-    <div className={css({ width: '100%' })}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(o11yFullWidth.fullWidth)}>
+      <InlineFieldRow className={rowClassName}>
         <InlineField label="Label" labelWidth={26} tooltip="Default: duration" grow>
           <Select
             inputId="label"
@@ -51,7 +54,7 @@ export default function SpanBarSettings({ options, onOptionsChange }: Props) {
         </InlineField>
       </InlineFieldRow>
       {options.jsonData.spanBar?.type === TAG && (
-        <InlineFieldRow className={styles.row}>
+        <InlineFieldRow className={rowClassName}>
           <InlineField
             label="Tag key"
             labelWidth={26}
@@ -96,14 +99,3 @@ export const SpanBarSection = ({ options, onOptionsChange }: DataSourcePluginOpt
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    label: 'infoText',
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-});
