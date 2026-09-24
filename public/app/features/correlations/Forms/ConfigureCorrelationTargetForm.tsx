@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
 import { Controller, type FieldError, useFormContext, useWatch } from 'react-hook-form';
 
-import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type CorrelationExternal } from '@grafana/runtime';
-import { Field, FieldSet, Input, Select, useStyles2 } from '@grafana/ui';
+import { Field, FieldSet, Input, Select } from '@grafana/ui';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { type CorrelationType } from '../types';
+
+import './ConfigureCorrelationTargetForm.css';
 
 import { QueryEditorField } from './QueryEditorField';
 import { useCorrelationsFormContext } from './correlationsFormContext';
@@ -32,12 +33,6 @@ export const CORR_TYPES_SELECT: Record<CorrelationType, CorrelationTypeOptions> 
   },
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  typeSelect: css({
-    maxWidth: theme.spacing(40),
-  }),
-});
-
 export const ConfigureCorrelationTargetForm = () => {
   const {
     control,
@@ -48,7 +43,6 @@ export const ConfigureCorrelationTargetForm = () => {
   const targetUIDFromCorrelation = correlation && 'targetUID' in correlation ? correlation.targetUID : undefined;
   const targetUID: string | undefined = useWatch({ name: 'targetUID' }) || targetUIDFromCorrelation;
   const correlationType: CorrelationType | undefined = useWatch({ name: 'type' }) || correlation?.type;
-  const styles = useStyles2(getStyles);
 
   return (
     <>
@@ -73,7 +67,7 @@ export const ConfigureCorrelationTargetForm = () => {
               invalid={!!errors.type}
             >
               <Select
-                className={styles.typeSelect}
+                className="gf-correlation-type-select"
                 value={correlationType}
                 onChange={(value) => onChange(value.value)}
                 options={Object.values(CORR_TYPES_SELECT)}

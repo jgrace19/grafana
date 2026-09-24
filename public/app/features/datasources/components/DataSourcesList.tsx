@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type DataSourceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, useFavoriteDatasources, type FavoriteDatasources } from '@grafana/runtime';
-import { EmptyState, LinkButton, TextLink, useStyles2 } from '@grafana/ui';
+import { EmptyState, LinkButton, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -73,7 +74,6 @@ export function DataSourcesListView({
   handleFavoritesCheckboxChange,
   favoriteDataSources,
 }: ViewProps) {
-  const styles = useStyles2(getStyles);
   const location = useLocation();
   const { datasourceFailureByUID } = useDatasourceFailureByUID();
   const favoritesCheckbox =
@@ -156,18 +156,16 @@ export function DataSourcesListView({
       {dataSources.length === 0 && !isLoading ? (
         <EmptyState variant="not-found" message={t('data-sources.empty-state.message', 'No data sources found')} />
       ) : (
-        <ul className={styles.list}>{getDataSourcesList()}</ul>
+        <ul {...stylex.props(styles.list)}>{getDataSourcesList()}</ul>
       )}
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    list: css({
-      listStyle: 'none',
-      display: 'grid',
-      gap: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  list: {
+    listStyle: 'none',
+    display: 'grid',
+    gap: spacing['--gf-spacing-x1'],
+  },
+});

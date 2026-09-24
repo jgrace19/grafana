@@ -1,21 +1,19 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import * as React from 'react';
 import { type Observable } from 'rxjs';
 
-import {
-  type DataSourceInstanceSettings,
-  type DataSourceJsonData,
-  type DataSourceRef,
-  type GrafanaTheme2,
-} from '@grafana/data';
+import { type DataSourceInstanceSettings, type DataSourceJsonData, type DataSourceRef } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { type FavoriteDatasources, getTemplateSrv } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useDatasources, useRecentlyUsedDataSources } from '../../hooks';
 
+import './DataSourceList.css';
 import { AddNewDataSourceButton } from './AddNewDataSourceButton';
 import { StaticList } from './StaticList';
 import { VirtualizedList } from './VirtualizedList';
@@ -34,6 +32,8 @@ const VIRTUALIZATION_THRESHOLD = 100;
  */
 export interface DataSourceListProps {
   className?: string;
+  /** @internal first-party StyleX overrides */
+  xstyle?: StyleXStyles;
   onChange: (ds: DataSourceInstanceSettings) => void;
   current: DataSourceRef | DataSourceInstanceSettings | string | null | undefined;
   /** Would be nicer if these parameters were part of a filtering object */
@@ -62,10 +62,9 @@ export interface DataSourceListProps {
 }
 
 export function DataSourceList(props: DataSourceListProps) {
-  const styles = useStyles2(getStyles);
-
   const {
     className,
+    xstyle,
     current,
     onChange,
     enableKeyboardNavigation,
@@ -90,8 +89,13 @@ export function DataSourceList(props: DataSourceListProps) {
   };
 
   return (
-    <div className={cx(className, styles.container)} data-testid={selectors.components.DataSourcePicker.dataSourceList}>
-      {sortedDataSources.length === 0 && <EmptyState className={styles.emptyState} onClickCTA={onClickEmptyStateCTA} />}
+    <div
+      {...mergeStylexProps(stylex.props(xstyle, styles.container), {
+        className: `gf-data-source-list ${className ?? ''}`.trim(),
+      })}
+      data-testid={selectors.components.DataSourcePicker.dataSourceList}
+    >
+      {sortedDataSources.length === 0 && <EmptyState xstyle={styles.emptyState} onClickCTA={onClickEmptyStateCTA} />}
       {sortedDataSources.length > 0 && shouldVirtualize && <VirtualizedList {...sharedProps} />}
       {sortedDataSources.length > 0 && !shouldVirtualize && <StaticList {...sharedProps} />}
     </div>
@@ -136,11 +140,10 @@ function useSortedDataSources(
   );
 }
 
-function EmptyState({ className, onClickCTA }: { className?: string; onClickCTA?: () => void }) {
-  const styles = useStyles2(getEmptyStateStyles);
+function EmptyState({ xstyle, onClickCTA }: { xstyle?: StyleXStyles; onClickCTA?: () => void }) {
   return (
-    <div className={cx(className, styles.container)}>
-      <p className={styles.message}>
+    <div {...stylex.props(xstyle, emptyStateStyles.container)}>
+      <p {...stylex.props(emptyStateStyles.message)}>
         <Trans i18nKey="data-source-picker.list.no-data-source-message">No data sources found</Trans>
       </p>
       <AddNewDataSourceButton onClick={onClickCTA} />
@@ -148,19 +151,17 @@ function EmptyState({ className, onClickCTA }: { className?: string; onClickCTA?
   );
 }
 
-function getEmptyStateStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }),
-    message: css({
-      marginBottom: theme.spacing(3),
-    }),
-  };
-}
+const emptyStateStyles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  message: {
+    marginBottom: spacing['--gf-spacing-x3'],
+  },
+});
 
 function getDataSourceVariableIDs() {
   const templateSrv = getTemplateSrv();
@@ -171,19 +172,17 @@ function getDataSourceVariableIDs() {
     .map((v) => `\${${v.id}}`);
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0.5),
-      '[data-selecteditem="true"]': {
-        backgroundColor: theme.colors.action.focus,
-      },
-    }),
-    emptyState: css({
-      height: '100%',
-      flex: 1,
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  emptyState: {
+    height: '100%',
+    flex: '1',
+  },
+});

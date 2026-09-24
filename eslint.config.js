@@ -221,6 +221,10 @@ const stylexNotMigratedAppFiles = [
   'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
   'public/app/core/components/SplashScreenModal/{SplashScreenNav,SplashScreenSlide}.tsx',
   'public/app/core/components/TagFilter/*.{ts,tsx}',
+  // M1 datasources, connections, correlations
+  'public/app/features/datasources/**/*.{ts,tsx}',
+  'public/app/features/connections/**/*.{ts,tsx}',
+  'public/app/features/correlations/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 
 import {
   type DataSourceSettings as DataSourceSettingsType,
-  type GrafanaTheme2,
   PluginExtensionPoints,
   type PluginExtensionLink,
   type PluginExtensionDataSourceConfigStatusContext,
@@ -18,7 +17,9 @@ import {
   usePluginComponents,
   renderLimitedComponents,
 } from '@grafana/runtime';
-import { type AlertVariant, Alert, useTheme2, Link, useStyles2, Spinner } from '@grafana/ui';
+import { type AlertVariant, Alert, Link, Spinner } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { CONTENT_KINDS, SOURCE_ENTRY_POINTS } from 'app/features/dashboard/dashgrid/DashboardLibrary/constants';
 import { DashboardLibraryInteractions } from 'app/features/dashboard/dashgrid/DashboardLibrary/interactions';
@@ -45,26 +46,6 @@ interface AlertMessageProps extends HTMLAttributes<HTMLDivElement> {
   extensionLinks?: PluginExtensionLink[];
 }
 
-const getStyles = (theme: GrafanaTheme2, hasTitle: boolean) => {
-  return {
-    content: css({
-      color: theme.colors.text.secondary,
-      paddingTop: hasTitle ? theme.spacing(1) : 0,
-      maxHeight: '50vh',
-      overflowY: 'auto',
-    }),
-    disabled: css({
-      pointerEvents: 'none',
-      color: theme.colors.text.secondary,
-    }),
-    extensionLinks: css({
-      display: 'inline-flex',
-      marginTop: theme.spacing(0.5),
-      gap: theme.spacing(1),
-    }),
-  };
-};
-
 const AlertSuccessMessage = ({
   title,
   exploreUrl,
@@ -73,14 +54,14 @@ const AlertSuccessMessage = ({
   onSuggestedDashboardsClick,
   onDashboardLinkClicked,
 }: AlertMessageProps) => {
-  const theme = useTheme2();
-
   const hasTitle = Boolean(title);
-  const styles = getStyles(theme, hasTitle);
   const canExploreDataSources = contextSrv.hasAccessToExplore();
+  const exploreLinkProps = mergeStylexProps(stylex.props(!canExploreDataSources && styles.disabled), {
+    className: canExploreDataSources ? 'external-link' : 'external-link test-disabled',
+  });
 
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(styles.content, hasTitle && styles.contentWithTitle)}>
       {config.featureToggles.suggestedDashboards && hasDashboards ? (
         <Trans i18nKey="data-source-testing-status-page.success-more-details-links">
           Next, you can start to visualize data by{' '}
@@ -107,10 +88,7 @@ const AlertSuccessMessage = ({
           or by querying data in the{' '}
           <Link
             aria-label={t('datasources.alert-success-message.aria-label-explore-data', 'Explore data')}
-            className={cx('external-link', {
-              [`${styles.disabled}`]: !canExploreDataSources,
-              'test-disabled': !canExploreDataSources,
-            })}
+            {...exploreLinkProps}
             href={exploreUrl}
           >
             Explore view
@@ -131,10 +109,7 @@ const AlertSuccessMessage = ({
           or by querying data in the{' '}
           <Link
             aria-label={t('datasources.alert-success-message.aria-label-explore-data', 'Explore data')}
-            className={cx('external-link', {
-              [`${styles.disabled}`]: !canExploreDataSources,
-              'test-disabled': !canExploreDataSources,
-            })}
+            {...exploreLinkProps}
             href={exploreUrl}
           >
             Explore view
@@ -153,16 +128,6 @@ interface ErrorDetailsLinkProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const ErrorDetailsLink = ({ link }: ErrorDetailsLinkProps) => {
-  const theme = useTheme2();
-
-  const styles = {
-    content: css({
-      color: theme.colors.text.secondary,
-      paddingBlock: theme.spacing(1),
-      maxHeight: '50vh',
-      overflowY: 'auto',
-    }),
-  };
   if (!link) {
     return <></>;
   }
@@ -171,7 +136,7 @@ const ErrorDetailsLink = ({ link }: ErrorDetailsLinkProps) => {
     return <></>;
   }
   return (
-    <div className={styles.content}>
+    <div {...stylex.props(styles.errorDetailsContent)}>
       <Trans i18nKey="data-source-testing-status-page.error-more-details-link">
         Click{' '}
         <Link
@@ -217,7 +182,6 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
       path: window.location.pathname,
     });
   };
-  const styles = useStyles2(getTestingStatusStyles);
 
   // Extensions context
   const extensionStatusContext: PluginExtensionDataSourceConfigStatusContext = {
@@ -264,7 +228,7 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
 
   if (message) {
     return (
-      <div className={cx('gf-form-group', styles.container)}>
+      <div {...mergeStylexProps(stylex.props(styles.container), { className: 'gf-form-group' })}>
         <Alert severity={severity} title={message} data-testid={e2eSelectors.pages.DataSource.alert}>
           {testingStatus?.details && (
             <>
@@ -315,14 +279,14 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
             </>
           )}
           {extensionLinks.length > 0 && (
-            <div className={styles.linksContainer}>
+            <div {...stylex.props(styles.linksContainer)}>
               {extensionLinks.map((link) => {
                 return (
                   <a
                     key={link.id}
                     href={link.path ? sanitizeUrl(link.path) : undefined}
                     onClick={link.onClick}
-                    className={styles.pluginLink}
+                    {...stylex.props(styles.pluginLink)}
                     title={link.description}
                   >
                     {link.title}
@@ -332,7 +296,7 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
             </div>
           )}
           {extensionComponents.length > 0 && (
-            <div className={styles.linksContainer}>
+            <div {...stylex.props(styles.linksContainer)}>
               {renderLimitedComponents<PluginExtensionDataSourceConfigStatusContext>({
                 props: extensionStatusContext,
                 components: extensionComponents,
@@ -349,30 +313,49 @@ export function DataSourceTestingStatus({ testingStatus, exploreUrl, dataSource 
   return null;
 }
 
-const getTestingStatusStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    paddingTop: theme.spacing(3),
-  }),
-  moreLink: css({
-    marginBlock: theme.spacing(1),
-  }),
-  linksContainer: css({
+const styles = stylex.create({
+  content: {
+    color: colors['--gf-colors-text-secondary'],
+    paddingTop: 0,
+    maxHeight: '50vh',
+    overflowY: 'auto',
+  },
+  contentWithTitle: {
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
+  disabled: {
+    pointerEvents: 'none',
+    color: colors['--gf-colors-text-secondary'],
+  },
+  errorDetailsContent: {
+    color: colors['--gf-colors-text-secondary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    maxHeight: '50vh',
+    overflowY: 'auto',
+  },
+  container: {
+    paddingTop: spacing['--gf-spacing-x3'],
+  },
+  linksContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(1),
-  }),
-  pluginLink: css({
-    color: theme.colors.text.link,
-    textDecoration: 'none',
-    marginLeft: theme.spacing(2),
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    '&:hover': {
-      color: theme.colors.text.primary,
-      textDecoration: 'underline',
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  pluginLink: {
+    color: {
+      default: colors['--gf-colors-text-link'],
+      ':hover': colors['--gf-colors-text-primary'],
     },
-    '&:first-child': {
-      marginLeft: 0,
+    textDecoration: {
+      default: 'none',
+      ':hover': 'underline',
     },
-  }),
+    marginLeft: {
+      default: spacing['--gf-spacing-x2'],
+      ':first-child': 0,
+    },
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
 });
