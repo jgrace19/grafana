@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { AlertLabels, type RouteMatchResult, type RouteWithID } from '@grafana/alerting';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Text, useStyles2 } from '@grafana/ui';
+import { Text } from '@grafana/ui';
+import { components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Stack } from '../../../../../../plugins/datasource/parca/QueryEditor/Stack';
 import { arrayLabelsToObject } from '../../../utils/labels';
@@ -22,8 +22,6 @@ type InstanceMatchProps = {
 };
 
 export function InstanceMatch({ matchedInstance, policyTreeSpec, policyTreeMetadata }: InstanceMatchProps) {
-  const styles = useStyles2(getStyles);
-
   const { labels, matchingJourney, route } = matchedInstance;
 
   // Get all match details from the final matched route in the journey
@@ -34,7 +32,7 @@ export function InstanceMatch({ matchedInstance, policyTreeSpec, policyTreeMetad
   const matchedRootRoute = route.id === policyTreeSpec.id;
 
   return (
-    <div className={styles.instanceListItem}>
+    <div {...stylex.props(styles.instanceListItem)}>
       <Stack direction="row" gap={2} alignItems="center">
         {labels.length > 0 ? (
           <AlertLabels size="sm" labels={routeMatchLabels} />
@@ -55,12 +53,15 @@ export function InstanceMatch({ matchedInstance, policyTreeSpec, policyTreeMetad
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  instanceListItem: css({
-    padding: theme.spacing(1, 2),
-
-    '&:hover': {
-      backgroundColor: theme.components.table.rowHoverBackground,
+const styles = stylex.create({
+  instanceListItem: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    backgroundColor: {
+      default: null,
+      ':hover': components['--gf-components-table-row-hover-background'],
     },
-  }),
+  },
 });

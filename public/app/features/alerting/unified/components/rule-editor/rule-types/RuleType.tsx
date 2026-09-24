@@ -1,8 +1,8 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration
 import { css, cx } from '@emotion/css';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Card, useStyles2 } from '@grafana/ui';
+import { Card } from '@grafana/ui';
 
 import { type RuleFormType } from '../../../types/rule-form';
 
@@ -22,11 +22,9 @@ export interface SharedProps {
 
 const RuleType = (props: Props) => {
   const { name, description, image, selected = false, value, onClick, disabled = false } = props;
-  const styles = useStyles2(getStyles);
-
   const cardStyles = cx({
-    [styles.wrapper]: true,
-    [styles.disabled]: disabled,
+    [pendingEmotionStyles.wrapper]: true,
+    [pendingEmotionStyles.disabled]: disabled,
   });
 
   return (
@@ -40,7 +38,8 @@ const RuleType = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Card migration
+const pendingEmotionStyles = {
   wrapper: css({
     width: '380px',
     cursor: 'pointer',
@@ -49,6 +48,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   disabled: css({
     opacity: '0.5',
   }),
-});
+};
 
 export { RuleType };

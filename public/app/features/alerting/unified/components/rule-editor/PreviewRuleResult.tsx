@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type FieldConfigSource, FieldMatcherID, type GrafanaTheme2, LoadingState } from '@grafana/data';
+import { type FieldConfigSource, FieldMatcherID, LoadingState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { PanelRenderer } from '@grafana/runtime';
-import { TableCellDisplayMode, useStyles2 } from '@grafana/ui';
+import { TableCellDisplayMode } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type PreviewRuleResponse } from '../../types/preview';
 import { RuleFormType } from '../../types/rule-form';
@@ -17,8 +18,6 @@ type Props = {
 
 export function PreviewRuleResult(props: Props): React.ReactElement | null {
   const { preview } = props;
-  const styles = useStyles2(getStyles);
-
   const fieldConfig: FieldConfigSource = {
     defaults: {},
     overrides: [
@@ -37,7 +36,7 @@ export function PreviewRuleResult(props: Props): React.ReactElement | null {
 
   if (data.state === LoadingState.Loading) {
     return (
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <span>
           <Trans i18nKey="alerting.preview-rule-result.loading-preview">Loading preview...</Trans>
         </span>
@@ -47,7 +46,7 @@ export function PreviewRuleResult(props: Props): React.ReactElement | null {
 
   if (data.state === LoadingState.Error) {
     return (
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         {data.error
           ? messageFromError(data.error)
           : t('alerting.preview-rule-result.preview-failed', 'Failed to preview alert rule')}
@@ -56,7 +55,7 @@ export function PreviewRuleResult(props: Props): React.ReactElement | null {
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Trans i18nKey="alerting.preview-rule-result.preview-based-on-query-result">
         Preview based on the result of running the query, for this moment.
       </Trans>
@@ -65,7 +64,7 @@ export function PreviewRuleResult(props: Props): React.ReactElement | null {
           Configuration for `no data` and `error handling` is not applied.
         </Trans>
       )}
-      <div className={styles.table}>
+      <div {...stylex.props(styles.table)}>
         <AutoSizer>
           {({ width, height }) => (
             <div style={{ width: `${width}px`, height: `${height}px` }}>
@@ -85,17 +84,22 @@ export function PreviewRuleResult(props: Props): React.ReactElement | null {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      margin: `${theme.spacing(2)} 0`,
-    }),
-    table: css({
-      flex: '1 1 auto',
-      height: '135px',
-      marginTop: theme.spacing(2),
-      border: `1px solid ${theme.colors.border.medium}`,
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+  },
+  table: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    height: '135px',
+    marginTop: spacing['--gf-spacing-x2'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+});

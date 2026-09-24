@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Stack, Text, Toggletip, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Text, Toggletip } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface NeedHelpInfoProps {
   contentText: string | JSX.Element;
@@ -12,11 +12,9 @@ interface NeedHelpInfoProps {
   title?: string;
 }
 export function NeedHelpInfo({ contentText, externalLink, linkText, title = 'Need help?' }: NeedHelpInfoProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Toggletip
-      content={<div className={styles.mutedText}>{contentText}</div>}
+      content={<div {...stylex.props(styles.mutedText)}>{contentText}</div>}
       title={
         <Stack gap={0.5} direction="row" alignItems="center">
           <Icon name="question-circle" />
@@ -37,7 +35,7 @@ export function NeedHelpInfo({ contentText, externalLink, linkText, title = 'Nee
       closeButton={true}
       placement="bottom-start"
     >
-      <div className={styles.helpInfo}>
+      <div {...stylex.props(styles.helpInfo)}>
         <Stack direction="row" alignItems="center" gap={0.5}>
           <Icon name="question-circle" size="sm" />
           <Text variant="bodySmall" color="primary">
@@ -49,13 +47,13 @@ export function NeedHelpInfo({ contentText, externalLink, linkText, title = 'Nee
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mutedText: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.size.sm,
-  }),
-  helpInfo: css({
+const styles = stylex.create({
+  mutedText: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+  helpInfo: {
     cursor: 'pointer',
-    textDecoration: 'underline',
-  }),
+    textDecorationLine: 'underline',
+  },
 });

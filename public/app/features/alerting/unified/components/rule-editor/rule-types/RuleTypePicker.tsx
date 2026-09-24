@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Stack, useStyles2 } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useRulesSourcesWithRuler } from '../../../hooks/useRuleSourcesWithRuler';
 import { RuleFormType } from '../../../types/rule-form';
@@ -19,8 +19,6 @@ interface RuleTypePickerProps {
 const RuleTypePicker = ({ selected, onChange, enabledTypes }: RuleTypePickerProps) => {
   const { rulesSourcesWithRuler } = useRulesSourcesWithRuler();
   const hasLotexDatasources = !isEmpty(rulesSourcesWithRuler);
-
-  const styles = useStyles2(getStyles);
 
   const handleChange = (type: RuleFormType) => {
     onChange(type);
@@ -41,7 +39,7 @@ const RuleTypePicker = ({ selected, onChange, enabledTypes }: RuleTypePickerProp
         )}
       </Stack>
       {enabledTypes.includes(RuleFormType.grafana) && (
-        <small className={styles.meta}>
+        <small {...stylex.props(styles.meta)}>
           <Trans i18nKey="alerting.rule-type-picker.grafana-managed">
             Select &ldquo;Grafana managed&rdquo; unless you have a Mimir, Loki or Cortex data source with the Ruler API
             enabled.
@@ -52,10 +50,10 @@ const RuleTypePicker = ({ selected, onChange, enabledTypes }: RuleTypePickerProp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  meta: css({
-    color: theme.colors.text.disabled,
-  }),
+const styles = stylex.create({
+  meta: {
+    color: colors['--gf-colors-text-disabled'],
+  },
 });
 
 export { RuleTypePicker };

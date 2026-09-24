@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import saveAs from 'file-saver';
 import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, ClipboardButton, CodeEditor, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, Button, ClipboardButton, CodeEditor, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import {
   DOCS_URL_FILE_PROVISIONING,
@@ -26,7 +26,6 @@ interface FileExportPreviewProps {
 }
 
 export function FileExportPreview({ format, textDefinition, downloadFileName, onClose }: FileExportPreviewProps) {
-  const styles = useStyles2(fileExportPreviewStyles);
   const provider = allGrafanaExportProviders[format];
 
   const onDownload = useCallback(() => {
@@ -42,9 +41,9 @@ export function FileExportPreview({ format, textDefinition, downloadFileName, on
 
   return (
     // TODO Handle empty content
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <FileExportInlineDocumentation exportProvider={provider} />
-      <div className={styles.content}>
+      <div {...stylex.props(styles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor
@@ -64,7 +63,7 @@ export function FileExportPreview({ format, textDefinition, downloadFileName, on
           )}
         </AutoSizer>
       </div>
-      <div className={styles.actions}>
+      <div {...stylex.props(styles.actions)}>
         <Button variant="secondary" onClick={onClose}>
           <Trans i18nKey="alerting.common.cancel">Cancel</Trans>
         </Button>
@@ -79,22 +78,24 @@ export function FileExportPreview({ format, textDefinition, downloadFileName, on
   );
 }
 
-const fileExportPreviewStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    gap: theme.spacing(2),
-  }),
-  content: css({
-    flex: '1 1 100%',
-  }),
-  actions: css({
-    flex: 0,
+    gap: spacing['--gf-spacing-x2'],
+  },
+  content: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+  },
+  actions: {
+    flex: '0',
     justifyContent: 'flex-end',
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+  },
 });
 
 function FileExportInlineDocumentation({ exportProvider }: { exportProvider: ExportProvider<unknown> }) {

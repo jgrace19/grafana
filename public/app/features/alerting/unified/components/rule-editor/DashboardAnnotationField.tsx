@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Text, useStyles2 } from '@grafana/ui';
+import { Icon, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { makeDashboardLink, makePanelLink } from '../../utils/misc';
 
@@ -24,16 +24,14 @@ const DashboardAnnotationField = ({
   onEditClick: () => void;
   onDeleteClick: () => void;
 }) => {
-  const styles = useStyles2(getStyles);
-
   const dashboardLink = makeDashboardLink(getDashboardUid(dashboard) || dashboardUid);
   const panelLink = makePanelLink(getDashboardUid(dashboard) || dashboardUid, panel?.id?.toString() || panelId);
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {dashboard && (
         <a
           href={dashboardLink}
-          className={styles.link}
+          {...stylex.props(styles.link)}
           target="_blank"
           rel="noreferrer"
           data-testid="dashboard-annotation"
@@ -51,7 +49,13 @@ const DashboardAnnotationField = ({
       )}
 
       {panel && (
-        <a href={panelLink} className={styles.link} target="_blank" rel="noreferrer" data-testid="panel-annotation">
+        <a
+          href={panelLink}
+          {...stylex.props(styles.link)}
+          target="_blank"
+          rel="noreferrer"
+          data-testid="panel-annotation"
+        >
           {panel.title || '<No title>'} <Icon name={'external-link-alt'} />
         </a>
       )}
@@ -69,31 +73,26 @@ const DashboardAnnotationField = ({
 
       {(dashboard || panel) && (
         <>
-          <Icon name={'pen'} onClick={onEditClick} className={styles.icon} />
-          <Icon name={'trash-alt'} onClick={onDeleteClick} className={styles.icon} />
+          <Icon name={'pen'} onClick={onEditClick} xstyle={styles.icon} />
+          <Icon name={'trash-alt'} onClick={onDeleteClick} xstyle={styles.icon} />
         </>
       )}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     marginTop: '5px',
-  }),
-
-  noLink: css({
-    color: theme.colors.text.secondary,
-  }),
-  link: css({
-    color: theme.colors.text.link,
-    marginRight: theme.spacing(1.5),
-  }),
-
-  icon: css({
-    marginRight: theme.spacing(1),
+  },
+  link: {
+    color: colors['--gf-colors-text-link'],
+    marginRight: spacing['--gf-spacing-x1-5'],
+  },
+  icon: {
+    marginRight: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
-  }),
+  },
 });
 
 export default DashboardAnnotationField;

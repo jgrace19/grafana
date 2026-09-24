@@ -1,10 +1,13 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Select migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, VirtualizedSelect, useStyles2 } from '@grafana/ui';
+import { Field, VirtualizedSelect } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type RuleFormValues } from '../../types/rule-form';
 
@@ -22,7 +25,6 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
     setValue,
   } = useFormContext<RuleFormValues>();
 
-  const style = useStyles2(getStyle);
   const { namespaceGroups, isLoading } = useGetNameSpacesByDatasourceName(rulesSourceName);
 
   const namespace = watch('namespace');
@@ -42,7 +44,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
   );
 
   return (
-    <div className={style.flexRow}>
+    <div {...stylex.props(styles.flexRow)}>
       <Field
         data-testid="namespace-picker"
         label={t('alerting.group-and-namespace-fields.namespace-picker-label-namespace', 'Namespace')}
@@ -58,7 +60,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
             <VirtualizedSelect
               {...field}
               allowCustomValue
-              className={style.input}
+              className={pendingEmotionStyles.input}
               onChange={(value) => {
                 setValue('group', ''); //reset if namespace changes
                 onChange(value.value);
@@ -77,6 +79,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
         />
       </Field>
       <Field
+        className={stylex.props(styles.siblingField).className}
         data-testid="group-picker"
         label={t('alerting.group-and-namespace-fields.group-picker-label-group', 'Group')}
         // Disable translations as we don't intend to use this dropdown longterm,
@@ -96,7 +99,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
               onChange={(value) => {
                 setValue('group', value.value ?? '');
               }}
-              className={style.input}
+              className={pendingEmotionStyles.input}
               isLoading={isLoading}
               disabled={isLoading}
             />
@@ -112,17 +115,20 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
   );
 };
 
-const getStyle = (theme: GrafanaTheme2) => ({
-  flexRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-
-    '& > * + *': {
-      marginLeft: theme.spacing(3),
-    },
-  }),
+// stylex: pending Select migration
+const pendingEmotionStyles = {
   input: css({
     width: '330px !important',
   }),
+};
+
+const styles = stylex.create({
+  flexRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  siblingField: {
+    marginLeft: spacing['--gf-spacing-x3'],
+  },
 });

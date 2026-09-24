@@ -1,0 +1,7 @@
+/*
+ * The query editor row inside QueryWrapper renders its own buttons, which StyleX can't target. Deliberately not in a
+ * cascade layer, so that like the rule it replaces it wins over those buttons' own styles.
+ */
+.gf-alerting-query-wrapper button {
+  overflow: visible;
+}
