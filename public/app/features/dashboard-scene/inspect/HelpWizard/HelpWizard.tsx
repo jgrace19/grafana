@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useEffect } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2, FeatureState } from '@grafana/data';
+import { FeatureState } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type VizPanel } from '@grafana/scenes';
@@ -11,7 +11,6 @@ import {
   Tab,
   TabsBar,
   CodeEditor,
-  useStyles2,
   Field,
   InlineSwitch,
   Button,
@@ -23,6 +22,7 @@ import {
   Stack,
   TextLink,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 
@@ -34,7 +34,6 @@ interface Props {
 }
 
 export function HelpWizard({ panel, onClose }: Props) {
-  const styles = useStyles2(getStyles);
   const service = useMemo(() => new SupportSnapshotService(panel), [panel]);
   const plugin = useMemo(() => panel.getPlugin(), [panel]);
 
@@ -114,18 +113,29 @@ export function HelpWizard({ panel, onClose }: Props) {
       {error && <Alert title={error.title}>{error.message}</Alert>}
 
       {currentTab === SnapshotTab.Data && (
-        <div className={styles.code}>
-          <div className={styles.opts}>
-            <Field label={t('dashboard-scene.help-wizard.label-template', 'Template')} className={styles.field}>
+        <div {...stylex.props(styles.code)}>
+          <div {...stylex.props(styles.opts)}>
+            <Field
+              label={t('dashboard-scene.help-wizard.label-template', 'Template')}
+              className={stylex.props(styles.field).className}
+            >
               <Select options={options} value={showMessage} onChange={service.onShowMessageChange} />
             </Field>
 
             {showMessage === ShowMessage.GithubComment ? (
-              <ClipboardButton icon="copy" getText={service.onGetMarkdownForClipboard}>
+              <ClipboardButton
+                icon="copy"
+                getText={service.onGetMarkdownForClipboard}
+                className={stylex.props(styles.button).className}
+              >
                 <Trans i18nKey="dashboard-scene.help-wizard.copy-to-clipboard">Copy to clipboard</Trans>
               </ClipboardButton>
             ) : (
-              <Button icon="download-alt" onClick={service.onDownloadDashboard}>
+              <Button
+                icon="download-alt"
+                onClick={service.onDownloadDashboard}
+                className={stylex.props(styles.button).className}
+              >
                 <Trans i18nKey="dashboard-scene.help-wizard.download-snapshot">Download ({{ snapshotSize }})</Trans>
               </Button>
             )}
@@ -187,7 +197,11 @@ export function HelpWizard({ panel, onClose }: Props) {
             })}
           >
             <Stack>
-              <Button icon="download-alt" onClick={service.onDownloadDashboard}>
+              <Button
+                icon="download-alt"
+                onClick={service.onDownloadDashboard}
+                className={stylex.props(styles.button).className}
+              >
                 <Trans i18nKey="dashboard-scene.help-wizard.download-dashboard">Dashboard ({{ snapshotSize }})</Trans>
               </Button>
               <ClipboardButton
@@ -212,26 +226,24 @@ export function HelpWizard({ panel, onClose }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    code: css({
-      flexGrow: 1,
-      height: '100%',
-      overflow: 'scroll',
-    }),
-    field: css({
-      width: '100%',
-    }),
-    opts: css({
-      display: 'flex',
-      width: '100%',
-      flexGrow: 0,
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-
-      '& button': {
-        marginLeft: theme.spacing(1),
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  code: {
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'scroll',
+  },
+  field: {
+    width: '100%',
+  },
+  opts: {
+    display: 'flex',
+    width: '100%',
+    flexGrow: 0,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  // Button doesn't set a margin itself, so a StyleX class can't conflict with it.
+  button: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});

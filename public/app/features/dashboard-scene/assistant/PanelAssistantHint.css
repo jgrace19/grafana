@@ -1,0 +1,8 @@
+/*
+ * The hint only shows while its own panel <section> (PanelChrome) is hovered. `[class*="panel-container"]` avoids
+ * matching parent wrappers in repeated rows/panels that may also contain "panel-container". The section isn't rendered
+ * here, so this is plain CSS, unlayered so it beats the hint's own StyleX opacity.
+ */
+section[class*='panel-container']:hover .gf-panel-assistant-hint {
+  opacity: 1;
+}

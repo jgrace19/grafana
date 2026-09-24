@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { sortBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
+import { Text, Box, Button, LoadingPlaceholder } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
 import { getBackendSrv } from 'app/core/services/backend_srv';
 import { DescendantCount } from 'app/features/browse-dashboards/components/BrowseActions/DescendantCount';
@@ -53,7 +53,6 @@ export const Permissions = ({
   epilogue,
   queryParams,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const [isAdding, setIsAdding] = useState(false);
   const [desc, setDesc] = useState(INITIAL_DESCRIPTION);
 
@@ -219,7 +218,7 @@ export const Permissions = ({
         {canSetPermissions && (
           <>
             <Button
-              className={styles.addPermissionButton}
+              className={stylex.props(styles.addPermissionButton).className}
               variant={'primary'}
               key="add-permission"
               onClick={() => setIsAdding(true)}
@@ -297,13 +296,8 @@ const setPermission = (
     { params: queryParams }
   );
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  breakdown: css({
-    ...theme.typography.bodySmall,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(2),
-  }),
-  addPermissionButton: css({
-    marginBottom: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  addPermissionButton: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });

@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import { type Dispatch, memo, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { type Field, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type Field, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../../themes/ThemeContext';
+import { colors, shadows, shape, spacing } from '../../../../themes/stylex/tokens.stylex';
 import { Button } from '../../../Button/Button';
 import { ButtonSelect } from '../../../Dropdown/ButtonSelect';
 import { FilterInput } from '../../../FilterInput/FilterInput';
@@ -130,19 +129,20 @@ export const FilterPopup = memo(
 
     const filterInputPlaceholder = t('grafana-ui.table.filter-popup-input-placeholder', 'Filter values');
     const clearFilterVisible = useMemo(() => filterValue !== undefined, [filterValue]);
-    const styles = useStyles2(getStyles);
 
     return (
       <div
-        className={styles.filterContainer}
+        {...stylex.props(styles.filterContainer)}
         data-testid={selectors.components.Panels.Visualization.TableNG.Filters.Container}
         ref={containerRef}
       >
         <Stack direction="column">
-          <Stack alignItems="center">{field && <Label className={styles.label}>{getDisplayName(field)}</Label>}</Stack>
+          <Stack alignItems="center">
+            {field && <Label className="gf-table-ng-filter-label">{getDisplayName(field)}</Label>}
+          </Stack>
 
           <Stack gap={1}>
-            <div className={styles.inputContainer}>
+            <div {...stylex.props(styles.inputContainer)}>
               <FilterInput
                 ref={inputRef}
                 placeholder={filterInputPlaceholder}
@@ -151,7 +151,7 @@ export const FilterPopup = memo(
                 value={searchFilter}
                 suffix={
                   <ButtonSelect
-                    className={styles.buttonSelectOverrides}
+                    className="gf-table-ng-filter-operator"
                     options={operators}
                     onChange={setOperator}
                     value={operator}
@@ -201,29 +201,25 @@ export const FilterPopup = memo(
 
 FilterPopup.displayName = 'FilterPopup';
 
-const getStyles = memoize((theme: GrafanaTheme2) => ({
-  filterContainer: css({
-    label: 'filterContainer',
+const styles = stylex.create({
+  filterContainer: {
     width: '100%',
     minWidth: '320px',
     height: '100%',
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(2),
-    boxShadow: theme.shadows.z3,
-    borderRadius: theme.shape.radius.default,
-  }),
-  label: css({
-    marginBottom: 0,
-  }),
-  inputContainer: css({
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  inputContainer: {
     width: 300,
-  }),
-  buttonSelectOverrides: css({
-    fontSize: 12,
-    '&:hover, &:focus, &:active': {
-      color: theme.colors.text.primary,
-      background: 'transparent',
-    },
-  }),
-}));
+  },
+});
+
+// The Label and ButtonSelect overrides are in TableNG.css.

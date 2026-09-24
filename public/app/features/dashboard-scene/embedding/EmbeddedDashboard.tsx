@@ -1,11 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, urlUtil } from '@grafana/data';
+import { urlUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type EmbeddedDashboardProps } from '@grafana/runtime';
 import { SceneObjectStateChangedEvent, sceneUtils } from '@grafana/scenes';
-import { Spinner, Alert, useStyles2 } from '@grafana/ui';
+import { Spinner, Alert } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getMessageFromError } from 'app/core/utils/errors';
 import { DashboardRoutes } from 'app/types/dashboard';
 
@@ -45,7 +46,6 @@ interface RendererProps extends EmbeddedDashboardProps {
 function EmbeddedDashboardRenderer({ model, initialState, onStateChange }: RendererProps) {
   const [isActive, setIsActive] = useState(false);
   const { controls, body } = model.useState();
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     setIsActive(true);
@@ -66,13 +66,13 @@ function EmbeddedDashboardRenderer({ model, initialState, onStateChange }: Rende
   }
 
   return (
-    <div className={cx(styles.canvas, controls && styles.canvasWithControls)}>
+    <div {...stylex.props(styles.canvas, controls && styles.canvasWithControls)}>
       {controls && (
-        <div className={styles.controlsWrapper}>
+        <div {...stylex.props(styles.controlsWrapper)}>
           <controls.Component model={controls} />
         </div>
       )}
-      <div className={styles.body}>
+      <div {...stylex.props(styles.body)}>
         <body.Component model={body} />
       </div>
     </div>
@@ -102,38 +102,40 @@ function useSubscribeToEmbeddedUrlState(onStateChange: ((state: string) => void)
   }, [model, onStateChange]);
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    canvas: css({
-      label: 'canvas-content',
-      display: 'grid',
-      gridTemplateAreas: `
-        "panels"`,
-      gridTemplateColumns: `1fr`,
-      gridTemplateRows: '1fr',
-      flexBasis: '100%',
-      flexGrow: 1,
-    }),
-    canvasWithControls: css({
-      gridTemplateAreas: `
-        "controls"
-        "panels"`,
-      gridTemplateRows: 'auto 1fr',
-    }),
-    body: css({
-      label: 'body',
-      flexGrow: 1,
-      display: 'flex',
-      gap: '8px',
-      gridArea: 'panels',
-      marginBottom: theme.spacing(2),
-    }),
-    controlsWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 0,
-      gridArea: 'controls',
-      padding: theme.spacing(2, 0, 2, 2),
-    }),
-  };
-}
+const styles = stylex.create({
+  canvas: {
+    display: 'grid',
+    gridTemplateAreas: '"panels"',
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: '1fr',
+    flexBasis: '100%',
+    flexGrow: 1,
+  },
+  canvasWithControls: {
+    gridTemplateAreas: '"controls" "panels"',
+    gridTemplateRows: 'auto 1fr',
+  },
+  body: {
+    flexGrow: 1,
+    display: 'flex',
+    gap: '8px',
+    gridColumnEnd: 'panels',
+    gridColumnStart: 'panels',
+    gridRowEnd: 'panels',
+    gridRowStart: 'panels',
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  controlsWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 0,
+    gridColumnEnd: 'controls',
+    gridColumnStart: 'controls',
+    gridRowEnd: 'controls',
+    gridRowStart: 'controls',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+});

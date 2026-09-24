@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
 import { DragDropContext, type DropResult, Droppable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { throttle } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
-import { type DataTransformerConfig, type GrafanaTheme2, type PanelData } from '@grafana/data';
+import { type DataTransformerConfig, type PanelData } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
@@ -16,7 +16,8 @@ import {
   type SceneQueryRunner,
   type VizPanel,
 } from '@grafana/scenes';
-import { Button, ButtonGroup, ConfirmModal, Tab, useStyles2 } from '@grafana/ui';
+import { Button, ButtonGroup, ConfirmModal, Tab } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { TransformationOperationRows } from 'app/features/dashboard/components/TransformationsEditor/TransformationOperationRows';
 import { ExpressionQueryType } from 'app/features/expressions/types';
 
@@ -79,7 +80,6 @@ export class PanelDataTransformationsTab
 }
 
 export function PanelDataTransformationsTabRendered({ model }: SceneComponentProps<PanelDataTransformationsTab>) {
-  const styles = useStyles2(getStyles);
   const sourceData = model.getQueryRunner().useState();
   const { data, transformations: transformsWrongType } = model.getDataTransformer().useState();
 
@@ -187,7 +187,7 @@ export function PanelDataTransformationsTabRendered({ model }: SceneComponentPro
         </Button>
         <Button
           data-testid={selectors.components.Transforms.removeAllTransformationsButton}
-          className={styles.removeAll}
+          className={stylex.props(styles.removeAll).className}
           icon="times"
           variant="secondary"
           onClick={() => setConfirmModalOpen(true)}
@@ -289,10 +289,10 @@ function TransformationsEditor({ transformations, model, data }: TransformationE
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  removeAll: css({
-    marginLeft: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  removeAll: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
 });
 
 interface TransformationsTabProps extends PanelDataTabHeaderProps {

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type SceneObjectRef, type VizPanel } from '@grafana/scenes';
-import { Alert, Button, Divider, Field, Input, RadioButtonGroup, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Divider, Field, Input, RadioButtonGroup, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getExpireOptions } from '../../ShareSnapshotTab';
 
@@ -30,10 +31,8 @@ export function UpsertSnapshot({
   disableInputs,
   children,
 }: Props & PropsWithChildren) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Alert severity="info" title={''}>
         <Stack justifyContent="space-between" gap={2} alignItems="center">
           <Text>
@@ -78,8 +77,8 @@ export function UpsertSnapshot({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    paddingBottom: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  container: {
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
 });

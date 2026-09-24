@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
 import {
   type DataFrame,
   DataTransformerID,
-  type GrafanaTheme2,
   standardTransformersRegistry,
   type TransformerRegistryItem,
 } from '@grafana/data';
@@ -12,7 +11,8 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Box, Button, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Button, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 
 import { SqlExpressionCard } from '../../../dashboard/components/TransformationsEditor/SqlExpressionCard';
@@ -71,8 +71,6 @@ export function LegacyEmptyTransformationsMessage({ onShowPicker }: { onShowPick
 }
 
 export function NewEmptyTransformationsMessage(props: EmptyTransformationsProps) {
-  const styles = useStyles2(getStyles);
-
   const hasGoToQueries = props.onGoToQueries != null;
   const hasAddTransformation = props.onAddTransformation != null;
   const showHeaderText = props.showHeaderText ?? true;
@@ -134,7 +132,7 @@ export function NewEmptyTransformationsMessage(props: EmptyTransformationsProps)
           </Stack>
         )}
         {(hasAddTransformation || hasGoToQueries) && (
-          <div className={styles.transformationsContainer}>
+          <div {...stylex.props(styles.transformationsContainer)}>
             {showSqlCard && (
               <SqlExpressionCard
                 name={t('dashboard-scene.empty-transformations-message.sql-name', 'Transform with SQL')}
@@ -185,11 +183,11 @@ export function EmptyTransformationsMessage(props: EmptyTransformationsProps) {
   return <LegacyEmptyTransformationsMessage onShowPicker={props.onShowPicker} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  transformationsContainer: css({
+const styles = stylex.create({
+  transformationsContainer: {
     display: 'grid',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     width: '100%',
-  }),
+  },
 });
