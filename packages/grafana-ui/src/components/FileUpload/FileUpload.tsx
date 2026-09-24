@@ -6,11 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
+import { useTheme2 } from '../../themes/ThemeContext';
 import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
 import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
-import { colors, components, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
+import { colors, shadows, spacing } from '../../themes/stylex/tokens.stylex';
 import { type ComponentSize } from '../../types/size';
 import { trimFileName } from '../../utils/file';
+import { getButtonStylexStyles } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 
 import { fileInputMarker } from './markers.stylex';
@@ -41,6 +43,7 @@ export const FileUpload = ({
   size = 'md',
   showFileName,
 }: React.PropsWithChildren<Props>) => {
+  const theme = useTheme2();
   const [fileName, setFileName] = useState('');
   const id = uuidv4();
 
@@ -68,7 +71,10 @@ export const FileUpload = ({
       />
       <label
         htmlFor={id}
-        {...mergeStylexProps(stylex.props(styles.labelWrapper, sizeStyles[toButtonSize(size)]), { className })}
+        {...mergeStylexProps(
+          stylex.props(getButtonStylexStyles(theme, 'primary', 'solid', size, false), styles.labelWrapper),
+          { className }
+        )}
       >
         <Icon name="upload" />
         {children}
@@ -87,15 +93,10 @@ export const FileUpload = ({
   );
 };
 
-// `xs` has no button size of its own and renders as `md`.
-const toButtonSize = (size: ComponentSize) => (size === 'sm' || size === 'lg' ? size : 'md');
-
 const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 const focusEasing = 'cubic-bezier(0.19, 1, 0.22, 1)';
-const buttonHeight = (height: string) => `calc(${spacing['--gf-spacing-grid-size']} * ${height})`;
 
-// The label looks like a primary solid Button (keep in sync with Button.tsx); focusing the hidden input shows
-// the focus ring on it.
+// The label is a primary solid Button; focusing the hidden input shows the focus ring on it.
 const styles = stylex.create({
   // No width/height: the global `input[type='file']` rules set them, and won over the Emotion ones on main.
   fileUpload: {
@@ -105,25 +106,6 @@ const styles = stylex.create({
     zIndex: -1,
   },
   labelWrapper: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: spacing['--gf-spacing-x1'],
-    fontWeight: typography['--gf-typography-font-weight-medium'],
-    fontFamily: typography['--gf-typography-font-family'],
-    paddingTop: 0,
-    paddingBottom: 0,
-    verticalAlign: 'middle',
-    cursor: 'pointer',
-    borderRadius: shape['--gf-shape-radius-default'],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'transparent',
-    backgroundColor: {
-      default: colors['--gf-colors-primary-main'],
-      ':hover': colors['--gf-colors-primary-shade'],
-      ':active': colors['--gf-colors-primary-main'],
-    },
-    color: colors['--gf-colors-primary-contrast-text'],
     boxShadow: {
       default: null,
       ':hover': {
@@ -160,30 +142,5 @@ const styles = stylex.create({
   },
   fileName: {
     marginLeft: spacing['--gf-spacing-x0-5'],
-  },
-});
-
-// Horizontal padding deducts the 1px border; line-height deducts both borders for vertical centering on Windows and Linux.
-const sizeStyles = stylex.create({
-  sm: {
-    fontSize: typography['--gf-typography-size-sm'],
-    height: buttonHeight(components['--gf-components-height-sm']),
-    lineHeight: `calc(${buttonHeight(components['--gf-components-height-sm'])} - 2px)`,
-    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} - 1px)`,
-    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} - 1px)`,
-  },
-  md: {
-    fontSize: typography['--gf-typography-size-md'],
-    height: buttonHeight(components['--gf-components-height-md']),
-    lineHeight: `calc(${buttonHeight(components['--gf-components-height-md'])} - 2px)`,
-    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2 - 1px)`,
-    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 2 - 1px)`,
-  },
-  lg: {
-    fontSize: typography['--gf-typography-size-lg'],
-    height: buttonHeight(components['--gf-components-height-lg']),
-    lineHeight: `calc(${buttonHeight(components['--gf-components-height-lg'])} - 2px)`,
-    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 3 - 1px)`,
-    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 3 - 1px)`,
   },
 });

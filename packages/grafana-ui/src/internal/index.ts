@@ -52,14 +52,14 @@ export { getAllFieldTypeIconOptions } from '../components/MatchersUI/FieldTypeMa
 export { getStyles as getSliderStyles } from '../compat/emotion/sliderStyles';
 export { getSelectStyles } from '../compat/emotion/getSelectStyles';
 export type { Props as InputProps } from '../components/Input/Input';
-export { inputStyles, inputBorderStyles } from '../components/Input/Input';
+export { inputStyles, inputBorderStyles, inputInvalidBorderStyles } from '../components/Input/Input';
 export type { ModalsContextState } from '../components/Modal/ModalsContext';
 export { ModalBase, type ModalBaseProps } from '../components/Modal/ModalBase';
 export { getModalStyles } from '../components/Modal/getModalStyles';
 export { MultiValueRemove, type MultiValueRemoveProps } from '../components/Select/MultiValue';
 export { getSvgSize } from '../components/Icon/utils';
 export { LoadingIndicator } from '../components/PanelChrome/LoadingIndicator';
-export { type ButtonLinkProps } from '../components/Button/Button';
+export { type ButtonLinkProps, getButtonStylexStyles } from '../components/Button/Button';
 export { getButtonStyles } from '../compat/emotion/buttonStyles';
 export {
   type TableSortByFieldState,

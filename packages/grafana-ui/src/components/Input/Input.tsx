@@ -330,8 +330,9 @@ const invalidBorderStyles = stylex.create({
 
 /**
  * Input's StyleX styles, for first-party components that look like an Input without rendering one (ScopesInput).
- * Pass the border style for the theme mode: `inputBorderStyles[theme.isDark ? 'dark' : 'light']`.
+ * Pass the border style for the theme mode: `inputBorderStyles[theme.isDark ? 'dark' : 'light']`, or
+ * `inputInvalidBorderStyles[...]` for the invalid state.
  *
  * @internal
  */
-export { styles as inputStyles, borderStyles as inputBorderStyles };
+export { styles as inputStyles, borderStyles as inputBorderStyles, invalidBorderStyles as inputInvalidBorderStyles };
