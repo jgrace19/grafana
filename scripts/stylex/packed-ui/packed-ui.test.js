@@ -54,5 +54,9 @@ describe('packed @grafana/ui', () => {
     for (const className of classes) {
       expect(css).toContain(`.${className}`);
     }
+    // State rules sit outside the StyleX layers so they outrank a consumer's className, as on main.
+    const [layered] = css.split(/\n(?=\.[\w-]+:hover\{)/);
+    expect(layered.length).toBeLessThan(css.length);
+    expect(css).toMatch(/\n\.[\w-]+:hover\{[^}]+\}/);
   });
 });

@@ -83,3 +83,9 @@ public/app/features/dashboard/dashgrid/PanelLinks.tsx # stylex: pending ToolbarB
 public/app/core/components/AppNotifications/StoredNotificationItem.tsx # C1: overrides Card.Tags' own alignSelf with a theme-computed font size; Card.Tags has no xstyle or style prop
 public/app/core/components/OptionsUI/slider.tsx # C1: renders the frozen compat getSliderStyles Emotion classes and <Global> rc-slider overrides; needs a StyleX rewrite along the lines of U7's Slider
 public/app/core/components/SplashScreenModal/SplashScreenModal.tsx # C1: overrides ModalBase's own Emotion size and padding; migrate with U4 (Modal)
+# M1 datasources, connections, correlations
+public/app/features/connections/tabs/ConnectData/NoAccessModal/NoAccessModal.tsx # pending Modal migration (U4): overrides Modal width and content overflow
+public/app/features/datasources/components/BuildDashboardButton.tsx # pending Menu migration (U4): styles Menu.Item's descendants and cursor
+public/app/features/datasources/components/DataSourceTypeCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, description, meta, actions
+public/app/features/datasources/components/picker/DataSourceCard.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card padding, background, heading, figure, selected state
+public/app/features/datasources/components/picker/DataSourceModal.tsx # pending Modal migration (U4): modal width override must beat Modal's Emotion width

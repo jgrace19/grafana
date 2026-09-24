@@ -13,6 +13,7 @@ const rq = createRequire(import.meta.url);
 const icons = rq('../../public/app/core/icons/cached.json');
 const pkg = rq('./package.json');
 const { cssLayers, getStylexBabelOptions } = rq('../../scripts/stylex/options.js');
+const { unlayerStateRules } = rq('../../scripts/stylex/stateRules.js');
 
 const iconSrcPaths = icons.map((iconSubPath) => {
   // eslint-disable-next-line @grafana/no-restricted-img-srcs
@@ -27,7 +28,7 @@ const srcDir = resolve('src');
 /**
  * Pre-compiles StyleX so published JS never calls `stylex.create` at runtime, and writes every rule to
  * `dist/stylex.css` (exported as `@grafana/ui/stylex.css`) for consumers that bundle @grafana/ui, followed
- * by the components' own plain CSS files.
+ * by the components' own plain CSS files. State rules leave the cascade layers, as in the app.
  */
 function stylexPrecompile(): Plugin {
   const transformPlugin: Plugin = stylex({ ...getStylexBabelOptions({ dev: false }), useCSSLayers: cssLayers });
@@ -46,7 +47,7 @@ function stylexPrecompile(): Plugin {
       // The unplugin collects every transformed module's rules in this global store.
       const store: StylexRuleStore | undefined = Reflect.get(globalThis, '__stylex_unplugin_store');
       const rules = store ? Array.from(store.rulesById.values()).flat() : [];
-      const css = stylexPlugin.processStylexRules(rules, { useLayers: cssLayers });
+      const css = unlayerStateRules(stylexPlugin.processStylexRules(rules, { useLayers: cssLayers }));
       const outFile = resolve(dirname(pkg.main), '..', 'stylex.css');
       await mkdir(dirname(outFile), { recursive: true });
       const plainCss = [...componentCss.keys()].sort().map((file) => componentCss.get(file));

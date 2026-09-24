@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
+import { type IconName } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 type PageCardProps = {
   title: string;
@@ -13,7 +14,8 @@ type PageCardProps = {
 };
 
 export default function PageCard({ title, description, icon, url, index }: PageCardProps) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const hoverBackground = theme.colors.emphasize(theme.colors.background.secondary, 0.03);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -24,67 +26,75 @@ export default function PageCard({ title, description, icon, url, index }: PageC
 
   return (
     <div
-      className={styles.card}
+      {...stylex.props(styles.card, styles.hoverBackground(hoverBackground))}
       role="button"
       tabIndex={0}
       onClick={() => locationService.push(url)}
       onKeyDown={onKeyDown}
     >
-      <Icon name={icon} className={`${styles.logo} ${index % 2 === 0 ? styles.evenLogo : styles.oddLogo}`} />
-      <div className={styles.contentColumn}>
-        <h3 className={styles.title}>{title}</h3>
-        <p className={styles.description}>{description}</p>
+      <Icon name={icon} xstyle={[styles.logo, index % 2 === 0 ? styles.evenLogo : styles.oddLogo]} />
+      <div {...stylex.props(styles.contentColumn)}>
+        <h3 {...stylex.props(styles.title)}>{title}</h3>
+        <p {...stylex.props(styles.description)}>{description}</p>
       </div>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  card: css({
+const styles = stylex.create({
+  card: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: theme.spacing(2),
-    paddingTop: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    padding: `${theme.spacing(3)} ${theme.spacing(4)} ${theme.spacing(2.25)} ${theme.spacing(4)}`,
-    minHeight: theme.spacing(19.4),
-    '&:hover': {
-      cursor: 'pointer',
-      backgroundColor: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-    },
-    width: theme.spacing(48),
+    gap: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x3'],
+    paddingRight: spacing['--gf-spacing-x4'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2.25)`,
+    paddingLeft: spacing['--gf-spacing-x4'],
+    minHeight: `calc(${spacing['--gf-spacing-grid-size']} * 19.4)`,
+    cursor: { default: null, ':hover': 'pointer' },
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 48)`,
+  },
+  hoverBackground: (hover: string) => ({
+    backgroundColor: { default: colors['--gf-colors-background-secondary'], ':hover': hover },
   }),
-  contentColumn: css({
-    flex: 1,
-  }),
-  title: css({
-    marginBottom: theme.spacing(1),
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
-  }),
-  description: css({
+  contentColumn: {
+    flex: '1',
+  },
+  title: {
+    marginBottom: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-h4-font-size'],
+    fontWeight: typography['--gf-typography-h4-font-weight'],
+    color: colors['--gf-colors-text-primary'],
+  },
+  description: {
     WebkitLineClamp: 3,
     WebkitBoxOrient: 'vertical',
     display: '-webkit-box',
     overflow: 'hidden',
-    margin: '0',
-    color: theme.colors.text.secondary,
-  }),
-  logo: css({
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    color: colors['--gf-colors-text-secondary'],
+  },
+  logo: {
     objectFit: 'contain',
     width: '47px',
     height: '47px',
-    padding: theme.spacing(1.2),
-    borderRadius: theme.spacing(1),
-  }),
-  evenLogo: css({
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1.2)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1.2)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.2)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.2)`,
+    borderRadius: spacing['--gf-spacing-x1'],
+  },
+  evenLogo: {
     color: '#4ADE80',
     backgroundColor: 'rgba(34, 197, 94, 0.10)',
-  }),
-  oddLogo: css({
+  },
+  oddLogo: {
     color: '#FB923C',
     backgroundColor: 'rgba(249, 115, 22, 0.10)',
-  }),
+  },
 });
