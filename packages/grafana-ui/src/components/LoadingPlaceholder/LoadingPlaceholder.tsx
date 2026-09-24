@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { Spinner } from '../Spinner/Spinner';
 
 /**
@@ -20,19 +19,16 @@ export interface LoadingPlaceholderProps extends HTMLAttributes<HTMLDivElement> 
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-loadingplaceholder--docs
  * @public
  */
-export const LoadingPlaceholder = ({ text, className, ...rest }: LoadingPlaceholderProps) => {
-  const styles = useStyles2(getStyles);
+export const LoadingPlaceholder = ({ text, className, style, ...rest }: LoadingPlaceholderProps) => {
   return (
-    <div className={cx(styles.container, className)} {...rest}>
+    <div {...mergeStylexProps(stylex.props(styles.container), { className, style })} {...rest}>
       {text} <Spinner inline={true} />
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: theme.spacing(4),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    marginBottom: spacing['--gf-spacing-x4'],
+  },
+});

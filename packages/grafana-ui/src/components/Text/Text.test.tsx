@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { createTheme, type ThemeTypographyVariantTypes } from '@grafana/data';
+import { type ThemeTypographyVariantTypes } from '@grafana/data';
 
 import { Text } from './Text';
 
@@ -9,27 +9,32 @@ describe('Text', () => {
     render(<Text element={'h1'}>This is a text component</Text>);
     expect(screen.getByText('This is a text component')).toBeInTheDocument();
   });
-  it('keeps the element type but changes its styles', () => {
+  // Variant and colour are static StyleX styles, which jsdom can't compute; the visual captures cover them.
+  it('keeps the element type when a variant is set', () => {
     const customVariant: keyof ThemeTypographyVariantTypes = 'body';
     render(
       <Text element={'h1'} variant={customVariant}>
         This is a text component
       </Text>
     );
-    const theme = createTheme();
-    const textComponent = screen.getByRole('heading');
-    expect(textComponent).toBeInTheDocument();
-    expect(textComponent).toHaveStyle(`fontSize: ${theme.typography.body.fontSize}`);
+    expect(screen.getByRole('heading', { level: 1, name: 'This is a text component' })).toBeInTheDocument();
   });
-  it('has the selected colour', () => {
-    const customColor = 'info';
-    const theme = createTheme();
+  it('renders with a colour', () => {
     render(
-      <Text element={'h1'} color={customColor}>
+      <Text element={'h1'} color="info">
         This is a text component
       </Text>
     );
-    const textComponent = screen.getByRole('heading');
-    expect(textComponent).toHaveStyle(`color:${theme.colors.info.text}`);
+    expect(screen.getByRole('heading', { level: 1, name: 'This is a text component' })).toBeInTheDocument();
+  });
+  it('applies the text alignment', () => {
+    render(
+      <Text element={'p'} textAlignment="center">
+        Centered
+      </Text>
+    );
+    // A StyleX dynamic style: the value is set as an inline custom property with a hashed name.
+    // eslint-disable-next-line jest-dom/prefer-to-have-style
+    expect(screen.getByText('Centered')).toHaveAttribute('style', expect.stringContaining('center'));
   });
 });

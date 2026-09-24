@@ -32,7 +32,8 @@ export { CloseButton } from '../components/uPlot/plugins/CloseButton';
 export { type TimeRange2, TooltipHoverMode } from '../components/uPlot/plugins/TooltipPlugin2';
 export type { FacetedData, FacetSeries } from '../components/uPlot/types';
 
-export { getResponsiveStyle, type ResponsiveProp } from '../components/Layout/utils/responsiveness';
+export { type ResponsiveProp } from '../components/Layout/utils/responsiveness';
+export { getResponsiveStyle } from '../compat/emotion/getResponsiveStyle';
 export { ColorSwatch } from '../components/ColorPicker/ColorSwatch';
 
 export { FieldNamePicker } from '../components/MatchersUI/FieldNamePicker';

@@ -2,8 +2,9 @@ import { css } from '@emotion/css';
 
 import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
 
+import { getResponsiveStyle } from '../../compat/emotion/getResponsiveStyle';
 import { useStyles2 } from '../../themes/ThemeContext';
-import { getResponsiveStyle, type ResponsiveProp } from '../Layout/utils/responsiveness';
+import { type ResponsiveProp } from '../Layout/utils/responsiveness';
 
 export interface AvatarProps {
   src: string;

@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, deprecationWarning } from '@grafana/data';
+import { deprecationWarning } from '@grafana/data';
 
-import { getActiveButtonStyles } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles, getMouseFocusStyles } from '../../themes/mixins';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName, type IconSize, type IconType } from '../../types/icon';
 import { type ComponentSize } from '../../types/size';
 import { IconRenderer } from '../Button/Button';
@@ -66,7 +66,14 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
     limitedIconSize = size;
   }
 
-  const styles = useStyles2(getStyles, limitedIconSize, variant);
+  // Overall size of the hover background: the icon size plus 2 × 4px padding.
+  const hoverSize = `calc(${getSvgSize(limitedIconSize)}px + ${spacing['--gf-spacing-grid-size']})`;
+  const buttonStyles = [
+    styles.button,
+    variantStyles[variant],
+    styles.hoverSize(hoverSize),
+    props.disabled && styles.disabled,
+  ];
 
   let ariaLabel: string | undefined;
   let buttonRef: typeof ref | undefined;
@@ -82,31 +89,31 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
 
   // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
   if ('tooltip' in props) {
-    const { name, iconType, className, tooltip, tooltipPlacement, ...restProps } = props;
+    const { name, iconType, className, style, tooltip, tooltipPlacement, ...restProps } = props;
     return (
       <Tooltip ref={ref} content={tooltip} placement={tooltipPlacement}>
         <button
           {...restProps}
           ref={buttonRef}
           aria-label={ariaLabel}
-          className={cx(styles.button, className)}
+          {...mergeStylexProps(stylex.props(buttonStyles), { className, style })}
           type="button"
         >
-          <IconRenderer icon={name} size={limitedIconSize} className={styles.icon} iconType={iconType} />
+          <IconRenderer icon={name} size={limitedIconSize} xstyle={styles.icon} iconType={iconType} />
         </button>
       </Tooltip>
     );
   } else {
-    const { name, iconType, className, ...restProps } = props;
+    const { name, iconType, className, style, ...restProps } = props;
     return (
       <button
         {...restProps}
         ref={buttonRef}
         aria-label={ariaLabel}
-        className={cx(styles.button, className)}
+        {...mergeStylexProps(stylex.props(buttonStyles), { className, style })}
         type="button"
       >
-        <IconRenderer icon={name} size={limitedIconSize} className={styles.icon} iconType={iconType} />
+        <IconRenderer icon={name} size={limitedIconSize} xstyle={styles.icon} iconType={iconType} />
       </button>
     );
   }
@@ -114,79 +121,88 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
 
 IconButton.displayName = 'IconButton';
 
-const getStyles = (theme: GrafanaTheme2, size: IconSize, variant: IconButtonVariant) => {
-  // overall size of the IconButton on hover
-  // theme.spacing.gridSize originates from 2*4px for padding and letting the IconSize generally decide on the hoverSize
-  const hoverSize = getSvgSize(size) + theme.spacing.gridSize;
-  const activeButtonStyle = getActiveButtonStyles(theme.colors.secondary, 'text');
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
-  let iconColor = theme.colors.primary.text;
-  let hoverColor = theme.colors.primary.transparent;
+// Any focus shows the ring; a mouse focus (:focus:not(:focus-visible)) removes it again.
+const styles = stylex.create({
+  button: {
+    zIndex: 0,
+    position: 'relative',
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: 0,
+    boxShadow: { default: 'none', ':focus': { default: focusRing, ':not(:focus-visible)': 'none' } },
+    borderStyle: 'none',
+    display: 'inline-flex',
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+    borderRadius: shape['--gf-shape-radius-default'],
+    outlineStyle: { default: null, ':focus': { default: 'dotted', ':not(:focus-visible)': 'none' } },
+    outlineWidth: { default: null, ':focus': '2px' },
+    outlineColor: { default: null, ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    transitionProperty: { default: null, ':focus': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+    '::before': {
+      zIndex: -1,
+      position: 'absolute',
+      opacity: { default: 0, ':hover': 1 },
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '""',
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.2s' },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    },
+  },
+  hoverSize: (size: string) => ({
+    '::before': {
+      width: size,
+      height: size,
+    },
+  }),
+  // A native :disabled button wins over hover/active, so this replaces the hover background.
+  disabled: {
+    cursor: 'not-allowed',
+    color: colors['--gf-colors-action-disabled-text'],
+    opacity: 0.65,
+    '::before': {
+      backgroundColor: 'transparent',
+    },
+  },
+  icon: {
+    verticalAlign: 'baseline',
+  },
+});
 
-  if (variant === 'secondary') {
-    iconColor = theme.colors.secondary.text;
-    hoverColor = theme.colors.secondary.transparent;
-  } else if (variant === 'destructive') {
-    iconColor = theme.colors.error.text;
-    hoverColor = theme.colors.error.transparent;
-  }
-
-  return {
-    button: css({
-      zIndex: 0,
-      position: 'relative',
-      margin: `0 ${theme.spacing.x0_5} 0 0`,
-      boxShadow: 'none',
-      border: 'none',
-      display: 'inline-flex',
-      background: 'transparent',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 0,
-      color: iconColor,
-      borderRadius: theme.shape.radius.default,
-
-      '&:active': {
-        '&:before, &:hover:before': {
-          backgroundColor: activeButtonStyle.background,
-        },
+// Pressing shows no background (a transparent secondary text button's active state).
+const variantStyles = stylex.create({
+  primary: {
+    color: colors['--gf-colors-primary-text'],
+    '::before': {
+      backgroundColor: { default: null, ':hover': colors['--gf-colors-primary-transparent'], ':active': 'transparent' },
+    },
+  },
+  secondary: {
+    color: colors['--gf-colors-secondary-text'],
+    '::before': {
+      backgroundColor: {
+        default: null,
+        ':hover': colors['--gf-colors-secondary-transparent'],
+        ':active': 'transparent',
       },
-
-      '&[disabled], &:disabled': {
-        cursor: 'not-allowed',
-        color: theme.colors.action.disabledText,
-        opacity: 0.65,
-        '&:hover:before': {
-          backgroundColor: 'transparent',
-        },
-      },
-
-      '&:before': {
-        zIndex: -1,
-        position: 'absolute',
-        opacity: 0,
-        width: `${hoverSize}px`,
-        height: `${hoverSize}px`,
-        borderRadius: theme.shape.radius.default,
-        content: '""',
-        [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-          transitionDuration: '0.2s',
-          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          transitionProperty: 'opacity',
-        },
-      },
-
-      '&:focus, &:focus-visible': getFocusStyles(theme),
-
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-
-      '&:hover:before': {
-        backgroundColor: hoverColor,
-        opacity: 1,
-      },
-    }),
-    icon: css({
-      verticalAlign: 'baseline',
-    }),
-  };
-};
+    },
+  },
+  destructive: {
+    color: colors['--gf-colors-error-text'],
+    '::before': {
+      backgroundColor: { default: null, ':hover': colors['--gf-colors-error-transparent'], ':active': 'transparent' },
+    },
+  },
+});

@@ -101,11 +101,8 @@ const datavizDefaultImportsRestrictions = [
 // slice appends its files or directories here (see the StyleX conventions doc).
 const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Button/Button.tsx',
-  'packages/grafana-ui/src/components/Icon/Icon.tsx',
-  'packages/grafana-ui/src/components/Layout/Stack/Stack.tsx',
-  'packages/grafana-ui/src/components/Layout/utils/responsiveStylex.ts',
-  'packages/grafana-ui/src/components/Layout/utils/sizeStyles.ts',
+  // U1 primitives
+  'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
