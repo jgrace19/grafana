@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -890,7 +888,7 @@ interface PreviewContentModalProps {
 
 function PreviewContentModal({ isOpen, title, content, isLoading, language, onDismiss }: PreviewContentModalProps) {
   return (
-    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={pendingEmotionStyles.previewModal}>
+    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} xstyle={styles.previewModal}>
       {isLoading ? (
         <Stack direction="row" gap={2} alignItems="center" justifyContent="center">
           <Spinner />
@@ -921,14 +919,6 @@ function PreviewContentModal({ isOpen, title, content, isLoading, language, onDi
     </Modal>
   );
 }
-
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  previewModal: css({
-    width: '900px',
-    maxWidth: '90vw',
-  }),
-};
 
 const previewModalStyles = stylex.create({
   editorContainer: {
@@ -1031,6 +1021,10 @@ function ConfirmImportModal({ isOpen, importStatus, onConfirm, onDismiss }: Conf
 }
 
 const styles = stylex.create({
+  previewModal: {
+    width: '900px',
+    maxWidth: '90vw',
+  },
   card: {
     backgroundColor: colors['--gf-colors-background-secondary'],
     borderRadius: shape['--gf-shape-radius-default'],

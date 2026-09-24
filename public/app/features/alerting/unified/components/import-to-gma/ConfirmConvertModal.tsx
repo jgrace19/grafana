@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 import { type ComponentProps, useMemo } from 'react';
@@ -20,6 +18,7 @@ import { getRuleName, isPluginProvidedRule } from '../../utils/rules';
 import { type ImportFormValues } from './ImportToGMARules';
 import { useGetRulesThatMightBeOverwritten, useGetRulesToBeImported } from './hooks';
 import { parseYamlFileToRulerRulesConfigDTO } from './yamlToRulerConverter';
+import './ConfirmConvertModal.css';
 
 export const SYNTHETICS_RULE_NAMES = [
   'SyntheticMonitoringCheckFailureAtHighSensitivity',
@@ -229,7 +228,7 @@ export const ConfirmConversionModal = ({ importPayload, isOpen, onDismiss }: Mod
       title={title}
       confirmText={confirmText}
       confirmButtonVariant="primary"
-      modalClass={pendingEmotionStyles.modal}
+      modalClass="gf-alerting-confirm-convert-modal"
       body={
         <Stack direction="column" gap={2}>
           {!isEmpty(rulesThatMightBeOverwritten) && (
@@ -354,13 +353,6 @@ function RulesPreview({ rules }: { rules: RulerRulesConfigDTO }) {
     </div>
   );
 }
-
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
-    width: '800px',
-  }),
-};
 
 const styles = stylex.create({
   content: {
