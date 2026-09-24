@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import {
   type DataFrame,
-  type GrafanaTheme2,
   extractFacetedLabels,
   getFieldDisplayName,
   getFieldSeriesColor,
@@ -13,7 +12,8 @@ import { t } from '@grafana/i18n';
 import { type VizLegendOptions, AxisPlacement } from '@grafana/schema';
 
 import { SeriesVisibilityChangeMode } from '../../components/PanelChrome/types';
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { usePanelContext } from '../PanelChrome';
@@ -66,7 +66,6 @@ export const PlotLegend = memo(function PlotLegend({
   ...vizLayoutLegendProps
 }: PlotLegendProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getPlotLegendStyles);
   const { onToggleSeriesVisibility } = usePanelContext();
 
   const [selectedLabels, setSelectedLabels] = useState<Record<string, string[]>>({});
@@ -163,9 +162,9 @@ export const PlotLegend = memo(function PlotLegend({
   const filterToggle = facetedFilter ? (
     <Toggletip
       content={
-        <div className={styles.filterPopoverContent}>
+        <div {...stylex.props(styles.filterPopoverContent)}>
           {facetedFilter}
-          <div className={styles.filterPopoverFooter}>
+          <div {...stylex.props(styles.filterPopoverFooter)}>
             <Button variant="secondary" size="sm" icon="gf-pin" onClick={handleToggleFilterDock}>
               {t('grafana-ui.viz-legend.pin-filter', 'Pin to sidebar')}
             </Button>
@@ -207,9 +206,9 @@ export const PlotLegend = memo(function PlotLegend({
   if (filterDocked && facetedFilter) {
     return (
       <VizLayout.Legend placement={placement} {...vizLayoutLegendProps}>
-        <div className={styles.legendWithFilter}>
-          <div className={styles.filterContent}>
-            <div className={styles.filterDockedActions}>
+        <div {...stylex.props(styles.legendWithFilter)}>
+          <div {...stylex.props(styles.filterContent)}>
+            <div {...stylex.props(styles.filterDockedActions)}>
               {hasActiveFilters && (
                 <IconButton
                   name="filter-minus"
@@ -227,7 +226,7 @@ export const PlotLegend = memo(function PlotLegend({
             </div>
             {facetedFilter}
           </div>
-          <div className={styles.legendContent}>{legend}</div>
+          <div {...stylex.props(styles.legendContent)}>{legend}</div>
         </div>
       </VizLayout.Legend>
     );
@@ -242,44 +241,51 @@ export const PlotLegend = memo(function PlotLegend({
 
 PlotLegend.displayName = 'PlotLegend';
 
-const getPlotLegendStyles = (theme: GrafanaTheme2) => ({
-  legendWithFilter: css({
+const styles = stylex.create({
+  legendWithFilter: {
     display: 'flex',
     width: '100%',
     height: '100%',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     overflow: 'hidden',
-  }),
-  legendContent: css({
-    flex: 1,
+  },
+  legendContent: {
+    flex: '1',
     minWidth: 0,
     overflow: 'auto',
-  }),
-  filterContent: css({
+  },
+  filterContent: {
     position: 'relative',
     flexShrink: 0,
     overflow: 'auto',
-    borderRight: `1px solid ${theme.colors.border.weak}`,
-    paddingRight: theme.spacing(1),
-  }),
-  filterDockedActions: css({
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+  filterDockedActions: {
     position: 'absolute',
     zIndex: 1,
-    right: theme.spacing(0.5),
-    top: theme.spacing(0.5),
+    right: spacing['--gf-spacing-x0-5'],
+    top: spacing['--gf-spacing-x0-5'],
     display: 'flex',
-    gap: theme.spacing(0.25),
-    color: theme.colors.text.secondary,
-  }),
-  filterPopoverContent: css({
-    margin: theme.spacing(-3, -2),
+    gap: spacing['--gf-spacing-x0-25'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  filterPopoverContent: {
+    marginTop: `calc(${spacing['--gf-spacing-x3']} * -1)`,
+    marginRight: `calc(${spacing['--gf-spacing-x2']} * -1)`,
+    marginBottom: `calc(${spacing['--gf-spacing-x3']} * -1)`,
+    marginLeft: `calc(${spacing['--gf-spacing-x2']} * -1)`,
     maxHeight: 400,
     overflow: 'auto',
-  }),
-  filterPopoverFooter: css({
+  },
+  filterPopoverFooter: {
     display: 'flex',
-    gap: theme.spacing(1),
-    borderTop: `1px solid ${theme.colors.border.medium}`,
-    padding: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    padding: spacing['--gf-spacing-x1'],
+  },
 });

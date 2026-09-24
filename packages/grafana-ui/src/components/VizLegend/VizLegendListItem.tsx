@@ -1,12 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 
 import { VizLegendSeriesIcon } from './VizLegendSeriesIcon';
 import { VizLegendStatsList } from './VizLegendStatsList';
@@ -40,8 +40,6 @@ export const VizLegendListItem = <T = unknown,>({
   readonly,
   allItemsSelected,
 }: Props<T>) => {
-  const styles = useStyles2(getStyles);
-
   const onMouseOver = useCallback(
     (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FocusEvent<HTMLButtonElement>) => {
       if (onLabelMouseOver) {
@@ -78,7 +76,7 @@ export const VizLegendListItem = <T = unknown,>({
 
   return (
     <div
-      className={cx(styles.itemWrapper, item.disabled && styles.itemDisabled, className)}
+      {...mergeStylexProps(stylex.props(styles.itemWrapper, item.disabled && styles.itemDisabled), { className })}
       data-testid={selectors.components.VizLegend.seriesName(item.label)}
     >
       <VizLegendSeriesIcon
@@ -97,7 +95,7 @@ export const VizLegendListItem = <T = unknown,>({
         onMouseOver={onMouseOver}
         onMouseOut={onMouseOut}
         onClick={onClick}
-        className={styles.label}
+        {...stylex.props(styles.label)}
       >
         {item.label}
       </button>
@@ -109,32 +107,24 @@ export const VizLegendListItem = <T = unknown,>({
 
 VizLegendListItem.displayName = 'VizLegendListItem';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  label: css({
-    label: 'LegendLabel',
+const styles = stylex.create({
+  label: {
     whiteSpace: 'nowrap',
-    background: 'none',
-    border: 'none',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
     fontSize: 'inherit',
     padding: 0,
     userSelect: 'text',
-  }),
-  itemDisabled: css({
-    label: 'LegendLabelDisabled',
-    color: theme.colors.text.disabled,
-  }),
-  itemWrapper: css({
-    label: 'LegendItemWrapper',
+  },
+  itemDisabled: {
+    color: colors['--gf-colors-text-disabled'],
+  },
+  itemWrapper: {
     display: 'flex',
     whiteSpace: 'nowrap',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     flexGrow: 1,
-  }),
-  value: css({
-    textAlign: 'right',
-  }),
-  yAxisLabel: css({
-    color: theme.v1.palette.gray2,
-  }),
+  },
 });

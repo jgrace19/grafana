@@ -1,14 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactElement, useCallback, useRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { bp, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 
 import { PanelMenu } from './PanelMenu';
+
+import './HoverWidget.css';
 
 interface Props {
   children?: React.ReactNode;
@@ -21,7 +24,6 @@ interface Props {
 }
 
 export function HoverWidget({ menu, title, dragClass, children, offset = -32, onOpenMenu, onDragStart }: Props) {
-  const styles = useStyles2(getStyles);
   const draggableRef = useRef<HTMLDivElement>(null);
   const selectors = e2eSelectors.components.Panels.Panel.HoverWidget;
   // Capture the pointer to keep the widget visible while dragging
@@ -43,19 +45,19 @@ export function HoverWidget({ menu, title, dragClass, children, offset = -32, on
 
   return (
     <div
-      className={cx(styles.container, 'show-on-hover')}
+      {...mergeStylexProps(stylex.props(styles.container), { className: 'show-on-hover' })}
       style={{ top: offset === 0 ? -1 : offset }}
       data-testid={selectors.container}
     >
       {dragClass && (
         <div
-          className={cx(styles.square, styles.draggable, dragClass)}
+          {...mergeStylexProps(stylex.props(styles.square, styles.draggable), { className: dragClass })}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           ref={draggableRef}
           data-testid={selectors.dragIcon}
         >
-          <Icon name="expand-arrows" className={styles.draggableIcon} />
+          <Icon name="expand-arrows" xstyle={styles.draggableIcon} />
         </div>
       )}
       {children}
@@ -64,7 +66,7 @@ export function HoverWidget({ menu, title, dragClass, children, offset = -32, on
           menu={menu}
           title={title}
           placement="bottom"
-          menuButtonClass={styles.menuButton}
+          menuButtonClass="gf-hover-widget-menu-button"
           onOpenMenu={onOpenMenu}
         />
       )}
@@ -72,54 +74,47 @@ export function HoverWidget({ menu, title, dragClass, children, offset = -32, on
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      label: 'hover-container-widget',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: `all .1s linear`,
-      },
-      display: 'flex',
-      position: 'absolute',
-      zIndex: 1,
-      right: -1,
-      top: -1,
-      boxSizing: 'content-box',
-      alignItems: 'center',
-      background: theme.colors.background.secondary,
-      color: theme.colors.text.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderBottomLeftRadius: theme.shape.radius.default,
-      height: theme.spacing(4),
-      boxShadow: theme.shadows.z1,
-      gap: theme.spacing(1),
-      padding: theme.spacing(0, 1),
-    }),
-    square: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: theme.spacing(4),
-      height: '100%',
-    }),
-    draggable: css({
-      cursor: 'move',
-      // mobile do not support draggable panels
-      [theme.breakpoints.down('md')]: {
-        display: 'none',
-      },
-    }),
-    menuButton: css({
-      // Background and border are overriden when topnav toggle is disabled
-      background: 'inherit',
-      border: 'none',
-    }),
-    draggableIcon: css({
-      transform: 'rotate(45deg)',
-      color: theme.colors.text.secondary,
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'all' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '.1s' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'linear' },
+    display: 'flex',
+    position: 'absolute',
+    zIndex: 1,
+    right: -1,
+    top: -1,
+    boxSizing: 'content-box',
+    alignItems: 'center',
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    color: colors['--gf-colors-text-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    height: spacing['--gf-spacing-x4'],
+    boxShadow: shadows['--gf-shadows-z1'],
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  square: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: spacing['--gf-spacing-x4'],
+    height: '100%',
+  },
+  // Replaces square's `display` (a later namespace wins the whole property), so it repeats `flex`.
+  draggable: {
+    cursor: 'move',
+    // mobile do not support draggable panels
+    display: { default: 'flex', [bp.mdDown]: 'none' },
+  },
+  draggableIcon: {
+    transform: 'rotate(45deg)',
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+  },
+});

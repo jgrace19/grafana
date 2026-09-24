@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, type HTMLAttributes, useMemo, useRef, useLayoutEffect } from 'react';
 import * as React from 'react';
 import { useWindowSize } from 'react-use';
 
-import { type Dimensions2D, type GrafanaTheme2 } from '@grafana/data';
+import { type Dimensions2D } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getTooltipContainerStyles } from '../../themes/mixins';
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 
 import { calculateTooltipPosition } from './utils';
 
@@ -86,8 +87,6 @@ export const VizTooltipContainer = ({
     }
   }, [width, height, positionX, offsetX, positionY, offsetY, tooltipMeasurement]);
 
-  const styles = useStyles2(getStyles);
-
   return (
     <div
       ref={tooltipRef}
@@ -104,7 +103,7 @@ export const VizTooltipContainer = ({
       aria-live="polite"
       aria-atomic="true"
       {...otherProps}
-      className={cx(styles.wrapper, className)}
+      className={mergeStylexProps(stylex.props(styles.wrapper), { className }).className}
     >
       {children}
     </div>
@@ -113,6 +112,15 @@ export const VizTooltipContainer = ({
 
 VizTooltipContainer.displayName = 'VizTooltipContainer';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css(getTooltipContainerStyles(theme)),
+// Same values as getTooltipContainerStyles (compat/emotion/mixins.ts), which plugins still use.
+const styles = stylex.create({
+  wrapper: {
+    overflow: 'hidden',
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    boxShadow: shadows['--gf-shadows-z2'],
+    maxWidth: '800px',
+    padding: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    zIndex: zIndex.tooltip,
+  },
 });

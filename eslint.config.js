@@ -126,6 +126,8 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
+  // U7 viz
+  'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

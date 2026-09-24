@@ -1,8 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 import { VizTooltipRow } from './VizTooltipRow';
 import { type VizTooltipItem } from './types';
@@ -13,9 +11,8 @@ interface Props {
 }
 
 export const VizTooltipHeader = ({ item: { label, value, color, colorIndicator }, isPinned }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles}>
+    <div {...stylex.props(styles.wrapper)}>
       <VizTooltipRow
         label={label}
         value={value}
@@ -28,11 +25,12 @@ export const VizTooltipHeader = ({ item: { label, value, color, colorIndicator }
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) =>
-  css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
-    padding: theme.spacing(1),
+    flex: '1',
+    padding: spacing['--gf-spacing-x1'],
     lineHeight: 1,
-  });
+  },
+});

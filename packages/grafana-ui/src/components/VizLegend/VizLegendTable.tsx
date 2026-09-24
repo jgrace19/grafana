@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Button } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { useLimit } from '../List/hooks';
@@ -33,7 +33,6 @@ export const VizLegendTable = <T extends unknown>({
   limit = 0,
   filterAction,
 }: VizLegendTableProps<T>): JSX.Element => {
-  const styles = useStyles2(getStyles);
   const header: Record<string, string> = {
     [nameSortKey]: '',
   };
@@ -92,19 +91,23 @@ export const VizLegendTable = <T extends unknown>({
   }
 
   return (
-    <table className={cx(styles.table, className)}>
+    <table {...mergeStylexProps(stylex.props(styles.table), { className })}>
       <thead>
         <tr>
-          {Object.keys(header).map((columnTitle) => (
+          {Object.keys(header).map((columnTitle, index) => (
             <th
               title={header[columnTitle]}
               key={columnTitle}
-              className={cx(styles.header, {
-                [styles.headerSortable]: Boolean(onToggleSort),
-                [styles.nameHeader]: isSortable,
-                [styles.withIcon]: sortKey === columnTitle,
-                'sr-only': !isSortable,
-              })}
+              {...mergeStylexProps(
+                stylex.props(
+                  styles.header,
+                  Boolean(onToggleSort) && styles.headerSortable,
+                  isSortable && styles.nameHeader,
+                  sortKey === columnTitle && styles.withIcon,
+                  index === 0 && styles.firstHeader
+                ),
+                { className: !isSortable ? 'sr-only' : undefined }
+              )}
               onClick={() => {
                 if (onToggleSort && isSortable) {
                   onToggleSort(columnTitle);
@@ -113,7 +116,7 @@ export const VizLegendTable = <T extends unknown>({
             >
               {columnTitle === nameSortKey && filterAction && (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <span className={styles.filterAction} onClick={(e) => e.stopPropagation()}>
+                <span {...stylex.props(styles.filterAction)} onClick={(e) => e.stopPropagation()}>
                   {filterAction}
                 </span>
               )}
@@ -139,36 +142,41 @@ export const VizLegendTable = <T extends unknown>({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
+const styles = stylex.create({
+  table: {
     width: '100%',
-    'th:first-child': {
-      width: '100%',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    },
-  }),
-  header: css({
-    color: theme.colors.primary.text,
-    fontWeight: theme.typography.fontWeightMedium,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(0.25, 1, 0.25, 1),
-    fontSize: theme.typography.bodySmall.fontSize,
+  },
+  header: {
+    color: colors['--gf-colors-primary-text'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
     textAlign: 'right',
     whiteSpace: 'nowrap',
-  }),
-  nameHeader: css({
+  },
+  nameHeader: {
     textAlign: 'left',
     paddingLeft: '30px',
-  }),
-  withIcon: css({
+  },
+  withIcon: {
     paddingRight: '4px',
-  }),
-  headerSortable: css({
+  },
+  headerSortable: {
     cursor: 'pointer',
-  }),
-  filterAction: css({
-    marginLeft: theme.spacing(0.5),
+  },
+  // `.table th:first-child` outranked every header class.
+  firstHeader: {
+    width: '100%',
+  },
+  filterAction: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
     display: 'inline-flex',
     verticalAlign: 'middle',
-  }),
+  },
 });

@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { InlineList } from '../List/InlineList';
 import { List } from '../List/List';
 
@@ -27,8 +26,6 @@ export const VizLegendList = <T extends unknown>({
   limit = 0,
   filterAction,
 }: Props<T>) => {
-  const styles = useStyles2(getStyles);
-
   const allItemsSelected = useMemo(() => !items.some((item) => item.disabled), [items]);
 
   if (!itemRenderer) {
@@ -59,12 +56,12 @@ export const VizLegendList = <T extends unknown>({
   switch (placement) {
     case 'right': {
       const renderItem = (item: VizLegendItem<T>, index: number) => {
-        return <span className={styles.itemRight}>{itemRenderer!(item, index)}</span>;
+        return <span {...stylex.props(styles.itemBottom, styles.itemRight)}>{itemRenderer!(item, index)}</span>;
       };
 
       return (
-        <div className={cx(styles.rightWrapper, className)}>
-          {filterAction && <span className={styles.itemRight}>{filterAction}</span>}
+        <div {...mergeStylexProps(stylex.props(styles.rightWrapper), { className })}>
+          {filterAction && <span {...stylex.props(styles.itemBottom, styles.itemRight)}>{filterAction}</span>}
           <List items={leftItems} renderItem={renderItem} getItemKey={getItemKey} limit={limit} />
         </div>
       );
@@ -72,20 +69,20 @@ export const VizLegendList = <T extends unknown>({
     case 'bottom':
     default: {
       const renderItem = (item: VizLegendItem<T>, index: number) => {
-        return <span className={styles.itemBottom}>{itemRenderer!(item, index)}</span>;
+        return <span {...stylex.props(styles.itemBottom)}>{itemRenderer!(item, index)}</span>;
       };
 
       return (
-        <div className={cx(styles.bottomWrapper, className)}>
+        <div {...mergeStylexProps(stylex.props(styles.bottomWrapper), { className })}>
           {leftItems.length > 0 && (
-            <div className={styles.section}>
-              {filterAction && <span className={styles.itemBottom}>{filterAction}</span>}
+            <div {...stylex.props(styles.section)}>
+              {filterAction && <span {...stylex.props(styles.itemBottom)}>{filterAction}</span>}
               <InlineList items={leftItems} renderItem={renderItem} getItemKey={getItemKey} limit={limit} />
             </div>
           )}
           {rightItems.length > 0 && (
-            <div className={cx(styles.section, styles.sectionRight)}>
-              {!leftItems.length && filterAction && <span className={styles.itemBottom}>{filterAction}</span>}
+            <div {...stylex.props(styles.section, styles.sectionRight)}>
+              {!leftItems.length && filterAction && <span {...stylex.props(styles.itemBottom)}>{filterAction}</span>}
               <InlineList items={rightItems} renderItem={renderItem} getItemKey={getItemKey} limit={limit} />
             </div>
           )}
@@ -97,41 +94,35 @@ export const VizLegendList = <T extends unknown>({
 
 VizLegendList.displayName = 'VizLegendList';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const itemStyles = css({
+const styles = stylex.create({
+  itemBottom: {
     paddingRight: '10px',
     display: 'flex',
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: typography['--gf-typography-body-small-font-size'],
     whiteSpace: 'nowrap',
-  });
-
-  return {
-    itemBottom: itemStyles,
-    itemRight: cx(
-      itemStyles,
-      css({
-        marginBottom: theme.spacing(0.5),
-      })
-    ),
-    rightWrapper: css({
-      padding: theme.spacing(0.5),
-    }),
-    bottomWrapper: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      width: '100%',
-      padding: theme.spacing(0.5),
-      gap: '15px 25px',
-    }),
-    section: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-    }),
-    sectionRight: css({
-      justifyContent: 'flex-end',
-      flexGrow: 1,
-      flexBasis: '50%',
-    }),
-  };
-};
+  },
+  itemRight: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  rightWrapper: {
+    padding: spacing['--gf-spacing-x0-5'],
+  },
+  bottomWrapper: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: spacing['--gf-spacing-x0-5'],
+    rowGap: '15px',
+    columnGap: '25px',
+  },
+  section: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  sectionRight: {
+    justifyContent: 'flex-end',
+    flexGrow: 1,
+    flexBasis: '50%',
+  },
+});
