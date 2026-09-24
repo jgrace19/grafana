@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState, type MouseEvent } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { PluginType, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { PluginType, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationSearchToObject, reportInteraction } from '@grafana/runtime';
-import { LoadingPlaceholder, EmptyState, Field, RadioButtonGroup, Tooltip, Combobox, useStyles2 } from '@grafana/ui';
+import { LoadingPlaceholder, EmptyState, Field, RadioButtonGroup, Tooltip, Combobox } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { contextSrv } from 'app/core/services/context_srv';
 import { HorizontalGroup } from 'app/features/plugins/admin/components/HorizontalGroup';
@@ -21,33 +23,6 @@ import { CardGrid, type CardGridItem } from './CardGrid/CardGrid';
 import { CategoryHeader } from './CategoryHeader/CategoryHeader';
 import { NoAccessModal } from './NoAccessModal/NoAccessModal';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  searchContainer: css({
-    paddingTop: theme.spacing(0.5),
-    paddingBottom: theme.spacing(1),
-    marginBottom: theme.spacing(3),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  contentWrap: css({
-    height: 'calc(100vh - 350px)',
-    overflowY: 'auto',
-  }),
-  spacer: css({
-    height: theme.spacing(2),
-  }),
-  modal: css({
-    width: '500px',
-  }),
-  modalContent: css({
-    overflow: 'visible',
-  }),
-  actionBar: css({
-    [theme.breakpoints.up('xl')]: {
-      marginLeft: 'auto',
-    },
-  }),
-});
-
 export function AddNewConnection() {
   const [queryParams, setQueryParams] = useQueryParams();
   const searchTerm = queryParams.search ? String(queryParams.search) : '';
@@ -59,7 +34,6 @@ export function AddNewConnection() {
   const sortBy = (locationSearch.sortBy as Sorters) || Sorters.nameAsc;
   const filterBy = locationSearch.filterBy?.toString() || 'all';
   const canCreateDataSources = contextSrv.hasPermission(AccessControlAction.DataSourcesCreate);
-  const styles = useStyles2(getStyles);
   const handleSearchChange = (val: string) => {
     setQueryParams({
       search: val,
@@ -155,12 +129,12 @@ export function AddNewConnection() {
     <>
       {focusedItem && <NoAccessModal item={focusedItem} isOpen={isNoAccessModalOpen} onDismiss={closeModal} />}
 
-      <div className={styles.searchContainer}>
+      <div {...stylex.props(styles.searchContainer)}>
         <HorizontalGroup wrap>
           <Field label={t('common.search', 'Search')}>
             <SearchField value={searchTerm} onSearch={handleSearchChange} />
           </Field>
-          <HorizontalGroup className={styles.actionBar}>
+          <HorizontalGroup xstyle={styles.actionBar}>
             {/* Filter by installed / all */}
             {remotePluginsAvailable ? (
               <Field label={t('plugins.filter.state', 'State')}>
@@ -215,7 +189,7 @@ export function AddNewConnection() {
           </HorizontalGroup>
         </HorizontalGroup>
       </div>
-      <div className={styles.contentWrap}>
+      <div {...stylex.props(styles.contentWrap)}>
         {isLoading ? (
           <LoadingPlaceholder text={t('common.loading', 'Loading...')} />
         ) : !!error ? (
@@ -238,7 +212,7 @@ export function AddNewConnection() {
             {/* Apps Section */}
             {appsPlugins.length > 0 && (
               <>
-                <div className={styles.spacer} />
+                <div {...stylex.props(styles.spacer)} />
                 <CategoryHeader iconName="apps" label={t('connections.connect-data.apps-header', 'Apps')} />
                 <CardGrid items={appsCardGridItems} onClickItem={onClickCardGridItem} />
               </>
@@ -256,3 +230,24 @@ export function AddNewConnection() {
     </>
   );
 }
+
+const styles = stylex.create({
+  searchContainer: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x3'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  contentWrap: {
+    height: 'calc(100vh - 350px)',
+    overflowY: 'auto',
+  },
+  spacer: {
+    height: spacing['--gf-spacing-x2'],
+  },
+  actionBar: {
+    marginLeft: { default: null, [bp.xlUp]: 'auto' },
+  },
+});

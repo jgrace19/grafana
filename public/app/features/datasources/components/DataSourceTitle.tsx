@@ -1,37 +1,32 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   title: string;
 }
 
 export function DataSourceTitle({ title }: Props) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{title}</h1>
+    <div {...stylex.props(styles.container)}>
+      <h1 {...stylex.props(styles.title)}>{title}</h1>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: theme.spacing(2),
-      h1: {
-        display: 'inline-block',
-      },
-    }),
-    title: css({
-      display: 'inline-block',
-      margin: '0 0 0 0',
-      maxWidth: '40vw',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  title: {
+    display: 'inline-block',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    maxWidth: '40vw',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});

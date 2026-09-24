@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Menu migration
 import { css } from '@emotion/css';
 
-import { type DataSourceSettings, type GrafanaTheme2 } from '@grafana/data';
+import { type DataSourceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, type ComponentSize, Dropdown, Icon, LinkButton, Menu, useStyles2 } from '@grafana/ui';
+import { Button, type ComponentSize, Dropdown, Icon, LinkButton, Menu } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { createWarningNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { CONTENT_KINDS, SOURCE_ENTRY_POINTS } from 'app/features/dashboard/dashgrid/DashboardLibrary/constants';
@@ -24,7 +26,6 @@ interface BuildDashboardButtonProps {
 
 export const BuildDashboardButton = ({ dataSource, size, fill, context }: BuildDashboardButtonProps) => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
 
   if (!config.featureToggles.suggestedDashboards) {
     return (
@@ -71,9 +72,7 @@ export const BuildDashboardButton = ({ dataSource, size, fill, context }: BuildD
                 icon={fetchStatus === 'loading' ? 'spinner' : 'lightbulb-alt'}
                 disabled={fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards)}
                 className={
-                  fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards)
-                    ? styles.disabledItem
-                    : undefined
+                  fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards) ? disabledItem : undefined
                 }
                 onClick={(e) => {
                   e.nativeEvent.stopPropagation();
@@ -125,14 +124,14 @@ export const BuildDashboardButton = ({ dataSource, size, fill, context }: BuildD
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  disabledItem: css({
-    cursor: 'not-allowed',
-    '& span': {
-      color: theme.colors.action.disabledText,
-    },
-    '& svg': {
-      color: theme.colors.action.disabledText,
-    },
-  }),
+// stylex: pending Menu migration. The descendant span/svg colours target Menu.Item's DOM, and the cursor must beat
+// Menu.Item's own Emotion `cursor: pointer`.
+const disabledItem = css({
+  cursor: 'not-allowed',
+  '& span': {
+    color: colors['--gf-colors-action-disabled-text'],
+  },
+  '& svg': {
+    color: colors['--gf-colors-action-disabled-text'],
+  },
 });
