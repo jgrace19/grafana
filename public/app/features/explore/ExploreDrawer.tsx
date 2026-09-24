@@ -4,7 +4,8 @@ import { Resizable, type ResizeCallback } from 're-resizable';
 import * as React from 'react';
 
 // Services & Utils
-import { getDragStyles, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
 import { colors, components, shadows } from '@grafana/ui/stylex/tokens.stylex';
 
@@ -17,7 +18,7 @@ export interface Props {
 export function ExploreDrawer(props: Props) {
   const { children, onResize, initialHeight } = props;
   const theme = useTheme2();
-  const dragStyles = getDragStyles(theme);
+  const dragStyles = getDragHandleClassNames();
 
   const height = initialHeight || `${theme.components.horizontalDrawer.defaultHeight}px`;
 

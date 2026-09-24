@@ -34,6 +34,7 @@ export type { FacetedData, FacetSeries } from '../components/uPlot/types';
 
 export { type ResponsiveProp } from '../components/Layout/utils/responsiveness';
 export { getResponsiveStyle } from '../compat/emotion/getResponsiveStyle';
+export { getDragHandleClassNames } from '../components/DragHandle/dragHandleStyles';
 export { ColorSwatch } from '../components/ColorPicker/ColorSwatch';
 
 export { FieldNamePicker } from '../components/MatchersUI/FieldNamePicker';
