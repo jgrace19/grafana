@@ -2,8 +2,6 @@ import { css, cx } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { inputSizesPixels } from '../../components/Forms/commonStyles';
-
 import { getFocusStyles } from './mixins';
 
 // Frozen Emotion implementation of the shared form input styles, kept for plugins and not-yet-migrated
@@ -79,22 +77,4 @@ export const inputPadding = (theme: GrafanaTheme2) => {
   return css({
     padding: theme.spacing(0, 1, 0, 1),
   });
-};
-
-/** @deprecated Emotion compat. Use `inputSizesPixels` from `components/Forms/commonStyles`. */
-export const inputSizes = () => {
-  return {
-    sm: css({
-      width: inputSizesPixels('sm'),
-    }),
-    md: css({
-      width: inputSizesPixels('md'),
-    }),
-    lg: css({
-      width: inputSizesPixels('lg'),
-    }),
-    auto: css({
-      width: inputSizesPixels('auto'),
-    }),
-  };
 };

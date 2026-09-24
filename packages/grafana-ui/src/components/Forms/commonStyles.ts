@@ -2,20 +2,6 @@ import { type GrafanaTheme2 } from '@grafana/data';
 
 import { type ComponentSize } from '../../types/size';
 
-export const inputSizesPixels = (size: string) => {
-  switch (size) {
-    case 'sm':
-      return '200px';
-    case 'md':
-      return '320px';
-    case 'lg':
-      return '580px';
-    case 'auto':
-    default:
-      return 'auto';
-  }
-};
-
 export function getPropertiesForButtonSize(size: ComponentSize, theme: GrafanaTheme2) {
   switch (size) {
     case 'sm':

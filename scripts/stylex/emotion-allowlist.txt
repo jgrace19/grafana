@@ -80,4 +80,3 @@ public/app/features/dashboard/components/PublicDashboardNotAvailable/PublicDashb
 public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderNotice.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)
 public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderTitleItems.tsx # stylex: PanelChrome.TitleItem has no xstyle and its :hover colour override is JS colour math (emphasize)
 public/app/features/dashboard/dashgrid/PanelLinks.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)
-public/app/features/scopes/selector/ScopesInput.tsx # M3: not migrated, composes Input's Emotion getInputStyles; migrate with U2 (Input)

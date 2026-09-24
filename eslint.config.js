@@ -207,10 +207,7 @@ const stylexMigratedAppFiles = [
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
-const stylexNotMigratedAppFiles = [
-  // Composes Input's Emotion getInputStyles; migrate once Input (U2) is StyleX.
-  'public/app/features/scopes/selector/ScopesInput.tsx',
-];
+const stylexNotMigratedAppFiles = [];
 
 const stylexRestrictedImports = {
   patterns: [
