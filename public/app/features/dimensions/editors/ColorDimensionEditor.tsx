@@ -1,16 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import {
-  type GrafanaTheme2,
-  type SelectableValue,
-  type StandardEditorProps,
-  type FieldNamePickerBaseNameMode,
-} from '@grafana/data';
+import { type SelectableValue, type StandardEditorProps, type FieldNamePickerBaseNameMode } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ColorDimensionConfig } from '@grafana/schema';
-import { Combobox, ColorPicker, useStyles2 } from '@grafana/ui';
+import { Combobox, ColorPicker } from '@grafana/ui';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface ColorDimensionSettings {
   isClearable?: boolean;
@@ -30,7 +26,6 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
 
   const defaultColor = 'dark-green';
 
-  const styles = useStyles2(getStyles);
   const fieldName = value?.field;
   const isFixed = value && Boolean(!fieldName) && value?.fixed;
   const names = useFieldDisplayNames(context.data);
@@ -77,7 +72,7 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
   const selectedOption = isFixed ? fixedColorOption : selectOptions.find((v) => v.value === fieldName);
   return (
     <>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <Combobox
           id={id}
           value={selectedOption}
@@ -88,7 +83,7 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
           {...(item.settings?.isClearable ? { isClearable: true } : { isClearable: false })} // silly TS issue
         />
         {isFixed && (
-          <div className={styles.picker}>
+          <div {...stylex.props(styles.picker)}>
             <ColorPicker color={value?.fixed} onChange={onColorChange} enableNamedColors={true} />
           </div>
         )}
@@ -97,14 +92,15 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexWrap: 'nowrap',
     justifyContent: 'flex-end',
     alignItems: 'center',
-  }),
-  picker: css({
-    paddingLeft: theme.spacing(1),
-  }),
+  },
+
+  picker: {
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
 });

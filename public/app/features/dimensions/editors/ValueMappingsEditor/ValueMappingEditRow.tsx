@@ -1,17 +1,12 @@
-import { css } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useRef } from 'react';
 import * as React from 'react';
 
-import {
-  type GrafanaTheme2,
-  MappingType,
-  SpecialValueMatch,
-  type SelectableValue,
-  type ValueMappingResult,
-} from '@grafana/data';
+import { MappingType, SpecialValueMatch, type SelectableValue, type ValueMappingResult } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, Icon, Select, ColorPicker, IconButton, Input, Button, Stack } from '@grafana/ui';
+import { Icon, Select, ColorPicker, IconButton, Input, Button, Stack } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ResourcePickerSize, ResourceFolderName, MediaType } from '../../types';
 import { ResourcePicker } from '../ResourcePicker';
@@ -39,7 +34,6 @@ interface Props {
 
 export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDuplicate, showIconPicker }: Props) {
   const { key, result, id } = mapping;
-  const styles = useStyles2(getStyles);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const update = useCallback(
@@ -184,9 +178,9 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
   return (
     <Draggable key={id} draggableId={id} index={index}>
       {(provided) => (
-        <tr className={styles.dragRow} ref={provided.innerRef} {...provided.draggableProps}>
-          <td>
-            <div className={styles.dragHandle} {...provided.dragHandleProps}>
+        <tr {...stylex.props(styles.dragRow)} ref={provided.innerRef} {...provided.draggableProps}>
+          <td {...stylex.props(styles.cell)}>
+            <div {...stylex.props(styles.dragHandle)} {...provided.dragHandleProps}>
               <Icon
                 name="draggabledots"
                 size="lg"
@@ -194,8 +188,8 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               />
             </div>
           </td>
-          <td className={styles.typeColumn}>{mapping.type}</td>
-          <td>
+          <td {...stylex.props(styles.cell, styles.typeColumn)}>{mapping.type}</td>
+          <td {...stylex.props(styles.cell)}>
             {mapping.type === MappingType.ValueToText && (
               <Input
                 ref={inputRef}
@@ -209,8 +203,9 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               />
             )}
             {mapping.type === MappingType.RangeToText && (
-              <div className={styles.rangeInputWrapper}>
+              <div {...stylex.props(styles.rangeInputWrapper)}>
                 <Input
+                  className={stylex.props(styles.rangeInputFrom).className}
                   type="number"
                   value={mapping.from ?? ''}
                   placeholder={t('dimensions.value-mapping-edit-row.placeholder-from', 'From')}
@@ -243,7 +238,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               />
             )}
           </td>
-          <td>
+          <td {...stylex.props(styles.cell)}>
             <Input
               type="text"
               value={result.text ?? ''}
@@ -254,7 +249,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               )}
             />
           </td>
-          <td className={styles.textAlignCenter}>
+          <td {...stylex.props(styles.cell, styles.textAlignCenter)}>
             {result.color && (
               <Stack gap={1} justifyContent="center">
                 <ColorPicker color={result.color} onChange={onChangeColor} enableNamedColors={true} />
@@ -277,7 +272,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
             )}
           </td>
           {showIconPicker && (
-            <td className={styles.textAlignCenter}>
+            <td {...stylex.props(styles.cell, styles.textAlignCenter)}>
               <Stack gap={1} justifyContent="center">
                 <ResourcePicker
                   onChange={onChangeIcon}
@@ -299,7 +294,7 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
               </Stack>
             </td>
           )}
-          <td className={styles.textAlignCenter}>
+          <td {...stylex.props(styles.cell, styles.textAlignCenter)}>
             <Stack gap={1}>
               <IconButton
                 name="copy"
@@ -329,43 +324,46 @@ export function ValueMappingEditRow({ mapping, index, onChange, onRemove, onDupl
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dragRow: css({
+const styles = stylex.create({
+  dragRow: {
     position: 'relative',
-  }),
-  dragHandle: css({
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+  },
+  cell: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  dragHandle: {
     cursor: 'grab',
     // create focus ring around the whole row when the drag handle is tab-focused
     // needs position: relative on the drag row to work correctly
-    '&:focus-visible&:after': {
-      bottom: 0,
-      content: '""',
-      left: 0,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      outline: `2px solid ${theme.colors.primary.main}`,
-      outlineOffset: '-2px',
+    '::after': {
+      bottom: { default: null, ':focus-visible': 0 },
+      content: { default: null, ':focus-visible': '""' },
+      left: { default: null, ':focus-visible': 0 },
+      position: { default: null, ':focus-visible': 'absolute' },
+      right: { default: null, ':focus-visible': 0 },
+      top: { default: null, ':focus-visible': 0 },
+      outlineWidth: { default: null, ':focus-visible': '2px' },
+      outlineStyle: { default: null, ':focus-visible': 'solid' },
+      outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-main'] },
+      outlineOffset: { default: null, ':focus-visible': '-2px' },
     },
-  }),
-  rangeInputWrapper: css({
+  },
+  rangeInputWrapper: {
     display: 'flex',
-    '> div:first-child': {
-      marginRight: theme.spacing(2),
-    },
-  }),
-  regexInputWrapper: css({
-    display: 'flex',
-    '> div:first-child': {
-      marginRight: theme.spacing(2),
-    },
-  }),
-  typeColumn: css({
+  },
+  rangeInputFrom: {
+    marginRight: spacing['--gf-spacing-x2'],
+  },
+  typeColumn: {
     textTransform: 'capitalize',
     textAlign: 'center',
     width: '1%',
-  }),
-  textAlignCenter: css({
+  },
+  textAlignCenter: {
     textAlign: 'center',
-  }),
+  },
 });
