@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactElement } from 'react';
 
-import { type GrafanaTheme2, type TypedVariableModel } from '@grafana/data';
+import { type TypedVariableModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, Icon, IconButton, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, Icon, IconButton, useTheme2 } from '@grafana/ui';
+import { colors, spacing, v1 } from '@grafana/ui/stylex/tokens.stylex';
 
 import { hasOptions } from '../guard';
 import { VariableUsagesButton } from '../inspect/VariableUsagesButton';
@@ -35,7 +36,6 @@ export function VariableEditorListRow({
   onDelete: propsOnDelete,
 }: VariableEditorListRowProps): ReactElement {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const definition = getDefinition(variable);
   const usages = getVariableUsages(variable.id, usageTree);
@@ -54,7 +54,7 @@ export function VariableEditorListRow({
             ...provided.draggableProps.style,
           }}
         >
-          <td role="gridcell" className={styles.column}>
+          <td role="gridcell" {...stylex.props(styles.column)}>
             <Button
               size="xs"
               fill="text"
@@ -62,7 +62,7 @@ export function VariableEditorListRow({
                 event.preventDefault();
                 propsOnEdit(identifier);
               }}
-              className={styles.nameLink}
+              className={stylex.props(styles.nameLink).className}
               data-testid={selectors.pages.Dashboard.Settings.Variables.List.tableRowNameFields(variable.name)}
             >
               {variable.name}
@@ -70,7 +70,7 @@ export function VariableEditorListRow({
           </td>
           <td
             role="gridcell"
-            className={styles.definitionColumn}
+            {...stylex.props(styles.definitionColumn)}
             onClick={(event) => {
               event.preventDefault();
               propsOnEdit(identifier);
@@ -80,8 +80,8 @@ export function VariableEditorListRow({
             {definition}
           </td>
 
-          <td role="gridcell" className={styles.column}>
-            <div className={styles.icons}>
+          <td role="gridcell" {...stylex.props(styles.column)}>
+            <div {...stylex.props(styles.icons)}>
               <VariableCheckIndicator passed={passed} />
               <VariableUsagesButton id={variable.id} isAdhoc={variable.type === 'adhoc'} usages={usagesNetwork} />
               <IconButton
@@ -104,7 +104,7 @@ export function VariableEditorListRow({
                 tooltip={t('variables.variable-editor-list-row.tooltip-remove-variable', 'Remove variable')}
                 data-testid={selectors.pages.Dashboard.Settings.Variables.List.tableRowRemoveButtons(variable.name)}
               />
-              <div {...provided.dragHandleProps} className={styles.dragHandle}>
+              <div {...provided.dragHandleProps} {...stylex.props(styles.dragHandle)}>
                 <Icon
                   name="draggabledots"
                   size="lg"
@@ -143,13 +143,11 @@ interface VariableCheckIndicatorProps {
 }
 
 function VariableCheckIndicator({ passed }: VariableCheckIndicatorProps): ReactElement {
-  const styles = useStyles2(getStyles);
-
   if (passed) {
     return (
       <Icon
         name="check"
-        className={styles.iconPassed}
+        xstyle={styles.iconPassed}
         title={t(
           'variables.variable-check-indicator.title-variable-referenced-other-variables-dashboard',
           'This variable is referenced by other variables or dashboard.'
@@ -161,7 +159,7 @@ function VariableCheckIndicator({ passed }: VariableCheckIndicatorProps): ReactE
   return (
     <Icon
       name="exclamation-triangle"
-      className={styles.iconFailed}
+      xstyle={styles.iconFailed}
       title={t(
         'variables.variable-check-indicator.title-variable-referenced-dashboard',
         'This variable is not referenced by any variable or dashboard.'
@@ -170,40 +168,37 @@ function VariableCheckIndicator({ passed }: VariableCheckIndicatorProps): ReactE
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    dragHandle: css({
-      cursor: 'grab',
-      marginLeft: theme.spacing(1),
-    }),
-    column: css({
-      width: '1%',
-    }),
-    nameLink: css({
-      cursor: 'pointer',
-      color: theme.colors.primary.text,
-    }),
-    definitionColumn: css({
-      width: '100%',
-      maxWidth: '200px',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      OTextOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    iconPassed: css({
-      color: theme.v1.palette.greenBase,
-      marginRight: theme.spacing(2),
-    }),
-    iconFailed: css({
-      color: theme.v1.palette.orange,
-      marginRight: theme.spacing(2),
-    }),
-    icons: css({
-      display: 'flex',
-      gap: theme.spacing(2),
-      alignItems: 'center',
-    }),
-  };
-}
+const styles = stylex.create({
+  dragHandle: {
+    cursor: 'grab',
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  column: {
+    width: '1%',
+  },
+  nameLink: {
+    cursor: 'pointer',
+    color: colors['--gf-colors-primary-text'],
+  },
+  definitionColumn: {
+    width: '100%',
+    maxWidth: '200px',
+    cursor: 'pointer',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  iconPassed: {
+    color: v1['--gf-v1-palette-green-base'],
+    marginRight: spacing['--gf-spacing-x2'],
+  },
+  iconFailed: {
+    color: v1['--gf-v1-palette-orange'],
+    marginRight: spacing['--gf-spacing-x2'],
+  },
+  icons: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x2'],
+    alignItems: 'center',
+  },
+});

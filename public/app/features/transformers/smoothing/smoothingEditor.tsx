@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
 import {
@@ -8,7 +8,8 @@ import {
   TransformerCategory,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { InlineField, InlineFieldRow, Tooltip, useTheme2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Tooltip } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
 import darkImage from '../images/dark/smoothing.svg';
@@ -28,7 +29,6 @@ export const SmoothingTransformerEditor = ({
   options,
   onChange,
 }: TransformerUIProps<SmoothingTransformerOptions>) => {
-  const theme = useTheme2();
   const resolution = options.resolution ?? DEFAULTS.resolution;
 
   const maxSourcePoints = useMemo(() => calculateMaxSourcePoints(input), [input]);
@@ -60,13 +60,7 @@ export const SmoothingTransformerEditor = ({
                   { points: maxSourcePoints }
                 )}
               >
-                <span
-                  className={css({
-                    marginLeft: '8px',
-                    color: theme.colors.text.secondary,
-                    fontSize: theme.typography.bodySmall.fontSize,
-                  })}
-                >
+                <span {...stylex.props(styles.effectiveResolution)}>
                   {t('transformers.smoothing.effective-resolution', 'Effective: {{value}}', {
                     value: effectiveResolution,
                   })}
@@ -94,3 +88,11 @@ export const getSmoothingTransformerRegistryItem: () => TransformerRegistryItem<
     tags: new Set(['ASAP', 'Autosmooth']),
   };
 };
+
+const styles = stylex.create({
+  effectiveResolution: {
+    marginLeft: '8px',
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});

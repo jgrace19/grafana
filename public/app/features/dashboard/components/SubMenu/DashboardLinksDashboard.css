@@ -1,0 +1,9 @@
+/*
+ * Button has no xstyle, and a StyleX class string would race its own font size and padding (conventions §3.9).
+ * Unlayered, this beats its layered StyleX.
+ */
+.gf-dashboard-link-button {
+  font-size: var(--gf-typography-body-small-font-size);
+  padding-left: var(--gf-spacing-x1);
+  padding-right: var(--gf-spacing-x1);
+}

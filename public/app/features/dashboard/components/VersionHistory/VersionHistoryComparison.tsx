@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ModalsController, CollapsableSection, useStyles2, Stack, Icon, Box } from '@grafana/ui';
+import { Button, ModalsController, CollapsableSection, Stack, Icon, Box } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 import { DiffGroup } from 'app/features/dashboard-scene/settings/version-history/DiffGroup';
 import { DiffViewer } from 'app/features/dashboard-scene/settings/version-history/DiffViewer';
@@ -19,13 +19,12 @@ type DiffViewProps = {
 
 export const VersionHistoryComparison = ({ baseInfo, newInfo, diffData, isNewLatest }: DiffViewProps) => {
   const diff = jsonDiff(diffData.lhs, diffData.rhs);
-  const styles = useStyles2(getStyles);
 
   return (
     <Stack direction="column" gap={1}>
       <Stack justifyContent="space-between" alignItems="center">
         <Stack alignItems="center">
-          <span className={cx(styles.versionInfo, styles.noMarginBottom)}>
+          <span {...stylex.props(styles.versionInfo, styles.noMarginBottom)}>
             <Trans
               i18nKey="dashboard.version-history-comparison.old-updated-by"
               values={{ version: baseInfo.version, editor: baseInfo.createdBy, timeAgo: baseInfo.ageString }}
@@ -35,7 +34,7 @@ export const VersionHistoryComparison = ({ baseInfo, newInfo, diffData, isNewLat
             {baseInfo.message}
           </span>
           <Icon name="arrow-right" size="sm" />
-          <span className={styles.versionInfo}>
+          <span {...stylex.props(styles.versionInfo)}>
             <Trans
               i18nKey="dashboard.version-history-comparison.new-updated-by"
               values={{ version: newInfo.version, editor: newInfo.createdBy, timeAgo: newInfo.ageString }}
@@ -90,12 +89,12 @@ export const VersionHistoryComparison = ({ baseInfo, newInfo, diffData, isNewLat
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  versionInfo: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  noMarginBottom: css({
+const styles = stylex.create({
+  versionInfo: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  noMarginBottom: {
     marginBottom: 0,
-  }),
+  },
 });

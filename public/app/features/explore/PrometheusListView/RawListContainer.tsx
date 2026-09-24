@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { cloneDeep } from 'lodash';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
@@ -16,6 +16,8 @@ import {
   RawPrometheusListItemEmptyValue,
 } from './utils/getRawPrometheusListItemsFromDataFrame';
 
+import './RawListContainer.css';
+
 export type instantQueryRawVirtualizedListData = {
   Value: string;
   __name__?: string;
@@ -25,36 +27,6 @@ export type instantQueryRawVirtualizedListData = {
 export interface RawListContainerProps {
   tableResult: DataFrame;
 }
-
-const styles = {
-  wrapper: css({
-    height: '100%',
-    overflow: 'scroll',
-  }),
-  switchWrapper: css({
-    display: 'flex',
-    flexDirection: 'row',
-    marginBottom: 0,
-  }),
-  switchLabel: css({
-    marginLeft: '15px',
-    marginBottom: 0,
-  }),
-  switch: css({
-    marginLeft: '10px',
-  }),
-  resultCount: css({
-    marginBottom: '4px',
-  }),
-  header: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 0',
-    fontSize: '12px',
-    lineHeight: 1.25,
-  }),
-};
 
 const mobileWidthThreshold = 480;
 const numberOfColumnsBeforeExpandedViewIsDefault = 2;
@@ -121,14 +93,14 @@ const RawListContainer = (props: RawListContainerProps) => {
 
   return (
     <section>
-      <header className={styles.header}>
+      <header {...stylex.props(styles.header)}>
         <Field
-          className={styles.switchWrapper}
+          className="gf-explore-raw-list-switch"
           label={t('explore.raw-list-container.label-expand-results', 'Expand results')}
           htmlFor={'isExpandedView'}
           noMargin
         >
-          <div className={styles.switch}>
+          <div {...stylex.props(styles.switch)}>
             <Switch
               onChange={onContentClick}
               id={switchId}
@@ -138,7 +110,7 @@ const RawListContainer = (props: RawListContainerProps) => {
           </div>
         </Field>
 
-        <div className={styles.resultCount}>
+        <div {...stylex.props(styles.resultCount)}>
           <Trans i18nKey="explore.raw-list-container.item-count" values={{ numItems: items.length }}>
             Result series: {'{{numItems}}'}
           </Trans>
@@ -155,7 +127,7 @@ const RawListContainer = (props: RawListContainerProps) => {
             <List
               ref={listRef}
               itemCount={items.length}
-              className={styles.wrapper}
+              className={stylex.props(styles.wrapper).className}
               itemSize={(index) => getListItemHeight(index, isExpandedView)}
               height={calculateInitialHeight(items.length)}
               width="100%"
@@ -190,3 +162,27 @@ const RawListContainer = (props: RawListContainerProps) => {
 };
 
 export default RawListContainer;
+
+const styles = stylex.create({
+  wrapper: {
+    height: '100%',
+    overflow: 'scroll',
+  },
+  switch: {
+    marginLeft: '10px',
+  },
+  resultCount: {
+    marginBottom: '4px',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: '10px',
+    paddingBottom: '10px',
+    paddingLeft: 0,
+    paddingRight: 0,
+    fontSize: '12px',
+    lineHeight: 1.25,
+  },
+});

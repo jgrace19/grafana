@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type NodesMap, type TreeNode } from './types';
 
@@ -14,8 +13,6 @@ export interface ScopesTreeHeadlineProps {
 }
 
 export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scopeNodes }: ScopesTreeHeadlineProps) {
-  const styles = useStyles2(getStyles);
-
   if (
     anyChildExpanded ||
     (resultsNodes.some((n) => scopeNodes[n.scopeNodeId]?.spec.nodeType === 'container') && !query)
@@ -24,7 +21,7 @@ export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scop
   }
 
   return (
-    <h6 className={styles.container} data-testid="scopes-tree-headline">
+    <h6 {...stylex.props(styles.container)} data-testid="scopes-tree-headline">
       {!query ? (
         <Trans i18nKey="scopes.tree.headline.recommended">Recommended</Trans>
       ) : resultsNodes.length === 0 ? (
@@ -36,11 +33,12 @@ export function ScopesTreeHeadline({ anyChildExpanded, query, resultsNodes, scop
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      color: theme.colors.text.secondary,
-      margin: theme.spacing(1, 0),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    color: colors['--gf-colors-text-secondary'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x0'],
+  },
+});

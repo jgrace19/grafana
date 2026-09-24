@@ -1,13 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton, Spinner } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
 import { ScopesDashboardsTree } from './ScopesDashboardsTree';
 import { type OnFolderUpdate, type SuggestedNavigationsFolder, type SuggestedNavigationsFoldersMap } from './types';
+
+import './ScopesDashboardsTreeFolderItem.css';
 
 export interface ScopesDashboardsTreeFolderItemProps {
   folder: SuggestedNavigationsFolder;
@@ -24,16 +26,14 @@ export function ScopesDashboardsTreeFolderItem({
   folders,
   onFolderUpdate,
 }: ScopesDashboardsTreeFolderItemProps) {
-  const styles = useStyles2(getStyles);
-
   // get scopesselector service
   const scopesSelectorService = useScopesServices()?.scopesSelectorService ?? undefined;
   const scopesDashboardsService = useScopesServices()?.scopesDashboardsService ?? undefined;
   return (
-    <div className={styles.container} role="treeitem" aria-selected={folder.expanded}>
-      <div className={styles.row}>
+    <div {...stylex.props(styles.container)} role="treeitem" aria-selected={folder.expanded}>
+      <div {...stylex.props(styles.row)}>
         <button
-          className={styles.expand}
+          {...stylex.props(styles.expand)}
           data-testid={`scopes-dashboards-${folder.title}-expand`}
           aria-label={
             folder.expanded ? t('scopes.dashboards.collapse', 'Collapse') : t('scopes.dashboards.expand', 'Expand')
@@ -42,15 +42,15 @@ export function ScopesDashboardsTreeFolderItem({
             onFolderUpdate(folderPath, !folder.expanded);
           }}
         >
-          <Icon name={!folder.expanded ? 'angle-right' : 'angle-down'} className={styles.icon} />
+          <Icon name={!folder.expanded ? 'angle-right' : 'angle-down'} xstyle={styles.icon} />
 
-          <span className={styles.titleContainer}>{folder.title}</span>
-          {folder.loading && <Spinner inline size="sm" className={styles.loadingIcon} />}
+          <span {...stylex.props(styles.titleContainer)}>{folder.title}</span>
+          {folder.loading && <Spinner inline size="sm" className={stylex.props(styles.loadingIcon).className} />}
         </button>
 
         {folder.subScopeName && !folder.disableSubScopeSelection && (
           <IconButton
-            className={styles.exchangeIcon}
+            className="gf-scopes-exchange-icon"
             tooltip={t('scopes.dashboards.exchange', 'Change root scope to {{scope}}', {
               scope: folder.subScopeName || '',
             })}
@@ -83,7 +83,7 @@ export function ScopesDashboardsTreeFolderItem({
       </div>
 
       {folder.expanded && (
-        <div className={styles.children}>
+        <div {...stylex.props(styles.children)}>
           <ScopesDashboardsTree
             subScopePath={subScopePath}
             subScope={folder.subScopeName}
@@ -97,53 +97,59 @@ export function ScopesDashboardsTreeFolderItem({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0.5, 0),
-    }),
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: theme.spacing(1),
-      width: '100%',
-    }),
-    expand: css({
-      alignItems: 'flex-start',
-      background: 'none',
-      border: 0,
-      display: 'flex',
-      gap: theme.spacing(1),
-      margin: 0,
-      padding: 0,
-      textAlign: 'left',
-      wordBreak: 'break-word',
-      flex: 1,
-    }),
-    icon: css({
-      marginTop: theme.spacing(0.25),
-    }),
-    titleContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      flex: 1,
-    }),
-    exchangeIcon: css({
-      opacity: 0.7,
-      flexShrink: 0,
-      marginTop: theme.spacing(0.25),
-    }),
-    loadingIcon: css({
-      flexShrink: 0,
-      marginLeft: theme.spacing(0.5),
-      marginTop: theme.spacing(0.25),
-    }),
-    children: css({
-      paddingLeft: theme.spacing(2),
-      marginLeft: theme.spacing(1),
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+  },
+  row: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: spacing['--gf-spacing-x1'],
+    width: '100%',
+  },
+  expand: {
+    alignItems: 'flex-start',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderWidth: 0,
+    borderStyle: 'none',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    textAlign: 'left',
+    wordBreak: 'break-word',
+    flex: '1',
+  },
+  icon: {
+    marginTop: spacing['--gf-spacing-x0-25'],
+  },
+  titleContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: '1',
+  },
+  loadingIcon: {
+    flexShrink: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    marginTop: spacing['--gf-spacing-x0-25'],
+  },
+  children: {
+    paddingLeft: spacing['--gf-spacing-x2'],
+    marginLeft: spacing['--gf-spacing-x1'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
+});

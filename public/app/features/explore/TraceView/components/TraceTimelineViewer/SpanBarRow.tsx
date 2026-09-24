@@ -517,7 +517,6 @@ const styles = stylex.create({
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 'auto',
-    outlineStyle: 'none',
     overflowY: 'hidden',
     overflowX: 'auto',
     padding: '4px',

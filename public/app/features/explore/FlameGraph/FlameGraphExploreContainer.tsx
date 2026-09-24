@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 
-import { type DataFrame, type GrafanaTheme2, CoreApp } from '@grafana/data';
+import { type DataFrame, CoreApp } from '@grafana/data';
 import { FlameGraph } from '@grafana/flamegraph';
 import { config, reportInteraction } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   dataFrames: DataFrame[];
@@ -19,11 +19,10 @@ function interaction(name: string, context: Record<string, string | number> = {}
 }
 
 export const FlameGraphExploreContainer = (props: Props) => {
-  const styles = useStyles2((theme) => getStyles(theme));
   const enableNewUI = useBooleanFlagValue('flameGraphWithCallTree', false);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <FlameGraph
         data={props.dataFrames[0]}
         stickyHeader={true}
@@ -38,12 +37,17 @@ export const FlameGraphExploreContainer = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    background: theme.colors.background.primary,
+const styles = stylex.create({
+  container: {
+    backgroundColor: colors['--gf-colors-background-primary'],
     display: 'flow-root',
-    padding: theme.spacing(0, 1, 1, 1),
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-  }),
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
 });

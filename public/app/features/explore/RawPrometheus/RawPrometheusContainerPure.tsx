@@ -1,22 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useState } from 'react';
 
-import { type DataFrame, type GrafanaTheme2, type LoadingState, type SelectableValue } from '@grafana/data';
+import { type DataFrame, type LoadingState, type SelectableValue } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
-import { RadioButtonGroup, Table, type AdHocFilterItem, PanelChrome, useStyles2 } from '@grafana/ui';
+import { RadioButtonGroup, Table, type AdHocFilterItem, PanelChrome } from '@grafana/ui';
 import { PANEL_BORDER } from 'app/core/constants';
 import { TABLE_RESULTS_STYLE, TABLE_RESULTS_STYLES, type TableResultsStyle } from 'app/types/explore';
 
 import { MetaInfoText } from '../MetaInfoText';
 import RawListContainer from '../PrometheusListView/RawListContainer';
-
-const getStyles = (_theme: GrafanaTheme2) => ({
-  spacing: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    flex: '1',
-  }),
-});
 
 /**
  * Props for the pure RawPrometheusContainer component.
@@ -50,8 +42,6 @@ export const RawPrometheusContainerPure = memo(
     ariaLabel,
     showRawPrometheus,
   }: RawPrometheusContainerPureProps) => {
-    const styles = useStyles2(getStyles);
-
     // If resultsStyle is undefined we won't render the toggle, and the default table will be rendered
     const [resultsStyle, setResultsStyle] = useState<TableResultsStyle | undefined>(
       showRawPrometheus ? TABLE_RESULTS_STYLE.raw : undefined
@@ -78,7 +68,7 @@ export const RawPrometheusContainerPure = memo(
       }));
 
       return (
-        <div className={styles.spacing}>
+        <div {...stylex.props(styles.spacing)}>
           <RadioButtonGroup
             onClick={() => {
               const props = {
@@ -131,3 +121,11 @@ export const RawPrometheusContainerPure = memo(
 );
 
 RawPrometheusContainerPure.displayName = 'RawPrometheusContainerPure';
+
+const styles = stylex.create({
+  spacing: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    flex: '1',
+  },
+});

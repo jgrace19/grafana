@@ -1,15 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { useLocalStorage, useMeasure } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { CompletionItemKind, type LanguageDefinition, type TableIdentifier } from '@grafana/plugin-ui';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { formatSQL } from '@grafana/sql';
-import { Button, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Stack } from '@grafana/ui';
+import { durations, easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type ExpressionQueryEditorProps } from '../../ExpressionQueryEditor';
 import { type SqlExpressionQuery } from '../../types';
@@ -84,7 +86,6 @@ LIMIT
   const [toolboxRef, toolboxMeasure] = useMeasure<HTMLDivElement>();
   const [isSchemaInspectorOpen = true, setIsSchemaInspectorOpen] = useLocalStorage(SCHEMA_INSPECTOR_OPEN_KEY, true);
 
-  const styles = useStyles2((theme) => getStyles(theme));
   const { handleApplySuggestion, handleCloseDrawer, handleHistoryUpdate, handleOpenDrawer, isDrawerOpen, suggestions } =
     useSQLSuggestions();
 
@@ -249,11 +250,12 @@ LIMIT
 
   const renderMainContent = () => (
     <div
-      className={cx(styles.contentContainer, {
-        [styles.contentContainerWithSchema]: isSchemaInspectorOpen && isSchemasFeatureEnabled,
-      })}
+      {...stylex.props(
+        styles.contentContainer,
+        isSchemaInspectorOpen && isSchemasFeatureEnabled && styles.contentContainerWithSchema
+      )}
     >
-      <div className={styles.editorContainer}>
+      <div {...stylex.props(styles.editorContainer)}>
         <AutoSizer>
           {({ width, height }) => (
             <Suspense fallback={null}>
@@ -275,7 +277,7 @@ LIMIT
         </AutoSizer>
       </div>
       {isSchemaInspectorOpen && isSchemasFeatureEnabled && (
-        <div className={styles.schemaInspector}>
+        <div {...stylex.props(styles.schemaInspector)}>
           <SchemaInspectorPanel schemas={schemas?.sqlSchemas ?? null} loading={schemasLoading} error={schemasError} />
         </div>
       )}
@@ -291,7 +293,7 @@ LIMIT
 
   return (
     <SqlExprProvider value={contextValue}>
-      <div className={styles.mainContainer}>
+      <div {...stylex.props(styles.mainContainer)}>
         {renderSQLEditor()}
         <Suspense fallback={null}>
           <GenAISuggestionsDrawer
@@ -313,11 +315,11 @@ LIMIT
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainContainer: css({
-    marginTop: theme.spacing(0.5),
-  }),
-  contentContainer: css({
+const styles = stylex.create({
+  mainContainer: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+  contentContainer: {
     minHeight: '250px',
     height: '100%',
     resize: 'vertical',
@@ -326,30 +328,37 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 0fr',
     gridTemplateAreas: '"editor schema"',
-    [theme.transitions.handleMotion('no-preference')]: {
-      transition: theme.transitions.create(['grid-template-columns'], {
-        duration: theme.transitions.duration.standard,
-      }),
-    },
-  }),
-  contentContainerWithSchema: css({
+    transitionProperty: { default: null, [motion.noPreference]: 'grid-template-columns' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.standard },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreference]: '0ms' },
+  },
+  contentContainerWithSchema: {
     gridTemplateColumns: '1fr 1fr',
-    gap: theme.spacing(1),
-  }),
-  editorContainer: css({
-    gridArea: 'editor',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  editorContainer: {
+    gridColumnEnd: 'editor',
+    gridColumnStart: 'editor',
+    gridRowEnd: 'editor',
+    gridRowStart: 'editor',
     height: '100%',
     width: '100%',
     overflow: 'auto',
-  }),
-  schemaInspector: css({
-    gridArea: 'schema',
+  },
+  schemaInspector: {
+    gridColumnEnd: 'schema',
+    gridColumnStart: 'schema',
+    gridRowEnd: 'schema',
+    gridRowStart: 'schema',
     height: '100%',
     overflow: 'hidden',
     minWidth: 0,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-  }),
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
 });
 
 async function fetchFields(identifier: TableIdentifier, queries: DataQuery[]) {

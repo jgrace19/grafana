@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
-
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
 import { type DashboardModel } from '../../state/DashboardModel';
 
 import { SaveDashboardButton } from './SaveDashboardButton';
+import './UnsavedChangesModal.css';
 
 interface UnsavedChangesModalProps {
   dashboard: DashboardModel;
@@ -20,9 +19,7 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
       isOpen={true}
       title={t('dashboard.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className={css({
-        width: '500px',
-      })}
+      className="gf-unsaved-changes-modal"
     >
       <h5>
         <Trans i18nKey="dashboard.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>

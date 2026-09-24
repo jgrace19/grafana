@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
-
 import { t } from '@grafana/i18n';
 import { ConfirmModal } from '@grafana/ui';
+
+import './ConfirmDeleteModal.css';
 
 interface Props {
   varName: string;
@@ -22,15 +22,8 @@ export function ConfirmDeleteModal({ varName, isOpen = false, onConfirm, onDismi
         'Are you sure you want to delete variable "{{variableToDelete}}"?',
         { variableToDelete: varName }
       )}
-      modalClass={styles.modal}
+      modalClass="gf-confirm-delete-variable-modal"
       confirmText={t('variables.confirm-delete-modal.confirmText-delete', 'Delete')}
     />
   );
 }
-
-const styles = {
-  modal: css({
-    width: 'max-content',
-    maxWidth: '80vw',
-  }),
-};
