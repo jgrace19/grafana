@@ -117,7 +117,8 @@ it('renders panel with a show-on-hover menu icon if prop menu', () => {
   setup({ menu: <div> Menu </div> });
 
   expect(screen.getByTestId('panel-menu-button')).toBeInTheDocument();
-  expect(screen.getByTestId('panel-menu-button')).not.toBeVisible();
+  // Hidden until hover/focus by PanelChrome.css (not loaded in Jest); the visual capture covers the CSS.
+  expect(screen.getByTestId('panel-menu-button')).toHaveClass('show-on-hover');
 });
 
 it('renders panel with an always visible menu icon if prop showMenuAlways is true', () => {
@@ -125,6 +126,8 @@ it('renders panel with an always visible menu icon if prop showMenuAlways is tru
 
   expect(screen.getByTestId('panel-menu-button')).toBeInTheDocument();
   expect(screen.getByTestId('panel-menu-button')).toBeVisible();
+  expect(screen.getByTestId('panel-menu-button')).toHaveClass('always-show');
+  expect(screen.getByTestId('panel-menu-button')).not.toHaveClass('show-on-hover');
 });
 
 it('renders error status in the panel header if any given', () => {

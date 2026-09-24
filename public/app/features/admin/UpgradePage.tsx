@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { type GrafanaTheme2, type NavModel } from '@grafana/data';
+import { type NavModel } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { type StoreState } from 'app/types/store';
 import checkmarkSvg from 'img/licensing/checkmark.svg';
@@ -43,39 +44,19 @@ interface UpgradeInfoProps {
 }
 
 export const UpgradeInfo = ({ editionNotice }: UpgradeInfoProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <>
-      <h2 className={styles.title}>
+      <h2 {...stylex.props(styles.title)}>
         <Trans i18nKey="admin.upgrade-info.title">Enterprise license</Trans>
       </h2>
       <LicenseChrome header="Grafana Enterprise" subheader="Get your free trial" editionNotice={editionNotice}>
-        <div className={styles.column}>
+        <div {...stylex.props(styles.column)}>
           <FeatureInfo />
           <ServiceInfo />
         </div>
       </LicenseChrome>
     </>
   );
-};
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    column: css({
-      display: 'grid',
-      gridTemplateColumns: '100%',
-      columnGap: '20px',
-      rowGap: '40px',
-
-      '@media (min-width: 1050px)': {
-        gridTemplateColumns: '50% 50%',
-      },
-    }),
-    title: css({
-      margin: theme.spacing(4, 0),
-    }),
-  };
 };
 
 const GetEnterprise = () => {
@@ -223,18 +204,14 @@ interface ListProps {
   nested?: boolean;
 }
 
-const List = ({ children, nested }: React.PropsWithChildren<ListProps>) => {
-  const listStyle = css({
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: '8px',
+const ListNestedContext = React.createContext(false);
 
-    '> div': {
-      marginBottom: `${nested ? 0 : 8}px`,
-    },
-  });
-
-  return <div className={listStyle}>{children}</div>;
+const List = ({ children, nested = false }: React.PropsWithChildren<ListProps>) => {
+  return (
+    <ListNestedContext.Provider value={nested}>
+      <div {...stylex.props(styles.list)}>{children}</div>
+    </ListNestedContext.Provider>
+  );
 };
 
 interface ItemProps {
@@ -244,26 +221,13 @@ interface ItemProps {
 
 const Item = ({ children, title, image }: React.PropsWithChildren<ItemProps>) => {
   const imageUrl = image ? image : checkmarkSvg;
-  const itemStyle = css({
-    display: 'flex',
-
-    '> img': {
-      display: 'block',
-      height: '22px',
-      flexGrow: 0,
-      paddingRight: '12px',
-    },
-  });
-  const titleStyle = css({
-    fontWeight: 500,
-    lineHeight: 1.7,
-  });
+  const nested = React.useContext(ListNestedContext);
 
   return (
-    <div className={itemStyle}>
-      <img src={imageUrl} alt="" />
+    <div {...stylex.props(styles.item, !nested && styles.listItemSpacing)}>
+      <img src={imageUrl} alt="" {...stylex.props(styles.itemImage)} />
       <div>
-        <div className={titleStyle}>{title}</div>
+        <div {...stylex.props(styles.itemTitle)}>{title}</div>
         {children}
       </div>
     </div>
@@ -275,3 +239,42 @@ const mapStateToProps = (state: StoreState) => ({
 });
 
 export default connect(mapStateToProps)(UpgradePage);
+
+const styles = stylex.create({
+  column: {
+    display: 'grid',
+    gridTemplateColumns: {
+      default: '100%',
+      '@media (min-width: 1050px)': '50% 50%',
+    },
+    columnGap: '20px',
+    rowGap: '40px',
+  },
+  title: {
+    marginTop: spacing['--gf-spacing-x4'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x4'],
+    marginLeft: 0,
+  },
+  list: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: '8px',
+  },
+  listItemSpacing: {
+    marginBottom: '8px',
+  },
+  item: {
+    display: 'flex',
+  },
+  itemImage: {
+    display: 'block',
+    height: '22px',
+    flexGrow: 0,
+    paddingRight: '12px',
+  },
+  itemTitle: {
+    fontWeight: 500,
+    lineHeight: 1.7,
+  },
+});

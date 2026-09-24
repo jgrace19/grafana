@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Box, Stack, Text, LinkButton, useStyles2 } from '@grafana/ui';
+import { Box, Stack, Text, LinkButton } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { IconCircle } from './IconCircle';
 
@@ -13,8 +13,6 @@ interface EnhancedFeaturesProps {
 }
 
 export const EnhancedFeatures = ({ hasPublicAccess, hasImageRenderer, onSetupPublicAccess }: EnhancedFeaturesProps) => {
-  const style = useStyles2(getStyles);
-
   return (
     <Stack direction="column" gap={5}>
       <Stack direction="column">
@@ -55,7 +53,7 @@ export const EnhancedFeatures = ({ hasPublicAccess, hasImageRenderer, onSetupPub
           </LinkButton>
         </Box>
 
-        <div className={style.separator} />
+        <div {...stylex.props(styles.separator)} />
 
         <Box
           width="40%"
@@ -92,10 +90,10 @@ export const EnhancedFeatures = ({ hasPublicAccess, hasImageRenderer, onSetupPub
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    separator: css({
-      borderRight: `2px solid ${theme.colors.border.weak}`,
-    }),
-  };
-}
+const styles = stylex.create({
+  separator: {
+    borderRightWidth: '2px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+  },
+});

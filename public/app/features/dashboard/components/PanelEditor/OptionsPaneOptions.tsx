@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FilterInput, RadioButtonGroup, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { FilterInput, RadioButtonGroup, ScrollContainer } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { isPanelModelLibraryPanel } from '../../../library-panels/guard';
 
@@ -17,13 +19,12 @@ import { getVisualizationOptions } from './getVisualizationOptions';
 import { OptionSearchEngine } from './state/OptionSearchEngine';
 import { getRecentOptions } from './state/getRecentOptions';
 import { type OptionPaneRenderProps } from './types';
+import './OptionsPaneOptions.global.css';
 
 export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
   const { plugin, panel } = props;
   const [searchQuery, setSearchQuery] = useState('');
   const [listMode, setListMode] = useState(OptionFilter.All);
-  const styles = useStyles2(getStyles);
-
   const [panelFrameOptions, vizOptions, libraryPanelOptions] = useMemo(
     () => [getPanelFrameCategory(props), getVisualizationOptions(props), getLibraryPanelOptionsCategory(props)],
 
@@ -97,9 +98,9 @@ export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
   const showSearchRadioButtons = !isSearching && !plugin.fieldConfigRegistry.isEmpty();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.formBox}>
-        <div className={styles.formRow}>
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className: 'gf-options-pane-options' })}>
+      <div {...stylex.props(styles.formBox)}>
+        <div {...stylex.props(styles.formRow)}>
           <FilterInput
             width={0}
             value={searchQuery}
@@ -108,13 +109,13 @@ export const OptionsPaneOptions = (props: OptionPaneRenderProps) => {
           />
         </div>
         {showSearchRadioButtons && (
-          <div className={styles.formRow}>
+          <div {...stylex.props(styles.formRow)}>
             <RadioButtonGroup options={optionRadioFilters} value={listMode} fullWidth onChange={setListMode} />
           </div>
         )}
       </div>
       <ScrollContainer>
-        <div className={styles.mainBox}>{mainBoxElements}</div>
+        <div {...stylex.props(styles.mainBox)}>{mainBoxElements}</div>
       </ScrollContainer>
     </div>
   );
@@ -159,49 +160,34 @@ export function renderSearchHits(
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  // .search-fragment-highlight lives in OptionsPaneOptions.global.css (react-highlight-words renders it)
+  wrapper: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    flex: '1 1 0',
-
-    '.search-fragment-highlight': {
-      color: theme.colors.warning.text,
-      background: 'transparent',
-    },
-  }),
-  searchBox: css({
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-  }),
-  formRow: css({
-    marginBottom: theme.spacing(1),
-  }),
-  formBox: css({
-    padding: theme.spacing(1),
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderTopLeftRadius: theme.shape.borderRadius(1.5),
-    borderBottom: 'none',
-  }),
-  closeButton: css({
-    marginLeft: theme.spacing(1),
-  }),
-  searchHits: css({
-    padding: theme.spacing(1, 1, 0, 1),
-  }),
-  searchNotice: css({
-    fontSize: theme.typography.size.sm,
-    color: theme.colors.text.secondary,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-  }),
-  mainBox: css({
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.components.panel.borderColor}`,
-    borderTop: 'none',
     flexGrow: 1,
-  }),
+    flexShrink: 1,
+    flexBasis: 0,
+  },
+  formRow: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  formBox: {
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    borderTopLeftRadius: `calc(${shape['--gf-shape-radius-default']} * 1.5)`,
+    borderBottomStyle: 'none',
+  },
+  mainBox: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    borderTopStyle: 'none',
+    flexGrow: 1,
+  },
 });

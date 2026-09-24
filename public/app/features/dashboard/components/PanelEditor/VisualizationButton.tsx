@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
@@ -34,10 +34,10 @@ export const VisualizationButton = ({ panel }: Props) => {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <ButtonGroup>
         <ToolbarButton
-          className={styles.vizButton}
+          className={stylex.props(styles.vizButton).className}
           tooltip={t(
             'dashboard.visualization-button.tooltip-click-to-change-visualization',
             'Click to change visualization'
@@ -75,12 +75,12 @@ export const VisualizationButton = ({ panel }: Props) => {
 
 VisualizationButton.displayName = 'VisualizationTab';
 
-const styles = {
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-  }),
-  vizButton: css({
+  },
+  vizButton: {
     textAlign: 'left',
-  }),
-};
+  },
+});

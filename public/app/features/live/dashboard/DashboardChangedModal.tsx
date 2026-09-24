@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { Button, Modal, useStyles2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { dashboardWatcher } from './dashboardWatcher';
 import { type DashboardEvent, DashboardEventAction } from './types';
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export function DashboardChangedModal({ onDismiss, event }: Props) {
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
 
   const onDiscardChanges = () => {
     if (event?.action === DashboardEventAction.Deleted) {
@@ -32,9 +33,9 @@ export function DashboardChangedModal({ onDismiss, event }: Props) {
       title={t('live.dashboard-changed-modal.title-dashboard-changed', 'Dashboard changed')}
       onDismiss={onDismiss}
       onClickBackdrop={() => {}}
-      className={styles.modal}
+      className={pendingStyles.modal}
     >
-      <div className={styles.description}>
+      <div {...stylex.props(styles.description)}>
         <Trans i18nKey="live.dashboard-changed-modal.description">
           The dashboard has been updated by another session. Do you want to continue editing or discard your local
           changes?
@@ -52,10 +53,14 @@ export function DashboardChangedModal({ onDismiss, event }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration
+const getPendingStyles = () => ({
   modal: css({ width: '600px' }),
-  description: css({
-    color: theme.colors.text.secondary,
-    paddingBottom: theme.spacing(1),
-  }),
+});
+
+const styles = stylex.create({
+  description: {
+    color: colors['--gf-colors-text-secondary'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
 });

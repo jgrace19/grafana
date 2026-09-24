@@ -1,0 +1,14 @@
+/*
+ * CollapseToggle renders a Button (StyleX) that sets its own background and border, and an icon inside it.
+ * Unlayered rules beat their layered styles, as the Emotion class did.
+ */
+.gf-notification-row-toggle {
+  background: none;
+  border: none;
+  margin-top: calc(var(--gf-spacing-grid-size) * -1);
+  margin-bottom: calc(var(--gf-spacing-grid-size) * -1);
+}
+
+.gf-notification-row-toggle svg {
+  margin-bottom: 0;
+}

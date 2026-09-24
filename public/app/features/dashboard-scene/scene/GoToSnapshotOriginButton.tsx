@@ -1,5 +1,3 @@
-import { css } from '@emotion/css';
-
 import { textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
@@ -7,6 +5,8 @@ import { ConfirmModal, ToolbarButton } from '@grafana/ui';
 
 import { appEvents } from '../../../core/app_events';
 import { ShowModalReactEvent } from '../../../types/events';
+
+import './GoToSnapshotOriginButton.css';
 
 export function GoToSnapshotOriginButton(props: { originalURL: string }) {
   return (
@@ -35,10 +35,7 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
               'dashboard-scene.on-open-snapshot-original-dashboard.title.proceed-to-external-site',
               'Proceed to external site?'
             ),
-            modalClass: css({
-              width: 'max-content',
-              maxWidth: '80vw',
-            }),
+            modalClass: 'gf-snapshot-origin-modal',
             body: (
               <>
                 <p>

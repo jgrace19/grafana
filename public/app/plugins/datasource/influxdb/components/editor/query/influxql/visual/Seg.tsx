@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import debouncePromise from 'debounce-promise';
 import { useEffect, useState, type JSX } from 'react';
 import { useAsyncFn } from 'react-use';
@@ -7,6 +7,8 @@ import { type SelectableValue } from '@grafana/data';
 import { AsyncSelect, InlineLabel, Input, Select } from '@grafana/ui';
 
 import { useShadowedState } from '../hooks/useShadowedState';
+
+import './Seg.css';
 
 // this file is a simpler version of `grafana-ui / SegmentAsync.tsx`
 // with some changes:
@@ -41,10 +43,6 @@ type Props = {
   allowCustomValue?: boolean;
 };
 
-const selectClass = css({
-  minWidth: '160px',
-});
-
 type SelProps = {
   loadOptions: LoadOptions;
   filterByLoadOptions?: boolean;
@@ -76,7 +74,7 @@ const SelReload = ({ loadOptions, allowCustomValue, onChange, onClose }: SelRelo
   // and probably have an useEffect
   const debouncedLoadOptions = debouncePromise(loadOptions, 1000, { leading: true });
   return (
-    <div className={selectClass}>
+    <div {...stylex.props(styles.select)}>
       <AsyncSelect
         formatCreateLabel={formatCreateLabel}
         defaultOptions
@@ -107,7 +105,7 @@ const SelSingleLoad = ({ loadOptions, allowCustomValue, onChange, onClose }: Sel
   }, [doLoad, loadOptions]);
 
   return (
-    <div className={selectClass}>
+    <div {...stylex.props(styles.select)}>
       <Select
         isLoading={loadState.loading}
         formatCreateLabel={formatCreateLabel}
@@ -166,11 +164,6 @@ const Inp = ({ initialValue, onChange, onClose }: InpProps): JSX.Element => {
   );
 };
 
-const defaultButtonClass = css({
-  width: 'auto',
-  cursor: 'pointer',
-});
-
 export const Seg = ({
   value,
   buttonClassName,
@@ -181,7 +174,7 @@ export const Seg = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false);
   if (!isOpen) {
-    const className = cx(defaultButtonClass, buttonClassName);
+    const className = buttonClassName ? `gf-influx-seg ${buttonClassName}` : 'gf-influx-seg';
     return (
       <InlineLabel
         as="button"
@@ -225,3 +218,9 @@ export const Seg = ({
     }
   }
 };
+
+const styles = stylex.create({
+  select: {
+    minWidth: '160px',
+  },
+});

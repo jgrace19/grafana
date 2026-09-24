@@ -1,5 +1,4 @@
-import { css } from '@emotion/css';
-import { useMemo } from 'react';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 interface XYCanvasProps {
@@ -12,14 +11,16 @@ interface XYCanvasProps {
  * Useful when you want to render some overlay with canvas-independent elements on top of the plot.
  */
 export const XYCanvas = ({ children, left, top }: React.PropsWithChildren<XYCanvasProps>) => {
-  const className = useMemo(() => {
-    return css({
-      position: 'absolute',
-      overflow: 'visible',
-      left: `${left}px`,
-      top: `${top}px`,
-    });
-  }, [left, top]);
-
-  return <div className={className}>{children}</div>;
+  return <div {...stylex.props(styles.canvas, styles.offset(left, top))}>{children}</div>;
 };
+
+const styles = stylex.create({
+  canvas: {
+    position: 'absolute',
+    overflow: 'visible',
+  },
+  offset: (left: number, top: number) => ({
+    left: `${left}px`,
+    top: `${top}px`,
+  }),
+});
