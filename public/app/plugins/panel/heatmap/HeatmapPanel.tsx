@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useRef, useState } from 'react';
 
 import { DashboardCursorSync, type PanelProps, type TimeRange } from '@grafana/data';
@@ -10,7 +10,6 @@ import {
   TooltipPlugin2,
   UPlotChart,
   usePanelContext,
-  useStyles2,
   useTheme2,
   VizLayout,
   XAxisInteractionAreaPlugin,
@@ -88,7 +87,6 @@ const HeatmapPanelViz = ({
   palette,
 }: HeatmapPanelProps & { info: HeatmapDataForViz; palette: string[] }) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const { sync, eventsScope, canAddAnnotations, onSelectRange, canExecuteActions } = usePanelContext();
   const cursorSync = sync?.() ?? DashboardCursorSync.Off;
 
@@ -188,7 +186,7 @@ const HeatmapPanelViz = ({
 
     return (
       <VizLayout.Legend placement="bottom" maxHeight="20%">
-        <div className={styles.colorScaleWrapper}>
+        <div {...stylex.props(styles.colorScaleWrapper)}>
           <ColorScale
             hoverValue={hoverValue}
             colorPalette={palette}
@@ -276,10 +274,13 @@ const HeatmapPanelViz = ({
   );
 };
 
-const getStyles = () => ({
-  colorScaleWrapper: css({
+const styles = stylex.create({
+  colorScaleWrapper: {
     marginLeft: '25px',
-    padding: '10px 0',
+    paddingTop: '10px',
+    paddingRight: 0,
+    paddingBottom: '10px',
+    paddingLeft: 0,
     maxWidth: '300px',
-  }),
+  },
 });

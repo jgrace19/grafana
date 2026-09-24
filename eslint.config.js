@@ -126,6 +126,8 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
   'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
   'public/app/core/navigation/*.{ts,tsx}',
+  // P1 core-bundled panels
+  'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   // D1 dashboard-scene panel edit and edit pane
   'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',

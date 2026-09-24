@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing, v1 } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type SetupStep } from '../types';
 
@@ -13,15 +13,13 @@ interface Props {
 }
 
 export const Step = ({ step }: Props) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.setup}>
-      <div className={styles.info}>
-        <h2 className={styles.title}>{step.title}</h2>
+    <div {...stylex.props(styles.setup)}>
+      <div {...stylex.props(styles.info)}>
+        <h2 {...stylex.props(styles.title)}>{step.title}</h2>
         <p>{step.info}</p>
       </div>
-      <div className={styles.cards}>
+      <div {...stylex.props(styles.cards)}>
         {step.cards.map((card, index) => {
           const key = `${card.title}-${index}`;
           if (card.type === 'tutorial') {
@@ -34,32 +32,30 @@ export const Step = ({ step }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    setup: css({
-      display: 'flex',
-      width: '95%',
-    }),
-    info: css({
-      width: '172px',
-      marginRight: '5%',
-
-      [theme.breakpoints.down('xxl')]: {
-        marginRight: theme.spacing(4),
-      },
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
-      },
-    }),
-    title: css({
-      color: theme.v1.palette.blue95,
-    }),
-    cards: css({
-      overflowX: 'auto',
-      overflowY: 'hidden',
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'flex-start',
-    }),
-  };
-};
+const styles = stylex.create({
+  setup: {
+    display: 'flex',
+    width: '95%',
+  },
+  info: {
+    width: '172px',
+    marginRight: {
+      default: '5%',
+      [bp.xxlDown]: spacing['--gf-spacing-x4'],
+    },
+    display: {
+      default: null,
+      [bp.smDown]: 'none',
+    },
+  },
+  title: {
+    color: v1['--gf-v1-palette-blue95'],
+  },
+  cards: {
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
+});

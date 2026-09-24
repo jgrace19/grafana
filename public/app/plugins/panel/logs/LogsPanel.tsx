@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { groupBy } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
@@ -13,7 +13,6 @@ import {
   type DataQueryResponse,
   type DataSourceApi,
   dateTimeForTimeZone,
-  type GrafanaTheme2,
   hasLogsContextSupport,
   hasLogsContextUiSupport,
   type Labels,
@@ -33,7 +32,9 @@ import {
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
-import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
+import { ScrollContainer, usePanelContext } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
 import { ControlledLogRows } from 'app/features/logs/components/ControlledLogRows';
@@ -180,7 +181,6 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
     grammar,
   } = options;
   const isAscending = sortOrder === LogsSortOrder.Ascending;
-  const style = useStyles2(getStyles);
   const logsContainerRef = useRef<HTMLDivElement>(null);
   const [contextRow, setContextRow] = useState<LogRowModel | null>(null);
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
@@ -504,8 +504,8 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
   );
 
   const renderCommonLabels = () => (
-    <div className={cx(style.labelContainer, isAscending && style.labelContainerAscending)}>
-      <span className={style.label}>
+    <div {...stylex.props(styles.labelContainer, isAscending && styles.labelContainerAscending)}>
+      <span {...stylex.props(styles.label)}>
         <Trans i18nKey="logs.logs-panel.render-common-labels.common-labels">Common labels:</Trans>
       </span>
       <LogLabels
@@ -582,8 +582,9 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
       {config.featureToggles.newLogsPanel && (
         <div
           onMouseLeave={onLogContainerMouseLeave}
-          className={style.logListContainer}
-          style={height ? { minHeight: height } : undefined}
+          {...mergeStylexProps(stylex.props(styles.logListContainer), {
+            style: height ? { minHeight: height } : undefined,
+          })}
           ref={(element: HTMLDivElement) => {
             setScrollElement(element);
           }}
@@ -653,7 +654,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
             setScrollElement(scrollElement);
           }}
         >
-          <div onMouseLeave={onLogContainerMouseLeave} className={style.container} ref={logsContainerRef}>
+          <div onMouseLeave={onLogContainerMouseLeave} {...stylex.props(styles.container)} ref={logsContainerRef}>
             {showCommonLabels && !isAscending && renderCommonLabels()}
             <InfiniteScroll
               loading={infiniteScrolling}
@@ -711,7 +712,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
         </ScrollContainer>
       )}
       {!config.featureToggles.newLogsPanel && showControls && (
-        <div onMouseLeave={onLogContainerMouseLeave} className={style.controlledLogsContainer}>
+        <div onMouseLeave={onLogContainerMouseLeave} {...stylex.props(styles.controlledLogsContainer)}>
           {showCommonLabels && !isAscending && renderCommonLabels()}
           <ControlledLogRows
             ref={(scrollElement: HTMLDivElement | null) => {
@@ -768,34 +769,40 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: theme.spacing(1.5),
-  }),
-  logListContainer: css({
+const styles = stylex.create({
+  container: {
+    marginBottom: spacing['--gf-spacing-x1-5'],
+  },
+  logListContainer: {
     minHeight: '100%',
     maxHeight: '100%',
     display: 'flex',
-    flex: 1,
+    flex: '1',
     flexDirection: 'column',
     overflow: 'hidden',
-  }),
-  controlledLogsContainer: css({
+  },
+  controlledLogsContainer: {
     height: '100%',
-  }),
-  labelContainer: css({
-    margin: theme.spacing(0, 0, 0.5, 0.5),
+  },
+  labelContainer: {
+    marginTop: spacing['--gf-spacing-x0'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
     display: 'flex',
     alignItems: 'center',
-  }),
-  labelContainerAscending: css({
-    margin: theme.spacing(0.5, 0, 0.5, 0),
-  }),
-  label: css({
-    marginRight: theme.spacing(0.5),
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
+  },
+  labelContainerAscending: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0'],
+  },
+  label: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
 });
 
 async function copyDashboardUrl(row: LogRowModel, rows: LogRowModel[], timeRange: TimeRange) {
