@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2, type LinkTarget } from '@grafana/data';
+import { type LinkTarget } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Icon, type IconName, useStyles2 } from '@grafana/ui';
+import { Icon, type IconName } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface FooterLink {
   target: LinkTarget;
@@ -80,7 +82,7 @@ export function getVersionLinks(hideEdition?: boolean): FooterLink[] {
     links.push({
       target: '_blank',
       id: 'updateVersion',
-      text: `New version available!`,
+      text: 'New version available!',
       icon: 'download-alt',
       url: 'https://grafana.com/grafana/download?utm_source=grafana_footer',
     });
@@ -101,14 +103,13 @@ export interface Props {
 
 export const Footer = memo(({ customLinks, hideEdition }: Props) => {
   const links = (customLinks || getFooterLinks()).concat(getVersionLinks(hideEdition));
-  const styles = useStyles2(getStyles);
 
   return (
-    <footer className={styles.footer}>
+    <footer {...stylex.props(styles.footer)}>
       <div className="text-center">
-        <ul className={styles.list}>
+        <ul {...stylex.props(styles.list)}>
           {links.map((link, index) => (
-            <li className={styles.listItem} key={index}>
+            <li {...stylex.props(styles.listItem, index === links.length - 1 && styles.listItemLast)} key={index}>
               <FooterItem item={link} />
             </li>
           ))}
@@ -122,7 +123,7 @@ Footer.displayName = 'Footer';
 
 function FooterItem({ item }: { item: FooterLink }) {
   const content = item.url ? (
-    <a href={item.url} target={item.target} rel="noopener noreferrer" id={item.id}>
+    <a {...stylex.props(styles.link)} href={item.url} target={item.target} rel="noopener noreferrer" id={item.id}>
       {item.text}
     </a>
   ) : (
@@ -136,36 +137,43 @@ function FooterItem({ item }: { item: FooterLink }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  footer: css({
-    ...theme.typography.bodySmall,
-    color: theme.colors.text.primary,
-    display: 'block',
-    padding: theme.spacing(2, 0),
+const styles = stylex.create({
+  footer: {
+    fontFamily: typography['--gf-typography-body-small-font-family'],
+    fontWeight: typography['--gf-typography-body-small-font-weight'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    letterSpacing: typography['--gf-typography-body-small-letter-spacing'],
+    color: colors['--gf-colors-text-primary'],
+    display: { default: 'block', [bp.mdDown]: 'none' },
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x0'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x0'],
     position: 'relative',
     width: '98%',
-
-    'a:hover': {
-      color: theme.colors.text.maxContrast,
-      textDecoration: 'underline',
-    },
-
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  }),
-  list: css({
+  },
+  link: {
+    color: { default: null, ':hover': colors['--gf-colors-text-max-contrast'] },
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  list: {
     listStyle: 'none',
-  }),
-  listItem: css({
+  },
+  listItem: {
     display: 'inline-block',
-    '&:after': {
+    '::after': {
       content: "' | '",
-      padding: theme.spacing(0, 1),
+      paddingTop: spacing['--gf-spacing-x0'],
+      paddingRight: spacing['--gf-spacing-x1'],
+      paddingBottom: spacing['--gf-spacing-x0'],
+      paddingLeft: spacing['--gf-spacing-x1'],
     },
-    '&:last-child:after': {
+  },
+  listItemLast: {
+    '::after': {
       content: "''",
       paddingLeft: 0,
     },
-  }),
+  },
 });

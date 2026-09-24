@@ -1,0 +1,14 @@
+/* Must beat the layered GlobalStyles `body { overflow-y: auto !important }`, so it lives in the same layer. */
+@layer grafana-global {
+  body.gf-extension-sidebar-open {
+    overflow-y: unset !important;
+  }
+}
+
+/*
+ * Styles plugin-rendered DOM, so it is deliberately not in a cascade layer: like the Emotion rule it replaces,
+ * it must win over the plugin's own styles. Temp fix for AI assistant.
+ */
+.gf-extension-sidebar > div > div {
+  margin: 0;
+}
