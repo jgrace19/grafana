@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { useState, useCallback, useMemo } from 'react';
 import { useAsync } from 'react-use';
@@ -8,13 +9,13 @@ import { AppEvents, type PanelData, type SelectableValue, LoadingState } from '@
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Button, CodeEditor, Field, Select, useStyles2 } from '@grafana/ui';
+import { Button, CodeEditor, Field, Select } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 
 import { getPanelDataFrames } from '../dashboard/components/HelpWizard/utils';
-import { getPanelInspectorStyles2 } from '../inspector/styles';
+import { panelInspectorStyles as styles } from '../inspector/panelInspectorStyles';
 import { reportPanelInspectInteraction } from '../search/page/reporting';
 
 import { InspectTab } from './types';
@@ -63,7 +64,6 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
     ],
     []
   );
-  const styles = useStyles2(getPanelInspectorStyles2);
   const jsonOptions = useMemo(() => {
     if (panel) {
       if (panel.plugin?.meta.skipDataQuery) {
@@ -123,8 +123,8 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
   const canEdit = dashboard && dashboard.meta.canEdit;
 
   return (
-    <div className={styles.wrap}>
-      <div className={styles.toolbar} data-testid={selectors.components.PanelInspector.Json.content}>
+    <div {...stylex.props(styles.wrap)}>
+      <div {...stylex.props(styles.toolbar)} data-testid={selectors.components.PanelInspector.Json.content}>
         <Field label={t('dashboard.inspect-json.select-source', 'Select source')} className="flex-grow-1" noMargin>
           <Select
             inputId="select-source-dropdown"
@@ -134,18 +134,18 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           />
         </Field>
         {panel && isPanelJSON && canEdit && (
-          <Button className={styles.toolbarItem} onClick={onApplyPanelModel}>
+          <Button className={stylex.props(styles.toolbarItem).className} onClick={onApplyPanelModel}>
             <Trans i18nKey="inspector.inspect-jsontab.apply">Apply</Trans>
           </Button>
         )}
         {show === ShowContent.DataFrames && dashboard !== undefined && (
-          <Button className={styles.toolbarItem} onClick={onShowHelpWizard}>
+          <Button className={stylex.props(styles.toolbarItem).className} onClick={onShowHelpWizard}>
             <Trans i18nKey="inspector.inspect-jsontab.support">Support</Trans>
           </Button>
         )}
       </div>
 
-      <div className={styles.content}>
+      <div {...stylex.props(styles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor

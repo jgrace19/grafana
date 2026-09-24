@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useState, type JSX } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2, type PanelPluginMeta, type SelectableValue } from '@grafana/data';
+import { type PanelPluginMeta, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Stack, FilterInput } from '@grafana/ui';
+import { Stack, FilterInput } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { FolderFilter } from '../../../../core/components/FolderFilter/FolderFilter';
 import { PanelTypeFilter } from '../../../../core/components/PanelTypeFilter/PanelTypeFilter';
@@ -41,7 +42,7 @@ export const LibraryPanelsSearch = ({
   showSort = false,
   showSecondaryActions = false,
 }: LibraryPanelsSearchProps): JSX.Element => {
-  const styles = useStyles2(getStyles, variant);
+  const isTight = variant === LibraryPanelsSearchVariant.Tight;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -55,14 +56,10 @@ export const LibraryPanelsSearch = ({
   const verticalGroupSpacing = variant === LibraryPanelsSearchVariant.Tight ? 3 : 0.5;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack direction="column" gap={verticalGroupSpacing}>
-        <div
-          className={cx(styles.gridContainer, {
-            [styles.tightLayout]: variant === LibraryPanelsSearchVariant.Tight,
-          })}
-        >
-          <div className={styles.filterInputWrapper}>
+        <div {...stylex.props(styles.gridContainer, isTight && styles.tightLayout)}>
+          <div {...stylex.props(isTight ? styles.filterInputWrapperTight : styles.filterInputWrapper)}>
             <FilterInput
               value={searchQuery}
               onChange={setSearchQuery}
@@ -88,7 +85,7 @@ export const LibraryPanelsSearch = ({
           )}
         </div>
 
-        <div className={styles.libraryPanelsView}>
+        <div {...stylex.props(styles.libraryPanelsView)}>
           <LibraryPanelsView
             onClickCard={onClick}
             searchString={debouncedSearchQuery}
@@ -105,33 +102,37 @@ export const LibraryPanelsSearch = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2, variant: LibraryPanelsSearchVariant) {
-  return {
-    filterInputWrapper: css({
-      flexGrow: variant === LibraryPanelsSearchVariant.Tight ? 1 : 'initial',
-    }),
-    container: css({
-      width: '100%',
-      overflowY: 'auto',
-      padding: theme.spacing(1),
-    }),
-    libraryPanelsView: css({
-      width: '100%',
-    }),
-    gridContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      columnGap: theme.spacing(1),
-      rowGap: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-    }),
-    tightLayout: css({
-      flexDirection: 'row',
-      rowGap: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  filterInputWrapper: {
+    flexGrow: 'initial',
+  },
+  filterInputWrapperTight: {
+    flexGrow: 1,
+  },
+  container: {
+    width: '100%',
+    overflowY: 'auto',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  libraryPanelsView: {
+    width: '100%',
+  },
+  gridContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    columnGap: spacing['--gf-spacing-x1'],
+    rowGap: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+  tightLayout: {
+    flexDirection: 'row',
+    rowGap: spacing['--gf-spacing-x1'],
+  },
+});
 
 interface SearchControlsProps {
   showSort: boolean;
@@ -155,7 +156,6 @@ const SearchControls = memo(
     onFolderFilterChange,
     onPanelFilterChange,
   }: SearchControlsProps) => {
-    const styles = useStyles2(getRowStyles);
     const panelFilterChanged = useCallback(
       (plugins: PanelPluginMeta[]) => onPanelFilterChange(plugins.map((p) => p.id)),
       [onPanelFilterChange]
@@ -167,16 +167,15 @@ const SearchControls = memo(
 
     return (
       <div
-        className={cx(styles.container, {
-          [styles.containerTight]: variant === LibraryPanelsSearchVariant.Tight,
-        })}
+        {...stylex.props(rowStyles.container, variant === LibraryPanelsSearchVariant.Tight && rowStyles.containerTight)}
       >
         {showSort && <SortPicker value={sortDirection} onChange={onSortChange} filter={['alpha-asc', 'alpha-desc']} />}
         {(showFolderFilter || showPanelFilter) && (
           <div
-            className={cx(styles.filterContainer, {
-              [styles.filterContainerTight]: variant === LibraryPanelsSearchVariant.Tight,
-            })}
+            {...stylex.props(
+              rowStyles.filterContainer,
+              variant === LibraryPanelsSearchVariant.Tight && rowStyles.filterContainerTight
+            )}
           >
             {showFolderFilter && <FolderFilter onChange={folderFilterChanged} />}
             {showPanelFilter && <PanelTypeFilter onChange={panelFilterChanged} />}
@@ -188,29 +187,27 @@ const SearchControls = memo(
 );
 SearchControls.displayName = 'SearchControls';
 
-function getRowStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      flexGrow: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    }),
-    containerTight: css({
-      flexGrow: 'initial',
-      flexDirection: 'column',
-      justifyContent: 'normal',
-    }),
-    filterContainer: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(1),
-    }),
-    filterContainerTight: css({
-      flexDirection: 'column',
-      marginLeft: 'initial',
-    }),
-  };
-}
+const rowStyles = stylex.create({
+  container: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    flexGrow: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  containerTight: {
+    flexGrow: 'initial',
+    flexDirection: 'column',
+    justifyContent: 'normal',
+  },
+  filterContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  filterContainerTight: {
+    flexDirection: 'column',
+    marginLeft: 'initial',
+  },
+});

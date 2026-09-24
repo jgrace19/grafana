@@ -225,6 +225,11 @@ const stylexNotMigratedAppFiles = [
   'public/app/features/datasources/**/*.{ts,tsx}',
   'public/app/features/connections/**/*.{ts,tsx}',
   'public/app/features/correlations/**/*.{ts,tsx}',
+  // M1 library-panels, inspector, panel, query
+  'public/app/features/library-panels/**/*.{ts,tsx}',
+  'public/app/features/inspector/**/*.{ts,tsx}',
+  'public/app/features/panel/**/*.{ts,tsx}',
+  'public/app/features/query/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
