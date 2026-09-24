@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardConversionWarningBannerStyles } from './DashboardConversionWarningBanner.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, useStyles2 } from '@grafana/ui';
+import {Alert, Button} from '@grafana/ui';
 import { isV2StoredVersion } from 'app/features/dashboard/api/utils';
 
 import { type DashboardScene } from '../scene/DashboardScene';
@@ -16,7 +17,7 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
   const { meta } = dashboard.useState();
   const conversionStatus = meta?.conversionStatus;
   const [isExpanded, setIsExpanded] = useState(false);
-  const styles = useStyles2(getStyles);
+
 
   // Show banner if:
   // 1. Conversion status exists
@@ -41,24 +42,24 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
           dashboard could lead to losing already set up Dynamic Dashboard features.
         </Trans>
         {!isExpanded && (
-          <div className={styles.buttonContainer}>
+          <div {...stylex.props(dashboardConversionWarningBannerStyles.buttonContainer)}>
             <Button
               variant="secondary"
               size="sm"
               fill="text"
               onClick={() => setIsExpanded(true)}
-              className={styles.linkButton}
+              {...stylex.props(dashboardConversionWarningBannerStyles.linkButton)}
             >
               <Trans i18nKey="dashboard-scene.conversion-warning-banner.read-more">Read more</Trans>
             </Button>
           </div>
         )}
         {isExpanded && (
-          <div className={styles.expandedContent}>
+          <div {...stylex.props(dashboardConversionWarningBannerStyles.expandedContent)}>
             <Trans i18nKey="dashboard-scene.conversion-warning-banner.details">
               During this period, please be aware of the following:
             </Trans>
-            <ul className={styles.detailsList}>
+            <ul {...stylex.props(dashboardConversionWarningBannerStyles.detailsList)}>
               <li>
                 <Trans i18nKey="dashboard-scene.conversion-warning-banner.detail-tabs">
                   All tabs and rows will appear as classic rows
@@ -81,13 +82,13 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
               back on, as edits made in classic mode may lead to unexpected results. Alternatively, you can save a copy
               of the dashboard using the &quot;Save as copy&quot; option, in the save dashboard menu.
             </Trans>
-            <div className={styles.buttonContainer}>
+            <div {...stylex.props(dashboardConversionWarningBannerStyles.buttonContainer)}>
               <Button
                 variant="secondary"
                 size="sm"
                 fill="text"
                 onClick={() => setIsExpanded(false)}
-                className={styles.linkButton}
+                {...stylex.props(dashboardConversionWarningBannerStyles.linkButton)}
               >
                 <Trans i18nKey="dashboard-scene.conversion-warning-banner.read-less">Read less</Trans>
               </Button>
@@ -99,27 +100,4 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    linkButton: css({
-      marginTop: 0,
-      marginLeft: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-      fontSize: '1rem',
-      verticalAlign: 'baseline',
-      color: theme.colors.text.link,
-    }),
-    buttonContainer: css({
-      marginTop: theme.spacing(1),
-    }),
-    expandedContent: css({
-      marginTop: theme.spacing(1),
-    }),
-    detailsList: css({
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      paddingLeft: theme.spacing(2.5),
-    }),
-  };
-}
+

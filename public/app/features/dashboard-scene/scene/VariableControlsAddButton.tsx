@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableControlsAddButtonStyles } from './VariableControlsAddButton.stylex';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
+import {Button} from '@grafana/ui';
 
 import { openAddVariablePane } from '../settings/variables/VariableTypeSelectionPane';
 import { DashboardInteractions } from '../utils/interactions';
@@ -11,7 +12,7 @@ import { DashboardInteractions } from '../utils/interactions';
 import { type DashboardScene } from './DashboardScene';
 
 export function AddVariableButton({ dashboard }: { dashboard: DashboardScene }) {
-  const styles = useStyles2(getStyles);
+
   const { editview, editPanel, isEditing, viewPanel } = dashboard.useState();
 
   const handleClick = useCallback(() => {
@@ -29,7 +30,7 @@ export function AddVariableButton({ dashboard }: { dashboard: DashboardScene }) 
   }
 
   return (
-    <div className={styles.addButton}>
+    <div {...stylex.props(variableControlsAddButtonStyles.addButton)}>
       <div className="dashboard-canvas-add-button">
         <Button
           icon="plus"
@@ -45,12 +46,3 @@ export function AddVariableButton({ dashboard }: { dashboard: DashboardScene }) 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  addButton: css({
-    display: 'inline-flex',
-    alignItems: 'center',
-    verticalAlign: 'middle',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  }),
-});

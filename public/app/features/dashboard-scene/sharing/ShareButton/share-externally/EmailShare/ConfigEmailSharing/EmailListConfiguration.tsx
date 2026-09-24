@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { emailListConfigurationStyles } from './EmailListConfiguration.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Dropdown, Field, Icon, IconButton, Menu, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import {Dropdown, Field, Icon, IconButton, Menu, Spinner, Stack, Text} from '@grafana/ui';
 import {
   useReshareAccessToRecipientMutation,
   useDeleteRecipientMutation,
@@ -37,7 +38,7 @@ const EmailList = ({
   dashboardUid: string;
   publicDashboard: PublicDashboard;
 }) => {
-  const styles = useStyles2(getStyles);
+
 
   const [deleteEmail, { isLoading: isDeleteLoading }] = useDeleteRecipientMutation();
   const [reshareAccess, { isLoading: isReshareLoading }] = useReshareAccessToRecipientMutation();
@@ -55,13 +56,13 @@ const EmailList = ({
   };
 
   return (
-    <table data-testid={selectors.EmailSharingList} className={styles.table}>
+    <table data-testid={selectors.EmailSharingList} {...stylex.props(emailListConfigurationStyles.table)}>
       <tbody>
         {recipients!.map((recipient, idx) => (
-          <tr key={recipient.uid} className={styles.listItem}>
-            <td className={styles.user}>
+          <tr key={recipient.uid} {...stylex.props(emailListConfigurationStyles.listItem)}>
+            <td {...stylex.props(emailListConfigurationStyles.user)}>
               <Stack direction="row" gap={1} alignItems="center">
-                <div className={styles.icon}>
+                <div {...stylex.props(emailListConfigurationStyles.icon)}>
                   <Icon name="user" />
                 </div>
                 <Text>{recipient.recipient}</Text>
@@ -93,7 +94,7 @@ const EmailList = ({
 };
 
 export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScene }) => {
-  const styles = useStyles2(getStyles);
+
   const { data: publicDashboard } = publicDashboardApi.endpoints?.getPublicDashboard.useQueryState(
     dashboard.state.uid!
   );
@@ -105,10 +106,10 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
         'public-dashboard.email-sharing.recipient-list-description',
         "Only people you've directly invited can access this dashboard"
       )}
-      className={styles.listField}
+      {...stylex.props(emailListConfigurationStyles.listField)}
     >
       {!!publicDashboard?.recipients?.length ? (
-        <div className={styles.listContainer}>
+        <div {...stylex.props(emailListConfigurationStyles.listContainer)}>
           <EmailList
             recipients={publicDashboard.recipients}
             dashboardUid={dashboard.state.uid!}
@@ -122,31 +123,3 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listField: css({
-    marginBottom: 0,
-  }),
-  listContainer: css({
-    maxHeight: '140px',
-    overflowY: 'auto',
-  }),
-  table: css({
-    width: '100%',
-  }),
-  listItem: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.75, 1),
-    color: theme.colors.text.secondary,
-  }),
-  user: css({
-    flex: 1,
-  }),
-  icon: css({
-    border: `${theme.spacing(0.25)} solid ${theme.colors.text.secondary}`,
-    padding: theme.spacing(0.125, 0.5),
-    borderRadius: theme.shape.radius.circle,
-    color: theme.colors.text.secondary,
-  }),
-});

@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardFiltersOverviewDrawerStyles } from './DashboardFiltersOverviewDrawer.stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   type SceneComponentProps,
@@ -10,7 +11,7 @@ import {
   type SceneObjectState,
   sceneUtils,
 } from '@grafana/scenes';
-import { Drawer, useStyles2 } from '@grafana/ui';
+import {Drawer} from '@grafana/ui';
 
 import { getDashboardSceneFor } from '../../utils/utils';
 import { type DashboardScene } from '../DashboardScene';
@@ -43,7 +44,7 @@ export class DashboardFiltersOverviewDrawer extends SceneObjectBase<DashboardFil
 }
 
 function DashboardFiltersOverviewDrawerRenderer({ model }: SceneComponentProps<DashboardFiltersOverviewDrawer>) {
-  const styles = useStyles2(getStyles);
+
   const [searchQuery, setSearchQuery] = useState('');
   const dashboard = model.getDashboard();
 
@@ -58,8 +59,8 @@ function DashboardFiltersOverviewDrawerRenderer({ model }: SceneComponentProps<D
   return (
     <Drawer
       title={
-        <div className={styles.drawerHeader}>
-          <span className={styles.drawerTitle}>{t('dashboard.filters-overview.title', 'Edit filters')}</span>
+        <div {...stylex.props(dashboardFiltersOverviewDrawerStyles.drawerHeader)}>
+          <span {...stylex.props(dashboardFiltersOverviewDrawerStyles.drawerTitle)}>{t('dashboard.filters-overview.title', 'Edit filters')}</span>
           <DashboardFiltersOverviewSearch value={searchQuery} onChange={setSearchQuery} />
         </div>
       }
@@ -77,19 +78,3 @@ function DashboardFiltersOverviewDrawerRenderer({ model }: SceneComponentProps<D
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  drawerHeader: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    width: '100%',
-    overflow: 'hidden',
-    minWidth: 0,
-    paddingRight: theme.spacing(2),
-  }),
-  drawerTitle: css({
-    flex: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-  }),
-});

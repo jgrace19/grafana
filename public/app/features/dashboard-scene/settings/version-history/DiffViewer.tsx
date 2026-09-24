@@ -1,8 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import ReactDiffViewer, { type ReactDiffViewerProps, DiffMethod } from 'react-diff-viewer-continued';
 import tinycolor from 'tinycolor2';
 
 import { useTheme2 } from '@grafana/ui';
+
+import { diffViewerStyles } from './DiffViewer.stylex';
 
 export const DiffViewer = ({ oldValue, newValue, ...diffProps }: ReactDiffViewerProps) => {
   const theme = useTheme2();
@@ -50,15 +52,7 @@ export const DiffViewer = ({ oldValue, newValue, ...diffProps }: ReactDiffViewer
   };
 
   return (
-    <div
-      className={css({
-        fontSize: theme.typography.bodySmall.fontSize,
-        // prevent global styles interfering with diff viewer
-        pre: {
-          all: 'revert',
-        },
-      })}
-    >
+    <div {...stylex.props(diffViewerStyles.root)}>
       <ReactDiffViewer
         styles={styles}
         oldValue={oldValue}

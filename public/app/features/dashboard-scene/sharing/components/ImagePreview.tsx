@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { imagePreviewStyles } from './ImagePreview.stylex';
 import { useMemo, useEffect } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Alert, LoadingBar, Text, useStyles2 } from '@grafana/ui';
+import {Alert, LoadingBar, Text} from '@grafana/ui';
 
 type ErrorState = {
   message: string;
@@ -19,7 +20,7 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePreviewProps) {
-  const styles = useStyles2(getStyles);
+
   const [ref, { width: measuredWidth }] = useMeasure<HTMLDivElement>();
 
   // Memoize and clean up the object URL for the image
@@ -41,20 +42,20 @@ export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePrevie
 
   return (
     <div
-      className={styles.previewContainer}
+      {...stylex.props(imagePreviewStyles.previewContainer)}
       ref={ref}
       aria-label={t('share-modal.image.preview-region', 'Image preview')}
       role="region"
     >
       {isLoading && (
         <div
-          className={styles.loadingBarContainer}
+          {...stylex.props(imagePreviewStyles.loadingBarContainer)}
           role="status"
           aria-label={t('share-modal.image.generating', 'Generating image...')}
         >
           <LoadingBar width={measuredWidth} />
           {title && (
-            <div className={styles.titleContainer}>
+            <div {...stylex.props(imagePreviewStyles.titleContainer)}>
               <Text variant="body">{title}</Text>
             </div>
           )}
@@ -66,7 +67,7 @@ export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePrevie
         <img
           src={imageUrl}
           alt={t('share-modal.image.preview', 'Preview')}
-          className={styles.image}
+          {...stylex.props(imagePreviewStyles.image)}
           aria-label={t('share-modal.image.preview-aria', 'Generated image preview')}
         />
       )}
@@ -89,27 +90,3 @@ function ErrorAlert({ error }: { error: ErrorState }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  previewContainer: css({
-    position: 'relative',
-    width: '100%',
-    minHeight: '200px',
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    overflow: 'hidden',
-  }),
-  loadingBarContainer: css({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  }),
-  titleContainer: css({
-    padding: theme.spacing(1),
-  }),
-  image: css({
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain',
-  }),
-});

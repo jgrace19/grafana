@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { contentHeaderStyles } from './ContentHeader.stylex';
 import { upperFirst } from 'lodash';
 import { type RefObject, useRef } from 'react';
 
 import { type DataSourceInstanceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
-import { Button, Icon, Text, useStyles2 } from '@grafana/ui';
+import {Button, Icon, Text} from '@grafana/ui';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 import { type ExpressionQuery } from 'app/features/expressions/types';
 
@@ -18,10 +20,10 @@ import { EditableQueryName } from './EditableQueryName';
 import { HeaderActions } from './HeaderActions';
 
 function DatasourceSection({ selectedQuery, onChange }: DatasourceSectionProps) {
-  const styles = useStyles2(getDatasourceSectionStyles);
+
 
   return (
-    <div className={styles.dataSourcePickerWrapper}>
+    <div {...stylex.props(contentHeaderStyles.dataSourcePickerWrapper)}>
       <DataSourcePicker dashboard={true} variables={true} current={selectedQuery.datasource} onChange={onChange} />
     </div>
   );
@@ -43,8 +45,8 @@ interface PendingPickerHeaderProps {
 
 function PendingPickerHeader({ editorType, label, onCancel, cancelLabel, styles }: PendingPickerHeaderProps) {
   return (
-    <div className={styles.container}>
-      <div className={styles.leftSection}>
+    <div {...stylex.props(contentHeaderStyles.container)}>
+      <div {...stylex.props(contentHeaderStyles.leftSection)}>
         <Icon name={QUERY_EDITOR_TYPE_CONFIG[editorType].icon} size="sm" />
         <Text weight="light" variant="body" color="secondary">
           {label}
@@ -120,7 +122,6 @@ export function ContentHeader({
   const internalContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = externalContainerRef || internalContainerRef;
 
-  const styles = useStyles2(getStyles, { cardType, selectedAlert });
 
   if (pendingExpression) {
     return (
@@ -151,8 +152,8 @@ export function ContentHeader({
   }
 
   return (
-    <div className={styles.container} ref={containerRef}>
-      <div className={styles.leftSection}>
+    <div {...stylex.props(contentHeaderStyles.container)} ref={containerRef}>
+      <div {...stylex.props(contentHeaderStyles.leftSection)}>
         <Icon name={QUERY_EDITOR_TYPE_CONFIG[cardType].icon} size="sm" />
 
         {cardType === QueryEditorType.Alert && selectedAlert && (
@@ -207,7 +208,7 @@ export function ContentHeader({
               onQueryUpdate={onUpdateQuery}
               readOnly={isMultiSelection}
             />
-            {renderHeaderExtras && <div className={styles.headerExtras}>{renderHeaderExtras()}</div>}
+            {renderHeaderExtras && <div {...stylex.props(contentHeaderStyles.headerExtras)}>{renderHeaderExtras()}</div>}
           </>
         )}
       </div>
@@ -267,64 +268,4 @@ interface DatasourceSectionProps {
   onChange: (ds: DataSourceInstanceSettings) => void;
 }
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  { cardType, selectedAlert }: { cardType: QueryEditorType; selectedAlert: AlertRule | null }
-) => {
-  const borderColor = getEditorBorderColor({ theme, editorType: cardType, alertState: selectedAlert?.state });
-  const themeColors = getQueryEditorColors(theme);
-
-  return {
-    container: css({
-      position: 'relative',
-      backgroundColor: themeColors.contentHeaderBackground,
-      padding: theme.spacing(0.5),
-      paddingLeft: `calc(${theme.spacing(0.5)} + 4px)`,
-      borderTopLeftRadius: theme.shape.radius.default,
-      borderTopRightRadius: theme.shape.radius.default,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing(1),
-      minHeight: theme.spacing(5),
-
-      // psuedo-element to show the border color on the left of the header
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 4,
-        background: borderColor,
-        borderTopLeftRadius: theme.shape.radius.default,
-      },
-    }),
-    leftSection: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      padding: `0 ${theme.spacing(0.5)}`,
-    }),
-    headerExtras: css({
-      display: 'flex',
-      alignItems: 'center',
-      marginLeft: theme.spacing(1),
-    }),
-  };
-};
-
 // TODO: This is a hacky solution to create an inline datasource picker.
-const getDatasourceSectionStyles = (theme: GrafanaTheme2) => ({
-  dataSourcePickerWrapper: css({
-    // Target the Input component inside the picker
-    input: {
-      border: 'none',
-      backgroundColor: theme.colors.background.secondary,
-    },
-    // Remove borders from all nested divs
-    '& > div, & div': {
-      border: 'none',
-    },
-  }),
-});

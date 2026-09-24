@@ -1,14 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sharePanelPreviewStyles } from './SharePanelPreview.stylex';
 import saveAs from 'file-saver';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAsyncFn } from 'react-use';
 import { lastValueFrom } from 'rxjs';
 
-import { type GrafanaTheme2, type UrlQueryMap } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
-import { Button, ClipboardButton, Field, FieldSet, Icon, Input, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import {Button, ClipboardButton, Field, FieldSet, Icon, Input, Stack, Text, Tooltip} from '@grafana/ui';
 
 import { DashboardInteractions } from '../../utils/interactions';
 import { ImagePreview } from '../components/ImagePreview';
@@ -28,7 +29,7 @@ type Props = {
 };
 
 export function SharePanelPreview({ title, imageUrl, buildUrl, disabled, theme }: Props) {
-  const styles = useStyles2(getStyles);
+
 
   const {
     handleSubmit,
@@ -106,7 +107,7 @@ export function SharePanelPreview({ title, imageUrl, buildUrl, disabled, theme }
             <Stack gap={1} justifyContent="space-between" direction={{ xs: 'column', sm: 'row' }}>
               <Field
                 label={t('share-panel-image.settings.width-label', 'Width')}
-                className={styles.imageConfigurationField}
+                {...stylex.props(sharePanelPreviewStyles.imageConfigurationField)}
                 required
                 invalid={!!errors.width}
                 error={errors.width?.message}
@@ -129,7 +130,7 @@ export function SharePanelPreview({ title, imageUrl, buildUrl, disabled, theme }
               </Field>
               <Field
                 label={t('share-panel-image.settings.height-label', 'Height')}
-                className={styles.imageConfigurationField}
+                {...stylex.props(sharePanelPreviewStyles.imageConfigurationField)}
                 required
                 invalid={!!errors.height}
                 error={errors.height?.message}
@@ -152,7 +153,7 @@ export function SharePanelPreview({ title, imageUrl, buildUrl, disabled, theme }
               </Field>
               <Field
                 label={t('share-panel-image.settings.scale-factor-label', 'Scale factor')}
-                className={styles.imageConfigurationField}
+                {...stylex.props(sharePanelPreviewStyles.imageConfigurationField)}
                 required
                 invalid={!!errors.scaleFactor}
                 error={errors.scaleFactor?.message}
@@ -237,8 +238,3 @@ export function SharePanelPreview({ title, imageUrl, buildUrl, disabled, theme }
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  imageConfigurationField: css({
-    flex: 1,
-  }),
-});

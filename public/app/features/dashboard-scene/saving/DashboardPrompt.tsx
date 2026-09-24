@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardPromptStyles } from './DashboardPrompt.stylex';
 import type * as H from 'history';
 import { memo, useContext, useEffect, useMemo } from 'react';
 
@@ -6,7 +8,7 @@ import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import { ModalsContext, Modal, Button, useStyles2 } from '@grafana/ui';
+import {ModalsContext, Modal, Button} from '@grafana/ui';
 import { Prompt } from 'app/core/components/FormPrompt/Prompt';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type ObjectMeta } from 'app/features/apiserver/types';
@@ -131,14 +133,14 @@ interface UnsavedChangesModalProps {
 }
 
 export const UnsavedChangesModal = ({ onDiscard, onDismiss, onSaveDashboardClick }: UnsavedChangesModalProps) => {
-  const styles = useStyles2(getStyles);
+
 
   return (
     <Modal
       isOpen={true}
       title={t('dashboard-scene.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className={styles.modal}
+      {...stylex.props(dashboardPromptStyles.modal)}
     >
       <h5>
         <Trans i18nKey="dashboard-scene.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>
@@ -157,12 +159,6 @@ export const UnsavedChangesModal = ({ onDiscard, onDismiss, onSaveDashboardClick
     </Modal>
   );
 };
-
-const getStyles = () => ({
-  modal: css({
-    width: '500px',
-  }),
-});
 
 /**
  * For some dashboards and users changes should be ignored *

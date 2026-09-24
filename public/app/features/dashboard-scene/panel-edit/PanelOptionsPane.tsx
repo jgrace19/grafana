@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelOptionsPaneStyles } from './PanelOptionsPane.stylex';
 import { useMemo } from 'react';
 import { useToggle } from 'react-use';
 
@@ -24,7 +26,7 @@ import {
   type VizPanel,
   sceneGraph,
 } from '@grafana/scenes';
-import { Button, FilterInput, ScrollContainer, Stack, ToolbarButton, useStyles2, Text } from '@grafana/ui';
+import {Button, FilterInput, ScrollContainer, Stack, ToolbarButton, Text} from '@grafana/ui';
 import { OptionFilter } from 'app/features/dashboard/components/PanelEditor/OptionsPaneOptions';
 import { getPanelPluginNotFound } from 'app/features/panel/components/PanelPluginError';
 import { vizSuggestionsTracker } from 'app/features/panel/components/VizTypePicker/interactions';
@@ -153,7 +155,7 @@ function PanelOptionsPaneComponent({ model }: SceneComponentProps<PanelOptionsPa
   const panel = panelRef.resolve();
   const { pluginId } = panel.useState();
   const { data } = sceneGraph.getData(panel).useState();
-  const styles = useStyles2(getStyles);
+
   const isSearching = searchQuery.length > 0;
   const hasFieldConfig = !isSearching && !panel.getPlugin()?.fieldConfigRegistry.isEmpty();
   const [isSearchingOptions, setIsSearchingOptions] = useToggle(false);
@@ -174,9 +176,9 @@ function PanelOptionsPaneComponent({ model }: SceneComponentProps<PanelOptionsPa
     <>
       {!isVizPickerOpen && (
         <>
-          <div className={styles.top}>
+          <div {...stylex.props(panelOptionsPaneStyles.top)}>
             <Stack gap={1}>
-              <img alt={pluginMeta.name} src={pluginMeta.info.logos.small} className={styles.pluginIcon} />
+              <img alt={pluginMeta.name} src={pluginMeta.info.logos.small} {...stylex.props(panelOptionsPaneStyles.pluginIcon)} />
               <Text
                 data-testid={selectors.components.PanelEditor.OptionsPane.header}
                 element="h3"
@@ -220,9 +222,9 @@ function PanelOptionsPaneComponent({ model }: SceneComponentProps<PanelOptionsPa
             </Stack>
           </div>
           {isSearchingOptions && (
-            <div className={styles.searchWrapper}>
+            <div {...stylex.props(panelOptionsPaneStyles.searchWrapper)}>
               <FilterInput
-                className={styles.searchOptions}
+                {...stylex.props(panelOptionsPaneStyles.searchOptions)}
                 value={searchQuery}
                 placeholder={t('dashboard.panel-edit.placeholder-search-options', 'Search options')}
                 onChange={model.onSetSearchQuery}
@@ -255,28 +257,4 @@ function PanelOptionsPaneComponent({ model }: SceneComponentProps<PanelOptionsPa
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    top: css({
-      display: 'flex',
-      flexDirection: 'row',
-      padding: theme.spacing(1, 2),
-      gap: theme.spacing(2),
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    }),
-    searchOptions: css({
-      minHeight: theme.spacing(4),
-    }),
-    searchWrapper: css({
-      padding: theme.spacing(1, 2, 2, 2),
-    }),
-    rotateIcon: css({
-      rotate: '180deg',
-    }),
-    pluginIcon: css({
-      height: '22px',
-      width: '22px',
-    }),
-  };
-}
+

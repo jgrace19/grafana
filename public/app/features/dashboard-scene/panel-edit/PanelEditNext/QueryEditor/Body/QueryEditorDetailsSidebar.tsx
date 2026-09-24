@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryEditorDetailsSidebarStyles } from './QueryEditorDetailsSidebar.stylex';
 import { type FocusEvent, useCallback, useRef } from 'react';
 
-import { type GrafanaTheme2, rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ClickOutsideWrapper, Stack, Switch, useStyles2 } from '@grafana/ui';
+import {ClickOutsideWrapper, Stack, Switch} from '@grafana/ui';
 
 import {
   useActionsContext,
@@ -24,7 +25,7 @@ function emptyToNull(value: string) {
 }
 
 export function QueryEditorDetailsSidebar() {
-  const styles = useStyles2(getStyles);
+
 
   const { datasource, dsSettings } = useDatasourceContext();
   const { data } = useQueryRunnerContext();
@@ -112,8 +113,8 @@ export function QueryEditorDetailsSidebar() {
 
   return (
     <ClickOutsideWrapper onClick={handleCloseSidebar}>
-      <div ref={sidebarRef} className={styles.container}>
-        <div className={styles.content}>
+      <div ref={sidebarRef} {...stylex.props(queryEditorDetailsSidebarStyles.container)}>
+        <div {...stylex.props(queryEditorDetailsSidebarStyles.content)}>
           <Stack direction="column" gap={0.5}>
             <OptionField
               field={QueryOptionField.maxDataPoints}
@@ -186,23 +187,4 @@ export function QueryEditorDetailsSidebar() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: theme.colors.background.primary,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-    }),
-    content: css({
-      flex: 1,
-      padding: theme.spacing(1.5),
-      overflow: 'auto',
-    }),
-  };
-}
+

@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryEditorContentStyles } from './QueryEditorContent.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { QueryEditorType } from '../constants';
 
@@ -12,7 +12,7 @@ import { DatasourceHelpPanel } from './Header/DatasourceHelpPanel';
 import { useAlertingContext, useQueryEditorUIContext } from './QueryEditorContext';
 
 export function QueryEditorContent() {
-  const styles = useStyles2(getStyles);
+
 
   const { cardType, showingDatasourceHelp, pendingExpression, pendingTransformation } = useQueryEditorUIContext();
   const { alertRules } = useAlertingContext();
@@ -25,7 +25,7 @@ export function QueryEditorContent() {
   const shouldShowDatasourceHelp = !hasPendingPicker && showingDatasourceHelp;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(queryEditorContentStyles.container)}>
       {shouldShowHeader && <ContentHeaderSceneWrapper />}
       {shouldShowDatasourceHelp && <DatasourceHelpPanel />}
       <QueryEditorBody />
@@ -34,15 +34,3 @@ export function QueryEditorContent() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    height: '100%',
-    width: '100%',
-    overflow: 'hidden',
-  }),
-});

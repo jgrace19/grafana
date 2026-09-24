@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardFiltersOverviewStyles } from './DashboardFiltersOverview.stylex';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type AdHocFiltersVariable, type GroupByVariable } from '@grafana/scenes';
-import { Button, Stack, useStyles2 } from '@grafana/ui';
+import {Button, Stack} from '@grafana/ui';
 
 import { FilterRow, GroupHeader } from './FiltersOverviewRow';
 import { useFiltersOverviewState } from './useFiltersOverviewState';
@@ -30,7 +31,7 @@ export const DashboardFiltersOverview = ({
   onClose,
   searchQuery = '',
 }: DashboardFiltersOverviewProps) => {
-  const styles = useStyles2(getStyles);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { state, listItems, operatorConfig, actions, loading, hasKeys, hasAdhocFilters, hasGroupBy } =
@@ -55,9 +56,9 @@ export const DashboardFiltersOverview = ({
 
   if (loading) {
     return (
-      <div className={styles.skeletonContainer}>
+      <div {...stylex.props(dashboardFiltersOverviewStyles.skeletonContainer)}>
         {Array.from({ length: SKELETON_ROW_COUNT }, (_, i) => (
-          <Skeleton key={i} height={FILTER_ROW_HEIGHT} containerClassName={styles.skeletonRow} />
+          <Skeleton key={i} height={FILTER_ROW_HEIGHT} containerClassName={stylex.props(dashboardFiltersOverviewStyles.skeletonRow).className} />
         ))}
       </div>
     );
@@ -68,8 +69,8 @@ export const DashboardFiltersOverview = ({
   }
 
   return (
-    <div className={styles.container}>
-      <div ref={scrollRef} className={styles.listContainer}>
+    <div {...stylex.props(dashboardFiltersOverviewStyles.container)}>
+      <div ref={scrollRef} {...stylex.props(dashboardFiltersOverviewStyles.listContainer)}>
         <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
           {virtualizer.getVirtualItems().map((virtualRow) => {
             const item = listItems[virtualRow.index];
@@ -163,10 +164,10 @@ interface FooterProps {
 }
 
 const Footer = ({ onApply, onApplyAndClose, onClose }: FooterProps) => {
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <div className={styles.footer}>
+    <div {...stylex.props(dashboardFiltersOverviewStyles.footer)}>
       <Stack direction="row" gap={1} justifyContent="flex-end">
         <Button variant="primary" onClick={onApply}>
           {t('dashboard.filters-overview.apply', 'Apply')}
@@ -182,35 +183,3 @@ const Footer = ({ onApply, onApplyAndClose, onClose }: FooterProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-    overflow: 'hidden',
-  }),
-  skeletonContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: ROW_GAP,
-    width: '100%',
-  }),
-  skeletonRow: css({
-    display: 'block',
-    lineHeight: 1,
-  }),
-  listContainer: css({
-    width: '100%',
-    flex: 1,
-    minHeight: 0,
-    overflowY: 'auto',
-  }),
-  footer: css({
-    flexShrink: 0,
-    marginTop: theme.spacing(2),
-    paddingTop: theme.spacing(1.5),
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-  }),
-});

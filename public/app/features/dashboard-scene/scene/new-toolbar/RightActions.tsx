@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rightActionsStyles } from './RightActions.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { ToolbarButtonRow, useStyles2 } from '@grafana/ui';
+import {ToolbarButtonRow} from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 
@@ -24,7 +25,7 @@ import { getDynamicActions, renderActionElements } from './utils';
 export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   const { editPanel, editable, editview, isEditing, meta, viewPanel } = dashboard.useState();
   const { isPlaying } = playlistSrv.useState();
-  const styles = useStyles2(getStyles);
+
 
   const isEditable = Boolean(editable);
   const canSave = Boolean(meta.canSave);
@@ -41,7 +42,7 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   const showPlayButtons = isPlaying && isShowingDashboard && !isEditingDashboard;
 
   return (
-    <ToolbarButtonRow alignment="right" className={styles.container}>
+    <ToolbarButtonRow alignment="right" {...stylex.props(rightActionsStyles.container)}>
       {renderActionElements(
         [
           // This adds the presence indicators in enterprise
@@ -114,6 +115,3 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({ paddingLeft: theme.spacing(0.5) }),
-});

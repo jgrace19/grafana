@@ -1,11 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { canvasGridAddActionsStyles } from './CanvasGridAddActions.stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Menu } from '@grafana/ui';
 
 import { DashboardInteractions } from '../../utils/interactions';
 import { getDefaultVizPanel } from '../../utils/utils';
@@ -13,7 +14,7 @@ import { TabsLayoutManager } from '../layout-tabs/TabsLayoutManager';
 import { type DashboardLayoutManager, isDashboardLayoutManager } from '../types/DashboardLayoutManager';
 
 import { addNewRowTo, addNewTabTo } from './addNew';
-import { getLayoutControlsStyles } from './styles';
+import { layoutControlsStyles } from './styles';
 import { useClipboardState } from './useClipboardState';
 
 export interface Props {
@@ -21,19 +22,19 @@ export interface Props {
 }
 
 export function CanvasGridAddActions({ layoutManager }: Props) {
-  const styles = useStyles2(getLayoutControlsStyles);
-  const localStyles = useStyles2(getStyles);
   const { hasCopiedPanel } = useClipboardState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { disableGrouping, disableTabs } = useNestingRestrictions(layoutManager);
 
   return (
     <div
-      className={cx(
-        styles.controls,
-        localStyles.addAction,
-        'dashboard-canvas-controls',
-        isMenuOpen && localStyles.menuOpen
+      {...mergeStylexClassName(
+        stylex.props(
+          layoutControlsStyles.controls,
+          canvasGridAddActionsStyles.addAction,
+          isMenuOpen && canvasGridAddActionsStyles.menuOpen
+        ),
+        'dashboard-canvas-controls'
       )}
       onPointerUp={(evt) => evt.stopPropagation()}
       onPointerDown={(evt) => evt.stopPropagation()}
@@ -69,7 +70,11 @@ export function CanvasGridAddActions({ layoutManager }: Props) {
               testId={selectors.components.CanvasGridAddActions.addTab}
               label={t('dashboard.canvas-actions.group-into-tab', 'Group into tab')}
               disabled={disableTabs}
-              className={disableTabs ? localStyles.disabledMenuItem : undefined}
+              className={
+                disableTabs
+                  ? mergeStylexClassName(stylex.props(canvasGridAddActionsStyles.disabledMenuItem), undefined).className
+                  : undefined
+              }
               description={
                 disableTabs
                   ? t('dashboard.canvas-actions.disabled-nested-tabs', 'Tabs cannot be nested inside other tabs')
@@ -145,28 +150,3 @@ export function useNestingRestrictions(layoutManager: DashboardLayoutManager) {
     return { disableGrouping, disableTabs };
   }, [layoutManager]);
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  addAction: css({
-    position: 'absolute',
-    padding: theme.spacing(1, 0),
-    height: theme.spacing(5),
-    bottom: 0,
-    left: 0,
-    opacity: 0,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: theme.transitions.create('opacity'),
-    },
-  }),
-  menuOpen: css({
-    '&.dashboard-canvas-controls': {
-      opacity: 1,
-    },
-  }),
-  disabledMenuItem: css({
-    // Make the label inherit the disabled text color from the parent
-    '& > div > span': {
-      color: 'inherit',
-    },
-  }),
-});

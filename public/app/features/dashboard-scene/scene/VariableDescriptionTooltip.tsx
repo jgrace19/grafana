@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableDescriptionTooltipStyles } from './VariableDescriptionTooltip.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { sanitizeUrl } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import {Icon, Tooltip} from '@grafana/ui';
 
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 const BARE_LINK_REGEX = /https?:\/\/[^\s<>()]+/gi;
@@ -16,18 +17,18 @@ interface VariableDescriptionTooltipProps {
 }
 
 export function VariableDescriptionTooltip({ description, placement }: VariableDescriptionTooltipProps) {
-  const styles = useStyles2(getStyles);
+
 
   return (
     <Tooltip
-      content={<div className={styles.tooltipContent}>{renderDescriptionWithLinks(description, styles.link)}</div>}
+      content={<div {...stylex.props(variableDescriptionTooltipStyles.tooltipContent)}>{renderDescriptionWithLinks(description, variableDescriptionTooltipStyles.link)}</div>}
       placement={placement}
       interactive
     >
       <Icon
         name="info-circle"
         size="sm"
-        className={styles.icon}
+        {...stylex.props(variableDescriptionTooltipStyles.icon)}
         aria-label={t('dashboard.variable.description-tooltip', 'Variable description')}
       />
     </Tooltip>
@@ -129,17 +130,3 @@ function getSafeExternalUrl(url: string): string | undefined {
   return sanitizedUrl;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  icon: css({
-    color: theme.colors.text.secondary,
-  }),
-  tooltipContent: css({
-    maxWidth: theme.spacing(40),
-    whiteSpace: 'normal',
-    wordBreak: 'break-word',
-  }),
-  link: css({
-    color: theme.colors.primary.text,
-    textDecoration: 'underline',
-  }),
-});

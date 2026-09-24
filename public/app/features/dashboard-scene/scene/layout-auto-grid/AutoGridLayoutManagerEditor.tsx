@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { autoGridLayoutManagerEditorStyles } from './AutoGridLayoutManagerEditor.stylex';
 import { capitalize } from 'lodash';
 import React, { useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Button, Combobox, type ComboboxOption, Field, InlineSwitch, Input, Stack, useStyles2 } from '@grafana/ui';
+import {Button, Combobox, type ComboboxOption, Field, InlineSwitch, Input, Stack} from '@grafana/ui';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { type AutoGridColumnWidth, type AutoGridRowHeight, type AutoGridLayoutManager } from './AutoGridLayoutManager';
@@ -39,7 +40,7 @@ function GridLayoutColumns({ layoutManager }: { layoutManager: AutoGridLayoutMan
   const [inputRef, setInputRef] = React.useState<HTMLInputElement | null>(null);
   const [focusInput, setFocusInput] = React.useState(false);
   const [customMinWidthError, setCustomMinWidthError] = React.useState(false);
-  const styles = useStyles2(getStyles);
+
 
   useEffect(() => {
     if (focusInput && inputRef) {
@@ -102,7 +103,7 @@ function GridLayoutColumns({ layoutManager }: { layoutManager: AutoGridLayoutMan
             ? t('dashboard.auto-grid.options.min-width-error', 'A number between 50 and 2000 is required')
             : undefined
         }
-        className={styles.wideSelector}
+        {...stylex.props(autoGridLayoutManagerEditorStyles.wideSelector)}
       >
         {isStandardMinWidth ? (
           <Combobox
@@ -140,7 +141,7 @@ function GridLayoutColumns({ layoutManager }: { layoutManager: AutoGridLayoutMan
           />
         )}
       </Field>
-      <Field label={t('dashboard.auto-grid.options.max-columns', 'Max columns')} className={styles.narrowSelector}>
+      <Field label={t('dashboard.auto-grid.options.max-columns', 'Max columns')} {...stylex.props(autoGridLayoutManagerEditorStyles.narrowSelector)}>
         <Combobox
           id="max-columns"
           options={colOptions}
@@ -159,7 +160,7 @@ function GridLayoutRows({ layoutManager }: { layoutManager: AutoGridLayoutManage
   const [inputRef, setInputRef] = React.useState<HTMLInputElement | null>(null);
   const [focusInput, setFocusInput] = React.useState(false);
   const [customMinWidthError, setCustomMinWidthError] = React.useState(false);
-  const styles = useStyles2(getStyles);
+
 
   useEffect(() => {
     if (focusInput && inputRef) {
@@ -220,7 +221,7 @@ function GridLayoutRows({ layoutManager }: { layoutManager: AutoGridLayoutManage
             ? t('dashboard.auto-grid.options.min-height-error', 'A number between 50 and 2000 is required')
             : undefined
         }
-        className={styles.wideSelector}
+        {...stylex.props(autoGridLayoutManagerEditorStyles.wideSelector)}
       >
         {isStandardHeight ? (
           <Combobox
@@ -258,7 +259,7 @@ function GridLayoutRows({ layoutManager }: { layoutManager: AutoGridLayoutManage
           />
         )}
       </Field>
-      <Field label={t('dashboard.auto-grid.options.height-fill', 'Fill screen')} className={styles.narrowSelector}>
+      <Field label={t('dashboard.auto-grid.options.height-fill', 'Fill screen')} {...stylex.props(autoGridLayoutManagerEditorStyles.narrowSelector)}>
         <InlineSwitch
           id="fill-screen-toggle"
           value={fillScreen}
@@ -270,12 +271,3 @@ function GridLayoutRows({ layoutManager }: { layoutManager: AutoGridLayoutManage
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wideSelector: css({
-    minWidth: theme.spacing(14),
-    flex: `1 1 ${theme.spacing(14)}`,
-  }),
-  narrowSelector: css({
-    width: theme.spacing(10),
-  }),
-});

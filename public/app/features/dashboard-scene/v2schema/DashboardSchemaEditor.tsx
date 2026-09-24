@@ -1,20 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardSchemaEditorStyles } from './DashboardSchemaEditor.stylex';
 import yaml from 'js-yaml';
 import type * as MonacoEditorModule from 'monaco-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import {
-  CodeEditor,
-  RadioButtonGroup,
-  Spinner,
-  Stack,
-  Tooltip,
-  useStyles2,
-  type Monaco,
-  type MonacoEditor,
-} from '@grafana/ui';
+import {CodeEditor, RadioButtonGroup, Spinner, Stack, Tooltip, type Monaco, type MonacoEditor} from '@grafana/ui';
 
 import { fetchDashboardSchema } from './dashboardSchemaFetcher';
 
@@ -50,7 +42,7 @@ export function DashboardSchemaEditor({
   initialFormat = 'json',
   onFormatChange,
 }: DashboardSchemaEditorProps) {
-  const styles = useStyles2(getStyles);
+
 
   const [schema, setSchema] = useState<JSONSchema | null>(null);
   const [isSchemaLoading, setIsSchemaLoading] = useState(true);
@@ -216,12 +208,12 @@ export function DashboardSchemaEditor({
     [format, onChange, onValidationChange]
   );
 
-  const wrapperClassName = containerStyles ? `${styles.wrapper} ${containerStyles}` : styles.wrapper;
+  const wrapperClassName = containerStyles ? `${dashboardSchemaEditorStyles.wrapper} ${containerStyles}` : dashboardSchemaEditorStyles.wrapper;
 
   if (isSchemaLoading) {
     return (
       <div className={wrapperClassName}>
-        <div className={styles.loadingContainer}>
+        <div {...stylex.props(dashboardSchemaEditorStyles.loadingContainer)}>
           <Spinner size="lg" />
         </div>
       </div>
@@ -231,9 +223,9 @@ export function DashboardSchemaEditor({
   return (
     <div className={wrapperClassName}>
       {showFormatToggle && (
-        <div className={styles.formatToggleContainer}>
+        <div {...stylex.props(dashboardSchemaEditorStyles.formatToggleContainer)}>
           <Stack direction="row" gap={1} alignItems="center">
-            <span className={styles.formatLabel}>{t('dashboard-schema-editor.format-label', 'Format:')}</span>
+            <span {...stylex.props(dashboardSchemaEditorStyles.formatLabel)}>{t('dashboard-schema-editor.format-label', 'Format:')}</span>
             <Tooltip
               content={
                 yamlParseError
@@ -256,7 +248,7 @@ export function DashboardSchemaEditor({
           </Stack>
         </div>
       )}
-      <div className={styles.editorContainer}>
+      <div {...stylex.props(dashboardSchemaEditorStyles.editorContainer)}>
         <CodeEditor
           key={format}
           width="100%"
@@ -266,7 +258,7 @@ export function DashboardSchemaEditor({
           showLineNumbers={true}
           showMiniMap={true}
           readOnly={readOnly}
-          containerStyles={styles.codeEditorContainer}
+          containerStyles={dashboardSchemaEditorStyles.codeEditorContainer}
           onBeforeEditorMount={(monaco) => {
             monacoRef.current = monaco;
           }}
@@ -297,37 +289,3 @@ function configureSchemaDiagnostics(monaco: typeof MonacoEditorModule, schema: J
   });
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    gap: theme.spacing(1),
-  }),
-  formatToggleContainer: css({
-    flex: '0 0 auto',
-  }),
-  formatLabel: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-  editorContainer: css({
-    flex: '1 1 0',
-    minHeight: 0,
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  codeEditorContainer: css({
-    flex: '1 1 0',
-    minHeight: 0,
-    overflow: 'visible',
-  }),
-  loadingContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    color: theme.colors.text.secondary,
-  }),
-});

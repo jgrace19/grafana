@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationDebugDisplayStyles } from './TransformationDebugDisplay.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Drawer, Icon, JSONFormatter, Stack, useStyles2 } from '@grafana/ui';
+import {Drawer, Icon, JSONFormatter, Stack} from '@grafana/ui';
 
 import { usePanelContext, useQueryEditorUIContext, useQueryRunnerContext } from './QueryEditorContext';
 import { useTransformationDebugData } from './hooks/useTransformationDebugData';
@@ -13,7 +14,6 @@ export function TransformationDebugDisplay() {
   const { data } = useQueryRunnerContext();
   const { transformations } = usePanelContext();
 
-  const styles = useStyles2(getStyles);
 
   const seriesData = useMemo(() => data?.series ?? [], [data?.series]);
 
@@ -35,22 +35,22 @@ export function TransformationDebugDisplay() {
       onClose={transformToggles.toggleDebug}
     >
       <Stack direction="row" gap={1}>
-        <div className={styles.debug}>
-          <div className={styles.debugTitle}>
+        <div {...stylex.props(transformationDebugDisplayStyles.debug)}>
+          <div {...stylex.props(transformationDebugDisplayStyles.debugTitle)}>
             <Trans i18nKey="query-editor-next.transformation-debug.input-data">Input data</Trans>
           </div>
-          <div className={styles.debugJson}>
+          <div {...stylex.props(transformationDebugDisplayStyles.debugJson)}>
             <JSONFormatter json={input} />
           </div>
         </div>
-        <div className={styles.debugSeparator}>
+        <div {...stylex.props(transformationDebugDisplayStyles.debugSeparator)}>
           <Icon name="arrow-right" />
         </div>
-        <div className={styles.debug}>
-          <div className={styles.debugTitle}>
+        <div {...stylex.props(transformationDebugDisplayStyles.debug)}>
+          <div {...stylex.props(transformationDebugDisplayStyles.debugTitle)}>
             <Trans i18nKey="query-editor-next.transformation-debug.output-data">Output data</Trans>
           </div>
-          <div className={styles.debugJson}>
+          <div {...stylex.props(transformationDebugDisplayStyles.debugJson)}>
             <JSONFormatter json={output} />
           </div>
         </div>
@@ -59,44 +59,4 @@ export function TransformationDebugDisplay() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    debugSeparator: css({
-      width: '48px',
-      minHeight: '300px',
-      display: 'flex',
-      alignItems: 'center',
-      alignSelf: 'stretch',
-      justifyContent: 'center',
-      margin: `0 ${theme.spacing(0.5)}`,
-      color: theme.colors.primary.text,
-    }),
-    debugTitle: css({
-      padding: `${theme.spacing(1)} ${theme.spacing(0.25)}`,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.primary,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      flexGrow: 0,
-      flexShrink: 1,
-    }),
-    debug: css({
-      marginTop: theme.spacing(1),
-      padding: `0 ${theme.spacing(1, 1, 1)}`,
-      border: `1px solid ${theme.colors.border.weak}`,
-      background: `${theme.isLight ? theme.v1.palette.white : theme.v1.palette.gray05}`,
-      borderRadius: theme.shape.radius.default,
-      width: '100%',
-      minHeight: '300px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignSelf: 'stretch',
-    }),
-    debugJson: css({
-      flexGrow: 1,
-      height: '100%',
-      overflow: 'hidden',
-      padding: theme.spacing(0.5),
-    }),
-  };
-};
+

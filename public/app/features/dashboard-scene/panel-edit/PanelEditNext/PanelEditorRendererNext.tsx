@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelEditorRendererNextStyles } from './PanelEditorRendererNext.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { Spinner, ToolbarButton, useStyles2 } from '@grafana/ui';
+import {Spinner, ToolbarButton} from '@grafana/ui';
 
 import { NavToolbarActions } from '../../scene/NavToolbarActions';
 import { type PanelEditor } from '../PanelEditor';
@@ -17,29 +19,27 @@ export function PanelEditorRendererNext({ model }: SceneComponentProps<PanelEdit
   const { dashboard, optionsPane, splitter } = usePanelEditorShell(model);
   const { containerProps, primaryProps, secondaryProps, splitterProps, splitterState, onToggleCollapse } = splitter;
 
-  const styles = useStyles2(getWrapperStyles);
-
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(panelEditorRendererNextStyles.container)}>
       <NavToolbarActions dashboard={dashboard} />
       <div
         {...containerProps}
-        className={cx(containerProps.className, styles.content)}
+        className={cx(containerProps.className, panelEditorRendererNextStyles.content)}
         data-testid={selectors.components.PanelEditor.General.content}
       >
-        <div {...primaryProps} className={cx(primaryProps.className, styles.body)}>
+        <div {...primaryProps} className={cx(primaryProps.className, panelEditorRendererNextStyles.body)}>
           <VizAndDataPaneNext model={model} />
         </div>
         <div {...splitterProps} />
-        <div {...secondaryProps} className={cx(secondaryProps.className, styles.optionsPane)}>
+        <div {...secondaryProps} className={cx(secondaryProps.className, panelEditorRendererNextStyles.optionsPane)}>
           {splitterState.collapsed && (
-            <div className={styles.expandOptionsWrapper}>
+            <div {...stylex.props(panelEditorRendererNextStyles.expandOptionsWrapper)}>
               <ToolbarButton
                 tooltip={t('dashboard-scene.panel-editor-renderer.tooltip-open-options-pane', 'Open options pane')}
                 icon={'arrow-to-right'}
                 onClick={onToggleCollapse}
                 variant="canvas"
-                className={styles.rotate180}
+                {...stylex.props(panelEditorRendererNextStyles.rotate180)}
                 aria-label={t(
                   'dashboard-scene.panel-editor-renderer.aria-label-open-options-pane',
                   'Open options pane'
@@ -55,49 +55,4 @@ export function PanelEditorRendererNext({ model }: SceneComponentProps<PanelEdit
   );
 }
 
-function getWrapperStyles(theme: GrafanaTheme2) {
-  const scrollReflowMediaQuery = '@media ' + scrollReflowMediaCondition;
-  return {
-    container: css({
-      height: '100%',
-    }),
-    content: css({
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      overflow: 'unset',
-      paddingTop: theme.spacing(2),
-      [scrollReflowMediaQuery]: {
-        height: 'auto',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(470px, 1fr) 330px',
-        gridTemplateRows: '1fr',
-        gap: theme.spacing(1),
-        position: 'static',
-        width: '100%',
-      },
-    }),
-    body: css({
-      label: 'body',
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
-    }),
-    optionsPane: css({
-      flexDirection: 'column',
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      background: theme.colors.background.primary,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      borderTopLeftRadius: theme.shape.radius.default,
-    }),
-    expandOptionsWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(2, 1),
-    }),
-    rotate180: css({
-      rotate: '180deg',
-    }),
-  };
-}
+

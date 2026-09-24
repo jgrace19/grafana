@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variablesUnknownTableStyles } from './VariablesUnknownTable.stylex';
 import { type ReactElement, useEffect, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type SceneVariable, type SceneVariableState } from '@grafana/scenes';
 import { type Dashboard } from '@grafana/schema';
-import { CollapsableSection, Icon, Spinner, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import {CollapsableSection, Icon, Spinner, Stack, Text, Tooltip} from '@grafana/ui';
 
 import { VariableUsagesButton } from '../../variables/VariableUsagesButton';
 import { getUnknownsNetwork, type UsagesToNetwork } from '../../variables/utils';
@@ -22,8 +23,6 @@ export interface VariablesUnknownTableProps {
 export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknownTableProps): ReactElement {
   const [open, setOpen] = useState(false);
   const [changed, setChanged] = useState(0);
-  const style = useStyles2(getStyles);
-
   useEffect(() => setChanged((prevState) => prevState + 1), [variables, dashboard]);
 
   const [{ loading, value: usages }, getUnknowns] = useAsyncFn(async () => {
@@ -53,7 +52,7 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
   };
 
   return (
-    <div className={style.container}>
+    <div {...stylex.props(variablesUnknownTableStyles.container)}>
       <CollapsableSection label={<CollapseLabel />} isOpen={open} onToggle={onToggle}>
         {loading || !usages ? (
           <Stack justifyContent="center" direction="column">
@@ -75,8 +74,6 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
 }
 
 function CollapseLabel(): ReactElement {
-  const style = useStyles2(getStyles);
-
   return (
     <Text variant="h5">
       <Trans i18nKey="variables.unknown-table.renamed-or-missing-variables">Renamed or missing variables</Trans>
@@ -86,7 +83,7 @@ function CollapseLabel(): ReactElement {
           'Click to expand a list with all variable references that have been renamed or are missing from the dashboard.'
         )}
       >
-        <Icon name="info-circle" className={style.infoIcon} />
+        <Icon name="info-circle" {...stylex.props(variablesUnknownTableStyles.infoIcon)} />
       </Tooltip>
     </Text>
   );
@@ -101,7 +98,6 @@ function NoUnknowns(): ReactElement {
 }
 
 function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
-  const style = useStyles2(getStyles);
   return (
     <table className="filter-table filter-table--hover">
       <thead>
@@ -117,13 +113,13 @@ function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
           const name = typeof usage.variable === 'string' ? usage.variable : usage.variable.state.name;
           return (
             <tr key={name}>
-              <td className={style.firstColumn}>
+              <td className={stylex.props(variablesUnknownTableStyles.firstColumn).className}>
                 <span>{name}</span>
               </td>
-              <td className={style.defaultColumn} />
-              <td className={style.defaultColumn} />
-              <td className={style.defaultColumn} />
-              <td className={style.lastColumn}>
+              <td className={stylex.props(variablesUnknownTableStyles.defaultColumn).className} />
+              <td className={stylex.props(variablesUnknownTableStyles.defaultColumn).className} />
+              <td className={stylex.props(variablesUnknownTableStyles.defaultColumn).className} />
+              <td className={stylex.props(variablesUnknownTableStyles.lastColumn).className}>
                 <VariableUsagesButton id={name} usages={usages} isAdhoc={false} />
               </td>
             </tr>
@@ -134,27 +130,3 @@ function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginTop: theme.spacing(4),
-    paddingTop: theme.spacing(4),
-  }),
-  infoIcon: css({
-    marginLeft: theme.spacing(1),
-  }),
-  defaultColumn: css({
-    width: '1%',
-  }),
-  firstColumn: css({
-    width: '1%',
-    verticalAlign: 'top',
-    color: theme.colors.text.maxContrast,
-  }),
-  lastColumn: css({
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    width: '100%',
-    textAlign: 'right',
-  }),
-});

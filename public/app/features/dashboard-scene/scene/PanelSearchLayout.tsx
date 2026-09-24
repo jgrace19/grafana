@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
-import classNames from 'classnames';
+import * as stylex from '@stylexjs/stylex';
+import { panelSearchLayoutStyles } from './PanelSearchLayout.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type VizPanel, sceneGraph } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
 
 import { type DashboardScene } from './DashboardScene';
 import { SoloPanelContextProvider } from './SoloPanelContext';
@@ -19,12 +17,15 @@ const panelsPerRowCSSVar = '--panels-per-row';
 
 export function PanelSearchLayout({ dashboard, panelSearch = '', panelsPerRow }: Props) {
   const { body } = dashboard.state;
-  const styles = useStyles2(getStyles);
+
   const soloPanelContext = useMemo(() => new SoloPanelContextValueWithSearchStringFilter(panelSearch), [panelSearch]);
 
   return (
     <div
-      className={classNames(styles.grid, { [styles.perRow]: panelsPerRow !== undefined })}
+      {...stylex.props(
+        panelSearchLayoutStyles.grid,
+        panelsPerRow !== undefined && panelSearchLayoutStyles.perRow
+      )}
       style={{ [panelsPerRowCSSVar]: panelsPerRow } as Record<string, number>}
     >
       <SoloPanelContextProvider value={soloPanelContext} singleMatch={false} dashboard={dashboard}>
@@ -32,24 +33,6 @@ export function PanelSearchLayout({ dashboard, panelSearch = '', panelsPerRow }:
       </SoloPanelContextProvider>
     </div>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    grid: css({
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-      gap: theme.spacing(1),
-      gridAutoRows: '320px',
-    }),
-    perRow: css({
-      gridTemplateColumns: `repeat(var(${panelsPerRowCSSVar}, 3), 1fr)`,
-    }),
-    noHits: css({
-      display: 'grid',
-      placeItems: 'center',
-    }),
-  };
 }
 
 export class SoloPanelContextValueWithSearchStringFilter {

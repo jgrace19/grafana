@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { unconfiguredPanelStyles } from './UnconfiguredPanel.stylex';
 import { useCallback, useEffect, useState } from 'react';
 import useMeasure from 'react-use/lib/useMeasure';
 
@@ -6,22 +9,7 @@ import { AppEvents, CoreApp, type GrafanaTheme2, PanelPlugin, type PanelProps } 
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { sceneGraph, sceneUtils } from '@grafana/scenes';
-import {
-  Box,
-  Button,
-  type ButtonVariant,
-  ButtonGroup,
-  Dropdown,
-  EmptyState,
-  Icon,
-  type IconName,
-  Menu,
-  Stack,
-  Text,
-  useElementSelection,
-  usePanelContext,
-  useStyles2,
-} from '@grafana/ui';
+import {Box, Button, type ButtonVariant, ButtonGroup, Dropdown, EmptyState, Icon, type IconName, Menu, Stack, Text, useElementSelection, usePanelContext} from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
@@ -86,7 +74,7 @@ function useUnconfiguredPanelDashboard(): { dashboard: DashboardScene | null; is
 
 function NewUnconfiguredPanelComp(props: PanelProps) {
   const panelContext = usePanelContext();
-  const styles = useStyles2(getStyles);
+
   const { openDrawer, queryLibraryEnabled = false } = useQueryLibraryContext();
 
   const { dashboard, isEditing } = useUnconfiguredPanelDashboard();
@@ -169,8 +157,8 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
 
   if (showEmptyState) {
     return (
-      <div className={styles.emptyStateWrapper}>
-        <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />
+      <div {...stylex.props(unconfiguredPanelStyles.emptyStateWrapper)}>
+        <Icon name="chart-line" size="xxxl" {...stylex.props(unconfiguredPanelStyles.emptyStateIcon)} />
         <Text element="p" textAlignment="center" color="secondary">
           <Trans i18nKey="dashboard.new-panel.empty-state-message">
             Run a query to visualize it here or go to all visualizations to add other panel types
@@ -218,7 +206,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
   return (
     <div
       ref={measureRef}
-      className={styles.root}
+      {...stylex.props(unconfiguredPanelStyles.root)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsFocused(true)}
@@ -227,24 +215,24 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
       {isEditing ? (
         <>
           <div
-            className={cx(styles.quietState, !isQuietVisible && styles.hidden)}
+            {...mergeStylexClassName(stylex.props(unconfiguredPanelStyles.quietState), clsx(!isQuietVisible && unconfiguredPanelStyles.hidden))}
             aria-hidden={!isQuietVisible}
             {...(isQuietVisible && isEditing ? { tabIndex: 0 } : { tabIndex: -1 })}
             aria-label={t('dashboard.new-panel.aria-label', 'Unconfigured panel. Tab to see configuration options.')}
           >
             <div
               className={cx(
-                styles.gearIconWrapper,
-                phase === ViewPhase.TransitioningToQuiet && styles.gearEntering,
-                phase === ViewPhase.TransitioningToActive && styles.gearExiting
+                unconfiguredPanelStyles.gearIconWrapper,
+                phase === ViewPhase.TransitioningToQuiet && unconfiguredPanelStyles.gearEntering,
+                phase === ViewPhase.TransitioningToActive && unconfiguredPanelStyles.gearExiting
               )}
             >
               <Icon name="cog" size="md" />
             </div>
             <span
               className={cx(
-                phase === ViewPhase.TransitioningToQuiet && styles.textEntering,
-                phase === ViewPhase.TransitioningToActive && styles.textExiting
+                phase === ViewPhase.TransitioningToQuiet && unconfiguredPanelStyles.textEntering,
+                phase === ViewPhase.TransitioningToActive && unconfiguredPanelStyles.textExiting
               )}
             >
               <Text color="secondary">
@@ -254,7 +242,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
           </div>
 
           <div
-            className={cx(styles.buttonList, isCompact && styles.buttonListCompact, !isButtonsVisible && styles.hidden)}
+            {...mergeStylexClassName(stylex.props(unconfiguredPanelStyles.buttonList), clsx(isCompact && unconfiguredPanelStyles.buttonListCompact, !isButtonsVisible && unconfiguredPanelStyles.hidden))}
             aria-hidden={!isButtonsVisible}
             {...(!isButtonsVisible ? { inert: '' } : {})}
           >
@@ -262,9 +250,9 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
               <div
                 key={button.key}
                 className={cx(
-                  styles.buttonWrapper,
-                  phase === ViewPhase.TransitioningToActive && styles.buttonEntering,
-                  phase === ViewPhase.TransitioningToQuiet && styles.buttonExiting
+                  unconfiguredPanelStyles.buttonWrapper,
+                  phase === ViewPhase.TransitioningToActive && unconfiguredPanelStyles.buttonEntering,
+                  phase === ViewPhase.TransitioningToQuiet && unconfiguredPanelStyles.buttonExiting
                 )}
                 style={
                   phase === ViewPhase.TransitioningToActive || phase === ViewPhase.TransitioningToQuiet
@@ -284,8 +272,8 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
           </div>
         </>
       ) : (
-        <div className={styles.quietState}>
-          <div className={styles.gearIconWrapper}>
+        <div {...stylex.props(unconfiguredPanelStyles.quietState)}>
+          <div {...stylex.props(unconfiguredPanelStyles.gearIconWrapper)}>
             <Icon name="cog" size="md" />
           </div>
           <Text color="secondary">
@@ -300,7 +288,7 @@ function NewUnconfiguredPanelComp(props: PanelProps) {
 function LegacyUnconfiguredPanelComp(props: PanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelContext = usePanelContext();
-  const styles = useStyles2(getStyles);
+
 
   const onMenuClick = useCallback(
     (isOpen: boolean) => {
@@ -357,8 +345,8 @@ function LegacyUnconfiguredPanelComp(props: PanelProps) {
     );
 
     return (
-      <div className={styles.emptyStateWrapper}>
-        <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />
+      <div {...stylex.props(unconfiguredPanelStyles.emptyStateWrapper)}>
+        <Icon name="chart-line" size="xxxl" {...stylex.props(unconfiguredPanelStyles.emptyStateIcon)} />
         <Text element="p" textAlignment="center" color="secondary">
           {defaultContent}
         </Text>
@@ -398,111 +386,4 @@ sceneUtils.registerRuntimePanelPlugin({
   plugin: UnconfiguredPanel,
 });
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    root: css({
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: '100%',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `url(${emptyPanelSvg})`,
-        backgroundSize: '100% auto',
-        backgroundPosition: 'bottom',
-        backgroundRepeat: 'no-repeat',
-        opacity: 0.08,
-        pointerEvents: 'none',
-      },
-    }),
-    hidden: css({
-      opacity: 0,
-      pointerEvents: 'none',
-    }),
-    quietState: css({
-      position: 'absolute',
-      inset: 0,
-      margin: 'auto',
-      width: 'fit-content',
-      height: 'fit-content',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    gearIconWrapper: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: `1px dashed ${theme.colors.text.secondary}`,
-      borderRadius: theme.shape.radius.circle,
-      padding: theme.spacing(1),
-      color: theme.colors.text.secondary,
-    }),
-    gearEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${gearFrames.enter} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    gearExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${gearFrames.exit} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    textEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${textFrames.enter} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-      },
-    }),
-    textExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${textFrames.exit} ${EXIT_DURATION_MS}ms ${EXIT_EASING} both`,
-        animationDelay: `${TEXT_EXIT_DELAY_MS}ms`,
-      },
-    }),
-    buttonList: css({
-      position: 'absolute',
-      inset: 0,
-      margin: 'auto',
-      width: 'fit-content',
-      height: 'fit-content',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      gap: theme.spacing(1),
-    }),
-    buttonListCompact: css({
-      flexDirection: 'row',
-      alignItems: 'center',
-    }),
-    buttonWrapper: css({
-      display: 'flex',
-    }),
-    buttonEntering: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${buttonFrames.enter} ${BUTTON_ANIM_DURATION_MS}ms ease-out both`,
-      },
-    }),
-    buttonExiting: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${buttonFrames.exit} ${BUTTON_ANIM_DURATION_MS}ms ease-out both`,
-      },
-    }),
-    emptyStateWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      textAlign: 'center',
-    }),
-    emptyStateIcon: css({
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing(2),
-    }),
-  };
-}
+

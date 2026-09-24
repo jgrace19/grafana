@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardAnnotationsListStyles } from './DashboardAnnotationsList.stylex';
 import { DragDropContext, type DropResult } from '@hello-pangea/dnd';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { type SceneDataLayerProvider } from '@grafana/scenes';
-import { Box, Button, useStyles2, useTheme2 } from '@grafana/ui';
+import {Box, Button, useTheme2} from '@grafana/ui';
 
 import { DashboardAnnotationsDataLayer } from '../../scene/DashboardAnnotationsDataLayer';
 import { type DashboardDataLayerSet } from '../../scene/DashboardDataLayerSet';
@@ -141,13 +142,13 @@ const renderItemLabel = (a: DashboardAnnotationsDataLayer) => <AnnotationName an
 
 function AnnotationName({ annotation }: { annotation: DashboardAnnotationsDataLayer }) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
+
   const { name: annoName, query } = annotation.useState();
 
   const name = useMemo(() => {
     if (query.enable === false) {
       return (
-        <span className={styles.muted}>
+        <span {...stylex.props(dashboardAnnotationsListStyles.muted)}>
           <Trans i18nKey="dashboard-scene.annotations-section.name-disabled" values={{ annoName }}>
             (Disabled) {'{{annoName}}'}
           </Trans>
@@ -156,7 +157,7 @@ function AnnotationName({ annotation }: { annotation: DashboardAnnotationsDataLa
     }
     if (query.builtIn) {
       return (
-        <span className={styles.muted}>
+        <span {...stylex.props(dashboardAnnotationsListStyles.muted)}>
           <Trans i18nKey="dashboard-scene.annotations-section.name-builtin" values={{ annoName }}>
             {'{{annoName}}'} (Built-in)
           </Trans>
@@ -164,12 +165,12 @@ function AnnotationName({ annotation }: { annotation: DashboardAnnotationsDataLa
       );
     }
     return annoName;
-  }, [annoName, query.builtIn, query.enable, styles.muted]);
+  }, [annoName, query.builtIn, query.enable, dashboardAnnotationsListStyles.muted]);
 
   return (
     <>
       <span
-        className={styles.color}
+        {...stylex.props(dashboardAnnotationsListStyles.color)}
         style={{
           backgroundColor: theme.visualization.getColorByName(query.iconColor),
         }}
@@ -218,22 +219,4 @@ export function partitionAnnotationsByDisplay(annotationLayers: SceneDataLayerPr
   return { visible, controlsMenu, hidden };
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    color: css({
-      display: 'inline-block',
-      width: theme.spacing(1),
-      height: theme.spacing(1),
-      borderRadius: theme.shape.radius.default,
-      backgroundColor: theme.colors.text.primary,
-      marginRight: theme.spacing(0.5),
-    }),
-    muted: css({
-      fontStyle: 'italic',
-      color: theme.colors.text.secondary,
-      '&:hover': {
-        color: theme.colors.text.link,
-      },
-    }),
-  };
-}
+

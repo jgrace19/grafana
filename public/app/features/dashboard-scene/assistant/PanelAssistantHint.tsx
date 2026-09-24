@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent, useCallback, useContext, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   isSceneObject,
@@ -12,9 +11,10 @@ import {
   VizPanel,
   sceneGraph,
 } from '@grafana/scenes';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
 
 import { AssistantPopoverContext } from './AssistantPopoverContext';
+import { panelAssistantHintStyles } from './PanelAssistantHint.stylex';
 
 const HINT_KEY_PREFIX = 'assistant-hint-';
 
@@ -27,7 +27,6 @@ export class PanelAssistantHintItem extends SceneObjectBase<SceneObjectState> {
 }
 
 function PanelAssistantHintRenderer({ model }: SceneComponentProps<PanelAssistantHintItem>) {
-  const styles = useStyles2(getHintStyles);
   const popoverContext = useContext(AssistantPopoverContext);
 
   const handleClick = useCallback(
@@ -55,14 +54,14 @@ function PanelAssistantHintRenderer({ model }: SceneComponentProps<PanelAssistan
 
   return (
     <button
-      className={styles.hintButton}
+      {...stylex.props(panelAssistantHintStyles.hintButton)}
       onClick={handleClick}
       data-testid="panel-assistant-hint"
       aria-label={t('dashboard.panel-assistant.hint.aria-label', 'Open assistant for this panel')}
       type="button"
     >
-      <span className={styles.hintCircle} />
-      <Icon name="ai-sparkle" size="xs" className={styles.hintSparkle} />
+      <span {...stylex.props(panelAssistantHintStyles.hintCircle)} />
+      <Icon name="ai-sparkle" size="xs" {...stylex.props(panelAssistantHintStyles.hintSparkle)} />
     </button>
   );
 }
@@ -142,44 +141,3 @@ export function useAssistantPanelHints(dashboard: SceneObject, isEditing: boolea
   }, [isEditing, isEnabled, dashboard]);
 }
 
-function getHintStyles(theme: GrafanaTheme2) {
-  return {
-    hintButton: css({
-      label: 'panel-assistant-hint',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-      width: 20,
-      height: 20,
-      cursor: 'pointer',
-      opacity: 0,
-      // Reset button styles
-      background: 'none',
-      border: 'none',
-      padding: 0,
-      margin: 0,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: 'opacity 150ms ease-in-out',
-      },
-
-      // Only show when the individual panel's <section> is hovered.
-      // Using `section[class*="panel-container"]` prevents matching parent
-      // wrappers in repeated rows/panels that may also contain "panel-container".
-      'section[class*="panel-container"]:hover &': {
-        opacity: 1,
-      },
-    }),
-    hintCircle: css({
-      position: 'absolute',
-      inset: 0,
-      borderRadius: theme.shape.radius.circle,
-      background: 'linear-gradient(135deg, rgb(168, 85, 247), rgb(249, 115, 22))',
-    }),
-    hintSparkle: css({
-      position: 'relative',
-      color: '#fff',
-      zIndex: 1,
-    }),
-  };
-}

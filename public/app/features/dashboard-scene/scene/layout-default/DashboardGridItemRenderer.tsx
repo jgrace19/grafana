@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardGridItemRendererStyles } from './DashboardGridItemRenderer.stylex';
 import { type RefObject, useMemo } from 'react';
 
 import { config } from '@grafana/runtime';
@@ -26,14 +29,14 @@ function PanelWrapper({ panel, isLazy, containerRef, isSelected }: PanelWrapperP
       <LazyLoader
         key={panel.state.key!}
         ref={containerRef}
-        className={cx(panelWrapper, isSelected && 'dashboard-selected-element')}
+        {...mergeStylexClassName(stylex.props(dashboardGridItemRendererStyles.panelWrapper), clsx(isSelected && 'dashboard-selected-element'))}
       >
         <panel.Component model={panel} />
       </LazyLoader>
     );
   }
   return (
-    <div className={cx(panelWrapper, isSelected && 'dashboard-selected-element')} ref={containerRef}>
+    <div {...mergeStylexClassName(stylex.props(dashboardGridItemRendererStyles.panelWrapper), clsx(isSelected && 'dashboard-selected-element'))} ref={containerRef}>
       <panel.Component model={panel} />
     </div>
   );
@@ -116,10 +119,4 @@ function useLayoutStyle(direction: RepeatDirection, itemCount: number, maxPerRow
   }, [direction, itemCount, maxPerRow, itemHeight]);
 }
 
-const panelWrapper = css({
-  display: 'flex',
-  flexGrow: 1,
-  position: 'relative',
-  width: '100%',
-  height: '100%',
-});
+;

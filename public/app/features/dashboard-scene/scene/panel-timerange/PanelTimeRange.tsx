@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelTimeRangeStyles } from './PanelTimeRange.stylex';
 import { capitalize } from 'lodash';
 
 import {
@@ -21,7 +23,7 @@ import {
   VariableDependencyConfig,
   VizPanel,
 } from '@grafana/scenes';
-import { Icon, PanelChrome, Stack, TimePickerTooltip, Tooltip, useStyles2 } from '@grafana/ui';
+import {Icon, PanelChrome, Stack, TimePickerTooltip, Tooltip} from '@grafana/ui';
 import { type TimeOverrideResult } from 'app/features/dashboard/utils/panel';
 
 import { getDashboardSceneFor } from '../../utils/utils';
@@ -247,7 +249,7 @@ export class PanelTimeRange extends SceneTimeRangeTransformerBase<PanelTimeRange
 
 function PanelTimeRangeRenderer({ model }: SceneComponentProps<PanelTimeRange>) {
   const { timeInfo, hideTimeOverride } = model.useState();
-  const styles = useStyles2(getStyles);
+
 
   if (!timeInfo || hideTimeOverride) {
     return null;
@@ -257,7 +259,7 @@ function PanelTimeRangeRenderer({ model }: SceneComponentProps<PanelTimeRange>) 
 
   return (
     <Tooltip content={<TimePickerTooltip timeRange={model.state.value} timeZone={model.getTimeZone()} />}>
-      <PanelChrome.TitleItem className={styles.timeshift} onClick={onClick}>
+      <PanelChrome.TitleItem {...stylex.props(panelTimeRangeStyles.timeshift)} onClick={onClick}>
         <Stack gap={1} alignItems={'center'}>
           <Icon name="clock-nine" size="sm" />
           <div>{timeInfo}</div>
@@ -267,12 +269,4 @@ function PanelTimeRangeRenderer({ model }: SceneComponentProps<PanelTimeRange>) 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    timeshift: css({
-      color: theme.colors.text.link,
-      gap: theme.spacing(0.5),
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+

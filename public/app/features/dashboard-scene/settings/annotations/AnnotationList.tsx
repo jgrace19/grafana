@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { annotationListStyles } from './AnnotationList.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { type SceneDataLayerProvider } from '@grafana/scenes';
-import { Box, Button, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import {Box, Button, Icon, Stack, Text, Tooltip} from '@grafana/ui';
 
 import { partitionAnnotationsByDisplay } from '../../edit-pane/dashboard/DashboardAnnotationsList';
 import { dashboardEditActions } from '../../edit-pane/shared';
@@ -19,7 +20,7 @@ import { annotationEditActions } from './actions';
 
 export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLayerSet }) {
   const { annotationLayers } = dataLayerSet.useState();
-  const styles = useStyles2(getStyles);
+
   const canAdd = dataLayerSet.parent instanceof DashboardScene;
 
   const onSelectAnnotation = useCallback(
@@ -109,12 +110,12 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
               {(draggableProvided) => (
                 <div
                   key={layer.state.key}
-                  className={styles.annotationItem}
+                  {...stylex.props(annotationListStyles.annotationItem)}
                   ref={draggableProvided.innerRef}
                   {...draggableProvided.draggableProps}
                 >
                   <div
-                    className={styles.annotationContent}
+                    {...stylex.props(annotationListStyles.annotationContent)}
                     aria-label={t('dashboard-scene.annotation-list.render-list.aria-label-annotation', 'Annotation')}
                     role="button"
                     tabIndex={0}
@@ -131,13 +132,13 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
                         content={t('dashboard.edit-pane.annotations.reorder', 'Drag to reorder')}
                         placement="top"
                       >
-                        <Icon name="draggabledots" size="md" className={styles.dragHandle} />
+                        <Icon name="draggabledots" size="md" {...stylex.props(annotationListStyles.dragHandle)} />
                       </Tooltip>
                     </div>
                     <Text truncate>{layer.state.name}</Text>
-                    {layer.state.isHidden && <Icon name="eye-slash" size="sm" className={styles.hiddenIcon} />}
+                    {layer.state.isHidden && <Icon name="eye-slash" size="sm" {...stylex.props(annotationListStyles.hiddenIcon)} />}
                     {layer.state.placement === 'inControlsMenu' && (
-                      <Icon name="sliders-v-alt" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="sliders-v-alt" size="sm" {...stylex.props(annotationListStyles.hiddenIcon)} />
                     )}
                   </div>
                   <Stack direction="row" gap={1} alignItems="center">
@@ -188,51 +189,4 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    annotationItem: css({
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      cursor: 'pointer',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-      '&:last-child': {
-        marginBottom: theme.spacing(2),
-      },
-      button: {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        color: theme.colors.text.link,
-        button: {
-          visibility: 'visible',
-        },
-      },
-    }),
-    annotationContent: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-    }),
-    dragHandle: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'grab',
-      color: theme.colors.text.secondary,
-      '&:active': {
-        cursor: 'grabbing',
-      },
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-  };
-}
+

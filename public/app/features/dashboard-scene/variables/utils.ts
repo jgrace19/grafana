@@ -287,3 +287,4 @@ export function filterSectionRepeatLocalVariables<T extends SceneVariable>(
 
   return variables.filter((variable) => !(variable instanceof LocalValueVariable));
 }
+

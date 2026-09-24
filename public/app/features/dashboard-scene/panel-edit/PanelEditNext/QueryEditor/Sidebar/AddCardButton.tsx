@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { addCardButtonStyles } from './AddCardButton.stylex';
 import { useCallback, useMemo, useState } from 'react';
 
 import { CoreApp, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config as grafanaConfig } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Dropdown, Icon, Menu, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import {Dropdown, Icon, Menu, Tooltip, useTheme2} from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
 import { SHARED_DASHBOARD_QUERY } from 'app/plugins/datasource/dashboard/constants';
@@ -39,7 +41,7 @@ interface AddCardButtonProps {
 }
 
 export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }: AddCardButtonProps) => {
-  const styles = useStyles2(getStyles, alwaysVisible);
+
   const theme = useTheme2();
   const { dsSettings } = useDatasourceContext();
   const { addQuery } = useActionsContext();
@@ -151,10 +153,15 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
 
   const ariaLabel = getButtonAriaLabel(variant, afterId);
 
+  const buttonStyles = stylex.props(
+    addCardButtonStyles.button,
+    alwaysVisible ? addCardButtonStyles.buttonAlwaysVisible : addCardButtonStyles.buttonHoverReveal
+  );
+
   if (variant === 'transformation') {
     return (
       <button
-        className={styles.button}
+        {...buttonStyles}
         data-add-button={!alwaysVisible || undefined}
         type="button"
         aria-label={ariaLabel}
@@ -173,7 +180,7 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
       onVisibleChange={handleMenuVisibleChange}
     >
       <button
-        className={styles.button}
+        {...buttonStyles}
         data-add-button={!alwaysVisible || undefined}
         data-menu-open={menuOpen || undefined}
         type="button"
@@ -185,58 +192,4 @@ export const AddCardButton = ({ variant, afterId, onAdd, alwaysVisible = false }
   );
 };
 
-function getStyles(theme: GrafanaTheme2, alwaysVisible: boolean) {
-  return {
-    button: css({
-      display: alwaysVisible ? 'inline-flex' : 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: theme.spacing(2.5),
-      height: theme.spacing(2.5),
-      borderRadius: theme.shape.radius.sm,
-      border: 'none',
-      background: theme.colors.primary.main,
-      color: theme.colors.primary.contrastText,
-      cursor: 'pointer',
-      padding: 0,
-      willChange: 'transform',
-      transform: alwaysVisible ? 'translateZ(0)' : 'translateY(-50%) translateZ(0)',
 
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: [
-          theme.transitions.create(alwaysVisible ? ['background-color'] : ['opacity', 'background-color'], {
-            duration: 100,
-          }),
-          'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
-        ].join(', '),
-      },
-
-      // Hover-button positioning & hidden-by-default state (revealed by SidebarCard hover)
-      ...(!alwaysVisible && {
-        position: 'absolute' as const,
-        top: `calc(100% + ${theme.spacing(0.25)})`,
-        left: theme.spacing(-2.5),
-        zIndex: 1,
-        opacity: 0,
-        pointerEvents: 'none' as const,
-      }),
-
-      '&:hover': {
-        background: theme.colors.primary.shade,
-      },
-
-      '&:active': {
-        transform: alwaysVisible ? 'scale(0.97)' : 'translateY(-50%) scale(0.97)',
-      },
-
-      '&:focus-visible': {
-        outline: `2px solid ${theme.colors.primary.border}`,
-        outlineOffset: '2px',
-        ...(!alwaysVisible && {
-          opacity: 1,
-          pointerEvents: 'auto' as const,
-        }),
-      },
-    }),
-  };
-}

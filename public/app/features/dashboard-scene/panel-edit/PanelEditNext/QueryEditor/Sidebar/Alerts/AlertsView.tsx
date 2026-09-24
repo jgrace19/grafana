@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { alertsViewStyles } from './AlertsView.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { ScenesNewRuleFromPanelButton } from '../../../../PanelDataPane/NewAlertRuleButton';
 import { useAlertingContext, usePanelContext } from '../../QueryEditorContext';
@@ -17,12 +17,11 @@ export function AlertsView({ alertRules }: AlertsViewProps) {
   const { panel } = usePanelContext();
   const { isDashboardSaved } = useAlertingContext();
 
-  const styles = useStyles2(getStyles);
 
   if (alertRules.length === 0) {
     return (
-      <div className={styles.container}>
-        <div className={styles.buttonWrapper}>
+      <div {...stylex.props(alertsViewStyles.container)}>
+        <div {...stylex.props(alertsViewStyles.buttonWrapper)}>
           <ScenesNewRuleFromPanelButton panel={panel} variant="primary" size="sm" disabled={!isDashboardSaved} />
         </div>
       </div>
@@ -30,27 +29,14 @@ export function AlertsView({ alertRules }: AlertsViewProps) {
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(alertsViewStyles.container)}>
       {alertRules.map((alert) => (
         <AlertCard key={alert.alertId} alert={alert} />
       ))}
-      <div className={styles.buttonWrapper}>
+      <div {...stylex.props(alertsViewStyles.buttonWrapper)}>
         <ScenesNewRuleFromPanelButton panel={panel} variant="primary" size="sm" />
       </div>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(3),
-  }),
-  buttonWrapper: css({
-    position: 'relative',
-    marginInlineStart: theme.spacing(2),
-    minHeight: '30px',
-  }),
-});

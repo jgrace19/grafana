@@ -1,7 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { addButtonStyles } from './AddButton.stylex';
 
 import { type IconName, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Button } from '@grafana/ui';
+import {Button} from '@grafana/ui';
 
 type AddButtonProps = {
   icon: IconName;
@@ -16,10 +19,10 @@ type AddButtonProps = {
 };
 
 export function AddButton({ icon, label, tooltip, tabIndex, onClick, onKeyDown, className, disabled }: AddButtonProps) {
-  const styles = useStyles2(getStyles);
+
   return (
     <Button
-      className={cx(styles.iconButton, className)}
+      {...mergeStylexClassName(stylex.props(addButtonStyles.iconButton), clsx(className))}
       variant="secondary"
       fill="outline"
       size="lg"
@@ -35,18 +38,4 @@ export function AddButton({ icon, label, tooltip, tabIndex, onClick, onKeyDown, 
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    iconButton: css({
-      display: 'flex',
-      padding: theme.spacing(1.5),
-      gap: theme.spacing(1.5),
-      alignItems: 'center',
-      fontSize: '14px',
-      '&:hover': {
-        background: theme.colors.background.elevated,
-        boxShadow: theme.shadows.z1,
-      },
-    }),
-  };
-}
+

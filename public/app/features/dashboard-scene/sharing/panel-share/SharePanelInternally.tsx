@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sharePanelInternallyStyles } from './SharePanelInternally.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { Alert, ClipboardButton, Divider, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import {Alert, ClipboardButton, Divider, Stack, Text, TextLink} from '@grafana/ui';
 
 import { getDashboardSceneFor } from '../../utils/utils';
 import ShareInternallyConfiguration from '../ShareInternallyConfiguration';
@@ -25,7 +26,7 @@ export class SharePanelInternally extends ShareLinkTab {
 }
 
 function SharePanelInternallyRenderer({ model }: SceneComponentProps<SharePanelInternally>) {
-  const styles = useStyles2(getStyles);
+
 
   const { useLockedTime, useShortUrl, selectedTheme, isBuildUrlLoading, imageUrl, panelRef } = model.useState();
 
@@ -41,7 +42,7 @@ function SharePanelInternallyRenderer({ model }: SceneComponentProps<SharePanelI
           customization settings:
         </Trans>
       </Text>
-      <div className={styles.configurationContainer}>
+      <div {...stylex.props(sharePanelInternallyStyles.configurationContainer)}>
         <ShareInternallyConfiguration
           useLockedTime={useLockedTime}
           onToggleLockedTime={model.onToggleLockedTime}
@@ -98,8 +99,3 @@ function SharePanelInternallyRenderer({ model }: SceneComponentProps<SharePanelI
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  configurationContainer: css({
-    marginTop: theme.spacing(2),
-  }),
-});

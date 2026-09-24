@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { diffTitleStyles } from './DiffTitle.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Icon } from '@grafana/ui';
+import {Icon} from '@grafana/ui';
 
 import { DiffValues } from './DiffValues';
 import { type Diff, getDiffText } from './utils';
@@ -21,48 +22,19 @@ const replaceDiff: Diff = {
 };
 
 export const DiffTitle = ({ diff, title }: DiffTitleProps) => {
-  const styles = useStyles2(getDiffTitleStyles);
+
 
   return diff ? (
     <>
       <Icon type="mono" name="circle" className={styles[diff.op]} size="xs" />{' '}
-      <span className={styles.embolden}>{title}</span> <span>{getDiffText(diff, diff.path?.length > 1)}</span>{' '}
+      <span {...stylex.props(diffTitleStyles.embolden)}>{title}</span> <span>{getDiffText(diff, diff.path?.length > 1)}</span>{' '}
       <DiffValues diff={diff} />
     </>
   ) : (
-    <div className={styles.withoutDiff}>
-      <Icon type="mono" name="circle" className={styles.replace} size="xs" />{' '}
-      <span className={styles.embolden}>{title}</span> <span>{getDiffText(replaceDiff, false)}</span>
+    <div {...stylex.props(diffTitleStyles.withoutDiff)}>
+      <Icon type="mono" name="circle" {...stylex.props(diffTitleStyles.replace)} size="xs" />{' '}
+      <span {...stylex.props(diffTitleStyles.embolden)}>{title}</span> <span>{getDiffText(replaceDiff, false)}</span>
     </div>
   );
 };
 
-const getDiffTitleStyles = (theme: GrafanaTheme2) => ({
-  embolden: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  add: css({
-    color: theme.colors.success.main,
-  }),
-  replace: css({
-    color: theme.colors.warning.main,
-  }),
-  move: css({
-    color: theme.colors.warning.main,
-  }),
-  copy: css({
-    color: theme.colors.success.main,
-  }),
-  _get: css({
-    color: theme.colors.success.main,
-  }),
-  test: css({
-    color: theme.colors.success.main,
-  }),
-  remove: css({
-    color: theme.colors.error.main,
-  }),
-  withoutDiff: css({
-    marginBottom: theme.spacing(1),
-  }),
-});

@@ -1,12 +1,10 @@
 // Libraries
-import { css } from '@emotion/css';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, type UrlQueryValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { UrlSyncContextProvider } from '@grafana/scenes';
-import { Alert, Box, useStyles2 } from '@grafana/ui';
+import { Alert, Box } from '@grafana/ui';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { EntityNotFound } from 'app/core/components/PageNotFound/EntityNotFound';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -75,7 +73,6 @@ export function SoloPanelRenderer({
 }) {
   const { controls, body } = dashboard.useState();
   const refreshPicker = controls?.useState()?.refreshPicker;
-  const styles = useStyles2(getStyles);
   const soloPanelContext = useDefineSoloPanelContext(panelId)!;
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,7 +90,7 @@ export function SoloPanelRenderer({
   return (
     <div
       ref={containerRef}
-      className={styles.container}
+      {...stylex.props(soloPanelPageStyles.container)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -131,23 +128,3 @@ function renderHiddenVariables(dashboard: DashboardScene) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const panelWrapper = css({
-    width: '100%',
-    height: '100%',
-  });
-
-  return {
-    container: css({
-      position: 'fixed',
-      bottom: 0,
-      right: 0,
-      margin: 0,
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    }),
-    panelWrapper,
-  };
-};

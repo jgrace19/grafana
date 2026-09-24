@@ -1,18 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { filtersOverviewRowStyles } from './FiltersOverviewRow.stylex';
 import { memo, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import {
-  Checkbox,
-  type ComboboxOption,
-  getInputStyles,
-  Icon,
-  MultiSelect,
-  Select,
-  Tooltip,
-  useStyles2,
-} from '@grafana/ui';
+import {Checkbox, type ComboboxOption, getInputStyles, Icon, MultiSelect, Select, Tooltip} from '@grafana/ui';
 
 interface GroupHeaderProps {
   group: string;
@@ -21,19 +14,19 @@ interface GroupHeaderProps {
 }
 
 export const GroupHeader = memo(({ group, isOpen, onToggle }: GroupHeaderProps) => {
-  const styles = useStyles2(getGroupStyles);
+
 
   return (
-    <div className={styles.groupRow}>
+    <div {...stylex.props(filtersOverviewRowStyles.groupRow)}>
       <button
         type="button"
-        className={styles.groupButton}
+        {...stylex.props(filtersOverviewRowStyles.groupButton)}
         aria-expanded={isOpen}
         onClick={() => onToggle(group, !isOpen)}
       >
-        <span className={styles.groupButtonInner}>
+        <span {...stylex.props(filtersOverviewRowStyles.groupButtonInner)}>
           <Icon name={isOpen ? 'angle-down' : 'angle-right'} />
-          <span className={styles.groupLabel}>{group}</span>
+          <span {...stylex.props(filtersOverviewRowStyles.groupLabel)}>{group}</span>
         </span>
       </button>
     </div>
@@ -98,7 +91,7 @@ export const FilterRow = memo(
     onRestore,
     getValueOptions,
   }: FilterRowProps) => {
-    const styles = useStyles2(getRowStyles);
+
     const label = keyOption.label ?? keyValue;
 
     const [valueOptions, setValueOptions] = useState<Array<SelectableValue<string>>>([]);
@@ -123,12 +116,12 @@ export const FilterRow = memo(
       }
       return {
         IndicatorsContainer: (props: React.PropsWithChildren) => (
-          <div className={styles.indicators}>
+          <div {...stylex.props(filtersOverviewRowStyles.indicators)}>
             <Tooltip content={t('dashboard.filters-overview.restore', 'Restore default value')}>
               <span
                 role="button"
                 tabIndex={0}
-                className={styles.restoreButton}
+                {...stylex.props(filtersOverviewRowStyles.restoreButton)}
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -148,21 +141,21 @@ export const FilterRow = memo(
           </div>
         ),
       };
-    }, [isRestorable, keyValue, onRestore, styles.indicators, styles.restoreButton]);
+    }, [isRestorable, keyValue, onRestore, filtersOverviewRowStyles.indicators, filtersOverviewRowStyles.restoreButton]);
 
     return (
-      <div className={styles.row}>
+      <div {...stylex.props(filtersOverviewRowStyles.row)}>
         {/* Label cell */}
-        <div className={styles.labelCell}>
+        <div {...stylex.props(filtersOverviewRowStyles.labelCell)}>
           <Tooltip content={label}>
-            <span className={styles.labelShell}>
-              <span className={styles.labelText}>{label}</span>
+            <span {...stylex.props(filtersOverviewRowStyles.labelShell)}>
+              <span {...stylex.props(filtersOverviewRowStyles.labelText)}>{label}</span>
             </span>
           </Tooltip>
         </div>
 
         {/* Operator cell */}
-        <div className={styles.operatorCell}>
+        <div {...stylex.props(filtersOverviewRowStyles.operatorCell)}>
           <Select<string>
             aria-label={t('dashboard.filters-overview.operator.aria-label', 'Operator')}
             options={operatorOptions}
@@ -179,7 +172,7 @@ export const FilterRow = memo(
         </div>
 
         {/* Value cell */}
-        <div className={styles.valueCell}>
+        <div {...stylex.props(filtersOverviewRowStyles.valueCell)}>
           {isMultiOperator ? (
             <MultiSelect<string>
               aria-label={t('dashboard.filters-overview.multi.value.aria-label', 'Value')}
@@ -223,7 +216,7 @@ export const FilterRow = memo(
 
         {/* GroupBy cell */}
         {hasGroupByVariable && (
-          <div className={styles.groupByCell}>
+          <div {...stylex.props(filtersOverviewRowStyles.groupByCell)}>
             <Checkbox
               value={isGroupBy}
               label={t('dashboard.filters-overview.groupby', 'GroupBy')}
@@ -239,133 +232,3 @@ export const FilterRow = memo(
 FilterRow.displayName = 'FilterRow';
 
 // Styles
-const getGroupStyles = (theme: GrafanaTheme2) => ({
-  groupRow: css({
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    padding: theme.spacing(1, 0.5),
-  }),
-  groupButton: css({
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    background: 'transparent',
-    border: 'none',
-    padding: 0,
-    cursor: 'pointer',
-    color: 'inherit',
-    textAlign: 'left',
-  }),
-  groupButtonInner: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.75),
-  }),
-  groupLabel: css({
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-});
-
-const getRowStyles = (theme: GrafanaTheme2) => {
-  // Shared z-index layering so focused/hovered cell borders render on top of overlapping neighbors
-  const cellLayering = {
-    position: 'relative' as const,
-    zIndex: 0,
-    '&:hover': { zIndex: 1 },
-    '&:focus-within': { zIndex: 3 },
-  };
-
-  return {
-    row: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      width: '100%',
-    }),
-    labelCell: css({
-      ...cellLayering,
-      flex: '0 0 25%',
-      maxWidth: '25%',
-      minWidth: '25%',
-    }),
-    operatorCell: css({
-      ...cellLayering,
-      flex: '0 0 auto',
-      width: theme.spacing(8),
-      marginLeft: -1,
-      '&& > *': {
-        width: '100%',
-        paddingLeft: 0,
-        paddingRight: 0,
-        borderRadius: 'unset',
-      },
-      '&& > * > *': {
-        borderRadius: 'unset',
-      },
-      '&& input': {
-        borderRadius: 'unset',
-      },
-    }),
-    valueCell: css({
-      ...cellLayering,
-      flex: '1 1 0',
-      minWidth: 0,
-      marginLeft: -1,
-      '&& > *': {
-        width: '100%',
-        paddingLeft: 0,
-        borderTopLeftRadius: 'unset',
-        borderBottomLeftRadius: 'unset',
-      },
-      '&& > * > *': {
-        borderTopLeftRadius: 'unset',
-        borderBottomLeftRadius: 'unset',
-      },
-      '&& input': {
-        borderTopLeftRadius: 'unset',
-        borderBottomLeftRadius: 'unset',
-      },
-    }),
-    indicators: cx(getInputStyles({ theme, invalid: false }).suffix, css({ position: 'relative' })),
-    restoreButton: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      color: theme.colors.text.secondary,
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-    groupByCell: css({
-      flex: '0 0 auto',
-      width: theme.spacing(10),
-      display: 'flex',
-      alignItems: 'center',
-      alignSelf: 'center',
-      marginLeft: theme.spacing(1),
-    }),
-    labelShell: css({
-      display: 'flex',
-      alignItems: 'center',
-      paddingLeft: theme.spacing(1),
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.size.sm,
-      backgroundColor: theme.colors.background.secondary,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      height: theme.spacing(theme.components.height.md),
-      lineHeight: theme.spacing(theme.components.height.md),
-      borderRadius: `${theme.shape.radius.default} 0 0 ${theme.shape.radius.default}`,
-      width: '100%',
-      minWidth: 0,
-      boxSizing: 'border-box',
-      color: theme.colors.text.primary,
-    }),
-    labelText: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      minWidth: 0,
-      flex: 1,
-    }),
-  };
-};

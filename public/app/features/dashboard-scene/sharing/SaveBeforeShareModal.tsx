@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useEffect } from 'react';
+
+import { saveBeforeShareModalStyles } from './SaveBeforeShareModal.stylex';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
@@ -60,7 +62,12 @@ export function SaveBeforeShareModal({ dashboard, onContinue, onDismiss, title, 
   }
 
   return (
-    <Modal isOpen={true} title={title ?? defaultTitle} onDismiss={onDismiss} className={css({ width: '500px' })}>
+    <Modal
+      isOpen={true}
+      title={title ?? defaultTitle}
+      onDismiss={onDismiss}
+      {...stylex.props(saveBeforeShareModalStyles.modal)}
+    >
       <h5>{message ?? defaultMessage}</h5>
       <Modal.ButtonRow>
         <Button variant="secondary" onClick={onCancel} fill="outline">

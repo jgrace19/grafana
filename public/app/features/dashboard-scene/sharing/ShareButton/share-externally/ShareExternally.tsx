@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { shareExternallyStyles } from './ShareExternally.stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type SceneComponentProps, SceneObjectBase } from '@grafana/scenes';
-import { Button, ClipboardButton, Divider, Spinner, Stack, useStyles2 } from '@grafana/ui';
+import {Button, ClipboardButton, Divider, Spinner, Stack} from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import {
   useDeletePublicDashboardMutation,
@@ -52,7 +53,6 @@ export class ShareExternally extends SceneObjectBase<SceneShareTabState> impleme
 function ShareExternallyRenderer({ model }: SceneComponentProps<ShareExternally>) {
   const [showRevokeAccess, setShowRevokeAccess] = useState(false);
 
-  const styles = useStyles2(getStyles);
   const dashboard = getDashboardSceneFor(model);
 
   const { data: publicDashboard, isLoading } = useGetPublicDashboardQuery(dashboard.state.uid!);
@@ -93,7 +93,7 @@ function ShareExternallyRenderer({ model }: SceneComponentProps<ShareExternally>
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(shareExternallyStyles.container)}>
       <ShareExternallyBase publicDashboard={publicDashboard} onRevokeClick={onRevokeClick} />
     </div>
   );
@@ -143,7 +143,7 @@ function ShareExternallyBase({
 function Actions({ publicDashboard, onRevokeClick }: { publicDashboard: PublicDashboard; onRevokeClick: () => void }) {
   const { dashboard } = useShareDrawerContext();
   const [update, { isLoading: isUpdateLoading }] = usePauseOrResumePublicDashboardMutation();
-  const styles = useStyles2(getStyles);
+
 
   const hasWritePermissions = contextSrv.hasPermission(AccessControlAction.DashboardsPublicWrite);
 
@@ -166,7 +166,7 @@ function Actions({ publicDashboard, onRevokeClick }: { publicDashboard: PublicDa
 
   return (
     <Stack alignItems="center" direction={{ xs: 'column', sm: 'row' }}>
-      <div className={styles.actionsContainer}>
+      <div {...stylex.props(shareExternallyStyles.actionsContainer)}>
         <Stack gap={1} flex={1} direction={{ xs: 'column', sm: 'row' }}>
           <ClipboardButton
             data-testid={selectors.Configuration.copyUrlButton}
@@ -217,11 +217,3 @@ function Actions({ publicDashboard, onRevokeClick }: { publicDashboard: PublicDa
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    paddingBottom: theme.spacing(2),
-  }),
-  actionsContainer: css({
-    width: '100%',
-  }),
-});

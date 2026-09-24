@@ -1,7 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelGroupByActionPopoverStyles } from './PanelGroupByActionPopover.stylex';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import {
   type AdHocFiltersVariable,
@@ -9,7 +11,7 @@ import {
   type VariableValueOption,
   type VariableValueSingle,
 } from '@grafana/scenes';
-import { Button, Checkbox, ClickOutsideWrapper, FilterInput, Spinner, Stack, useStyles2 } from '@grafana/ui';
+import {Button, Checkbox, ClickOutsideWrapper, FilterInput, Spinner, Stack} from '@grafana/ui';
 
 interface Props {
   groupByVariable: GroupByVariable | AdHocFiltersVariable;
@@ -32,7 +34,7 @@ export function PanelGroupByActionPopover({
   values,
   onValuesChange,
 }: Props) {
-  const styles = useStyles2(getStyles);
+
 
   const onCheckedChanged = useCallback(
     (option: VariableValueOption) => (event: React.FormEvent<HTMLInputElement>) => {
@@ -103,9 +105,9 @@ export function PanelGroupByActionPopover({
     <ClickOutsideWrapper onClick={onCancel} useCapture={true}>
       {/* This is just blocking click events from bubbeling and should not have a keyboard interaction. */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-      <div className={styles.menuContainer} onClick={(ev) => ev.stopPropagation()}>
+      <div {...stylex.props(panelGroupByActionPopoverStyles.menuContainer)} onClick={(ev) => ev.stopPropagation()}>
         <Stack direction="column">
-          <div className={styles.searchContainer}>
+          <div {...stylex.props(panelGroupByActionPopoverStyles.searchContainer)}>
             <FilterInput
               placeholder={t('panel-group-by.search-placeholder', 'Search')}
               value={searchValue}
@@ -114,21 +116,21 @@ export function PanelGroupByActionPopover({
             />
           </div>
 
-          <div className={styles.listContainer}>
+          <div {...stylex.props(panelGroupByActionPopoverStyles.listContainer)}>
             {isLoading ? (
-              <div className={styles.emptyMessage}>
+              <div {...stylex.props(panelGroupByActionPopoverStyles.emptyMessage)}>
                 <Spinner size="sm" inline />
                 &nbsp;
                 <Trans i18nKey="panel-group-by.loading">Loading options</Trans>
               </div>
             ) : options.length === 0 ? (
-              <div className={styles.emptyMessage}>
+              <div {...stylex.props(panelGroupByActionPopoverStyles.emptyMessage)}>
                 <Trans i18nKey="panel-group-by.no-options">No options found</Trans>
               </div>
             ) : (
               options.map((option) => {
                 return (
-                  <div key={String(option.value)} className={cx(styles.option)}>
+                  <div key={String(option.value)} className={cx(panelGroupByActionPopoverStyles.option)}>
                     <Checkbox value={isChecked(option)} label={option.label} onChange={onCheckedChanged(option)} />
                   </div>
                 );
@@ -150,47 +152,3 @@ export function PanelGroupByActionPopover({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  menuContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    padding: theme.spacing(2),
-  }),
-  searchContainer: css({
-    width: '100%',
-    paddingBottom: theme.spacing(1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  listContainer: css({
-    flex: 1,
-    overflow: 'auto',
-    minHeight: '100px',
-    maxHeight: '300px',
-    padding: theme.spacing(0.5),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  option: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-    cursor: 'pointer',
-    borderRadius: theme.shape.radius.default,
-    '&:hover': {
-      background: theme.colors.background.secondary,
-    },
-    '&:focus-visible': {
-      outline: `2px solid ${theme.colors.primary.border}`,
-      outlineOffset: '-2px',
-    },
-  }),
-  emptyMessage: css({
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.colors.text.secondary,
-  }),
-});

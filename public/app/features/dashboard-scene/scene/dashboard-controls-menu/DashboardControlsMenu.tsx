@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardControlsMenuStyles } from './DashboardControlsMenu.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type SceneDataLayerProvider, type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink } from '@grafana/schema';
-import { Menu, ScrollContainer, useStyles2 } from '@grafana/ui';
+import {Menu, ScrollContainer} from '@grafana/ui';
 
 import { sortDefaultLinksFirst, sortDefaultVarsFirst } from '../../utils/dashboardControls';
 import { DataLayerControlEditWrapper } from '../DashboardDataLayerControls';
@@ -31,7 +32,7 @@ export function DashboardControlsMenu({
 }: DashboardControlsMenuProps) {
   const isEditingNewLayouts = isEditing && config.featureToggles.dashboardNewLayouts;
   const fullLinks = dashboard.state.links ?? [];
-  const styles = useStyles2(getStyles);
+
 
   return (
     <ScrollContainer
@@ -49,7 +50,7 @@ export function DashboardControlsMenu({
         e.stopPropagation();
       }}
     >
-      <div className={styles.items}>
+      <div {...stylex.props(dashboardControlsMenuStyles.items)}>
         {/* Variables */}
         {sortDefaultVarsFirst(variables).map((variable) => (
           <div key={variable.state.key}>
@@ -88,24 +89,12 @@ export function DashboardControlsMenu({
 }
 
 function MenuDivider() {
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <div className={styles.divider}>
+    <div {...stylex.props(dashboardControlsMenuStyles.divider)}>
       <Menu.Divider />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  items: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(1),
-  }),
-  divider: css({
-    marginTop: theme.spacing(1),
-    padding: theme.spacing(0, 0.5),
-  }),
-});

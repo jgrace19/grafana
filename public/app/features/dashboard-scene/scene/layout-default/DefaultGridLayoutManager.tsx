@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { defaultGridLayoutManagerStyles } from './DefaultGridLayoutManager.stylex';
 
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -19,7 +22,6 @@ import {
   type SceneObject,
 } from '@grafana/scenes';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import { useStyles2 } from '@grafana/ui';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
 import DashboardEmpty from 'app/features/dashboard/dashgrid/DashboardEmpty/DashboardEmpty';
 
@@ -659,7 +661,7 @@ function DefaultGridLayoutManagerRenderer({ model }: SceneComponentProps<Default
   const dashboard = useDashboard(model);
   const { isEditing } = dashboard.useState();
   const hasClonedParents = isRepeatCloneOrChildOf(model);
-  const styles = useStyles2(getStyles);
+
   const showCanvasActions = isEditing && config.featureToggles.dashboardNewLayouts && !hasClonedParents;
   const soloPanelContext = useSoloPanelContext();
 
@@ -676,12 +678,12 @@ function DefaultGridLayoutManagerRenderer({ model }: SceneComponentProps<Default
 
   return (
     <div
-      className={cx(styles.container, isEditing && styles.containerEditing)}
+      {...stylex.props(defaultGridLayoutManagerStyles.container, isEditing && defaultGridLayoutManagerStyles.containerEditing)}
       data-testid={selectors.components.LayoutContainer(getTestIdForLayout(model))}
     >
       {model.state.grid.Component && <model.state.grid.Component model={model.state.grid} />}
       {showCanvasActions && (
-        <div className={styles.actionsWrapper}>
+        <div {...stylex.props(defaultGridLayoutManagerStyles.actionsWrapper)}>
           <CanvasGridAddActions layoutManager={model} />
         </div>
       )}
@@ -703,30 +705,4 @@ function SceneGridRowRenderer({ model }: SceneComponentProps<SceneGridRow>) {
   return <OriginalSceneGridRowRenderer model={model} />;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      width: '100%',
-      display: 'flex',
-      flexGrow: 1,
-      flexDirection: 'column',
-    }),
-    containerEditing: css({
-      '&:hover .dashboard-canvas-controls': {
-        opacity: 1,
-      },
 
-      // In editing the add actions should live at the bottom of the grid so we have to
-      // disable flex grow on the SceneGridLayouts first div
-      '> div:first-child': {
-        flexGrow: `0 !important`,
-        minHeight: 1,
-      },
-      ...dashboardCanvasAddButtonHoverStyles,
-    }),
-    actionsWrapper: css({
-      position: 'relative',
-      paddingBottom: theme.spacing(5),
-    }),
-  };
-}

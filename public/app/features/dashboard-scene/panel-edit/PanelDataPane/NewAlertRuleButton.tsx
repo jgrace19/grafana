@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { newAlertRuleButtonStyles } from './NewAlertRuleButton.stylex';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type VizPanel } from '@grafana/scenes';
-import { Alert, Button, type ButtonVariant, Tooltip, useStyles2 } from '@grafana/ui';
+import {Alert, Button, type ButtonVariant, Tooltip} from '@grafana/ui';
 import { LogMessages, logInfo, trackCreateRuleFromPanelDrawerOpened } from 'app/features/alerting/unified/Analytics';
 import { AlertRuleDrawerForm } from 'app/features/alerting/unified/components/AlertRuleDrawerForm';
 import { createPanelAlertRuleNavigation } from 'app/features/alerting/unified/utils/navigation';
@@ -33,7 +34,7 @@ export const ScenesNewRuleFromPanelButton = ({
   compactAlert = false,
   disabled = false,
 }: ScenesNewRuleFromPanelButtonProps) => {
-  const styles = useStyles2(getStyles);
+
   const location = useLocation();
 
   const { loading, value: formValues } = useAsync(() => scenesPanelToRuleFormValues(panel), [panel]);
@@ -66,7 +67,7 @@ export const ScenesNewRuleFromPanelButton = ({
 
   if (!formValues) {
     return compactAlert ? (
-      <div className={styles.compactAlert}>
+      <div {...stylex.props(newAlertRuleButtonStyles.compactAlert)}>
         <Trans i18nKey="dashboard-scene.scenes-new-rule-from-panel-button.body-no-alerting-capable-query-found">
           Cannot create alerts from this panel because no query to an alerting capable datasource is found.
         </Trans>
@@ -136,10 +137,3 @@ export const ScenesNewRuleFromPanelButton = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  compactAlert: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.maxContrast,
-  }),
-});

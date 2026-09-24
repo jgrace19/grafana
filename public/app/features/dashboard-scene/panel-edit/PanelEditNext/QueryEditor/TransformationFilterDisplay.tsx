@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationFilterDisplayStyles } from './TransformationFilterDisplay.stylex';
 import { useCallback, useMemo } from 'react';
 
 import { type DataTransformerConfig, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { DataTopic } from '@grafana/schema';
-import { Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
+import {Combobox, Field, Stack} from '@grafana/ui';
 import { FrameMultiSelectionEditor } from 'app/plugins/panel/geomap/editor/FrameSelectionEditor';
 
 import {
@@ -28,7 +30,6 @@ export function TransformationFilterDisplay() {
   const { transformations } = usePanelContext();
   const { updateTransformation } = useActionsContext();
 
-  const styles = useStyles2(getStyles);
 
   const prevOutput = usePreviousTransformationOutput({
     selectedTransformation,
@@ -81,9 +82,9 @@ export function TransformationFilterDisplay() {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(transformationFilterDisplayStyles.wrapper)}>
       <Field
-        className={styles.field}
+        {...stylex.props(transformationFilterDisplayStyles.field)}
         noMargin
         label={t('query-editor-next.transformation-filter.label', 'Apply transformation to')}
       >
@@ -115,16 +116,3 @@ export function TransformationFilterDisplay() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    padding: theme.spacing(2),
-    border: `2px solid ${theme.colors.background.secondary}`,
-    borderRadius: theme.shape.radius.default,
-    marginBottom: theme.spacing(2),
-  }),
-  field: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
-});

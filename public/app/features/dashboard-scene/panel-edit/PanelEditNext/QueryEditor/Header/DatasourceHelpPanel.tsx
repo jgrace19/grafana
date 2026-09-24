@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { datasourceHelpPanelStyles } from './DatasourceHelpPanel.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import {IconButton} from '@grafana/ui';
 
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
 
@@ -13,7 +14,6 @@ export function DatasourceHelpPanel() {
   const { updateSelectedQuery } = useActionsContext();
   const datasource = selectedQueryDsData?.datasource;
 
-  const styles = useStyles2(getStyles);
 
   if (selectedQueryDsLoading || !datasource?.components?.QueryEditorHelp || !selectedQuery) {
     return null;
@@ -33,13 +33,13 @@ export function DatasourceHelpPanel() {
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(datasourceHelpPanelStyles.container)}>
       <IconButton
         name="times"
         size="md"
         tooltip={t('query-editor-next.help.close', 'Close help')}
         onClick={toggleDatasourceHelp}
-        className={styles.closeButton}
+        {...stylex.props(datasourceHelpPanelStyles.closeButton)}
         aria-label={t('query-editor-next.help.close-aria', 'Close help panel')}
       />
       <DatasourceCheatsheet query={selectedQuery} datasource={datasource} onClickExample={onClickExample} />
@@ -47,19 +47,3 @@ export function DatasourceHelpPanel() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'relative',
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.primary,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    maxHeight: '400px',
-    overflowY: 'auto',
-  }),
-  closeButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-  }),
-});

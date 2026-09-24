@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardCodePaneStyles } from './DashboardCodePane.stylex';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Alert, Button, IconButton, Modal, Sidebar, Tooltip, useStyles2 } from '@grafana/ui';
+import {Alert, Button, IconButton, Modal, Sidebar, Tooltip} from '@grafana/ui';
 
 import { DashboardSchemaEditor, type SchemaEditorFormat } from '../v2schema/DashboardSchemaEditor';
 
@@ -13,7 +14,7 @@ export interface DashboardCodePaneProps {
 }
 
 export function DashboardCodePane({ initialValue, onApply }: DashboardCodePaneProps) {
-  const styles = useStyles2(getStyles);
+
 
   const [hasValidationErrors, setHasValidationErrors] = useState(true);
   const [applyError, setApplyError] = useState<string | null>(null);
@@ -70,14 +71,14 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(dashboardCodePaneStyles.wrapper)}>
       <Sidebar.PaneHeader title={t('dashboard.code-pane.header', 'Edit as code')} />
-      <div className={styles.content}>
+      <div {...stylex.props(dashboardCodePaneStyles.content)}>
         {errorAlert}
-        <div className={styles.editorContainer}>
-          <DashboardSchemaEditor {...editorProps} containerStyles={styles.codeEditor} />
+        <div {...stylex.props(dashboardCodePaneStyles.editorContainer)}>
+          <DashboardSchemaEditor {...editorProps} containerStyles={dashboardCodePaneStyles.codeEditor} />
         </div>
-        <div className={styles.toolbar}>
+        <div {...stylex.props(dashboardCodePaneStyles.toolbar)}>
           {applyButton}
           <IconButton
             name="expand-arrows"
@@ -93,15 +94,15 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
           title={t('dashboard.code-pane.modal-title', 'Edit dashboard as code')}
           isOpen
           onDismiss={() => setIsExpanded(false)}
-          className={styles.modal}
-          contentClassName={styles.modalContent}
+          {...stylex.props(dashboardCodePaneStyles.modal)}
+          contentClassName={dashboardCodePaneStyles.modalContent}
           closeOnBackdropClick={false}
           closeOnEscape={false}
         >
-          <div className={styles.modalEditorWrapper}>
+          <div {...stylex.props(dashboardCodePaneStyles.modalEditorWrapper)}>
             {errorAlert}
             <DashboardSchemaEditor {...editorProps} />
-            <div className={styles.toolbar}>
+            <div {...stylex.props(dashboardCodePaneStyles.toolbar)}>
               {applyButton}
               <IconButton
                 name="compress-arrows"
@@ -117,51 +118,3 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: '1 1 0',
-    height: '100%',
-  }),
-  content: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    padding: theme.spacing(1),
-    gap: theme.spacing(1),
-  }),
-  editorContainer: css({
-    flex: 1,
-    minHeight: 0,
-  }),
-  codeEditor: css({
-    height: '100%',
-  }),
-  toolbar: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flex: '0 0 auto',
-  }),
-  modal: css({
-    width: '90vw',
-    height: '90vh',
-    maxWidth: '90vw',
-  }),
-  modalContent: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-  }),
-  modalEditorWrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    gap: theme.spacing(1),
-  }),
-});

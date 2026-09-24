@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { optionFieldStyles } from './OptionField.stylex';
 import { type FocusEvent, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, Input, Tooltip, useStyles2 } from '@grafana/ui';
+import {Icon, Input, Tooltip} from '@grafana/ui';
 
 import { CONTENT_SIDE_BAR, QUERY_OPTION_FIELD_CONFIG } from '../../constants';
 import { type QueryOptionField } from '../types';
@@ -28,18 +29,18 @@ export function OptionField({
   disabled,
   children,
 }: OptionFieldProps) {
-  const styles = useStyles2(getStyles);
+
   const config = QUERY_OPTION_FIELD_CONFIG[field];
   const tooltip = config.getTooltip();
   const label = config.getLabel();
 
   return (
-    <div className={styles.field}>
+    <div {...stylex.props(optionFieldStyles.field)}>
       <Tooltip content={tooltip}>
-        <Icon name="info-circle" size="md" className={styles.infoIcon} />
+        <Icon name="info-circle" size="md" {...stylex.props(optionFieldStyles.infoIcon)} />
       </Tooltip>
-      <span className={styles.fieldLabel}>{label}</span>
-      <div className={styles.fieldContent}>
+      <span {...stylex.props(optionFieldStyles.fieldLabel)}>{label}</span>
+      <div {...stylex.props(optionFieldStyles.fieldContent)}>
         {children ?? (
           <Input
             type={config.inputType ?? 'text'}
@@ -50,54 +51,13 @@ export function OptionField({
             autoFocus={!disabled && focusedField === field}
             disabled={disabled}
             aria-label={label}
-            className={styles.fieldInput}
+            {...stylex.props(optionFieldStyles.fieldInput)}
           />
         )}
-        {hint && <span className={styles.hint}>{`= ${hint}`}</span>}
+        {hint && <span {...stylex.props(optionFieldStyles.hint)}>{`= ${hint}`}</span>}
       </div>
     </div>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    field: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5, 0),
-    }),
-    fieldLabel: css({
-      width: CONTENT_SIDE_BAR.fieldLabelWidth,
-      flexShrink: 0,
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      whiteSpace: 'nowrap',
-    }),
-    fieldContent: css({
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      minWidth: 0,
-    }),
-    fieldInput: css({
-      width: CONTENT_SIDE_BAR.labelWidth,
-      flexShrink: 0,
-    }),
-    infoIcon: css({
-      color: theme.colors.text.secondary,
-      flexShrink: 0,
-    }),
-    hint: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      minWidth: 0,
-    }),
-  };
-}
+

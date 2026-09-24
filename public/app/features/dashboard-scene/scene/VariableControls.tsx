@@ -1,7 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableControlsStyles } from './VariableControls.stylex';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { type GrafanaTheme2, VariableHide } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { config, reportInteraction } from '@grafana/runtime';
 import {
@@ -16,7 +18,7 @@ import {
   SceneVariableValueChangedEvent,
   useSceneObjectState,
 } from '@grafana/scenes';
-import { useElementSelection, useStyles2 } from '@grafana/ui';
+import {useElementSelection} from '@grafana/ui';
 
 import { dashboardEditActions } from '../edit-pane/shared';
 import { filterSectionRepeatLocalVariables } from '../variables/utils';
@@ -70,7 +72,7 @@ interface VariableSelectProps {
 }
 
 export function VariableValueSelectWrapper({ variable, inMenu, isEditingNewLayouts }: VariableSelectProps) {
-  const styles = useStyles2(getStyles);
+
   const state = useSceneObjectState<SceneVariableState>(variable, { shouldActivateOrKeepAlive: true });
   const { isSelected, isSelectable } = useElementSelection(variable.state.key);
   const isHidden = state.hide === VariableHide.hideVariable;
@@ -107,19 +109,19 @@ export function VariableValueSelectWrapper({ variable, inMenu, isEditingNewLayou
       <ControlActionsPopover isEditable={Boolean(isSelectable)} content={editActions}>
         <div
           className={cx(
-            styles.switchMenuContainer,
+            variableControlsStyles.switchMenuContainer,
             isSelected && 'dashboard-selected-element',
             isSelectable && !isSelected && 'dashboard-selectable-element'
           )}
           data-testid={selectors.pages.Dashboard.SubMenu.submenuItem}
         >
-          <div className={styles.switchControl}>
+          <div {...stylex.props(variableControlsStyles.switchControl)}>
             <variable.Component model={variable} />
           </div>
           <VariableLabel
             variable={variable}
             layout={'vertical'}
-            className={cx(isSelectable && styles.labelSelectable, styles.switchLabel)}
+            {...stylex.props(variableControlsStyles.switchLabel, isSelectable && variableControlsStyles.labelSelectable)}
           />
         </div>
       </ControlActionsPopover>
@@ -131,7 +133,7 @@ export function VariableValueSelectWrapper({ variable, inMenu, isEditingNewLayou
       <ControlActionsPopover isEditable={Boolean(isSelectable)} content={editActions}>
         <div
           className={cx(
-            styles.verticalContainer,
+            variableControlsStyles.verticalContainer,
             isSelected && 'dashboard-selected-element',
             isSelectable && !isSelected && 'dashboard-selectable-element'
           )}
@@ -140,7 +142,7 @@ export function VariableValueSelectWrapper({ variable, inMenu, isEditingNewLayou
           <VariableLabel
             variable={variable}
             layout={'vertical'}
-            className={cx(isSelectable && styles.labelSelectable)}
+            className={cx(isSelectable && variableControlsStyles.labelSelectable)}
           />
           <variable.Component model={variable} />
         </div>
@@ -152,13 +154,13 @@ export function VariableValueSelectWrapper({ variable, inMenu, isEditingNewLayou
     <ControlActionsPopover isEditable={Boolean(isSelectable)} content={editActions}>
       <div
         className={cx(
-          styles.container,
+          variableControlsStyles.container,
           isSelected && 'dashboard-selected-element',
           isSelectable && !isSelected && 'dashboard-selectable-element'
         )}
         data-testid={selectors.pages.Dashboard.SubMenu.submenuItem}
       >
-        <VariableLabel variable={variable} className={cx(isSelectable && styles.labelSelectable, styles.label)} />
+        <VariableLabel variable={variable} {...stylex.props(variableControlsStyles.label, isSelectable && variableControlsStyles.labelSelectable)} />
         <variable.Component model={variable} />
       </div>
     </ControlActionsPopover>
@@ -208,7 +210,7 @@ function VariableLabel({
 
 export function SectionVariableControls({ variableSet }: { variableSet: SceneVariables }) {
   const { variables } = variableSet.useState();
-  const styles = useStyles2(getSectionVariableStyles);
+
 
   const visibleVariables = filterSectionRepeatLocalVariables(variables, variableSet).filter(
     (v) => v.state.hide !== VariableHide.hideVariable
@@ -219,7 +221,7 @@ export function SectionVariableControls({ variableSet }: { variableSet: SceneVar
   }
 
   return (
-    <div className={styles.sectionVariables}>
+    <div {...stylex.props(variableControlsStyles.sectionVariables)}>
       {visibleVariables.map((variable) => (
         <VariableValueSelectWrapper key={variable.state.key} variable={variable} />
       ))}
@@ -227,57 +229,3 @@ export function SectionVariableControls({ variableSet }: { variableSet: SceneVar
   );
 }
 
-const getSectionVariableStyles = (theme: GrafanaTheme2) => ({
-  sectionVariables: css({
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  }),
-});
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'inline-flex',
-    alignItems: 'center',
-    verticalAlign: 'middle',
-    // No border for second element (inputs) as label and input border is shared
-    '> :nth-child(2)': css({
-      borderTopLeftRadius: 'unset',
-      borderBottomLeftRadius: 'unset',
-    }),
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  }),
-  verticalContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(1),
-  }),
-  switchMenuContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-  }),
-  switchControl: css({
-    '& > div': {
-      border: 'none',
-      background: 'transparent',
-      paddingRight: theme.spacing(0.5),
-      height: theme.spacing(2),
-    },
-  }),
-  switchLabel: css({
-    marginTop: 0,
-    marginBottom: 0,
-  }),
-  labelSelectable: css({
-    cursor: 'pointer',
-  }),
-  label: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-});

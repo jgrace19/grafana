@@ -1,8 +1,9 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardAssistantViewModeStyles } from './DashboardAssistantViewMode.stylex';
 import { useEffect } from 'react';
 
 import { useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type SceneObject } from '@grafana/scenes';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
@@ -57,10 +58,7 @@ if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
   }
 }
 
-const selectionBorderAnimation = keyframes({
-  '0%': { '--border-angle': '0deg' },
-  '100%': { '--border-angle': '360deg' },
-});
+;
 
 /**
  * Returns a CSS class that applies an animated gradient border to the given element.

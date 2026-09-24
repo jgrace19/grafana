@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { transformationTypePickerStyles } from './TransformationTypePicker.stylex';
 import { type ChangeEvent, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { EmptyState, FilterPill, Grid, IconButton, Input, Stack, Switch, useStyles2 } from '@grafana/ui';
+import {EmptyState, FilterPill, Grid, IconButton, Input, Stack, Switch} from '@grafana/ui';
 import config from 'app/core/config';
 import { SqlExpressionsBanner } from 'app/features/dashboard/components/TransformationsEditor/SqlExpressions/SqlExpressionsBanner';
 import { TransformationCard } from 'app/features/dashboard/components/TransformationsEditor/TransformationCard';
@@ -15,7 +16,7 @@ import { useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorCo
 import { useTransformationSearchAndFilter } from './useTransformationSearchAndFilter';
 
 export function TransformationTypePicker() {
-  const styles = useStyles2(getStyles);
+
 
   const { finalizePendingTransformation } = useQueryEditorUIContext();
   const { data } = useQueryRunnerContext();
@@ -53,11 +54,11 @@ export function TransformationTypePicker() {
     <Stack direction="column" gap={2}>
       {config?.featureToggles?.sqlExpressions && <SqlExpressionsBanner />}
 
-      <div className={styles.searchWrapper}>
+      <div {...stylex.props(transformationTypePickerStyles.searchWrapper)}>
         <Input
           autoFocus
           data-testid={selectors.components.Transforms.searchInput}
-          className={styles.searchInput}
+          {...stylex.props(transformationTypePickerStyles.searchInput)}
           value={search}
           placeholder={t(
             'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -71,7 +72,7 @@ export function TransformationTypePicker() {
           suffix={searchBoxSuffix}
         />
         <Stack direction="row" alignItems="center" gap={0.5}>
-          <div className={styles.switchLabel}>
+          <div {...stylex.props(transformationTypePickerStyles.switchLabel)}>
             <Trans i18nKey="dashboard.transformation-picker-ng.show-images">Show images</Trans>
           </div>
           <Switch value={showIllustrations} onChange={() => setShowIllustrations((prev) => !prev)} />
@@ -124,22 +125,4 @@ export function TransformationTypePicker() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    searchWrapper: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      columnGap: theme.spacing(2),
-      rowGap: theme.spacing(1),
-      width: '100%',
-    }),
-    searchInput: css({
-      flexGrow: 1,
-      width: 'initial',
-    }),
-    switchLabel: css({
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-}
+

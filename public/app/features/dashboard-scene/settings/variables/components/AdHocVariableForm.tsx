@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { adHocVariableFormStyles } from './AdHocVariableForm.stylex';
 import { type FormEvent, useCallback } from 'react';
 
 import {
@@ -14,7 +16,7 @@ import { EditorField } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
 import { type AdHocFiltersController } from '@grafana/scenes';
 import { type DataSourceRef } from '@grafana/schema';
-import { Alert, CodeEditor, Field, Switch, Stack, useStyles2 } from '@grafana/ui';
+import {Alert, CodeEditor, Field, Switch, Stack} from '@grafana/ui';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { AdHocOriginFiltersEditor } from './AdHocOriginFiltersEditor';
@@ -58,7 +60,7 @@ export function AdHocVariableForm({
   datasourceSupported,
   datasourceSupportsGroupBy,
 }: AdHocVariableFormProps) {
-  const styles = useStyles2(getStyles);
+
   const updateStaticKeys = useCallback(
     (csvContent: string) => {
       const df = readCSV('key,value\n' + csvContent)[0];
@@ -108,7 +110,7 @@ export function AdHocVariableForm({
       ) : null}
 
       {datasourceSupported && originFiltersController && (
-        <div className={!inline ? styles.originFiltersWrapper : undefined}>
+        <div className={!inline ? adHocVariableFormStyles.originFiltersWrapper : undefined}>
           <AdHocOriginFiltersEditor controller={originFiltersController} />
         </div>
       )}
@@ -135,7 +137,7 @@ export function AdHocVariableForm({
         )}
 
       {datasourceSupported && onDefaultGroupByChange && (
-        <div className={!inline ? styles.originFiltersWrapper : undefined}>
+        <div className={!inline ? adHocVariableFormStyles.originFiltersWrapper : undefined}>
           <DefaultGroupByValueEditor
             values={defaultGroupByValues ?? []}
             options={defaultGroupByOptions}
@@ -207,8 +209,3 @@ export function AdHocVariableForm({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  originFiltersWrapper: css({
-    maxWidth: theme.spacing(55),
-  }),
-});

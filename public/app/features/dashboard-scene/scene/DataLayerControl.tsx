@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataLayerControlStyles } from './DataLayerControl.stylex';
 
-import { type GrafanaTheme2, LoadingState } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ControlsLabel, dataLayers, type SceneDataLayerProvider } from '@grafana/scenes';
-import { useElementSelection, useStyles2 } from '@grafana/ui';
+import {useElementSelection} from '@grafana/ui';
 
 export type Props = {
   layer: SceneDataLayerProvider;
@@ -16,7 +18,7 @@ export function DataLayerControl({ layer, inMenu }: Props) {
   const { data } = layer.useState();
   const { isSelected, isSelectable } = useElementSelection(layer.state.key);
   const showLoading = Boolean(data && data.state === LoadingState.Loading);
-  const styles = useStyles2(getStyles);
+
 
   const label: string =
     layer instanceof dataLayers.AnnotationsDataLayer && Boolean(layer.state.query.builtIn)
@@ -30,12 +32,12 @@ export function DataLayerControl({ layer, inMenu }: Props) {
     return (
       <div
         className={cx(
-          styles.menuContainer,
+          dataLayerControlStyles.menuContainer,
           isSelected && 'dashboard-selected-element',
           isSelectable && !isSelected && 'dashboard-selectable-element'
         )}
       >
-        <div className={styles.controlWrapper}>
+        <div {...stylex.props(dataLayerControlStyles.controlWrapper)}>
           <layer.Component model={layer} />
         </div>
         <ControlsLabel
@@ -46,7 +48,7 @@ export function DataLayerControl({ layer, inMenu }: Props) {
           description={layer.state.description}
           error={layer.state.data?.errors?.[0].message}
           layout={'vertical'}
-          className={cx(styles.menuLabel, isSelectable && styles.labelSelectable)}
+          {...stylex.props(dataLayerControlStyles.menuLabel, isSelectable && dataLayerControlStyles.labelSelectable)}
         />
       </div>
     );
@@ -55,7 +57,7 @@ export function DataLayerControl({ layer, inMenu }: Props) {
   return (
     <div
       className={cx(
-        styles.container,
+        dataLayerControlStyles.container,
         isSelected && 'dashboard-selected-element',
         isSelectable && !isSelected && 'dashboard-selectable-element'
       )}
@@ -67,42 +69,10 @@ export function DataLayerControl({ layer, inMenu }: Props) {
         label={label}
         description={layer.state.description}
         error={layer.state.data?.errors?.[0].message}
-        className={cx(isSelectable && styles.labelSelectable)}
+        className={cx(isSelectable && dataLayerControlStyles.labelSelectable)}
       />
       <layer.Component model={layer} />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  menuContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-  }),
-  controlWrapper: css({
-    height: theme.spacing(2),
-    '& > div': {
-      border: 'none',
-      background: 'transparent',
-      paddingRight: theme.spacing(0.5),
-      height: theme.spacing(2),
-      '&:hover': {
-        border: 'none',
-        background: 'transparent',
-      },
-    },
-  }),
-  menuLabel: css({
-    marginTop: 0,
-    marginBottom: 0,
-  }),
-  labelSelectable: css({
-    cursor: 'pointer',
-  }),
-});

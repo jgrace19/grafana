@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelDataTransformationsTabStyles } from './PanelDataTransformationsTab.stylex';
 import { DragDropContext, type DropResult, Droppable } from '@hello-pangea/dnd';
 import { throttle } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
@@ -16,7 +18,7 @@ import {
   type SceneQueryRunner,
   type VizPanel,
 } from '@grafana/scenes';
-import { Button, ButtonGroup, ConfirmModal, Tab, useStyles2 } from '@grafana/ui';
+import {Button, ButtonGroup, ConfirmModal, Tab} from '@grafana/ui';
 import { TransformationOperationRows } from 'app/features/dashboard/components/TransformationsEditor/TransformationOperationRows';
 import { ExpressionQueryType } from 'app/features/expressions/types';
 
@@ -79,7 +81,7 @@ export class PanelDataTransformationsTab
 }
 
 export function PanelDataTransformationsTabRendered({ model }: SceneComponentProps<PanelDataTransformationsTab>) {
-  const styles = useStyles2(getStyles);
+
   const sourceData = model.getQueryRunner().useState();
   const { data, transformations: transformsWrongType } = model.getDataTransformer().useState();
 
@@ -187,7 +189,7 @@ export function PanelDataTransformationsTabRendered({ model }: SceneComponentPro
         </Button>
         <Button
           data-testid={selectors.components.Transforms.removeAllTransformationsButton}
-          className={styles.removeAll}
+          {...stylex.props(panelDataTransformationsTabStyles.removeAll)}
           icon="times"
           variant="secondary"
           onClick={() => setConfirmModalOpen(true)}
@@ -288,12 +290,6 @@ function TransformationsEditor({ transformations, model, data }: TransformationE
     </DragDropContext>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  removeAll: css({
-    marginLeft: theme.spacing(2),
-  }),
-});
 
 interface TransformationsTabProps extends PanelDataTabHeaderProps {
   model: PanelDataTransformationsTab;

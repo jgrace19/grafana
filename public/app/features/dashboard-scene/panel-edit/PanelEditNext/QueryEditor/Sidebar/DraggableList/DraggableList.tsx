@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { draggableListStyles } from './DraggableList.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import {useTheme2} from '@grafana/ui';
 
 import { SIDEBAR_CARD_HEIGHT, SIDEBAR_CARD_INDENT, SIDEBAR_CARD_SPACING } from '../../../constants';
 
@@ -26,7 +27,7 @@ export function DraggableList<T>({
   onDragStart,
   onDragEnd,
 }: DraggableListProps<T>) {
-  const styles = useStyles2(getStyles);
+
   const theme = useTheme2();
 
   const { indicator, containerRef, handleBeforeCapture, handleDragStart, handleDragUpdate, handleDragEnd } =
@@ -52,7 +53,7 @@ export function DraggableList<T>({
               containerRef.current = el;
             }}
             {...dropProvided.droppableProps}
-            className={styles.droppable}
+            {...stylex.props(draggableListStyles.droppable)}
           >
             {items.map((item, index) => {
               const key = keyExtractor(item);
@@ -63,7 +64,7 @@ export function DraggableList<T>({
                       ref={dragProvided.innerRef}
                       {...dragProvided.draggableProps}
                       {...dragProvided.dragHandleProps}
-                      className={styles.draggableItem}
+                      {...stylex.props(draggableListStyles.draggableItem)}
                       data-is-dragging={dragSnapshot.isDragging || undefined}
                     >
                       {renderItem(item)}
@@ -73,7 +74,7 @@ export function DraggableList<T>({
               );
             })}
             {indicator && (
-              <div className={styles.dropIndicator} style={{ top: indicator.top, height: indicator.height }} />
+              <div {...stylex.props(draggableListStyles.dropIndicator)} style={{ top: indicator.top, height: indicator.height }} />
             )}
             {dropProvided.placeholder}
           </div>
@@ -83,39 +84,4 @@ export function DraggableList<T>({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    droppable: css({
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-    }),
-    draggableItem: css({
-      marginBottom: theme.spacing(SIDEBAR_CARD_SPACING),
-      '&:last-child': {
-        marginBottom: 0,
-      },
-      '[data-dragging] &': {
-        pointerEvents: 'none',
-      },
-    }),
-    dropIndicator: css({
-      position: 'absolute',
-      left: theme.spacing(SIDEBAR_CARD_INDENT),
-      right: theme.spacing(SIDEBAR_CARD_INDENT),
-      background: theme.colors.primary.transparent,
-      pointerEvents: 'none',
-      borderRadius: theme.shape.radius.default,
-      overflow: 'hidden',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 3,
-        background: theme.colors.primary.border,
-      },
-    }),
-  };
-}
+

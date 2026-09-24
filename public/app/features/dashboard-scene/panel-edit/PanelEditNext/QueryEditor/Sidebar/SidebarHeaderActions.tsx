@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton, useTheme2 } from '@grafana/ui';
 
 import { getQueryEditorColors, SidebarSize } from '../../constants';
 import { trackSidebarSizeToggle } from '../../tracking';
+
+import { sidebarHeaderActionsStyles } from './SidebarHeaderActions.stylex';
 
 interface SidebarHeaderActionsProps {
   sidebarSize: SidebarSize;
@@ -15,12 +16,16 @@ interface SidebarHeaderActionsProps {
 }
 
 export function SidebarHeaderActions({ sidebarSize, setSidebarSize, children }: SidebarHeaderActionsProps) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const themeColors = getQueryEditorColors(theme);
   const isMini = sidebarSize === SidebarSize.Mini;
 
   return (
-    <div className={styles.header}>
-      <div className={styles.inner}>
+    <div
+      {...stylex.props(sidebarHeaderActionsStyles.header)}
+      style={{ background: themeColors.sidebarHeaderBackground }}
+    >
+      <div {...stylex.props(sidebarHeaderActionsStyles.inner)}>
         <IconButton
           name={isMini ? 'maximize-left' : 'compress-alt-left'}
           size="sm"
@@ -35,22 +40,4 @@ export function SidebarHeaderActions({ sidebarSize, setSidebarSize, children }: 
       </div>
     </div>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  const themeColors = getQueryEditorColors(theme);
-  return {
-    header: css({
-      background: themeColors.sidebarHeaderBackground,
-      padding: theme.spacing(0.5, 1.5),
-      minHeight: theme.spacing(5),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    inner: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-  };
 }

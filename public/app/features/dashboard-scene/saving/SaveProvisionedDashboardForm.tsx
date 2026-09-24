@@ -1,5 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { saveAs } from 'file-saver';
+
+import { saveProvisionedDashboardFormStyles } from './SaveProvisionedDashboardForm.stylex';
 import { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -29,7 +31,7 @@ export function SaveProvisionedDashboardForm({ dashboard, drawer, changeInfo }: 
   }, [changeInfo.changedSaveModel, dashboardJSON]);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(saveProvisionedDashboardFormStyles.container)}>
       <Stack direction="column" gap={2} grow={1}>
         <div>
           <Trans i18nKey="dashboard-scene.save-provisioned-dashboard-form.cannot-be-saved">
@@ -57,7 +59,7 @@ export function SaveProvisionedDashboardForm({ dashboard, drawer, changeInfo }: 
 
         <SaveDashboardFormCommonOptions drawer={drawer} changeInfo={changeInfo} />
 
-        <div className={styles.json}>
+        <div {...stylex.props(saveProvisionedDashboardFormStyles.json)}>
           <AutoSizer disableWidth>
             {({ height }) => (
               <CodeEditor
@@ -94,13 +96,3 @@ export function SaveProvisionedDashboardForm({ dashboard, drawer, changeInfo }: 
   );
 }
 
-const styles = {
-  container: css({
-    height: '100%',
-    display: 'flex',
-  }),
-  json: css({
-    flexGrow: 1,
-    maxHeight: '800px',
-  }),
-};

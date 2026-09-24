@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { annotationSettingsEditStyles } from './AnnotationSettingsEdit.stylex';
 import { useId, useMemo } from 'react';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -16,20 +18,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { type VizPanel } from '@grafana/scenes';
 import { type AnnotationPanelFilter } from '@grafana/schema';
-import {
-  Button,
-  Checkbox,
-  Field,
-  FieldSet,
-  Input,
-  MultiSelect,
-  Select,
-  useStyles2,
-  Stack,
-  Alert,
-  type ComboboxOption,
-  Combobox,
-} from '@grafana/ui';
+import {Button, Checkbox, Field, FieldSet, Input, MultiSelect, Select, Stack, Alert, type ComboboxOption, Combobox} from '@grafana/ui';
 import { ColorValueEditor } from 'app/core/components/OptionsUI/color';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -55,7 +44,7 @@ enum AnnotationControlsDisplay {
 }
 
 export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate, onBackToList, onDelete }: Props) => {
-  const styles = useStyles2(getStyles);
+
   const showInId = useId();
 
   const panelFilter = useMemo(() => {
@@ -249,7 +238,7 @@ export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate
 
   return (
     <div>
-      <FieldSet className={styles.settingsForm}>
+      <FieldSet {...stylex.props(annotationSettingsEditStyles.settingsForm)}>
         <Stack direction="column" gap={2}>
           {/* Name */}
           <Field noMargin label={t('dashboard-scene.annotation-settings-edit.label-name', 'Name')}>
@@ -376,7 +365,7 @@ export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate
                     )}
                     width={100}
                     closeMenuOnSelect={false}
-                    className={styles.select}
+                    {...stylex.props(annotationSettingsEditStyles.select)}
                     data-testid={selectors.components.Annotations.annotationsChoosePanelInput}
                   />
                 </>
@@ -418,18 +407,6 @@ export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate
       </Stack>
     </div>
   );
-};
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    settingsForm: css({
-      maxWidth: theme.spacing(60),
-      marginBottom: theme.spacing(2),
-    }),
-    select: css({
-      marginTop: '8px',
-    }),
-  };
 };
 
 // Synthetic type

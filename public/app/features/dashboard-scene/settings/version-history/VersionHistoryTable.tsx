@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { versionHistoryTableStyles } from './VersionHistoryTable.stylex';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Checkbox, Button, Tag, ModalsController, useStyles2 } from '@grafana/ui';
+import {Checkbox, Button, Tag, ModalsController} from '@grafana/ui';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 
@@ -25,11 +27,11 @@ export const VersionHistoryTable = ({
   onRestore,
   isLoadingUserDisplayNames,
 }: VersionsTableProps) => {
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <div className={styles.margin}>
-      <table className={cx('filter-table', styles.table)}>
+    <div {...stylex.props(versionHistoryTableStyles.margin)}>
+      <table {...mergeStylexClassName(stylex.props(versionHistoryTableStyles.table), clsx('filter-table'))}>
         <thead>
           <tr>
             <th className="width-4"></th>
@@ -108,15 +110,4 @@ export const VersionHistoryTable = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    margin: css({
-      marginBottom: theme.spacing(4),
-    }),
-    table: css({
-      td: {
-        whiteSpace: 'normal !important',
-      },
-    }),
-  };
-}
+

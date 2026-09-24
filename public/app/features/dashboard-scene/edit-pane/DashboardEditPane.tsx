@@ -2,8 +2,7 @@ import { type SceneObject, SceneObjectBase, type SceneObjectState, sceneGraph } 
 import {
   type ElementSelectionContextItem,
   type ElementSelectionContextState,
-  type ElementSelectionOnSelectOptions,
-} from '@grafana/ui';
+  type ElementSelectionOnSelectOptions } from '@grafana/ui';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
 
 import { TabItem } from '../scene/layout-tabs/TabItem';

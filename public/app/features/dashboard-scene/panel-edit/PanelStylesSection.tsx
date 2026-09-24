@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelStylesSectionStyles } from './PanelStylesSection.stylex';
 import { useCallback, useMemo, useState } from 'react';
 
 import {
@@ -9,7 +11,7 @@ import {
 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { sceneGraph, type VizPanel } from '@grafana/scenes';
-import { FeatureBadge, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import {FeatureBadge, Icon, Stack, Tooltip} from '@grafana/ui';
 import { OptionsPaneCategory } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategory';
 import { VisualizationCardGrid } from 'app/features/panel/components/VizTypePicker/VisualizationCardGrid';
 import { VizSuggestionsInteractions } from 'app/features/panel/components/VizTypePicker/interactions';
@@ -27,7 +29,7 @@ function presetModifiesThresholds(preset: PanelPluginVisualizationSuggestion): b
 }
 
 export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionProps) {
-  const styles = useStyles2(getStyles);
+
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
   const { data } = sceneGraph.getData(panel).useState();
 
@@ -55,11 +57,11 @@ export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionP
     }
     return (
       <Tooltip
-        content={t('dashboard-scene.panel-styles.threshold-badge-tooltip', 'This preset will modify thresholds')}
+        content={t('dashboard-scene.panel-panelStylesSectionStyles.threshold-badge-tooltip', 'This preset will modify thresholds')}
       >
         <div
-          className={styles.thresholdBadge}
-          aria-label={t('dashboard-scene.panel-styles.threshold-badge-tooltip', 'This preset will modify thresholds')}
+          {...stylex.props(panelStylesSectionStyles.thresholdBadge)}
+          aria-label={t('dashboard-scene.panel-panelStylesSectionStyles.threshold-badge-tooltip', 'This preset will modify thresholds')}
         >
           <Icon name="sliders-v-alt" size="xs" />
         </div>
@@ -74,11 +76,11 @@ export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionP
   return (
     <OptionsPaneCategory
       id="panel-styles"
-      title={t('dashboard-scene.panel-styles.title', 'Panel styles')}
+      title={t('dashboard-scene.panel-panelStylesSectionStyles.title', 'Panel styles')}
       isOpenDefault={true}
       renderTitle={() => (
         <Stack direction="row" alignItems="center" gap={1}>
-          <Trans i18nKey="dashboard-scene.panel-styles.title">Panel styles</Trans>
+          <Trans i18nKey="dashboard-scene.panel-panelStylesSectionStyles.title">Panel styles</Trans>
           <FeatureBadge featureState={FeatureState.new} />
         </Stack>
       )}
@@ -97,21 +99,3 @@ export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionP
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  thresholdBadge: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(0.5),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: theme.spacing(2.5),
-    height: theme.spacing(2.5),
-    borderRadius: theme.shape.radius.circle,
-    background: theme.colors.background.canvas,
-    border: `1px solid ${theme.colors.border.medium}`,
-    color: theme.colors.text.secondary,
-    cursor: 'default',
-    zIndex: 1,
-  }),
-});

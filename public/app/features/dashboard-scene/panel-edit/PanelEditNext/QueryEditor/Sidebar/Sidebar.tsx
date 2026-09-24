@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { sidebarStyles } from './Sidebar.stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import {ScrollContainer} from '@grafana/ui';
 
 import { SegmentedToggle, type SegmentedToggleProps } from '../../SegmentedToggle';
 import { QueryEditorType, type SidebarSize } from '../../constants';
@@ -22,7 +23,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: SidebarProps) {
-  const styles = useStyles2(getStyles);
+
   const { setSelectedAlert, cardType } = useQueryEditorUIContext();
   const { alertRules, loading } = useAlertingContext();
 
@@ -43,7 +44,7 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
   ];
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(sidebarStyles.container)}>
       <SidebarHeaderActions sidebarSize={sidebarSize} setSidebarSize={setSidebarSize}>
         <SegmentedToggle
           options={viewOptions}
@@ -55,7 +56,7 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
       </SidebarHeaderActions>
       {/** The translateX property of the hoverActions in SidebarCard causes the scroll container to overflow by 8px. */}
       <ScrollContainer overflowX="hidden">
-        <div className={styles.content}>
+        <div {...stylex.props(sidebarStyles.content)}>
           {cardType === QueryEditorType.Alert ? (
             <AlertsView alertRules={alertRules} />
           ) : (
@@ -68,20 +69,4 @@ export const Sidebar = memo(function Sidebar({ sidebarSize, setSidebarSize }: Si
   );
 });
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      background: theme.colors.background.primary,
-    }),
-    content: css({
-      background: theme.colors.background.primary,
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-}
+

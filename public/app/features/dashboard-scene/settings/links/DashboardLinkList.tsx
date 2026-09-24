@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardLinkListStyles } from './DashboardLinkList.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type DashboardLink } from '@grafana/schema';
-import { Button, DeleteButton, EmptyState, Icon, IconButton, Stack, TagList, TextLink, useStyles2 } from '@grafana/ui';
+import {Button, DeleteButton, EmptyState, Icon, IconButton, Stack, TagList, TextLink} from '@grafana/ui';
 
 interface DashboardLinkListProps {
   links: DashboardLink[];
@@ -22,7 +23,7 @@ export function DashboardLinkList({
   onDuplicate,
   onDelete,
 }: DashboardLinkListProps) {
-  const styles = useStyles2(getStyles);
+
   const isEmptyList = links.length === 0;
 
   if (isEmptyList) {
@@ -81,8 +82,8 @@ export function DashboardLinkList({
               </td>
               <td role="gridcell" className="pointer" onClick={() => onEdit(idx)}>
                 <Stack>
-                  {link.title && <span className={styles.titleWrapper}>{link.title}</span>}
-                  {link.type === 'link' && <span className={styles.urlWrapper}>{link.url}</span>}
+                  {link.title && <span {...stylex.props(dashboardLinkListStyles.titleWrapper)}>{link.title}</span>}
+                  {link.type === 'link' && <span {...stylex.props(dashboardLinkListStyles.urlWrapper)}>{link.url}</span>}
                   {link.type === 'dashboards' && <TagList tags={link.tags ?? []} />}
                 </Stack>
               </td>
@@ -126,25 +127,10 @@ export function DashboardLinkList({
           ))}
         </tbody>
       </table>
-      <Button className={styles.newLinkButton} icon="plus" onClick={onNew}>
+      <Button {...stylex.props(dashboardLinkListStyles.newLinkButton)} icon="plus" onClick={onNew}>
         <Trans i18nKey="dashboard-scene.dashboard-link-list.new-link">New link</Trans>
       </Button>
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  titleWrapper: css({
-    width: '20vw',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-  }),
-  urlWrapper: css({
-    width: '40vw',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-  }),
-  newLinkButton: css({
-    marginTop: theme.spacing(3),
-  }),
-});

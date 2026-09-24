@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { shareDrawerConfirmActionStyles } from './ShareDrawerConfirmAction.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2, Spinner, Stack, Text } from '@grafana/ui';
+import {IconButton, Spinner, Stack, Text} from '@grafana/ui';
 import { ConfirmContent, type ConfirmContentProps } from '@grafana/ui/internal';
 
 export function ShareDrawerConfirmAction({
@@ -16,10 +17,10 @@ export function ShareDrawerConfirmAction({
   ConfirmContentProps,
   'description' | 'onConfirm' | 'onDismiss' | 'confirmButtonLabel'
 >) {
-  const styles = useStyles2(getStyles);
+
 
   const ConfirmBody = () => (
-    <div className={styles.bodyContainer}>
+    <div {...stylex.props(shareDrawerConfirmActionStyles.bodyContainer)}>
       <Stack justifyContent="space-between">
         <Stack gap={1} alignItems="center">
           <IconButton
@@ -50,8 +51,3 @@ export function ShareDrawerConfirmAction({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  bodyContainer: css({
-    marginBottom: theme.spacing(2),
-  }),
-});

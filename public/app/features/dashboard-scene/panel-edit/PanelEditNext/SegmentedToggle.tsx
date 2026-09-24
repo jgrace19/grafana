@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { segmentedToggleStyles } from './SegmentedToggle.stylex';
 import { type KeyboardEvent, useLayoutEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import {Icon} from '@grafana/ui';
 
 const ARROW_DIRECTION: Partial<Record<string, 1 | -1>> = {
   ArrowRight: 1,
@@ -32,7 +34,7 @@ export function SegmentedToggle<T>({
   showBackground = true,
   'aria-label': ariaLabel,
 }: SegmentedToggleProps<T>) {
-  const styles = useStyles2(getStyles);
+
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [sliderStyle, setSliderStyle] = useState<{ left: number; width: number } | null>(null);
 
@@ -62,9 +64,9 @@ export function SegmentedToggle<T>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className={cx(styles.toggle, { [styles.noBackground]: !showBackground })}
+      {...stylex.props(segmentedToggleStyles.toggle, !showBackground  && segmentedToggleStyles.noBackground)}
     >
-      <div className={styles.slider} style={sliderInlineStyle} aria-hidden="true" />
+      <div {...stylex.props(segmentedToggleStyles.slider)} style={sliderInlineStyle} aria-hidden="true" />
 
       {options.map((option, index) => {
         const isActive = index === activeIndex;
@@ -75,7 +77,7 @@ export function SegmentedToggle<T>({
             role="radio"
             aria-checked={isActive}
             tabIndex={isActive ? 0 : -1}
-            className={cx(styles.tab, { [styles.tabActive]: isActive })}
+            {...stylex.props(segmentedToggleStyles.tab, isActive  && segmentedToggleStyles.tabActive)}
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleKeyDown(e, index)}
           >
@@ -88,63 +90,4 @@ export function SegmentedToggle<T>({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    toggle: css({
-      position: 'relative',
-      display: 'inline-flex',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: '2px',
-    }),
-    noBackground: css({
-      background: 'none',
-    }),
-    slider: css({
-      position: 'absolute',
-      top: '2px',
-      bottom: '2px',
-      background: theme.colors.background.canvas,
-      borderRadius: theme.shape.radius.default,
-      pointerEvents: 'none',
 
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['left', 'width'], {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-    }),
-    tab: css({
-      position: 'relative',
-      zIndex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      background: 'transparent',
-      border: 'none',
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0.5, 1.25),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.disabled,
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create('color', {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-
-      '&:focus-visible': {
-        outline: `2px solid ${theme.colors.primary.main}`,
-        outlineOffset: '2px',
-      },
-    }),
-    tabActive: css({
-      color: theme.colors.primary.text,
-    }),
-  };
-}

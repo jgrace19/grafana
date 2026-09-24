@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { createEmailSharingStyles } from './CreateEmailSharing.stylex';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Checkbox, FieldSet, Spinner, Stack, useStyles2 } from '@grafana/ui';
+import {Button, Checkbox, FieldSet, Spinner, Stack} from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useCreatePublicDashboardMutation } from 'app/features/dashboard/api/publicDashboardApi';
 import { PublicDashboardShareType } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
@@ -18,7 +19,7 @@ const selectors = e2eSelectors.pages.ShareDashboardDrawer.ShareExternally.Creati
 
 export const CreateEmailSharing = ({ hasError }: { hasError: boolean }) => {
   const { dashboard, onDismiss } = useShareDrawerContext();
-  const styles = useStyles2(getStyles);
+
 
   const [createPublicDashboard, { isLoading, isError }] = useCreatePublicDashboardMutation();
 
@@ -41,7 +42,7 @@ export const CreateEmailSharing = ({ hasError }: { hasError: boolean }) => {
       {hasWritePermissions && <EmailSharingPricingAlert />}
       <form onSubmit={handleSubmit(onCreate)}>
         <FieldSet disabled={disableInputs}>
-          <div className={styles.checkbox}>
+          <div {...stylex.props(createEmailSharingStyles.checkbox)}>
             <Checkbox
               {...register('billAcknowledgment', { required: true })}
               label={t('public-dashboard.email-sharing.bill-ack', 'I understand that adding users requires payment.*')}
@@ -62,8 +63,3 @@ export const CreateEmailSharing = ({ hasError }: { hasError: boolean }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  checkbox: css({
-    marginBottom: theme.spacing(2),
-  }),
-});

@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableTypeSelectionPaneStyles } from './VariableTypeSelectionPane.stylex';
 import { useCallback, useId, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import {
@@ -13,7 +14,7 @@ import {
   SceneVariableSet,
   sceneGraph,
 } from '@grafana/scenes';
-import { Box, Card, Stack, useStyles2 } from '@grafana/ui';
+import {Box, Card, Stack} from '@grafana/ui';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
@@ -185,7 +186,7 @@ export class VariableTypeChangeEditableElement implements EditableDashboardEleme
 
 export function VariableTypeSelectionUI({ onSelectType }: { onSelectType: (type: EditableVariableType) => void }) {
   const options = useMemo(() => getVariableTypeSelectOptions(), []);
-  const styles = useStyles2(getStyles);
+
 
   return (
     <Stack direction="column" gap={0}>
@@ -203,7 +204,7 @@ export function VariableTypeSelectionUI({ onSelectType }: { onSelectType: (type:
             data-testid={selectors.components.PanelEditor.ElementEditPane.variableType(option.value!)}
           >
             <Card.Heading>{option.label}</Card.Heading>
-            <Card.Description className={styles.cardDescription}>{option.description}</Card.Description>
+            <Card.Description {...stylex.props(variableTypeSelectionPaneStyles.cardDescription)}>{option.description}</Card.Description>
           </Card>
         ))}
       </Stack>
@@ -309,11 +310,4 @@ export function collectDescendantVariables(sceneObject: SceneObject): SceneVaria
   return result;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    cardDescription: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      marginTop: theme.spacing(0),
-    }),
-  };
-}
+

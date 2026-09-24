@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { addNewSectionStyles } from './AddNewSection.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, useStyles2, Text } from '@grafana/ui';
+import {Stack, Text} from '@grafana/ui';
 
 type AddNewSectionProps = {
   title: string;
@@ -10,10 +11,10 @@ type AddNewSectionProps = {
 };
 
 export function AddNewSection({ title, description, children }: AddNewSectionProps) {
-  const styles = useStyles2(getStyles);
+
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
+    <div {...stylex.props(addNewSectionStyles.section)}>
+      <div {...stylex.props(addNewSectionStyles.sectionHeader)}>
         <Text weight="medium">{title}</Text>
         <Text element="p" variant="bodySmall" color="secondary">
           {description || ''}
@@ -26,14 +27,4 @@ export function AddNewSection({ title, description, children }: AddNewSectionPro
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      padding: theme.spacing(2),
-    }),
-    sectionHeader: css({
-      margin: theme.spacing(0, 0, 2, 0),
-    }),
-  };
-}
+

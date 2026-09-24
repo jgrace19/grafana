@@ -1,17 +1,19 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { tabsLayoutManagerRendererStyles } from './TabsLayoutManagerRenderer.stylex';
 import { DragDropContext, Droppable, type DropResult, type DragStart } from '@hello-pangea/dnd';
 import { useEffect, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { MultiValueVariable, type SceneComponentProps, sceneGraph, useSceneObjectState } from '@grafana/scenes';
-import { Button, TabsBar, useStyles2 } from '@grafana/ui';
+import {Button, TabsBar} from '@grafana/ui';
 
 import { isRepeatCloneOrChildOf } from '../../utils/clone';
 import { getDashboardSceneFor, getLayoutOrchestratorFor } from '../../utils/utils';
 import { useSoloPanelContext } from '../SoloPanelContext';
-import { dashboardCanvasAddButtonHoverStyles, getLayoutControlsStyles } from '../layouts-shared/styles';
+import { layoutControlsStyles } from '../layouts-shared/styles';
 import { useClipboardState } from '../layouts-shared/useClipboardState';
 import { DASHBOARD_DROP_TARGET_KEY_ATTR } from '../types/DashboardDropTarget';
 
@@ -21,8 +23,6 @@ import { TabItemRepeater } from './TabItemRepeater';
 import { type TabsLayoutManager } from './TabsLayoutManager';
 
 export function TabsLayoutManagerRenderer({ model }: SceneComponentProps<TabsLayoutManager>) {
-  const styles = useStyles2(getStyles);
-  const layoutControlsStyles = useStyles2(getLayoutControlsStyles);
 
   const { tabs, key, placeholder, isDropTarget } = model.useState();
   const currentTab = model.getCurrentTab();
@@ -68,13 +68,13 @@ export function TabsLayoutManagerRenderer({ model }: SceneComponentProps<TabsLay
   }
 
   return (
-    <div className={cx(styles.tabLayoutContainer, { [styles.nestedTabsMargin]: isNestedInTab })}>
-      <TabsBar className={styles.tabsBar}>
+    <div {...stylex.props(tabsLayoutManagerRendererStyles.tabLayoutContainer, isNestedInTab  && tabsLayoutManagerRendererStyles.nestedTabsMargin)}>
+      <TabsBar {...stylex.props(tabsLayoutManagerRendererStyles.tabsBar)}>
         <DragDropContext onBeforeDragStart={onBeforeDragStart} onDragEnd={onDragEnd}>
-          <div className={styles.tabsRow} {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: key }}>
+          <div {...stylex.props(tabsLayoutManagerRendererStyles.tabsRow)} {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: key }}>
             <Droppable droppableId={key!} direction="horizontal">
               {(dropProvided) => (
-                <div className={styles.tabsContainer} ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
+                <div {...stylex.props(tabsLayoutManagerRendererStyles.tabsContainer)} ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
                   {children}
 
                   {dropProvided.placeholder}
@@ -82,7 +82,12 @@ export function TabsLayoutManagerRenderer({ model }: SceneComponentProps<TabsLay
               )}
             </Droppable>
             {isEditing && !isClone && (
-              <div className={cx(styles.tabControls, layoutControlsStyles.controls, 'dashboard-canvas-controls')}>
+              <div
+                {...mergeStylexClassName(
+                  stylex.props(tabsLayoutManagerRendererStyles.tabControls, layoutControlsStyles.controls),
+                  'dashboard-canvas-controls'
+                )}
+              >
                 <Button
                   icon="plus"
                   variant="secondary"
@@ -138,33 +143,3 @@ function TabWrapper({ tab, manager }: { tab: TabItem; manager: TabsLayoutManager
   return <tab.Component model={tab} key={tab.state.key!} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tabLayoutContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: '1 1 auto',
-  }),
-  tabsBar: css({
-    ...dashboardCanvasAddButtonHoverStyles,
-  }),
-  tabsRow: css({
-    display: 'flex',
-    width: '100%',
-    alignItems: 'center',
-  }),
-  tabsContainer: css({
-    display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    paddingInline: theme.spacing(0.125),
-    paddingTop: '1px',
-  }),
-  tabControls: css({
-    marginLeft: theme.spacing(1),
-  }),
-  nestedTabsMargin: css({
-    marginLeft: theme.spacing(2),
-  }),
-});

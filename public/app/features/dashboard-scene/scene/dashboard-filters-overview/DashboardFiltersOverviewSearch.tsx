@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardFiltersOverviewSearchStyles } from './DashboardFiltersOverviewSearch.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Input, useStyles2 } from '@grafana/ui';
+import {Icon, Input} from '@grafana/ui';
 
 interface Props {
   value: string;
@@ -15,10 +16,10 @@ export function DashboardFiltersOverviewSearch({
   onChange,
   placeholder = t('dashboard.filters-overview.search.placeholder', 'Search...'),
 }: Props) {
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(dashboardFiltersOverviewSearchStyles.container)}>
       <Input
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
@@ -31,20 +32,9 @@ export function DashboardFiltersOverviewSearch({
         placeholder={placeholder}
         aria-label={t('dashboard.filters-overview.search.aria-label', 'Search filters')}
         prefix={<Icon name="search" />}
-        className={styles.input}
+        {...stylex.props(dashboardFiltersOverviewSearchStyles.input)}
       />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    alignItems: 'center',
-    flex: 1,
-    overflow: 'hidden',
-  }),
-  input: css({
-    width: '100%',
-  }),
-});

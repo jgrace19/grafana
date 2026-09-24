@@ -1,9 +1,11 @@
-import { css, cx, keyframes } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { experimentalFeedbackButtonStyles } from './ExperimentalFeedbackButton.stylex';
 import { useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import {Button, Dropdown, Menu} from '@grafana/ui';
 
 import { startIntercomSurvey } from '../../tracking';
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
@@ -11,7 +13,7 @@ import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContex
 export function ExperimentalFeedbackButton() {
   const { showVersionBanner } = useQueryEditorUIContext();
   const { onSwitchToClassic } = useActionsContext();
-  const styles = useStyles2(getStyles);
+
 
   // Track whether the banner was visible when this component first mounted.
   // If it was, the user dismissed it - animate the button in.
@@ -42,14 +44,14 @@ export function ExperimentalFeedbackButton() {
   );
 
   return (
-    <div className={cx(styles.wrapper, shouldAnimate && styles.animated)}>
+    <div {...stylex.props(experimentalFeedbackButtonStyles.wrapper, shouldAnimate && experimentalFeedbackButtonStyles.animated)}>
       <Dropdown overlay={menu} placement="bottom-end">
         <Button
           size="sm"
           fill="text"
           icon="flask"
           variant="secondary"
-          className={styles.button}
+          {...stylex.props(experimentalFeedbackButtonStyles.button)}
           tooltip={t('query-editor-next.experimental-button.tooltip', 'Experimental feature options')}
           aria-label={t('query-editor-next.experimental-button.aria-label', 'Experimental feature options')}
         />
@@ -58,37 +60,5 @@ export function ExperimentalFeedbackButton() {
   );
 }
 
-const slideInAndPulse = keyframes({
-  '0%': {
-    opacity: 0,
-    transform: 'translateX(24px) scale(0.6)',
-  },
-  '60%': {
-    opacity: 1,
-    transform: 'translateX(0) scale(1.2)',
-  },
-  '80%': {
-    transform: 'translateX(0) scale(0.9)',
-  },
-  '100%': {
-    opacity: 1,
-    transform: 'translateX(0) scale(1)',
-  },
-});
+;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-  }),
-  animated: css({
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `${slideInAndPulse} 0.6s ${theme.transitions.easing.easeOut} 100ms both`,
-    },
-  }),
-  button: css({
-    color: theme.colors.warning.main,
-    '&:hover': {
-      color: theme.colors.warning.text,
-    },
-  }),
-});

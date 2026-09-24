@@ -1,13 +1,14 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { viewModePanelPromptCardStyles } from './ViewModePanelPromptCard.stylex';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AssistantPromptCard, createAssistantContextItem } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import {useTheme2} from '@grafana/ui';
 
 import { type PopoverTarget } from './AssistantPopoverContext';
 import { getAnimatedBorderClass } from './DashboardAssistantViewMode';
@@ -23,7 +24,7 @@ interface ViewModePanelPromptCardProps {
  * and all selected panels get an animated gradient border.
  */
 export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromptCardProps) {
-  const styles = useStyles2(getStyles);
+
   const theme = useTheme2();
 
   // Anchor to the last selected panel
@@ -175,7 +176,7 @@ export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromp
     <div
       ref={refs.setFloating}
       style={isVisible ? floatingStyles : hiddenStyle}
-      className={isVisible ? styles.floatingContainer : undefined}
+      className={isVisible ? viewModePanelPromptCardStyles.floatingContainer : undefined}
       data-testid="view-mode-panel-prompt-card"
     >
       <AssistantPromptCard
@@ -185,31 +186,13 @@ export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromp
         animated={false}
         onClose={handleClose}
         onSubmit={handleSubmit}
-        className={styles.card}
+        {...stylex.props(viewModePanelPromptCardStyles.card)}
       />
     </div>,
     document.body
   );
 }
 
-const popIn = keyframes({
-  from: { opacity: 0 },
-  to: { opacity: 1 },
-});
+;
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    floatingContainer: css({
-      label: 'view-mode-prompt-floating',
-      zIndex: theme.zIndex.tooltip,
-      width: 380,
-      [theme.transitions.handleMotion('no-preference')]: {
-        animation: `${popIn} 150ms ease-out`,
-      },
-    }),
-    card: css({
-      label: 'view-mode-prompt-card',
-      width: '100%',
-    }),
-  };
-}
+

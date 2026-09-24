@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { versionHistoryHeaderStyles } from './VersionHistoryHeader.stylex';
 import { noop } from 'lodash';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, IconButton, useStyles2 } from '@grafana/ui';
+import {Icon, IconButton} from '@grafana/ui';
 
 type VersionHistoryHeaderProps = {
   onClick?: () => void;
@@ -18,10 +19,10 @@ export const VersionHistoryHeader = ({
   newVersion = 0,
   isNewLatest = false,
 }: VersionHistoryHeaderProps) => {
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <h3 className={styles.header}>
+    <h3 {...stylex.props(versionHistoryHeaderStyles.header)}>
       <IconButton
         name="arrow-left"
         size="xl"
@@ -42,11 +43,3 @@ export const VersionHistoryHeader = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
-    fontSize: theme.typography.h3.fontSize,
-    display: 'flex',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  }),
-});

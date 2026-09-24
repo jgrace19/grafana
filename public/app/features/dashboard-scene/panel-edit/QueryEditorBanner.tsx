@@ -1,11 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Button, Icon, IconButton, useTheme2 } from '@grafana/ui';
 
 import { getQueryEditorBannerColors } from './PanelEditNext/constants';
 import { startIntercomSurvey, trackBannerDismiss, trackFeedbackClick } from './PanelEditNext/tracking';
+
+import { queryEditorBannerStyles } from './QueryEditorBanner.stylex';
 
 interface Props {
   useQueryExperienceNext: boolean;
@@ -15,18 +18,25 @@ interface Props {
 }
 
 export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss, className }: Props) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const bannerColors = getQueryEditorBannerColors(theme);
 
   return (
-    <div className={cx(styles.banner, className)}>
-      <div className={styles.left}>
-        <Icon name="flask" size="md" className={styles.accentIcon} />
-        <span className={styles.title}>
+    <div
+      {...mergeStylexClassName(stylex.props(queryEditorBannerStyles.banner), clsx(className))}
+      style={{
+        backgroundColor: bannerColors.background,
+        border: `1px solid ${bannerColors.border}`,
+      }}
+    >
+      <div {...stylex.props(queryEditorBannerStyles.left)}>
+        <Icon name="flask" size="md" style={{ color: bannerColors.accent }} />
+        <span {...stylex.props(queryEditorBannerStyles.title)} style={{ color: bannerColors.accent }}>
           {useQueryExperienceNext
             ? t('dashboard-scene.query-editor-banner.downgrade-title', 'New query editor')
             : t('dashboard-scene.query-editor-banner.upgrade-title', 'New editor available')}
         </span>
-        <span className={styles.description}>
+        <span {...stylex.props(queryEditorBannerStyles.description)}>
           {useQueryExperienceNext
             ? t(
                 'dashboard-scene.query-editor-banner.description-new',
@@ -38,7 +48,7 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
               )}
         </span>
       </div>
-      <div className={styles.right}>
+      <div {...stylex.props(queryEditorBannerStyles.right)}>
         {useQueryExperienceNext && (
           <Button
             variant="primary"
@@ -79,61 +89,10 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
             trackBannerDismiss();
             onDismiss();
           }}
-          className={styles.closeButton}
+          {...stylex.props(queryEditorBannerStyles.closeButton)}
           aria-label={t('dashboard-scene.query-editor-banner.dismiss', 'Dismiss')}
         />
       </div>
     </div>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  const bannerColors = getQueryEditorBannerColors(theme);
-
-  return {
-    banner: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(0, 2),
-      height: theme.spacing(5),
-      backgroundColor: bannerColors.background,
-      border: `1px solid ${bannerColors.border}`,
-      borderRadius: theme.shape.radius.default,
-      flexShrink: 0,
-    }),
-    left: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1.5),
-      minWidth: 0,
-    }),
-    accentIcon: css({
-      color: bannerColors.accent,
-    }),
-    title: css({
-      color: bannerColors.accent,
-      fontWeight: theme.typography.fontWeightMedium,
-      whiteSpace: 'nowrap',
-    }),
-    description: css({
-      color: theme.colors.text.secondary,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    }),
-    right: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      flexShrink: 0,
-      marginLeft: theme.spacing(2), // minimum gap when left content is wide
-    }),
-    closeButton: css({
-      color: theme.colors.text.secondary,
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
 }

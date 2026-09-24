@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { warningBadgesStyles } from './WarningBadges.stylex';
 import { capitalize, filter, uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type QueryResultMetaNotice } from '@grafana/data';
-import { Badge, useStyles2 } from '@grafana/ui';
+import {Badge} from '@grafana/ui';
 import { filterPanelDataToQuery } from 'app/features/query/components/QueryEditorRow';
 
 import { QueryEditorType } from '../../constants';
@@ -22,7 +23,7 @@ interface SeverityBadgeProps {
 }
 
 function SeverityBadge({ type, notices }: SeverityBadgeProps) {
-  const styles = useStyles2(getStyles);
+
 
   const color = type === 'warning' ? 'orange' : 'blue';
   const icon = type === 'warning' ? 'exclamation-triangle' : 'info-circle';
@@ -33,9 +34,9 @@ function SeverityBadge({ type, notices }: SeverityBadgeProps) {
       icon={icon}
       text={notices.length}
       tooltip={
-        <div className={styles.noticeContainer}>
+        <div {...stylex.props(warningBadgesStyles.noticeContainer)}>
           {capitalize(type)}
-          <ol className={styles.noticeList}>
+          <ol {...stylex.props(warningBadgesStyles.noticeList)}>
             {notices.map(({ text }, index) => (
               <li key={index}>{text}</li>
             ))}
@@ -93,15 +94,3 @@ export function WarningBadges() {
   return severityGroups.map(({ type, notices }) => <SeverityBadge key={type} type={type} notices={notices} />);
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  noticeList: css({
-    margin: 0,
-    paddingLeft: theme.spacing(2),
-  }),
-  noticeContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-  }),
-});

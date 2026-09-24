@@ -1,21 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { navToolbarActionsStyles } from './NavToolbarActions.stylex';
 import { memo, type ReactNode, useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Dropdown,
-  Icon,
-  Menu,
-  ToolbarButton,
-  ToolbarButtonRow,
-  useStyles2,
-} from '@grafana/ui';
+import {Badge, Button, ButtonGroup, Dropdown, Icon, Menu, ToolbarButton, ToolbarButtonRow} from '@grafana/ui';
 import { AppChromeUpdate } from 'app/core/components/AppChrome/AppChromeUpdate';
 import { NavToolbarSeparator } from 'app/core/components/AppChrome/NavToolbar/NavToolbarSeparator';
 import { LS_PANEL_COPY_KEY } from 'app/core/constants';
@@ -83,7 +74,7 @@ export function ToolbarActions({ dashboard }: Props) {
 
   const canSaveAs = contextSrv.hasEditPermissionInFolders;
   const toolbarActions: ToolbarAction[] = [];
-  const styles = useStyles2(getStyles);
+
   const isEditingPanel = Boolean(editPanel);
   const isViewingPanel = Boolean(viewPanel);
   const isEditedPanelDirty = usePanelEditDirty(editPanel);
@@ -342,7 +333,7 @@ export function ToolbarActions({ dashboard }: Props) {
             : t('dashboard.toolbar.edit.tooltip', 'Enter edit mode')
         }
         key="edit"
-        className={styles.buttonWithExtraMargin}
+        {...stylex.props(navToolbarActionsStyles.buttonWithExtraMargin)}
         variant={'secondary'}
         size="sm"
         data-testid={selectors.components.NavToolbar.editDashboard.editButton}
@@ -365,7 +356,7 @@ export function ToolbarActions({ dashboard }: Props) {
         }}
         tooltip={t('dashboard.toolbar.enter-edit-mode.tooltip', 'This dashboard was marked as read only')}
         key="edit"
-        className={styles.buttonWithExtraMargin}
+        {...stylex.props(navToolbarActionsStyles.buttonWithExtraMargin)}
         variant="secondary"
         size="sm"
         data-testid={selectors.components.NavToolbar.editDashboard.editButton}
@@ -520,7 +511,7 @@ export function ToolbarActions({ dashboard }: Props) {
             onClick={() => {
               dashboard.openSaveDrawer({});
             }}
-            className={styles.buttonWithExtraMargin}
+            {...stylex.props(navToolbarActionsStyles.buttonWithExtraMargin)}
             tooltip={t('dashboard.toolbar.save-dashboard.tooltip', 'Save changes')}
             key="save"
             size="sm"
@@ -539,7 +530,7 @@ export function ToolbarActions({ dashboard }: Props) {
             onClick={() => {
               dashboard.openSaveDrawer({ saveAsCopy: true });
             }}
-            className={styles.buttonWithExtraMargin}
+            {...stylex.props(navToolbarActionsStyles.buttonWithExtraMargin)}
             tooltip={t('dashboard.toolbar.save-dashboard-copy.tooltip', 'Save as copy')}
             key="save"
             size="sm"
@@ -571,7 +562,7 @@ export function ToolbarActions({ dashboard }: Props) {
       );
 
       return (
-        <ButtonGroup className={styles.buttonWithExtraMargin} key="save">
+        <ButtonGroup {...stylex.props(navToolbarActionsStyles.buttonWithExtraMargin)} key="save">
           <Button
             onClick={() => {
               dashboard.openSaveDrawer({});
@@ -665,21 +656,4 @@ interface ToolbarAction {
   render: () => ReactNode;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    hiddenElementsContainer: css({
-      display: 'flex',
-      padding: 0,
-      gap: theme.spacing(1),
-      whiteSpace: 'nowrap',
-    }),
-    buttonWithExtraMargin: css({
-      margin: theme.spacing(0, 0.5),
-    }),
-    publicBadge: css({
-      color: 'grey',
-      backgroundColor: 'transparent',
-      border: '1px solid',
-    }),
-  };
-}
+

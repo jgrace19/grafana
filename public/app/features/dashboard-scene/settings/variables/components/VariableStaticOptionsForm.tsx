@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableStaticOptionsFormStyles } from './VariableStaticOptionsForm.stylex';
 import { useEffect, useState, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type VariableValueOption } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
 
 import { VariableStaticOptionsFormAddButton } from './VariableStaticOptionsFormAddButton';
 import { type VariableStaticOptionsFormItem } from './VariableStaticOptionsFormItemEditor';
@@ -23,7 +23,7 @@ export interface VariableStaticOptionsFormRef {
 
 export const VariableStaticOptionsForm = forwardRef<VariableStaticOptionsFormRef, VariableStaticOptionsFormProps>(
   function ({ options, onChange, allowEmptyValue, isInModal = false }: VariableStaticOptionsFormProps, ref) {
-    const styles = useStyles2(getStyles, isInModal);
+
 
     // Whenever the form is updated, we want to ignore the next update from the parent component.
     // This is because the parent component will update the options, and we don't want to update the items again.
@@ -95,7 +95,12 @@ export const VariableStaticOptionsForm = forwardRef<VariableStaticOptionsFormRef
     useImperativeHandle(ref, () => ({ addItem: handleAdd }), [handleAdd]);
 
     return (
-      <div className={styles.container}>
+      <div
+        {...stylex.props(
+          variableStaticOptionsFormStyles.container,
+          isInModal && variableStaticOptionsFormStyles.containerModal
+        )}
+      >
         <VariableStaticOptionsFormItems items={items} onChange={updateItems} />
         {!isInModal && (
           <div>
@@ -108,26 +113,6 @@ export const VariableStaticOptionsForm = forwardRef<VariableStaticOptionsFormRef
 );
 
 VariableStaticOptionsForm.displayName = 'VariableStaticOptionsForm';
-
-const getStyles = (theme: GrafanaTheme2, isInModal: boolean) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
-    width: '100%',
-    maxWidth: theme.spacing(60),
-    ...(isInModal
-      ? {
-          maxWidth: '100%',
-
-          // Simulate sticky modal buttons
-          maxHeight: 'calc(80vh - 170px)',
-          overflow: 'auto',
-          minHeight: theme.spacing(5),
-        }
-      : {}),
-  }),
-});
 
 function createEmptyItem(): VariableStaticOptionsFormItem {
   return {

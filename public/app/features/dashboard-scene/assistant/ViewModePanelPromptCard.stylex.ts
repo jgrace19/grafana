@@ -8,4 +8,14 @@ const popIn = stylex.keyframes({
 });
 
 export const viewModePanelPromptCardStyles = stylex.create({
+  floatingContainer: {
+          zIndex: grafanaTokens.zIndex_tooltip,
+          width: 380,
+          ['@media (prefers-reduced-motion: no-preference)']: {
+            animation: `${popIn} 150ms ease-out`,
+          },
+  },
+  card: {
+          width: '100%',
+  },
 });

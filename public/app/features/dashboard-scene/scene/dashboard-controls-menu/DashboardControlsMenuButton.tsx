@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardControlsMenuButtonStyles } from './DashboardControlsMenuButton.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Dropdown, ToolbarButton, useStyles2 } from '@grafana/ui';
+import {Dropdown, ToolbarButton} from '@grafana/ui';
 
 import { type DashboardScene } from '../DashboardScene';
 
@@ -14,7 +15,7 @@ export const DASHBOARD_CONTROLS_MENU_ARIA_LABEL = 'Dashboard controls menu';
 export const DASHBOARD_CONTROLS_MENU_TITLE = 'Dashboard controls';
 
 export function DashboardControlsButton({ dashboard }: { dashboard: DashboardScene }) {
-  const styles = useStyles2(getStyles);
+
   const { uid, isEditing } = dashboard.useState();
   const { variables, links, annotations } = useDashboardControls(dashboard);
   const dashboardControlsCount = variables.length + links.length + annotations.length;
@@ -45,7 +46,7 @@ export function DashboardControlsButton({ dashboard }: { dashboard: DashboardSce
         icon="sliders-v-alt"
         iconSize="md"
         variant="canvas"
-        className={styles.dropdownButton}
+        {...stylex.props(dashboardControlsMenuButtonStyles.dropdownButton)}
       >
         + {dashboardControlsCount}
       </ToolbarButton>
@@ -53,10 +54,3 @@ export function DashboardControlsButton({ dashboard }: { dashboard: DashboardSce
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dropdownButton: css({
-    display: 'inline-flex',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  }),
-});

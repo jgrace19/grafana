@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelDataPaneStyles } from './PanelDataPane.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import {
@@ -13,7 +14,7 @@ import {
   type SceneObjectUrlValues,
   type VizPanel,
 } from '@grafana/scenes';
-import { Button, Container, ScrollContainer, TabContent, TabsBar, useStyles2 } from '@grafana/ui';
+import {Button, Container, ScrollContainer, TabContent, TabsBar} from '@grafana/ui';
 import { getConfig } from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getRulesPermissions } from 'app/features/alerting/unified/utils/access-control';
@@ -67,7 +68,7 @@ export class PanelDataPane extends SceneObjectBase<PanelDataPaneState> {
 
 function PanelDataPaneRendered({ model }: SceneComponentProps<PanelDataPane>) {
   const { tab, tabs } = model.useState();
-  const styles = useStyles2(getStyles);
+
   const showTryNewEditor = useBooleanFlagValue('queryEditorNext', false);
 
   if (!tabs || !tabs.length) {
@@ -77,11 +78,11 @@ function PanelDataPaneRendered({ model }: SceneComponentProps<PanelDataPane>) {
   const currentTab = tabs.find((t) => t.tabId === tab);
 
   return (
-    <div className={styles.dataPane} data-testid={selectors.components.PanelEditor.DataPane.content}>
-      <TabsBar hideBorder className={styles.tabsBar}>
+    <div {...stylex.props(panelDataPaneStyles.dataPane)} data-testid={selectors.components.PanelEditor.DataPane.content}>
+      <TabsBar hideBorder {...stylex.props(panelDataPaneStyles.tabsBar)}>
         {tabs.map((t) => t.renderTab({ active: t.tabId === tab, onChangeTab: () => model.onChangeTab(t) }))}
         {showTryNewEditor && (
-          <div className={styles.tryNewEditorWrapper}>
+          <div {...stylex.props(panelDataPaneStyles.tryNewEditorWrapper)}>
             <Button
               size="sm"
               fill="text"
@@ -95,9 +96,9 @@ function PanelDataPaneRendered({ model }: SceneComponentProps<PanelDataPane>) {
           </div>
         )}
       </TabsBar>
-      <div className={styles.tabBorder}>
+      <div {...stylex.props(panelDataPaneStyles.tabBorder)}>
         <ScrollContainer>
-          <TabContent className={styles.tabContent}>
+          <TabContent {...stylex.props(panelDataPaneStyles.tabContent)}>
             <Container>{currentTab && <currentTab.Component model={currentTab} />}</Container>
           </TabContent>
         </ScrollContainer>
@@ -120,38 +121,4 @@ export function shouldShowAlertingTab(pluginId: string) {
   return isGraph || isTimeseries;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    dataPane: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      minHeight: 0,
-      height: '100%',
-      width: '100%',
-    }),
-    tabBorder: css({
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderLeft: 'none',
-      borderBottom: 'none',
-      borderTopRightRadius: theme.shape.radius.default,
-      flexGrow: 1,
-      overflow: 'hidden',
-    }),
-    tabContent: css({
-      padding: theme.spacing(2),
-      height: '100%',
-    }),
-    tabsBar: css({
-      flexShrink: 0,
-      paddingLeft: theme.spacing(2),
-    }),
-    tryNewEditorWrapper: css({
-      marginLeft: 'auto',
-      display: 'flex',
-      alignItems: 'center',
-      paddingRight: theme.spacing(1),
-    }),
-  };
-}
+

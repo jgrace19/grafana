@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { hooksStyles } from './hooks.stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import {getDragStyles, useTheme2} from '@grafana/ui';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../../edit-pane/shared';
@@ -18,7 +21,7 @@ const CONTROLS_ROW_HEIGHT = 'auto';
 const MIN_SIDEBAR_RATIO = 0.1;
 const MAX_SIDEBAR_RATIO = 0.5;
 const MIN_SIDEBAR_PIXELS = 220;
-const vizResizerClassName = css({ height: 2, width: '100%' });
+;
 // Pre-mount placeholder — useLayoutEffect replaces this with the responsive default before the first paint.
 const FALLBACK_SIDEBAR_RATIO = 0.25;
 
@@ -47,7 +50,7 @@ export function useRatioResize({
   className,
 }: UseRatioResizeOptions) {
   const [ratio, setRatio] = useState(initialRatio);
-  const styles = useStyles2(getDragStyles, 'middle');
+
 
   const ratioRef = useRef(ratio);
   const minRatioRef = useRef(minRatio);
@@ -116,7 +119,7 @@ export function useRatioResize({
 
   // dragHandleVertical = a vertical bar the user drags horizontally (col-resize cursor)
   // dragHandleHorizontal = a horizontal bar the user drags vertically (row-resize cursor)
-  const dragClass = direction === 'horizontal' ? styles.dragHandleVertical : styles.dragHandleHorizontal;
+  const dragClass = direction === 'horizontal' ? hooksStyles.dragHandleVertical : hooksStyles.dragHandleHorizontal;
 
   return { handleRef, ratio, setRatio, className: cx(dragClass, className) };
 }

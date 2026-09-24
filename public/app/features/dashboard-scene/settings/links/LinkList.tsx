@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { linkListStyles } from './LinkList.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import type { DashboardLink } from '@grafana/schema';
-import { Box, Button, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import {Box, Button, Icon, Stack, Text, Tooltip} from '@grafana/ui';
 
 import { dashboardEditActions } from '../../edit-pane/shared';
 import { type DashboardScene } from '../../scene/DashboardScene';
@@ -30,7 +31,7 @@ function partitionLinks(links: DashboardLink[]) {
 
 export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
   const { links } = dashboard.useState();
-  const styles = useStyles2(getStyles);
+
 
   const onSelectLink = useCallback(
     (linkIndex: number) => {
@@ -104,14 +105,14 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
           {list.map((item, index) => (
             <Draggable key={`link-${item.originalIndex}`} draggableId={`link-${item.originalIndex}`} index={index}>
               {(draggableProvided) => (
-                <div className={styles.linkItem} ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
+                <div {...stylex.props(linkListStyles.linkItem)} ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
                   <div {...draggableProvided.dragHandleProps} onPointerDown={onPointerDown}>
                     <Tooltip content={t('dashboard.edit-pane.links.reorder', 'Drag to reorder')} placement="top">
-                      <Icon name="draggabledots" size="md" className={styles.dragHandle} />
+                      <Icon name="draggabledots" size="md" {...stylex.props(linkListStyles.dragHandle)} />
                     </Tooltip>
                   </div>
                   <div
-                    className={styles.linkContent}
+                    {...stylex.props(linkListStyles.linkContent)}
                     aria-label={t('dashboard-scene.link-list.render-list.aria-label-link', 'Link')}
                     role="button"
                     tabIndex={0}
@@ -125,7 +126,7 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
                   >
                     <Text truncate>{item.link.title || t('dashboard.edit-pane.links.untitled', 'Untitled link')}</Text>
                     {item.link.placement === 'inControlsMenu' && (
-                      <Icon name="sliders-v-alt" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="sliders-v-alt" size="sm" {...stylex.props(linkListStyles.hiddenIcon)} />
                     )}
                     <Stack direction="row" gap={1} alignItems="center">
                       <Button variant="primary" size="sm" fill="outline">
@@ -162,50 +163,4 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    linkItem: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      padding: theme.spacing(0.5),
-    }),
-    linkContent: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing(0.5),
-      width: '100%',
-      cursor: 'pointer',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-      button: {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        color: theme.colors.text.link,
-        button: {
-          visibility: 'visible',
-        },
-      },
-    }),
-    dragHandle: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'grab',
-      color: theme.colors.text.secondary,
-      '&:active': {
-        cursor: 'grabbing',
-      },
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-  };
-}
+

@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { provisionedControlsSectionStyles } from './ProvisionedControlsSection.stylex';
 import classNames from 'classnames';
 import { type ReactNode, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type ControlSourceRef } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import { CollapsableSection, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import {CollapsableSection, Icon, Stack, Text, Tooltip} from '@grafana/ui';
 
 type Column = {
   i18nKey: string;
@@ -20,12 +21,12 @@ type Props = {
 
 export function ProvisionedControlsSection({ columns, children }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const styles = useStyles2(getStyles);
+
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(provisionedControlsSectionStyles.container)}>
       <CollapsableSection label={<ProvisionedControlsSectionLabel />} isOpen={isOpen} onToggle={setIsOpen}>
-        <table className={classNames('filter-table', 'filter-table--hover', styles.table)} role="grid">
+        <table className={classNames('filter-table', 'filter-table--hover', provisionedControlsSectionStyles.table)} role="grid">
           <thead>
             <tr>
               {columns.map((col) => (
@@ -33,7 +34,7 @@ export function ProvisionedControlsSection({ columns, children }: Props) {
                   <Trans i18nKey={col.i18nKey}>{col.defaultText}</Trans>
                 </th>
               ))}
-              <th className={styles.thNarrow} />
+              <th {...stylex.props(provisionedControlsSectionStyles.thNarrow)} />
             </tr>
           </thead>
           <tbody>{children}</tbody>
@@ -44,11 +45,11 @@ export function ProvisionedControlsSection({ columns, children }: Props) {
 }
 
 function ProvisionedControlsSectionLabel() {
-  const styles = useStyles2(getStyles);
+
 
   return (
     <Stack direction="row" gap={1} alignItems="center">
-      <Icon name="database" className={styles.iconMuted} />
+      <Icon name="database" {...stylex.props(provisionedControlsSectionStyles.iconMuted)} />
       <Text variant="h5">
         <Trans i18nKey="dashboard-scene.provisioned-controls-section.label">Provisioned by data source</Trans>
       </Text>
@@ -57,12 +58,12 @@ function ProvisionedControlsSectionLabel() {
 }
 
 export function SourceIcon({ origin }: { origin: ControlSourceRef | undefined }) {
-  const styles = useStyles2(getStyles);
+
   const pluginName = usePluginName(origin);
 
   return (
     <Tooltip content={getSourceTooltip(pluginName)}>
-      <Icon name="database" className={styles.iconMuted} aria-hidden />
+      <Icon name="database" {...stylex.props(provisionedControlsSectionStyles.iconMuted)} aria-hidden />
     </Tooltip>
   );
 }
@@ -88,17 +89,3 @@ function usePluginName(origin: ControlSourceRef | undefined): string | undefined
   }, [origin?.group]);
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginTop: theme.spacing(3),
-  }),
-  table: css({
-    width: '100%',
-  }),
-  thNarrow: css({
-    width: '1%',
-  }),
-  iconMuted: css({
-    color: theme.colors.text.secondary,
-  }),
-});

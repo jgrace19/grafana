@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardLinkRendererStyles } from './DashboardLinkRenderer.stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { sanitizeUrl } from '@grafana/data/internal';
 import { selectors } from '@grafana/e2e-selectors';
 import { type DashboardLink } from '@grafana/schema';
-import { MenuItem, Tooltip, useElementSelection, useStyles2 } from '@grafana/ui';
+import {MenuItem, Tooltip, useElementSelection} from '@grafana/ui';
 import {
   DashboardLinkButton,
   DashboardLinksDashboard,
@@ -29,7 +31,7 @@ export interface Props {
 
 export function DashboardLinkRenderer({ link, dashboardUID, inMenu, linkIndex, dashboard }: Props) {
   const linkInfo = getLinkSrv().getAnchorInfo(link);
-  const styles = useStyles2(getStyles);
+
   const selectionId = linkIndex != null && linkIndex >= 0 ? linkSelectionId(linkIndex) : undefined;
   const { isSelected, isSelectable } = useElementSelection(selectionId);
 
@@ -74,7 +76,7 @@ export function DashboardLinkRenderer({ link, dashboardUID, inMenu, linkIndex, d
   }
 
   const containerClassName = cx(
-    styles.linkContainer,
+    dashboardLinkRendererStyles.linkContainer,
     isSelected && 'dashboard-selected-element',
     isSelectable && !isSelected && 'dashboard-selectable-element'
   );
@@ -88,15 +90,4 @@ export function DashboardLinkRenderer({ link, dashboardUID, inMenu, linkIndex, d
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    linkContainer: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      verticalAlign: 'middle',
-      lineHeight: 1,
-      flexWrap: 'wrap',
-      gap: theme.spacing(1),
-    }),
-  };
-}
+

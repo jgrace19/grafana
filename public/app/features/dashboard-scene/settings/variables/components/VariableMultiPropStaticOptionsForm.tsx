@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableMultiPropStaticOptionsFormStyles } from './VariableMultiPropStaticOptionsForm.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type VariableValueOption, type VariableValueOptionProperties } from '@grafana/scenes';
-import { Icon, IconButton, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton, Input, Stack } from '@grafana/ui';
 
 import { VariableStaticOptionsFormAddButton } from './VariableStaticOptionsFormAddButton';
 
@@ -108,24 +109,23 @@ const useVariableMultiPropStaticOptionsForm = ({
 };
 
 export const VariableMultiPropStaticOptionsForm = (props: VariableMultiPropStaticOptionsFormProps) => {
-  const styles = useStyles2(getStyles, props.properties.length);
   const { properties, options, autoFocusId, onAddNewOption, onRemoveOption, onOptionsReordered, onValueChange } =
     useVariableMultiPropStaticOptionsForm(props);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.wrapper)}>
       <div
-        className={styles.grid}
+        {...stylex.props(variableMultiPropStaticOptionsFormStyles.grid)}
         role="grid"
         aria-label={t(
           'dashboard-scene.variable-multi-prop-static-options-form.aria-label-static-options',
           'Static options'
         )}
       >
-        <div className={styles.headerRow} role="row">
-          <div className={styles.headerCell} role="columnheader" />
+        <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.headerRow)} role="row">
+          <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.headerCell)} role="columnheader" />
           {properties.map((p) => (
-            <div key={p} className={styles.headerCell} role="columnheader">
+            <div key={p} {...stylex.props(variableMultiPropStaticOptionsFormStyles.headerCell)} role="columnheader">
               {p}
             </div>
           ))}
@@ -134,7 +134,7 @@ export const VariableMultiPropStaticOptionsForm = (props: VariableMultiPropStati
           <Droppable droppableId="static-options-list" direction="vertical">
             {(droppableProvided) => (
               <div
-                className={styles.body}
+                {...stylex.props(variableMultiPropStaticOptionsFormStyles.body)}
                 ref={droppableProvided.innerRef}
                 {...droppableProvided.droppableProps}
                 role="rowgroup"
@@ -157,7 +157,7 @@ export const VariableMultiPropStaticOptionsForm = (props: VariableMultiPropStati
           </Droppable>
         </DragDropContext>
       </div>
-      <div className={styles.addNewOptionButton}>
+      <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.addNewOptionButton)}>
         <VariableStaticOptionsFormAddButton onAdd={onAddNewOption} />
       </div>
     </div>
@@ -183,7 +183,6 @@ function OptionRow({
   onRemoveOption,
   onValueChange,
 }: OptionRowProps) {
-  const styles = useStyles2(getStyles, properties.length);
 
   const onKeyDown = onAddNewOption
     ? (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -197,25 +196,25 @@ function OptionRow({
     <Draggable draggableId={option.id} index={index}>
       {(draggableProvided) => (
         <div
-          className={styles.row}
+          {...stylex.props(variableMultiPropStaticOptionsFormStyles.row)}
           ref={draggableProvided.innerRef}
           {...draggableProvided.draggableProps}
           data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.StaticOptionsEditor.row}
           role="row"
           style={{ ...draggableProvided.draggableProps.style }}
         >
-          <div className={styles.cell} role="gridcell">
+          <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.cell)} role="gridcell">
             <Stack direction="row" alignItems="center" {...draggableProvided.dragHandleProps}>
               <Icon
                 title={t('dashboard-scene.option-row.title-drag-and-drop-to-reorder', 'Drag and drop to reorder')}
                 name="draggabledots"
                 size="lg"
-                className={styles.dragIcon}
+                {...stylex.props(variableMultiPropStaticOptionsFormStyles.dragIcon)}
               />
             </Stack>
           </div>
           {properties.map((p, i) => (
-            <div key={`r1-${p}`} className={styles.cell} role="gridcell">
+            <div key={`r1-${p}`} {...stylex.props(variableMultiPropStaticOptionsFormStyles.cell)} role="gridcell">
               <Input
                 autoFocus={autoFocusFirstInput && !i}
                 tabIndex={0}
@@ -230,7 +229,7 @@ function OptionRow({
               />
             </div>
           ))}
-          <div className={styles.cell} role="gridcell">
+          <div {...stylex.props(variableMultiPropStaticOptionsFormStyles.cell)} role="gridcell">
             <IconButton
               name="trash-alt"
               variant="destructive"
@@ -246,56 +245,3 @@ function OptionRow({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, propertiesCount: number) => {
-  const gridTemplateColumns = `min-content repeat(${propertiesCount}, 1fr) min-content`;
-
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    grid: css({
-      display: 'grid',
-      gap: theme.spacing(0.5),
-      width: '100%',
-    }),
-    headerRow: css({
-      display: 'grid',
-      gridTemplateColumns,
-      alignItems: 'end',
-      background: theme.colors.background.primary,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    headerCell: css({
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.text.primary,
-      textAlign: 'left',
-      padding: theme.spacing(0, 0.5, 1, 0.5),
-    }),
-    deletePropertyButton: css({
-      position: 'absolute',
-      right: '2px',
-      zIndex: 1,
-    }),
-    body: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    row: css({
-      display: 'grid',
-      gridTemplateColumns,
-      alignItems: 'center',
-      position: 'relative',
-    }),
-    cell: css({
-      padding: theme.spacing(0.5),
-    }),
-    dragIcon: css({
-      cursor: 'grab',
-    }),
-    addNewOptionButton: css({
-      margin: theme.spacing(1, 0, 1, 0),
-    }),
-  };
-};

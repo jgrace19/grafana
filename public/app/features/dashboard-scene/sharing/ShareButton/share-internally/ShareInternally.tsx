@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { shareInternallyStyles } from './ShareInternally.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { Alert, ClipboardButton, Divider, Stack, Text, useStyles2 } from '@grafana/ui';
+import {Alert, ClipboardButton, Divider, Stack, Text} from '@grafana/ui';
 
 import ShareInternallyConfiguration from '../../ShareInternallyConfiguration';
 import { ShareLinkTab, type ShareLinkTabState } from '../../ShareLinkTab';
@@ -64,7 +65,7 @@ export class ShareInternally extends ShareLinkTab {
 }
 
 function ShareInternallyRenderer({ model }: SceneComponentProps<ShareInternally>) {
-  const styles = useStyles2(getStyles);
+
   const { useLockedTime, useShortUrl, selectedTheme, isBuildUrlLoading } = model.useState();
 
   return (
@@ -75,7 +76,7 @@ function ShareInternallyRenderer({ model }: SceneComponentProps<ShareInternally>
           settings are saved within your current browser scope.
         </Trans>
       </Alert>
-      <div className={styles.configDescription}>
+      <div {...stylex.props(shareInternallyStyles.configDescription)}>
         <Text variant="body">
           <Trans i18nKey="link.share.config-description">
             Create a personalized, direct link to share your dashboard within your organization, with the following
@@ -101,7 +102,7 @@ function ShareInternallyRenderer({ model }: SceneComponentProps<ShareInternally>
           disabled={isBuildUrlLoading}
           getText={model.getShareUrl}
           onClipboardCopy={model.onCopy}
-          className={styles.copyButtonContainer}
+          {...stylex.props(shareInternallyStyles.copyButtonContainer)}
           data-testid={selectors.copyUrlButton}
         >
           <Trans i18nKey="link.share.copy-link-button">Copy link</Trans>
@@ -111,11 +112,3 @@ function ShareInternallyRenderer({ model }: SceneComponentProps<ShareInternally>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  configDescription: css({
-    marginBottom: theme.spacing(2),
-  }),
-  copyButtonContainer: css({
-    marginTop: theme.spacing(2),
-  }),
-});

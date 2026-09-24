@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { provisionedVariablesSectionStyles } from './ProvisionedVariablesSection.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type SceneVariable } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
 
 import { ProvisionedControlsSection, SourceIcon } from '../ProvisionedControlsSection';
 
@@ -14,7 +14,7 @@ const VARIABLE_COLUMNS = [
 ];
 
 export function ProvisionedVariablesSection({ variables }: { variables: SceneVariable[] }) {
-  const styles = useStyles2(getStyles);
+
 
   return (
     <ProvisionedControlsSection columns={VARIABLE_COLUMNS}>
@@ -23,13 +23,13 @@ export function ProvisionedVariablesSection({ variables }: { variables: SceneVar
 
         return (
           <tr key={`${variableState.name}-${index}`}>
-            <td role="gridcell" className={styles.nameCell}>
+            <td role="gridcell" {...stylex.props(provisionedVariablesSectionStyles.nameCell)}>
               {variableState.name}
             </td>
-            <td role="gridcell" className={styles.definitionColumn}>
+            <td role="gridcell" {...stylex.props(provisionedVariablesSectionStyles.definitionColumn)}>
               {getDefinition(variable)}
             </td>
-            <td role="gridcell" className={styles.sourceCell}>
+            <td role="gridcell" {...stylex.props(provisionedVariablesSectionStyles.sourceCell)}>
               <SourceIcon origin={variableState.origin} />
             </td>
           </tr>
@@ -39,20 +39,3 @@ export function ProvisionedVariablesSection({ variables }: { variables: SceneVar
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  nameCell: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    width: '20%',
-  }),
-  definitionColumn: css({
-    width: '70%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    maxWidth: 0,
-  }),
-  sourceCell: css({
-    width: '1%',
-    textAlign: 'center' as const,
-  }),
-});

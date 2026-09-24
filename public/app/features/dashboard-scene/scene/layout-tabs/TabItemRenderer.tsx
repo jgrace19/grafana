@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { tabItemRendererStyles } from './TabItemRenderer.stylex';
 import { Draggable, type DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useLocation } from 'react-router';
 
-import { type GrafanaTheme2, locationUtil, textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { Box, Icon, Tab, TabContent, Tooltip, useElementSelection, usePointerDistance, useStyles2 } from '@grafana/ui';
+import { Box, Icon, Tab, TabContent, Tooltip, useElementSelection, usePointerDistance } from '@grafana/ui';
 
 import { useIsConditionallyHidden } from '../../conditional-rendering/hooks/useIsConditionallyHidden';
 import { isRepeatCloneOrChildOf } from '../../utils/clone';
@@ -33,7 +35,6 @@ export function TabItemRenderer({ model }: SceneComponentProps<TabItem>) {
   const myIndex = parentLayout.getTabsIncludingRepeats().findIndex((tab) => tab === model);
   const location = useLocation();
   const href = textUtil.sanitize(locationUtil.getUrlForPartial(location, { [urlKey]: mySlug }));
-  const styles = useStyles2(getStyles);
   const pointerDistance = usePointerDistance();
   const [isConditionallyHidden] = useIsConditionallyHidden(model.state.conditionalRendering);
   const isClone = isRepeatCloneOrChildOf(model);
@@ -65,7 +66,7 @@ export function TabItemRenderer({ model }: SceneComponentProps<TabItem>) {
           ref={(ref) => {
             dragProvided.innerRef(ref);
           }}
-          className={cx(dragSnapshot.isDragging && styles.dragging)}
+          {...stylex.props(dragSnapshot.isDragging && tabItemRendererStyles.dragging)}
           {...dragProvided.draggableProps}
           {...dragProvided.dragHandleProps}
           style={getDraggableStyle(dragProvided.draggableProps.style, dragSnapshot)}
@@ -74,11 +75,11 @@ export function TabItemRenderer({ model }: SceneComponentProps<TabItem>) {
             ref={model.containerRef}
             truncate
             className={cx(
-              isConditionallyHidden && styles.hidden,
+              isConditionallyHidden && tabItemRendererStyles.hidden,
               // !isParentDropTarget prevents highlighting tabs during drag (we use a placeholder instead)
               isSelectable && !isSelected && !isSourceSelected && !isParentDropTarget && 'dashboard-selectable-element',
               (isSelected || isSourceSelected) && !isParentDropTarget && 'dashboard-selected-element',
-              (isSelected || isSourceSelected) && styles.selectedTab,
+              (isSelected || isSourceSelected) && tabItemRendererStyles.selectedTab,
               isDropTarget && 'dashboard-drop-target'
             )}
             active={isActive}
@@ -151,7 +152,6 @@ interface TabItemLayoutRendererProps {
 
 export function TabItemLayoutRenderer({ tab, isEditing }: TabItemLayoutRendererProps) {
   const { layout, key } = tab.useState();
-  const styles = useStyles2(getStyles);
   const [_, conditionalRenderingClass, conditionalRenderingOverlay] = useIsConditionallyHidden(
     tab.state.conditionalRendering
   );
@@ -160,7 +160,7 @@ export function TabItemLayoutRenderer({ tab, isEditing }: TabItemLayoutRendererP
 
   return (
     <TabContent
-      className={cx(styles.tabContentContainer, isEditing && conditionalRenderingClass)}
+      {...mergeStylexClassName(stylex.props(tabItemRendererStyles.tabContentContainer, isEditing && conditionalRenderingClass), undefined)}
       {...{ [DASHBOARD_DROP_TARGET_KEY_ATTR]: key }}
     >
       {sectionVariablesEnabled && tabVariablesSet && <SectionVariableControls variableSet={tabVariablesSet} />}
@@ -170,48 +170,6 @@ export function TabItemLayoutRenderer({ tab, isEditing }: TabItemLayoutRendererP
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  selectedTab: css({
-    '&.dashboard-selected-element': {
-      outlineOffset: '-2px',
-    },
-  }),
-  dragging: css({
-    cursor: 'move',
-  }),
-  hidden: css({
-    opacity: 0.4,
-
-    '&:hover': css({
-      opacity: 1,
-    }),
-  }),
-  tabContentContainer: css({
-    backgroundColor: 'transparent',
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    // Without this min height, the custom grid (SceneGridLayout) wont render
-    // Should be bigger than paddingTop value
-    // consist of paddingTop + 0.125 = 9px
-    minHeight: theme.spacing(1 + 0.125),
-    paddingTop: theme.spacing(1),
-
-    // Show grid controls when hovering over the tab content
-    '&:hover .dashboard-canvas-controls': {
-      opacity: 1,
-    },
-    // But hide controls inside nested rows (they'll show when that row is hovered)
-    '&:hover .dashboard-row-wrapper .dashboard-canvas-controls': {
-      opacity: 0,
-    },
-    // Re-enable for the specific nested row being hovered
-    '&:hover .dashboard-row-wrapper:hover .dashboard-canvas-controls': {
-      opacity: 1,
-    },
-  }),
-});
 
 /**
  * Disabling animation as per docs in https://github.com/hello-pangea/dnd/blob/main/docs/guides/drop-animation.md?#skipping-the-drop-animation

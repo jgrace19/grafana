@@ -24,7 +24,7 @@ describe('unconfiguredPanelUtils', () => {
     });
 
     it('without blur, filter is blur(0px) in all states', () => {
-      // keyframes() returns a hashed class name string from emotion — we can't
+      // keyframes() returns a hashed class name string from StyleX — we can't
       // inspect CSS-in-JS output at this level. What we can test is that
       // fadeSlide(n, 0) and fadeSlide(n) produce the same keyframe hashes.
       const withZeroBlur = fadeSlide(10, 0);

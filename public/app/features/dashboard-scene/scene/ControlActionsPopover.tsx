@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { controlActionsPopoverStyles } from './ControlActionsPopover.stylex';
 import { autoUpdate, offset, safePolygon, useFloating, useHover, useInteractions } from '@floating-ui/react';
 import React, { cloneElement, useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Portal, useStyles2 } from '@grafana/ui';
+import {IconButton, Portal} from '@grafana/ui';
 
 export function ControlActionsPopover({
   isEditable,
@@ -15,7 +17,7 @@ export function ControlActionsPopover({
   content: React.ReactNode;
   children: React.JSX.Element;
 }) {
-  const styles = useStyles2(getStyles);
+
   const [isOpen, setIsOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -38,7 +40,7 @@ export function ControlActionsPopover({
       {cloneElement(children, { ref: refs.setReference, ...getReferenceProps() })}
       {isOpen && content && (
         <Portal>
-          <div ref={refs.setFloating} style={floatingStyles} className={styles.popover} {...getFloatingProps()}>
+          <div ref={refs.setFloating} style={floatingStyles} {...stylex.props(controlActionsPopoverStyles.popover)} {...getFloatingProps()}>
             {content}
           </div>
         </Portal>
@@ -54,7 +56,7 @@ export function ControlEditActions({
   onClickEdit: () => void;
   onClickDelete: () => void;
 }) {
-  const styles = useStyles2(getStyles);
+
 
   const onClickEditInternal = useCallback(
     (event: React.MouseEvent) => {
@@ -72,21 +74,21 @@ export function ControlEditActions({
   );
 
   return (
-    <div className={styles.hoverActions}>
+    <div {...stylex.props(controlActionsPopoverStyles.hoverActions)}>
       <IconButton
         name="pen"
         variant="primary"
         size="md"
-        className={cx(styles.action, styles.editAction)}
+        {...mergeStylexClassName(stylex.props(controlActionsPopoverStyles.action), clsx(controlActionsPopoverStyles.editAction))}
         onPointerDown={onClickEditInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-edit', 'Edit')}
       />
-      <div className={styles.actionsDivider} />
+      <div {...stylex.props(controlActionsPopoverStyles.actionsDivider)} />
       <IconButton
         name="trash-alt"
         variant="destructive"
         size="md"
-        className={cx(styles.action, styles.deleteAction)}
+        {...mergeStylexClassName(stylex.props(controlActionsPopoverStyles.action), clsx(controlActionsPopoverStyles.deleteAction))}
         onPointerDown={onClickDeleteInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-delete', 'Delete')}
       />
@@ -94,45 +96,3 @@ export function ControlEditActions({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  popover: css({
-    zIndex: theme.zIndex.portal,
-  }),
-  hoverActions: css({
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    gap: theme.spacing(0.75),
-    padding: theme.spacing(1),
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z1,
-    position: 'relative',
-    top: '2px',
-  }),
-  actionsDivider: css({
-    width: 1,
-    alignSelf: 'stretch',
-    backgroundColor: theme.colors.border.medium,
-  }),
-  action: css({
-    margin: 0,
-    color: theme.colors.text.primary,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: theme.transitions.create(['color'], {
-        duration: theme.transitions.duration.short,
-      }),
-    },
-  }),
-  editAction: css({
-    '&:hover': {
-      color: theme.colors.primary.text,
-    },
-  }),
-  deleteAction: css({
-    '&:hover': {
-      color: theme.colors.error.text,
-    },
-  }),
-});

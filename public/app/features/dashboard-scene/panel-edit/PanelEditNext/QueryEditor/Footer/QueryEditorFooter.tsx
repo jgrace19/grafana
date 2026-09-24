@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryEditorFooterStyles } from './QueryEditorFooter.stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Stack } from '@grafana/ui';
 
 import { FOOTER_HEIGHT, getQueryEditorColors, TIME_OPTION_PLACEHOLDER } from '../../constants';
 import { trackQueryOptionsToggle } from '../../tracking';
@@ -18,7 +20,6 @@ interface FooterLabelValue {
 }
 
 export function QueryEditorFooter() {
-  const styles = useStyles2(getStyles);
 
   const { queryOptions } = useQueryEditorUIContext();
   const { options, openSidebar, closeSidebar, isQueryOptionsOpen } = queryOptions;
@@ -84,8 +85,8 @@ export function QueryEditorFooter() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.queryOptionsWrapper}>
+    <div {...stylex.props(queryEditorFooterStyles.container)}>
+      <div {...stylex.props(queryEditorFooterStyles.queryOptionsWrapper)}>
         <Button
           fill="text"
           size="sm"
@@ -94,24 +95,37 @@ export function QueryEditorFooter() {
         >
           <Stack direction="row" alignItems="center" gap={0.5}>
             <Trans i18nKey="query-editor-next.footer.query-options">Query Options</Trans>
-            <Icon name="angle-down" className={cx(styles.chevron, { [styles.chevronOpen]: isQueryOptionsOpen })} />
+            <Icon
+              name="angle-down"
+              {...stylex.props(
+                queryEditorFooterStyles.chevron,
+                isQueryOptionsOpen && queryEditorFooterStyles.chevronOpen
+              )}
+            />
           </Stack>
         </Button>
       </div>
 
-      <ul className={styles.itemsList}>
+      <ul {...stylex.props(queryEditorFooterStyles.itemsList)}>
         {items.map((item) => (
           <li key={item.id}>
             <Button
               fill="text"
               size="sm"
-              className={styles.itemButton}
+              {...stylex.props(queryEditorFooterStyles.itemButton)}
               onClick={(e) => handleItemClick(e, item.id)}
               aria-label={t('query-editor-next.footer.edit-option', 'Edit {{label}}', { label: item.label })}
             >
-              {item.isActive && <span className={styles.activeIndicator} />}
-              <span className={styles.label}>{item.label}</span>
-              <span className={cx(styles.value, item.isActive && styles.valueActive)}>{item.value}</span>
+              {item.isActive && <span {...stylex.props(queryEditorFooterStyles.activeIndicator)} />}
+              <span {...stylex.props(queryEditorFooterStyles.label)}>{item.label}</span>
+              <span
+                {...stylex.props(
+                  queryEditorFooterStyles.value,
+                  item.isActive && queryEditorFooterStyles.valueActive
+                )}
+              >
+                {item.value}
+              </span>
             </Button>
           </li>
         ))}
@@ -120,90 +134,3 @@ export function QueryEditorFooter() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const themeColors = getQueryEditorColors(theme);
-  return {
-    container: css({
-      position: 'sticky',
-      bottom: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      backgroundColor: themeColors.footerBackground,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      borderBottomLeftRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      padding: theme.spacing(0, 0.5, 0, 1.5),
-      zIndex: theme.zIndex.navbarFixed,
-      height: FOOTER_HEIGHT,
-      overflow: 'hidden',
-    }),
-    itemsList: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      flex: 1,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-    }),
-    itemButton: css({
-      // Override Button's default padding and add gap for children
-      padding: theme.spacing(0, 0.5),
-
-      '& > span': {
-        display: 'flex',
-        alignItems: 'center',
-        gap: theme.spacing(0.5),
-      },
-    }),
-    label: css({
-      color: theme.colors.text.primary,
-    }),
-    value: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontFamily: theme.typography.fontFamilyMonospace,
-    }),
-    valueActive: css({
-      color: theme.colors.success.text,
-    }),
-    activeIndicator: css({
-      width: 6,
-      height: 6,
-      borderRadius: theme.shape.radius.circle,
-      backgroundColor: theme.colors.success.text,
-      flexShrink: 0,
-    }),
-    chevron: css({
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create('transform', {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-    }),
-    chevronOpen: css({
-      transform: 'rotate(180deg)',
-    }),
-    queryOptionsWrapper: css({
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-
-      // TODO: Add this back once all the new colors are finalized
-      // '&::before': {
-      //   content: '""',
-      //   position: 'absolute',
-      //   right: '100%',
-      //   top: 0,
-      //   bottom: 0,
-      //   width: theme.spacing(4),
-      //   background: `linear-gradient(to right, transparent, ${getQueryEditorColors(theme).footerBackground})`,
-      //   pointerEvents: 'none',
-      // },
-    }),
-  };
-}

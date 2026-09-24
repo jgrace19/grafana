@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableEditorFormStyles } from './VariableEditorForm.stylex';
 import { type FormEvent, useCallback, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 import { lastValueFrom } from 'rxjs';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type SceneVariable } from '@grafana/scenes';
 import { type VariableHide, defaultVariableModel } from '@grafana/schema';
-import { Alert, Button, ConfirmModal, LoadingPlaceholder, ModalsController, Stack, useStyles2 } from '@grafana/ui';
+import {Alert, Button, ConfirmModal, LoadingPlaceholder, ModalsController, Stack} from '@grafana/ui';
 import { VariableDisplaySelect } from 'app/features/dashboard-scene/settings/variables/components/VariableDisplaySelect';
 import { VariableLegend } from 'app/features/dashboard-scene/settings/variables/components/VariableLegend';
 import { VariableTextAreaField } from 'app/features/dashboard-scene/settings/variables/components/VariableTextAreaField';
@@ -36,7 +37,7 @@ interface VariableEditorFormProps {
   onDelete: (variableName: string) => void;
 }
 export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete }: VariableEditorFormProps) {
-  const styles = useStyles2(getStyles);
+
   const [nameError, setNameError] = useState<string>();
   const [nameWarning, setNameWarning] = useState<string>();
   const { name, type, label, description, hide: display } = variable.useState();
@@ -135,7 +136,7 @@ export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete 
 
       {isHasVariableOptions && <VariableValuesPreview options={options} staticOptions={staticOptions} />}
 
-      <div className={styles.buttonContainer}>
+      <div {...stylex.props(variableEditorFormStyles.buttonContainer)}>
         <Stack gap={2}>
           <ModalsController>
             {({ showModal, hideModal }) => (
@@ -177,7 +178,7 @@ export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete 
             >
               {runQueryState.loading ? (
                 <LoadingPlaceholder
-                  className={styles.loadingPlaceHolder}
+                  {...stylex.props(variableEditorFormStyles.loadingPlaceHolder)}
                   text={t('dashboard-scene.variable-editor-form.text-running-query', 'Running query...')}
                 />
               ) : (
@@ -191,11 +192,3 @@ export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete 
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonContainer: css({
-    marginTop: theme.spacing(2),
-  }),
-  loadingPlaceHolder: css({
-    marginBottom: 0,
-  }),
-});

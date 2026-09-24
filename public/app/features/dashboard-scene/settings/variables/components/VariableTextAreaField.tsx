@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableTextAreaFieldStyles } from './VariableTextAreaField.stylex';
 import { useId } from '@react-aria/utils';
 import { type FormEvent, type PropsWithChildren, type ReactElement, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Field, TextArea, useStyles2 } from '@grafana/ui';
+import {Field, TextArea} from '@grafana/ui';
 
 interface VariableTextAreaFieldProps {
   name: string;
@@ -34,7 +35,7 @@ export function VariableTextAreaField({
   noMargin,
   testId,
 }: PropsWithChildren<VariableTextAreaFieldProps>): ReactElement {
-  const styles = useStyles2(getStyles);
+
   const id = useId();
 
   return (
@@ -50,26 +51,11 @@ export function VariableTextAreaField({
         required={required}
         aria-label={ariaLabel}
         cols={width}
-        className={styles.textarea}
+        {...stylex.props(variableTextAreaFieldStyles.textarea)}
         data-testid={testId}
       />
     </Field>
   );
 }
 
-export function getStyles(theme: GrafanaTheme2) {
-  return {
-    textarea: css({
-      whiteSpace: 'pre-wrap',
-      minHeight: theme.spacing(4),
-      height: 'auto',
-      overflow: 'auto',
-      padding: `${theme.spacing(0.75)} ${theme.spacing(1)}`,
-      width: 'inherit',
 
-      [theme.breakpoints.down('sm')]: {
-        width: '100%',
-      },
-    }),
-  };
-}

@@ -1,17 +1,19 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rowsLayoutManagerRendererStyles } from './RowsLayoutManagerRenderer.stylex';
 import { DragDropContext, Droppable, type BeforeCapture, type DropResult } from '@hello-pangea/dnd';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { MultiValueVariable, type SceneComponentProps, sceneGraph, useSceneObjectState } from '@grafana/scenes';
-import { Button, useStyles2 } from '@grafana/ui';
+import {Button} from '@grafana/ui';
 
 import { isRepeatCloneOrChildOf } from '../../utils/clone';
 import { useDashboardState, getLayoutOrchestratorFor } from '../../utils/utils';
 import { useSoloPanelContext } from '../SoloPanelContext';
-import { getLayoutControlsStyles } from '../layouts-shared/styles';
+import { layoutControlsStyles } from '../layouts-shared/styles';
 import { useClipboardState } from '../layouts-shared/useClipboardState';
 import { DASHBOARD_DROP_TARGET_KEY_ATTR } from '../types/DashboardDropTarget';
 
@@ -22,8 +24,7 @@ import { type RowsLayoutManager } from './RowsLayoutManager';
 export function RowLayoutManagerRenderer({ model }: SceneComponentProps<RowsLayoutManager>) {
   const { rows, key } = model.useState();
   const { isEditing } = useDashboardState(model);
-  const styles = useStyles2(getStyles);
-  const layoutControlsStyles = useStyles2(getLayoutControlsStyles);
+
   const { hasCopiedRow } = useClipboardState();
   const soloPanelContext = useSoloPanelContext();
   const orchestrator = getLayoutOrchestratorFor(model);
@@ -74,7 +75,7 @@ export function RowLayoutManagerRenderer({ model }: SceneComponentProps<RowsLayo
       <Droppable droppableId={key!} direction="vertical">
         {(dropProvided) => (
           <div
-            className={styles.wrapper}
+            {...stylex.props(rowsLayoutManagerRendererStyles.wrapper)}
             ref={dropProvided.innerRef}
             {...dropProvided.droppableProps}
             {...(showAsDropTarget ? { [DASHBOARD_DROP_TARGET_KEY_ATTR]: key } : {})}
@@ -84,7 +85,12 @@ export function RowLayoutManagerRenderer({ model }: SceneComponentProps<RowsLayo
             ))}
             {dropProvided.placeholder}
             {isEditing && !isClone && (
-              <div className={cx(layoutControlsStyles.controls, 'dashboard-canvas-controls')}>
+              <div
+                {...mergeStylexClassName(
+                  stylex.props(layoutControlsStyles.controls),
+                  'dashboard-canvas-controls'
+                )}
+              >
                 <Button
                   icon="plus"
                   variant="secondary"
@@ -139,20 +145,4 @@ function RowWrapper({ row, manager }: { row: RowItem; manager: RowsLayoutManager
   return <row.Component model={row} key={row.state.key!} />;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      flexGrow: 1,
-      width: '100%',
 
-      // Show rows layout controls (Add row, etc.) when hovering anywhere in the layout
-      // Using > to only affect direct children, not grid controls inside rows
-      '&:hover > .dashboard-canvas-controls': {
-        opacity: 1,
-      },
-    }),
-  };
-}

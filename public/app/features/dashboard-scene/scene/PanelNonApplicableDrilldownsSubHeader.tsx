@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelNonApplicableDrilldownsSubHeaderStyles } from './PanelNonApplicableDrilldownsSubHeader.stylex';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import {
@@ -11,7 +13,7 @@ import {
   type GroupByVariable,
   type SceneQueryRunner,
 } from '@grafana/scenes';
-import { Tooltip, measureText, useStyles2, useTheme2 } from '@grafana/ui';
+import {Tooltip, measureText, useTheme2} from '@grafana/ui';
 
 import { getDrilldownApplicability } from '../utils/drilldownUtils';
 
@@ -30,7 +32,7 @@ interface Props {
 }
 
 export function PanelNonApplicableDrilldownsSubHeader({ filtersVar, groupByVar, queryRunner }: Props) {
-  const styles = useStyles2(getStyles);
+
   const theme = useTheme2();
   const [sizeRef, { width: containerWidth }] = useMeasure<HTMLDivElement>();
 
@@ -151,17 +153,17 @@ export function PanelNonApplicableDrilldownsSubHeader({ filtersVar, groupByVar, 
   return (
     <div
       ref={sizeRef}
-      className={styles.container}
+      {...stylex.props(panelNonApplicableDrilldownsSubHeaderStyles.container)}
       data-testid={selectors.components.Panels.Panel.PanelNonApplicableDrilldownsSubHeader}
     >
       {visibleItems.map((item, index) => (
         <Tooltip key={`${item.label}-${index}`} content={item.reason ?? defaultReason} placement="bottom">
-          <div className={cx(styles.disabledPill, styles.strikethrough, styles.pill)}>{item.label}</div>
+          <div {...mergeStylexClassName(stylex.props(panelNonApplicableDrilldownsSubHeaderStyles.disabledPill), clsx(panelNonApplicableDrilldownsSubHeaderStyles.strikethrough, panelNonApplicableDrilldownsSubHeaderStyles.pill))}>{item.label}</div>
         </Tooltip>
       ))}
       {hasOverflow && (
         <Tooltip content={remainingItems.map((item) => item.label).join(', ')} placement="bottom">
-          <div className={cx(styles.disabledPill, styles.pill)}>+{remainingCount}</div>
+          <div {...mergeStylexClassName(stylex.props(panelNonApplicableDrilldownsSubHeaderStyles.pill), clsx(panelNonApplicableDrilldownsSubHeaderStyles.disabledPill))}>+{remainingCount}</div>
         </Tooltip>
       )}
     </div>
@@ -198,32 +200,4 @@ function calculateVisibleCount(labels: string[], containerWidth: number, theme: 
   return visible;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: theme.spacing(1),
-      width: '100%',
-      overflow: 'hidden',
-    }),
-    pill: css({
-      padding: theme.spacing(0.2, 0.4),
-      borderRadius: theme.shape.radius.default,
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    disabledPill: css({
-      background: theme.colors.action.selected,
-      color: theme.colors.text.disabled,
-      border: 0,
-      '&:hover': {
-        background: theme.colors.action.selected,
-      },
-    }),
-    strikethrough: css({
-      textDecoration: 'line-through',
-    }),
-  };
-}
+

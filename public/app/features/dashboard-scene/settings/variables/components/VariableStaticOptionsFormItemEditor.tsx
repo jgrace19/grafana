@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { variableStaticOptionsFormItemEditorStyles } from './VariableStaticOptionsFormItemEditor.stylex';
 import { Draggable } from '@hello-pangea/dnd';
 import { type ChangeEventHandler } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, Input, Stack, useStyles2 } from '@grafana/ui';
+import {Icon, IconButton, Input, Stack} from '@grafana/ui';
 
 export interface VariableStaticOptionsFormItem {
   id: string;
@@ -26,7 +27,7 @@ export function VariableStaticOptionsFormItemEditor({
   onChange,
   onRemove,
 }: VariableStaticOptionsFormItemEditorProps) {
-  const styles = useStyles2(getStyles);
+
 
   const handleValueChange: ChangeEventHandler<HTMLInputElement> = (evt) => {
     if (item.value !== evt.currentTarget.value) {
@@ -61,7 +62,7 @@ export function VariableStaticOptionsFormItemEditor({
                 title={t('variables.static-options.drag-and-drop', 'Drag and drop to reorder')}
                 name="draggabledots"
                 size="lg"
-                className={styles.dragIcon}
+                {...stylex.props(variableStaticOptionsFormItemEditorStyles.dragIcon)}
               />
             </Stack>
           </td>
@@ -97,21 +98,3 @@ export function VariableStaticOptionsFormItemEditor({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dragIcon: css({
-    cursor: 'grab',
-
-    // create a focus ring around the whole row when the drag handle is tab-focused
-    // needs position: relative on the drag row to work correctly
-    '&:focus-visible&:after': {
-      bottom: 0,
-      content: '""',
-      left: 0,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      outline: `2px solid ${theme.colors.primary.main}`,
-      outlineOffset: '-2px',
-    },
-  }),
-});

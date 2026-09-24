@@ -16,8 +16,7 @@ import {
   Switch,
   TagsInput,
   TextArea,
-  type WeekStart,
-} from '@grafana/ui';
+  type WeekStart } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { TimePickerSettings } from 'app/features/dashboard/components/DashboardSettings/TimePickerSettings';
 import { GenAIDashDescriptionButton } from 'app/features/dashboard/components/GenAI/GenAIDashDescriptionButton';

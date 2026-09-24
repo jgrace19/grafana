@@ -1,7 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dashboardControlsStyles } from './DashboardControls.stylex';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, VariableHide } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -18,7 +20,7 @@ import {
   type SceneObjectUrlValues,
   type CancelActivationHandler,
 } from '@grafana/scenes';
-import { Box, Button, ButtonGroup, useStyles2 } from '@grafana/ui';
+import {Box, Button, ButtonGroup} from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { contextSrv } from 'app/core/services/context_srv';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
@@ -173,7 +175,7 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
   const dashboard = getDashboardSceneFor(model);
   const { links, editPanel } = dashboard.useState();
   const isQueryEditorNext = Boolean(editPanel?.state.useQueryExperienceNext);
-  const styles = useStyles2(getStyles, isQueryEditorNext);
+
   const showDebugger = window.location.search.includes('scene-debugger');
   const hasDashboardControls = useHasDashboardControls(dashboard);
 
@@ -184,9 +186,9 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
     if (config.featureToggles.dashboardNewLayouts && !editPanel) {
       return (
         <>
-          <div data-testid={selectors.pages.Dashboard.Controls} className={styles.controls}>
-            <div className={styles.rightControls}>
-              <div className={styles.fixedControls}>
+          <div data-testid={selectors.pages.Dashboard.Controls} {...stylex.props(dashboardControlsStyles.controls)}>
+            <div {...stylex.props(dashboardControlsStyles.rightControls)}>
+              <div {...stylex.props(dashboardControlsStyles.fixedControls)}>
                 <DashboardControlActions dashboard={dashboard} hidePlaylistNav={hidePlaylistNav} />
               </div>
             </div>
@@ -207,29 +209,38 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
   return (
     <div
       data-testid={selectors.pages.Dashboard.Controls}
-      className={cx(styles.controls, editPanel && styles.controlsPanelEdit)}
+      {...stylex.props(
+        dashboardControlsStyles.controls,
+        editPanel && dashboardControlsStyles.controlsPanelEdit,
+        editPanel && isQueryEditorNext && dashboardControlsStyles.controlsPanelEditNext
+      )}
     >
-      <div className={cx(styles.rightControls, editPanel && styles.rightControlsWrap)}>
+      <div
+        {...stylex.props(
+          dashboardControlsStyles.rightControls,
+          editPanel && dashboardControlsStyles.rightControlsWrap
+        )}
+      >
         {!hideTimeControls && (
-          <div className={styles.fixedControls}>
+          <div {...stylex.props(dashboardControlsStyles.fixedControls)}>
             <timePicker.Component model={timePicker} />
             <refreshPicker.Component model={refreshPicker} />
           </div>
         )}
         {config.featureToggles.dashboardNewLayouts && (
-          <div className={styles.fixedControls}>
+          <div {...stylex.props(dashboardControlsStyles.fixedControls)}>
             <DashboardControlActions dashboard={dashboard} hidePlaylistNav={hidePlaylistNav} />
           </div>
         )}
         {(config.featureToggles.dashboardFiltersOverview || config.featureToggles.dashboardUnifiedDrilldownControls) &&
           !config.featureToggles.dashboardNewLayouts && (
-            <div className={styles.fixedControls}>
+            <div {...stylex.props(dashboardControlsStyles.fixedControls)}>
               <DashboardFiltersOverviewPaneToggle dashboard={dashboard} />
             </div>
           )}
       </div>
       {config.featureToggles.scopeFilters && !editPanel && (
-        <ContextualNavigationPaneToggle className={styles.contextualNavToggle} hideWhenOpen={true} />
+        <ContextualNavigationPaneToggle {...stylex.props(dashboardControlsStyles.contextualNavToggle)} hideWhenOpen={true} />
       )}
       {!hideVariableControls && (
         <>
@@ -345,7 +356,7 @@ function DefaultControlsLoadingSkeleton({
   hideLinksControls?: boolean;
 }) {
   const { defaultVariablesLoading, defaultLinksLoading } = dashboard.useState();
-  const styles = useStyles2(getSkeletonStyles);
+
 
   const showVariablesSkeleton = defaultVariablesLoading && !hideVariableControls;
   const showLinksSkeleton = defaultLinksLoading && !hideLinksControls;
@@ -354,83 +365,7 @@ function DefaultControlsLoadingSkeleton({
     return null;
   }
 
-  return <Skeleton width={60} height={32} containerClassName={styles.skeletonContainer} />;
+  return <Skeleton width={60} height={32} containerClassName={stylex.props(dashboardControlsStyles.skeletonContainer).className} />;
 }
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  skeletonContainer: css({
-    display: 'inline-flex',
-    lineHeight: 1,
-    verticalAlign: 'middle',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  }),
-});
 
-function getStyles(theme: GrafanaTheme2, isQueryEditorNext: boolean) {
-  return {
-    // Original controls style
-    controls: css({
-      gap: theme.spacing(1),
-      padding: theme.spacing(2, 2, 1, 2),
-      flexDirection: 'row',
-      flexWrap: 'nowrap',
-      position: 'relative',
-      width: '100%',
-      marginLeft: 'auto',
-      display: 'inline-block',
-      [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column-reverse',
-        alignItems: 'stretch',
-      },
-
-      '&:hover .dashboard-canvas-controls': {
-        opacity: 1,
-      },
-    }),
-    controlsPanelEdit: css({
-      flexWrap: 'wrap-reverse',
-      ...(isQueryEditorNext && {
-        padding: 0,
-        marginBottom: theme.spacing(-1),
-      }),
-      paddingRight: 0,
-    }),
-    embedded: css({
-      background: 'unset',
-      position: 'unset',
-    }),
-    // Original rightControls style
-    rightControls: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      float: 'right',
-      alignItems: 'flex-start',
-      flexWrap: 'wrap',
-      maxWidth: '100%',
-      minWidth: 0,
-    }),
-    fixedControls: css({
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      order: 2,
-      marginLeft: 'auto',
-      flexShrink: 0,
-      alignSelf: 'flex-start',
-    }),
-    dashboardControlsButton: css({
-      order: 2,
-      marginLeft: 'auto',
-    }),
-    rightControlsWrap: css({
-      flexWrap: 'wrap',
-      marginLeft: 'auto',
-    }),
-    contextualNavToggle: css({
-      display: 'inline-flex',
-      margin: theme.spacing(0, 1, 1, 0),
-    }),
-  };
-}
