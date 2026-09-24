@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type AnnotationQuery } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { Button, DeleteButton, EmptyState, IconButton, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Button, DeleteButton, EmptyState, IconButton, Stack, TextLink } from '@grafana/ui';
 import { ListNewButton } from 'app/features/dashboard/components/DashboardSettings/ListNewButton';
 
 import { MoveDirection } from '../AnnotationsEditView';
@@ -20,8 +20,6 @@ type Props = {
 export const BUTTON_TITLE = 'Add annotation query';
 
 export const AnnotationSettingsList = ({ annotations, onNew, onEdit, onMove, onDelete }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const showEmptyListCTA = annotations.length === 0 || (annotations.length === 1 && annotations[0].builtIn);
 
   const getAnnotationName = (anno: AnnotationQuery) => {
@@ -52,7 +50,7 @@ export const AnnotationSettingsList = ({ annotations, onNew, onEdit, onMove, onD
   return (
     <Stack direction="column">
       {annotations.length > 0 && (
-        <div className={styles.table}>
+        <div {...stylex.props(styles.table)}>
           <table role="grid" className="filter-table filter-table--hover">
             <thead>
               <tr>
@@ -167,9 +165,9 @@ export const AnnotationSettingsList = ({ annotations, onNew, onEdit, onMove, onD
   );
 };
 
-const getStyles = () => ({
-  table: css({
+const styles = stylex.create({
+  table: {
     width: '100%',
     overflowX: 'auto',
-  }),
+  },
 });

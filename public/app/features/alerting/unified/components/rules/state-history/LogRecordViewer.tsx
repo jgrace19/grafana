@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { groupBy, uniqueId } from 'lodash';
 import { Fragment, memo, useEffect, useRef } from 'react';
 
 import { AlertLabel } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
+import { dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Stack, TagList, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, TagList } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { GrafanaAlertState, mapStateWithReasonToBaseState } from 'app/types/unified-alerting-dto';
 
 import { AlertStateTag } from '../AlertStateTag';
@@ -48,8 +50,6 @@ export const LogRecordViewerByTimestamp = memo(
     onLabelClick,
     onRecordsRendered,
   }: LogRecordViewerProps & AdditionalLogRecordViewerProps) => {
-    const styles = useStyles2(getStyles);
-
     const groupedLines = groupRecordsByTimestamp(records);
 
     const timestampRefs = useRef<Map<number, HTMLElement>>(new Map());
@@ -59,7 +59,7 @@ export const LogRecordViewerByTimestamp = memo(
 
     return (
       <ul
-        className={styles.logsScrollable}
+        {...stylex.props(styles.logsScrollable)}
         aria-label={t(
           'alerting.log-record-viewer-by-timestamp.aria-label-state-history-by-timestamp',
           'State history by timestamp'
@@ -78,7 +78,7 @@ export const LogRecordViewerByTimestamp = memo(
                   timestampRefs.current.delete(key);
                 }
               }}
-              className={styles.listItemWrapper}
+              {...stylex.props(styles.listItemWrapper)}
             >
               <Timestamp time={key} />
               {records.map(({ line }, idx) => {
@@ -88,7 +88,7 @@ export const LogRecordViewerByTimestamp = memo(
                   mapStateWithReasonToBaseState(line.current) === GrafanaAlertState.Error && Boolean(line.error);
                 return (
                   <Fragment key={id}>
-                    <div className={styles.logsContainer}>
+                    <div {...stylex.props(styles.logsContainer)}>
                       <AlertStateTag state={line.previous} size="sm" muted />
                       <Icon name="arrow-right" size="sm" />
                       <AlertStateTag state={line.current} />
@@ -118,8 +118,6 @@ export const LogRecordViewerByTimestamp = memo(
 LogRecordViewerByTimestamp.displayName = 'LogRecordViewerByTimestamp';
 
 export function LogRecordViewerByInstance({ records, commonLabels }: LogRecordViewerProps) {
-  const styles = useStyles2(getStyles);
-
   const groupedLines = groupBy(records, (record: LogRecord) => {
     return JSON.stringify(record.line.labels);
   });
@@ -136,7 +134,7 @@ export function LogRecordViewerByInstance({ records, commonLabels }: LogRecordVi
                 )}
               />
             </h4>
-            <div className={styles.logsContainer}>
+            <div {...stylex.props(styles.logsContainer)}>
               {records.map(({ line, timestamp }) => (
                 <div key={uniqueId()}>
                   <AlertStateTag state={line.previous} size="sm" muted />
@@ -160,13 +158,11 @@ interface TimestampProps {
 
 const Timestamp = ({ time }: TimestampProps) => {
   const dateTime = new Date(time);
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.timestampWrapper}>
+    <div {...stylex.props(styles.timestampWrapper)}>
       <Stack alignItems="center" gap={1}>
         <Icon name="clock-nine" size="sm" />
-        <span className={styles.timestampText}>{dateTimeFormat(dateTime)}</span>
+        <span {...stylex.props(styles.timestampText)}>{dateTimeFormat(dateTime)}</span>
         <small>
           <Trans i18nKey="alerting.timestamp.time-ago" values={{ time: formatDistanceToNowStrict(dateTime) }}>
             ({'{{time}}'} ago)
@@ -190,33 +186,37 @@ const AlertInstanceValues = memo(({ record }: { record: Record<string, number> }
 });
 AlertInstanceValues.displayName = 'AlertInstanceValues';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  logsContainer: css({
+const styles = stylex.create({
+  logsContainer: {
     display: 'grid',
     gridTemplateColumns: 'max-content max-content max-content auto max-content',
-    gap: theme.spacing(2, 1),
+    rowGap: spacing['--gf-spacing-x2'],
+    columnGap: spacing['--gf-spacing-x1'],
     alignItems: 'center',
-  }),
-  logsScrollable: css({
+  },
+  logsScrollable: {
     height: '500px',
     overflow: 'scroll',
-
-    flex: 1,
-  }),
-  timestampWrapper: css({
-    color: theme.colors.text.secondary,
-  }),
-  timestampText: css({
-    color: theme.colors.text.primary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  listItemWrapper: css({
-    background: 'transparent',
-    outline: '1px solid transparent',
-    padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: 'background 150ms, outline 150ms',
-    },
-  }),
+    flex: '1',
+  },
+  timestampWrapper: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  timestampText: {
+    color: colors['--gf-colors-text-primary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  listItemWrapper: {
+    backgroundColor: 'transparent',
+    outlineWidth: '1px',
+    outlineStyle: 'solid',
+    outlineColor: 'transparent',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background, outline' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '150ms' },
+  },
 });

@@ -1,10 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Pagination, Tooltip, useStyles2 } from '@grafana/ui';
+import { Pagination, Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedRule, type RulesSource } from 'app/types/unified-alerting';
 
 import { DEFAULT_PER_PAGE_PAGINATION } from '../../../../../core/constants';
@@ -32,6 +35,7 @@ import { RuleConfigStatus } from './RuleConfigStatus';
 import { RuleDetails } from './RuleDetails';
 import { RuleHealth } from './RuleHealth';
 import { RuleState } from './RuleState';
+import '../alertingPagination.css';
 
 type RuleTableColumnProps = DynamicTableColumnProps<CombinedRule>;
 type RuleTableItemProps = DynamicTableItemProps<CombinedRule>;
@@ -44,6 +48,8 @@ interface Props {
   showNextEvaluationColumn?: boolean;
   emptyMessage?: string;
   className?: string;
+  /** first-party StyleX overrides */
+  xstyle?: StyleXStyles;
 }
 
 const prometheusRulesPrimary = shouldUsePrometheusRulesPrimary();
@@ -54,14 +60,14 @@ const { useLazyDiscoverDsFeaturesQuery } = featureDiscoveryApi;
 export const RulesTable = ({
   rules,
   className,
+  xstyle,
   showGuidelines = false,
   emptyMessage = 'No rules found.',
   showGroupColumn = false,
   showSummaryColumn = false,
   showNextEvaluationColumn = false,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-  const wrapperClass = cx(styles.wrapper, className, { [styles.wrapperMargin]: showGuidelines });
+  const wrapperStyles = [styles.wrapper, xstyle, showGuidelines && styles.wrapperMargin];
 
   const { pageItems, page, numberOfPages, onPageChange } = usePagination(rules, 1, DEFAULT_PER_PAGE_PAGINATION);
 
@@ -81,13 +87,15 @@ export const RulesTable = ({
   const columns = useColumns(showSummaryColumn, showGroupColumn, showNextEvaluationColumn, isLoadingRulerGroup);
 
   if (!pageItems.length) {
-    return <div className={cx(wrapperClass, styles.emptyMessage)}>{emptyMessage}</div>;
+    return (
+      <div {...mergeStylexProps(stylex.props(wrapperStyles, styles.emptyMessage), { className })}>{emptyMessage}</div>
+    );
   }
 
   const TableComponent = showGuidelines ? DynamicTableWithGuidelines : DynamicTable;
 
   return (
-    <div className={wrapperClass} data-testid="rules-table">
+    <div {...mergeStylexProps(stylex.props(wrapperStyles), { className })} data-testid="rules-table">
       <TableComponent
         cols={columns}
         isExpandable={true}
@@ -99,7 +107,7 @@ export const RulesTable = ({
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
         hideWhenSinglePage
-        className={styles.pagination}
+        className="gf-alerting-rules-table-pagination"
       />
     </div>
   );
@@ -158,33 +166,20 @@ function useLazyLoadRulerRules(rules: CombinedRule[]) {
   return state;
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrapperMargin: css({
-    [theme.breakpoints.up('md')]: {
-      marginLeft: '36px',
-    },
-  }),
-  emptyMessage: css({
-    padding: theme.spacing(1),
-  }),
-  wrapper: css({
+const styles = stylex.create({
+  wrapperMargin: {
+    marginLeft: { default: null, [bp.mdUp]: '36px' },
+  },
+  emptyMessage: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  wrapper: {
     width: 'auto',
-    borderRadius: theme.shape.radius.default,
-  }),
-  skeletonWrapper: css({
-    flex: 1,
-  }),
-  pagination: css({
-    display: 'flex',
-    margin: 0,
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(0.25),
-    justifyContent: 'center',
-    borderLeft: `1px solid ${theme.colors.border.medium}`,
-    borderRight: `1px solid ${theme.colors.border.medium}`,
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-    float: 'none',
-  }),
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  skeletonWrapper: {
+    flex: '1',
+  },
 });
 
 function useColumns(
@@ -318,11 +313,10 @@ function RuleStateCell({ rule }: { rule: CombinedRule }) {
 }
 
 function RuleActionsCell({ rule, isLoadingRuler }: { rule: CombinedRule; isLoadingRuler: boolean }) {
-  const styles = useStyles2(getStyles);
   const { isDeleting, isCreating } = useRuleStatus(rule);
 
   if (isLoadingRuler) {
-    return <Skeleton containerClassName={styles.skeletonWrapper} />;
+    return <Skeleton containerClassName={stylex.props(styles.skeletonWrapper).className} />;
   }
 
   return (

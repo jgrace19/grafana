@@ -1,0 +1,4 @@
+/* Pads InteractiveTable's cells. Plain CSS so it keeps the specificity of the Emotion descendant rule it replaces. */
+.gf-variable-values-preview-table td {
+  padding: var(--gf-spacing-x0-5) var(--gf-spacing-x1);
+}

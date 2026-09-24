@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Box, Tab, TabContent, TabsBar, Text, useStyles2 } from '@grafana/ui';
+import { Box, Tab, TabContent, TabsBar, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 import { NotificationsScene } from '../../../notifications/NotificationsScene';
@@ -18,7 +18,6 @@ enum ActiveTab {
 }
 
 function HistoryPage() {
-  const styles = useStyles2(getStyles);
   const [queryParams, setQueryParams] = useQueryParams();
   const notificationsEnabled = config.featureToggles.alertingNotificationHistoryGlobal;
 
@@ -43,7 +42,7 @@ function HistoryPage() {
           />
         </TabsBar>
       )}
-      <TabContent className={styles.tabContent}>
+      <TabContent className={stylex.props(styles.tabContent).className}>
         <Box paddingBottom={2}>
           <Text color="secondary" variant="body">
             {activeTab === ActiveTab.AlertEvents ? (
@@ -65,10 +64,10 @@ function HistoryPage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tabContent: css({
-    marginTop: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  tabContent: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
 });
 
 export default withPageErrorBoundary(HistoryPage);

@@ -1,0 +1,24 @@
+/*
+ * Styles the table, including the rows and cells VariableStaticOptionsFormItemEditor renders. Plain CSS so the rules
+ * keep the specificity of the Emotion descendant rules they replace.
+ */
+.gf-variable-static-options-table tbody tr {
+  position: relative;
+}
+
+.gf-variable-static-options-table tbody tr:hover {
+  background: var(--gf-colors-action-hover);
+}
+
+.gf-variable-static-options-table th,
+.gf-variable-static-options-table td {
+  padding: var(--gf-spacing-x1);
+  width: 49%;
+}
+
+.gf-variable-static-options-table th:first-child,
+.gf-variable-static-options-table td:first-child,
+.gf-variable-static-options-table th:last-child,
+.gf-variable-static-options-table td:last-child {
+  width: 1%;
+}

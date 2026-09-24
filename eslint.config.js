@@ -111,6 +111,9 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
   // U7 viz
   'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
+  // U8 chrome/globals
+  'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/utils/skeleton.tsx',
   // U4 overlays
   'packages/grafana-ui/src/components/{Alert,ConfirmModal,ContextMenu,Drawer,Dropdown,InlineToast,Menu,Modal,Toggletip,Tooltip}/**/*.{ts,tsx}',
   'packages/grafana-ui/src/utils/tooltipUtils.ts',
@@ -152,6 +155,13 @@ const stylexMigratedAppFiles = [
   'public/app/features/plugins/**/*.{ts,tsx}',
   'public/app/features/provisioning/**/*.{ts,tsx}',
   'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
+  // P2 core-bundled datasource plugins
+  'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
+  // A1 alerting components
+  'public/app/features/alerting/unified/components/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // D2 dashboard-scene settings
+  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

@@ -1,0 +1,14 @@
+/*
+ * A focus ring around the whole row when the drag handle is tab-focused. It needs position: relative on the drag row.
+ * StyleX can't put a pseudo-class before a pseudo-element, so this is plain CSS.
+ */
+.gf-variable-static-option-drag-icon:focus-visible::after {
+  bottom: 0;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  outline: 2px solid var(--gf-colors-primary-main);
+  outline-offset: -2px;
+}

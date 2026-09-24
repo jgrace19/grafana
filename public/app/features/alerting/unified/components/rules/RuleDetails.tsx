@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, dateTime, dateTimeFormat } from '@grafana/data';
+import { dateTime, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Tooltip, useStyles2 } from '@grafana/ui';
+import { Tooltip } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { Time } from 'app/features/explore/Time';
 import { type CombinedRule } from 'app/types/unified-alerting';
 
@@ -29,7 +30,6 @@ interface Props {
 export const INSTANCES_DISPLAY_LIMIT = 15;
 
 export const RuleDetails = ({ rule }: Props) => {
-  const styles = useStyles2(getStyles);
   const {
     namespace: { rulesSource },
   } = rule;
@@ -42,8 +42,8 @@ export const RuleDetails = ({ rule }: Props) => {
   return (
     <div>
       <RuleDetailsButtons rule={rule} rulesSource={rulesSource} />
-      <div className={styles.wrapper}>
-        <div className={styles.leftSide}>
+      <div {...stylex.props(styles.wrapper)}>
+        <div {...stylex.props(styles.leftSide)}>
           {<EvaluationBehaviorSummary rule={rule} />}
           {!!rule.labels && !!Object.keys(rule.labels).length && (
             <DetailsField label={t('alerting.rule-details.label-labels', 'Labels')} horizontal={true}>
@@ -53,7 +53,7 @@ export const RuleDetails = ({ rule }: Props) => {
           <RuleDetailsExpression rulesSource={rulesSource} rule={rule} annotations={annotations} />
           <RuleDetailsAnnotations annotations={annotations} />
         </div>
-        <div className={styles.rightSide}>
+        <div {...stylex.props(styles.rightSide)}>
           <RuleDetailsDataSources rulesSource={rulesSource} rule={rule} />
         </div>
       </div>
@@ -150,22 +150,19 @@ const EvaluationBehaviorSummary = ({ rule }: EvaluationBehaviorSummaryProps) => 
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
-    flexDirection: 'row',
-
-    [theme.breakpoints.down('md')]: {
-      flexDirection: 'column',
+    flexDirection: {
+      default: 'row',
+      [bp.mdDown]: 'column',
     },
-  }),
-  leftSide: css({
-    flex: 1,
-  }),
-  rightSide: css({
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: '90px',
-      width: '300px',
-    },
-  }),
+  },
+  leftSide: {
+    flex: '1',
+  },
+  rightSide: {
+    paddingLeft: { default: null, [bp.mdUp]: '90px' },
+    width: { default: null, [bp.mdUp]: '300px' },
+  },
 });

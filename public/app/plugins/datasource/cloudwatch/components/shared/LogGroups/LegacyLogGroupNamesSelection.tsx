@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type CloudWatchDatasource } from '../../../datasource';
 
@@ -11,13 +11,9 @@ type Props = {
   legacyLogGroupNames: string[];
 };
 
-const rowGap = css({
-  gap: '3px',
-});
-
 export const LegacyLogGroupSelection = ({ datasource, region, legacyLogGroupNames, onChange }: Props) => {
   return (
-    <div className={`gf-form gf-form--grow flex-grow-1 ${rowGap}`}>
+    <div className={`gf-form gf-form--grow flex-grow-1 ${stylex.props(styles.rowGap).className}`}>
       <LogGroupSelector
         region={region}
         selectedLogGroups={legacyLogGroupNames}
@@ -27,3 +23,9 @@ export const LegacyLogGroupSelection = ({ datasource, region, legacyLogGroupName
     </div>
   );
 };
+
+const styles = stylex.create({
+  rowGap: {
+    gap: '3px',
+  },
+});

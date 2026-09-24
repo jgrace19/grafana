@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
 import { useId } from '@react-aria/utils';
 import { type FormEvent, type PropsWithChildren, type ReactElement, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Field, TextArea, useStyles2 } from '@grafana/ui';
+import { Field, TextArea } from '@grafana/ui';
+
+import './VariableTextAreaField.css';
 
 interface VariableTextAreaFieldProps {
   name: string;
@@ -34,7 +34,6 @@ export function VariableTextAreaField({
   noMargin,
   testId,
 }: PropsWithChildren<VariableTextAreaFieldProps>): ReactElement {
-  const styles = useStyles2(getStyles);
   const id = useId();
 
   return (
@@ -50,26 +49,20 @@ export function VariableTextAreaField({
         required={required}
         aria-label={ariaLabel}
         cols={width}
-        className={styles.textarea}
+        className={VARIABLE_TEXTAREA_CLASS}
         data-testid={testId}
       />
     </Field>
   );
 }
 
-export function getStyles(theme: GrafanaTheme2) {
-  return {
-    textarea: css({
-      whiteSpace: 'pre-wrap',
-      minHeight: theme.spacing(4),
-      height: 'auto',
-      overflow: 'auto',
-      padding: `${theme.spacing(0.75)} ${theme.spacing(1)}`,
-      width: 'inherit',
+/** Sizes a variable editor TextArea; styled in VariableTextAreaField.css. */
+export const VARIABLE_TEXTAREA_CLASS = 'gf-variable-textarea';
 
-      [theme.breakpoints.down('sm')]: {
-        width: '100%',
-      },
-    }),
-  };
+/**
+ * @deprecated Kept for LegacyVariableQueryEditor, which still reads `.textarea` from these styles through the Emotion-era hook. Use
+ * `VARIABLE_TEXTAREA_CLASS` instead.
+ */
+export function getStyles() {
+  return { textarea: VARIABLE_TEXTAREA_CLASS };
 }
