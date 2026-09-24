@@ -1,10 +1,7 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
+import { reactMonacoEditorLazyStyleProps } from './ReactMonacoEditorLazy.stylex';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { useAsyncDependency } from '../../utils/useAsyncDependency';
 import { ErrorWithStack } from '../ErrorBoundary/ErrorWithStack';
 import { LoadingPlaceholder } from '../LoadingPlaceholder/LoadingPlaceholder';
@@ -17,7 +14,6 @@ import type { ReactMonacoEditorProps } from './types';
  * Experimental export
  **/
 export const ReactMonacoEditorLazy = (props: ReactMonacoEditorProps) => {
-  const styles = useStyles2(getStyles);
   const { loading, error, dependency } = useAsyncDependency(
     import(/* webpackChunkName: "react-monaco-editor" */ './ReactMonacoEditor')
   );
@@ -26,7 +22,7 @@ export const ReactMonacoEditorLazy = (props: ReactMonacoEditorProps) => {
     return (
       <LoadingPlaceholder
         text={t('grafana-ui.monaco.loading-placeholder', 'Loading editor')}
-        className={styles.container}
+        {...reactMonacoEditorLazyStyleProps('container')}
       />
     );
   }
@@ -53,11 +49,4 @@ export const ReactMonacoEditorLazy = (props: ReactMonacoEditorProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: 'unset',
-      marginLeft: theme.spacing(1),
-    }),
-  };
-};
+;

@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { getCardContainerStyles } from '../../themes/compat/cardStyles';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { cardContainerStyleProps, cardContainerStyles } from './CardContainer.stylex';
+
+export { getCardContainerStyles };
 
 /**
  * @public
@@ -17,23 +19,14 @@ export interface CardInnerProps {
 
 /** @deprecated This component will be removed in a future release */
 const CardInner = ({ children, href }: CardInnerProps) => {
-  const { inner } = useStyles2(getCardInnerStyles);
   return href ? (
-    <a className={inner} href={href}>
+    <a {...cardContainerStyleProps('inner')} href={href}>
       {children}
     </a>
   ) : (
     <>{children}</>
   );
 };
-
-const getCardInnerStyles = (theme: GrafanaTheme2) => ({
-  inner: css({
-    display: 'flex',
-    width: '100%',
-    padding: theme.spacing(2),
-  }),
-});
 
 /**
  * @public
@@ -50,6 +43,7 @@ export interface CardContainerProps extends HTMLAttributes<HTMLOrSVGElement>, Ca
   /** Remove the bottom margin */
   noMargin?: boolean;
   hasDescriptionComponent?: boolean;
+  isCompact?: boolean;
 }
 
 /** @deprecated Using `CardContainer` directly is discouraged and should be replaced with `Card` */
@@ -62,105 +56,22 @@ export const CardContainer = ({
   href,
   noMargin,
   hasDescriptionComponent = false,
+  isCompact,
   ...props
 }: CardContainerProps) => {
-  const { oldContainer } = useStyles2(
-    getCardContainerStyles,
-    disableEvents,
-    disableHover,
-    hasDescriptionComponent,
-    isSelected,
-    undefined,
-    noMargin
+  const containerProps = mergeStylexClassName(
+    stylex.props(
+      cardContainerStyles.oldContainer,
+      noMargin && cardContainerStyles.oldContainerNoMargin,
+      disableEvents && cardContainerStyles.oldContainerDisabled,
+      !disableHover && cardContainerStyles.oldContainerHoverable
+    ),
+    className
   );
 
   return (
-    <div {...props} className={cx(oldContainer, className)}>
+    <div {...props} {...containerProps}>
       <CardInner href={href}>{children}</CardInner>
     </div>
   );
-};
-
-export const getCardContainerStyles = (
-  theme: GrafanaTheme2,
-  disabled = false,
-  disableHover = false,
-  hasDescriptionComponent: boolean,
-  isSelected?: boolean,
-  isCompact?: boolean,
-  noMargin = false
-) => {
-  const isSelectable = isSelected !== undefined;
-
-  return {
-    container: css({
-      display: 'grid',
-      position: 'relative',
-      gridTemplate: hasDescriptionComponent
-        ? `
-        "Figure Heading Tags"
-        "Figure Meta Tags"
-        "Figure Description Tags" 1fr
-        "Figure Actions Secondary" / auto 1fr auto
-      `
-        : `
-        "Figure Heading Tags" 1fr
-        "Figure Meta Tags"
-        "Figure Actions Secondary" / auto 1fr auto
-      `,
-      gridAutoColumns: '1fr',
-      gridAutoFlow: 'row',
-      width: '100%',
-      padding: theme.spacing(isCompact ? 1 : 2),
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      marginBottom: theme.spacing(noMargin ? 0 : 1),
-      pointerEvents: disabled ? 'none' : 'auto',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color', 'color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-
-      ...(!disableHover && {
-        '&:hover': {
-          background: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-          cursor: 'pointer',
-          zIndex: 1,
-        },
-        '&:focus': getFocusStyles(theme),
-      }),
-
-      ...(isSelectable && {
-        cursor: 'pointer',
-      }),
-
-      ...(isSelected && {
-        outline: `solid 2px ${theme.colors.primary.border}`,
-      }),
-    }),
-    oldContainer: css({
-      display: 'flex',
-      width: '100%',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      position: 'relative',
-      pointerEvents: disabled ? 'none' : 'auto',
-      marginBottom: theme.spacing(noMargin ? 0 : 1),
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color', 'color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-
-      ...(!disableHover && {
-        '&:hover': {
-          background: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-          cursor: 'pointer',
-          zIndex: 1,
-        },
-        '&:focus': getFocusStyles(theme),
-      }),
-    }),
-  };
 };

@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { vizLegendTableStyleProps } from './VizLegendTable.stylex'
+
 import { useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { useLimit } from '../List/hooks';
@@ -33,7 +35,6 @@ export const VizLegendTable = <T extends unknown>({
   limit = 0,
   filterAction,
 }: VizLegendTableProps<T>): JSX.Element => {
-  const styles = useStyles2(getStyles);
   const header: Record<string, string> = {
     [nameSortKey]: '',
   };
@@ -92,19 +93,20 @@ export const VizLegendTable = <T extends unknown>({
   }
 
   return (
-    <table className={cx(styles.table, className)}>
+    <table {...mergeStylexClassName(vizLegendTableStyleProps('table'), className)}>
       <thead>
         <tr>
           {Object.keys(header).map((columnTitle) => (
             <th
               title={header[columnTitle]}
               key={columnTitle}
-              className={cx(styles.header, {
-                [styles.headerSortable]: Boolean(onToggleSort),
-                [styles.nameHeader]: isSortable,
-                [styles.withIcon]: sortKey === columnTitle,
-                'sr-only': !isSortable,
-              })}
+              className={clsx(
+                vizLegendTableStyleProps('header').className,
+                Boolean(onToggleSort) && vizLegendTableStyleProps('headerSortable').className,
+                isSortable && vizLegendTableStyleProps('nameHeader').className,
+                sortKey === columnTitle && vizLegendTableStyleProps('withIcon').className,
+                !isSortable && 'sr-only'
+              )}
               onClick={() => {
                 if (onToggleSort && isSortable) {
                   onToggleSort(columnTitle);
@@ -113,7 +115,7 @@ export const VizLegendTable = <T extends unknown>({
             >
               {columnTitle === nameSortKey && filterAction && (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <span className={styles.filterAction} onClick={(e) => e.stopPropagation()}>
+                <span {...vizLegendTableStyleProps('filterAction')} onClick={(e) => e.stopPropagation()}>
                   {filterAction}
                 </span>
               )}
@@ -139,36 +141,3 @@ export const VizLegendTable = <T extends unknown>({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    width: '100%',
-    'th:first-child': {
-      width: '100%',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    },
-  }),
-  header: css({
-    color: theme.colors.primary.text,
-    fontWeight: theme.typography.fontWeightMedium,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(0.25, 1, 0.25, 1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    textAlign: 'right',
-    whiteSpace: 'nowrap',
-  }),
-  nameHeader: css({
-    textAlign: 'left',
-    paddingLeft: '30px',
-  }),
-  withIcon: css({
-    paddingRight: '4px',
-  }),
-  headerSortable: css({
-    cursor: 'pointer',
-  }),
-  filterAction: css({
-    marginLeft: theme.spacing(0.5),
-    display: 'inline-flex',
-    verticalAlign: 'middle',
-  }),
-});

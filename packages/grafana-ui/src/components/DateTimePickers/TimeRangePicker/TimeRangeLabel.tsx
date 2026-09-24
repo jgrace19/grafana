@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+
+import { timeRangeLabelStyleProps } from './TimeRangeLabel.stylex'
+
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 import { TimePickerButtonLabel, type TimeRangePickerProps } from '../TimeRangePicker';
 import { isValidTimeRange } from '../utils';
 
@@ -19,7 +19,6 @@ export const TimeRangeLabel = memo<LabelProps>(function TimePickerLabel({
   placeholder = 'No time range selected',
   className,
 }) {
-  const styles = useStyles2(getLabelStyles);
 
   if (hideText) {
     return null;
@@ -30,17 +29,10 @@ export const TimeRangeLabel = memo<LabelProps>(function TimePickerLabel({
       {isValidTimeRange(value) ? (
         <TimePickerButtonLabel value={value} timeZone={timeZone} />
       ) : (
-        <span className={styles.placeholder}>{placeholder}</span>
+        <span {...timeRangeLabelStyleProps('placeholder')}>{placeholder}</span>
       )}
     </span>
   );
 });
 
-const getLabelStyles = (theme: GrafanaTheme2) => {
-  return {
-    placeholder: css({
-      color: theme.colors.text.disabled,
-      opacity: 1,
-    }),
-  };
-};
+;

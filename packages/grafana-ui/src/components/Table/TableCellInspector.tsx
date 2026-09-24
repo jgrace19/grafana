@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+
+import { tableCellInspectorStyleProps } from './TableCellInspector.stylex'
+
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { ClipboardButton } from '../ClipboardButton/ClipboardButton';
 import { Drawer } from '../Drawer/Drawer';
 import { Stack } from '../Layout/Stack/Stack';
@@ -33,7 +33,6 @@ const toString = (value: unknown): string => {
 export function TableCellInspector({ value, onDismiss, mode }: TableCellInspectorProps) {
   const [currentMode, setMode] = useState(mode);
   const text = toString(value).trim();
-  const styles = useStyles2(getStyles);
 
   const tabs = [
     {
@@ -76,7 +75,7 @@ export function TableCellInspector({ value, onDismiss, mode }: TableCellInspecto
             wordWrap={true}
           />
         ) : (
-          <pre className={styles.textContainer}>{text}</pre>
+          <pre {...tableCellInspectorStyleProps('textContainer')}>{text}</pre>
         )}
       </Stack>
     </Drawer>
@@ -84,9 +83,3 @@ export function TableCellInspector({ value, onDismiss, mode }: TableCellInspecto
 }
 
 // TODO: should we have different empty styles?
-const getStyles = (theme: GrafanaTheme2) => ({
-  textContainer: css({
-    color: theme.colors.text.secondary,
-    minHeight: 42,
-  }),
-});

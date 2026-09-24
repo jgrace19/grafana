@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+
+import { menuGroupStyleProps } from './MenuGroup.stylex'
+
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 
 import { type MenuItemProps } from './MenuItem';
 
@@ -26,13 +26,12 @@ export interface MenuGroupProps extends Partial<MenuItemsGroup> {
 
 /** @internal */
 export const MenuGroup = ({ label, ariaLabel, children }: MenuGroupProps) => {
-  const styles = useStyles2(getStyles);
   const labelID = `group-label-${uniqueId()}`;
 
   return (
     <div role="group" aria-labelledby={!ariaLabel && label ? labelID : undefined} aria-label={ariaLabel}>
       {label && (
-        <label id={labelID} className={styles.groupLabel} aria-hidden>
+        <label id={labelID} {...menuGroupStyleProps('groupLabel')} aria-hidden>
           {label}
         </label>
       )}
@@ -43,12 +42,4 @@ export const MenuGroup = ({ label, ariaLabel, children }: MenuGroupProps) => {
 MenuGroup.displayName = 'MenuGroup';
 
 /** @internal */
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    groupLabel: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.sm,
-      padding: theme.spacing(0.5, 1),
-    }),
-  };
-};
+;

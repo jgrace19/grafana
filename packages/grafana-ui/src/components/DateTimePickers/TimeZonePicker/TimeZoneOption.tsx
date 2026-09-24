@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { timeZoneOptionStyleProps } from './TimeZoneOption.stylex'
+
 import { type PropsWithChildren, type RefCallback, type JSX } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue, getTimeZoneInfo } from '@grafana/data';
+import { type SelectableValue, getTimeZoneInfo } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 import { Icon } from '../../Icon/Icon';
 
 import { TimeZoneDescription } from './TimeZoneDescription';
@@ -28,9 +30,8 @@ export interface SelectableZone extends SelectableValue<string> {
 
 export const WideTimeZoneOption = (props: PropsWithChildren<Props>) => {
   const { children, innerProps, innerRef, data, isSelected, isFocused } = props;
-  const styles = useStyles2(getStyles);
   const timestamp = Date.now();
-  const containerStyles = cx(styles.container, isFocused && styles.containerFocused);
+  const containerStyles = clsx(timeZoneOptionStyleProps('container').className, isFocused && timeZoneOptionStyleProps('containerFocused').className);
 
   if (typeof data.value !== 'string') {
     return null;
@@ -40,13 +41,13 @@ export const WideTimeZoneOption = (props: PropsWithChildren<Props>) => {
 
   return (
     <div className={containerStyles} {...innerProps} ref={innerRef} data-testid={selectors.components.Select.option}>
-      <div className={cx(styles.leftColumn, styles.row)}>
-        <div className={cx(styles.leftColumn, styles.wideRow)}>
+      <div className={clsx(timeZoneOptionStyleProps('leftColumn').className, timeZoneOptionStyleProps('row').className)}>
+        <div className={clsx(timeZoneOptionStyleProps('leftColumn').className, timeZoneOptionStyleProps('wideRow').className)}>
           <TimeZoneTitle title={children} />
-          <div className={styles.spacer} />
+          <div {...timeZoneOptionStyleProps('spacer')} />
           <TimeZoneDescription info={timeZoneInfo} />
         </div>
-        <div className={styles.rightColumn}>
+        <div {...timeZoneOptionStyleProps('rightColumn')}>
           <TimeZoneOffset
             /* Use the timeZoneInfo to pass the correct timeZone name,
                as 'Default' has value '' which defaults to browser timezone */
@@ -67,9 +68,8 @@ export const WideTimeZoneOption = (props: PropsWithChildren<Props>) => {
 
 export const CompactTimeZoneOption = (props: React.PropsWithChildren<Props>) => {
   const { children, innerProps, innerRef, data, isSelected, isFocused } = props;
-  const styles = useStyles2(getStyles);
   const timestamp = Date.now();
-  const containerStyles = cx(styles.container, isFocused && styles.containerFocused);
+  const containerStyles = clsx(timeZoneOptionStyleProps('container').className, isFocused && timeZoneOptionStyleProps('containerFocused').className);
 
   if (typeof data.value !== 'string') {
     return null;
@@ -79,12 +79,12 @@ export const CompactTimeZoneOption = (props: React.PropsWithChildren<Props>) => 
 
   return (
     <div className={containerStyles} {...innerProps} ref={innerRef} data-testid={selectors.components.Select.option}>
-      <div className={styles.body}>
-        <div className={styles.row}>
-          <div className={styles.leftColumn}>
+      <div {...timeZoneOptionStyleProps('body')}>
+        <div {...timeZoneOptionStyleProps('row')}>
+          <div {...timeZoneOptionStyleProps('leftColumn')}>
             <TimeZoneTitle title={children} />
           </div>
-          <div className={styles.rightColumn}>
+          <div {...timeZoneOptionStyleProps('rightColumn')}>
             {isSelected && (
               <span>
                 <Icon name="check" />
@@ -92,11 +92,11 @@ export const CompactTimeZoneOption = (props: React.PropsWithChildren<Props>) => 
             )}
           </div>
         </div>
-        <div className={styles.row}>
-          <div className={styles.leftColumn}>
+        <div {...timeZoneOptionStyleProps('row')}>
+          <div {...timeZoneOptionStyleProps('leftColumn')}>
             <TimeZoneDescription info={timeZoneInfo} />
           </div>
-          <div className={styles.rightColumn}>
+          <div {...timeZoneOptionStyleProps('rightColumn')}>
             <TimeZoneOffset
               timestamp={timestamp}
               /* Use the timeZoneInfo to pass the correct timeZone name,
@@ -111,47 +111,3 @@ export const CompactTimeZoneOption = (props: React.PropsWithChildren<Props>) => 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-    padding: '6px 8px 4px',
-
-    '&:hover': {
-      background: theme.colors.action.hover,
-    },
-  }),
-  containerFocused: css({
-    background: theme.colors.action.hover,
-  }),
-  body: css({
-    display: 'flex',
-    fontWeight: theme.typography.fontWeightMedium,
-    flexDirection: 'column',
-    flexGrow: 1,
-  }),
-  row: css({
-    display: 'flex',
-    flexDirection: 'row',
-  }),
-  leftColumn: css({
-    flexGrow: 1,
-    textOverflow: 'ellipsis',
-  }),
-  rightColumn: css({
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  }),
-  wideRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  }),
-  spacer: css({
-    marginLeft: '6px',
-  }),
-});

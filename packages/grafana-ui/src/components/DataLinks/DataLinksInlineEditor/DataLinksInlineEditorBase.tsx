@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+
+import { dataLinksInlineEditorBaseStyleProps } from './DataLinksInlineEditorBase.stylex'
+
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { cloneDeep } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { type Action, type DataFrame, type DataLink, type GrafanaTheme2 } from '@grafana/data';
+import { type Action, type DataFrame, type DataLink, } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 import { Button } from '../../Button/Button';
 import { Modal } from '../../Modal/Modal';
 
@@ -41,8 +42,6 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
   useEffect(() => {
     setItemsSafe(items ?? []);
   }, [items]);
-
-  const styles = useStyles2(getDataLinksInlineEditorStyles);
   const isEditing = editIndex !== null;
 
   const _onChange = (index: number, item: T) => {
@@ -130,11 +129,11 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
   };
 
   return (
-    <div className={styles.container}>
+    <div {...dataLinksInlineEditorBaseStyleProps('container')}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sortable-links" direction="vertical">
           {(provided) => (
-            <div className={styles.wrapper} ref={provided.innerRef} {...provided.droppableProps}>
+            <div {...dataLinksInlineEditorBaseStyleProps('wrapper')} ref={provided.innerRef} {...provided.droppableProps}>
               {itemsSafe.map((item, idx) => {
                 const key = `${item.title}/${idx}`;
                 return (
@@ -169,23 +168,10 @@ export function DataLinksInlineEditorBase<T extends DataLink | Action>({
         </Modal>
       )}
 
-      <Button size="sm" icon="plus" onClick={onDataLinkAdd} variant="secondary" className={styles.button}>
+      <Button size="sm" icon="plus" onClick={onDataLinkAdd} variant="secondary" {...dataLinksInlineEditorBaseStyleProps('button')}>
         {getItemText('add')}
       </Button>
     </div>
   );
 }
 
-const getDataLinksInlineEditorStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'relative',
-  }),
-  wrapper: css({
-    marginBottom: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  button: css({
-    marginLeft: theme.spacing(1),
-  }),
-});

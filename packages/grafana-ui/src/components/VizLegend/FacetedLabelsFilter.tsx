@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { facetedLabelsFilterStyleProps } from './FacetedLabelsFilter.stylex'
+
 import { useCallback, useState } from 'react';
 
-import { FIELD_NAME_FACET_KEY, type GrafanaTheme2 } from '@grafana/data';
+import { FIELD_NAME_FACET_KEY, } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Checkbox } from '../Forms/Checkbox';
 import { Icon } from '../Icon/Icon';
 
@@ -20,7 +22,6 @@ export interface FacetedLabelsFilterProps {
 }
 
 export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: FacetedLabelsFilterProps) {
-  const styles = useStyles2(getStyles);
   const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>({});
   const labelKeys = Object.keys(labels);
 
@@ -68,10 +69,10 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
             label={value}
             value={selectedValues.includes(value)}
             onChange={() => toggleValue(key, value)}
-            className={styles.checkbox}
+            {...facetedLabelsFilterStyleProps('checkbox')}
           />
         ))}
-        <button type="button" className={styles.toggleAll} onClick={() => toggleAllForKey(key)}>
+        <button type="button" {...facetedLabelsFilterStyleProps('toggleAll')} onClick={() => toggleAllForKey(key)}>
           {selectedValues.length === values.length ? (
             <Trans i18nKey="grafana-ui.viz-legend.faceted-deselect-all">Deselect all</Trans>
           ) : (
@@ -83,32 +84,47 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
   };
 
   return (
-    <div className={cx(styles.container, dimmed && styles.dimmed)} data-testid="faceted-labels-filter">
+    <div
+      className={clsx(
+        facetedLabelsFilterStyleProps('container').className,
+        dimmed && facetedLabelsFilterStyleProps('dimmed').className
+      )}
+      data-testid="faceted-labels-filter"
+    >
       {seriesValues && (
-        <div className={styles.section}>
-          <span className={styles.sectionLabel}>
+        <div {...facetedLabelsFilterStyleProps('section')}>
+          <span {...facetedLabelsFilterStyleProps('sectionLabel')}>
             <Trans i18nKey="grafana-ui.viz-legend.faceted-by-name">By name</Trans>
           </span>
-          {renderCheckboxList(FIELD_NAME_FACET_KEY, seriesValues, styles.checkboxList)}
+          {renderCheckboxList(
+            FIELD_NAME_FACET_KEY,
+            seriesValues,
+            facetedLabelsFilterStyleProps('checkboxList').className ?? ''
+          )}
         </div>
       )}
 
       {realLabelKeys.length > 0 && (
-        <div className={styles.section}>
-          <span className={styles.sectionLabel}>
+        <div {...facetedLabelsFilterStyleProps('section')}>
+          <span {...facetedLabelsFilterStyleProps('sectionLabel')}>
             <Trans i18nKey="grafana-ui.viz-legend.faceted-by-labels">By labels</Trans>
           </span>
           {realLabelKeys.map((key) => {
             const selectedValues = selected[key] ?? [];
             const isExpanded = expandedKeys[key] ?? false;
             return (
-              <div key={key} className={styles.labelGroup}>
-                <button type="button" className={styles.labelKey} onClick={() => toggleExpanded(key)}>
+              <div key={key} {...facetedLabelsFilterStyleProps('labelGroup')}>
+                <button type="button" {...facetedLabelsFilterStyleProps('labelKey')} onClick={() => toggleExpanded(key)}>
                   <Icon name={isExpanded ? 'angle-down' : 'angle-right'} size="sm" />
-                  <span className={styles.keyName}>{key}</span>
-                  {selectedValues.length > 0 && <span className={styles.count}>{selectedValues.length}</span>}
+                  <span {...facetedLabelsFilterStyleProps('keyName')}>{key}</span>
+                  {selectedValues.length > 0 && <span {...facetedLabelsFilterStyleProps('count')}>{selectedValues.length}</span>}
                 </button>
-                {isExpanded && renderCheckboxList(key, labels[key], styles.checkboxListIndented)}
+                {isExpanded &&
+                  renderCheckboxList(
+                    key,
+                    labels[key],
+                    facetedLabelsFilterStyleProps('checkboxListIndented').className ?? ''
+                  )}
               </div>
             );
           })}
@@ -120,80 +136,3 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
 
 FacetedLabelsFilter.displayName = 'FacetedLabelsFilter';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    minWidth: '150px',
-    padding: theme.spacing(1.5, 1, 1, 1),
-    gap: theme.spacing(1),
-  }),
-  dimmed: css({
-    opacity: 0.5,
-  }),
-  section: css({
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  sectionLabel: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(0.25),
-  }),
-  toggleAll: css({
-    all: 'unset',
-    cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.link,
-    marginTop: theme.spacing(0.25),
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  }),
-  labelGroup: css({
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  labelKey: css({
-    all: 'unset',
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    cursor: 'pointer',
-    padding: theme.spacing(0.25, 0),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.primary,
-    '&:hover': {
-      color: theme.colors.text.maxContrast,
-    },
-  }),
-  keyName: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  count: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.primary.text,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  checkboxList: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: theme.spacing(0.25),
-    padding: theme.spacing(0, 0, 0.5, 0.5),
-  }),
-  checkboxListIndented: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: theme.spacing(0.25),
-    padding: theme.spacing(0, 0, 0.5, 2.5),
-  }),
-  checkbox: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-});

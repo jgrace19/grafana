@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+
+import { vizLegendStatsListStyleProps } from './VizLegendStatsList.stylex'
+
 import { capitalize } from 'lodash';
 
 import { type DisplayValue, formattedValueToString } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineList } from '../List/InlineList';
 
 interface Props {
@@ -14,7 +15,6 @@ interface Props {
  * @internal
  */
 export const VizLegendStatsList = ({ stats }: Props) => {
-  const styles = useStyles2(getStyles);
 
   if (stats.length === 0) {
     return null;
@@ -22,10 +22,10 @@ export const VizLegendStatsList = ({ stats }: Props) => {
 
   return (
     <InlineList
-      className={styles.list}
+      {...vizLegendStatsListStyleProps('list')}
       items={stats}
       renderItem={(stat) => (
-        <div className={styles.item} title={stat.description}>
+        <div {...vizLegendStatsListStyleProps('item')} title={stat.description}>
           {stat.title && `${capitalize(stat.title)}:`} {formattedValueToString(stat)}
         </div>
       )}
@@ -33,14 +33,5 @@ export const VizLegendStatsList = ({ stats }: Props) => {
   );
 };
 
-const getStyles = () => ({
-  list: css({
-    flexGrow: 1,
-    textAlign: 'right',
-  }),
-  item: css({
-    marginLeft: '8px',
-  }),
-});
 
 VizLegendStatsList.displayName = 'VizLegendStatsList';

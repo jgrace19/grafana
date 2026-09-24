@@ -1,29 +1,21 @@
-import { css } from '@emotion/css';
+
+import { timeZoneTitleStyleProps } from './TimeZoneTitle.stylex'
+
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 
 interface Props {
   title: string | ReactNode;
 }
 
 export const TimeZoneTitle = ({ title }: Props) => {
-  const styles = useStyles2(getStyles);
 
   if (!title) {
     return null;
   }
 
-  return <span className={styles.title}>{title}</span>;
+  return <span {...timeZoneTitleStyleProps('title')}>{title}</span>;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    title: css({
-      fontWeight: theme.typography.fontWeightRegular,
-      textOverflow: 'ellipsis',
-    }),
-  };
-};
+;

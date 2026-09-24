@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
-
+import { variablesInputModalStyleProps } from './VariablesInputModal.stylex';
 import { type ActionModel, type ActionVariableInput } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Field } from '../Forms/Field';
 import { FieldSet } from '../Forms/FieldSet';
@@ -22,7 +20,6 @@ interface Props {
  * @internal
  */
 export function VariablesInputModal({ action, onDismiss, onShowConfirm, variables, setVariables }: Props) {
-  const styles = useStyles2(getStyles);
 
   const onModalContinue = () => {
     onDismiss();
@@ -34,7 +31,7 @@ export function VariablesInputModal({ action, onDismiss, onShowConfirm, variable
       isOpen={true}
       title={t('grafana-ui.action-editor.button.action-variables-title', 'Action variables')}
       onDismiss={onDismiss}
-      className={styles.variablesModal}
+      {...variablesInputModalStyleProps('variablesModal')}
     >
       <FieldSet>
         {action.variables!.map((variable) => (
@@ -63,10 +60,4 @@ export function VariablesInputModal({ action, onDismiss, onShowConfirm, variable
   );
 }
 
-const getStyles = () => {
-  return {
-    variablesModal: css({
-      zIndex: 10000,
-    }),
-  };
-};
+;

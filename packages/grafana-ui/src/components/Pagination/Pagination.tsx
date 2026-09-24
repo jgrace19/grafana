@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { paginationStyleProps } from './Pagination.stylex'
+
 import { useMemo, type JSX } from 'react';
 
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Button, type ButtonVariant } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 
@@ -37,7 +39,6 @@ export const Pagination = ({
   className,
   hasNextPage,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const pageLengthToCondense = showSmallVersion ? 1 : 8;
 
   const pageButtons = useMemo(() => {
@@ -45,7 +46,7 @@ export const Pagination = ({
 
     const condensePages = numberOfPages > pageLengthToCondense;
     const getListItem = (page: number, variant: 'primary' | 'secondary') => (
-      <li key={page} className={styles.item}>
+      <li key={page} {...paginationStyleProps('item')}>
         <Button size="sm" variant={variant} onClick={() => onNavigate(page)}>
           {page}
         </Button>
@@ -91,8 +92,8 @@ export const Pagination = ({
         ) {
           // Renders and ellipsis to represent condensed pages
           pagesToRender.push(
-            <li key={page} className={styles.item}>
-              <Icon className={styles.ellipsis} name="ellipsis-v" data-testid="pagination-ellipsis-icon" />
+            <li key={page} {...paginationStyleProps('item')}>
+              <Icon {...paginationStyleProps('ellipsis')} name="ellipsis-v" data-testid="pagination-ellipsis-icon" />
             </li>
           );
         }
@@ -101,7 +102,7 @@ export const Pagination = ({
       }
       return pagesToRender;
     }, []);
-  }, [currentPage, numberOfPages, onNavigate, pageLengthToCondense, showSmallVersion, styles.ellipsis, styles.item]);
+  }, [currentPage, numberOfPages, onNavigate, pageLengthToCondense, showSmallVersion, paginationStyleProps('ellipsis'), paginationStyleProps('item')]);
 
   if (hideWhenSinglePage && numberOfPages <= 1) {
     return null;
@@ -111,9 +112,9 @@ export const Pagination = ({
   const nextPageLabel = t('grafana-ui.pagination.next-page', 'next page');
 
   return (
-    <div className={cx(styles.container, className)} role="navigation">
+    <div {...mergeStylexClassName(paginationStyleProps('container'), className)} role="navigation">
       <ol>
-        <li className={styles.item}>
+        <li {...paginationStyleProps('item')}>
           <Button
             aria-label={previousPageLabel}
             size="sm"
@@ -125,8 +126,8 @@ export const Pagination = ({
           </Button>
         </li>
         {pageButtons}
-        {pageButtons.length === 0 && <li className={styles.item}>{currentPage}</li>}
-        <li className={styles.item}>
+        {pageButtons.length === 0 && <li {...paginationStyleProps('item')}>{currentPage}</li>}
+        <li {...paginationStyleProps('item')}>
           <Button
             aria-label={nextPageLabel}
             size="sm"
@@ -142,18 +143,4 @@ export const Pagination = ({
   );
 };
 
-const getStyles = () => {
-  return {
-    container: css({
-      float: 'right',
-    }),
-    item: css({
-      display: 'inline-block',
-      paddingLeft: '10px',
-      marginBottom: '5px',
-    }),
-    ellipsis: css({
-      transform: 'rotate(90deg)',
-    }),
-  };
-};
+;

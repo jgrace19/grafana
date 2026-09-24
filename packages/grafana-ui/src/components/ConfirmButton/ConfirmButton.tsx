@@ -1,11 +1,12 @@
-import { cx, css } from '@emotion/css';
+import clsx from 'clsx';
+
+import { confirmButtonStyleProps } from './ConfirmButton.stylex'
+
 import { type ReactElement, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { type ComponentSize } from '../../types/size';
 import { Button, type ButtonVariant } from '../Button/Button';
 
@@ -52,7 +53,6 @@ export const ConfirmButton = ({
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [shouldRestoreFocus, setShouldRestoreFocus] = useState(false);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     if (showConfirm) {
@@ -94,18 +94,22 @@ export const ConfirmButton = ({
     }
   };
 
-  const buttonClass = cx(className, styles.mainButton, {
-    [styles.mainButtonHide]: showConfirm,
-  });
-  const confirmButtonClass = cx(styles.confirmButton, {
-    [styles.confirmButtonHide]: !showConfirm,
-  });
-  const confirmButtonContainerClass = cx(styles.confirmButtonContainer, {
-    [styles.confirmButtonContainerHide]: !showConfirm,
-  });
+  const buttonClass = clsx(
+    className,
+    confirmButtonStyleProps('mainButton').className,
+    showConfirm && confirmButtonStyleProps('mainButtonHide').className
+  );
+  const confirmButtonClass = clsx(
+    confirmButtonStyleProps('confirmButton').className,
+    !showConfirm && confirmButtonStyleProps('confirmButtonHide').className
+  );
+  const confirmButtonContainerClass = clsx(
+    confirmButtonStyleProps('confirmButtonContainer').className,
+    !showConfirm && confirmButtonStyleProps('confirmButtonContainerHide').className
+  );
 
   return (
-    <div className={styles.container}>
+    <div {...confirmButtonStyleProps('container')}>
       <span className={buttonClass}>
         {typeof children === 'string' ? (
           <Button disabled={disabled} size={size} fill="text" onClick={onClickButton} ref={mainButtonRef}>
@@ -130,69 +134,4 @@ export const ConfirmButton = ({
 };
 ConfirmButton.displayName = 'ConfirmButton';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      alignItems: 'center',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      position: 'relative',
-    }),
-    mainButton: css({
-      opacity: 1,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeOut,
-        }),
-      },
-      zIndex: 2,
-    }),
-    mainButtonHide: css({
-      opacity: 0,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'visibility'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeIn,
-        }),
-      },
-      visibility: 'hidden',
-      zIndex: 0,
-    }),
-    confirmButtonContainer: css({
-      overflow: 'visible',
-      position: 'absolute',
-      pointerEvents: 'all',
-      right: 0,
-    }),
-    confirmButtonContainerHide: css({
-      overflow: 'hidden',
-      pointerEvents: 'none',
-    }),
-    confirmButton: css({
-      alignItems: 'flex-start',
-      background: theme.colors.background.primary,
-      display: 'flex',
-      opacity: 1,
-      transform: 'translateX(0)',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'transform'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeOut,
-        }),
-      },
-      zIndex: 1,
-    }),
-    confirmButtonHide: css({
-      opacity: 0,
-      transform: 'translateX(100%)',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['opacity', 'transform', 'visibility'], {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeIn,
-        }),
-      },
-      visibility: 'hidden',
-    }),
-  };
-};
+;

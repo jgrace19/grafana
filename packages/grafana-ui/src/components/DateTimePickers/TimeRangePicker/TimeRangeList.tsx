@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+
+import { timeRangeListStyleProps } from './TimeRangeList.stylex'
+
 import { useRef, type ReactNode } from 'react';
 
-import { type GrafanaTheme2, type TimeOption } from '@grafana/data';
+import { type TimeOption } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 
 import { TimePickerTitle } from './TimePickerTitle';
 import { TimeRangeOption } from './TimeRangeOption';
@@ -19,7 +20,6 @@ interface Props {
 }
 
 export const TimeRangeList = (props: Props) => {
-  const styles = useStyles2(getStyles);
   const { title, options, placeholderEmpty } = props;
 
   if (typeof placeholderEmpty !== 'undefined' && options.length <= 0) {
@@ -33,7 +33,7 @@ export const TimeRangeList = (props: Props) => {
   return (
     <section aria-label={title}>
       <fieldset>
-        <div className={styles.title}>
+        <div {...timeRangeListStyleProps('title')}>
           <TimePickerTitle>{title}</TimePickerTitle>
         </div>
         <Options {...props} />
@@ -43,7 +43,6 @@ export const TimeRangeList = (props: Props) => {
 };
 
 const Options = ({ options, value, onChange, title }: Props) => {
-  const styles = useStyles2(getOptionsStyles);
 
   const localRef = useRef<HTMLUListElement>(null);
   const [handleKeys] = useListFocus({ localRef, options });
@@ -55,7 +54,7 @@ const Options = ({ options, value, onChange, title }: Props) => {
         onKeyDown={handleKeys}
         ref={localRef}
         aria-roledescription={t('time-picker.time-range.aria-role', 'Time range selection')}
-        className={styles.list}
+        {...timeRangeListStyleProps('list')}
       >
         {options.map((option, index) => (
           <TimeRangeOption
@@ -82,17 +81,3 @@ function isEqual(x: TimeOption, y?: TimeOption): boolean {
   return y.from === x.from && y.to === x.to;
 }
 
-const getStyles = () => ({
-  title: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '8px 16px 5px 9px',
-  }),
-});
-
-const getOptionsStyles = (theme: GrafanaTheme2) => ({
-  list: css({
-    padding: theme.spacing(0.5),
-  }),
-});

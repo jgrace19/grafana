@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { loadingPlaceholderStyleProps } from './LoadingPlaceholder.stylex'
+
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Spinner } from '../Spinner/Spinner';
 
 /**
@@ -21,18 +22,11 @@ export interface LoadingPlaceholderProps extends HTMLAttributes<HTMLDivElement> 
  * @public
  */
 export const LoadingPlaceholder = ({ text, className, ...rest }: LoadingPlaceholderProps) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.container, className)} {...rest}>
+    <div {...mergeStylexClassName(loadingPlaceholderStyleProps('container'), className)} {...rest}>
       {text} <Spinner inline={true} />
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: theme.spacing(4),
-    }),
-  };
-};
+;

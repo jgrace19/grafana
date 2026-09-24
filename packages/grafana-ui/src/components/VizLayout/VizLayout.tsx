@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+
+import { vizLayoutStyleProps } from './VizLayout.stylex'
+
 import { type FC, type CSSProperties, type ComponentType } from 'react';
 import * as React from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { type LegendPlacement } from '@grafana/schema';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 
 /**
@@ -35,7 +35,6 @@ export interface VizLayoutComponentType extends FC<VizLayoutProps> {
  */
 export const VizLayout: VizLayoutComponentType = ({ width, height, legend, children }) => {
   const theme = useTheme2();
-  const styles = useStyles2(getVizStyles);
   const containerStyle: CSSProperties = {
     display: 'flex',
     width: `${width}px`,
@@ -46,7 +45,7 @@ export const VizLayout: VizLayoutComponentType = ({ width, height, legend, child
   if (!legend) {
     return (
       <>
-        <div style={containerStyle} className={styles.viz} data-testid={selectors.components.VizLayout.container}>
+        <div style={containerStyle} {...vizLayoutStyleProps('viz')} data-testid={selectors.components.VizLayout.container}>
           {children(width, height)}
         </div>
       </>
@@ -99,7 +98,7 @@ export const VizLayout: VizLayoutComponentType = ({ width, height, legend, child
 
   return (
     <div style={containerStyle} data-testid={selectors.components.VizLayout.container}>
-      <div className={styles.viz}>{size && children(size.width, size.height)}</div>
+      <div {...vizLayoutStyleProps('viz')}>{size && children(size.width, size.height)}</div>
       <div style={legendStyle} ref={legendRef} data-testid={selectors.components.VizLayout.legend}>
         <ScrollContainer>{legend}</ScrollContainer>
       </div>
@@ -107,15 +106,7 @@ export const VizLayout: VizLayoutComponentType = ({ width, height, legend, child
   );
 };
 
-export const getVizStyles = (theme: GrafanaTheme2) => {
-  return {
-    viz: css({
-      flexGrow: 2,
-      borderRadius: theme.shape.radius.default,
-      '&:focus-visible': getFocusStyles(theme),
-    }),
-  };
-};
+;
 interface VizSize {
   width: number;
   height: number;

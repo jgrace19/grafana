@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+
+import { segmentSectionStyleProps } from './SegmentSection.stylex'
+
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineFieldRow } from '../Forms/InlineFieldRow';
 import { InlineLabel } from '../Forms/InlineLabel';
 
@@ -27,16 +27,15 @@ export const SegmentSection = ({
   // Fill the space at the end
   fill?: boolean;
 }) => {
-  const styles = useStyles2(getStyles);
   return (
     <>
       <InlineFieldRow>
-        <InlineLabel htmlFor={htmlFor} width={12} className={styles.label}>
+        <InlineLabel htmlFor={htmlFor} width={12} {...segmentSectionStyleProps('label')}>
           {label}
         </InlineLabel>
         {children}
         {fill && (
-          <div className={styles.fill}>
+          <div {...segmentSectionStyleProps('fill')}>
             <InlineLabel>{''}</InlineLabel>
           </div>
         )}
@@ -45,12 +44,3 @@ export const SegmentSection = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  label: css({
-    color: theme.colors.primary.text,
-  }),
-  fill: css({
-    flexGrow: 1,
-    marginBottom: theme.spacing(0.5),
-  }),
-});

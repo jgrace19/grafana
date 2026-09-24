@@ -1,11 +1,14 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import clsx from 'clsx';
+
+import { tagsInputStyleProps } from './TagsInput.stylex';
+
 import { useCallback, useState, forwardRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 
@@ -52,7 +55,6 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
   ) => {
     const placeholder = placeholderProp ?? t('grafana-ui.tags-input.placeholder-new-tag', 'New tag (enter key to add)');
     const [newTagName, setNewTagName] = useState('');
-    const styles = useStyles2(getStyles);
     const theme = useTheme2();
     const isTagTooLong = newTagName.length > 50;
 
@@ -88,7 +90,7 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
     };
 
     return (
-      <div className={cx(styles.wrapper, className, width ? css({ width: theme.spacing(width) }) : '')}>
+      <div className={clsx(tagsInputStyleProps('wrapper'), className, width ? css({ width: theme.spacing(width) }) : '')}>
         <Input
           ref={ref}
           id={id}
@@ -102,7 +104,7 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
           suffix={
             <Button
               fill="text"
-              className={styles.addButtonStyle}
+              {...tagsInputStyleProps('addButtonStyle')}
               onClick={onAdd}
               size="md"
               disabled={newTagName.length <= 0 || isTagTooLong}
@@ -115,7 +117,7 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
           }
         />
         {tags?.length > 0 && (
-          <ul className={styles.tags}>
+          <ul {...tagsInputStyleProps('tags')}>
             {tags.map((tag) => (
               <TagItem key={tag} name={tag} onRemove={onRemove} disabled={disabled} autoColors={autoColors} />
             ))}
@@ -128,21 +130,3 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
 
 TagsInput.displayName = 'TagsInput';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    minHeight: theme.spacing(4),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    flexWrap: 'wrap',
-  }),
-  tags: css({
-    display: 'flex',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-    gap: theme.spacing(0.5),
-  }),
-  addButtonStyle: css({
-    margin: `0 -${theme.spacing(1)}`,
-  }),
-});

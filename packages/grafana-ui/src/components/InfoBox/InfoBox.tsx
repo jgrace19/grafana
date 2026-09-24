@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { infoBoxStyleProps } from './InfoBox.stylex'
+
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Alert, type AlertVariant } from '../Alert/Alert';
 import { Icon } from '../Icon/Icon';
 
@@ -32,7 +33,6 @@ export interface InfoBoxProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
 export const InfoBox = React.memo(
   React.forwardRef<HTMLDivElement, InfoBoxProps>(
     ({ title, className, children, branded, url, urlTitle, onDismiss, severity = 'info', ...otherProps }, ref) => {
-      const styles = useStyles2(getStyles);
 
       return (
         // component is deprecated so no point fixing this
@@ -40,7 +40,7 @@ export const InfoBox = React.memo(
         <Alert severity={severity} className={className} {...otherProps} ref={ref} title={title as string}>
           <div>{children}</div>
           {url && (
-            <a href={url} className={cx('external-link', styles.docsLink)} target="_blank" rel="noreferrer">
+            <a href={url} className={clsx('external-link', infoBoxStyleProps('docsLink'))} target="_blank" rel="noreferrer">
               <Icon name="book" /> {urlTitle || 'Read more'}
             </a>
           )}
@@ -52,9 +52,3 @@ export const InfoBox = React.memo(
 
 InfoBox.displayName = 'InfoBox';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  docsLink: css({
-    display: 'inline-block',
-    marginTop: theme.spacing(2),
-  }),
-});

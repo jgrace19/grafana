@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { confirmModalStyleProps } from './ConfirmModal.stylex'
+
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { type ButtonVariant } from '../Button/Button';
 import { Modal } from '../Modal/Modal';
 
@@ -68,10 +70,9 @@ export const ConfirmModal = ({
   confirmButtonVariant = 'destructive',
   disabled,
 }: ConfirmModalProps): JSX.Element => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <Modal className={cx(styles.modal, modalClass)} title={title} isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal className={clsx(confirmModalStyleProps('modal'), modalClass)} title={title} isOpen={isOpen} onDismiss={onDismiss}>
       <ConfirmContent
         body={body}
         description={description}
@@ -90,8 +91,3 @@ export const ConfirmModal = ({
   );
 };
 
-const getStyles = () => ({
-  modal: css({
-    width: '500px',
-  }),
-});

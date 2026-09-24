@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { dataLinkSuggestionsStyleProps } from './DataLinkSuggestions.stylex'
+
 import { groupBy, capitalize } from 'lodash';
 import { useRef, useMemo } from 'react';
 import * as React from 'react';
 import { useClickAway } from 'react-use';
 
-import { type VariableSuggestion, type GrafanaTheme2 } from '@grafana/data';
+import { type VariableSuggestion, } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { List } from '../List/List';
 
 interface DataLinkSuggestionsProps {
@@ -17,43 +19,7 @@ interface DataLinkSuggestionsProps {
   onClose?: () => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    list: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      '&:last-child': {
-        border: 'none',
-      },
-    }),
-    wrapper: css({
-      background: theme.colors.background.primary,
-      width: '250px',
-    }),
-    item: css({
-      background: 'none',
-      padding: '2px 8px',
-      userSelect: 'none',
-      color: theme.colors.text.primary,
-      cursor: 'pointer',
-      '&:hover': {
-        background: theme.colors.action.hover,
-      },
-    }),
-    label: css({
-      color: theme.colors.text.secondary,
-    }),
-    activeItem: css({
-      background: theme.colors.background.secondary,
-      '&:hover': {
-        background: theme.colors.background.secondary,
-      },
-    }),
-    itemValue: css({
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.size.sm,
-    }),
-  };
-};
+;
 
 export const DataLinkSuggestions = ({ suggestions, ...otherProps }: DataLinkSuggestionsProps) => {
   const ref = useRef(null);
@@ -68,10 +34,8 @@ export const DataLinkSuggestions = ({ suggestions, ...otherProps }: DataLinkSugg
     return groupBy(suggestions, (s) => s.origin);
   }, [suggestions]);
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div role="menu" ref={ref} className={styles.wrapper}>
+    <div role="menu" ref={ref} {...dataLinkSuggestionsStyleProps('wrapper')}>
       {Object.keys(groupedSuggestions).map((key, i) => {
         const indexOffset =
           i === 0
@@ -116,12 +80,11 @@ const DataLinkSuggestionsList = React.memo(
     suggestions,
     activeRef: selectedRef,
   }: DataLinkSuggestionsListProps) => {
-    const styles = useStyles2(getStyles);
 
     return (
       <>
         <List
-          className={styles.list}
+          {...dataLinkSuggestionsStyleProps('list')}
           items={suggestions}
           renderItem={(item, index) => {
             const isActive = index + activeIndexOffset === activeIndex;
@@ -131,15 +94,15 @@ const DataLinkSuggestionsList = React.memo(
               <div
                 role="menuitem"
                 tabIndex={0}
-                className={cx(styles.item, isActive && styles.activeItem)}
+                className={clsx(dataLinkSuggestionsStyleProps('item'), isActive && dataLinkSuggestionsStyleProps('activeItem'))}
                 ref={isActive ? selectedRef : undefined}
                 onClick={() => {
                   onSuggestionSelect(item);
                 }}
                 title={item.documentation}
               >
-                <span className={styles.itemValue}>
-                  <span className={styles.label}>{label}</span> {item.label}
+                <span {...dataLinkSuggestionsStyleProps('itemValue')}>
+                  <span {...dataLinkSuggestionsStyleProps('label')}>{label}</span> {item.label}
                 </span>
               </div>
             );

@@ -1,13 +1,11 @@
-import { css } from '@emotion/css';
 import { memo } from 'react';
 import Calendar from 'react-calendar';
-
-import { type GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
 import { ClickOutsideWrapper } from '../../ClickOutsideWrapper/ClickOutsideWrapper';
 import { Icon } from '../../Icon/Icon';
 import { getBodyStyles } from '../TimeRangePicker/CalendarBody';
+import { datePickerStyleProps } from './DatePicker.stylex';
 
 /** @public */
 export interface DatePickerProps {
@@ -26,7 +24,6 @@ export interface DatePickerProps {
  * @public
  * */
 export const DatePicker = memo<DatePickerProps>((props) => {
-  const styles = useStyles2(getStyles);
   const { isOpen, onClose } = props;
 
   if (!isOpen) {
@@ -35,7 +32,7 @@ export const DatePicker = memo<DatePickerProps>((props) => {
 
   return (
     <ClickOutsideWrapper useCapture={true} includeButtonPress={false} onClick={onClose}>
-      <div className={styles.modal} data-testid="date-picker">
+      <div {...datePickerStyleProps('modal')} data-testid="date-picker">
         <Body {...props} />
       </div>
     </ClickOutsideWrapper>
@@ -67,20 +64,3 @@ const Body = memo<DatePickerProps>(({ value, minDate, maxDate, onChange }) => {
 });
 
 Body.displayName = 'Body';
-
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      zIndex: theme.zIndex.modal,
-      boxShadow: theme.shadows.z3,
-      backgroundColor: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderTopLeftRadius: theme.shape.radius.default,
-      borderBottomLeftRadius: theme.shape.radius.default,
-
-      'button:disabled': {
-        color: theme.colors.text.disabled,
-      },
-    }),
-  };
-};

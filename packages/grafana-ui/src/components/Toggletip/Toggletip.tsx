@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { toggletipStyleProps } from './Toggletip.stylex';
+
 import {
   arrow,
   autoUpdate,
@@ -11,12 +14,11 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { type Placement } from '@popperjs/core';
-import { memo, cloneElement, isValidElement, useRef, useState, type JSX } from 'react';
+import { memo, cloneElement, isValidElement, useMemo, useRef, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { buildTooltipTheme, getPlacement } from '../../utils/tooltipUtils';
 import { IconButton } from '../IconButton/IconButton';
@@ -73,8 +75,26 @@ export const Toggletip = memo(
   }: ToggletipProps) => {
     const arrowRef = useRef(null);
     const grafanaTheme = useTheme2();
-    const styles = useStyles2(getStyles);
-    const style = styles[theme];
+    const tooltipThemes = useMemo(
+      () => ({
+        info: buildTooltipTheme(
+          grafanaTheme,
+          grafanaTheme.colors.background.primary,
+          grafanaTheme.colors.border.weak,
+          grafanaTheme.components.tooltip.text,
+          { topBottom: 2, rightLeft: 2 }
+        ),
+        error: buildTooltipTheme(
+          grafanaTheme,
+          grafanaTheme.colors.error.main,
+          grafanaTheme.colors.error.main,
+          grafanaTheme.colors.error.contrastText,
+          { topBottom: 2, rightLeft: 2 }
+        ),
+      }),
+      [grafanaTheme]
+    );
+    const style = tooltipThemes[theme];
     const [controlledVisible, setControlledVisible] = useState(show);
     const isOpen = show ?? controlledVisible;
     const floatingUIPlacement = getPlacement(placement);
@@ -126,9 +146,7 @@ export const Toggletip = memo(
             <FloatingFocusManager context={context} modal={true} getInsideElements={() => [getPortalContainer()]}>
               <div
                 data-testid="toggletip-content"
-                className={cx(style.container, {
-                  [styles.fitContent]: fitContent,
-                })}
+                className={clsx(style.container, fitContent && toggletipStyleProps('fitContent').className)}
                 ref={refs.setFloating}
                 style={floatingStyles}
                 {...getFloatingProps()}
@@ -169,28 +187,3 @@ export const Toggletip = memo(
 );
 
 Toggletip.displayName = 'Toggletip';
-
-export const getStyles = (theme: GrafanaTheme2) => {
-  const info = buildTooltipTheme(
-    theme,
-    theme.colors.background.primary,
-    theme.colors.border.weak,
-    theme.components.tooltip.text,
-    { topBottom: 2, rightLeft: 2 }
-  );
-  const error = buildTooltipTheme(
-    theme,
-    theme.colors.error.main,
-    theme.colors.error.main,
-    theme.colors.error.contrastText,
-    { topBottom: 2, rightLeft: 2 }
-  );
-
-  return {
-    info,
-    error,
-    fitContent: css({
-      maxWidth: 'fit-content',
-    }),
-  };
-};

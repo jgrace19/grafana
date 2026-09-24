@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+
+import { tabsBarStyleProps } from './TabsBar.stylex'
+
 import { forwardRef, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 
 export interface Props {
   /** Children should be a single <Tab /> or an array of <Tab /> */
@@ -19,30 +20,14 @@ export interface Props {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/navigation-tabs--docs
  */
 export const TabsBar = forwardRef<HTMLDivElement, Props>(({ children, className, hideBorder = false }, ref) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={cx(styles.tabsWrapper, hideBorder && styles.noBorder, className)} ref={ref}>
-      <div className={styles.tabs} role="tablist">
+    <div className={clsx(tabsBarStyleProps('tabsWrapper'), hideBorder && tabsBarStyleProps('noBorder'), className)} ref={ref}>
+      <div {...tabsBarStyleProps('tabs')} role="tablist">
         {children}
       </div>
     </div>
   );
-});
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  tabsWrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    overflowX: 'auto',
-  }),
-  noBorder: css({
-    borderBottom: 0,
-  }),
-  tabs: css({
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-  }),
 });
 
 TabsBar.displayName = 'TabsBar';

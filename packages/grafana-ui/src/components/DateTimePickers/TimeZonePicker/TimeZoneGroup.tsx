@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+
+import { timeZoneGroupStyleProps } from './TimeZoneGroup.stylex'
+
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
 
 interface Props {
   label: string | undefined;
@@ -12,7 +12,6 @@ interface Props {
 
 export const TimeZoneGroup = (props: Props) => {
   const { children, label } = props;
-  const styles = useStyles2(getStyles);
 
   if (!label) {
     return <div>{children}</div>;
@@ -20,26 +19,12 @@ export const TimeZoneGroup = (props: Props) => {
 
   return (
     <div>
-      <div className={styles.header}>
-        <span className={styles.label}>{label}</span>
+      <div {...timeZoneGroupStyleProps('header')}>
+        <span {...timeZoneGroupStyleProps('label')}>{label}</span>
       </div>
       {children}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      padding: '7px 10px',
-      width: '100%',
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      textTransform: 'capitalize',
-    }),
-    label: css({
-      fontSize: theme.typography.size.sm,
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-  };
-};
+;

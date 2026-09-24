@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
 import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { labelStyleProps } from './Label.stylex';
+
+
 import { Icon } from '../Icon/Icon';
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
@@ -18,29 +21,29 @@ export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> 
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-label--docs
  */
 export const Label = ({ children, description, className, category, ...labelProps }: LabelProps) => {
-  const styles = useStyles2(getLabelStyles);
   const categories = category?.map((c, i) => {
     return (
-      <span className={styles.categories} key={`${c}/${i}`}>
+      <span {...labelStyleProps('categories')} key={`${c}/${i}`}>
         <span>{c}</span>
-        <Icon name="angle-right" className={styles.chevron} />
+        <Icon name="angle-right" {...labelStyleProps('chevron')} />
       </span>
     );
   });
 
   return (
-    <div className={cx(styles.label, className)}>
+    <div {...mergeStylexClassName(labelStyleProps('label'), className)}>
       <label {...labelProps}>
-        <div className={styles.labelContent}>
+        <div {...labelStyleProps('labelContent')}>
           {categories}
           {children}
         </div>
-        {description && <span className={styles.description}>{description}</span>}
+        {description && <span {...labelStyleProps('description')}>{description}</span>}
       </label>
     </div>
   );
 };
 
+/** @deprecated Emotion styles for Field/Checkbox compatibility */
 export const getLabelStyles = (theme: GrafanaTheme2) => ({
   label: css({
     label: 'Label',
@@ -72,3 +75,4 @@ export const getLabelStyles = (theme: GrafanaTheme2) => ({
     margin: theme.spacing(0, 0.25),
   }),
 });
+

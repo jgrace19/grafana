@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
+import { inlineFieldRowStyleProps } from './InlineFieldRow.stylex'
+
 import { type HTMLProps, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 
 export interface Props extends Omit<HTMLProps<HTMLDivElement>, 'css'> {
   children: ReactNode | ReactNode[];
@@ -15,23 +16,11 @@ export interface Props extends Omit<HTMLProps<HTMLDivElement>, 'css'> {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-inlinefieldrow--docs
  */
 export const InlineFieldRow = ({ children, className, ...htmlProps }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.container, className)} {...htmlProps}>
+    <div {...mergeStylexClassName(inlineFieldRowStyleProps('container'), className)} {...htmlProps}>
       {children}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      label: 'InlineFieldRow',
-      display: 'flex',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignContent: 'flex-start',
-      rowGap: theme.spacing(0.5),
-    }),
-  };
-};
+;

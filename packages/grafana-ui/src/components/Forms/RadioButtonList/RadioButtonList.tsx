@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+
+import { mergeStylexClassName } from '../../../themes/stylex/mergeClassNames';
+import { radioButtonListStyleProps } from './RadioButtonList.stylex'
+
 import { uniqueId } from 'lodash';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+
 
 import { RadioButtonDot } from './RadioButtonDot';
 
@@ -37,11 +40,10 @@ export function RadioButtonList<T extends string | number | readonly string[]>({
   disabled,
   disabledOptions = [],
 }: RadioButtonListProps<T>) {
-  const styles = useStyles2(getStyles);
   const internalId = id ?? uniqueId('radiogroup-list-');
 
   return (
-    <div id={id} className={cx(styles.container, className)} role="radiogroup">
+    <div id={id} {...mergeStylexClassName(radioButtonListStyleProps('container'), className)} role="radiogroup">
       {options.map((option, index) => {
         const itemId = `${internalId}-${index}`;
 
@@ -68,9 +70,3 @@ export function RadioButtonList<T extends string | number | readonly string[]>({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'grid',
-    gap: theme.spacing(1),
-  }),
-});

@@ -1,11 +1,14 @@
+
 import { css } from '@emotion/css';
+
+import { dataLinksContextMenuStyleProps } from './DataLinksContextMenu.stylex';
+
 import { type CSSProperties, type JSX } from 'react';
 import * as React from 'react';
 
-import { type ActionModel, type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type ActionModel, type LinkModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { linkModelToContextMenuItems } from '../../utils/dataLinks';
 import { WithContextMenu } from '../ContextMenu/WithContextMenu';
 import { MenuGroup, type MenuItemsGroup } from '../Menu/MenuGroup';
@@ -27,7 +30,6 @@ export interface DataLinksContextMenuApi {
 }
 
 export const DataLinksContextMenu = ({ children, links, style }: DataLinksContextMenuProps) => {
-  const styles = useStyles2(getStyles);
 
   const itemsGroup: MenuItemsGroup[] = [
     { items: linkModelToContextMenuItems(links), label: Boolean(links().length) ? 'Data links' : '' },
@@ -46,7 +48,7 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
             icon={item.icon}
             active={item.active}
             onClick={item.onClick}
-            className={styles.itemWrapper}
+            {...dataLinksContextMenuStyleProps('itemWrapper')}
           />
         ))}
       </MenuGroup>
@@ -83,8 +85,3 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  itemWrapper: css({
-    fontSize: 12,
-  }),
-});

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+
+import { featureInfoBoxStyleProps } from './FeatureInfoBox.stylex'
+
 import { memo, forwardRef } from 'react';
 
-import { type FeatureState, type GrafanaTheme2 } from '@grafana/data';
+import { type FeatureState, } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { FeatureBadge } from '../FeatureBadge/FeatureBadge';
 
 import { InfoBox, type InfoBoxProps } from './InfoBox';
@@ -16,11 +17,10 @@ export interface FeatureInfoBoxProps extends Omit<InfoBoxProps, 'title' | 'urlTi
 /** @deprecated use Alert with severity info */
 export const FeatureInfoBox = memo(
   forwardRef<HTMLDivElement, FeatureInfoBoxProps>(({ title, featureState, ...otherProps }, ref) => {
-    const styles = useStyles2(getFeatureInfoBoxStyles);
 
     const titleEl = featureState ? (
       <>
-        <div className={styles.badge}>
+        <div {...featureInfoBoxStyleProps('badge')}>
           <FeatureBadge featureState={featureState} />
         </div>
         <h3>{title}</h3>
@@ -34,10 +34,4 @@ export const FeatureInfoBox = memo(
 
 FeatureInfoBox.displayName = 'FeatureInfoBox';
 
-const getFeatureInfoBoxStyles = (theme: GrafanaTheme2) => {
-  return {
-    badge: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+;

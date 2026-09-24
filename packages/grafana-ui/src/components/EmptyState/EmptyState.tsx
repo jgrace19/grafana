@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+
+import { emptyStateStyleProps } from './EmptyState.stylex'
+
 import { type AriaRole, type ReactNode } from 'react';
 import * as React from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
 import { Box } from '../Layout/Box/Box';
 import { Stack } from '../Layout/Stack/Stack';
 import { Text } from '../Text/Text';
@@ -52,12 +52,11 @@ export const EmptyState = ({
   variant,
   role,
 }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
   const imageToShow = image ?? getDefaultImageForVariant(variant);
 
   return (
     <Box paddingY={4} display="flex" direction="column" alignItems="center" role={role}>
-      <div className={styles.container}>
+      <div {...emptyStateStyleProps('container')}>
         {!hideImage && imageToShow}
         <Stack direction="column" alignItems="center">
           <Text variant="h4" textAlignment="center">
@@ -92,12 +91,3 @@ function getDefaultImageForVariant(variant: Props['variant']) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: theme.spacing(4),
-    maxWidth: '600px',
-  }),
-});
