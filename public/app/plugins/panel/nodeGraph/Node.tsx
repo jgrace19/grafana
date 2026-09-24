@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent, memo } from 'react';
 import tinycolor from 'tinycolor2';
 
 import { type Field, getFieldColorModeForField, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Icon, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type HoverState } from './NodeGraph';
 import { type NodeDatum } from './types';
@@ -13,66 +15,6 @@ import { statToString } from './utils';
 
 export const nodeR = 40;
 export const highlightedNodeColor = '#a00';
-
-const getStyles = (theme: GrafanaTheme2, hovering: HoverState) => ({
-  mainGroup: css({
-    cursor: 'pointer',
-    fontSize: '10px',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: 'opacity 300ms',
-    },
-    opacity: hovering === 'inactive' ? 0.5 : 1,
-  }),
-
-  mainCircle: css({
-    fill: theme.components.panel.background,
-  }),
-
-  filledCircle: css({
-    fill: highlightedNodeColor,
-  }),
-
-  hoverCircle: css({
-    opacity: 0.5,
-    fill: 'transparent',
-    stroke: theme.colors.primary.text,
-  }),
-
-  text: css({
-    fill: theme.colors.text.primary,
-    pointerEvents: 'none',
-  }),
-
-  titleText: css({
-    textAlign: 'center',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    backgroundColor: tinycolor(theme.colors.background.primary).setAlpha(0.6).toHex8String(),
-    width: '140px',
-  }),
-
-  statsText: css({
-    textAlign: 'center',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    width: '70px',
-  }),
-
-  textHovering: css({
-    width: '200px',
-    '& span': {
-      backgroundColor: tinycolor(theme.colors.background.primary).setAlpha(0.8).toHex8String(),
-    },
-  }),
-
-  clickTarget: css({
-    fill: 'none',
-    stroke: 'none',
-    pointerEvents: 'fill',
-  }),
-});
 
 export const computeNodeCircumferenceStrokeWidth = (nodeRadius: number) => Math.ceil(nodeRadius * 0.075);
 
@@ -85,8 +27,8 @@ export const Node = memo(function Node(props: {
 }) {
   const { node, onMouseEnter, onMouseLeave, onClick, hovering } = props;
   const theme = useTheme2();
-  const styles = getStyles(theme, hovering);
   const isHovered = hovering === 'active';
+  const spanStyle = isHovered && styles.textHoveringSpan(hoverSpanBackground(theme));
   const nodeRadius = node.nodeRadius?.values[node.dataFrameRowIndex] || nodeR;
   const strokeWidth = computeNodeCircumferenceStrokeWidth(nodeRadius);
 
@@ -97,21 +39,27 @@ export const Node = memo(function Node(props: {
   return (
     <g
       data-node-id={node.id}
-      className={styles.mainGroup}
+      {...stylex.props(styles.mainGroup, hovering === 'inactive' && styles.mainGroupInactive)}
       aria-label={t('nodeGraph.node.aria-label-node-title', 'Node: {{nodeName}}', { nodeName: node.title })}
     >
       <circle
         data-testid={`node-circle-${node.id}`}
-        className={node.highlighted ? styles.filledCircle : styles.mainCircle}
+        {...stylex.props(node.highlighted ? styles.filledCircle : styles.mainCircle)}
         r={nodeRadius}
         cx={node.x}
         cy={node.y}
       />
       {isHovered && (
-        <circle className={styles.hoverCircle} r={nodeRadius - 3} cx={node.x} cy={node.y} strokeWidth={strokeWidth} />
+        <circle
+          {...stylex.props(styles.hoverCircle)}
+          r={nodeRadius - 3}
+          cx={node.x}
+          cy={node.y}
+          strokeWidth={strokeWidth}
+        />
       )}
       <ColorCircle node={node} />
-      <g className={styles.text} style={{ pointerEvents: 'none' }}>
+      <g {...mergeStylexProps(stylex.props(styles.text), { style: { pointerEvents: 'none' } })}>
         <NodeContents node={node} hovering={hovering} />
         <foreignObject
           x={node.x - (isHovered ? 100 : 70)}
@@ -119,10 +67,16 @@ export const Node = memo(function Node(props: {
           width={isHovered ? '200' : '140'}
           height="40"
         >
-          <div className={cx(styles.titleText, isHovered && styles.textHovering)}>
-            <span>{node.title}</span>
+          <div
+            {...stylex.props(
+              styles.titleText,
+              styles.titleBackground(tinycolor(theme.colors.background.primary).setAlpha(0.6).toHex8String()),
+              isHovered && styles.textHovering
+            )}
+          >
+            <span {...stylex.props(spanStyle)}>{node.title}</span>
             <br />
-            <span>{node.subTitle}</span>
+            <span {...stylex.props(spanStyle)}>{node.subTitle}</span>
           </div>
         </foreignObject>
       </g>
@@ -137,7 +91,7 @@ export const Node = memo(function Node(props: {
         onClick={(event) => {
           onClick(event, node);
         }}
-        className={styles.clickTarget}
+        {...stylex.props(styles.clickTarget)}
         x={node.x - nodeRadius - 5}
         y={node.y - nodeRadius - 5}
         width={nodeRadius * 2 + 10}
@@ -152,8 +106,8 @@ export const Node = memo(function Node(props: {
  */
 function NodeContents({ node, hovering }: { node: NodeDatum; hovering: HoverState }) {
   const theme = useTheme2();
-  const styles = getStyles(theme, hovering);
   const isHovered = hovering === 'active';
+  const spanStyle = isHovered && styles.textHoveringSpan(hoverSpanBackground(theme));
 
   if (!(node.x !== undefined && node.y !== undefined)) {
     return null;
@@ -167,10 +121,12 @@ function NodeContents({ node, hovering }: { node: NodeDatum; hovering: HoverStat
     </foreignObject>
   ) : (
     <foreignObject x={node.x - (isHovered ? 100 : 35)} y={node.y - 15} width={isHovered ? '200' : '70'} height="40">
-      <div className={cx(styles.statsText, isHovered && styles.textHovering)}>
-        <span>{node.mainStat && statToString(node.mainStat.config, node.mainStat.values[node.dataFrameRowIndex])}</span>
+      <div {...stylex.props(styles.statsText, isHovered && styles.textHovering)}>
+        <span {...stylex.props(spanStyle)}>
+          {node.mainStat && statToString(node.mainStat.config, node.mainStat.values[node.dataFrameRowIndex])}
+        </span>
         <br />
-        <span>
+        <span {...stylex.props(spanStyle)}>
           {node.secondaryStat &&
             statToString(node.secondaryStat.config, node.secondaryStat.values[node.dataFrameRowIndex])}
         </span>
@@ -294,3 +250,63 @@ function getColor(field: Field, index: number, theme: GrafanaTheme2): string {
 
   return getFieldColorModeForField(field).getCalculator(field, theme)(0, field.values[index]);
 }
+
+function hoverSpanBackground(theme: GrafanaTheme2) {
+  return tinycolor(theme.colors.background.primary).setAlpha(0.8).toHex8String();
+}
+
+const styles = stylex.create({
+  mainGroup: {
+    cursor: 'pointer',
+    fontSize: '10px',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '300ms' },
+    opacity: 1,
+  },
+  mainGroupInactive: {
+    opacity: 0.5,
+  },
+  mainCircle: {
+    fill: components['--gf-components-panel-background'],
+  },
+  filledCircle: {
+    fill: '#a00',
+  },
+  hoverCircle: {
+    opacity: 0.5,
+    fill: 'transparent',
+    stroke: colors['--gf-colors-primary-text'],
+  },
+  text: {
+    fill: colors['--gf-colors-text-primary'],
+    pointerEvents: 'none',
+  },
+  titleText: {
+    textAlign: 'center',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    width: '140px',
+  },
+  titleBackground: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  statsText: {
+    textAlign: 'center',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    width: '70px',
+  },
+  textHovering: {
+    width: '200px',
+  },
+  textHoveringSpan: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  clickTarget: {
+    fill: 'none',
+    stroke: 'none',
+    pointerEvents: 'fill',
+  },
+});

@@ -42,7 +42,8 @@ const styles = stylex.create({
   },
   dragHandle: {
     alignSelf: 'stretch',
-    cursor: { default: 'grab', ':active': 'grabbing' },
+    // The handle has role="button", and GlobalStyles' [role='button'] pointer won on main until :active.
+    cursor: { default: null, ':active': 'grabbing' },
     color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
   },
 });

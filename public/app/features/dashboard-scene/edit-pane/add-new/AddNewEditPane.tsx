@@ -51,7 +51,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
               {(dropProvided) => (
                 <div ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
                   <Draggable draggableId="new-panel-drag" index={0}>
-                    {(dragProvided, dragSnapshot) => {
+                    {(dragProvided) => {
                       return (
                         <div
                           role="button"
@@ -60,9 +60,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           {...dragProvided.dragHandleProps}
-                          className={
-                            stylex.props(styles.imageContainer, dragSnapshot.isDragging && styles.dragging).className
-                          }
+                          className={stylex.props(styles.imageContainer).className}
                           onClick={onAddPanel}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -145,9 +143,6 @@ const styles = stylex.create({
     flexShrink: 1,
     flexBasis: 0,
     height: '100%',
-  },
-  dragging: {
-    cursor: 'move',
   },
   imageContainer: {
     cursor: 'pointer',
