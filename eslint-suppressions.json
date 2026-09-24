@@ -1249,11 +1249,6 @@
       "count": 1
     }
   },
-  "public/app/features/alerting/unified/components/contact-points/components/ContactPointsFilter.tsx": {
-    "@grafana/require-no-margin": {
-      "count": 1
-    }
-  },
   "public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx": {
     "@grafana/require-no-margin": {
       "count": 1
@@ -1274,19 +1269,9 @@
       "count": 5
     }
   },
-  "public/app/features/alerting/unified/components/mute-timings/MuteTimingTimeRange.tsx": {
-    "@grafana/require-no-margin": {
-      "count": 1
-    }
-  },
   "public/app/features/alerting/unified/components/notification-policies/EditNotificationPolicyForm.tsx": {
     "@grafana/require-no-margin": {
       "count": 13
-    }
-  },
-  "public/app/features/alerting/unified/components/receivers/TemplatePreview.tsx": {
-    "react-hooks/rules-of-hooks": {
-      "count": 1
     }
   },
   "public/app/features/alerting/unified/components/receivers/form/CloudCommonChannelSettings.tsx": {

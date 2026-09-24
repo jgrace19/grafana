@@ -1,0 +1,20 @@
+/*
+ * Alert tables style the cells and rows of their bodies, some of which child row components render, and the
+ * children of their actions cells. Deliberately not in a cascade layer, so that like the rules they replace they win
+ * over those children's own styles.
+ */
+.gf-alerting-alert-table th {
+  padding: var(--gf-spacing-x1);
+}
+
+.gf-alerting-alert-table td {
+  padding: 0 var(--gf-spacing-x1);
+}
+
+.gf-alerting-alert-table tr {
+  height: 38px;
+}
+
+.gf-alerting-alert-table-actions > * + * {
+  margin-left: var(--gf-spacing-x0-5);
+}

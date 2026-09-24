@@ -3,6 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import { Trans, t } from '@grafana/i18n';
 import { Input } from '@grafana/ui';
 import { colors } from '@grafana/ui/stylex/tokens.stylex';
+import './CustomAnnotationHeaderField.css';
 
 interface CustomAnnotationHeaderFieldProps {
   field: { onChange: () => void; onBlur: () => void; value: string; name: string };
@@ -23,7 +24,7 @@ const CustomAnnotationHeaderField = ({ field }: CustomAnnotationHeaderFieldProps
         )}
         width={18}
         {...field}
-        className={stylex.props(styles.customAnnotationInput).className}
+        className="gf-alerting-custom-annotation-input"
       />
     </div>
   );
@@ -33,10 +34,6 @@ const styles = stylex.create({
   annotationTitle: {
     color: colors['--gf-colors-text-primary'],
     marginBottom: '3px',
-  },
-  customAnnotationInput: {
-    marginTop: '5px',
-    width: '100%',
   },
 });
 

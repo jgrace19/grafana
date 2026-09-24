@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { groupBy, size, upperFirst } from 'lodash';
 import { Fragment, type ReactNode } from 'react';
 
-import { type GrafanaTheme2, dateTime } from '@grafana/data';
+import { dateTime } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { PrimaryText } from 'app/features/alerting/unified/components/common/TextVariants';
 import { ContactPointHeader } from 'app/features/alerting/unified/components/contact-points/ContactPointHeader';
 import { useDeleteContactPointModal } from 'app/features/alerting/unified/components/contact-points/components/Modals';
@@ -27,7 +28,6 @@ interface ContactPointProps {
 
 export const ContactPoint = ({ contactPoint }: ContactPointProps) => {
   const { grafana_managed_receiver_configs: receivers } = contactPoint;
-  const styles = useStyles2(getStyles);
   const { selectedAlertmanager } = useAlertmanager();
   const [deleteTrigger] = useDeleteContactPoint({ alertmanager: selectedAlertmanager! });
   const [DeleteModal, showDeleteModal] = useDeleteContactPointModal(deleteTrigger.execute);
@@ -36,7 +36,7 @@ export const ContactPoint = ({ contactPoint }: ContactPointProps) => {
   const showFullMetadata = receivers.some((receiver) => Boolean(receiver[RECEIVER_META_KEY]));
 
   return (
-    <div className={styles.contactPointWrapper} data-testid="contact-point">
+    <div {...stylex.props(styles.contactPointWrapper)} data-testid="contact-point">
       <Stack direction="column" gap={0}>
         <ContactPointHeader
           contactPoint={contactPoint}
@@ -71,7 +71,7 @@ export const ContactPoint = ({ contactPoint }: ContactPointProps) => {
             })}
           </div>
         ) : (
-          <div className={styles.integrationWrapper}>
+          <div {...stylex.props(styles.integrationWrapper)}>
             <ContactPointReceiverSummary receivers={receivers} />
           </div>
         )}
@@ -92,12 +92,10 @@ interface ContactPointReceiverProps {
 
 const ContactPointReceiver = (props: ContactPointReceiverProps) => {
   const { name, type, description, diagnostics, pluginMetadata, sendingResolved = true } = props;
-  const styles = useStyles2(getStyles);
-
   const hasMetadata = diagnostics !== undefined;
 
   return (
-    <div className={styles.integrationWrapper}>
+    <div {...stylex.props(styles.integrationWrapper)}>
       <Stack direction="column" gap={0.5}>
         <ContactPointReceiverTitleRow
           name={name}
@@ -211,15 +209,13 @@ export const ContactPointReceiverSummary = ({ receivers, limit }: ContactPointRe
 };
 
 const ContactPointReceiverMetadataRow = ({ diagnostics, sendingResolved }: ContactPointReceiverMetadata) => {
-  const styles = useStyles2(getStyles);
-
   const failedToSend = Boolean(diagnostics.lastNotifyAttemptError);
   const lastDeliveryAttempt = dateTime(diagnostics.lastNotifyAttempt);
   const lastDeliveryAttemptDuration = diagnostics.lastNotifyAttemptDuration;
   const hasDeliveryAttempt = lastDeliveryAttempt.isValid();
 
   return (
-    <div className={styles.metadataRow}>
+    <div {...stylex.props(styles.metadataRow)}>
       <Stack direction="row" gap={1}>
         {/* this is shown when the last delivery failed – we don't show any additional metadata */}
         {failedToSend ? (
@@ -271,26 +267,32 @@ const ContactPointReceiverMetadataRow = ({ diagnostics, sendingResolved }: Conta
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  contactPointWrapper: css({
-    borderRadius: theme.shape.radius.default,
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderBottom: 'none',
-  }),
-  integrationWrapper: css({
+const styles = stylex.create({
+  contactPointWrapper: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
+  integrationWrapper: {
     position: 'relative',
-
-    background: `${theme.colors.background.primary}`,
-    padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
-
-    borderBottom: `solid 1px ${theme.colors.border.weak}`,
-  }),
-  metadataRow: css({
-    borderBottomLeftRadius: `${theme.shape.radius.default}`,
-    borderBottomRightRadius: `${theme.shape.radius.default}`,
-  }),
-  noIntegrationsContainer: css({
-    paddingTop: `${theme.spacing(1.5)}`,
-    paddingLeft: `${theme.spacing(1.5)}`,
-  }),
+    backgroundColor: colors['--gf-colors-background-primary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  metadataRow: {
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+  },
 });

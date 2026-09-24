@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, type JSX, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Dropdown, LinkButton, Menu, Stack, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { Dropdown, LinkButton, Menu, Stack, Text, TextLink, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import ConditionalWrap from 'app/features/alerting/unified/components/ConditionalWrap';
 import { useExportContactPoint } from 'app/features/alerting/unified/components/contact-points/useExportContactPoint';
 import { ManagePermissionsDrawer } from 'app/features/alerting/unified/components/permissions/ManagePermissions';
@@ -34,7 +34,6 @@ interface ContactPointHeaderProps {
 
 export const ContactPointHeader = ({ contactPoint, onDelete }: ContactPointHeaderProps) => {
   const { name, id, provenance, policies = [], grafana_managed_receiver_configs: integrations } = contactPoint;
-  const styles = useStyles2(getStyles);
   const [showPermissionsDrawer, setShowPermissionsDrawer] = useState(false);
   const { selectedAlertmanager } = useAlertmanager();
 
@@ -186,7 +185,7 @@ export const ContactPointHeader = ({ contactPoint, onDelete }: ContactPointHeade
   const urlId = id || name;
 
   return (
-    <div className={styles.headerWrapper}>
+    <div {...stylex.props(styles.headerWrapper)}>
       <Stack direction="row" alignItems="center" gap={1}>
         <Stack alignItems="center" gap={1} minWidth={0}>
           <Text element="h2" variant="body" weight="medium" truncate>
@@ -283,13 +282,17 @@ export const ContactPointHeader = ({ contactPoint, onDelete }: ContactPointHeade
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  headerWrapper: css({
-    background: `${theme.colors.background.secondary}`,
-    padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
-
-    borderBottom: `solid 1px ${theme.colors.border.weak}`,
-    borderTopLeftRadius: `${theme.shape.radius.default}`,
-    borderTopRightRadius: `${theme.shape.radius.default}`,
-  }),
+const styles = stylex.create({
+  headerWrapper: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+  },
 });

@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, CodeEditor, Dropdown, Menu, Stack, Toggletip, useStyles2 } from '@grafana/ui';
+import { Button, CodeEditor, Dropdown, Menu, Stack, Toggletip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type TestTemplateAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { EditorColumnHeader } from '../EditorColumnHeader';
@@ -14,6 +14,7 @@ import { AlertInstanceModalSelector } from './AlertInstanceModalSelector';
 import { AlertTemplatePreviewData } from './TemplateData';
 import { TemplateDataTable } from './TemplateDataDocs';
 import { GenerateAlertDataModal } from './form/GenerateAlertDataModal';
+import './TemplateCodeEditor.css';
 
 export const RESET_TO_DEFAULT = 'Reset to defaults';
 
@@ -32,7 +33,6 @@ export function PayloadEditor({
   payloadFormatError: string | null;
   className?: string;
 }) {
-  const styles = useStyles2(getStyles);
   const onReset = () => {
     setPayload(defaultPayload);
   };
@@ -83,7 +83,7 @@ export function PayloadEditor({
 
   return (
     <>
-      <div className={cx(styles.wrapper, className)}>
+      <div {...mergeStylexProps(stylex.props(styles.wrapper), { className })}>
         <EditorColumnHeader
           label={t('alerting.payload-editor.label-payload', 'Payload')}
           actions={
@@ -122,11 +122,11 @@ export function PayloadEditor({
           }
         />
 
-        <div className={styles.editorWrapper}>
+        <div {...stylex.props(styles.editorWrapper)}>
           <AutoSizer>
             {({ width, height }) => (
               <CodeEditor
-                containerStyles={styles.editorContainer}
+                containerStyles="gf-alerting-template-code-editor"
                 width={width}
                 height={height}
                 language={'json'}
@@ -157,31 +157,13 @@ export function PayloadEditor({
 const AlertTemplateDataTable = () => {
   return <TemplateDataTable dataItems={AlertTemplatePreviewData} />;
 };
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-  }),
-  tooltip: css({
-    paddingLeft: theme.spacing(1),
-  }),
-  label: css({
-    margin: 0,
-  }),
-  editorWrapper: css({
-    flex: 1,
-  }),
-  editorContainer: css({
-    width: 'fit-content',
-    border: 'none',
-  }),
-  templateDataDocsHeader: css({
-    color: theme.colors.text.primary,
-
-    span: {
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    },
-  }),
+  },
+  editorWrapper: {
+    flex: '1',
+  },
 });

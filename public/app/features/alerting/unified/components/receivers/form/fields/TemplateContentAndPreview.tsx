@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, useStyles2 } from '@grafana/ui';
+import { Box } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useAlertmanager } from 'app/features/alerting/unified/state/AlertmanagerContext';
 import { GRAFANA_RULES_SOURCE_NAME } from 'app/features/alerting/unified/utils/datasource';
 
@@ -13,6 +14,7 @@ import { TemplateEditor } from '../../TemplateEditor';
 import { TemplatePreview } from '../../TemplatePreview';
 
 import { getUseTemplateText } from './utils';
+import '../../TemplateCodeEditor.css';
 
 export function TemplateContentAndPreview({
   payload,
@@ -29,25 +31,23 @@ export function TemplateContentAndPreview({
   className?: string;
   templateContent: string;
 }) {
-  const styles = useStyles2(getStyles);
-
   const { selectedAlertmanager } = useAlertmanager();
 
   const isGrafanaAlertManager = selectedAlertmanager === GRAFANA_RULES_SOURCE_NAME;
 
   return (
-    <div className={cx(className, styles.mainContainer)}>
-      <div className={styles.container}>
+    <div {...mergeStylexProps(stylex.props(styles.mainContainer), { className })}>
+      <div {...stylex.props(styles.container)}>
         <EditorColumnHeader
           label={t('alerting.template-content-and-preview.label-template-content', 'Template content')}
         />
         <Box flex={1}>
-          <div className={styles.viewerContainer({ height: 400 })}>
+          <div {...stylex.props(styles.viewerContainer)}>
             <AutoSizer>
               {({ width, height }) => (
                 <TemplateEditor
                   value={templateContent}
-                  containerStyles={styles.editorContainer}
+                  containerStyles="gf-alerting-template-code-editor"
                   width={width}
                   height={height}
                   readOnly
@@ -66,42 +66,38 @@ export function TemplateContentAndPreview({
           templateContent={getUseTemplateText(templateName)}
           setPayloadFormatError={setPayloadFormatError}
           payloadFormatError={payloadFormatError}
-          className={cx(styles.templatePreview, styles.minEditorSize)}
+          className={stylex.props(styles.templatePreview, styles.minEditorSize).className}
         />
       )}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainContainer: css({
+const styles = stylex.create({
+  mainContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  container: css({
-    label: 'template-preview-container',
+    gap: spacing['--gf-spacing-x2'],
+  },
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
-  templatePreview: css({
-    flex: 1,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
+  templatePreview: {
+    flex: '1',
     display: 'flex',
-  }),
-  minEditorSize: css({
-    minHeight: 300,
-    minWidth: 300,
-  }),
-  viewerContainer: ({ height }: { height: number | string }) =>
-    css({
-      height,
-      overflow: 'auto',
-      backgroundColor: theme.colors.background.primary,
-    }),
-  editorContainer: css({
-    width: 'fit-content',
-    border: 'none',
-  }),
+  },
+  minEditorSize: {
+    minHeight: '300px',
+    minWidth: '300px',
+  },
+  viewerContainer: {
+    height: '400px',
+    overflow: 'auto',
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
 });

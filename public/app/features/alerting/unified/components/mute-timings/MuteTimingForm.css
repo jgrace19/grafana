@@ -1,0 +1,4 @@
+/* Input has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX width. */
+.gf-alerting-mute-timing-name-input {
+  width: 400px;
+}

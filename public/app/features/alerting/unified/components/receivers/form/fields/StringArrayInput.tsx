@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Input, useStyles2 } from '@grafana/ui';
+import { Button, Input } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ActionIcon } from '../../../rules/ActionIcon';
 
@@ -13,8 +13,6 @@ interface Props {
 }
 
 export const StringArrayInput = ({ value, onChange, readOnly = false }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const deleteItem = (index: number) => {
     if (!value) {
       return;
@@ -35,11 +33,11 @@ export const StringArrayInput = ({ value, onChange, readOnly = false }: Props) =
     <div>
       {!!value?.length &&
         value.map((v, index) => (
-          <div key={index} className={styles.row}>
+          <div key={index} {...stylex.props(styles.row)}>
             <Input readOnly={readOnly} value={v} onChange={(e) => updateValue(e.currentTarget.value, index)} />
             {!readOnly && (
               <ActionIcon
-                className={styles.deleteIcon}
+                className={stylex.props(styles.deleteIcon).className}
                 icon="trash-alt"
                 tooltip={t('alerting.string-array-input.tooltip-delete', 'delete')}
                 onClick={() => deleteItem(index)}
@@ -49,7 +47,7 @@ export const StringArrayInput = ({ value, onChange, readOnly = false }: Props) =
         ))}
       {!readOnly && (
         <Button
-          className={styles.addButton}
+          className={stylex.props(styles.addButton).className}
           type="button"
           variant="secondary"
           icon="plus"
@@ -63,17 +61,17 @@ export const StringArrayInput = ({ value, onChange, readOnly = false }: Props) =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  row: css({
+const styles = stylex.create({
+  row: {
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: theme.spacing(1),
+    marginBottom: spacing['--gf-spacing-x1'],
     alignItems: 'center',
-  }),
-  deleteIcon: css({
-    marginLeft: theme.spacing(1),
-  }),
-  addButton: css({
-    marginTop: theme.spacing(1),
-  }),
+  },
+  deleteIcon: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  addButton: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
 });
