@@ -4,12 +4,12 @@ import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+import { getCascaderStyles } from '../../compat/emotion/cascaderStyles';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { type IconName } from '../../types/icon';
 import { Button, type ButtonProps } from '../Button/Button';
 import { type CascaderOption } from '../Cascader/Cascader';
 import { onChangeCascader, onLoadDataCascader } from '../Cascader/optionMappings';
-import { getCascaderStyles } from '../Cascader/styles';
 import { Icon } from '../Icon/Icon';
 
 export interface ButtonCascaderProps {

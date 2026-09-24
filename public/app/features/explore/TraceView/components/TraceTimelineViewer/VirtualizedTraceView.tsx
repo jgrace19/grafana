@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import memoizeOne from 'memoize-one';
 import * as React from 'react';
@@ -23,7 +23,8 @@ import { t } from '@grafana/i18n';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2, ToolbarButton } from '@grafana/ui';
+import { ToolbarButton, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 import { PEER_SERVICE } from '../constants/tag-keys';
 import { type SpanBarOptions } from '../settings/SpanBarSettings';
@@ -48,26 +49,7 @@ import {
   type ViewedBoundsFunctionType,
 } from './utils';
 
-const getStyles = stylesFactory(() => ({
-  rowsWrapper: css({
-    width: '100%',
-  }),
-  row: css({
-    width: '100%',
-  }),
-  scrollToTopButton: css({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '40px',
-    height: '40px',
-    position: 'absolute',
-    bottom: '30px',
-    right: '30px',
-    zIndex: 1,
-  }),
-}));
+import './VirtualizedTraceView.css';
 
 type RowState = {
   isDetail: boolean;
@@ -483,9 +465,8 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
       return each.spanId === spanID;
     });
 
-    const styles = getStyles();
     return (
-      <div className={styles.row} key={key} style={style} {...attrs}>
+      <div {...mergeStylexProps(stylex.props(styles.row), { style })} key={key} {...attrs}>
         <SpanBarRow
           clippingLeft={this.getClipping().left}
           clippingRight={this.getClipping().right}
@@ -559,10 +540,16 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
       return null;
     }
     const color = getColorByKey(serviceColorKey, theme);
-    const styles = getStyles();
 
     return (
-      <div className={cx(styles.row, 'span-detail-row')} key={key} style={{ ...style, zIndex: 1 }} {...attrs}>
+      <div
+        {...mergeStylexProps(stylex.props(styles.row), {
+          className: 'span-detail-row',
+          style: { ...style, zIndex: 1 },
+        })}
+        key={key}
+        {...attrs}
+      >
         <SpanDetailRow
           color={color}
           columnDivision={spanNameColumnWidth}
@@ -624,7 +611,6 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
   });
 
   render() {
-    const styles = getStyles();
     const { scrollElement, redrawListView } = this.props;
 
     return (
@@ -636,7 +622,7 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
           itemRenderer={this.renderRow}
           viewBuffer={BUFFER_SIZE}
           viewBufferMin={BUFFER_SIZE}
-          itemsWrapperClassName={styles.rowsWrapper}
+          itemsWrapperClassName={stylex.props(styles.rowsWrapper).className}
           getKeyFromIndex={this.getKeyFromIndex}
           getIndexFromKey={this.getIndexFromKey}
           windowScroller={false}
@@ -645,7 +631,7 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
         />
         {this.props.topOfViewRef && ( // only for panel as explore uses content outline to scroll to top
           <ToolbarButton
-            className={styles.scrollToTopButton}
+            className="gf-trace-scroll-to-top"
             onClick={this.scrollToTop}
             tooltip={t('explore.unthemed-virtualized-trace-view.title-scroll-to-top', 'Scroll to top')}
             icon="arrow-up"
@@ -656,4 +642,16 @@ export class UnthemedVirtualizedTraceView extends React.Component<VirtualizedTra
   }
 }
 
-export default withTheme2(UnthemedVirtualizedTraceView);
+export default function VirtualizedTraceView(props: Omit<VirtualizedTraceViewProps, 'theme'>) {
+  const theme = useTheme2();
+  return <UnthemedVirtualizedTraceView {...props} theme={theme} />;
+}
+
+const styles = stylex.create({
+  rowsWrapper: {
+    width: '100%',
+  },
+  row: {
+    width: '100%',
+  },
+});

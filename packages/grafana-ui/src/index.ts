@@ -274,7 +274,7 @@ export { FieldArray } from './components/Forms/FieldArray';
 export { default as resetSelectStyles } from './components/Select/resetSelectStyles';
 export * from './components/Select/Select';
 export { SelectMenuOptions } from './components/Select/SelectMenu';
-export { getSelectStyles } from './components/Select/getSelectStyles';
+export { getSelectStyles } from './compat/emotion/getSelectStyles';
 export * from './components/Select/types';
 
 export { Combobox } from './components/Combobox/Combobox';
@@ -308,7 +308,8 @@ export {
 export { FileListItem, type FileListItemProps } from './components/FileDropzone/FileListItem';
 export { TimeRangeInput } from './components/DateTimePickers/TimeRangeInput';
 export { RelativeTimeRangePicker } from './components/DateTimePickers/RelativeTimeRangePicker/RelativeTimeRangePicker';
-export { Card, type Props as CardProps, getCardStyles } from './components/Card/Card';
+export { Card, type Props as CardProps } from './components/Card/Card';
+export { getCardStyles } from './compat/emotion/cardStyles';
 export { CardContainer, type CardContainerProps } from './components/Card/CardContainer';
 export { FormattedValueDisplay } from './components/FormattedValueDisplay/FormattedValueDisplay';
 export { ButtonSelect } from './components/Dropdown/ButtonSelect';

@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 
 interface ValuePillProps {
@@ -15,14 +14,13 @@ interface ValuePillProps {
 
 export const ValuePill = forwardRef<HTMLSpanElement, ValuePillProps>(
   ({ children, onRemove, disabled, ...rest }, ref) => {
-    const styles = useStyles2(getValuePillStyles, disabled);
     const removeButtonLabel = t('grafana-ui.value-pill.remove-button', 'Remove {{children}}', { children });
     return (
-      <span className={styles.wrapper} {...rest} ref={ref}>
-        <span className={styles.text}>{children}</span>
+      <span {...stylex.props(styles.wrapper, disabled && styles.wrapperDisabled)} {...rest} ref={ref}>
+        <span {...stylex.props(styles.text)}>{children}</span>
         {!disabled && (
           <>
-            <span className={styles.separator} />
+            <span {...stylex.props(styles.separator)} />
             <IconButton
               name="times"
               size="md"
@@ -43,31 +41,39 @@ export const ValuePill = forwardRef<HTMLSpanElement, ValuePillProps>(
 );
 ValuePill.displayName = 'ValuePill';
 
-const getValuePillStyles = (theme: GrafanaTheme2, disabled?: boolean) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'inline-flex',
-    borderRadius: theme.shape.radius.sm,
-    color: theme.colors.text.primary,
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(0.25),
-    border: disabled ? `1px solid ${theme.colors.border.weak}` : 'none',
-    fontSize: theme.typography.bodySmall.fontSize,
+    borderRadius: shape['--gf-shape-radius-sm'],
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x0-25'],
+    borderStyle: 'none',
+    fontSize: typography['--gf-typography-body-small-font-size'],
     flexShrink: 1,
     minWidth: '50px',
     alignItems: 'center',
-  }),
+  },
+  wrapperDisabled: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
 
-  text: css({
+  text: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    padding: theme.spacing(0, 1, 0, 0.75),
-  }),
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+  },
 
-  separator: css({
-    background: theme.colors.border.weak,
+  separator: {
+    backgroundColor: colors['--gf-colors-border-weak'],
     width: '1px',
     height: '100%',
-    marginRight: theme.spacing(0.5),
-  }),
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
 });

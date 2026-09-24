@@ -12,25 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { FALLBACK_TRACE_NAME } from '../constants';
 import type TNil from '../types/TNil';
 
 import BreakableText from './BreakableText';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    TraceName: css({
-      label: 'TraceName',
-      fontSize: theme.typography.size.lg,
-    }),
-  };
-};
 
 type Props = {
   className?: string;
@@ -39,8 +29,13 @@ type Props = {
 
 export default function TraceName(props: Props) {
   const { className, traceName } = props;
-  const styles = useStyles2(getStyles);
   const text = String(traceName || FALLBACK_TRACE_NAME);
   const title = <BreakableText text={text} />;
-  return <span className={cx(styles.TraceName, className)}>{title}</span>;
+  return <span {...mergeStylexProps(stylex.props(styles.TraceName), { className })}>{title}</span>;
 }
+
+const styles = stylex.create({
+  TraceName: {
+    fontSize: typography['--gf-typography-size-lg'],
+  },
+});

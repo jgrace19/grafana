@@ -1,10 +1,7 @@
 {
   "uid": "vb-variants",
   "title": "Visual baseline - Panel variants",
-  "tags": [
-    "baseline",
-    "variants"
-  ],
+  "tags": ["baseline", "variants"],
   "editable": true,
   "graphTooltip": 0,
   "timezone": "utc",
@@ -26,12 +23,8 @@
         "query": "us-east-1,eu-west-1,ap-south-1",
         "current": {
           "selected": true,
-          "text": [
-            "us-east-1"
-          ],
-          "value": [
-            "us-east-1"
-          ]
+          "text": ["us-east-1"],
+          "value": ["us-east-1"]
         },
         "options": [],
         "multi": true,
@@ -229,9 +222,7 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -512,9 +503,7 @@
         "cellHeight": "md",
         "footer": {
           "show": true,
-          "reducer": [
-            "mean"
-          ],
+          "reducer": ["mean"],
           "fields": ""
         }
       }

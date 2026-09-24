@@ -12,96 +12,115 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { type IconName } from '@grafana/data';
+import { Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import { autoColor } from '../Theme';
-
-const getStyles = (divider: boolean) => (theme: GrafanaTheme2) => {
-  return {
-    LabeledList: css({
-      label: 'LabeledList',
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      fontSize: theme.typography.size.sm,
-      ...(divider
-        ? {
-            marginRight: '-8px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'flex-end',
-          }
-        : {}),
-    }),
-    LabeledListItem: css({
-      label: 'LabeledListItem',
-      display: 'inline-block',
-      ...(divider
-        ? {
-            borderRight: `1px solid ${autoColor(theme, '#ddd')}`,
-            padding: '0 8px',
-          }
-        : { padding: '0 4px' }),
-    }),
-    LabeledListLabel: css({
-      label: 'LabeledListLabel',
-      color: theme.colors.text.secondary,
-      marginRight: '0.25rem',
-    }),
-    LabeledListValue: css({
-      label: 'LabeledListValue',
-      marginRight: divider ? undefined : '0.55rem',
-      wordWrap: 'break-word',
-      wordBreak: 'break-all',
-    }),
-    LabeledListIcon: css({
-      label: 'LabeledListIcon',
-      marginRight: '0.25rem',
-      marginTop: '-0.1rem',
-    }),
-    LabeledListServiceLine: css({
-      label: 'LabeledListServiceLine',
-      display: 'inline-block',
-      width: '1rem',
-      height: '0.35rem',
-      marginRight: '0.5rem',
-      verticalAlign: 'middle',
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-};
+import { traceColors } from '../traceColors.stylex';
 
 type LabeledListProps = {
   className?: string;
   divider?: boolean;
   items: Array<{ key: string; label: React.ReactNode; value: React.ReactNode; icon?: IconName }>;
   color?: string;
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 };
 
 export default function LabeledList(props: LabeledListProps) {
-  const { className, divider = false, items, color } = props;
-  const styles = useStyles2(getStyles(divider));
+  const { className, divider = false, items, color, xstyle } = props;
 
   return (
-    <ul className={cx(styles.LabeledList, className)}>
+    <ul
+      {...mergeStylexProps(stylex.props(styles.LabeledList, divider && styles.LabeledListDivider, xstyle), {
+        className,
+      })}
+    >
       {items.map(({ key, label, value, icon }) => {
         return (
           // If label is service, create small line on left with color
-          <li className={styles.LabeledListItem} key={`${key}`}>
-            {label === 'Service:' && (
-              <div className={styles.LabeledListServiceLine} style={{ backgroundColor: color }} />
+          <li
+            {...stylex.props(
+              styles.LabeledListItem,
+              divider ? styles.LabeledListItemDivider : styles.LabeledListItemNoDivider
             )}
-            {icon && <Icon name={icon} className={styles.LabeledListIcon} size="sm" />}
-            <span className={styles.LabeledListLabel}>{label}</span>
-            <strong className={styles.LabeledListValue}>{value}</strong>
+            key={`${key}`}
+          >
+            {label === 'Service:' && (
+              <div
+                {...mergeStylexProps(stylex.props(styles.LabeledListServiceLine), {
+                  style: { backgroundColor: color },
+                })}
+              />
+            )}
+            {icon && <Icon name={icon} xstyle={styles.LabeledListIcon} size="sm" />}
+            <span {...stylex.props(styles.LabeledListLabel)}>{label}</span>
+            <strong {...stylex.props(styles.LabeledListValue, !divider && styles.LabeledListValueNoDivider)}>
+              {value}
+            </strong>
           </li>
         );
       })}
     </ul>
   );
 }
+
+const styles = stylex.create({
+  LabeledList: {
+    listStyle: 'none',
+    margin: 0,
+    padding: 0,
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+  LabeledListDivider: {
+    marginRight: '-8px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+  },
+  LabeledListItem: {
+    display: 'inline-block',
+  },
+  LabeledListItemDivider: {
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: traceColors['--gf-trace-ddd'],
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+  LabeledListItemNoDivider: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: '4px',
+    paddingRight: '4px',
+  },
+  LabeledListLabel: {
+    color: colors['--gf-colors-text-secondary'],
+    marginRight: '0.25rem',
+  },
+  LabeledListValue: {
+    wordWrap: 'break-word',
+    wordBreak: 'break-all',
+  },
+  LabeledListValueNoDivider: {
+    marginRight: '0.55rem',
+  },
+  LabeledListIcon: {
+    marginRight: '0.25rem',
+    marginTop: '-0.1rem',
+  },
+  LabeledListServiceLine: {
+    display: 'inline-block',
+    width: '1rem',
+    height: '0.35rem',
+    marginRight: '0.5rem',
+    verticalAlign: 'middle',
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+});

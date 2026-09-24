@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, keyframes } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type TraceKeyValuePair } from '@grafana/data';
+import { type TraceKeyValuePair } from '@grafana/data';
 import { DURATION, NONE, TAG } from '@grafana/o11y-ds-frontend';
-import { Icon, stylesFactory, withTheme2 } from '@grafana/ui';
+import { Icon, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 import { autoColor } from '../Theme';
+import { spanBarRowMarker, spanNameMarker } from '../markers.stylex';
 import { type SpanBarOptions } from '../settings/SpanBarSettings';
+import { traceColors } from '../traceColors.stylex';
 import type TNil from '../types/TNil';
 import { type SpanLinkFunc } from '../types/links';
 import { type TraceSpan, type CriticalPathSection } from '../types/trace';
@@ -35,283 +39,8 @@ import Ticks from './Ticks';
 import TimelineRow from './TimelineRow';
 import { type ViewedBoundsFunctionType } from './utils';
 
-const spanBarClassName = 'spanBar';
-const spanBarLabelClassName = 'spanBarLabel';
-const nameWrapperClassName = 'nameWrapper';
-const nameWrapperMatchingFilterClassName = 'nameWrapperMatchingFilter';
-const viewClassName = 'jaegerView';
-const nameColumnClassName = 'nameColumn';
-
-const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly: boolean, serviceColor: string) => {
-  const animations = {
-    flash: keyframes`
-    from {
-      background-color: ${autoColor(theme, '#68b9ff')};
-    }
-    to {
-      background-color: 'default';
-    }
-  `,
-  };
-  const backgroundColor = showSpanFilterMatchesOnly ? '' : autoColor(theme, '#fffce4');
-
-  return {
-    nameWrapper: css({
-      label: 'nameWrapper',
-      lineHeight: '27px',
-      overflow: 'hidden',
-      display: 'flex',
-
-      [`& > *`]: {
-        background: theme.colors.background.secondary,
-      },
-    }),
-    nameWrapperMatchingFilter: css({
-      label: 'nameWrapperMatchingFilter',
-      backgroundColor: backgroundColor,
-
-      [`& > *`]: {
-        background: backgroundColor,
-      },
-    }),
-    nameColumn: css({
-      label: 'nameColumn',
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      zIndex: 1,
-      '&:hover': {
-        zIndex: 1,
-      },
-    }),
-    endpointName: css({
-      label: 'endpointName',
-      color: autoColor(theme, '#484848'),
-      fontSize: '0.9em',
-    }),
-    view: css({
-      label: 'view',
-      position: 'relative',
-    }),
-    viewExpanded: css({
-      label: 'viewExpanded',
-      background: autoColor(theme, '#f8f8f8'),
-      outline: `1px solid ${autoColor(theme, '#ddd')}`,
-    }),
-    viewExpandedAndMatchingFilter: css({
-      label: 'viewExpandedAndMatchingFilter',
-      background: autoColor(theme, '#fff3d7'),
-      outline: `1px solid ${autoColor(theme, '#ddd')}`,
-    }),
-    row: css({
-      label: 'row',
-      fontSize: '0.9em',
-
-      [`&:hover .${spanBarClassName}`]: {
-        opacity: 1,
-      },
-      [`&:hover .${spanBarLabelClassName}`]: {
-        color: autoColor(theme, '#000'),
-      },
-      [`&:hover .${nameWrapperClassName}`]: {
-        background: `linear-gradient(
-          90deg,
-          ${autoColor(theme, '#fafafa')},
-          ${autoColor(theme, '#f8f8f8')} 75%,
-          ${autoColor(theme, '#eee')}
-        )`,
-      },
-      [`&:hover .${viewClassName}`]: {
-        backgroundColor: autoColor(theme, '#f5f5f5'),
-        outline: `1px solid ${autoColor(theme, '#ddd')}`,
-      },
-      ['& .icon-wrapper']: {
-        borderBottomColor: `${serviceColor}CF`,
-        borderBottomWidth: '2px',
-        borderBottomStyle: 'solid',
-      },
-    }),
-    rowClippingLeft: css({
-      label: 'rowClippingLeft',
-      [`& .${nameColumnClassName}::before`]: {
-        content: '" "',
-        height: '100%',
-        position: 'absolute',
-        width: '6px',
-        backgroundImage: `linear-gradient(
-          to right,
-          ${autoColor(theme, 'rgba(25, 25, 25, 0.25)')},
-          ${autoColor(theme, 'rgba(32, 32, 32, 0)')}
-        )`,
-        left: '100%',
-        zIndex: -1,
-      },
-    }),
-    rowClippingRight: css({
-      label: 'rowClippingRight',
-      [`& .${viewClassName}::before`]: {
-        content: '" "',
-        height: '100%',
-        position: 'absolute',
-        width: '6px',
-        backgroundImage: `linear-gradient(
-          to left,
-          ${autoColor(theme, 'rgba(25, 25, 25, 0.25)')},
-          ${autoColor(theme, 'rgba(25, 25, 25, 0.25)')}
-        )`,
-        right: '0%',
-        zIndex: 1,
-      },
-    }),
-    rowExpanded: css({
-      label: 'rowExpanded',
-      [`& .${spanBarClassName}`]: {
-        opacity: 1,
-      },
-      [`& .${spanBarLabelClassName}`]: {
-        color: autoColor(theme, '#000'),
-      },
-      [`& .${nameWrapperClassName}, &:hover .${nameWrapperClassName}`]: {
-        background: autoColor(theme, '#f0f0f0'),
-        boxShadow: `0 1px 0 ${autoColor(theme, '#ddd')}`,
-      },
-      [`& .${nameWrapperMatchingFilterClassName}`]: {
-        background: autoColor(theme, '#fff3d7'),
-      },
-      [`&:hover .${viewClassName}`]: {
-        background: autoColor(theme, '#eee'),
-      },
-    }),
-    rowMatchingFilter: css({
-      label: 'rowMatchingFilter',
-
-      [`&:hover .${nameWrapperClassName}`]: {
-        background: `linear-gradient(
-          90deg,
-          ${autoColor(theme, '#fffbde')},
-          ${autoColor(theme, '#fffbde')} 75%,
-          ${autoColor(theme, '#f7f1c6')}
-        )`,
-      },
-      [`&:hover .${viewClassName}`]: {
-        backgroundColor: autoColor(theme, '#f7f1c6'),
-        outline: `1px solid ${autoColor(theme, '#ddd')}`,
-      },
-    }),
-    rowFocused: css({
-      label: 'rowFocused',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${animations.flash} 1s cubic-bezier(0.12, 0, 0.39, 0)`,
-      },
-      [`& .${viewClassName}`]: {
-        backgroundColor: autoColor(theme, '#cbe7ff'),
-        [theme.transitions.handleMotion('no-preference')]: {
-          animation: `${animations.flash} 1s cubic-bezier(0.12, 0, 0.39, 0)`,
-        },
-      },
-      [`& .${spanBarClassName}`]: {
-        opacity: 1,
-      },
-      [`& .${spanBarLabelClassName}`]: {
-        color: autoColor(theme, '#000'),
-      },
-    }),
-
-    rowError: css({
-      label: 'rowError',
-
-      [`&:hover .${nameWrapperClassName}`]: {
-        background: theme.colors.error.borderTransparent,
-      },
-
-      [`& .${nameWrapperClassName} > *`]: {
-        background: theme.colors.error.transparent,
-      },
-    }),
-
-    rowExpandedAndMatchingFilter: css({
-      label: 'rowExpandedAndMatchingFilter',
-      [`&:hover .${viewClassName}`]: {
-        background: autoColor(theme, '#ffeccf'),
-      },
-    }),
-
-    name: css({
-      label: 'name',
-      color: autoColor(theme, '#000'),
-      cursor: 'pointer',
-      flex: '1 1 auto',
-      outline: 'none',
-      overflowY: 'hidden',
-      overflowX: 'auto',
-      padding: '4px',
-      position: 'relative',
-      '-ms-overflow-style': 'none',
-      scrollbarWidth: 'none',
-      '&::-webkit-scrollbar': {
-        display: 'none',
-      },
-      '&:focus': {
-        textDecoration: 'none',
-      },
-      '&:hover > span': {
-        color: autoColor(theme, '#000'),
-      },
-      textAlign: 'left',
-      border: 'none',
-      borderBottomColor: `${serviceColor}CF`,
-      borderBottomWidth: '2px',
-      borderBottomStyle: 'solid',
-    }),
-    nameDetailExpanded: css({
-      label: 'nameDetailExpanded',
-      '&::before': {
-        bottom: 0,
-      },
-    }),
-    svcName: css({
-      label: 'svcName',
-      fontSize: '0.9em',
-      fontWeight: '500',
-      marginRight: '0.25rem',
-    }),
-    svcNameChildrenCollapsed: css({
-      label: 'svcNameChildrenCollapsed',
-      fontWeight: '500',
-      fontStyle: 'italic',
-    }),
-    errorIcon: css({
-      label: 'errorIcon',
-      borderRadius: theme.shape.radius.md,
-      color: autoColor(theme, '#fff'),
-      fontSize: '0.6em',
-      marginRight: '0.25rem',
-      padding: '1px',
-    }),
-    rpcColorMarker: css({
-      label: 'rpcColorMarker',
-      borderRadius: theme.shape.radius.md,
-      display: 'inline-block',
-      fontSize: '0.85em',
-      height: '1em',
-      marginRight: '0.25rem',
-      padding: '1px',
-      width: '1em',
-      verticalAlign: 'middle',
-    }),
-    labelRight: css({
-      label: 'labelRight',
-      left: '100%',
-    }),
-    labelLeft: css({
-      label: 'labelLeft',
-      right: '100%',
-    }),
-  };
-});
-
 export type SpanBarRowProps = {
   className?: string;
-  theme: GrafanaTheme2;
   color: string;
   spanBarOptions: SpanBarOptions | undefined;
   columnDivision: number;
@@ -354,7 +83,7 @@ export type SpanBarRowProps = {
   criticalPath: CriticalPathSection[];
 };
 
-const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
+const SpanBarRow = React.memo<SpanBarRowProps>((props) => {
   const {
     className = '',
     color,
@@ -377,7 +106,6 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
     removeHoverIndentGuideId,
     clippingLeft,
     clippingRight,
-    theme,
     createSpanLink,
     datasourceType,
     showServiceName,
@@ -386,6 +114,7 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
     onDetailToggled,
     onChildrenToggled,
   } = props;
+  const theme = useTheme2();
 
   const { duration, hasChildren: isParent, operationName, process } = span;
   const serviceDisplayName = getServiceDisplayName(process);
@@ -394,18 +123,25 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
   const viewBounds = getViewedBounds(span.startTime, span.startTime + span.duration);
   const viewStart = viewBounds.start;
   const viewEnd = viewBounds.end;
-  const styles = getStyles(theme, showSpanFilterMatchesOnly, color);
 
   const labelDetail = `${serviceDisplayName}::${operationName}`;
   let longLabel;
-  let hintClassName;
+  let labelPosition: 'left' | 'right';
   if (viewStart > 1 - viewEnd) {
     longLabel = `${labelDetail} | ${label}`;
-    hintClassName = styles.labelLeft;
+    labelPosition = 'left';
   } else {
     longLabel = `${label} | ${labelDetail}`;
-    hintClassName = styles.labelRight;
+    labelPosition = 'right';
   }
+
+  const hasMatchingFilterBackground = isMatchingFilter && !showSpanFilterMatchesOnly;
+  const nameWrapperChild = showErrorIcon
+    ? styles.nameWrapperChildError
+    : hasMatchingFilterBackground
+      ? styles.nameWrapperChildMatchingFilter
+      : styles.nameWrapperChild;
+  const serviceBorderColor = `${color}CF`;
 
   const handleDetailToggle = React.useCallback(() => {
     onDetailToggled(span.spanID);
@@ -449,26 +185,19 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
 
   return (
     <TimelineRow
-      className={cx(
-        styles.row,
-        {
-          [styles.rowError]: showErrorIcon,
-          [styles.rowExpanded]: isDetailExpanded,
-          [styles.rowMatchingFilter]: isMatchingFilter,
-          [styles.rowExpandedAndMatchingFilter]: isMatchingFilter && isDetailExpanded,
-          [styles.rowFocused]: isFocused,
-          [styles.rowClippingLeft]: clippingLeft,
-          [styles.rowClippingRight]: clippingRight,
-        },
-        className
-      )}
+      className={mergeStylexProps(stylex.props(spanBarRowMarker), { className }).className}
+      xstyle={[styles.row, isFocused && styles.rowFocused]}
     >
-      <TimelineRow.Cell className={cx(styles.nameColumn, nameColumnClassName)} width={columnDivision}>
+      <TimelineRow.Cell
+        xstyle={[styles.nameColumn, clippingLeft && styles.nameColumnClippingLeft]}
+        width={columnDivision}
+      >
         <div
-          className={cx(styles.nameWrapper, nameWrapperClassName, {
-            [styles.nameWrapperMatchingFilter]: isMatchingFilter,
-            nameWrapperMatchingFilter: isMatchingFilter,
-          })}
+          {...stylex.props(
+            styles.nameWrapper,
+            nameWrapperBackground(isDetailExpanded, isMatchingFilter, showErrorIcon, hasMatchingFilterBackground),
+            isDetailExpanded && styles.nameWrapperExpanded
+          )}
         >
           <SpanTreeOffset
             onClick={isParent ? handleChildrenToggle : undefined}
@@ -478,10 +207,18 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
             addHoverIndentGuideId={addHoverIndentGuideId}
             removeHoverIndentGuideId={removeHoverIndentGuideId}
             visibleSpanIds={visibleSpanIds}
+            xstyle={nameWrapperChild}
+            iconWrapperXstyle={styles.iconWrapperBorder(serviceBorderColor)}
           />
           <button
             type="button"
-            className={cx(styles.name, { [styles.nameDetailExpanded]: isDetailExpanded })}
+            {...stylex.props(
+              styles.name,
+              spanNameMarker,
+              nameWrapperChild,
+              styles.nameBorder(serviceBorderColor),
+              isDetailExpanded && styles.nameDetailExpanded
+            )}
             aria-checked={isDetailExpanded}
             title={labelDetail}
             onClick={handleDetailToggle}
@@ -496,33 +233,36 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
                     ? autoColor(theme, span.errorIconColor)
                     : autoColor(theme, '#db2828'),
                 }}
-                className={styles.errorIcon}
+                xstyle={styles.errorIcon}
               />
             )}
             {showServiceName && (
               <span
-                className={cx(styles.svcName, {
-                  [styles.svcNameChildrenCollapsed]: isParent && !isChildrenExpanded,
-                })}
+                {...stylex.props(styles.svcName, isParent && !isChildrenExpanded && styles.svcNameChildrenCollapsed)}
               >
                 {`${serviceDisplayName} `}
               </span>
             )}
             {rpc && (
               <span>
-                <Icon name={'arrow-right'} /> <i className={styles.rpcColorMarker} style={{ background: rpc.color }} />
+                <Icon name={'arrow-right'} />{' '}
+                <i {...mergeStylexProps(stylex.props(styles.rpcColorMarker), { style: { background: rpc.color } })} />
                 {rpc.serviceName}
               </span>
             )}
             {noInstrumentedServer && (
               <span>
                 <Icon name={'arrow-right'} />{' '}
-                <i className={styles.rpcColorMarker} style={{ background: noInstrumentedServer.color }} />
+                <i
+                  {...mergeStylexProps(stylex.props(styles.rpcColorMarker), {
+                    style: { background: noInstrumentedServer.color },
+                  })}
+                />
                 {noInstrumentedServer.serviceName}
               </span>
             )}
-            <span className={styles.endpointName}>{rpc ? rpc.operationName : operationName}</span>
-            <span className={styles.endpointName}> {getSpanBarLabel(span, spanBarOptions, label)}</span>
+            <span {...stylex.props(styles.endpointName)}>{rpc ? rpc.operationName : operationName}</span>
+            <span {...stylex.props(styles.endpointName)}> {getSpanBarLabel(span, spanBarOptions, label)}</span>
           </button>
           {createSpanLink &&
             (() => {
@@ -538,10 +278,12 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
                     href={links[0].href}
                     // Needs to have target otherwise preventDefault would not work due to angularRouter.
                     target={'_blank'}
-                    style={{
-                      borderBottom: `2px solid ${color}CF`,
-                      paddingInline: '4px',
-                    }}
+                    {...mergeStylexProps(stylex.props(nameWrapperChild), {
+                      style: {
+                        borderBottom: `2px solid ${serviceBorderColor}`,
+                        paddingInline: '4px',
+                      },
+                    })}
                     rel="noopener noreferrer"
                     onClick={
                       links[0].onClick
@@ -558,7 +300,14 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
                   </a>
                 );
               } else if (links && count > 1) {
-                return <SpanLinksMenu links={links} datasourceType={datasourceType} color={color} />;
+                return (
+                  <SpanLinksMenu
+                    links={links}
+                    datasourceType={datasourceType}
+                    color={color}
+                    xstyle={nameWrapperChild}
+                  />
+                );
               } else {
                 return null;
               }
@@ -566,11 +315,13 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
         </div>
       </TimelineRow.Cell>
       <TimelineRow.Cell
-        className={cx(styles.view, viewClassName, {
-          [styles.viewExpanded]: isDetailExpanded,
-          [styles.viewExpandedAndMatchingFilter]: isMatchingFilter && isDetailExpanded,
-          [styles.rowError]: showErrorIcon,
-        })}
+        xstyle={[
+          styles.view,
+          viewBackground(isDetailExpanded, isMatchingFilter, isFocused),
+          isDetailExpanded ? styles.viewOutlineExpanded : styles.viewOutline,
+          isFocused && styles.viewFocused,
+          clippingRight && styles.viewClippingRight,
+        ]}
         data-testid="span-view"
         style={{ cursor: 'pointer' }}
         width={1 - columnDivision}
@@ -588,14 +339,231 @@ const UnthemedSpanBarRow = React.memo<SpanBarRowProps>((props) => {
           longLabel={longLabel}
           traceStartTime={traceStartTime}
           span={span}
-          labelClassName={`${spanBarLabelClassName} ${hintClassName}`}
-          className={spanBarClassName}
+          labelPosition={labelPosition}
+          isLabelHighlighted={isDetailExpanded || isFocused}
         />
       </TimelineRow.Cell>
     </TimelineRow>
   );
 });
 
-UnthemedSpanBarRow.displayName = 'UnthemedSpanBarRow';
+SpanBarRow.displayName = 'SpanBarRow';
 
-export default withTheme2(UnthemedSpanBarRow);
+export default SpanBarRow;
+
+/*
+ * The row's background rules resolved per state. Emotion applied them as descendant selectors of the row
+ * (`.row:hover .nameWrapper`, `.rowExpanded .nameWrapper`, ...); where two had equal specificity, the later
+ * one in the old stylesheet won: error beats matching-filter beats expanded beats the plain row hover.
+ */
+function nameWrapperBackground(
+  isExpanded: boolean,
+  isMatchingFilter: boolean,
+  isError: boolean,
+  hasMatchingFilterBackground: boolean
+) {
+  const rest = isExpanded
+    ? isMatchingFilter
+      ? traceColors['--gf-trace-fff3d7']
+      : traceColors['--gf-trace-f0f0f0']
+    : hasMatchingFilterBackground
+      ? traceColors['--gf-trace-fffce4']
+      : null;
+  if (isError) {
+    return styles.nameWrapperBackground(rest, colors['--gf-colors-error-border-transparent']);
+  }
+  if (isMatchingFilter) {
+    return [styles.nameWrapperBackground(rest, 'transparent'), styles.nameWrapperHoverMatchingFilter];
+  }
+  if (isExpanded) {
+    return styles.nameWrapperBackground(rest, traceColors['--gf-trace-f0f0f0']);
+  }
+  return [styles.nameWrapperBackground(rest, 'transparent'), styles.nameWrapperHover];
+}
+
+function viewBackground(isExpanded: boolean, isMatchingFilter: boolean, isFocused: boolean) {
+  const rest = isFocused
+    ? traceColors['--gf-trace-cbe7ff']
+    : isExpanded
+      ? isMatchingFilter
+        ? traceColors['--gf-trace-fff3d7']
+        : traceColors['--gf-trace-f8f8f8']
+      : null;
+  const hover =
+    isExpanded && isMatchingFilter
+      ? traceColors['--gf-trace-ffeccf']
+      : isMatchingFilter
+        ? traceColors['--gf-trace-f7f1c6']
+        : isExpanded
+          ? traceColors['--gf-trace-eee']
+          : traceColors['--gf-trace-f5f5f5'];
+  return styles.viewBackground(rest, hover);
+}
+
+const flash = stylex.keyframes({
+  from: {
+    backgroundColor: traceColors['--gf-trace-68b9ff'],
+  },
+  to: {},
+});
+
+const styles = stylex.create({
+  nameWrapper: {
+    lineHeight: '27px',
+    overflow: 'hidden',
+    display: 'flex',
+  },
+  nameWrapperBackground: (rest: string | null, hover: string) => ({
+    backgroundColor: { default: rest, [stylex.when.ancestor(':hover', spanBarRowMarker)]: hover },
+  }),
+  nameWrapperHover: {
+    backgroundImage: {
+      default: null,
+      [stylex.when.ancestor(':hover', spanBarRowMarker)]:
+        `linear-gradient(90deg, ${traceColors['--gf-trace-fafafa']}, ${traceColors['--gf-trace-f8f8f8']} 75%, ${traceColors['--gf-trace-eee']})`,
+    },
+  },
+  nameWrapperHoverMatchingFilter: {
+    backgroundImage: {
+      default: null,
+      [stylex.when.ancestor(':hover', spanBarRowMarker)]:
+        `linear-gradient(90deg, ${traceColors['--gf-trace-fffbde']}, ${traceColors['--gf-trace-fffbde']} 75%, ${traceColors['--gf-trace-f7f1c6']})`,
+    },
+  },
+  nameWrapperExpanded: {
+    boxShadow: `0 1px 0 ${traceColors['--gf-trace-ddd']}`,
+  },
+  // `.nameWrapper > *`: the wrapper's children.
+  nameWrapperChild: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  nameWrapperChildMatchingFilter: {
+    backgroundColor: traceColors['--gf-trace-fffce4'],
+  },
+  nameWrapperChildError: {
+    backgroundColor: colors['--gf-colors-error-transparent'],
+  },
+  nameColumn: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    zIndex: 1,
+  },
+  nameColumnClippingLeft: {
+    '::before': {
+      content: '" "',
+      height: '100%',
+      position: 'absolute',
+      width: '6px',
+      backgroundImage: `linear-gradient(to right, ${traceColors['--gf-trace-rgba-25-25-25-0-25']}, ${traceColors['--gf-trace-rgba-32-32-32-0']})`,
+      left: '100%',
+      zIndex: -1,
+    },
+  },
+  endpointName: {
+    color: {
+      default: traceColors['--gf-trace-484848'],
+      [stylex.when.ancestor(':hover', spanNameMarker)]: traceColors['--gf-trace-000'],
+    },
+    fontSize: '0.9em',
+  },
+  view: {
+    position: 'relative',
+  },
+  viewBackground: (rest: string | null, hover: string) => ({
+    backgroundColor: { default: rest, [stylex.when.ancestor(':hover', spanBarRowMarker)]: hover },
+  }),
+  viewOutline: {
+    outlineWidth: { default: null, [stylex.when.ancestor(':hover', spanBarRowMarker)]: '1px' },
+    outlineStyle: { default: null, [stylex.when.ancestor(':hover', spanBarRowMarker)]: 'solid' },
+    outlineColor: { default: null, [stylex.when.ancestor(':hover', spanBarRowMarker)]: traceColors['--gf-trace-ddd'] },
+  },
+  viewOutlineExpanded: {
+    outlineWidth: '1px',
+    outlineStyle: 'solid',
+    outlineColor: traceColors['--gf-trace-ddd'],
+  },
+  viewFocused: {
+    animationName: { default: null, [motion.noPreference]: flash },
+    animationDuration: { default: null, [motion.noPreference]: '1s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'cubic-bezier(0.12, 0, 0.39, 0)' },
+  },
+  viewClippingRight: {
+    '::before': {
+      content: '" "',
+      height: '100%',
+      position: 'absolute',
+      width: '6px',
+      backgroundImage: `linear-gradient(to left, ${traceColors['--gf-trace-rgba-25-25-25-0-25']}, ${traceColors['--gf-trace-rgba-25-25-25-0-25']})`,
+      right: '0%',
+      zIndex: 1,
+    },
+  },
+  row: {
+    fontSize: '0.9em',
+  },
+  rowFocused: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: flash },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '1s' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.12, 0, 0.39, 0)' },
+  },
+  iconWrapperBorder: (borderColor: string) => ({
+    borderBottomColor: borderColor,
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+  }),
+  name: {
+    color: traceColors['--gf-trace-000'],
+    cursor: 'pointer',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    outlineStyle: 'none',
+    overflowY: 'hidden',
+    overflowX: 'auto',
+    padding: '4px',
+    position: 'relative',
+    scrollbarWidth: 'none',
+    '::-webkit-scrollbar': {
+      display: 'none',
+    },
+    textDecoration: { default: null, ':focus': 'none' },
+    textAlign: 'left',
+    borderStyle: 'none',
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+  },
+  nameBorder: (borderColor: string) => ({
+    borderBottomColor: borderColor,
+  }),
+  nameDetailExpanded: {
+    '::before': {
+      bottom: 0,
+    },
+  },
+  svcName: {
+    fontSize: '0.9em',
+    fontWeight: 500,
+    marginRight: '0.25rem',
+  },
+  svcNameChildrenCollapsed: {
+    fontWeight: 500,
+    fontStyle: 'italic',
+  },
+  errorIcon: {
+    borderRadius: shape['--gf-shape-radius-md'],
+    color: traceColors['--gf-trace-fff'],
+    fontSize: '0.6em',
+    marginRight: '0.25rem',
+    padding: '1px',
+  },
+  rpcColorMarker: {
+    borderRadius: shape['--gf-shape-radius-md'],
+    display: 'inline-block',
+    fontSize: '0.85em',
+    height: '1em',
+    marginRight: '0.25rem',
+    padding: '1px',
+    width: '1em',
+    verticalAlign: 'middle',
+  },
+});

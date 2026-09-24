@@ -1,0 +1,23 @@
+/*
+ * Card rules StyleX can't express. Deliberately not in a cascade layer, like the Emotion rules they replace:
+ * - `all` is dropped by the StyleX compiler.
+ * - the heading's read-only radio must keep beating the unlayered `input[readonly]` form-field rule.
+ * - `Card.Figure` styles the image passed to it.
+ */
+.gf-card-link-hack {
+  all: unset;
+}
+
+.gf-card-link-hack:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+.gf-card-heading input[readonly] {
+  cursor: inherit;
+}
+
+.gf-card-figure > img {
+  width: 100%;
+}

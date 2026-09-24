@@ -1,0 +1,28 @@
+/* Colours the HTML that jsonMarkup() builds for span attribute values; StyleX can't target it. */
+@layer grafana-global {
+  .gf-trace-timeline-viewer .json-markup {
+    line-height: 17px;
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+
+  .gf-trace-timeline-viewer .json-markup-key {
+    font-weight: bold;
+  }
+
+  .gf-trace-timeline-viewer .json-markup-bool {
+    color: var(--gf-trace-firebrick);
+  }
+
+  .gf-trace-timeline-viewer .json-markup-string {
+    color: var(--gf-trace-teal);
+  }
+
+  .gf-trace-timeline-viewer .json-markup-null {
+    color: var(--gf-trace-teal);
+  }
+
+  .gf-trace-timeline-viewer .json-markup-number {
+    color: var(--gf-trace-blue-on-black);
+  }
+}

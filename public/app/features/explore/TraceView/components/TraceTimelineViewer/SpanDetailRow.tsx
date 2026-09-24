@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React from 'react';
 
-import { type CoreApp, type GrafanaTheme2, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
+import { type CoreApp, type LinkModel, type TimeRange, type TraceLog } from '@grafana/data';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { type TimeZone } from '@grafana/schema';
-import { stylesFactory, withTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type SpanLinkFunc } from '../types/links';
 import { type TraceSpan, type TraceSpanReference } from '../types/trace';
@@ -27,61 +28,6 @@ import SpanDetail, { type TraceFlameGraphs } from './SpanDetail';
 import type DetailState from './SpanDetail/DetailState';
 import SpanTreeOffset from './SpanTreeOffset';
 import TimelineRow from './TimelineRow';
-
-const getStyles = stylesFactory((theme: GrafanaTheme2) => {
-  return {
-    expandedAccent: css({
-      cursor: 'pointer',
-      height: '100%',
-      overflow: 'hidden',
-      position: 'absolute',
-      width: '100%',
-      '&::before': {
-        borderLeft: '1px solid',
-        pointerEvents: 'none',
-        width: '1000px',
-      },
-      '&::after': {
-        borderRight: '1000px solid',
-        borderColor: 'inherit',
-        cursor: 'pointer',
-        opacity: 0.2,
-      },
-
-      /* border-color inherit must come AFTER other border declarations for accent */
-      '&::before, &::after': {
-        borderColor: 'inherit',
-        content: '" "',
-        position: 'absolute',
-        height: '100%',
-      },
-
-      '&:hover::after': {
-        opacity: 0.35,
-      },
-    }),
-    infoWrapper: css({
-      label: 'infoWrapper',
-      padding: '0.75rem',
-    }),
-    cell: css({
-      label: 'cell',
-      display: 'flex !important',
-      width: '100% !important',
-    }),
-    indentSpacer: css({
-      label: 'indentSpacer',
-      flex: 'none',
-    }),
-    detailWrapper: css({
-      label: 'detailWrapper',
-      flex: '1',
-      minWidth: 0,
-      backgroundColor: theme.colors.background.canvas,
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-});
 
 export type SpanDetailRowProps = {
   color: string;
@@ -105,7 +51,6 @@ export type SpanDetailRowProps = {
   hoverIndentGuideIds: Set<string>;
   addHoverIndentGuideId: (spanID: string) => void;
   removeHoverIndentGuideId: (spanID: string) => void;
-  theme: GrafanaTheme2;
   createSpanLink?: SpanLinkFunc;
   focusedSpanId?: string;
   createFocusSpanLink: (traceId: string, spanId: string) => LinkModel;
@@ -119,7 +64,7 @@ export type SpanDetailRowProps = {
   app: CoreApp;
 };
 
-const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
+const SpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
   const {
     color,
     detailState,
@@ -137,7 +82,6 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
     traceStartTime,
     traceDuration,
     traceName,
-    theme,
     createSpanLink,
     focusedSpanId,
     createFocusSpanLink,
@@ -154,12 +98,10 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
     visibleSpanIds,
   } = props;
 
-  const styles = getStyles(theme);
-
   return (
     <TimelineRow>
-      <TimelineRow.Cell width={1} className={styles.cell}>
-        <div className={styles.indentSpacer}>
+      <TimelineRow.Cell width={1} xstyle={styles.cell}>
+        <div {...stylex.props(styles.indentSpacer)}>
           <SpanTreeOffset
             span={span}
             showChildrenIcon={false}
@@ -170,8 +112,8 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
             removeLastIndentGuide={true}
           />
         </div>
-        <div className={styles.detailWrapper}>
-          <div className={styles.infoWrapper} style={{ borderTopColor: color }}>
+        <div {...stylex.props(styles.detailWrapper)}>
+          <div {...mergeStylexProps(stylex.props(styles.infoWrapper), { style: { borderTopColor: color } })}>
             <SpanDetail
               color={color}
               detailState={detailState}
@@ -207,6 +149,27 @@ const UnthemedSpanDetailRow = React.memo<SpanDetailRowProps>((props) => {
   );
 });
 
-UnthemedSpanDetailRow.displayName = 'UnthemedSpanDetailRow';
+SpanDetailRow.displayName = 'SpanDetailRow';
 
-export default withTheme2(UnthemedSpanDetailRow);
+export default SpanDetailRow;
+
+const styles = stylex.create({
+  infoWrapper: {
+    padding: '0.75rem',
+  },
+  cell: {
+    display: 'flex',
+    width: '100%',
+  },
+  indentSpacer: {
+    flex: 'none',
+  },
+  detailWrapper: {
+    flex: '1',
+    minWidth: 0,
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+});

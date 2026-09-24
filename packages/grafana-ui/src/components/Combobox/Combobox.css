@@ -1,0 +1,23 @@
+/*
+ * Combobox styles the DOM inside the Input it renders (Input puts `gf-combobox-input` on its wrapper), which
+ * StyleX can't target. Like the Emotion rules it replaces, this file is not in a cascade layer.
+ */
+.gf-combobox-input > div > div:last-child {
+  pointer-events: none;
+}
+
+.gf-combobox-input input {
+  cursor: pointer;
+}
+
+.gf-combobox-input input:focus {
+  cursor: text;
+}
+
+.gf-combobox-adapt-to-parent {
+  max-width: 100%;
+}
+
+.gf-combobox-adapt-to-parent .gf-combobox-input {
+  max-width: 100%;
+}
