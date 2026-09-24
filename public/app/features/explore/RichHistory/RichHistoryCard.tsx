@@ -184,7 +184,9 @@ export function RichHistoryCard(props: Props) {
   );
 
   const queryActionButtons = (
-    <div {...mergeStylexProps(stylex.props(styles.queryActionButtons), { className: 'gf-explore-rich-history-actions' })}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.queryActionButtons), { className: 'gf-explore-rich-history-actions' })}
+    >
       <IconButton
         name="comment-alt"
         onClick={toggleActiveUpdateComment}
@@ -201,7 +203,7 @@ export function RichHistoryCard(props: Props) {
       />
       {cardRootDatasource && (
         <IconButton
-            name="share-alt"
+          name="share-alt"
           onClick={onCreateShortLink}
           tooltip={
             <Trans i18nKey="explore.rich-history-card.copy-shortened-link-tooltip">
