@@ -1,0 +1,14 @@
+/*
+ * Styles the action buttons, including the one RowOptionsButton renders. Unlayered, at the specificity of the Emotion
+ * descendant rule it replaces, so it still beats the global button styles.
+ */
+.gf-row-actions button {
+  color: var(--gf-colors-text-secondary);
+  padding-left: var(--gf-spacing-x2);
+  background: transparent;
+  border: none;
+}
+
+.gf-row-actions button:hover {
+  color: var(--gf-colors-text-max-contrast);
+}

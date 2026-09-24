@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type SceneDataLayerProvider, type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink } from '@grafana/schema';
-import { Menu, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Menu, ScrollContainer } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { sortDefaultLinksFirst, sortDefaultVarsFirst } from '../../utils/dashboardControls';
 import { DataLayerControlEditWrapper } from '../DashboardDataLayerControls';
@@ -31,8 +31,6 @@ export function DashboardControlsMenu({
 }: DashboardControlsMenuProps) {
   const isEditingNewLayouts = isEditing && config.featureToggles.dashboardNewLayouts;
   const fullLinks = dashboard.state.links ?? [];
-  const styles = useStyles2(getStyles);
-
   return (
     <ScrollContainer
       minWidth={32}
@@ -49,7 +47,7 @@ export function DashboardControlsMenu({
         e.stopPropagation();
       }}
     >
-      <div className={styles.items}>
+      <div {...stylex.props(styles.items)}>
         {/* Variables */}
         {sortDefaultVarsFirst(variables).map((variable) => (
           <div key={variable.state.key}>
@@ -88,24 +86,25 @@ export function DashboardControlsMenu({
 }
 
 function MenuDivider() {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.divider}>
+    <div {...stylex.props(styles.divider)}>
       <Menu.Divider />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  items: css({
+const styles = stylex.create({
+  items: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(1),
-  }),
-  divider: css({
-    marginTop: theme.spacing(1),
-    padding: theme.spacing(0, 0.5),
-  }),
+    gap: spacing['--gf-spacing-x0-5'],
+    padding: spacing['--gf-spacing-x1'],
+  },
+  divider: {
+    marginTop: spacing['--gf-spacing-x1'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
 });
