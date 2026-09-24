@@ -1,0 +1,8 @@
+/*
+ * Override on CollapsableSection's content, which takes no xstyle and sets its own padding. Unlayered, and the doubled
+ * class outranks CollapsableSection's rule (which may be inserted later) like the Emotion className override it
+ * replaces.
+ */
+.gf-dashboard-link-form-options.gf-dashboard-link-form-options {
+  padding: 0;
+}

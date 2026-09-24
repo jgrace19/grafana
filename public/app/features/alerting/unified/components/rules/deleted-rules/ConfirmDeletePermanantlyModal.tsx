@@ -1,8 +1,9 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
 import { type ComponentProps } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
-import { ConfirmModal, Stack, useStyles2 } from '@grafana/ui';
+import { ConfirmModal, Stack } from '@grafana/ui';
 import { useAppNotification } from 'app/core/copy/appNotification';
 
 import { alertRuleApi } from '../../../api/alertRuleApi';
@@ -18,8 +19,6 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
   const title = t('alerting.deleted-rules.delete-modal.title', 'Permanently delete alert rule');
   const confirmText = t('alerting.deleted-rules.delete-modal.confirm', 'Yes, permanently delete');
   const appNotification = useAppNotification();
-
-  const styles = useStyles2(getStyles);
 
   async function onDeleteConfirm() {
     if (!guid) {
@@ -42,7 +41,7 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass={styles.modal}
+      modalClass={pendingEmotionStyles.modal}
       confirmButtonVariant="destructive"
       body={
         <Stack direction="column" gap={2}>
@@ -57,8 +56,9 @@ export const ConfirmDeletedPermanentlyModal = ({ isOpen, onDismiss, guid }: Moda
   );
 };
 
-const getStyles = () => ({
+// stylex: pending Modal migration
+const pendingEmotionStyles = {
   modal: css({
     width: '700px',
   }),
-});
+};

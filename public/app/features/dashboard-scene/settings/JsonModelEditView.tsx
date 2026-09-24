@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
+import { PageLayoutType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectRef, sceneUtils } from '@grafana/scenes';
 import { type Dashboard } from '@grafana/schema';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import { Alert, Box, Button, CodeEditor, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Button, CodeEditor, Stack, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
@@ -207,7 +208,6 @@ function JsonModelEditViewComponent({ model }: SceneComponentProps<JsonModelEdit
       <Trans i18nKey="dashboard-scene.json-model-edit-view.cancel-button.cancel">Cancel</Trans>
     </Button>
   );
-  const styles = useStyles2(getStyles);
 
   function renderSaveButtonAndError(error?: Error, disabled = false) {
     if (error && isSaving) {
@@ -285,7 +285,7 @@ function JsonModelEditViewComponent({ model }: SceneComponentProps<JsonModelEdit
   return (
     <Page navModel={navModel} pageNav={pageNav} layout={PageLayoutType.Standard}>
       <NavToolbarActions dashboard={dashboard} />
-      <div className={styles.wrapper}>
+      <div {...stylex.props(styles.wrapper)}>
         <Trans i18nKey="dashboard-settings.json-editor.subtitle">
           The JSON model below is the data structure that defines the dashboard. This includes dashboard settings, panel
           settings, layout, queries, and so on.
@@ -296,7 +296,7 @@ function JsonModelEditViewComponent({ model }: SceneComponentProps<JsonModelEdit
             onChange={handleEditorChange}
             onValidationChange={handleValidationChange}
             onFormatChange={setSchemaEditorFormat}
-            containerStyles={styles.codeEditor}
+            containerStyles={stylex.props(styles.codeEditor).className}
             showFormatToggle={true}
           />
         ) : (
@@ -306,7 +306,7 @@ function JsonModelEditViewComponent({ model }: SceneComponentProps<JsonModelEdit
             language="json"
             showLineNumbers={true}
             showMiniMap={true}
-            containerStyles={styles.codeEditor}
+            containerStyles={stylex.props(styles.codeEditor).className}
             onBlur={model.onCodeEditorBlur}
           />
         )}
@@ -316,14 +316,14 @@ function JsonModelEditViewComponent({ model }: SceneComponentProps<JsonModelEdit
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     height: '100%',
     flexDirection: 'column',
-    gap: theme.spacing(2),
-  }),
-  codeEditor: css({
+    gap: spacing['--gf-spacing-x2'],
+  },
+  codeEditor: {
     flexGrow: 1,
-  }),
+  },
 });

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
 
@@ -10,11 +10,11 @@ import {
   updateDatasourcePluginJsonDataOption,
   DataSourceTestSucceeded,
   DataSourceTestFailed,
-  type GrafanaTheme2,
 } from '@grafana/data';
 import { ConfigSection, DataSourceDescription } from '@grafana/plugin-ui';
 import { getAppEvents, usePluginInteractionReporter, getDataSourceSrv, config } from '@grafana/runtime';
-import { Alert, Input, type FieldProps, Field, Divider, useStyles2 } from '@grafana/ui';
+import { Alert, Input, type FieldProps, Field, Divider } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { CloudWatchDatasource } from '../../datasource';
 import { type SelectableResourceValue } from '../../resources/types';
@@ -85,10 +85,8 @@ export const ConfigEditor = (props: Props) => {
     }
   }, [options.jsonData.authType, options.jsonData.database, options.jsonData.profile]);
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.formStyles}>
+    <div {...stylex.props(styles.formStyles)}>
       {warning && (
         <Alert title="CloudWatch Authentication" severity="warning" onRemove={dismissWarning}>
           {warning}
@@ -267,8 +265,8 @@ function useDataSourceSavedState(props: Props) {
   return saved;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  formStyles: css({
-    maxWidth: theme.spacing(50),
-  }),
+const styles = stylex.create({
+  formStyles: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 50)`,
+  },
 });

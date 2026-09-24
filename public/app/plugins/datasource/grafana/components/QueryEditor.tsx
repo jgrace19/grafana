@@ -9,17 +9,7 @@ import {
   type Field,
 } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
-import {
-  InlineField,
-  Select,
-  Alert,
-  Input,
-  InlineFieldRow,
-  type Themeable2,
-  withTheme2,
-  Stack,
-  InlineLabel,
-} from '@grafana/ui';
+import { InlineField, Select, Alert, Input, InlineFieldRow, Stack, InlineLabel } from '@grafana/ui';
 import { getManagedChannelInfo } from 'app/features/live/info';
 import { type SearchQuery } from 'app/features/search/service/types';
 
@@ -28,7 +18,7 @@ import { defaultQuery, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
 
-interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
+interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery> {}
 
 const labelWidth = 12;
 
@@ -38,7 +28,7 @@ interface State {
   folders?: Array<SelectableValue<string>>;
 }
 
-export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
+export class QueryEditor extends React.PureComponent<Props, State> {
   state: State = { channels: [], channelFields: {} };
 
   queryTypes: Array<SelectableValue<GrafanaQueryType>> = [
@@ -399,5 +389,3 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
     );
   }
 }
-
-export const QueryEditor = withTheme2(UnthemedQueryEditor);

@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { type SceneDataLayerProvider } from '@grafana/scenes';
-import { Box, Button, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Box, Button, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { partitionAnnotationsByDisplay } from '../../edit-pane/dashboard/DashboardAnnotationsList';
 import { dashboardEditActions } from '../../edit-pane/shared';
@@ -16,10 +17,10 @@ import { DashboardInteractions } from '../../utils/interactions';
 import { getDashboardSceneFor } from '../../utils/utils';
 
 import { annotationEditActions } from './actions';
+import { annotationItemMarker } from './markers.stylex';
 
 export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLayerSet }) {
   const { annotationLayers } = dataLayerSet.useState();
-  const styles = useStyles2(getStyles);
   const canAdd = dataLayerSet.parent instanceof DashboardScene;
 
   const onSelectAnnotation = useCallback(
@@ -109,12 +110,12 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
               {(draggableProvided) => (
                 <div
                   key={layer.state.key}
-                  className={styles.annotationItem}
+                  {...stylex.props(styles.annotationItem, annotationItemMarker)}
                   ref={draggableProvided.innerRef}
                   {...draggableProvided.draggableProps}
                 >
                   <div
-                    className={styles.annotationContent}
+                    {...stylex.props(styles.annotationContent)}
                     aria-label={t('dashboard-scene.annotation-list.render-list.aria-label-annotation', 'Annotation')}
                     role="button"
                     tabIndex={0}
@@ -131,17 +132,22 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
                         content={t('dashboard.edit-pane.annotations.reorder', 'Drag to reorder')}
                         placement="top"
                       >
-                        <Icon name="draggabledots" size="md" className={styles.dragHandle} />
+                        <Icon name="draggabledots" size="md" xstyle={styles.dragHandle} />
                       </Tooltip>
                     </div>
                     <Text truncate>{layer.state.name}</Text>
-                    {layer.state.isHidden && <Icon name="eye-slash" size="sm" className={styles.hiddenIcon} />}
+                    {layer.state.isHidden && <Icon name="eye-slash" size="sm" xstyle={styles.hiddenIcon} />}
                     {layer.state.placement === 'inControlsMenu' && (
-                      <Icon name="sliders-v-alt" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="sliders-v-alt" size="sm" xstyle={styles.hiddenIcon} />
                     )}
                   </div>
                   <Stack direction="row" gap={1} alignItems="center">
-                    <Button variant="primary" size="sm" fill="outline">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      fill="outline"
+                      className={stylex.props(styles.selectButton).className}
+                    >
                       <Trans i18nKey="dashboard.edit-pane.annotations.select-annotation">Select</Trans>
                     </Button>
                   </Stack>
@@ -188,51 +194,39 @@ export function AnnotationList({ dataLayerSet }: { dataLayerSet: DashboardDataLa
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    annotationItem: css({
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      cursor: 'pointer',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-      '&:last-child': {
-        marginBottom: theme.spacing(2),
-      },
-      button: {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        color: theme.colors.text.link,
-        button: {
-          visibility: 'visible',
-        },
-      },
-    }),
-    annotationContent: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-    }),
-    dragHandle: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'grab',
-      color: theme.colors.text.secondary,
-      '&:active': {
-        cursor: 'grabbing',
-      },
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  annotationItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    cursor: 'pointer',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'color' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '250ms' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+    marginBottom: { default: null, ':last-child': spacing['--gf-spacing-x2'] },
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+  },
+  // Button doesn't set visibility itself, so a StyleX class can't conflict with it.
+  selectButton: {
+    visibility: { default: 'hidden', [stylex.when.ancestor(':hover', annotationItemMarker)]: 'visible' },
+  },
+  annotationContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  dragHandle: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: { default: 'grab', ':active': 'grabbing' },
+    color: colors['--gf-colors-text-secondary'],
+  },
+  hiddenIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});

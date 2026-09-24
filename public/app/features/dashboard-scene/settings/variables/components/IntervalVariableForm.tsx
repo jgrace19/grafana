@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ChangeEvent, type FormEvent } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { VariableCheckboxField } from './VariableCheckboxField';
 import { VariableLegend } from './VariableLegend';
@@ -38,7 +38,6 @@ export function IntervalVariableForm({
     label: `${count}`,
     value: count,
   }));
-  const styles = useStyles2(getStyles);
 
   const stepCount = STEP_OPTIONS.find((option) => option.value === autoStepCount) ?? STEP_OPTIONS[0];
 
@@ -71,7 +70,7 @@ export function IntervalVariableForm({
         testId={selectors.pages.Dashboard.Settings.Variables.Edit.IntervalVariable.autoEnabledCheckbox}
       />
       {autoEnabled && (
-        <div className={styles.autoFields}>
+        <div {...stylex.props(styles.autoFields)}>
           <VariableSelectField
             name={t('dashboard-scene.interval-variable-form.name-step-count', 'Step count')}
             description={t(
@@ -103,12 +102,10 @@ export function IntervalVariableForm({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    autoFields: css({
-      marginTop: theme.spacing(2),
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-  };
-};
+const styles = stylex.create({
+  autoFields: {
+    marginTop: spacing['--gf-spacing-x2'],
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});

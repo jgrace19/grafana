@@ -43,7 +43,7 @@ check() {
   files=$(rg -l "${G[@]}" -e "$pattern" "${SCOPE[@]}" 2>/dev/null | sort || true)
   if [ -n "$files" ]; then
     echo "✗ $label ($(printf '%s\n' "$files" | wc -l | tr -d ' ') files)"
-    printf '  %s\n' $files
+    printf '%s\n' "$files" | sed 's/^/  /'
     status=1
   else
     echo "✓ $label"

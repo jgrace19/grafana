@@ -27,6 +27,10 @@ CANDIDATE="$(mktemp -d)/candidate"
 
 [[ -f "${BASELINE}/manifest.json" ]] || { echo "no baseline manifest at ${BASELINE}" >&2; exit 2; }
 
+# A property StyleX compiled to no CSS only shows up on pages the manifest happens to cover, so check every
+# StyleX file before spending a capture on it.
+node "${REPO}/scripts/stylex/check-dropped-props.js" || { echo "fix the dropped StyleX properties above first" >&2; exit 3; }
+
 REPO="${REPO}" bash "${HERE}/scripts/run-capture.sh" "${CANDIDATE}" "$@"
 
 # diff.mjs doesn't clear its output directory, so stale diff images from an earlier run would linger.

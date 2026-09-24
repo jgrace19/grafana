@@ -1,21 +1,30 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-type Props = React.HTMLAttributes<HTMLDivElement>;
-
-export const Well = ({ children, className }: Props) => {
-  const styles = useStyles2(getStyles);
-  return <div className={cx(styles.wrapper, className)}>{children}</div>;
+type Props = React.HTMLAttributes<HTMLDivElement> & {
+  /** first-party StyleX overrides */
+  xstyle?: StyleXStyles;
 };
-export const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    backgroundColor: theme.components.panel.background,
-    border: `solid 1px ${theme.components.input.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(0.5, 1),
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
+
+export const Well = ({ children, className, xstyle }: Props) => {
+  return <div {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })}>{children}</div>;
+};
+
+const styles = stylex.create({
+  wrapper: {
+    backgroundColor: components['--gf-components-panel-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-input-border-color'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
 });

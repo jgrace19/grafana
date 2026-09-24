@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren, useId } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Field, Select, useStyles2 } from '@grafana/ui';
+import { type SelectableValue } from '@grafana/data';
+import { Field, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface VariableSelectFieldProps<T> {
   name: string;
@@ -24,7 +25,6 @@ export function VariableSelectField({
   testId,
   width,
 }: PropsWithChildren<VariableSelectFieldProps<any>>) {
-  const styles = useStyles2(getStyles);
   const uniqueId = useId();
   const inputId = `variable-select-input-${name}-${uniqueId}`;
 
@@ -37,16 +37,14 @@ export function VariableSelectField({
         value={value}
         width={width ?? 30}
         options={options}
-        className={styles.selectContainer}
+        className={stylex.props(styles.selectContainer).className}
       />
     </Field>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    selectContainer: css({
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-}
+const styles = stylex.create({
+  selectContainer: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+});
