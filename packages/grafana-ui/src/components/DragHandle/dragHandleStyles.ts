@@ -1,13 +1,17 @@
 import * as stylex from '@stylexjs/stylex';
 
+import { type GrafanaTheme2 } from '@grafana/data';
+
 import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
 import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 
 /**
  * StyleX drag handle: a full-length hairline (`::before`) plus a pill-shaped grip (`::after`). Combine `base`,
- * one direction, one of its offsets and `gripColor`, e.g.
- * `stylex.props(dragHandleStyles.base, dragHandleStyles.vertical, verticalOffsetStyles.middle, dragHandleStyles.gripColor(c))`.
- * The grip colour is `theme.colors.emphasize(theme.colors.background.secondary, 0.15)`, computed by the caller.
+ * one direction and one of its offsets, e.g.
+ * `stylex.props(dragHandleStyles.base, dragHandleStyles.vertical, verticalOffsetStyles.middle)`, and set
+ * `--gf-drag-handle-grip-color` inline on the handle to
+ * `theme.colors.emphasize(theme.colors.background.secondary, 0.15)` (`getDragHandleGripColor`). It's a plain
+ * custom property because StyleX dynamic values don't inherit into pseudo-elements.
  */
 export const dragHandleStyles = stylex.create({
   base: {
@@ -31,13 +35,9 @@ export const dragHandleStyles = stylex.create({
       transform: 'translate(-50%, -50%)',
       borderRadius: shape['--gf-shape-radius-pill'],
       zIndex: 1,
+      backgroundColor: { default: 'var(--gf-drag-handle-grip-color)', ':hover': colors['--gf-colors-primary-border'] },
     },
   },
-  gripColor: (color: string) => ({
-    '::after': {
-      backgroundColor: { default: color, ':hover': colors['--gf-colors-primary-border'] },
-    },
-  }),
   vertical: {
     cursor: 'col-resize',
     width: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
@@ -84,3 +84,7 @@ export const horizontalOffsetStyles = stylex.create({
   middle: { '::before': { top: '50%' }, '::after': { top: '50%' } },
   end: { '::before': { top: '100%' }, '::after': { top: '100%' } },
 });
+
+export function getDragHandleGripColor(theme: GrafanaTheme2) {
+  return theme.colors.emphasize(theme.colors.background.secondary, 0.15);
+}

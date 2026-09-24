@@ -6,7 +6,12 @@ import { useTheme2 } from '../../themes/ThemeContext';
 import { type ComponentSize } from '../../types/size';
 import { clamp } from '../../utils/clamp';
 import { type DragHandlePosition } from '../DragHandle/DragHandle';
-import { dragHandleStyles, horizontalOffsetStyles, verticalOffsetStyles } from '../DragHandle/dragHandleStyles';
+import {
+  dragHandleStyles,
+  getDragHandleGripColor,
+  horizontalOffsetStyles,
+  verticalOffsetStyles,
+} from '../DragHandle/dragHandleStyles';
 
 export interface UseSplitterOptions {
   /**
@@ -295,8 +300,7 @@ export function useSplitter(options: UseSplitterOptions) {
   const dragHandle = stylex.props(
     dragHandleStyles.base,
     direction === 'column' ? dragHandleStyles.horizontal : dragHandleStyles.vertical,
-    direction === 'column' ? horizontalOffsetStyles[dragPosition] : verticalOffsetStyles[dragPosition],
-    dragHandleStyles.gripColor(theme.colors.emphasize(theme.colors.background.secondary, 0.15))
+    direction === 'column' ? horizontalOffsetStyles[dragPosition] : verticalOffsetStyles[dragPosition]
   );
   const id = useId();
 
@@ -343,7 +347,11 @@ export function useSplitter(options: UseSplitterOptions) {
       onDoubleClick,
       onBlur,
       ref: splitterRef,
-      style: { ...dragHandle.style, [measurementProp]: `${handleSize}px` },
+      style: {
+        ...dragHandle.style,
+        [measurementProp]: `${handleSize}px`,
+        '--gf-drag-handle-grip-color': getDragHandleGripColor(theme),
+      },
       role: 'separator',
       'aria-valuemin': 0,
       'aria-valuemax': 100,
