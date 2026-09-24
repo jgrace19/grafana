@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue, type StandardEditorProps } from '@grafana/data';
+import { type SelectableValue, type StandardEditorProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ScaleDimensionConfig } from '@grafana/schema';
-import { Combobox, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { Combobox, InlineField, InlineFieldRow } from '@grafana/ui';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
 import { validateScaleOptions, validateScaleConfig } from '../scale';
@@ -14,7 +15,6 @@ import { type ScaleDimensionOptions } from '../types';
 export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionConfig, ScaleDimensionOptions>) => {
   const { value, context, onChange, item, id } = props;
   const { settings } = item;
-  const styles = useStyles2(getStyles);
 
   const fixedValueOption = useMemo(
     () => ({
@@ -115,7 +115,7 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
           noOptionsMessage={t('dimensions.scale-dimension-editor.noOptionsMessage-no-fields-found', 'No fields found')}
         />
       </div>
-      <div className={styles.range}>
+      <div {...stylex.props(styles.range)}>
         {isFixed && (
           <InlineFieldRow>
             <InlineField label={t('dimensions.scale-dimension-editor.label-value', 'Value')} labelWidth={8} grow={true}>
@@ -142,8 +142,8 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  range: css({
-    paddingTop: theme.spacing(1),
-  }),
+const styles = stylex.create({
+  range: {
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
 });

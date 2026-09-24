@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 import { FixedSizeList as List, type ListChildComponentProps } from 'react-window';
 
-import { type GrafanaTheme2, formattedValueToString, getValueFormat, type SelectableValue } from '@grafana/data';
+import { formattedValueToString, getValueFormat, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../../../themes/ThemeContext';
+import { useTheme2 } from '../../../../themes/ThemeContext';
+import { colors, spacing } from '../../../../themes/stylex/tokens.stylex';
 import { Checkbox } from '../../../Forms/Checkbox';
 import { Label } from '../../../Forms/Label';
 import { Stack } from '../../../Layout/Stack/Stack';
@@ -128,7 +128,6 @@ export const FilterList = ({ options, values, caseSensitive, onChange, searchFil
     [items, selectedItems]
   );
 
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const gutter = theme.spacing.gridSize / 2;
   const height = useMemo(() => Math.min(items.length * ITEM_HEIGHT, MIN_HEIGHT) + gutter, [gutter, items.length]);
@@ -162,14 +161,19 @@ export const FilterList = ({ options, values, caseSensitive, onChange, searchFil
             height={height}
             itemCount={items.length}
             itemSize={ITEM_HEIGHT}
-            itemData={{ items, values: selectedItems, onCheckedChanged, className: styles.filterListRow }}
+            itemData={{
+              items,
+              values: selectedItems,
+              onCheckedChanged,
+              className: stylex.props(styles.filterListRow).className ?? '',
+            }}
             width="100%"
-            className={styles.filterList}
+            className={stylex.props(styles.filterList).className}
           >
             {ItemRenderer}
           </List>
           <div
-            className={styles.filterListRow}
+            {...stylex.props(styles.filterListRow)}
             data-testid={selectors.components.Panels.Visualization.TableNG.Filters.SelectAll}
           >
             <Checkbox
@@ -182,7 +186,7 @@ export const FilterList = ({ options, values, caseSensitive, onChange, searchFil
           </div>
         </>
       ) : (
-        <Label className={styles.noValuesLabel}>
+        <Label className={stylex.props(styles.noValuesLabel).className}>
           <Trans i18nKey="grafana-ui.table.no-values-label">No values</Trans>
         </Label>
       )}
@@ -211,25 +215,25 @@ function ItemRenderer({ index, style, data: { onCheckedChanged, items, values, c
   );
 }
 
-const getStyles = memoize((theme: GrafanaTheme2) => ({
-  filterList: css({
-    label: 'filterList',
-    marginBottom: theme.spacing(0.5),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  filterListRow: css({
-    label: 'filterListRow',
+const styles = stylex.create({
+  filterList: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  filterListRow: {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    padding: theme.spacing(0.5),
-
-    ':hover': {
-      backgroundColor: theme.colors.action.hover,
-    },
-  }),
-  noValuesLabel: css({
-    paddingTop: theme.spacing(1),
-  }),
-}));
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+  },
+  noValuesLabel: {
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
+});

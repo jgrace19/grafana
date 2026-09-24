@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
 import { useEffect, useState } from 'react';
 
-import { type StandardEditorProps, type DataFrame, type GrafanaTheme2 } from '@grafana/data';
+import { type StandardEditorProps, type DataFrame } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type FrameGeometrySource, FrameGeometrySourceMode } from '@grafana/schema';
-import { Alert, Icon, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Icon, Select } from '@grafana/ui';
 
 import { type FrameGeometryField, getGeometryField, getLocationMatchers } from '../utils/location';
+
+import './locationModeEditor.css';
 
 interface ModeEditorSettings {
   data?: DataFrame[];
@@ -69,8 +70,6 @@ export const LocationModeEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.settings]);
 
-  const styles = useStyles2(getStyles);
-
   const dataValidation = () => {
     if (info) {
       if (info.warning) {
@@ -79,7 +78,7 @@ export const LocationModeEditor = ({
             title={info.warning}
             severity="warning"
             buttonContent={<Icon name="question-circle" size="xl" />}
-            className={styles.alert}
+            className="gf-location-mode-alert"
             onRemove={() => {
               const newWindow = window.open(helpUrl, '_blank', 'noopener,noreferrer');
               if (newWindow) {
@@ -108,17 +107,4 @@ export const LocationModeEditor = ({
       {dataValidation()}
     </>
   );
-};
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    alert: css({
-      '& div': {
-        padding: theme.spacing(0.5),
-      },
-      marginBottom: '0px',
-      marginTop: '5px',
-      padding: theme.spacing(0.25),
-    }),
-  };
 };

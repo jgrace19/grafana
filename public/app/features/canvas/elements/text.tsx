@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useRef } from 'react';
 import * as React from 'react';
 import { useObservable } from 'react-use';
 import { of } from 'rxjs';
 
-import { type DataFrame, type GrafanaTheme2 } from '@grafana/data';
+import { type DataFrame } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Input, usePanelContext, useStyles2 } from '@grafana/ui';
+import { Input, usePanelContext } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
 import { TextDimensionEditor } from 'app/features/dimensions/editors/TextDimensionEditor';
@@ -22,7 +23,6 @@ import { Align, type TextConfig, type TextData, VAlign } from '../types';
 
 const TextDisplay = (props: CanvasElementProps<TextConfig, TextData>) => {
   const { data, isSelected } = props;
-  const styles = useStyles2(getStyles(data));
 
   const context = usePanelContext();
   const scene = context.instanceState?.scene;
@@ -33,8 +33,18 @@ const TextDisplay = (props: CanvasElementProps<TextConfig, TextData>) => {
     return <TextEdit {...props} />;
   }
   return (
-    <div className={styles.container}>
-      <span className={styles.span}>
+    <div {...stylex.props(styles.container)}>
+      <span
+        {...stylex.props(
+          styles.span,
+          styles.spanStyle(
+            data?.valign ?? null,
+            data?.align ?? null,
+            data?.size != null ? `${data.size}px` : null,
+            data?.color ?? null
+          )
+        )}
+      >
         {data?.text ? data.text : t('canvas.text-display.double-click-to-set', 'Double click to set text')}
       </span>
     </div>
@@ -42,7 +52,7 @@ const TextDisplay = (props: CanvasElementProps<TextConfig, TextData>) => {
 };
 
 const TextEdit = (props: CanvasElementProps<TextConfig, TextData>) => {
-  let { data, config } = props;
+  let { config } = props;
   const context = usePanelContext();
   let panelData: DataFrame[];
   panelData = context.instanceState?.scene?.data.series;
@@ -94,36 +104,12 @@ const TextEdit = (props: CanvasElementProps<TextConfig, TextData>) => {
     [context.instanceState?.scene, context.instanceState?.selected]
   );
 
-  const styles = useStyles2(getStyles(data));
   return (
-    <div className={styles.inlineEditorContainer}>
+    <div {...stylex.props(styles.inlineEditorContainer)}>
       {panelData && <Input defaultValue={config.text?.fixed ?? ''} onKeyDown={onKeyDown} onKeyUp={onKeyUp} autoFocus />}
     </div>
   );
 };
-
-const getStyles = (data: TextData | undefined) => (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    display: 'table',
-  }),
-  inlineEditorContainer: css({
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(1),
-  }),
-  span: css({
-    display: 'table-cell',
-    verticalAlign: data?.valign,
-    textAlign: data?.align,
-    fontSize: `${data?.size}px`,
-    color: data?.color,
-  }),
-});
 
 export const textItem: CanvasElementItem<TextConfig, TextData> = {
   id: 'text',
@@ -232,3 +218,33 @@ export const textItem: CanvasElementItem<TextConfig, TextData> = {
       });
   },
 };
+
+type CssValue = string | null;
+
+const styles = stylex.create({
+  container: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    display: 'table',
+  },
+  inlineEditorContainer: {
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  span: {
+    display: 'table-cell',
+  },
+  spanStyle: (verticalAlign: CssValue, textAlign: CssValue, fontSize: CssValue, color: CssValue) => ({
+    verticalAlign,
+    textAlign,
+    fontSize,
+    color,
+  }),
+});

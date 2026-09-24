@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, FilterInput, Select, useStyles2 } from '@grafana/ui';
+import { Field, FilterInput, Select } from '@grafana/ui';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { type FileElement, type GrafanaDatasource } from 'app/plugins/datasource/grafana/datasource';
 
@@ -41,7 +41,6 @@ interface Props {
 
 export const FolderPickerTab = (props: Props) => {
   const { value, mediaType, folderName, newValue, setNewValue, maxFiles } = props;
-  const styles = useStyles2(getStyles);
 
   const folders = getFolders(mediaType).map((v) => ({
     label: v,
@@ -115,7 +114,7 @@ export const FolderPickerTab = (props: Props) => {
         />
       </Field>
       {filteredIndex && (
-        <div className={styles.cardsWrapper}>
+        <div {...stylex.props(styles.cardsWrapper)}>
           <ResourceCards cards={filteredIndex} onChange={(v) => setNewValue(v)} value={newValue} />
         </div>
       )}
@@ -123,11 +122,11 @@ export const FolderPickerTab = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  cardsWrapper: css({
+const styles = stylex.create({
+  cardsWrapper: {
     height: '30vh',
     minHeight: '50px',
     marginTop: '5px',
     maxWidth: '680px',
-  }),
+  },
 });

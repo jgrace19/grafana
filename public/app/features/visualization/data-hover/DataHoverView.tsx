@@ -1,15 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import {
-  type DataFrame,
-  type Field,
-  formattedValueToString,
-  getFieldDisplayName,
-  type GrafanaTheme2,
-  type LinkModel,
-} from '@grafana/data';
+import { type DataFrame, type Field, formattedValueToString, getFieldDisplayName, type LinkModel } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink } from '@grafana/ui';
+import { colors, components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { renderValue } from 'app/plugins/panel/geomap/utils/uiUtils';
 import { getDataLinks } from 'app/plugins/panel/status-history/utils';
 
@@ -63,8 +57,6 @@ export function getDisplayValuesAndLinks(data: DataFrame, rowIndex: number, colu
 }
 
 export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) => {
-  const styles = useStyles2(getStyles, padding);
-
   if (!data || rowIndex == null) {
     return null;
   }
@@ -78,23 +70,23 @@ export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) =>
   const { displayValues, links } = dispValuesAndLinks;
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper, styles.padding(`${padding}px`))}>
       {header && (
-        <div className={styles.header}>
-          <span className={styles.title}>{header}</span>
+        <div {...stylex.props(styles.header)}>
+          <span {...stylex.props(styles.title)}>{header}</span>
         </div>
       )}
-      <table className={styles.infoWrap}>
+      <table {...stylex.props(styles.infoWrap)}>
         <tbody>
           {displayValues.map((displayValue, i) => (
-            <tr key={`${i}/${rowIndex}`}>
-              <th>{displayValue.name}</th>
+            <tr key={`${i}/${rowIndex}`} {...stylex.props(styles.row)}>
+              <th {...stylex.props(styles.infoWrapTh)}>{displayValue.name}</th>
               <td>{renderValue(displayValue.valueString)}</td>
             </tr>
           ))}
           {links.map((link, i) => (
-            <tr key={i}>
-              <th>
+            <tr key={i} {...stylex.props(styles.row)}>
+              <th {...stylex.props(styles.infoWrapTh)}>
                 <Trans i18nKey="visualization.data-hover-view.link">Link</Trans>
               </th>
               <td colSpan={2}>
@@ -110,46 +102,50 @@ export const DataHoverView = ({ data, rowIndex, header, padding = 0 }: Props) =>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, padding = 0) => {
-  return {
-    wrapper: css({
-      padding: `${padding}px`,
-      background: theme.components.tooltip.background,
-      borderRadius: theme.shape.borderRadius(2),
-    }),
-    header: css({
-      background: theme.colors.background.secondary,
-      alignItems: 'center',
-      alignContent: 'center',
-      display: 'flex',
-      paddingBottom: theme.spacing(1),
-    }),
-    title: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      overflow: 'hidden',
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      flexGrow: 1,
-    }),
-    infoWrap: css({
-      padding: theme.spacing(1),
-      background: 'transparent',
-      border: 'none',
-      th: {
-        fontWeight: theme.typography.fontWeightMedium,
-        padding: theme.spacing(0.25, 2, 0.25, 0),
-      },
-
-      tr: {
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
-        '&:last-child': {
-          borderBottom: 'none',
-        },
-      },
-    }),
-    link: css({
-      color: theme.colors.text.link,
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    backgroundColor: components['--gf-components-tooltip-background'],
+    borderRadius: `calc(${shape['--gf-shape-radius-default']} * 2)`,
+  },
+  padding: (padding: string) => ({
+    paddingTop: padding,
+    paddingRight: padding,
+    paddingBottom: padding,
+    paddingLeft: padding,
+  }),
+  header: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    alignItems: 'center',
+    alignContent: 'center',
+    display: 'flex',
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  title: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    overflow: 'hidden',
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    flexGrow: 1,
+  },
+  infoWrap: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+  },
+  infoWrapTh: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingLeft: 0,
+  },
+  row: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: { default: 'solid', ':last-child': 'none' },
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+});
