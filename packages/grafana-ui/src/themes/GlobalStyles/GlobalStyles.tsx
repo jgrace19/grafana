@@ -1,4 +1,4 @@
-import { Global } from '@emotion/react';
+import { CacheProvider, Global } from '@emotion/react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
@@ -16,6 +16,7 @@ import { getExtraStyles } from './extra';
 import { getFilterTableStyles } from './filterTable';
 import { getFontStyles } from './fonts';
 import { getFormElementStyles } from './forms';
+import { globalLayerCache } from './globalLayerCache';
 import { getHacksStyles } from './hacks';
 import { getJsonFormatterStyles } from './jsonFormatter';
 import { getLegacySelectStyles } from './legacySelect';
@@ -38,15 +39,13 @@ export function GlobalStyles() {
   useRootThemeVars(theme);
 
   return (
-    <Global
-      styles={{
-        '@layer grafana-global': getGlobalStyles(theme),
-      }}
-    />
+    <CacheProvider value={globalLayerCache}>
+      <Global styles={getGlobalStyles(theme)} />
+    </CacheProvider>
   );
 }
 
-function getGlobalStyles(theme: GrafanaTheme2) {
+export function getGlobalStyles(theme: GrafanaTheme2) {
   return [
     getAccessibilityStyles(theme),
     getAlertingStyles(theme),
