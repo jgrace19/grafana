@@ -1,6 +1,8 @@
 import { Preview } from '@storybook/react';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
+import '../../../public/app/stylex-layers.css';
+
 import 'jquery';
 import { getBuiltInThemes, getTimeZone, getTimeZones, GrafanaTheme2 } from '@grafana/data';
 

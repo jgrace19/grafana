@@ -3,6 +3,10 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
+const wrapInLayer = require('./postcss-wrap-in-layer');
+
+const legacySassDir = path.resolve(__dirname, '../../public/sass') + path.sep;
+
 module.exports = function (options) {
   return {
     test: /\.(sa|sc|c)ss$/,
@@ -25,9 +29,14 @@ module.exports = function (options) {
         loader: 'postcss-loader',
         options: {
           sourceMap: options.sourceMap,
-          postcssOptions: {
-            config: path.resolve(__dirname),
-          },
+          postcssOptions: Object.assign(
+            (loaderContext) => ({
+              // The legacy Sass theme sheets rank below Emotion globals and StyleX.
+              plugins: loaderContext.resourcePath.startsWith(legacySassDir) ? [wrapInLayer('grafana-legacy')] : [],
+            }),
+            // postcss-loader reads `config` off the options object itself, even when it's a function.
+            { config: path.resolve(__dirname) }
+          ),
         },
       },
       {

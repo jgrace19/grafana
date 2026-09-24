@@ -3,7 +3,7 @@ import { useArgs } from '@storybook/preview-api';
 import { type Meta, type StoryFn } from '@storybook/react';
 
 import { useStyles2 } from '../../themes/ThemeContext';
-import { clearButtonStyles } from '../Button/Button';
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 
 import { ColorPicker } from './ColorPicker';
 import mdx from './ColorPicker.mdx';

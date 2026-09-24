@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type AnchorHTMLAttributes, type ButtonHTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type ThemeRichColor } from '@grafana/data';
+import { type GrafanaTheme2 } from '@grafana/data';
 
 import { useTheme2 } from '../../themes/ThemeContext';
-import { getButtonFocusStyles, getMouseFocusStyles } from '../../themes/mixins';
+import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName, type IconSize, type IconType } from '../../types/icon';
 import { type ComponentSize } from '../../types/size';
-import { getPropertiesForButtonSize } from '../Forms/commonStyles';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { type PopoverContent, type TooltipPlacement } from '../Tooltip/types';
@@ -65,6 +66,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth,
       children,
       className,
+      style,
       type = 'button',
       tooltip,
       disabled,
@@ -76,32 +78,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const theme = useTheme2();
-    const styles = getButtonStyles({
-      theme,
-      size,
-      variant,
-      fill,
-      fullWidth,
-      iconOnly: !children,
-    });
-
-    const buttonStyles = cx(
-      styles.button,
-      {
-        [styles.disabled]: disabled,
-      },
-      className
+    const hasTooltip = Boolean(tooltip);
+    // With a tooltip the button stays focusable and uses aria-disabled, which keeps hover/focus styles (see ariaDisabled).
+    const buttonProps = mergeStylexProps(
+      stylex.props(
+        getButtonStyles(theme, variant, fill, size, fullWidth),
+        disabled && !hasTooltip && disabledStyles[fill]
+      ),
+      { className, style }
     );
 
-    const hasTooltip = Boolean(tooltip);
-
-    const iconComponent = icon && <IconRenderer icon={icon} size={size} className={styles.icon} />;
+    const iconComponent = icon && <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />;
 
     // In order to standardise Button please always consider using IconButton when you need a button with an icon only
     // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
     const button = (
       <button
-        className={buttonStyles}
+        {...buttonProps}
         type={type}
         onClick={disabled ? undefined : onClick}
         {...otherProps}
@@ -113,7 +106,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-label={ariaLabel ?? (!children && typeof tooltip === 'string' ? tooltip : undefined)}
       >
         {iconPlacement === 'left' && iconComponent}
-        {children && <span className={styles.content}>{children}</span>}
+        {children && <span {...stylex.props(styles.content)}>{children}</span>}
         {iconPlacement === 'right' && iconComponent}
       </button>
     );
@@ -146,6 +139,7 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       fullWidth,
       children,
       className,
+      style,
       onBlur,
       onFocus,
       disabled,
@@ -156,31 +150,18 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     ref
   ) => {
     const theme = useTheme2();
-    const styles = getButtonStyles({
-      theme,
-      fullWidth,
-      size,
-      variant,
-      fill,
-      iconOnly: !children,
-    });
-
-    const linkButtonStyles = cx(
-      styles.button,
-      {
-        [css(styles.disabled, {
-          pointerEvents: 'none',
-        })]: disabled,
-      },
-      className
+    // Links can't be :disabled; aria-disabled drives the disabled look (see ariaDisabled).
+    const linkButtonProps = mergeStylexProps(
+      stylex.props(getButtonStyles(theme, variant, fill, size, fullWidth), disabled && styles.linkDisabled),
+      { className, style }
     );
 
-    const iconComponent = icon && <IconRenderer icon={icon} size={size} className={styles.icon} />;
+    const iconComponent = icon && <IconRenderer icon={icon} size={size} xstyle={!children && iconOnlyStyles[toButtonSize(size)]} />;
 
     // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
     const button = (
       <a
-        className={linkButtonStyles}
+        {...linkButtonProps}
         {...otherProps}
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled}
@@ -188,7 +169,7 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         aria-label={ariaLabel ?? (!children && typeof tooltip === 'string' ? tooltip : undefined)}
       >
         {iconPlacement === 'left' && iconComponent}
-        {children && <span className={styles.content}>{children}</span>}
+        {children && <span {...stylex.props(styles.content)}>{children}</span>}
         {iconPlacement === 'right' && iconComponent}
       </a>
     );
@@ -216,247 +197,423 @@ interface IconRendererProps {
   icon?: IconName | React.ReactElement<IconElementProps>;
   size?: IconSize;
   className?: string;
+  /** StyleX overrides for the icon, applied after `className`. */
+  xstyle?: stylex.StyleXStyles;
   iconType?: IconType;
 }
-export const IconRenderer = ({ icon, size, className, iconType }: IconRendererProps) => {
+export const IconRenderer = ({ icon, size, className, xstyle, iconType }: IconRendererProps) => {
   if (!icon) {
     return null;
   }
   if (React.isValidElement(icon)) {
     return React.cloneElement(icon, {
-      className,
+      className: mergeStylexProps(stylex.props(xstyle), { className }).className,
       size,
     });
   }
-  return <Icon name={icon} size={size} className={className} type={iconType} />;
+  return <Icon name={icon} size={size} className={className} xstyle={xstyle} type={iconType} />;
 };
 
-export interface StyleProps {
-  size: ComponentSize;
-  variant: ButtonVariant;
-  fill?: ButtonFill;
-  iconOnly?: boolean;
-  theme: GrafanaTheme2;
-  fullWidth?: boolean;
-  narrow?: boolean;
-}
+// `xs` has no button size of its own and renders as `md`.
+const toButtonSize = (size: ComponentSize) => (size === 'sm' || size === 'lg' ? size : 'md');
 
-export const getButtonStyles = (props: StyleProps) => {
-  const { theme, variant, fill = 'solid', size, iconOnly, fullWidth } = props;
-  const { height, padding, fontSize } = getPropertiesForButtonSize(size, theme);
-  const variantStyles = getPropertiesForVariant(theme, variant, fill);
-  const disabledStyles = getPropertiesForDisabled(theme, variant, fill);
-  const focusStyle = getButtonFocusStyles(theme);
-  const paddingMinusBorder = theme.spacing.gridSize * padding - 1;
-
-  return {
-    button: css({
-      label: 'button',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      fontSize: fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      fontFamily: theme.typography.fontFamily,
-      padding: `0 ${paddingMinusBorder}px`,
-      height: theme.spacing(height),
-      // Deduct border from line-height for perfect vertical centering on windows and linux
-      lineHeight: `${theme.spacing.gridSize * height - 2}px`,
-      verticalAlign: 'middle',
-      cursor: 'pointer',
-      borderRadius: theme.shape.radius.default,
-      '&:focus': focusStyle,
-      '&:focus-visible': focusStyle,
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-      ...(fullWidth && {
-        flexGrow: 1,
-        justifyContent: 'center',
-      }),
-      ...variantStyles,
-      ':disabled': disabledStyles,
-      '&[disabled]': disabledStyles,
-
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['background-color', 'border-color', 'color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-    }),
-    disabled: css(disabledStyles, {
-      '&:hover': css(disabledStyles),
-    }),
-    img: css({
-      width: '16px',
-      height: '16px',
-      margin: theme.spacing(0, 1, 0, 0.5),
-    }),
-    icon: iconOnly
-      ? css({
-          // Important not to set margin bottom here as it would override internal icon bottom margin
-          marginRight: theme.spacing(-padding / 2),
-          marginLeft: theme.spacing(-padding / 2),
-        })
-      : undefined,
-    content: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      height: '100%',
-    }),
-  };
-};
-
-export function getActiveButtonStyles(color: ThemeRichColor, fill: ButtonFill) {
-  return {
-    background: fill === 'solid' ? color.main : 'transparent',
-  };
-}
-
-export function getButtonVariantStyles(theme: GrafanaTheme2, color: ThemeRichColor, fill: ButtonFill) {
-  let outlineBorderColor = color.border;
-  let borderColor = 'transparent';
-  let hoverBorderColor = 'transparent';
-
-  // Secondary button has some special rules as we lack the color token to
-  // specify border color for normal button vs border color for outline button
-  if (color.name === 'secondary') {
-    borderColor = color.border;
-    hoverBorderColor = theme.colors.emphasize(color.border, 0.25);
-    outlineBorderColor = theme.colors.border.strong;
-  }
-
-  if (fill === 'outline') {
-    return {
-      background: 'transparent',
-      color: color.text,
-      border: `1px solid ${outlineBorderColor}`,
-
-      '&:hover, &:focus': {
-        background: color.transparent,
-        borderColor: theme.colors.emphasize(outlineBorderColor, 0.25),
-        color: color.text,
-      },
-
-      '&:active': {
-        ...getActiveButtonStyles(color, fill),
-      },
-    };
-  }
-
-  if (fill === 'text') {
-    return {
-      background: 'transparent',
-      color: color.text,
-      border: '1px solid transparent',
-
-      '&:hover, &:focus': {
-        background: color.transparent,
-        textDecoration: 'none',
-        outline: 'none',
-      },
-
-      '&:active': {
-        ...getActiveButtonStyles(color, fill),
-      },
-    };
-  }
-
-  return {
-    background: color.main,
-    color: color.contrastText,
-    border: `1px solid ${borderColor}`,
-
-    '&:hover': {
-      background: color.shade,
-      color: color.contrastText,
-      boxShadow: theme.shadows.z1,
-      borderColor: hoverBorderColor,
-    },
-
-    '&:focus': {
-      background: color.shade,
-      color: color.contrastText,
-    },
-
-    '&:active': {
-      ...getActiveButtonStyles(color, fill),
-    },
-  };
-}
-
-function getPropertiesForDisabled(theme: GrafanaTheme2, variant: ButtonVariant, fill: ButtonFill) {
-  const disabledStyles = {
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-    color: theme.colors.text.disabled,
-    transition: 'none',
-    background: theme.colors.action.disabledBackground,
-  };
-
-  if (fill === 'text') {
-    return {
-      ...disabledStyles,
-      background: 'transparent',
-      border: `1px solid transparent`,
-    };
-  }
-
-  if (fill === 'outline') {
-    return {
-      ...disabledStyles,
-      background: 'transparent',
-      border: `1px solid ${theme.colors.border.weak}`,
-    };
-  }
-
-  return {
-    ...disabledStyles,
-    background: theme.colors.action.disabledBackground,
-    border: `1px solid transparent`,
-  };
-}
-
-export function getPropertiesForVariant(theme: GrafanaTheme2, variant: ButtonVariant, fill: ButtonFill) {
+function getRichColor(theme: GrafanaTheme2, variant: ButtonVariant) {
   switch (variant) {
     case 'secondary':
-      // The seconday button has some special handling as it's outline border is it's default color border
-      return getButtonVariantStyles(theme, theme.colors.secondary, fill);
-
+      return theme.colors.secondary;
     case 'destructive':
-      return getButtonVariantStyles(theme, theme.colors.error, fill);
-
+      return theme.colors.error;
     case 'success':
-      return getButtonVariantStyles(theme, theme.colors.success, fill);
-
+      return theme.colors.success;
     case 'primary':
     default:
-      return getButtonVariantStyles(theme, theme.colors.primary, fill);
+      return theme.colors.primary;
   }
 }
 
-export const clearButtonStyles = (theme: GrafanaTheme2) => {
-  return css({
-    background: 'transparent',
-    color: theme.colors.text.primary,
-    border: 'none',
-    padding: 0,
-  });
-};
+/**
+ * Border colours involve colour math (`emphasize`), so they're computed from the theme in JS and passed
+ * as a dynamic style: [default, aria-disabled, hover, focus].
+ */
+function getBorderColors(
+  theme: GrafanaTheme2,
+  variant: ButtonVariant,
+  fill: ButtonFill
+): [string, string, string | null, string | null] {
+  const color = getRichColor(theme, variant);
+  if (fill === 'text') {
+    return ['transparent', 'transparent', null, null]
+  }
+  if (fill === 'outline') {
+    // Secondary lacks a token for "outline button border", so it uses border.strong.
+    const border = variant === 'secondary' ? theme.colors.border.strong : color.border;
+    const emphasized = theme.colors.emphasize(border, 0.25);
+    return [border, theme.colors.border.weak, emphasized, emphasized]
+  }
+  if (variant === 'secondary') {
+    return [color.border, 'transparent', theme.colors.emphasize(color.border, 0.25), null]
+  }
+  return ['transparent', 'transparent', 'transparent', null]
+}
 
-export const clearLinkButtonStyles = (theme: GrafanaTheme2) => {
-  return css({
-    background: 'transparent',
-    border: 'none',
-    padding: 0,
-    fontFamily: 'inherit',
-    color: 'inherit',
+function getButtonStyles(
+  theme: GrafanaTheme2,
+  variant: ButtonVariant,
+  fill: ButtonFill,
+  size: ComponentSize,
+  fullWidth: boolean | undefined
+) {
+  const variantStyles = fill === 'outline' ? outlineStyles : fill === 'text' ? textStyles : solidStyles;
+  return [
+    styles.button,
+    sizeStyles[toButtonSize(size)],
+    fillStyles[fill],
+    variantStyles[variant],
+    styles.borderColor(...getBorderColors(theme, variant, fill)),
+    fullWidth && styles.fullWidth,
+  ];
+}
+
+// A disabled Button with a tooltip (and a disabled LinkButton) sets aria-disabled instead of `disabled`.
+// Its disabled look sits below :hover/:focus/:active, so those states still apply on top of it.
+const ariaDisabled = ':is([aria-disabled="true"])';
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+const focusEasing = 'cubic-bezier(0.19, 1, 0.22, 1)';
+const buttonHeight = (height: string) => `calc(${spacing['--gf-spacing-grid-size']} * ${height})`;
+
+const styles = stylex.create({
+  button: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontFamily: typography['--gf-typography-font-family'],
+    paddingTop: 0,
+    paddingBottom: 0,
+    verticalAlign: 'middle',
+    cursor: { default: 'pointer', [ariaDisabled]: 'not-allowed' },
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background-color, border-color, color' },
+  },
+  borderColor: (base: string, ariaDisabledColor: string, hover: string | null, focus: string | null) => ({
+    borderColor: { default: base, [ariaDisabled]: ariaDisabledColor, ':hover': hover, ':focus': focus },
+  }),
+  fullWidth: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  linkDisabled: {
+    pointerEvents: 'none',
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
     height: '100%',
-    cursor: 'context-menu',
-    '&:hover': {
-      background: 'transparent',
-      color: 'inherit',
+  },
+});
+
+// Horizontal padding deducts the 1px border; line-height deducts both borders for vertical centering on Windows and Linux.
+const sizeStyles = stylex.create({
+  sm: {
+    fontSize: typography['--gf-typography-size-sm'],
+    height: buttonHeight(components['--gf-components-height-sm']),
+    lineHeight: `calc(${buttonHeight(components['--gf-components-height-sm'])} - 2px)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} - 1px)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} - 1px)`,
+  },
+  md: {
+    fontSize: typography['--gf-typography-size-md'],
+    height: buttonHeight(components['--gf-components-height-md']),
+    lineHeight: `calc(${buttonHeight(components['--gf-components-height-md'])} - 2px)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2 - 1px)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 2 - 1px)`,
+  },
+  lg: {
+    fontSize: typography['--gf-typography-size-lg'],
+    height: buttonHeight(components['--gf-components-height-lg']),
+    lineHeight: `calc(${buttonHeight(components['--gf-components-height-lg'])} - 2px)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 3 - 1px)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 3 - 1px)`,
+  },
+});
+
+// Don't set margin-bottom here: it would override the icon's own bottom margin.
+const iconOnlyStyles = stylex.create({
+  sm: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * -0.5)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -0.5)`,
+  },
+  md: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+  },
+  lg: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * -1.5)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -1.5)`,
+  },
+});
+
+// Focus behaviour differs by fill: solid shows the ring only for :focus-visible and adds a hover shadow;
+// outline and text also apply the ring's transition on plain :focus, and text drops the outline on hover/focus.
+// A mouse focus (:focus:not(:focus-visible)) always removes the ring, even while hovered.
+const fillStyles = stylex.create({
+  solid: {
+    boxShadow: {
+      default: null,
+      ':focus-visible': focusRing,
+      ':hover': shadows['--gf-shadows-z1'],
+      ':focus': { default: null, ':not(:focus-visible)': 'none' },
     },
-  });
-};
+    outlineStyle: {
+      default: null,
+      ':focus-visible': 'dotted',
+      ':focus': { default: null, ':not(:focus-visible)': 'none' },
+    },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineColor: { default: null, ':focus-visible': 'transparent' },
+    outlineOffset: { default: null, ':focus-visible': '2px' },
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: durations.short, ':focus-visible': '0.2s' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: easings.easeInOut, ':focus-visible': focusEasing },
+    },
+  },
+  outline: {
+    boxShadow: {
+      default: null,
+      ':focus-visible': focusRing,
+      ':focus': { default: focusRing, ':not(:focus-visible)': 'none' },
+    },
+    outlineStyle: {
+      default: null,
+      ':focus-visible': 'dotted',
+      ':focus': { default: 'dotted', ':not(:focus-visible)': 'none' },
+    },
+    outlineWidth: { default: null, ':focus-visible': '2px', ':focus': '2px' },
+    outlineColor: { default: null, ':focus-visible': 'transparent', ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus-visible': '2px', ':focus': '2px' },
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: durations.short, ':focus': '0.2s' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: easings.easeInOut, ':focus': focusEasing },
+    },
+  },
+  text: {
+    boxShadow: {
+      default: null,
+      ':focus-visible': focusRing,
+      ':focus': { default: focusRing, ':not(:focus-visible)': 'none' },
+    },
+    outlineStyle: { default: null, ':hover': 'none', ':focus': 'none' },
+    outlineOffset: { default: null, ':focus-visible': '2px', ':focus': '2px' },
+    textDecoration: { default: null, ':hover': 'none', ':focus': 'none' },
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: durations.short, ':focus': '0.2s' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: easings.easeInOut, ':focus': focusEasing },
+    },
+  },
+});
+
+const solidStyles = stylex.create({
+  primary: {
+    backgroundColor: {
+      default: colors['--gf-colors-primary-main'],
+      [ariaDisabled]: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-primary-shade'],
+      ':focus': colors['--gf-colors-primary-shade'],
+      ':active': colors['--gf-colors-primary-main'],
+    },
+    color: {
+      default: colors['--gf-colors-primary-contrast-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-primary-contrast-text'],
+      ':focus': colors['--gf-colors-primary-contrast-text'],
+    },
+  },
+  secondary: {
+    backgroundColor: {
+      default: colors['--gf-colors-secondary-main'],
+      [ariaDisabled]: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-secondary-shade'],
+      ':focus': colors['--gf-colors-secondary-shade'],
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    color: {
+      default: colors['--gf-colors-secondary-contrast-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-secondary-contrast-text'],
+      ':focus': colors['--gf-colors-secondary-contrast-text'],
+    },
+  },
+  destructive: {
+    backgroundColor: {
+      default: colors['--gf-colors-error-main'],
+      [ariaDisabled]: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-error-shade'],
+      ':focus': colors['--gf-colors-error-shade'],
+      ':active': colors['--gf-colors-error-main'],
+    },
+    color: {
+      default: colors['--gf-colors-error-contrast-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-error-contrast-text'],
+      ':focus': colors['--gf-colors-error-contrast-text'],
+    },
+  },
+  success: {
+    backgroundColor: {
+      default: colors['--gf-colors-success-main'],
+      [ariaDisabled]: colors['--gf-colors-action-disabled-background'],
+      ':hover': colors['--gf-colors-success-shade'],
+      ':focus': colors['--gf-colors-success-shade'],
+      ':active': colors['--gf-colors-success-main'],
+    },
+    color: {
+      default: colors['--gf-colors-success-contrast-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-success-contrast-text'],
+      ':focus': colors['--gf-colors-success-contrast-text'],
+    },
+  },
+});
+
+const outlineStyles = stylex.create({
+  primary: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-primary-transparent'],
+      ':focus': colors['--gf-colors-primary-transparent'],
+      ':active': 'transparent',
+    },
+    color: {
+      default: colors['--gf-colors-primary-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-primary-text'],
+      ':focus': colors['--gf-colors-primary-text'],
+    },
+  },
+  secondary: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-secondary-transparent'],
+      ':focus': colors['--gf-colors-secondary-transparent'],
+      ':active': 'transparent',
+    },
+    color: {
+      default: colors['--gf-colors-secondary-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-secondary-text'],
+      ':focus': colors['--gf-colors-secondary-text'],
+    },
+  },
+  destructive: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-error-transparent'],
+      ':focus': colors['--gf-colors-error-transparent'],
+      ':active': 'transparent',
+    },
+    color: {
+      default: colors['--gf-colors-error-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-error-text'],
+      ':focus': colors['--gf-colors-error-text'],
+    },
+  },
+  success: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-success-transparent'],
+      ':focus': colors['--gf-colors-success-transparent'],
+      ':active': 'transparent',
+    },
+    color: {
+      default: colors['--gf-colors-success-text'],
+      [ariaDisabled]: colors['--gf-colors-text-disabled'],
+      ':hover': colors['--gf-colors-success-text'],
+      ':focus': colors['--gf-colors-success-text'],
+    },
+  },
+});
+
+const textStyles = stylex.create({
+  primary: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-primary-transparent'],
+      ':focus': colors['--gf-colors-primary-transparent'],
+      ':active': 'transparent',
+    },
+    color: { default: colors['--gf-colors-primary-text'], [ariaDisabled]: colors['--gf-colors-text-disabled'] },
+  },
+  secondary: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-secondary-transparent'],
+      ':focus': colors['--gf-colors-secondary-transparent'],
+      ':active': 'transparent',
+    },
+    color: { default: colors['--gf-colors-secondary-text'], [ariaDisabled]: colors['--gf-colors-text-disabled'] },
+  },
+  destructive: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-error-transparent'],
+      ':focus': colors['--gf-colors-error-transparent'],
+      ':active': 'transparent',
+    },
+    color: { default: colors['--gf-colors-error-text'], [ariaDisabled]: colors['--gf-colors-text-disabled'] },
+  },
+  success: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-success-transparent'],
+      ':focus': colors['--gf-colors-success-transparent'],
+      ':active': 'transparent',
+    },
+    color: { default: colors['--gf-colors-success-text'], [ariaDisabled]: colors['--gf-colors-text-disabled'] },
+  },
+});
+
+// A native :disabled button wins over every interaction state, so these replace the whole property.
+const disabledStyles = stylex.create({
+  solid: {
+    cursor: 'not-allowed',
+    boxShadow: 'none',
+    color: colors['--gf-colors-text-disabled'],
+    transitionProperty: 'none',
+    backgroundColor: colors['--gf-colors-action-disabled-background'],
+    borderColor: 'transparent',
+  },
+  outline: {
+    cursor: 'not-allowed',
+    boxShadow: 'none',
+    color: colors['--gf-colors-text-disabled'],
+    transitionProperty: 'none',
+    backgroundColor: 'transparent',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+  text: {
+    cursor: 'not-allowed',
+    boxShadow: 'none',
+    color: colors['--gf-colors-text-disabled'],
+    transitionProperty: 'none',
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+  },
+});

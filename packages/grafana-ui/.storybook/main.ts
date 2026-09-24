@@ -1,7 +1,14 @@
 import path, { dirname, join } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-webpack5';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import remarkGfm from 'remark-gfm';
+import type { Configuration } from 'webpack';
 import { copyAssetsSync } from './copyAssets';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getStylexWebpackPlugins } = require('../../../scripts/webpack/stylex.js');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const wrapInLayer = require('../../../scripts/webpack/postcss-wrap-in-layer.js');
 
 const coreComponentsGlobs: StorybookConfig['stories'] = [
   // Specific high-level documentation pages
@@ -105,7 +112,9 @@ const mainConfig: StorybookConfig = {
       },
     },
   }),
-  webpackFinal: async (config) => {
+  webpackFinal: async (config, { configType }) => {
+    configureStylex(config, configType === 'DEVELOPMENT');
+
     // expose jquery as a global so jquery plugins don't break at runtime.
     config.module?.rules?.push({
       test: require.resolve('jquery'),
@@ -129,6 +138,48 @@ const mainConfig: StorybookConfig = {
   },
 };
 module.exports = mainConfig;
+
+/**
+ * Compile StyleX with the same options as the app, and mirror the app's cascade: the layer-order sheet is
+ * extracted to a real CSS asset (StyleX appends its rules to it) and the legacy Sass sits in
+ * `@layer grafana-legacy`.
+ */
+function configureStylex(config: Configuration, dev: boolean) {
+  const layersCss = path.resolve(__dirname, '../../../public/app/stylex-layers.css');
+  const legacySassDir = path.resolve(__dirname, '../../../public/sass') + path.sep;
+  const rules = (config.module ??= {}).rules ?? (config.module.rules = []);
+
+  for (const rule of rules) {
+    if (!rule || typeof rule !== 'object' || !(rule.test instanceof RegExp)) {
+      continue;
+    }
+    if (rule.test.test('x.css')) {
+      rule.exclude = [layersCss, ...(rule.exclude ? [rule.exclude].flat() : [])];
+    }
+    if (rule.test.test('x.scss') && Array.isArray(rule.use)) {
+      const cssLoaderIndex = rule.use.findIndex(
+        (use) => typeof use === 'object' && use !== null && String(use.loader).includes('css-loader')
+      );
+      rule.use.splice(cssLoaderIndex + 1, 0, {
+        loader: require.resolve('postcss-loader'),
+        options: {
+          postcssOptions: Object.assign(
+            (loaderContext: { resourcePath: string }) => ({
+              plugins: loaderContext.resourcePath.startsWith(legacySassDir) ? [wrapInLayer('grafana-legacy')] : [],
+            }),
+            { config: false }
+          ),
+        },
+      });
+    }
+  }
+
+  rules.push({ test: layersCss, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] });
+  (config.plugins ??= []).push(
+    new MiniCssExtractPlugin({ filename: 'grafana-stylex.[contenthash].css' }),
+    ...getStylexWebpackPlugins({ dev, cssInjectionTarget: (fileName: string) => fileName.includes('grafana-stylex.') })
+  );
+}
 
 function getAbsolutePath(value: string): any {
   return dirname(require.resolve(join(value, 'package.json')));

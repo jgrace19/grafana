@@ -8,7 +8,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
 import { useTheme2 } from '../../themes/ThemeContext';
-import { clearButtonStyles } from '../Button/Button';
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { Icon } from '../Icon/Icon';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 

@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState, useRef, memo, forwardRef } from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2, isIconName } from '@grafana/data';
+import { isIconName } from '@grafana/data';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { v1 } from '../../themes/stylex/tokens.stylex';
 import { type IconName, type IconType, type IconSize } from '../../types/icon';
-import { spin } from '../../utils/keyframes';
 
 import { getIconPath, getSvgSize } from './utils';
 
@@ -18,29 +19,9 @@ export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | '
    * Give your icon a semantic meaning. The icon will be hidden from screen readers, unless this prop or an aria-label is provided.
    */
   title?: string;
+  /** @internal First-party StyleX overrides, applied after the icon's own styles. */
+  xstyle?: stylex.StyleXStyles;
 }
-
-const getIconStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      display: 'inline-block',
-      fill: 'currentColor',
-      flexShrink: 0,
-      label: 'Icon',
-      // line-height: 0; is needed for correct icon alignment in Safari
-      lineHeight: 0,
-      verticalAlign: 'middle',
-    }),
-    orange: css({
-      fill: theme.v1.palette.orange,
-    }),
-    spin: css({
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${spin} 2s infinite linear`,
-      },
-    }),
-  };
-};
 
 // The SVG can become 'stuck' if it's changed quickly before the previous icon finished loading.
 // See https://github.com/gilbarbara/react-inlinesvg/issues/247
@@ -91,8 +72,7 @@ function useIconWorkaround(name: IconName) {
  */
 export const Icon = memo(
   forwardRef<SVGElement, IconProps>(
-    ({ size = 'md', type = 'default', name: nameProp, className, style, title = '', ...rest }, ref) => {
-      const styles = useStyles2(getIconStyles);
+    ({ size = 'md', type = 'default', name: nameProp, className, style, title = '', xstyle, ...rest }, ref) => {
       const { nameToUse: name, handleLoad } = useIconWorkaround(nameProp);
 
       if (!isIconName(name)) {
@@ -107,14 +87,16 @@ export const Icon = memo(
       const svgWid = name.startsWith('gf-bar-align') ? 16 : name.startsWith('gf-interp') ? 30 : svgSize;
       const svgPath = getIconPath(iconName, type);
 
-      const composedClassName = cx(
+      const iconStyles = [
         styles.icon,
+        type === 'mono' && name === 'favorite' && styles.orange,
+        iconName === 'spinner' && styles.spin,
+        xstyle,
+      ];
+      const { className: composedClassName, style: composedStyle } = mergeStylexProps(stylex.props(iconStyles), {
         className,
-        type === 'mono' ? { [styles.orange]: name === 'favorite' } : '',
-        {
-          [styles.spin]: iconName === 'spinner',
-        }
-      );
+        style,
+      });
 
       return (
         <SVG
@@ -134,19 +116,16 @@ export const Icon = memo(
           height={svgHgt}
           title={title}
           className={composedClassName}
-          style={style}
+          style={composedStyle}
           // render an empty element with the correct dimensions while loading
           // this prevents content layout shift whilst the icon asynchronously loads
           // which happens even if the icon is in the cache(!)
           loader={
             <svg
-              className={cx(
-                css({
-                  width: svgWid,
-                  height: svgHgt,
-                }),
-                composedClassName
-              )}
+              {...mergeStylexProps(stylex.props(styles.loaderSize(svgWid, svgHgt), iconStyles), {
+                className,
+                style,
+              })}
             />
           }
           {...rest}
@@ -157,3 +136,36 @@ export const Icon = memo(
 );
 
 Icon.displayName = 'Icon';
+
+const spin = stylex.keyframes({
+  '0%': {
+    transform: 'rotate(0deg)',
+  },
+  '100%': {
+    transform: 'rotate(359deg)',
+  },
+});
+
+const styles = stylex.create({
+  icon: {
+    display: 'inline-block',
+    fill: 'currentColor',
+    flexShrink: 0,
+    // line-height: 0; is needed for correct icon alignment in Safari
+    lineHeight: 0,
+    verticalAlign: 'middle',
+  },
+  orange: {
+    fill: v1['--gf-v1-palette-orange'],
+  },
+  spin: {
+    animationName: { default: null, [motion.noPreferenceOrReduce]: spin },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '2s' },
+    animationIterationCount: { default: null, [motion.noPreferenceOrReduce]: 'infinite' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'linear' },
+  },
+  loaderSize: (width: number, height: number) => ({
+    width,
+    height,
+  }),
+});

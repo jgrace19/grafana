@@ -5,7 +5,7 @@ import { type DisplayValue, type DisplayValueAlignmentFactors, type FieldSparkli
 import { type PercentChangeColorMode, type VizTextDisplayOptions } from '@grafana/schema';
 
 import { type Themeable2 } from '../../types/theme';
-import { clearButtonStyles } from '../Button/Button';
+import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
 import { FormattedValueDisplay } from '../FormattedValueDisplay/FormattedValueDisplay';
 
 import { buildLayout } from './BigValueLayout';

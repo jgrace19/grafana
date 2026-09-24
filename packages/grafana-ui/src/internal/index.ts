@@ -56,7 +56,8 @@ export { getModalStyles } from '../components/Modal/getModalStyles';
 export { MultiValueRemove, type MultiValueRemoveProps } from '../components/Select/MultiValue';
 export { getSvgSize } from '../components/Icon/utils';
 export { LoadingIndicator } from '../components/PanelChrome/LoadingIndicator';
-export { type ButtonLinkProps, getButtonStyles } from '../components/Button/Button';
+export { type ButtonLinkProps } from '../components/Button/Button';
+export { getButtonStyles } from '../compat/emotion/buttonStyles';
 export {
   type TableSortByFieldState,
   type TableFieldOptions,
@@ -98,7 +99,7 @@ export { ColorIndicator, ColorPlacement, type VizTooltipItem } from '../componen
 export { mapMouseEventToMode } from '../components/VizLegend/utils';
 export { Carousel } from '../components/Carousel/Carousel';
 
-export { getFocusStyles, getMouseFocusStyles, getTooltipContainerStyles } from '../themes/mixins';
+export { getFocusStyles, getMouseFocusStyles, getTooltipContainerStyles } from '../compat/emotion/mixins';
 
 export { optsWithHideZeros } from '../options/builder/tooltip';
 export { StackingEditor } from '../options/builder/stacking';
@@ -112,3 +113,6 @@ export { flattenTokens } from '../slate-plugins/slate-prism';
 export { RadialGauge } from '../components/RadialGauge/RadialGauge';
 
 export { MaybeWrapWithLink } from '../components/Table/TableNG/components/MaybeWrapWithLink';
+
+export { mergeStylexProps } from '../themes/stylex/mergeStylexProps';
+export { ScopedThemeVars, getThemeVarsStyle } from '../themes/stylex/ThemeVars';
