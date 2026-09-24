@@ -137,7 +137,9 @@ export const FilterPopup = memo(
         ref={containerRef}
       >
         <Stack direction="column">
-          <Stack alignItems="center">{field && <Label className="gf-table-ng-filter-label">{getDisplayName(field)}</Label>}</Stack>
+          <Stack alignItems="center">
+            {field && <Label className="gf-table-ng-filter-label">{getDisplayName(field)}</Label>}
+          </Stack>
 
           <Stack gap={1}>
             <div {...stylex.props(styles.inputContainer)}>
