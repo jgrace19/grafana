@@ -1,11 +1,12 @@
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 import { useAsync, useDebounce } from 'react-use';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, Input, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Input, Modal } from '@grafana/ui';
 
+import { modalStyles as styles } from '../../modalStyles';
 import { getConnectedDashboards } from '../../state/api';
-import { getModalStyles } from '../../styles';
 import { type PanelModelWithLibraryPanel } from '../../types';
 import { usePanelSave } from '../../utils/usePanelSave';
 
@@ -52,7 +53,6 @@ export const SaveLibraryPanelModal = ({
   );
 
   const { saveLibraryPanel } = usePanelSave();
-  const styles = useStyles2(getModalStyles);
   const discardAndClose = useCallback(() => {
     onDiscard();
   }, [onDiscard]);
@@ -62,7 +62,7 @@ export const SaveLibraryPanelModal = ({
   return (
     <Modal title={title} onDismiss={onDismiss} isOpen={true}>
       <div>
-        <p className={styles.textInfo}>
+        <p {...stylex.props(styles.textInfo)}>
           <Trans
             i18nKey="library-panels.save-library-panel-modal.num-affected"
             count={panel.libraryPanel.meta?.connectedDashboards}
@@ -74,7 +74,7 @@ export const SaveLibraryPanelModal = ({
           </Trans>
         </p>
         <Input
-          className={styles.dashboardSearch}
+          className={stylex.props(styles.dashboardSearch).className}
           prefix={<Icon name="search" />}
           placeholder={t(
             'library-panels.save-library-panel-modal.placeholder-search-affected-dashboards',
@@ -90,18 +90,18 @@ export const SaveLibraryPanelModal = ({
             </Trans>
           </p>
         ) : (
-          <table className={styles.myTable}>
-            <thead>
+          <table {...stylex.props(styles.myTable)}>
+            <thead {...stylex.props(styles.myTableHead)}>
               <tr>
-                <th>
+                <th {...stylex.props(styles.myTableCell)}>
                   <Trans i18nKey="library-panels.save-library-panel-modal.dashboard-name">Dashboard name</Trans>
                 </th>
               </tr>
             </thead>
             <tbody>
               {filteredDashboards.map((dashName, i) => (
-                <tr key={`dashrow-${i}`}>
-                  <td>{dashName}</td>
+                <tr key={`dashrow-${i}`} {...stylex.props(styles.myTableBodyRow)}>
+                  <td {...stylex.props(styles.myTableCell)}>{dashName}</td>
                 </tr>
               ))}
             </tbody>

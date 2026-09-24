@@ -1,0 +1,7 @@
+/*
+ * Hides scrollbars inside the scaled-down panel preview, which StyleX can't target. Unlayered, with the same
+ * (doubled-class) specificity as the Emotion rule it replaces.
+ */
+.gf-viz-suggestion-render-container.gf-viz-suggestion-render-container * {
+  scrollbar-width: none;
+}

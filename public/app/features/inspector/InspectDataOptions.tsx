@@ -1,13 +1,14 @@
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { type DataFrame, DataTransformerID, getFrameDisplayName, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, Select, Stack, Switch, useStyles2 } from '@grafana/ui';
+import { Field, Select, Stack, Switch } from '@grafana/ui';
 import { QueryOperationRow } from 'app/core/components/QueryOperationRow/QueryOperationRow';
 import { DetailText } from 'app/features/inspector/DetailText';
 import { type GetDataOptions } from 'app/features/query/state/PanelQueryRunner';
 
-import { getPanelInspectorStyles2 } from './styles';
+import { panelInspectorStyles as styles } from './panelInspectorStyles';
 
 interface Props {
   options: GetDataOptions;
@@ -38,8 +39,6 @@ export const InspectDataOptions = ({
   excelCompatibilityMode,
   toggleExcelCompatibilityMode,
 }: Props) => {
-  const styles = useStyles2(getPanelInspectorStyles2);
-
   let dataSelect = dataFrames;
   if (selectedDataFrame === DataTransformerID.joinByField) {
     dataSelect = data!;
@@ -81,7 +80,7 @@ export const InspectDataOptions = ({
   }
 
   return (
-    <div className={styles.dataDisplayOptions}>
+    <div {...stylex.props(styles.dataDisplayOptions)}>
       <QueryOperationRow
         id="Data options"
         index={0}
@@ -90,7 +89,7 @@ export const InspectDataOptions = ({
         isOpen={false}
         actions={actions}
       >
-        <div className={styles.options} data-testid="dataOptions">
+        <div {...stylex.props(styles.options)} data-testid="dataOptions">
           <Stack direction="column" gap={0}>
             {data!.length > 1 && (
               <Field label={t('dashboard.inspect-data.dataframe-label', 'Show data frame')}>

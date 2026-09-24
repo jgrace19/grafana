@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
 import { type PanelPluginMeta } from '@grafana/data';
@@ -58,7 +58,7 @@ export const PanelLibraryOptionsGroup = ({ panel, searchQuery }: Props) => {
 
       <PanelTypeFilter onChange={onPanelFilterChange} />
 
-      <div className={styles.libraryPanelsView}>
+      <div {...stylex.props(styles.libraryPanelsView)}>
         <LibraryPanelsView
           currentPanelId={panel.libraryPanel?.uid}
           searchString={searchQuery}
@@ -84,8 +84,8 @@ export const PanelLibraryOptionsGroup = ({ panel, searchQuery }: Props) => {
   );
 };
 
-const styles = {
-  libraryPanelsView: css({
+const styles = stylex.create({
+  libraryPanelsView: {
     width: '100%',
-  }),
-};
+  },
+});

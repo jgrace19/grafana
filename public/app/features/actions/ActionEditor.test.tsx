@@ -168,8 +168,7 @@ describe('ActionEditor', () => {
       render(<ActionEditor {...defaultProps} value={proxyAction} />);
 
       expect(screen.getByText('Connection')).toBeInTheDocument();
-      const connectionSection = screen.getByText('Connection').closest('.css-15ix71y-InlineFieldRow');
-      expect(connectionSection).toBeInTheDocument();
+      expect(screen.getByText('Connection').closest('label')).toBeInTheDocument();
     });
   });
 });

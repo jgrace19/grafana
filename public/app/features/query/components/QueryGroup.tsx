@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { type Unsubscribable } from 'rxjs';
@@ -17,7 +17,8 @@ import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv, locationService } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Button, InlineFormLabel, Modal, ScrollContainer, Stack, stylesFactory } from '@grafana/ui';
+import { Button, InlineFormLabel, Modal, ScrollContainer, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { PluginHelp } from 'app/core/components/PluginHelp/PluginHelp';
 import config from 'app/core/config';
 import { backendSrv } from 'app/core/services/backend_srv';
@@ -211,7 +212,7 @@ export class QueryGroup extends PureComponent<Props, State> {
     this.props.onRunQueries();
   };
 
-  renderTopSection(styles: QueriesTabStyles) {
+  renderTopSection() {
     const { onOpenQueryInspector, options } = this.props;
     const { dataSource, data, dsSettings } = this.state;
 
@@ -290,7 +291,7 @@ export class QueryGroup extends PureComponent<Props, State> {
       .filter(Boolean);
   }
 
-  renderAddQueryRow(dsSettings: DataSourceInstanceSettings, styles: QueriesTabStyles) {
+  renderAddQueryRow(dsSettings: DataSourceInstanceSettings) {
     const showAddButton = !isSharedDashboardQuery(dsSettings.name);
 
     return (
@@ -310,7 +311,7 @@ export class QueryGroup extends PureComponent<Props, State> {
             icon="plus"
             onClick={this.onAddExpressionClick}
             variant="secondary"
-            className={styles.expressionButton}
+            className={stylex.props(styles.expressionButton).className}
             data-testid="query-tab-add-expression"
           >
             <span>
@@ -329,16 +330,14 @@ export class QueryGroup extends PureComponent<Props, State> {
 
   render() {
     const { isHelpOpen, dsSettings } = this.state;
-    const styles = getStyles();
-
     return (
       <ScrollContainer minHeight="100%" ref={this.setScrollRef}>
-        <div className={styles.innerWrapper}>
-          {this.renderTopSection(styles)}
+        <div {...stylex.props(styles.innerWrapper)}>
+          {this.renderTopSection()}
           {dsSettings && (
             <>
-              <div className={styles.queriesWrapper}>{this.renderQueries(dsSettings)}</div>
-              {this.renderAddQueryRow(dsSettings, styles)}
+              <div {...stylex.props(styles.queriesWrapper)}>{this.renderQueries(dsSettings)}</div>
+              {this.renderAddQueryRow(dsSettings)}
               {isHelpOpen && (
                 <Modal
                   title={t('query.query-group.title-data-source-help', 'Data source help')}
@@ -356,37 +355,33 @@ export class QueryGroup extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory(() => {
-  const { theme } = config;
-
-  return {
-    innerWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing.md,
-    }),
-    dataSourceRow: css({
-      display: 'flex',
-      marginBottom: theme.spacing.md,
-    }),
-    dataSourceRowItem: css({
-      marginRight: theme.spacing.inlineFormMargin,
-    }),
-    dataSourceRowItemOptions: css({
-      flexGrow: 1,
-      marginRight: theme.spacing.inlineFormMargin,
-    }),
-    queriesWrapper: css({
-      paddingBottom: '16px',
-    }),
-    expressionWrapper: css({}),
-    expressionButton: css({
-      marginRight: theme.spacing.sm,
-    }),
-  };
+const styles = stylex.create({
+  innerWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  dataSourceRow: {
+    display: 'flex',
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  dataSourceRowItem: {
+    marginRight: '4px',
+  },
+  dataSourceRowItemOptions: {
+    flexGrow: 1,
+    marginRight: '4px',
+  },
+  queriesWrapper: {
+    paddingBottom: '16px',
+  },
+  expressionButton: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
 });
-
-type QueriesTabStyles = ReturnType<typeof getStyles>;
 
 interface QueryGroupTopSectionProps {
   data: PanelData;
@@ -409,17 +404,16 @@ export function QueryGroupTopSection({
   onOptionsChange,
   onOpenQueryInspector,
 }: QueryGroupTopSectionProps) {
-  const styles = getStyles();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   return (
     <>
       <div data-testid={selectors.components.QueryTab.queryGroupTopSection}>
-        <div className={styles.dataSourceRow}>
+        <div {...stylex.props(styles.dataSourceRow)}>
           <InlineFormLabel htmlFor="data-source-picker" width={'auto'}>
             <Trans i18nKey="query.query-group-top-section.data-source">Data source</Trans>
           </InlineFormLabel>
-          <div className={styles.dataSourceRowItem}>
+          <div {...stylex.props(styles.dataSourceRowItem)}>
             <DataSourcePickerWithPrompt
               options={options}
               scopedVars={scopedVars}
@@ -431,7 +425,7 @@ export function QueryGroupTopSection({
           </div>
           {dataSource && (
             <>
-              <div className={styles.dataSourceRowItem}>
+              <div {...stylex.props(styles.dataSourceRowItem)}>
                 <Button
                   variant="secondary"
                   icon="question-circle"
@@ -443,7 +437,7 @@ export function QueryGroupTopSection({
                   data-testid="query-tab-help-button"
                 />
               </div>
-              <div className={styles.dataSourceRowItemOptions}>
+              <div {...stylex.props(styles.dataSourceRowItemOptions)}>
                 <QueryGroupOptionsEditor
                   options={options}
                   dataSource={dataSource}
@@ -454,7 +448,7 @@ export function QueryGroupTopSection({
                 />
               </div>
               {onOpenQueryInspector && (
-                <div className={styles.dataSourceRowItem}>
+                <div {...stylex.props(styles.dataSourceRowItem)}>
                   <Button
                     variant="secondary"
                     onClick={onOpenQueryInspector}

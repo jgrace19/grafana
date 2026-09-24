@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { colors, shape, spacing, typography, v1 } from '../../../themes/stylex/tokens.stylex';
 
 export interface RadioButtonDotProps<T>
   extends Omit<React.HTMLProps<HTMLInputElement>, 'label' | 'value' | 'onChange' | 'type'> {
@@ -28,10 +26,8 @@ export const RadioButtonDot = <T extends string | number | readonly string[]>({
   onChange,
   ...props
 }: RadioButtonDotProps<T>) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <label title={description} className={styles.label}>
+    <label title={description} {...stylex.props(styles.label)}>
       <input
         {...props}
         id={id}
@@ -40,71 +36,69 @@ export const RadioButtonDot = <T extends string | number | readonly string[]>({
         checked={checked}
         value={value}
         disabled={disabled}
-        className={styles.input}
+        {...stylex.props(styles.input)}
         onChange={() => onChange && onChange(id)}
       />
       <div>
         {label}
-        {description && <div className={styles.description}>{description}</div>}
+        {description && <div {...stylex.props(styles.description)}>{description}</div>}
       </div>
     </label>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  input: css({
+const styles = stylex.create({
+  input: {
     position: 'relative',
     appearance: 'none',
-    outline: 'none',
-    backgroundColor: theme.colors.background.canvas,
-    width: `${theme.spacing(2)} !important` /* TODO How to overcome this? Checkbox does the same 🙁 */,
-    height: theme.spacing(2),
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.circle,
-    cursor: 'pointer',
-    margin: '3px 0' /* Space for box-shadow when focused */,
-
-    ':checked': {
-      backgroundColor: theme.v1.palette.white,
-      border: `5px solid ${theme.colors.primary.main}`,
+    outlineStyle: 'none',
+    // StyleX ranks :checked above :disabled; `:is(:checked)` ranks below it, so the disabled look wins.
+    backgroundColor: {
+      default: colors['--gf-colors-background-canvas'],
+      ':is(:checked)': v1['--gf-v1-palette-white'],
+      ':disabled': colors['--gf-colors-action-disabled-background'],
     },
-
-    ':disabled': {
-      backgroundColor: `${theme.colors.action.disabledBackground} !important`,
-      borderColor: theme.colors.border.weak,
+    width: spacing['--gf-spacing-x2'],
+    height: spacing['--gf-spacing-x2'],
+    borderStyle: 'solid',
+    borderWidth: { default: '1px', ':is(:checked)': '5px', ':disabled': '1px' },
+    borderColor: {
+      default: colors['--gf-colors-border-medium'],
+      ':is(:checked)': colors['--gf-colors-primary-main'],
+      ':disabled': colors['--gf-colors-border-weak'],
     },
-
-    ':disabled:checked': {
-      border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: shape['--gf-shape-radius-circle'],
+    cursor: { default: 'pointer', ':disabled': 'not-allowed' },
+    marginTop: '3px' /* Space for box-shadow when focused */,
+    marginRight: 0,
+    marginBottom: '3px',
+    marginLeft: 0,
+    boxShadow: {
+      default: null,
+      ':focus': `0 0 0 1px ${colors['--gf-colors-background-canvas']}, 0 0 0 3px ${colors['--gf-colors-primary-main']}`,
     },
-
-    ':disabled:checked::after': {
-      content: '""',
+    '::after': {
+      content: { default: null, ':disabled:checked': '""' },
       width: '6px',
       height: '6px',
-      backgroundColor: theme.colors.text.disabled,
-      borderRadius: theme.shape.radius.circle,
+      backgroundColor: colors['--gf-colors-text-disabled'],
+      borderRadius: shape['--gf-shape-radius-circle'],
       display: 'inline-block',
       position: 'absolute',
       top: '4px',
       left: '4px',
     },
-
-    ':focus': {
-      outline: 'none !important',
-      boxShadow: `0 0 0 1px ${theme.colors.background.canvas}, 0 0 0 3px ${theme.colors.primary.main}`,
-    },
-  }),
-  label: css({
-    fontSize: theme.typography.fontSize,
+  },
+  label: {
+    fontSize: typography['--gf-typography-font-size'],
     lineHeight: '22px' /* 16px for the radio button and 6px for the focus shadow */,
     display: 'grid',
-    gridTemplateColumns: `${theme.spacing(2)} auto`,
-    gap: theme.spacing(1),
+    gridTemplateColumns: `${spacing['--gf-spacing-x2']} auto`,
+    gap: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
-  }),
-  description: css({
-    fontSize: theme.typography.size.sm,
-    color: theme.colors.text.secondary,
-  }),
+  },
+  description: {
+    fontSize: typography['--gf-typography-size-sm'],
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

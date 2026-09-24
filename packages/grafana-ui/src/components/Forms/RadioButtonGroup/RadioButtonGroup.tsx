@@ -1,13 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { type HTMLAttributes, useCallback, useEffect, useRef } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue, toIconName } from '@grafana/data';
+import { type SelectableValue, toIconName } from '@grafana/data';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { Icon } from '../../Icon/Icon';
 
-import { type RadioButtonSize, RadioButton, RADIO_GROUP_PADDING } from './RadioButton';
+import { type RadioButtonSize, RadioButton } from './RadioButton';
 export interface RadioButtonGroupProps<T> extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'onClick'> {
   value?: T;
   id?: string;
@@ -68,7 +69,6 @@ export function RadioButtonGroup<T>({
 
   const internalId = id ?? uniqueId('radiogroup-');
   const groupName = useRef(internalId);
-  const styles = useStyles2(getStyles);
 
   const activeButtonRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
@@ -82,7 +82,9 @@ export function RadioButtonGroup<T>({
       {...rest}
       role="radiogroup"
       aria-label={ariaLabel}
-      className={cx(styles.radioGroup, fullWidth && styles.fullWidth, invalid && styles.invalid, className)}
+      {...mergeStylexProps(stylex.props(styles.radioGroup, fullWidth && styles.fullWidth, invalid && styles.invalid), {
+        className,
+      })}
     >
       {options.map((opt, i) => {
         const isItemDisabled = disabledOptions && opt.value && disabledOptions.includes(opt.value);
@@ -104,8 +106,8 @@ export function RadioButtonGroup<T>({
             fullWidth={fullWidth}
             ref={value === opt.value ? activeButtonRef : undefined}
           >
-            {icon && <Icon name={icon} className={cx(hasNonIconPart && styles.icon)} />}
-            {opt.imgUrl && <img src={opt.imgUrl} alt={opt.label} className={styles.img} />}
+            {icon && <Icon name={icon} xstyle={hasNonIconPart && styles.icon} />}
+            {opt.imgUrl && <img src={opt.imgUrl} alt={opt.label} {...stylex.props(styles.img)} />}
             {opt.label} {opt.component ? <opt.component /> : null}
           </RadioButton>
         );
@@ -116,34 +118,39 @@ export function RadioButtonGroup<T>({
 
 RadioButtonGroup.displayName = 'RadioButtonGroup';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    radioGroup: css({
-      backgroundColor: theme.colors.background.primary,
-      display: 'inline-flex',
-      flexDirection: 'row',
-      flexWrap: 'nowrap',
-      border: `1px solid ${theme.components.input.borderColor}`,
-      borderRadius: theme.shape.radius.default,
-      padding: RADIO_GROUP_PADDING,
-      '&:hover': {
-        borderColor: theme.components.input.borderHover,
-      },
-    }),
-    fullWidth: css({
-      display: 'flex',
-      flexGrow: 1,
-    }),
-    icon: css({
-      marginRight: '6px',
-    }),
-    img: css({
-      width: theme.spacing(2),
-      height: theme.spacing(2),
-      marginRight: theme.spacing(1),
-    }),
-    invalid: css({
-      border: `1px solid ${theme.colors.error.border}`,
-    }),
-  };
-};
+const styles = stylex.create({
+  radioGroup: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    display: 'inline-flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    borderRadius: shape['--gf-shape-radius-default'],
+    // RADIO_GROUP_PADDING; stylex.create can't read values imported from other modules.
+    padding: 2,
+  },
+  fullWidth: {
+    display: 'flex',
+    flexGrow: 1,
+  },
+  icon: {
+    marginRight: '6px',
+  },
+  img: {
+    width: spacing['--gf-spacing-x2'],
+    height: spacing['--gf-spacing-x2'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  // Hovering still shows the hover border colour.
+  invalid: {
+    borderColor: {
+      default: colors['--gf-colors-error-border'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+  },
+});

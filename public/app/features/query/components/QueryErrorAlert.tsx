@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
 import {
@@ -7,10 +7,11 @@ import {
   useAssistant,
   useProvidePageContext,
 } from '@grafana/assistant';
-import { type DataQueryError, type GrafanaTheme2 } from '@grafana/data';
+import { type DataQueryError } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   error: DataQueryError;
@@ -18,7 +19,6 @@ export interface Props {
 }
 
 export function QueryErrorAlert({ error, query }: Props) {
-  const styles = useStyles2(getStyles);
   const { isAvailable } = useAssistant();
 
   const message = error?.message ?? error?.data?.message ?? 'Query error';
@@ -27,11 +27,11 @@ export function QueryErrorAlert({ error, query }: Props) {
   useProvidePageContext(/\/explore.*/, context);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.icon}>
+    <div {...stylex.props(styles.wrapper)}>
+      <div {...stylex.props(styles.icon)}>
         <Icon name="exclamation-triangle" />
       </div>
-      <div className={styles.message}>
+      <div {...stylex.props(styles.message)}>
         {message}
         {error.traceId != null && (
           <>
@@ -45,7 +45,7 @@ export function QueryErrorAlert({ error, query }: Props) {
         )}
       </div>
       {isAvailable && (
-        <div className={styles.assistantButton}>
+        <div {...stylex.props(styles.assistantButton)}>
           <OpenAssistantButton
             origin="grafana/query-editor-error"
             prompt={`Help me analyze and fix the following ${error.type ? `\`${error.type}\`` : ''} query error: \`\`\`${message}\`\`\``}
@@ -89,25 +89,34 @@ function buildAssistantContext(error: DataQueryError, message: string, query?: D
   return context;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginTop: theme.spacing(0.5),
-    background: theme.colors.background.secondary,
+const styles = stylex.create({
+  wrapper: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
     display: 'flex',
     alignItems: 'center',
-  }),
-  icon: css({
-    background: theme.colors.error.main,
-    color: theme.colors.error.contrastText,
-    padding: theme.spacing(1),
-  }),
-  message: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontFamily: theme.typography.fontFamilyMonospace,
-    padding: theme.spacing(1),
-    flex: 1,
-  }),
-  assistantButton: css({
-    padding: theme.spacing(0, 1),
-  }),
+  },
+  icon: {
+    backgroundColor: colors['--gf-colors-error-main'],
+    color: colors['--gf-colors-error-contrast-text'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  message: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    flex: '1',
+  },
+  assistantButton: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
 });

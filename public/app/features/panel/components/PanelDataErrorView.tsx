@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import {
   CoreApp,
   FieldType,
   getPanelDataSummary,
-  type GrafanaTheme2,
   type PanelData,
   type PanelDataSummary,
   type PanelPluginVisualizationSuggestion,
@@ -14,7 +13,8 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { type PanelDataErrorViewProps, locationService, config } from '@grafana/runtime';
 import { VizPanel } from '@grafana/scenes';
-import { Icon, usePanelContext, useStyles2 } from '@grafana/ui';
+import { Icon, usePanelContext } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { CardButton } from 'app/core/components/CardButton';
 import { LS_VISUALIZATION_SELECT_TAB_KEY } from 'app/core/constants';
 import { toggleVizPicker } from 'app/features/dashboard/components/PanelEditor/state/reducers';
@@ -32,7 +32,6 @@ function hasNoQueryConfigured(data: PanelData): boolean {
 }
 
 export function PanelDataErrorView(props: PanelDataErrorViewProps) {
-  const styles = useStyles2(getStyles);
   const context = usePanelContext();
   const dataSummary = getPanelDataSummary(props.data.series);
   const dispatch = useDispatch();
@@ -106,13 +105,13 @@ export function PanelDataErrorView(props: PanelDataErrorViewProps) {
   const message = getMessageFor(props, dataSummary, showEmptyState);
 
   return (
-    <div className={styles.wrapper}>
-      {showEmptyState && <Icon name="chart-line" size="xxxl" className={styles.emptyStateIcon} />}
-      <div className={styles.message} data-testid={selectors.components.Panels.Panel.PanelDataErrorMessage}>
+    <div {...stylex.props(styles.wrapper)}>
+      {showEmptyState && <Icon name="chart-line" size="xxxl" xstyle={styles.emptyStateIcon} />}
+      <div {...stylex.props(styles.message)} data-testid={selectors.components.Panels.Panel.PanelDataErrorMessage}>
         {message}
       </div>
       {context.app === CoreApp.PanelEditor && dataSummary.hasData && panel && (
-        <div className={styles.actions}>
+        <div {...stylex.props(styles.actions)}>
           {props.suggestions && (
             <>
               {props.suggestions.map((v) => (
@@ -173,35 +172,33 @@ function getMessageFor(
   return t('panel.panel-data-error-view.missing-value.unknown', 'Cannot visualize data');
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100%',
-      width: '100%',
-    }),
-    message: css({
-      textAlign: 'center',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.lg,
-      width: '100%',
-    }),
-    actions: css({
-      marginTop: theme.spacing(2),
-      display: 'flex',
-      height: '50%',
-      maxHeight: '150px',
-      columnGap: theme.spacing(1),
-      rowGap: theme.spacing(1),
-      width: '100%',
-      maxWidth: '600px',
-    }),
-    emptyStateIcon: css({
-      color: theme.colors.text.secondary,
-      marginBottom: theme.spacing(2),
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '100%',
+  },
+  message: {
+    textAlign: 'center',
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-size-lg'],
+    width: '100%',
+  },
+  actions: {
+    marginTop: spacing['--gf-spacing-x2'],
+    display: 'flex',
+    height: '50%',
+    maxHeight: '150px',
+    columnGap: spacing['--gf-spacing-x1'],
+    rowGap: spacing['--gf-spacing-x1'],
+    width: '100%',
+    maxWidth: '600px',
+  },
+  emptyStateIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+});

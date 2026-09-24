@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   name: string;
@@ -9,15 +8,13 @@ interface Props {
 }
 
 export const InspectStatsTraceIdsTable = ({ name, traceIds }: Props) => {
-  const styles = useStyles2(getStyles);
-
   if (traceIds.length === 0) {
     return null;
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.heading}>{name}</div>
+    <div {...stylex.props(styles.wrapper)}>
+      <div {...stylex.props(styles.heading)}>{name}</div>
       <table className="filter-table width-30">
         <tbody>
           {traceIds.map((traceId, index) => {
@@ -33,15 +30,12 @@ export const InspectStatsTraceIdsTable = ({ name, traceIds }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    fontSize: theme.typography.body.fontSize,
-    marginBottom: theme.spacing(1),
-  }),
-  wrapper: css({
-    paddingBottom: theme.spacing(2),
-  }),
-  cell: css({
-    textAlign: 'right',
-  }),
+const styles = stylex.create({
+  heading: {
+    fontSize: typography['--gf-typography-body-font-size'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  wrapper: {
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
 });

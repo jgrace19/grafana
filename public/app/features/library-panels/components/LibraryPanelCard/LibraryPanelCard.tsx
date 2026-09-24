@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactElement, useState, type JSX } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { usePanelPluginMeta } from '@grafana/runtime/internal';
-import { Icon, Link, useStyles2 } from '@grafana/ui';
+import { Icon, Link } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { getPanelPluginNotFound } from 'app/features/panel/components/PanelPluginError';
 import { PanelTypeCard } from 'app/features/panel/components/VizTypePicker/PanelTypeCard';
@@ -60,11 +60,9 @@ const LibraryPanelCardSkeleton: SkeletonComponent<Pick<Props, 'showSecondaryActi
   showSecondaryActions,
   rootProps,
 }) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <PanelTypeCard.Skeleton hasDelete={showSecondaryActions} {...rootProps}>
-      <Skeleton containerClassName={styles.metaContainer} width={80} />
+      <Skeleton containerClassName={stylex.props(styles.metaContainer).className} width={80} />
     </PanelTypeCard.Skeleton>
   );
 };
@@ -76,8 +74,6 @@ interface FolderLinkProps {
 }
 
 function FolderLink({ libraryPanel }: FolderLinkProps): ReactElement | null {
-  const styles = useStyles2(getStyles);
-
   if (!libraryPanel.meta?.folderUid && !libraryPanel.meta?.folderName) {
     return null;
   }
@@ -85,8 +81,8 @@ function FolderLink({ libraryPanel }: FolderLinkProps): ReactElement | null {
   // LibraryPanels API returns folder-less library panels with an empty string folder UID
   if (!libraryPanel.meta.folderUid) {
     return (
-      <span className={styles.metaContainer}>
-        <Icon name={'folder'} size="sm" />
+      <span {...stylex.props(styles.metaContainer)}>
+        <Icon name={'folder'} size="sm" xstyle={styles.icon} />
         <span>
           <Trans i18nKey="library-panels.folder-link.dashboards">Dashboards</Trans>
         </span>
@@ -95,28 +91,25 @@ function FolderLink({ libraryPanel }: FolderLinkProps): ReactElement | null {
   }
 
   return (
-    <span className={styles.metaContainer}>
+    <span {...stylex.props(styles.metaContainer)}>
       <Link href={`/dashboards/f/${libraryPanel.meta.folderUid}`}>
-        <Icon name={'folder-upload'} size="sm" />
+        <Icon name={'folder-upload'} size="sm" xstyle={styles.icon} />
         <span>{libraryPanel.meta.folderName}</span>
       </Link>
     </span>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    metaContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      paddingTop: theme.spacing(0.5),
-
-      svg: {
-        marginRight: theme.spacing(0.5),
-        marginBottom: 3,
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  metaContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+  },
+  icon: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 3,
+  },
+});

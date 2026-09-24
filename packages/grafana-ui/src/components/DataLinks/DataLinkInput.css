@@ -1,8 +1,8 @@
 /*
  * DataLinkInput restyles the slate wrapper through its own root (classes on the wrapper element itself used to
- * break the suggestions) and the slate editor, which also gets Input's Emotion input class. Deliberately not in
- * a cascade layer: like the Emotion rules they replace, these must beat that class, so the editor padding keeps
- * the root in its selector for the extra specificity. The Prism token spans are third-party DOM;
+ * break the suggestions) and the slate editor, which also gets Input's input styles. Deliberately not in a
+ * cascade layer: like the Emotion rules they replace, these must beat those styles; the editor padding keeps the
+ * root in its selector for the specificity it had against Input's Emotion class. The Prism token spans are third-party DOM;
  * `.token.variable` keeps the global `.slate-query-field .token.variable` colour, as on main.
  */
 .gf-data-link-input > .slate-query-field__wrapper {

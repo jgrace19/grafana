@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
+
+import './FieldValidationMessage.css';
 
 export interface FieldValidationMessageProps {
   /** Override component style */
@@ -22,72 +24,75 @@ export const FieldValidationMessage = ({
   horizontal,
   className,
 }: React.PropsWithChildren<FieldValidationMessageProps>) => {
-  const styles = useStyles2(getFieldValidationMessageStyles);
-  const cssName = cx(horizontal ? styles.horizontal : styles.vertical, className);
-
   return (
-    <div role="alert" className={cssName}>
-      <Icon className={styles.fieldValidationMessageIcon} name="exclamation-circle" />
+    <div
+      role="alert"
+      {...mergeStylexProps(stylex.props(styles.base, horizontal ? styles.horizontal : styles.vertical), {
+        className: clsx('gf-field-validation-message', className),
+      })}
+    >
+      <Icon xstyle={styles.fieldValidationMessageIcon} name="exclamation-circle" />
       {children}
     </div>
   );
 };
 
-export const getFieldValidationMessageStyles = (theme: GrafanaTheme2) => {
-  const baseStyle = `
-      font-size: ${theme.typography.size.sm};
-      font-weight: ${theme.typography.fontWeightMedium};
-      padding: ${theme.spacing(0.5, 1)};
-      color: ${theme.colors.error.contrastText};
-      background: ${theme.colors.error.main};
-      border-radius: ${theme.shape.radius.default};
-      position: relative;
-      display: inline-block;
-      align-self: flex-start;
-
-      a {
-        color: ${theme.colors.error.contrastText};
-        text-decoration: underline;
-      }
-
-      a:hover {
-        text-decoration: none;
-      }
-    `;
-
-  return {
-    vertical: css(baseStyle, {
-      margin: theme.spacing(0.5, 0, 0, 0),
-
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        left: '9px',
-        top: '-5px',
-        width: 0,
-        height: 0,
-        borderWidth: '0 4px 5px 4px',
-        borderColor: `transparent transparent ${theme.colors.error.main} transparent`,
-        borderStyle: 'solid',
-      },
-    }),
-    horizontal: css(baseStyle, {
-      marginLeft: '10px',
-
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        left: '-5px',
-        top: '9px',
-        width: 0,
-        height: 0,
-        borderWidth: '4px 5px 4px 0',
-        borderColor: 'transparent #e02f44 transparent transparent',
-        borderStyle: 'solid',
-      },
-    }),
-    fieldValidationMessageIcon: css({
-      marginRight: theme.spacing(),
-    }),
-  };
-};
+const styles = stylex.create({
+  base: {
+    fontSize: typography['--gf-typography-size-sm'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-error-contrast-text'],
+    backgroundColor: colors['--gf-colors-error-main'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    position: 'relative',
+    display: 'inline-block',
+    alignSelf: 'flex-start',
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      width: 0,
+      height: 0,
+      borderStyle: 'solid',
+    },
+  },
+  vertical: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    '::before': {
+      left: '9px',
+      top: '-5px',
+      borderTopWidth: 0,
+      borderRightWidth: '4px',
+      borderBottomWidth: '5px',
+      borderLeftWidth: '4px',
+      borderTopColor: 'transparent',
+      borderRightColor: 'transparent',
+      borderBottomColor: colors['--gf-colors-error-main'],
+      borderLeftColor: 'transparent',
+    },
+  },
+  horizontal: {
+    marginLeft: '10px',
+    '::before': {
+      left: '-5px',
+      top: '9px',
+      borderTopWidth: '4px',
+      borderRightWidth: '5px',
+      borderBottomWidth: '4px',
+      borderLeftWidth: 0,
+      borderTopColor: 'transparent',
+      borderRightColor: '#e02f44',
+      borderBottomColor: 'transparent',
+      borderLeftColor: 'transparent',
+    },
+  },
+  fieldValidationMessageIcon: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});

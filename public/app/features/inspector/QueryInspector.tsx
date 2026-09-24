@@ -1,15 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
 import { LoadingState, type PanelData } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import { Button, ClipboardButton, JSONFormatter, LoadingPlaceholder, Space, Stack } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { backendSrv } from 'app/core/services/backend_srv';
 
-import { getPanelInspectorStyles2 } from './styles';
+import { panelInspectorStyles } from './panelInspectorStyles';
 
 interface ExecutedQueryInfo {
   refId: string;
@@ -191,21 +191,13 @@ export class QueryInspector extends PureComponent<Props, State> {
       return null;
     }
 
-    const styles = {
-      refId: css({
-        fontWeight: config.theme.typography.weight.semibold,
-        color: config.theme.colors.textBlue,
-        marginRight: '8px',
-      }),
-    };
-
     return (
       <div>
         {executedQueries.map((info) => {
           return (
             <Stack key={info.refId} gap={1} direction="column">
               <div>
-                <span className={styles.refId}>{info.refId}:</span>
+                <span {...stylex.props(styles.refId)}>{info.refId}:</span>
                 {info.frames > 1 && (
                   <span>
                     <Trans i18nKey="inspector.query-inspector.count-frames" count={info.frames}>
@@ -231,14 +223,13 @@ export class QueryInspector extends PureComponent<Props, State> {
     const { allNodesExpanded, executedQueries, response } = this.state;
     const { onRefreshQuery, data } = this.props;
     const openNodes = this.getNrOfOpenNodes();
-    const styles = getPanelInspectorStyles2(config.theme2);
     const haveData = Object.keys(response).length > 0;
     const isLoading = data.state === LoadingState.Loading;
 
     return (
-      <div className={styles.wrap}>
+      <div {...stylex.props(panelInspectorStyles.wrap)}>
         <div data-testid={selectors.components.PanelInspector.Query.content}>
-          <h3 className={styles.heading}>
+          <h3 {...stylex.props(panelInspectorStyles.heading)}>
             <Trans i18nKey="inspector.query-inspector.query-inspector">Query inspector</Trans>
           </h3>
           <p className="small muted">
@@ -275,7 +266,7 @@ export class QueryInspector extends PureComponent<Props, State> {
           )}
         </Stack>
         <Space v={2} />
-        <div className={styles.content}>
+        <div {...stylex.props(panelInspectorStyles.content)}>
           {isLoading && (
             <LoadingPlaceholder
               text={t('inspector.query-inspector.text-loading-query-inspector', 'Loading query inspector...')}
@@ -294,3 +285,11 @@ export class QueryInspector extends PureComponent<Props, State> {
     );
   }
 }
+
+const styles = stylex.create({
+  refId: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-primary-text'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});

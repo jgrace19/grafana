@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLProps } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 
 import { Legend } from './Legend';
 
@@ -20,22 +19,16 @@ export interface Props extends Omit<HTMLProps<HTMLFieldSetElement>, 'label'> {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-fieldset--docs
  */
 export const FieldSet = ({ label, children, className, ...rest }: Props) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <fieldset className={cx(styles.wrapper, className)} {...rest}>
+    <fieldset {...mergeStylexProps(stylex.props(styles.wrapper), { className })} {...rest}>
       {label && <Legend>{label}</Legend>}
       {children}
     </fieldset>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginBottom: theme.spacing(4),
-
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  }),
+const styles = stylex.create({
+  wrapper: {
+    marginBottom: { default: spacing['--gf-spacing-x4'], ':last-child': 0 },
+  },
 });
