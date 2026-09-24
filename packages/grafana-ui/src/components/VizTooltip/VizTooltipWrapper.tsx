@@ -1,28 +1,30 @@
-import { css } from '@emotion/css';
-import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import React, { type HTMLAttributes } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { typography } from '../../themes/stylex/tokens.stylex';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 }
 
 export const VizTooltipWrapper = ({ children, className }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={clsx(styles, className)} data-testid={selectors.components.Panels.Visualization.Tooltip.Wrapper}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.wrapper), { className })}
+      data-testid={selectors.components.Panels.Visualization.Tooltip.Wrapper}
+    >
       {children}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) =>
-  css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    fontSize: theme.typography.bodySmall.fontSize,
-  });
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});
