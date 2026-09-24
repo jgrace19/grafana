@@ -48,11 +48,11 @@ public/app/features/provisioning/Shared/CodeBlock.tsx # pending ClipboardButton 
 public/app/features/provisioning/Shared/RepositoryTypeCards.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card width/pointer-events
 public/app/features/connections/tabs/ConnectData/CardGrid/CardGrid.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, meta
 public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex: pending InlineField migration: keeps one Emotion className override that must beat InlineField's own Emotion styles
-public/app/features/alerting/unified/components/DynamicTable.tsx # stylex: pending Pagination migration: keeps one Emotion className override that must beat Pagination's own Emotion styles
+public/app/features/alerting/unified/components/DynamicTable.tsx # Pagination (StyleX since U6) has no xstyle or style prop: keeps one Emotion className override that must beat its float
 public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
 public/app/features/alerting/unified/components/rules/AlertInstanceStateFilter.tsx # stylex: pending Tag migration: keeps one Emotion className override that must beat Tag's own Emotion styles
-public/app/features/alerting/unified/components/rules/CloudRules.tsx # stylex: pending Pagination migration: keeps one Emotion className override that must beat Pagination's own Emotion styles
-public/app/features/alerting/unified/components/rules/GrafanaRules.tsx # stylex: pending Pagination migration: keeps one Emotion className override that must beat Pagination's own Emotion styles
-public/app/features/alerting/unified/components/rules/RulesTable.tsx # stylex: pending Pagination migration: keeps one Emotion className override that must beat Pagination's own Emotion styles
+public/app/features/alerting/unified/components/rules/CloudRules.tsx # Pagination (StyleX since U6) has no xstyle or style prop: keeps one Emotion className override that must beat its float
+public/app/features/alerting/unified/components/rules/GrafanaRules.tsx # Pagination (StyleX since U6) has no xstyle or style prop: keeps one Emotion className override that must beat its float
+public/app/features/alerting/unified/components/rules/RulesTable.tsx # Pagination (StyleX since U6) has no xstyle or style prop: keeps one Emotion className override that must beat its float
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles

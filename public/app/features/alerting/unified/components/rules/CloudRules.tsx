@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Pagination migration
+// eslint-disable-next-line no-restricted-imports -- stylex: Pagination has no xstyle or style prop
 import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
@@ -119,7 +119,7 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
   );
 };
 
-// stylex: pending Pagination migration
+// stylex: Pagination has no xstyle or style prop, and only an unlayered class beats its float.
 const pendingEmotionStyles = {
   pagination: css({
     float: 'none',
