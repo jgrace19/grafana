@@ -1,8 +1,8 @@
 /*
- * Card and FilterInput are still styled with Emotion, whose rules are injected after this sheet. Repeating the
- * class beats their own grid template and width, as the Emotion overrides merged into their classes did.
+ * Card (StyleX) and FilterInput (still Emotion) set these properties themselves. Unlayered rules beat StyleX's
+ * layered styles; Emotion's rules can be inserted after this sheet, so the FilterInput rule repeats its class.
  */
-.gf-alerts-folder-card.gf-alerts-folder-card {
+.gf-alerts-folder-card {
   grid-template-columns: auto 1fr 2fr;
 }
 
