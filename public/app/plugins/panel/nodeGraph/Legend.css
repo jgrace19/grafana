@@ -1,8 +1,7 @@
 /*
- * VizLegendListItem is still styled with Emotion, whose runtime rules come after this sheet and set their own
- * flex-grow. The doubled class outranks that rule like the Emotion className merge did; unlayered, it keeps
- * winning once VizLegendListItem is StyleX.
+ * VizLegendListItem sets its own flex-grow and takes no StyleX override. Not in a cascade layer, so this wins
+ * over its (layered) StyleX styles like the Emotion className merge did.
  */
-.gf-nodegraph-legend-item.gf-nodegraph-legend-item {
+.gf-nodegraph-legend-item {
   flex-grow: 0;
 }
