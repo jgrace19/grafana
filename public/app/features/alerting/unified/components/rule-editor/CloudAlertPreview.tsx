@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending TagList migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { type DataFrame } from '@grafana/data';
@@ -11,6 +9,7 @@ import { labelsToTags } from '../../utils/labels';
 import { AlertStateTag } from '../rules/AlertStateTag';
 
 import { mapDataFrameToAlertPreview } from './preview';
+import './CloudAlertPreview.css';
 
 interface CloudAlertPreviewProps {
   preview: DataFrame;
@@ -52,7 +51,7 @@ export function CloudAlertPreview({ preview }: CloudAlertPreviewProps) {
             <tr key={index} {...stylex.props(styles.row)}>
               <td {...stylex.props(styles.cell)}>{<AlertStateTag state={state} />}</td>
               <td {...stylex.props(styles.cell, styles.cellAfterFirst)}>
-                <TagList tags={instanceTags} className={pendingEmotionStyles.tagList} />
+                <TagList tags={instanceTags} className="gf-alerting-cloud-preview-tags" />
               </td>
               <td {...stylex.props(styles.cell, styles.cellAfterFirst, styles.infoCell)}>
                 {info && (
@@ -68,13 +67,6 @@ export function CloudAlertPreview({ preview }: CloudAlertPreviewProps) {
     </table>
   );
 }
-
-// stylex: pending TagList migration
-const pendingEmotionStyles = {
-  tagList: css({
-    justifyContent: 'flex-start',
-  }),
-};
 
 const styles = stylex.create({
   table: {

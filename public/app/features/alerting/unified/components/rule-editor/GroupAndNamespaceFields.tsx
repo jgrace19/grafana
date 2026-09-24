@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Select migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -12,6 +10,7 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type RuleFormValues } from '../../types/rule-form';
 
 import { useGetNameSpacesByDatasourceName } from './useAlertRuleSuggestions';
+import './GroupAndNamespaceFields.css';
 
 interface Props {
   rulesSourceName: string;
@@ -60,7 +59,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
             <VirtualizedSelect
               {...field}
               allowCustomValue
-              className={pendingEmotionStyles.input}
+              className="gf-alerting-group-namespace-select"
               onChange={(value) => {
                 setValue('group', ''); //reset if namespace changes
                 onChange(value.value);
@@ -99,7 +98,7 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
               onChange={(value) => {
                 setValue('group', value.value ?? '');
               }}
-              className={pendingEmotionStyles.input}
+              className="gf-alerting-group-namespace-select"
               isLoading={isLoading}
               disabled={isLoading}
             />
@@ -113,13 +112,6 @@ export const GroupAndNamespaceFields = ({ rulesSourceName }: Props) => {
       </Field>
     </div>
   );
-};
-
-// stylex: pending Select migration
-const pendingEmotionStyles = {
-  input: css({
-    width: '330px !important',
-  }),
 };
 
 const styles = stylex.create({
