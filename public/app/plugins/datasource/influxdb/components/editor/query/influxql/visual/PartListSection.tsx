@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, type JSX } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
@@ -8,8 +9,6 @@ import { unwrap } from '../utils/unwrap';
 
 import { AddButton } from './AddButton';
 import { Seg } from './Seg';
-import './PartListSection.css';
-
 export type PartParams = Array<{
   value: string;
   options: (() => Promise<string[]>) | null;
@@ -52,7 +51,7 @@ const Part = ({ name, params, onChange }: PartProps): JSX.Element => {
             <Seg
               allowCustomValue
               value={value}
-              buttonClassName="gf-influx-part-param"
+              buttonXstyle={styles.param}
               loadOptions={loadOptions}
               onChange={(v) => {
                 onParamChange(unwrap(v.value), i);
@@ -103,3 +102,12 @@ export const PartListSection = ({
     </>
   );
 };
+
+const styles = stylex.create({
+  param: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    marginLeft: 0,
+    marginRight: 0,
+  },
+});

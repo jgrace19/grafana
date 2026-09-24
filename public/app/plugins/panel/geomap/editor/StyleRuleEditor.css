@@ -1,9 +1,0 @@
-/*
- * InlineField is still styled with Emotion and sets its own margin, and Emotion's style block can come before or after this sheet depending on the chunk.
- * The doubled class outranks them like the Emotion className merge did; unlayered, it keeps winning once
- * InlineField is StyleX.
- */
-.gf-geomap-style-rule-inline.gf-geomap-style-rule-inline {
-  margin-bottom: 0;
-  margin-left: 4px;
-}

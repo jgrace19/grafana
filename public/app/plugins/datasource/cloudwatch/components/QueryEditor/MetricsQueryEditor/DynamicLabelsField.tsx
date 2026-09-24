@@ -3,14 +3,12 @@ import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { useCallback, useRef } from 'react';
 
 import { CodeEditor, type Monaco } from '@grafana/ui';
-import { components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DynamicLabelsCompletionItemProvider } from '../../../language/dynamic-labels/CompletionItemProvider';
 import language from '../../../language/dynamic-labels/definition';
 import { TRIGGER_SUGGEST } from '../../../language/monarch/commands';
 import { registerLanguage } from '../../../language/monarch/register';
-
-import './DynamicLabelsField.css';
 
 const dynamicLabelsCompletionItemProvider = new DynamicLabelsCompletionItemProvider();
 
@@ -39,7 +37,7 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
   return (
     <div ref={containerRef} {...stylex.props(styles.wrapper, width ? styles.width(width) : styles.fullWidth)}>
       <CodeEditor
-        containerStyles="gf-cloudwatch-dynamic-labels"
+        containerXstyle={styles.codeEditor}
         monacoOptions={{
           // without this setting, the auto-resize functionality causes an infinite loop, don't remove it!
           scrollBeyondLastLine: false,
@@ -75,6 +73,12 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
 }
 
 const styles = stylex.create({
+  codeEditor: {
+    borderColor: {
+      default: colors['--gf-colors-action-disabled-background'],
+      ':hover': components['--gf-components-input-border-color'],
+    },
+  },
   wrapper: {
     display: 'flex',
     height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,

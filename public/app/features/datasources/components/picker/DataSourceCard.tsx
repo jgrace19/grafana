@@ -1,11 +1,11 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Card, Icon, TagList, useTheme2 } from '@grafana/ui';
-import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { bp, motion } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './DataSourceCard.css';
 
 interface DataSourceCardProps {
   ds: DataSourceInstanceSettings;
@@ -32,10 +32,10 @@ export function DataSourceCard({
       key={ds.uid}
       noMargin
       onClick={onClick}
-      className={cx(cardStyles.card, selected ? cardStyles.selected : undefined)}
+      xstyle={[cardStyles.card, selected && cardStyles.selected]}
       {...htmlProps}
     >
-      <Card.Heading className={cardStyles.heading}>
+      <Card.Heading className="gf-data-source-card-heading" xstyle={cardStyles.heading}>
         <div {...stylex.props(styles.headingContent)}>
           <span {...stylex.props(styles.name)}>
             {ds.name} {ds.isDefault ? <TagList tags={['default']} /> : null}
@@ -56,7 +56,7 @@ export function DataSourceCard({
           </div>
         </div>
       </Card.Heading>
-      <Card.Figure className={cardStyles.logo}>
+      <Card.Figure xstyle={cardStyles.logo}>
         <img
           src={ds.meta.info.logos.small || undefined}
           alt={`${ds.meta.name} Logo`}
@@ -120,41 +120,41 @@ const styles = stylex.create({
   },
 });
 
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's padding, background, transition, heading button and figure size.
-const cardStyles = {
-  card: css({
-    cursor: 'pointer',
-    backgroundColor: 'transparent',
-    padding: spacing['--gf-spacing-x1'],
-    '@media (prefers-reduced-motion: no-preference),(prefers-reduced-motion: reduce)': {
-      // eslint-disable-next-line @grafana/no-unreduced-motion -- removes Card's transition, it adds no motion
-      transition: 'none',
-    },
+const focusTransitionProperty = 'outline, outline-offset, box-shadow';
 
-    '&:hover': {
-      backgroundColor: colors['--gf-colors-action-hover'],
+// Over Card's look. Card's :focus transition still wins over `transition: none`, and these :hover backgrounds
+// replace Card's own.
+const cardStyles = stylex.create({
+  card: {
+    cursor: 'pointer',
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    transitionProperty: {
+      default: null,
+      ':focus': focusTransitionProperty,
+      [motion.noPreferenceOrReduce]: { default: 'none', ':focus': focusTransitionProperty },
     },
-  }),
-  heading: css({
+  },
+  heading: {
     width: '100%',
     overflow: 'hidden',
-    // This is needed to enable ellipsis when text overflows
-    '> button': {
-      width: '100%',
-    },
-  }),
-  logo: css({
+  },
+  logo: {
     width: '32px',
     height: '32px',
-    padding: `0 ${spacing['--gf-spacing-x1']}`,
-    display: 'flex',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    display: { default: 'flex', ':empty': 'none' },
     alignItems: 'center',
-  }),
-  selected: css({
-    background: colors['--gf-colors-action-selected'],
-
-    '&::before': {
+  },
+  selected: {
+    backgroundColor: { default: colors['--gf-colors-action-selected'], ':hover': colors['--gf-colors-action-hover'] },
+    '::before': {
       backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
       borderRadius: shape['--gf-shape-radius-default'],
       content: '" "',
@@ -164,5 +164,5 @@ const cardStyles = {
       width: spacing['--gf-spacing-x0-5'],
       left: 0,
     },
-  }),
-};
+  },
+});

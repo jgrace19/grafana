@@ -1,4 +1,0 @@
-/* Select's container is still Emotion and sets its own padding: the doubled class wins that tie. */
-.gf-influx-select-padding-right.gf-influx-select-padding-right {
-  padding-right: 4px;
-}

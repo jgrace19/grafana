@@ -6,7 +6,7 @@ import { type ResultFormat } from '../../../../../types';
 import { RESULT_FORMATS } from '../../../constants';
 import { unwrap } from '../utils/unwrap';
 
-import { paddingRightClass } from './styles';
+import { selectStyles } from './styles';
 
 type Props = {
   inputId?: string;
@@ -14,13 +14,12 @@ type Props = {
   onChange: (newFormat: ResultFormat) => void;
 };
 
-const className = `width-8 ${paddingRightClass}`;
-
 export const FormatAsSection = ({ format, inputId, onChange }: Props): JSX.Element => {
   return (
     <Select<ResultFormat>
       inputId={inputId}
-      className={className}
+      className="width-8"
+      xstyle={selectStyles.paddingRight}
       onChange={(v) => {
         onChange(unwrap(v.value));
       }}

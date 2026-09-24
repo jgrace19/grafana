@@ -5,7 +5,7 @@ import { Select } from '@grafana/ui';
 
 import { unwrap } from '../utils/unwrap';
 
-import { paddingRightClass } from './styles';
+import { selectStyles } from './styles';
 
 type Mode = 'ASC' | 'DESC';
 
@@ -13,8 +13,6 @@ const OPTIONS: Array<SelectableValue<Mode>> = [
   { label: 'ascending', value: 'ASC' },
   { label: 'descending', value: 'DESC' },
 ];
-
-const className = `width-9 ${paddingRightClass}`;
 
 type Props = {
   value: Mode;
@@ -27,7 +25,8 @@ export const OrderByTimeSection = ({ value, onChange, inputId }: Props): JSX.Ele
     <>
       <Select<Mode>
         inputId={inputId}
-        className={className}
+        className="width-9"
+        xstyle={selectStyles.paddingRight}
         onChange={(v) => {
           onChange(unwrap(v.value));
         }}

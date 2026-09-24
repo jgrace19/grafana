@@ -2,13 +2,3 @@
 .gf-cloudwatch-log-group-limit svg {
   margin-right: var(--gf-spacing-x0-5);
 }
-
-/* Modal and Label are still Emotion and set these properties themselves: the doubled class wins that tie. */
-.gf-cloudwatch-log-groups-modal.gf-cloudwatch-log-groups-modal {
-  width: 992px;
-}
-
-.gf-cloudwatch-log-group-count.gf-cloudwatch-log-group-count {
-  color: var(--gf-colors-text-secondary);
-  max-width: none;
-}

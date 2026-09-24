@@ -1,8 +1,0 @@
-/* CodeEditor is still Emotion and sets its own container border: the doubled class wins that tie. */
-.gf-cloudwatch-dynamic-labels.gf-cloudwatch-dynamic-labels {
-  border: 1px solid var(--gf-colors-action-disabled-background);
-}
-
-.gf-cloudwatch-dynamic-labels.gf-cloudwatch-dynamic-labels:hover {
-  border-color: var(--gf-components-input-border-color);
-}

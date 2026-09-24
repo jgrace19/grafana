@@ -51,19 +51,16 @@ export function PluginSignatureDetailsBadge({ signatureType, signatureOrg = '' }
 }
 
 export const DetailsBadge = ({ children }: React.PropsWithChildren<{}>) => {
-  return <Badge color="green" style={badgeStyle} text={children} />;
-};
-
-// Badge is StyleX: override it through its inline style, since StyleX class conflicts only resolve within one
-// stylex.props() call.
-const badgeStyle: React.CSSProperties = {
-  backgroundColor: colors['--gf-colors-background-canvas'],
-  borderColor: colors['--gf-colors-border-strong'],
-  color: colors['--gf-colors-text-secondary'],
-  whiteSpace: 'nowrap',
+  return <Badge color="green" xstyle={styles.badge} text={children} />;
 };
 
 const styles = stylex.create({
+  badge: {
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderColor: colors['--gf-colors-border-strong'],
+    color: colors['--gf-colors-text-secondary'],
+    whiteSpace: 'nowrap',
+  },
   detailsWrapper: {
     alignItems: 'center',
     display: 'flex',

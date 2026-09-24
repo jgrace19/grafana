@@ -18,8 +18,6 @@ import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import type InfluxDatasource from '../../../../datasource';
 import { type InfluxQuery } from '../../../../types';
 
-import './FluxQueryEditor.css';
-
 interface Props {
   onChange: (query: InfluxQuery) => void;
   query: InfluxQuery;
@@ -178,7 +176,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props & { isDark: boolean }>
       <>
         <CodeEditor
           height={'100%'}
-          containerStyles={`gf-influx-flux-editor ${stylex.props(styles.editorContainerStyles, backgroundStyles[isDark ? 'dark' : 'light']).className}`}
+          containerXstyle={[styles.editorContainerStyles, backgroundStyles[isDark ? 'dark' : 'light']]}
           language="sql"
           value={query.query || ''}
           onBlur={this.onFluxQueryChange}
@@ -217,6 +215,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props & { isDark: boolean }>
 
 const styles = stylex.create({
   editorContainerStyles: {
+    overflow: 'auto',
     height: '200px',
     maxWidth: '100%',
     resize: 'vertical',

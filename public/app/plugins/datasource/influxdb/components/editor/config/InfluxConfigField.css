@@ -1,6 +1,0 @@
-/* Horizontal Field is still Emotion and sets its own justify-content and margin-bottom: the doubled class wins
-   that tie. */
-.gf-influx-config-field.gf-influx-config-field {
-  justify-content: initial;
-  margin: 0 var(--gf-spacing-x0-5) var(--gf-spacing-x0-5) 0;
-}

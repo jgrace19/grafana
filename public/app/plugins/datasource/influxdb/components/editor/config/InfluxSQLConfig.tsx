@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 
 import {
@@ -6,13 +7,12 @@ import {
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
 import { Field, InlineLabel, InlineSwitch, Input, SecretInput } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
 import { WIDTH_SHORT } from './constants';
 import { trackInfluxDBConfigV1SQLDatabaseInputField, trackInfluxDBConfigV1SQLTokenInputField } from './trackingv1';
-
-import './InfluxConfigField.css';
 
 export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions, InfluxSecureJsonData>;
 
@@ -26,7 +26,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         htmlFor={`${htmlPrefix}-dbName`}
       >
         <Input
@@ -46,7 +46,7 @@ export const InfluxSqlConfig = (props: Props) => {
           onBlur={trackInfluxDBConfigV1SQLDatabaseInputField}
         />
       </Field>
-      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} className="gf-influx-config-field">
+      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Token</InlineLabel>} xstyle={styles.field}>
         <SecretInput
           label="Token"
           aria-label="Token"
@@ -61,7 +61,7 @@ export const InfluxSqlConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Insecure Connection</InlineLabel>}
-        className="gf-influx-config-field"
+        xstyle={styles.field}
       >
         <InlineSwitch
           id={`${htmlPrefix}-insecure-grpc`}
@@ -80,3 +80,13 @@ export const InfluxSqlConfig = (props: Props) => {
     </div>
   );
 };
+
+const styles = stylex.create({
+  field: {
+    justifyContent: 'initial',
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: 0,
+  },
+});

@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
@@ -31,7 +29,7 @@ export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Pro
   const handlePrevious = () => !isFirstStep && setCurrentStep(currentStep - 1);
 
   return (
-    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={modalClassName}>
+    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} xstyle={styles.modal}>
       <Stack direction={'column'} gap={4}>
         <Text variant="body" color="secondary">
           {description}
@@ -66,13 +64,11 @@ export const SetupModal = ({ title, description, steps, isOpen, onDismiss }: Pro
   );
 };
 
-// stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
-const modalClassName = css({
-  width: '1100px',
-  maxWidth: '95%',
-});
-
 const styles = stylex.create({
+  modal: {
+    width: '1100px',
+    maxWidth: '95%',
+  },
   contentWrapper: {
     flex: '1',
     overflowY: 'auto',

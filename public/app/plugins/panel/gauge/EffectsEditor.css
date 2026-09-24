@@ -1,7 +1,0 @@
-/*
- * Label is still styled with Emotion, whose runtime rules come after this sheet and set their own
- * margin-bottom. The doubled class outranks that rule; unlayered, it also keeps winning once Label is StyleX.
- */
-.gf-gauge-effects-label.gf-gauge-effects-label {
-  margin-bottom: 0;
-}

@@ -6,7 +6,7 @@ import { Badge, PluginSignatureBadge, Stack } from '@grafana/ui';
 
 import { type CatalogPlugin } from '../../types';
 
-import { badgeColorStyle } from './sharedStyles';
+import { badgeColorStyles } from './sharedStyles';
 
 type Props = { plugin: CatalogPlugin };
 
@@ -24,7 +24,7 @@ export function PluginEnterpriseBadge({ plugin }: Props): React.ReactElement {
         aria-label={t('plugins.plugin-enterprise-badge.aria-label-enterprise', 'Enterprise')}
         text={t('plugins.plugin-enterprise-badge.text-enterprise', 'Enterprise')}
         color="blue"
-        style={badgeColorStyle}
+        xstyle={badgeColorStyles.badge}
         title={t(
           'plugins.plugin-enterprise-badge.title-requires-a-grafana-enterprise-license',
           'Requires a Grafana Enterprise license'

@@ -8,8 +8,6 @@ import { AsyncSelect, InlineLabel, Input, Select } from '@grafana/ui';
 
 import { useShadowedState } from '../hooks/useShadowedState';
 
-import './Seg.css';
-
 // this file is a simpler version of `grafana-ui / SegmentAsync.tsx`
 // with some changes:
 // 1. click-outside does not select the value. i think it's better to be explicit here.
@@ -28,7 +26,7 @@ type LoadOptions = (filter: string) => Promise<SelVal[]>;
 
 type Props = {
   value: string;
-  buttonClassName?: string;
+  buttonXstyle?: stylex.StyleXStyles;
   loadOptions?: LoadOptions;
   // if filterByLoadOptions is false,
   // loadOptions is only executed once,
@@ -166,7 +164,7 @@ const Inp = ({ initialValue, onChange, onClose }: InpProps): JSX.Element => {
 
 export const Seg = ({
   value,
-  buttonClassName,
+  buttonXstyle,
   loadOptions,
   filterByLoadOptions,
   allowCustomValue,
@@ -174,11 +172,10 @@ export const Seg = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false);
   if (!isOpen) {
-    const className = buttonClassName ? `gf-influx-seg ${buttonClassName}` : 'gf-influx-seg';
     return (
       <InlineLabel
         as="button"
-        className={className}
+        xstyle={[styles.seg, buttonXstyle]}
         onClick={() => {
           setOpen(true);
         }}
@@ -220,6 +217,10 @@ export const Seg = ({
 };
 
 const styles = stylex.create({
+  seg: {
+    width: 'auto',
+    cursor: 'pointer',
+  },
   select: {
     minWidth: '160px',
   },

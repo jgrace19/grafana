@@ -11,7 +11,6 @@ import { Form } from 'app/core/components/Form/Form';
 import { TagFilter } from 'app/core/components/TagFilter/TagFilter';
 import { annotationServer } from 'app/features/annotations/api';
 
-import './AnnotationEditor2.css';
 import { AnnotationTooltipHeaderCloseIcon } from './AnnotationTooltipHeaderCloseIcon';
 import { type AnnotationVals } from './types';
 
@@ -120,7 +119,7 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
                   <TextArea
                     id={'annotation-description-textarea'}
                     data-testid={'annotation-editor-description'}
-                    className="gf-annotation-editor-textarea"
+                    xstyle={styles.textarea}
                     {...register('description', {
                       required: 'Annotation description is required',
                     })}
@@ -166,6 +165,11 @@ export const AnnotationEditor2 = ({ annoVals, annoIdx, dismiss, timeZone, ...oth
 };
 
 const styles = stylex.create({
+  // TextArea's own :disabled colour still wins.
+  textarea: {
+    color: { default: colors['--gf-colors-text-secondary'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
   editor: {
     backgroundColor: colors['--gf-colors-background-elevated'],
     borderWidth: '1px',

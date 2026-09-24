@@ -1,11 +1,9 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Menu migration
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type DataSourceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Button, type ComponentSize, Dropdown, Icon, LinkButton, Menu } from '@grafana/ui';
-import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { createWarningNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { CONTENT_KINDS, SOURCE_ENTRY_POINTS } from 'app/features/dashboard/dashgrid/DashboardLibrary/constants';
@@ -16,6 +14,8 @@ import { type ButtonFill } from '../../../../../packages/grafana-ui/src/componen
 import { trackBuildDashboardDropdownClicked, trackCreateDashboardClicked, trackDsConfigClicked } from '../tracking';
 
 import { SuggestedDashboardsLoader } from './SuggestedDashboardsLoader';
+
+import './BuildDashboardButton.css';
 
 interface BuildDashboardButtonProps {
   dataSource: DataSourceSettings;
@@ -72,7 +72,12 @@ export const BuildDashboardButton = ({ dataSource, size, fill, context }: BuildD
                 icon={fetchStatus === 'loading' ? 'spinner' : 'lightbulb-alt'}
                 disabled={fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards)}
                 className={
-                  fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards) ? disabledItem : undefined
+                  fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards)
+                    ? 'gf-build-dashboard-disabled-item'
+                    : undefined
+                }
+                xstyle={
+                  (fetchStatus === 'loading' || (fetchStatus === 'done' && !hasDashboards)) && styles.disabledItem
                 }
                 onClick={(e) => {
                   e.nativeEvent.stopPropagation();
@@ -124,14 +129,8 @@ export const BuildDashboardButton = ({ dataSource, size, fill, context }: BuildD
   );
 };
 
-// stylex: pending Menu migration. The descendant span/svg colours target Menu.Item's DOM, and the cursor must beat
-// Menu.Item's own Emotion `cursor: pointer`.
-const disabledItem = css({
-  cursor: 'not-allowed',
-  '& span': {
-    color: colors['--gf-colors-action-disabled-text'],
-  },
-  '& svg': {
-    color: colors['--gf-colors-action-disabled-text'],
+const styles = stylex.create({
+  disabledItem: {
+    cursor: 'not-allowed',
   },
 });

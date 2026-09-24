@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { t } from '@grafana/i18n';
 import { IconButton, Text, Stack, Card } from '@grafana/ui';
@@ -48,11 +47,7 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick }: Props) =>
   };
 
   return (
-    <Card
-      noMargin
-      className={cx(cardStyles.stepItem, isCurrent && cardStyles.activeStep, cardStyles.plainCard)}
-      onClick={handleClick}
-    >
+    <Card noMargin xstyle={[cardStyles.stepItem, isCurrent && cardStyles.activeStep]} onClick={handleClick}>
       <Stack direction="row" alignItems="center" gap={2}>
         <IconButton
           name={icon}
@@ -70,22 +65,22 @@ export const SidebarItem = ({ step, index, currentStep, onStepClick }: Props) =>
   );
 };
 
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's padding and background.
-const cardStyles = {
-  stepItem: css({
-    padding: spacing['--gf-spacing-x1'],
+// Card's own :focus ring still wins over `box-shadow: none`.
+const cardStyles = stylex.create({
+  stepItem: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
-    '&:hover': {
-      background: colors['--gf-colors-action-hover'],
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    borderStyle: 'none',
+    boxShadow: {
+      default: 'none',
+      ':focus': `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`,
     },
-  }),
-  activeStep: css({
+  },
+  activeStep: {
     color: colors['--gf-colors-primary-text'],
-  }),
-  plainCard: css({
-    background: 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-  }),
-};
+  },
+});

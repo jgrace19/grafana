@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { t, Trans } from '@grafana/i18n';
@@ -31,7 +29,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
   const { url: lastCommitUrl, hasUrl } = getRepoCommitUrl(repo.spec, status?.sync.lastRef);
 
   return (
-    <Card noMargin className={cardStyles.card}>
+    <Card noMargin xstyle={cardStyles.card}>
       <Card.Heading>
         <Trans i18nKey="provisioning.repository-overview.pull-status">Pull status</Trans>
       </Card.Heading>
@@ -139,7 +137,7 @@ export function RepositoryPullStatusCard({ repo }: { repo: Repository }) {
           )}
         </Grid>
       </Card.Description>
-      <Card.Actions className={cardStyles.actions}>
+      <Card.Actions xstyle={cardStyles.actions}>
         <SyncRepository repository={repo} />
       </Card.Actions>
     </Card>
@@ -162,19 +160,17 @@ const styles = stylex.create({
   },
 });
 
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's `display: grid` and the actions' margin-top.
-const cardStyles = {
-  card: css({
+const cardStyles = stylex.create({
+  card: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-  }),
-  actions: css({
+  },
+  actions: {
     marginTop: 'auto',
     paddingTop: spacing['--gf-spacing-x1'],
-  }),
-};
+  },
+});
 
 function getRemoteConfig(spec?: RepositorySpec) {
   switch (spec?.type) {

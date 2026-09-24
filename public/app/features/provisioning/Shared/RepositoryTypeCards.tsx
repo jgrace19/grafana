@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css, cx } from '@emotion/css';
-import { type CSSProperties } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
 import { Trans } from '@grafana/i18n';
 import { Card, IconButton, Stack, Text } from '@grafana/ui';
-import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { useGetFrontendSettingsQuery } from 'app/api/clients/provisioning/v0alpha1';
 
 import { CONNECT_URL } from '../constants';
@@ -36,7 +33,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
               <Card
                 key={config.type}
                 href={disabled ? undefined : `${CONNECT_URL}/${config.type}`}
-                className={cx(cardStyles.card, disabled && cardStyles.disabled)}
+                xstyle={[cardStyles.card, disabled && cardStyles.disabled]}
                 noMargin
                 disabled={disabled}
               >
@@ -54,7 +51,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
                         name="info-circle"
                         size="sm"
                         tooltip={config.tooltip}
-                        style={infoIconStyle}
+                        xstyle={cardStyles.infoIcon}
                         variant="secondary"
                       />
                     )}
@@ -79,7 +76,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
               <Card
                 key={config.type}
                 href={disabled ? undefined : `${CONNECT_URL}/${config.type}`}
-                className={cx(cardStyles.card, disabled && cardStyles.disabled)}
+                xstyle={[cardStyles.card, disabled && cardStyles.disabled]}
                 noMargin
                 disabled={disabled}
               >
@@ -103,7 +100,7 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
                         name="info-circle"
                         size="sm"
                         tooltip={config.tooltip}
-                        style={infoIconStyle}
+                        xstyle={cardStyles.infoIcon}
                         variant="secondary"
                       />
                     )}
@@ -120,20 +117,15 @@ export function RepositoryTypeCards({ disabled }: RepositoryTypeCardsProps) {
   );
 }
 
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's width and pointer-events.
-const cardStyles = {
-  card: css({
+const cardStyles = stylex.create({
+  card: {
     width: 220,
-  }),
-  disabled: css({
+  },
+  disabled: {
     cursor: 'not-allowed',
     pointerEvents: 'unset',
-    '& h2': {
-      color: colors['--gf-colors-text-secondary'],
-    },
-  }),
-};
-
-// IconButton is StyleX and sets its own z-index: override it through its inline style.
-const infoIconStyle: CSSProperties = { zIndex: 1 };
+  },
+  infoIcon: {
+    zIndex: 1,
+  },
+});

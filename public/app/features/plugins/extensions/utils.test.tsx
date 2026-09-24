@@ -667,10 +667,9 @@ describe('Plugin Extensions / Utils', () => {
       });
 
       const modal = await screen.findByRole('dialog');
-      const style = window.getComputedStyle(modal);
 
-      expect(style.width).toBe('750px');
-      expect(style.height).toBe('');
+      // Modal's default size is a static StyleX style, which jsdom can't see: no size reaches the inline style.
+      expect(modal.getAttribute('style') ?? '').toBe('');
     });
 
     it('should open modal with specified width', async () => {
@@ -688,9 +687,9 @@ describe('Plugin Extensions / Utils', () => {
       });
 
       const modal = await screen.findByRole('dialog');
-      const style = window.getComputedStyle(modal);
 
-      expect(style.width).toBe('70%');
+      // The width is a dynamic StyleX value: jsdom only sees it in the inline custom property.
+      expect(modal).toHaveAttribute('style', expect.stringContaining('70%'));
     });
 
     it('should open modal with specified height', async () => {
@@ -708,9 +707,9 @@ describe('Plugin Extensions / Utils', () => {
       });
 
       const modal = await screen.findByRole('dialog');
-      const style = window.getComputedStyle(modal);
 
-      expect(style.height).toBe('600px');
+      // The height is a dynamic StyleX value: jsdom only sees it in the inline custom property.
+      expect(modal).toHaveAttribute('style', expect.stringContaining('600px'));
     });
 
     it('should open modal with the plugin context being available', async () => {
