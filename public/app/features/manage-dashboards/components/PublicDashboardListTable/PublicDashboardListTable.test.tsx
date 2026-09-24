@@ -147,10 +147,10 @@ const renderPublicDashboardItemCorrectly = (pd: PublicDashboardListResponse, idx
 
   expect(within(cardItems[idx]).getByText(isOrphaned ? 'Orphaned public dashboard' : pd.title)).toBeInTheDocument();
   isOrphaned
-    ? expect(linkButton).toHaveStyle('pointer-events: none')
-    : expect(linkButton).not.toHaveStyle('pointer-events: none');
+    ? expect(linkButton).toHaveAttribute('aria-disabled', 'true')
+    : expect(linkButton).not.toHaveAttribute('aria-disabled', 'true');
   isOrphaned
-    ? expect(configButton).toHaveStyle('pointer-events: none')
-    : expect(configButton).not.toHaveStyle('pointer-events: none');
+    ? expect(configButton).toHaveAttribute('aria-disabled', 'true')
+    : expect(configButton).not.toHaveAttribute('aria-disabled', 'true');
   hasWriteAccess ? expect(trashcanButton).toBeEnabled() : expect(trashcanButton).toBeNull();
 };

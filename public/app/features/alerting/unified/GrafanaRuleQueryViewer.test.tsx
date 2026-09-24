@@ -12,8 +12,9 @@ describe('GrafanaRuleQueryViewer', () => {
     const expressions = [getExpression('F'), getExpression('G'), getExpression('H'), getExpression('I')];
     render(<GrafanaRuleQueryViewer queries={[...queries, ...expressions]} condition="A" rule={rule} />);
 
-    await waitFor(() => expect(screen.getByTestId('queries-container')).toHaveStyle('flex-wrap: wrap'));
-    expect(screen.getByTestId('expressions-container')).toHaveStyle('flex-wrap: wrap');
+    // Stack's wrap is a StyleX dynamic style: the value is set as an inline custom property.
+    await waitFor(() => expect(screen.getByTestId('queries-container').getAttribute('style')).toContain('wrap'));
+    expect(screen.getByTestId('expressions-container').getAttribute('style')).toContain('wrap');
   });
 
   it('should catch cyclical references', async () => {

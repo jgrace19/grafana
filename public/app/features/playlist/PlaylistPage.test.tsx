@@ -64,7 +64,7 @@ describe('PlaylistPage', () => {
             .mockImplementation((action) => action === AccessControlAction.PlaylistsWrite);
           setup();
           const createPlaylistButton = await screen.findByRole('link', { name: /create playlist/i });
-          expect(createPlaylistButton).not.toHaveStyle('pointer-events: none');
+          expect(createPlaylistButton).not.toHaveAttribute('aria-disabled', 'true');
         });
       });
 
@@ -74,7 +74,7 @@ describe('PlaylistPage', () => {
           (contextSrv as jest.Mocked<typeof contextSrv>).isEditor = true;
           setup();
           const createPlaylistButton = await screen.findByRole('link', { name: /create playlist/i });
-          expect(createPlaylistButton).toHaveStyle('pointer-events: none');
+          expect(createPlaylistButton).toHaveAttribute('aria-disabled', 'true');
         });
       });
     });
@@ -85,7 +85,7 @@ describe('PlaylistPage', () => {
           (contextSrv as jest.Mocked<typeof contextSrv>).isEditor = true;
           setup();
           const createPlaylistButton = await screen.findByRole('link', { name: /create playlist/i });
-          expect(createPlaylistButton).not.toHaveStyle('pointer-events: none');
+          expect(createPlaylistButton).not.toHaveAttribute('aria-disabled', 'true');
         });
       });
 
@@ -93,7 +93,7 @@ describe('PlaylistPage', () => {
         it('then create playlist button should be disabled', async () => {
           setup();
           const createPlaylistButton = await screen.findByRole('link', { name: /create playlist/i });
-          expect(createPlaylistButton).toHaveStyle('pointer-events: none');
+          expect(createPlaylistButton).toHaveAttribute('aria-disabled', 'true');
         });
       });
     });
