@@ -1,0 +1,4 @@
+/* Adjacent groups only: StyleX's siblingBefore compiles to `~`, not `+`. Same 0,2,0 specificity as the rule it replaces. */
+.gf-alerting-alert-group + .gf-alerting-alert-group {
+  margin-top: var(--gf-spacing-x2);
+}

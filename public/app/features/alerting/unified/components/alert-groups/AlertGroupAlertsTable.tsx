@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
+import { intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
 
 import { type DynamicTableColumnProps, type DynamicTableItemProps } from '../DynamicTable';
@@ -22,8 +23,6 @@ type AlertGroupAlertsTableColumnProps = DynamicTableColumnProps<AlertmanagerAler
 type AlertGroupAlertsTableItemProps = DynamicTableItemProps<AlertmanagerAlert>;
 
 export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const columns = useMemo(
     (): AlertGroupAlertsTableColumnProps[] => [
       {
@@ -33,7 +32,7 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
         renderCell: ({ data: alert }) => (
           <>
             <AmAlertStateTag state={alert.status.state} />
-            <span className={styles.duration}>
+            <span {...stylex.props(styles.duration)}>
               <Trans
                 i18nKey="alerting.alert-group-alerts-table.duration"
                 values={{
@@ -58,7 +57,7 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
         size: 1,
       },
     ],
-    [styles]
+    []
   );
 
   const items = useMemo(
@@ -71,7 +70,7 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
   );
 
   return (
-    <div className={styles.tableWrapper} data-testid="alert-group-table">
+    <div {...stylex.props(styles.tableWrapper)} data-testid="alert-group-table">
       <DynamicTableWithGuidelines
         cols={columns}
         items={items}
@@ -84,15 +83,13 @@ export const AlertGroupAlertsTable = ({ alerts, alertManagerSourceName }: Props)
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tableWrapper: css({
-    marginTop: theme.spacing(3),
-    [theme.breakpoints.up('md')]: {
-      marginLeft: theme.spacing(4.5),
-    },
-  }),
-  duration: css({
-    marginLeft: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
+const styles = stylex.create({
+  tableWrapper: {
+    marginTop: spacing['--gf-spacing-x3'],
+    marginLeft: { default: null, [bp.mdUp]: `calc(${spacing['--gf-spacing-grid-size']} * 4.5)` },
+  },
+  duration: {
+    marginLeft: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
 });

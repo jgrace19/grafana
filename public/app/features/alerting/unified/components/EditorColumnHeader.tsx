@@ -1,11 +1,10 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Label migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { type MergeExclusive } from 'type-fest';
 
 import { Label, Stack } from '@grafana/ui';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import './EditorColumnHeader.css';
 
 interface BaseProps {
   id?: string;
@@ -29,7 +28,7 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
 
   return (
     <div {...stylex.props(styles.container)}>
-      <Label className={pendingEmotionStyles.label} id={id}>
+      <Label className="gf-alerting-editor-column-label" id={id}>
         {label}
       </Label>
       {actions && (
@@ -40,13 +39,6 @@ export function EditorColumnHeader({ label, actions, id, children }: Props) {
     </div>
   );
 }
-
-// stylex: pending Label migration
-const pendingEmotionStyles = {
-  label: css({
-    margin: 0,
-  }),
-};
 
 const styles = stylex.create({
   container: {

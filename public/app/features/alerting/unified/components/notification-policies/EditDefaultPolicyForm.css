@@ -1,0 +1,6 @@
+/* Collapse has no xstyle. Deliberately not in a cascade layer, so this owned class wins over its StyleX. */
+.gf-alerting-default-policy-timing-options {
+  border: none;
+  background: none;
+  color: var(--gf-colors-text-primary);
+}

@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending InlineLabel migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type FC, useCallback, useMemo } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
@@ -22,6 +20,7 @@ import { NeedHelpInfo } from '../NeedHelpInfo';
 import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
 
 import { AddButton, RemoveButton } from './LabelsButtons';
+import './LabelsField.css';
 
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
@@ -286,7 +285,7 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
                 }}
               />
             </Field>
-            <InlineLabel className={pendingEmotionStyles.equalSign}>=</InlineLabel>
+            <InlineLabel className="gf-alerting-labels-equal-sign">=</InlineLabel>
             <Field
               noMargin
               className={stylex.props(styles.labelInput).className}
@@ -364,7 +363,7 @@ export const LabelsWithoutSuggestions: FC = () => {
                   defaultValue={field.key}
                 />
               </Field>
-              <InlineLabel className={pendingEmotionStyles.equalSign}>=</InlineLabel>
+              <InlineLabel className="gf-alerting-labels-equal-sign">=</InlineLabel>
               <Field
                 noMargin
                 className={stylex.props(styles.labelInput).className}
@@ -439,16 +438,6 @@ function getDescriptionText() {
     'Select a label key/value from the options below, or type a new one and press Enter.'
   );
 }
-
-// stylex: pending InlineLabel migration
-const pendingEmotionStyles = {
-  equalSign: css({
-    alignSelf: 'flex-start',
-    width: '28px',
-    justifyContent: 'center',
-    margin: 0,
-  }),
-};
 
 const styles = stylex.create({
   flexRow: {

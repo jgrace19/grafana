@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type AdHocFilterWithLabels, AdHocFiltersComboboxRenderer, type AdHocFiltersController } from '@grafana/scenes';
-import { Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Tooltip } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { type Silence } from 'app/plugins/datasource/alertmanager/types';
 
@@ -34,8 +34,6 @@ interface SilencesFilterProps {
 export function SilencesFilter({ silences }: SilencesFilterProps) {
   const [queryParams, setQueryParams] = useQueryParams();
   const { queryString } = getSilenceFiltersFromUrlParams(queryParams);
-  const styles = useStyles2(getStyles);
-
   const silencesRef = useRef(silences);
   silencesRef.current = silences;
 
@@ -63,7 +61,7 @@ export function SilencesFilter({ silences }: SilencesFilterProps) {
 
   return (
     <Stack direction="row" alignItems="center" wrap="wrap">
-      <div className={styles.comboboxWrapper}>
+      <div {...stylex.props(styles.comboboxWrapper)}>
         <AdHocFiltersComboboxRenderer controller={controller} />
       </div>
       <Tooltip
@@ -215,8 +213,8 @@ export class SilenceFiltersController implements AdHocFiltersController {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  comboboxWrapper: css({
+const styles = stylex.create({
+  comboboxWrapper: {
     minWidth: '360px',
-  }),
+  },
 });

@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Stack, useStyles2 } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { SilenceMetadataGrid } from './SilenceMetadataGrid';
 import SilencedAlertsTable from './SilencedAlertsTable';
@@ -14,14 +14,12 @@ interface Props {
 
 export const SilenceDetails = ({ silence }: Props) => {
   const { startsAt, endsAt, comment, createdBy, silencedAlerts } = silence;
-  const styles = useStyles2(getStyles);
-
   return (
     <Stack direction="column" gap={2}>
       <SilenceMetadataGrid {...{ startsAt, endsAt, comment, createdBy }} />
       {Array.isArray(silencedAlerts) && (
         <>
-          <div className={styles.title}>
+          <div {...stylex.props(styles.title)}>
             <Trans i18nKey="alerting.silence-details.affected-alerts">Affected alerts</Trans>
           </div>
           <SilencedAlertsTable silencedAlerts={silencedAlerts} />
@@ -31,8 +29,8 @@ export const SilenceDetails = ({ silence }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  title: css({
-    color: theme.colors.text.primary,
-  }),
+const styles = stylex.create({
+  title: {
+    color: colors['--gf-colors-text-primary'],
+  },
 });

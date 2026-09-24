@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
 import { useCallback, useState } from 'react';
 import { useDebounce } from 'react-use';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Icon, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Field, Icon, Input, Stack } from '@grafana/ui';
 
 import { useURLSearchParams } from '../../../hooks/useURLSearchParams';
 
 const RoutingTreeFilter = () => {
-  const styles = useStyles2(getStyles);
-
   const [searchParams, setSearchParams] = useURLSearchParams();
 
   const defaultValue = searchParams.get('search') ?? '';
@@ -35,7 +32,6 @@ const RoutingTreeFilter = () => {
     <Stack direction="row" alignItems="end" gap={0.5}>
       <Field
         noMargin
-        className={styles.noBottom}
         label={t(
           'alerting.routing-tree-filter.label-search-by-name-or-receiver',
           'Search by policy name or contact point'
@@ -64,11 +60,5 @@ const RoutingTreeFilter = () => {
     </Stack>
   );
 };
-
-const getStyles = () => ({
-  noBottom: css({
-    marginBottom: 0,
-  }),
-});
 
 export { RoutingTreeFilter };
