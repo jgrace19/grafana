@@ -1,12 +1,10 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type Dispatch, type SetStateAction, useEffect, useId, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
-  useStyles2,
   Button,
   CollapsableSection,
   Divider,
@@ -24,7 +22,7 @@ import {
   RadioButtonGroup,
   SecretInput,
 } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type MapKeyCertConfigured, type LdapPayload } from 'app/types/ldap';
 
 import { GroupMappingComponent } from './LdapGroupMapping';
@@ -50,7 +48,6 @@ export const LdapDrawerComponent = ({
 }: Props) => {
   const [encryptionProvider, setEncryptionProvider] = useState(EncryptionProvider.Base64);
 
-  const pendingStyles = useStyles2(getPendingStyles);
   const { control, getValues, register, setValue, watch } = useFormContext<LdapPayload>();
 
   const nameId = useId();
@@ -77,7 +74,7 @@ export const LdapDrawerComponent = ({
 
   const attributesLabel = (
     <Label
-      className={pendingStyles.sectionLabel}
+      xstyle={styles.sectionLabel}
       description={t(
         'ldap-drawer.attributes-section.description',
         "Specify the LDAP attributes that map to the user's given name, surname, and email address, ensuring the application correctly retrieves and displays user information."
@@ -89,7 +86,7 @@ export const LdapDrawerComponent = ({
 
   const groupMappingsLabel = (
     <Label
-      className={pendingStyles.sectionLabel}
+      xstyle={styles.sectionLabel}
       description={t('ldap-drawer.group-mapping-section.description', 'Map LDAP groups to Grafana org roles')}
     >
       <Trans i18nKey="ldap-drawer.group-mapping-section.label">Group mapping</Trans>
@@ -452,16 +449,10 @@ export const LdapDrawerComponent = ({
   );
 };
 
-// stylex: pending Label migration
-function getPendingStyles(theme: GrafanaTheme2) {
-  return {
-    sectionLabel: css({
-      fontSize: theme.typography.size.lg,
-    }),
-  };
-}
-
 const styles = stylex.create({
+  sectionLabel: {
+    fontSize: typography['--gf-typography-size-lg'],
+  },
   button: {
     marginBottom: spacing['--gf-spacing-x4'],
   },

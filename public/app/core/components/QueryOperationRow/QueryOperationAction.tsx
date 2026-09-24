@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
-import { IconButton, type IconName, useTheme2 } from '@grafana/ui';
+import { IconButton, type IconName } from '@grafana/ui';
 import { colors, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 interface BaseQueryOperationActionProps {
@@ -14,20 +14,12 @@ interface BaseQueryOperationActionProps {
 }
 
 function BaseQueryOperationAction(props: QueryOperationActionProps | QueryOperationToggleActionProps) {
-  const theme = useTheme2();
-
   return (
     <div {...stylex.props(styles.icon, 'active' in props && props.active && styles.active)}>
       <IconButton
         name={props.icon}
         tooltip={props.title}
-        // IconButton has no `xstyle`; its own display and colour beat a StyleX class passed as `className`.
-        // Its disabled colour still wins, as it did over the Emotion override.
-        style={{
-          display: 'flex',
-          position: 'relative',
-          color: props.disabled ? undefined : theme.colors.text.secondary,
-        }}
+        xstyle={styles.button}
         disabled={!!props.disabled}
         onClick={props.onClick}
         type="button"
@@ -51,6 +43,12 @@ export const QueryOperationToggleAction = (props: QueryOperationToggleActionProp
 };
 
 const styles = stylex.create({
+  // IconButton's own disabled colour still wins, as it did over the Emotion override.
+  button: {
+    display: 'flex',
+    position: 'relative',
+    color: { default: colors['--gf-colors-text-secondary'], ':disabled': colors['--gf-colors-action-disabled-text'] },
+  },
   icon: {
     display: 'flex',
     position: 'relative',

@@ -122,8 +122,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
                     })
               }
               aria-expanded={Boolean(sectionExpanded)}
-              // IconButton has no `xstyle`; its own `marginRight` beats a StyleX class passed as `className`.
-              style={{ margin: 0 }}
+              xstyle={styles.collapseButton}
               onClick={() => setSectionExpanded(!sectionExpanded)}
               name={getIconName(Boolean(sectionExpanded))}
               size="md"
@@ -160,6 +159,12 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
 }
 
 const styles = stylex.create({
+  collapseButton: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
   icon: {
     width: spacing['--gf-spacing-x3'],
   },

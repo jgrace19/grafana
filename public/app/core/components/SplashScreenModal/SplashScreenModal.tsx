@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, LinkButton, useStyles2, useTheme2 } from '@grafana/ui';
+import { IconButton, LinkButton } from '@grafana/ui';
 import { ModalBase } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { SplashScreenNav } from './SplashScreenNav';
@@ -25,8 +24,6 @@ function resolveCtaUrl(cta: SplashFeatureCta): string {
 
 export function SplashScreenModal() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const theme = useTheme2();
-  const modalStyles = useStyles2(getModalStyles);
   const config = getSplashScreenConfig();
   const { shouldShow, dismiss } = useShouldShowSplash(config.version);
 
@@ -83,7 +80,7 @@ export function SplashScreenModal() {
       isOpen
       onDismiss={dismiss}
       aria-label={t('splash-screen.aria-label', "What's new in Grafana")}
-      className={modalStyles.modal}
+      xstyle={styles.modal}
     >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div {...stylex.props(styles.container)} onKeyDown={handleKeyDown}>
@@ -92,14 +89,7 @@ export function SplashScreenModal() {
           size="lg"
           onClick={dismiss}
           aria-label={t('splash-screen.close', 'Close')}
-          // IconButton has no `xstyle`; its own position, z-index and colour beat a StyleX class passed as `className`.
-          style={{
-            position: 'absolute',
-            top: theme.spacing(1),
-            right: theme.spacing(1),
-            zIndex: 1,
-            color: theme.colors.text.secondary,
-          }}
+          xstyle={styles.close}
         />
         <SplashScreenSlide feature={activeFeature} footer={footer} />
       </div>
@@ -107,21 +97,28 @@ export function SplashScreenModal() {
   );
 }
 
+// ModalBase's small-height media query.
+const smallHeight = '@media (max-height: 750px)';
+
 const styles = stylex.create({
+  // ModalBase's own small-height max height still wins.
+  modal: {
+    width: '860px',
+    maxWidth: '95vw',
+    height: '520px',
+    maxHeight: { default: '85vh', [smallHeight]: '100%' },
+    padding: 0,
+    overflow: 'hidden',
+  },
+  close: {
+    position: 'absolute',
+    top: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    right: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    zIndex: 1,
+    color: colors['--gf-colors-text-secondary'],
+  },
   container: {
     position: 'relative',
     height: '100%',
   },
-});
-
-// stylex: pending Modal migration (U4). Overrides ModalBase's own Emotion size and padding.
-const getModalStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '860px',
-    maxWidth: '95vw',
-    height: '520px',
-    maxHeight: '85vh',
-    padding: 0,
-    overflow: 'hidden',
-  }),
 });

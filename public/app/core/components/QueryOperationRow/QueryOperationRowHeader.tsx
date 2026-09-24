@@ -4,7 +4,7 @@ import { type MouseEventHandler } from 'react';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, Stack, useTheme2 } from '@grafana/ui';
+import { Icon, IconButton, Stack } from '@grafana/ui';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface QueryOperationRowHeaderProps {
@@ -41,8 +41,6 @@ export const QueryOperationRowHeader = ({
   id,
   expanderMessages,
 }: QueryOperationRowHeaderProps) => {
-  const theme = useTheme2();
-
   let tooltipMessage = isContentVisible
     ? t('query-operation.header.collapse-row', 'Collapse query row')
     : t('query-operation.header.expand-row', 'Expand query row');
@@ -61,8 +59,7 @@ export const QueryOperationRowHeader = ({
           <IconButton
             name={isContentVisible ? 'angle-down' : 'angle-right'}
             tooltip={tooltipMessage}
-            // IconButton has no `xstyle`; its own margin and colour beat a StyleX class passed as `className`.
-            style={{ marginLeft: theme.spacing(0.5), color: theme.colors.text.disabled }}
+            xstyle={styles.toggle}
             onClick={onRowToggle}
             aria-expanded={isContentVisible}
             aria-controls={id}
@@ -93,6 +90,10 @@ export const QueryOperationRowHeader = ({
 };
 
 const styles = stylex.create({
+  toggle: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    color: colors['--gf-colors-text-disabled'],
+  },
   header: {
     paddingTop: spacing['--gf-spacing-x0-5'],
     paddingRight: spacing['--gf-spacing-x0-5'],

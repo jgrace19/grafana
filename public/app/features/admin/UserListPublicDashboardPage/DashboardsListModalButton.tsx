@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Button, LoadingPlaceholder, Modal, ModalsController, useStyles2 } from '@grafana/ui';
+import { Button, LoadingPlaceholder, Modal, ModalsController } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
@@ -16,12 +15,11 @@ import { useGetActiveUserDashboardsQuery } from '../../dashboard/api/publicDashb
 
 const selectors = e2eSelectors.pages.UserListPage.UsersListPublicDashboardsPage.DashboardsListModal;
 export const DashboardsListModal = ({ email, onDismiss }: { email: string; onDismiss: () => void }) => {
-  const pendingStyles = useStyles2(getPendingStyles);
   const { data: dashboards, isLoading } = useGetActiveUserDashboardsQuery(email);
 
   return (
     <Modal
-      className={pendingStyles.modal}
+      xstyle={styles.modal}
       isOpen
       title={t('public-dashboard-users-access-list.modal.shared-dashboard-modal-title', 'Shared dashboards')}
       onDismiss={onDismiss}
@@ -94,14 +92,10 @@ export const DashboardsListModalButton = ({ email }: { email: string }) => {
   );
 };
 
-// stylex: pending Modal migration
-const getPendingStyles = () => ({
-  modal: css({
-    width: '590px',
-  }),
-});
-
 const styles = stylex.create({
+  modal: {
+    width: '590px',
+  },
   loading: {
     display: 'flex',
     justifyContent: 'center',

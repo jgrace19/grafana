@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Button, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Modal } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { dashboardWatcher } from './dashboardWatcher';
@@ -15,8 +14,6 @@ interface Props {
 }
 
 export function DashboardChangedModal({ onDismiss, event }: Props) {
-  const pendingStyles = useStyles2(getPendingStyles);
-
   const onDiscardChanges = () => {
     if (event?.action === DashboardEventAction.Deleted) {
       locationService.push('/');
@@ -33,7 +30,7 @@ export function DashboardChangedModal({ onDismiss, event }: Props) {
       title={t('live.dashboard-changed-modal.title-dashboard-changed', 'Dashboard changed')}
       onDismiss={onDismiss}
       onClickBackdrop={() => {}}
-      className={pendingStyles.modal}
+      xstyle={modalStyles.modal}
     >
       <div {...stylex.props(styles.description)}>
         <Trans i18nKey="live.dashboard-changed-modal.description">
@@ -53,14 +50,15 @@ export function DashboardChangedModal({ onDismiss, event }: Props) {
   );
 }
 
-// stylex: pending Modal migration
-const getPendingStyles = () => ({
-  modal: css({ width: '600px' }),
-});
-
 const styles = stylex.create({
   description: {
     color: colors['--gf-colors-text-secondary'],
     paddingBottom: spacing['--gf-spacing-x1'],
+  },
+});
+
+const modalStyles = stylex.create({
+  modal: {
+    width: '600px',
   },
 });
