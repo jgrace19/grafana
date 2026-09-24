@@ -27,3 +27,10 @@ public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides To
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
+
+# D3 dashboard: pending Emotion className overrides of unmigrated @grafana/ui children (conventions §3.9)
+public/app/features/dashboard/components/AnnotationSettings/AnnotationSettingsEdit.tsx # stylex: pending FieldSet migration (marginBottom override)
+public/app/features/dashboard/components/DashNav/DashNav.tsx # stylex: pending Modal migration (ConfirmModal modalClass width override)
+public/app/features/dashboard/components/DeleteDashboard/DeleteDashboardModal.tsx # stylex: pending Modal migration (width override)
+public/app/features/dashboard/components/PanelEditor/VisualizationSelectPane.tsx # stylex: pending Field migration (marginBottom override)
+public/app/features/dashboard/components/RowOptions/RowOptionsModal.tsx # stylex: pending Modal migration (width override)

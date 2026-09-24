@@ -1,4 +1,6 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending FieldSet migration (see settingsForm)
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -7,7 +9,6 @@ import {
   type AnnotationQuery,
   type DataSourceInstanceSettings,
   getDataSourceRef,
-  type GrafanaTheme2,
   type SelectableValue,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -15,7 +16,8 @@ import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv, locationService } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { type AnnotationPanelFilter } from '@grafana/schema';
-import { Button, Checkbox, Field, FieldSet, Input, MultiSelect, Select, useStyles2, Stack, Alert } from '@grafana/ui';
+import { Button, Checkbox, Field, FieldSet, Input, MultiSelect, Select, Stack, Alert } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ColorValueEditor } from 'app/core/components/OptionsUI/color';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -30,7 +32,6 @@ type Props = {
 export const newAnnotationName = 'New annotation';
 
 export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
-  const styles = useStyles2(getStyles);
   const [annotation, setAnnotation] = useState(dashboard.annotations.list[editIdx]);
 
   const panelFilter = useMemo(() => {
@@ -166,7 +167,7 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
 
   return (
     <div>
-      <FieldSet className={styles.settingsForm}>
+      <FieldSet className={settingsForm}>
         <Field label={t('dashboard.annotation-settings-edit.label-name', 'Name')}>
           <Input
             data-testid={selectors.pages.Dashboard.Settings.Annotations.Settings.name}
@@ -255,7 +256,7 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
                   placeholder={t('dashboard.annotation-settings-edit.placeholder-choose-panels', 'Choose panels')}
                   width={100}
                   closeMenuOnSelect={false}
-                  className={styles.select}
+                  className={stylex.props(styles.select).className}
                   data-testid={selectors.components.Annotations.annotationsChoosePanelInput}
                 />
               </>
@@ -297,17 +298,17 @@ export const AnnotationSettingsEdit = ({ editIdx, dashboard }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    settingsForm: css({
-      maxWidth: theme.spacing(60),
-      marginBottom: theme.spacing(2),
-    }),
-    select: css({
-      marginTop: '8px',
-    }),
-  };
-};
+// stylex: pending FieldSet migration. FieldSet's own Emotion marginBottom would beat a StyleX override.
+const settingsForm = css({
+  maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+  marginBottom: spacing['--gf-spacing-x2'],
+});
+
+const styles = stylex.create({
+  select: {
+    marginTop: '8px',
+  },
+});
 
 function goBackToList() {
   locationService.partial({ editIndex: null });

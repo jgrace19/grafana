@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
 import { css } from '@emotion/css';
 import { memo, type ReactNode } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
@@ -303,6 +304,7 @@ DashNav.displayName = 'DashNav';
 
 export default connector(DashNav);
 
+// stylex: pending Modal migration. ConfirmModal passes this to Modal, whose own Emotion width would beat StyleX.
 const modalStyles = css({
   width: 'max-content',
   maxWidth: '80vw',

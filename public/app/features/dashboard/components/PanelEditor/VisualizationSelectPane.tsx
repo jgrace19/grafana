@@ -1,11 +1,14 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Field migration (see customFieldMargin)
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { type GrafanaTheme2, type PanelData, type SelectableValue } from '@grafana/data';
+import { type PanelData, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Button, Field, FilterInput, RadioButtonGroup, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Button, Field, FilterInput, RadioButtonGroup, ScrollContainer } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { LS_VISUALIZATION_SELECT_TAB_KEY } from 'app/core/constants';
 import { PanelLibraryOptionsGroup } from 'app/features/library-panels/components/PanelLibraryOptionsGroup/PanelLibraryOptionsGroup';
 import { VisualizationSuggestions } from 'app/features/panel/components/VizTypePicker/VisualizationSuggestions';
@@ -35,7 +38,6 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
   const [listMode, setListMode] = useLocalStorage(tabKey, defaultTab);
 
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
   const searchRef = useRef<HTMLInputElement | null>(null);
 
   const onVizChange = useCallback(
@@ -78,9 +80,9 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
   ];
 
   return (
-    <div className={styles.openWrapper}>
-      <div className={styles.formBox}>
-        <div className={styles.searchRow}>
+    <div {...stylex.props(styles.openWrapper)}>
+      <div {...stylex.props(styles.formBox)}>
+        <div {...stylex.props(styles.searchRow)}>
           <FilterInput
             value={searchQuery}
             onChange={setSearchQuery}
@@ -92,18 +94,18 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
             aria-label={t('dashboard.visualization-select-pane.title-close', 'Close')}
             variant="secondary"
             icon="angle-up"
-            className={styles.closeButton}
+            className={stylex.props(styles.closeButton).className}
             data-testid={selectors.components.PanelEditor.toggleVizPicker}
             onClick={onCloseVizPicker}
           />
         </div>
-        <Field className={styles.customFieldMargin}>
+        <Field className={customFieldMargin}>
           <RadioButtonGroup options={radioOptions} value={listMode} onChange={setListMode} fullWidth />
         </Field>
       </div>
-      <div className={styles.scrollWrapper}>
+      <div {...stylex.props(styles.scrollWrapper)}>
         <ScrollContainer>
-          <div className={styles.scrollContent}>
+          <div {...stylex.props(styles.scrollContent)}>
             {listMode === VisualizationSelectPaneTab.Visualizations && (
               <VizTypePicker pluginId={plugin.meta.id} onChange={onVizChange} searchQuery={searchQuery} />
             )}
@@ -122,48 +124,40 @@ export const VisualizationSelectPane = ({ panel, data }: Props) => {
 
 VisualizationSelectPane.displayName = 'VisualizationSelectPane';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      color: theme.v1.palette.gray33,
-    }),
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: '1 1 0',
-      height: '100%',
-    }),
-    vizButton: css({
-      textAlign: 'left',
-    }),
-    scrollWrapper: css({
-      flexGrow: 1,
-      minHeight: 0,
-    }),
-    scrollContent: css({
-      padding: theme.spacing(1),
-    }),
-    openWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: '1 1 100%',
-      height: '100%',
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-    searchRow: css({
-      display: 'flex',
-      marginBottom: theme.spacing(1),
-    }),
-    closeButton: css({
-      marginLeft: theme.spacing(1),
-    }),
-    customFieldMargin: css({
-      marginBottom: theme.spacing(1),
-    }),
-    formBox: css({
-      padding: theme.spacing(1),
-      paddingBottom: 0,
-    }),
-  };
-};
+// stylex: pending Field migration. Field's own Emotion marginBottom would beat a StyleX override.
+const customFieldMargin = css({
+  marginBottom: spacing['--gf-spacing-x1'],
+});
+
+const styles = stylex.create({
+  scrollWrapper: {
+    flexGrow: 1,
+    minHeight: 0,
+  },
+  scrollContent: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  openWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+    height: '100%',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+  searchRow: {
+    display: 'flex',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  closeButton: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  formBox: {
+    padding: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+  },
+});

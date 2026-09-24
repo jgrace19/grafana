@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { indexOf } from 'lodash';
 import { Component } from 'react';
 import { type Unsubscribable } from 'rxjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
-import { Icon, TextLink, type Themeable2, withTheme2 } from '@grafana/ui';
+import { Icon, TextLink, type Themeable2, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { SHARED_DASHBOARD_QUERY } from 'app/plugins/datasource/dashboard/constants';
@@ -18,6 +20,8 @@ import { ShowConfirmModalEvent } from '../../../../types/events';
 import { type DashboardModel } from '../../state/DashboardModel';
 import { type PanelModel } from '../../state/PanelModel';
 import { RowOptionsButton } from '../RowOptions/RowOptionsButton';
+
+import { dashboardRowMarker } from './markers.stylex';
 
 export interface DashboardRowProps extends Themeable2 {
   panel: PanelModel;
@@ -104,43 +108,38 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
     const panels = count === 1 ? 'panel' : 'panels';
     const canEdit = this.props.dashboard.meta.canEdit === true;
     const collapsed = this.props.panel.collapsed;
-    const styles = getStyles(this.props.theme);
+    const dragHandle = this.props.theme.name === 'dark' ? grabDarkSvg : grabLightSvg;
 
     return (
       <div
-        className={cx(styles.dashboardRow, {
-          [styles.dashboardRowCollapsed]: collapsed,
-        })}
+        {...stylex.props(styles.dashboardRow, collapsed && styles.dashboardRowCollapsed, dashboardRowMarker)}
         data-testid="dashboard-row-container"
       >
         <button
           aria-expanded={!collapsed}
-          className={cx(styles.title, 'pointer')}
+          {...mergeStylexProps(stylex.props(styles.title), { className: 'pointer' })}
           type="button"
           data-testid={selectors.components.DashboardRow.title(title)}
           onClick={this.onToggle}
         >
           <Icon name={collapsed ? 'angle-right' : 'angle-down'} />
           {title}
-          <span
-            className={cx(styles.count, {
-              [styles.countCollapsed]: collapsed,
-            })}
-          >
+          <span {...stylex.props(styles.count, collapsed && styles.countCollapsed)}>
             ({count} {panels})
           </span>
         </button>
         {canEdit && (
-          <div className={styles.actions}>
+          <div {...stylex.props(styles.actions)}>
             <RowOptionsButton
               title={this.props.panel.title}
               repeat={this.props.panel.repeat}
               onUpdate={this.onUpdate}
               warning={this.getWarning()}
+              xstyle={styles.actionButton}
             />
             <button
               type="button"
-              className="pointer"
+              {...mergeStylexProps(stylex.props(styles.actionButton), { className: 'pointer' })}
               onClick={() => {
                 DashboardInteractions.trackDeleteDashboardElement('row');
                 this.onDelete();
@@ -155,21 +154,21 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
           /* disabling the a11y rules here as the button handles keyboard interactions */
           /* this is just to provide a better experience for mouse users */
           /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */
-          <div
-            className={cx({
-              [styles.toggleTargetCollapsed]: collapsed,
-            })}
-            onClick={this.onToggle}
-          >
+          <div {...stylex.props(collapsed && styles.toggleTargetCollapsed)} onClick={this.onToggle}>
             &nbsp;
           </div>
         )}
         {canEdit && (
           <div
             data-testid="dashboard-row-drag"
-            className={cx(styles.dragHandle, 'grid-drag-handle', {
-              [styles.dragHandleCollapsed]: collapsed,
-            })}
+            {...mergeStylexProps(
+              stylex.props(
+                styles.dragHandle,
+                styles.dragHandleImage(`url("${dragHandle}")`),
+                collapsed && styles.dragHandleCollapsed
+              ),
+              { className: 'grid-drag-handle' }
+            )}
           />
         )}
       </div>
@@ -177,89 +176,79 @@ export class UnthemedDashboardRow extends Component<DashboardRowProps> {
   }
 }
 
-export const DashboardRow = withTheme2(UnthemedDashboardRow);
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const dragHandle = theme.name === 'dark' ? grabDarkSvg : grabLightSvg;
-  const actions = css({
-    color: theme.colors.text.secondary,
-    opacity: 0,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: '200ms opacity ease-in 200ms',
-    },
-
-    button: {
-      color: theme.colors.text.secondary,
-      paddingLeft: theme.spacing(2),
-      background: 'transparent',
-      border: 'none',
-
-      '&:hover': {
-        color: theme.colors.text.maxContrast,
-      },
-    },
-  });
-
-  return {
-    dashboardRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      height: '100%',
-
-      '&:hover, &:focus-within': {
-        [`.${actions}`]: {
-          opacity: 1,
-        },
-      },
-    }),
-    dashboardRowCollapsed: css({
-      background: theme.components.panel.background,
-    }),
-    toggleTargetCollapsed: css({
-      flex: 1,
-      cursor: 'pointer',
-      marginRight: '15px',
-    }),
-    title: css({
-      flexGrow: 0,
-      fontSize: theme.typography.h5.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-      background: 'transparent',
-      border: 'none',
-
-      '.fa': {
-        color: theme.colors.text.secondary,
-        fontSize: theme.typography.size.xs,
-        padding: theme.spacing(0, 1),
-      },
-    }),
-    actions,
-    count: css({
-      paddingLeft: theme.spacing(2),
-      color: theme.colors.text.secondary,
-      fontStyle: 'italic',
-      fontSize: theme.typography.size.sm,
-      fontWeight: 'normal',
-      display: 'none',
-    }),
-    countCollapsed: css({
-      display: 'inline-block',
-    }),
-    dragHandle: css({
-      cursor: 'move',
-      width: '16px',
-      height: '100%',
-      background: `url("${dragHandle}") no-repeat 50% 50%`,
-      backgroundSize: '8px',
-      visibility: 'hidden',
-      position: 'absolute',
-      top: 0,
-      right: 0,
-    }),
-    dragHandleCollapsed: css({
-      visibility: 'visible',
-      opacity: 1,
-    }),
-  };
+export const DashboardRow = (props: Omit<DashboardRowProps, 'theme'>) => {
+  const theme = useTheme2();
+  return <UnthemedDashboardRow {...props} theme={theme} />;
 };
+
+const styles = stylex.create({
+  dashboardRow: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '100%',
+  },
+  dashboardRowCollapsed: {
+    backgroundColor: components['--gf-components-panel-background'],
+  },
+  toggleTargetCollapsed: {
+    flex: '1',
+    cursor: 'pointer',
+    marginRight: '15px',
+  },
+  title: {
+    flexGrow: 0,
+    fontSize: typography['--gf-typography-h5-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+  },
+  actions: {
+    color: colors['--gf-colors-text-secondary'],
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(':hover', dashboardRowMarker)]: 1,
+      [stylex.when.ancestor(':focus-within', dashboardRowMarker)]: 1,
+    },
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '200ms' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-in' },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '200ms' },
+  },
+  actionButton: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-max-contrast'] },
+    paddingLeft: spacing['--gf-spacing-x2'],
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+  },
+  count: {
+    paddingLeft: spacing['--gf-spacing-x2'],
+    color: colors['--gf-colors-text-secondary'],
+    fontStyle: 'italic',
+    fontSize: typography['--gf-typography-size-sm'],
+    fontWeight: 'normal',
+    display: 'none',
+  },
+  countCollapsed: {
+    display: 'inline-block',
+  },
+  dragHandle: {
+    cursor: 'move',
+    width: '16px',
+    height: '100%',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: '50% 50%',
+    backgroundSize: '8px',
+    visibility: 'hidden',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  dragHandleImage: (backgroundImage: string) => ({
+    backgroundImage,
+  }),
+  dragHandleCollapsed: {
+    visibility: 'visible',
+    opacity: 1,
+  },
+});

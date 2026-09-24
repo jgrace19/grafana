@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
 import { css } from '@emotion/css';
 import { connect, type ConnectedProps } from 'react-redux';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
@@ -55,9 +56,7 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
       isOpen={true}
       title={t('dashboard-settings.provisioned-delete-modal.title', 'Cannot delete provisioned dashboard')}
       onDismiss={hideModal}
-      className={css({
-        width: '500px',
-      })}
+      className={modalStyles}
     >
       <Text element="p">
         <Trans i18nKey="dashboard-settings.provisioned-delete-modal.text-1">
@@ -88,3 +87,8 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
 };
 
 export const DeleteDashboardModal = connector(DeleteDashboardModalUnconnected);
+
+// stylex: pending Modal migration. Modal's own Emotion width would beat a StyleX override.
+const modalStyles = css({
+  width: '500px',
+});
