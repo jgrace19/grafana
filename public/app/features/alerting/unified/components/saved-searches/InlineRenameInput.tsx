@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Box, IconButton, Input, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, IconButton, Input, Stack, Text } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useAppNotification } from '../../../../../core/copy/appNotification';
 
@@ -34,7 +33,6 @@ export function InlineRenameInput({
   savedSearches,
   excludeId,
 }: InlineRenameInputProps) {
-  const styles = useStyles2(getStyles);
   const notifyApp = useAppNotification();
 
   const {
@@ -118,7 +116,7 @@ export function InlineRenameInput({
             disabled={isSubmitting}
             size="md"
             tooltip={t('alerting.saved-searches.rename-button', 'Rename')}
-            className={styles.successIcon}
+            style={successIconStyle}
             variant="secondary"
             onClick={handleSubmit(onSubmit)}
           />
@@ -137,10 +135,7 @@ export function InlineRenameInput({
 // Styles
 // ============================================================================
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    successIcon: css({
-      color: theme.colors.success.main,
-    }),
-  };
-}
+// IconButton has no xstyle, and its own colour must lose to this one in every state.
+const successIconStyle = {
+  color: colors['--gf-colors-success-main'],
+};

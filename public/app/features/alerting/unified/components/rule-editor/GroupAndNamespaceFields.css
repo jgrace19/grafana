@@ -1,0 +1,7 @@
+/*
+ * react-select sizes its container with its own Emotion class, which keeps winning on insertion order, so this
+ * owned class needs !important. Deliberately not in a cascade layer.
+ */
+.gf-alerting-group-namespace-select {
+  width: 330px !important;
+}

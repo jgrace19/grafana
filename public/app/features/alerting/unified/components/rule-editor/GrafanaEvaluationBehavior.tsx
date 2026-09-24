@@ -1,10 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, type RegisterOptions, useForm, useFormContext } from 'react-hook-form';
 import { useFirstMountState } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import {
@@ -21,8 +23,8 @@ import {
   Switch,
   Text,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type RulerRulesConfigDTO } from 'app/types/unified-alerting-dto';
 
 import { evaluateEveryValidationOptions } from '../../group-details/validation';
@@ -121,7 +123,6 @@ export function GrafanaEvaluationBehaviorStep({
   existing: boolean;
   enableProvisionedGroups: boolean;
 }) {
-  const styles = useStyles2(getStyles);
   const [showErrorHandling, setShowErrorHandling] = useState(false);
 
   const {
@@ -209,7 +210,7 @@ export function GrafanaEvaluationBehaviorStep({
               noMargin
               label={label}
               data-testid="group-picker"
-              className={styles.formInput}
+              className={stylex.props(styles.formInput).className}
               error={errors.group?.message}
               invalid={!!errors.group?.message}
               htmlFor="group"
@@ -289,9 +290,9 @@ export function GrafanaEvaluationBehaviorStep({
         </Stack>
 
         {folder?.title && group && (
-          <div className={styles.evaluationContainer}>
+          <div {...stylex.props(styles.evaluationContainer)}>
             <Stack direction="column" gap={0}>
-              <div className={styles.marginTop}>
+              <div {...stylex.props(styles.marginTop)}>
                 <Stack direction="column" gap={1}>
                   {getValues('group') && getValues('evaluateEvery') && (
                     <Trans i18nKey="alerting.rule-form.evaluation.group-text" values={{ evaluateEvery }}>
@@ -321,10 +322,10 @@ export function GrafanaEvaluationBehaviorStep({
                     }}
                     value={Boolean(isPaused)}
                   />
-                  <label htmlFor="pause-alert" className={styles.switchLabel}>
+                  <label htmlFor="pause-alert" {...stylex.props(styles.switchLabel)}>
                     <Trans i18nKey="alerting.rule-form.pause.label">Pause evaluation</Trans>
                     <Tooltip placement="top" content={pauseContentText} theme={'info'}>
-                      <Icon tabIndex={0} name="info-circle" size="sm" className={styles.infoIcon} />
+                      <Icon tabIndex={0} name="info-circle" size="sm" xstyle={styles.infoIcon} />
                     </Tooltip>
                   </label>
                 </Stack>
@@ -394,7 +395,6 @@ export function GrafanaEvaluationBehaviorStep({
                 )}
                 invalid={!!errors.missingSeriesEvalsToResolve?.message}
                 error={errors.missingSeriesEvalsToResolve?.message}
-                className={styles.inlineField}
                 htmlFor="missing-series-resolve"
               >
                 <Stack direction="row" gap={0.5} alignItems="center">
@@ -460,7 +460,6 @@ export function EvaluationGroupCreationModal({
   onClose: () => void;
   onCreate: (group: string, evaluationInterval: string) => void;
 }): React.ReactElement {
-  const styles = useStyles2(getStyles);
   const { watch } = useFormContext<RuleFormValues>();
 
   const evaluateEveryId = 'eval-every-input';
@@ -501,13 +500,13 @@ export function EvaluationGroupCreationModal({
 
   return (
     <Modal
-      className={styles.modal}
+      className={pendingEmotionStyles.modal}
       isOpen={true}
       title={t('alerting.evaluation-group-creation-modal.title-new-evaluation-group', 'New evaluation group')}
       onDismiss={onCancel}
       onClickBackdrop={onCancel}
     >
-      <div className={styles.modalTitle}>{modalTitle}</div>
+      <div {...stylex.props(styles.modalTitle)}>{modalTitle}</div>
 
       <FormProvider {...formAPI}>
         <form onSubmit={handleSubmit(() => onSubmit())}>
@@ -530,7 +529,7 @@ export function EvaluationGroupCreationModal({
             >
               <Input
                 data-testid={selectors.components.AlertRules.newEvaluationGroupName}
-                className={styles.formInput}
+                className={stylex.props(styles.formInput).className}
                 autoFocus={true}
                 id={evaluationGroupNameId}
                 placeholder={t('alerting.evaluation-group-creation-modal.placeholder-enter-a-name', 'Enter a name')}
@@ -561,7 +560,7 @@ export function EvaluationGroupCreationModal({
             >
               <Input
                 data-testid={selectors.components.AlertRules.newEvaluationGroupInterval}
-                className={styles.formInput}
+                className={stylex.props(styles.formInput).className}
                 id={evaluateEveryId}
                 placeholder={DEFAULT_GROUP_EVALUATION_INTERVAL}
                 {...register(
@@ -593,7 +592,6 @@ export function EvaluationGroupCreationModal({
 }
 
 export function ForInput({ evaluateEvery }: { evaluateEvery: string }) {
-  const styles = useStyles2(getStyles);
   const {
     register,
     formState: { errors },
@@ -633,7 +631,6 @@ export function ForInput({ evaluateEvery }: { evaluateEvery: string }) {
             <Trans i18nKey="alerting.rule-form.evaluation-behaviour.pending-period">Pending period</Trans>
           </Label>
         }
-        className={styles.inlineField}
         error={errors.evaluateFor?.message}
         invalid={Boolean(errors.evaluateFor?.message) ? true : undefined}
         validationMessageHorizontalOverflow={true}
@@ -657,7 +654,6 @@ export function ForInput({ evaluateEvery }: { evaluateEvery: string }) {
 }
 
 function KeepFiringFor({ evaluateEvery }: { evaluateEvery: string }) {
-  const styles = useStyles2(getStyles);
   const {
     register,
     formState: { errors },
@@ -687,7 +683,6 @@ function KeepFiringFor({ evaluateEvery }: { evaluateEvery: string }) {
             <Trans i18nKey="alerting.rule-form.evaluation-behaviour.keep-firing-for.label-text">Keep firing for</Trans>
           </Label>
         }
-        className={styles.inlineField}
         error={errors.keepFiringFor?.message}
         invalid={Boolean(errors.keepFiringFor?.message) ? true : undefined}
         validationMessageHorizontalOverflow={true}
@@ -774,34 +769,35 @@ function getDescription(isGrafanaRecordingRule: boolean) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  inlineField: css({
-    marginBottom: 0,
-  }),
-  evaluationContainer: css({
-    color: theme.colors.text.secondary,
-    maxWidth: `${theme.breakpoints.values.sm}px`,
-    fontSize: theme.typography.size.sm,
-  }),
-  infoIcon: css({
-    marginLeft: '10px',
-  }),
-  marginTop: css({
-    marginTop: theme.spacing(1),
-  }),
-  switchLabel: css({
-    color: theme.colors.text.primary,
-    cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  formInput: css({
-    flexGrow: 1,
-  }),
+// stylex: pending Modal migration
+const pendingEmotionStyles = {
   modal: css({
-    width: `${theme.breakpoints.values.sm}px`,
+    width: '544px',
   }),
-  modalTitle: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(2),
-  }),
+};
+
+const styles = stylex.create({
+  evaluationContainer: {
+    color: colors['--gf-colors-text-secondary'],
+    maxWidth: '544px',
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+  infoIcon: {
+    marginLeft: '10px',
+  },
+  marginTop: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  switchLabel: {
+    color: colors['--gf-colors-text-primary'],
+    cursor: 'pointer',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  formInput: {
+    flexGrow: 1,
+  },
+  modalTitle: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });

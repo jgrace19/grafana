@@ -1,12 +1,14 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Field, Input and TextArea migration
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { produce } from 'immer';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, Input, Stack, Text, TextArea, useStyles2 } from '@grafana/ui';
+import { Button, Field, Input, Stack, Text, TextArea } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { AIImproveAnnotationsButtonComponent } from '../../enterprise-components/AI/AIGenImproveAnnotationsButton/addAIImproveAnnotationsButton';
 import { type RuleFormValues } from '../../types/rule-form';
@@ -22,7 +24,6 @@ import { RuleEditorSection } from './RuleEditorSection';
 import { type DashboardResponse, useDashboardQuery } from './useDashboardQuery';
 
 const AnnotationsStep = () => {
-  const styles = useStyles2(getStyles);
   const [showPanelSelector, setShowPanelSelector] = useToggle(false);
 
   const {
@@ -144,7 +145,7 @@ const AnnotationsStep = () => {
           // eslint-disable-next-line
           const annotation = annotationField.key as Annotation;
           return (
-            <div key={annotationField.id} className={styles.flexRow}>
+            <div key={annotationField.id} {...stylex.props(styles.flexRow)}>
               <div>
                 <AnnotationHeaderField
                   annotationField={annotationField}
@@ -163,12 +164,12 @@ const AnnotationsStep = () => {
                     onDeleteClick={handleDeleteDashboardAnnotation}
                   />
                 )}
-                <div className={styles.annotationValueContainer}>
+                <div {...stylex.props(styles.annotationValueContainer)}>
                   <Field
                     hidden={
                       annotationField.key === Annotation.dashboardUID || annotationField.key === Annotation.panelID
                     }
-                    className={cx(styles.flexRowItemMargin, styles.field)}
+                    className={pendingEmotionStyles.field}
                     invalid={!!errors.annotations?.[index]?.value?.message}
                     error={errors.annotations?.[index]?.value?.message}
                     noMargin
@@ -176,7 +177,9 @@ const AnnotationsStep = () => {
                     <ValueInputComponent
                       data-testid={`annotation-value-${index}`}
                       id={`annotation-${index}`}
-                      className={cx(styles.annotationValueInput, { [styles.textarea]: !isUrl })}
+                      className={cx(pendingEmotionStyles.annotationValueInput, {
+                        [pendingEmotionStyles.textarea]: !isUrl,
+                      })}
                       {...register(`annotations.${index}.value`)}
                       placeholder={
                         isUrl
@@ -197,7 +200,7 @@ const AnnotationsStep = () => {
                   {!annotationLabels[annotation] && (
                     <Button
                       type="button"
-                      className={styles.deleteAnnotationButton}
+                      style={deleteAnnotationButtonStyle}
                       aria-label={t('alerting.annotations-step.aria-label-delete-annotation', 'delete annotation')}
                       icon="trash-alt"
                       variant="secondary"
@@ -211,7 +214,7 @@ const AnnotationsStep = () => {
         })}
 
         <Stack direction="row" gap={1}>
-          <div className={styles.addAnnotationsButtonContainer}>
+          <div {...stylex.props(styles.addAnnotationsButtonContainer)}>
             <Button
               icon="plus"
               type="button"
@@ -243,51 +246,41 @@ const AnnotationsStep = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Field, Input and TextArea migration
+const pendingEmotionStyles = {
   annotationValueInput: css({
     width: '394px',
   }),
   textarea: css({
     height: '76px',
   }),
-  addAnnotationsButtonContainer: css({
-    marginTop: theme.spacing(1),
-    gap: theme.spacing(1),
-    display: 'flex',
-  }),
   field: css({
-    marginBottom: theme.spacing(0.5),
+    marginTop: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
   }),
-  flexRow: css({
+};
+
+const styles = stylex.create({
+  addAnnotationsButtonContainer: {
+    marginTop: spacing['--gf-spacing-x1'],
+    gap: spacing['--gf-spacing-x1'],
+    display: 'flex',
+  },
+  flexRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-  }),
-  flexRowItemMargin: css({
-    marginTop: theme.spacing(1),
-  }),
-  deleteAnnotationButton: css({
-    display: 'inline-block',
-    marginTop: '10px',
-    marginLeft: '10px',
-  }),
-
-  annotationTitle: css({
-    color: theme.colors.text.primary,
-    marginBottom: '3px',
-  }),
-
-  annotationContainer: css({
-    marginTop: '5px',
-  }),
-
-  annotationDescription: css({
-    color: theme.colors.text.secondary,
-  }),
-
-  annotationValueContainer: css({
+  },
+  annotationValueContainer: {
     display: 'flex',
-  }),
+  },
 });
+
+// Button has no xstyle, and its own display must lose to this one.
+const deleteAnnotationButtonStyle = {
+  display: 'inline-block',
+  marginTop: '10px',
+  marginLeft: '10px',
+};
 
 export default AnnotationsStep;

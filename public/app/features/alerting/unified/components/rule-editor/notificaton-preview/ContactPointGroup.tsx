@@ -1,13 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PropsWithChildren, type ReactNode } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useToggle } from 'react-use';
 
 import { base64UrlEncode } from '@grafana/alerting';
 import { getContactPointDescription, notificationsAPIv0alpha1 } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Stack, Text, TextLink } from '@grafana/ui';
+import { colors, components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { stringifyFieldSelector } from '../../../utils/k8s/utils';
 import { createContactPointLink } from '../../../utils/misc';
@@ -89,12 +89,11 @@ export function ContactPointGroup({
   isLoading = false,
   children,
 }: ContactPointGroupInnerProps) {
-  const styles = useStyles2(getStyles);
   const [isExpanded, toggleExpanded] = useToggle(false);
 
   return (
     <Stack direction="column" role="list" data-testid="matched-contactpoint-group">
-      <div className={styles.contactPointRow}>
+      <div {...stylex.props(styles.contactPointRow)}>
         <Stack direction="row" alignItems="center">
           <CollapseToggle
             isCollapsed={!isExpanded}
@@ -132,7 +131,7 @@ export function ContactPointGroup({
           )}
         </Stack>
       </div>
-      {isExpanded && <div className={styles.notificationPolicies}>{children}</div>}
+      {isExpanded && <div {...stylex.props(styles.notificationPolicies)}>{children}</div>}
     </Stack>
   );
 }
@@ -144,18 +143,18 @@ const loader = (
   </Stack>
 );
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  contactPointRow: css({
-    padding: theme.spacing(0.5),
-
-    ':hover': {
-      background: theme.components.table.rowHoverBackground,
+const styles = stylex.create({
+  contactPointRow: {
+    padding: spacing['--gf-spacing-x0-5'],
+    backgroundColor: {
+      default: null,
+      ':hover': components['--gf-components-table-row-hover-background'],
     },
-  }),
-  notificationPolicies: css({
-    marginLeft: theme.spacing(2),
+  },
+  notificationPolicies: {
+    marginLeft: spacing['--gf-spacing-x2'],
     borderLeftStyle: 'solid',
-    borderLeftWidth: 1,
-    borderLeftColor: theme.colors.border.weak,
-  }),
+    borderLeftWidth: '1px',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
 });

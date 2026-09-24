@@ -1,0 +1,7 @@
+/*
+ * The options toggletip lays out InlineFields rendered by other components, which StyleX can't target. Deliberately
+ * not in a cascade layer, so that like the rule it replaces it wins over InlineField's own Emotion styles.
+ */
+.gf-alerting-query-options > div {
+  justify-content: space-between;
+}

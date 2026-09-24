@@ -1,22 +1,20 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Box, useStyles2 } from '@grafana/ui';
+import { Box } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 export function ConnectionLine() {
-  const styles = useStyles2(getStyles);
-
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height={4}>
-      <div className={styles.line} />
+      <div {...stylex.props(styles.line)} />
     </Box>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  line: css({
+const styles = stylex.create({
+  line: {
     width: '1px',
     height: '100%',
-    background: theme.colors.border.medium,
-  }),
+    backgroundColor: colors['--gf-colors-border-medium'],
+  },
 });
