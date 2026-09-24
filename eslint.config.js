@@ -110,6 +110,12 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
 ];
 
+// public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
+const stylexMigratedAppFiles = [
+  // E1 explore
+  'public/app/features/explore/TraceView/**/*.{ts,tsx}',
+];
+
 const stylexRestrictedImports = {
   patterns: [
     {
@@ -720,6 +726,27 @@ module.exports = [
             {
               group: ['@grafana/runtime'],
               message: "'@grafana/runtime' should not be imported from library packages",
+            },
+            ...stylexRestrictedImports.patterns,
+          ],
+          paths: stylexRestrictedImports.paths,
+        }),
+      ],
+    },
+  },
+
+  {
+    // Must come after grafana/no-extensions-imports, whose restriction it repeats.
+    name: 'grafana/stylex-migrated-app',
+    files: stylexMigratedAppFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            {
+              group: ['app/extensions', 'app/extensions/*'],
+              message: 'Importing from app/extensions is not allowed',
             },
             ...stylexRestrictedImports.patterns,
           ],

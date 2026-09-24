@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { autoColor } from '../../Theme';
+import { traceColors } from '../../traceColors.stylex';
 import Ticks from '../Ticks';
 import TimelineRow from '../TimelineRow';
 import { type TUpdateViewRangeTimeFunction, type ViewRangeTime, type ViewRangeTimeUpdate } from '../types';
@@ -26,36 +25,6 @@ import { type TUpdateViewRangeTimeFunction, type ViewRangeTime, type ViewRangeTi
 import { TimelineCollapser } from './TimelineCollapser';
 import TimelineColumnResizer from './TimelineColumnResizer';
 import TimelineViewingLayer from './TimelineViewingLayer';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    TimelineHeaderRow: css({
-      label: 'TimelineHeaderRow',
-      background: autoColor(theme, '#ececec'),
-      borderBottom: `1px solid ${autoColor(theme, '#ccc')}`,
-      height: '38px',
-      lineHeight: '38px',
-      width: '100%',
-      zIndex: 4,
-      position: 'relative',
-    }),
-    TimelineHeaderRowTitle: css({
-      label: 'TimelineHeaderRowTitle',
-      flex: 1,
-      overflow: 'hidden',
-      margin: 0,
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    TimelineHeaderWrapper: css({
-      label: 'TimelineHeaderWrapper',
-      alignItems: 'center',
-      display: 'flex',
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-};
 
 export type TimelineHeaderRowProps = {
   duration: number;
@@ -88,11 +57,10 @@ export default function TimelineHeaderRow(props: TimelineHeaderRowProps) {
     columnResizeHandleHeight,
   } = props;
   const [viewStart, viewEnd] = viewRangeTime.current;
-  const styles = useStyles2(getStyles);
   return (
-    <TimelineRow className={styles.TimelineHeaderRow} data-testid="TimelineHeaderRow">
-      <TimelineRow.Cell className={styles.TimelineHeaderWrapper} width={nameColumnWidth}>
-        <h4 className={styles.TimelineHeaderRowTitle}>
+    <TimelineRow xstyle={styles.TimelineHeaderRow} data-testid="TimelineHeaderRow">
+      <TimelineRow.Cell xstyle={styles.TimelineHeaderWrapper} width={nameColumnWidth}>
+        <h4 {...stylex.props(styles.TimelineHeaderRowTitle)}>
           <Trans i18nKey="explore.timeline-header-row.title">Service &amp; Operation</Trans>
         </h4>
         <TimelineCollapser
@@ -121,3 +89,30 @@ export default function TimelineHeaderRow(props: TimelineHeaderRowProps) {
     </TimelineRow>
   );
 }
+
+const styles = stylex.create({
+  TimelineHeaderRow: {
+    backgroundColor: traceColors['--gf-trace-ececec'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: traceColors['--gf-trace-ccc'],
+    height: '38px',
+    lineHeight: '38px',
+    width: '100%',
+    zIndex: 4,
+    position: 'relative',
+  },
+  TimelineHeaderRowTitle: {
+    flex: '1',
+    overflow: 'hidden',
+    margin: 0,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  TimelineHeaderWrapper: {
+    alignItems: 'center',
+    display: 'flex',
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+});

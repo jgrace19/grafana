@@ -16,12 +16,11 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
-import { createTheme } from '@grafana/data';
 import { DEFAULT_SPAN_FILTERS } from 'app/features/explore/state/constants';
 
 import { trace } from '../mocks';
 
-import NextPrevResult, { getStyles } from './NextPrevResult';
+import NextPrevResult from './NextPrevResult';
 
 describe('<NextPrevResult>', () => {
   let user: ReturnType<typeof userEvent.setup>;
@@ -105,12 +104,11 @@ describe('<NextPrevResult>', () => {
   });
 
   it('renders correctly when there are no matches i.e. too many filters added', async () => {
-    const { container } = render(<NextPrevResultWithProps matches={[]} />);
-    const theme = createTheme();
-    const tooltip = container.querySelector('.' + getStyles(theme, true).tooltip);
+    render(<NextPrevResultWithProps matches={[]} />);
+    const tooltip = screen.getByTestId('next-prev-result-tooltip');
     expect(screen.getByText('0 matches')).toBeDefined();
 
-    await user.hover(tooltip!);
+    await user.hover(tooltip);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
@@ -119,11 +117,10 @@ describe('<NextPrevResult>', () => {
   });
 
   it('renders services, depth correctly', async () => {
-    const { container } = render(<NextPrevResultWithProps matches={['264afda25df92413', '364afda25df92413']} />);
-    const theme = createTheme();
-    const tooltip = container.querySelector('.' + getStyles(theme, true).tooltip);
+    render(<NextPrevResultWithProps matches={['264afda25df92413', '364afda25df92413']} />);
+    const tooltip = screen.getByTestId('next-prev-result-tooltip');
 
-    await user.hover(tooltip!);
+    await user.hover(tooltip);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });

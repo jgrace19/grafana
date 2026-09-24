@@ -12,50 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { sortBy as _sortBy } from 'lodash';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type TraceLog } from '@grafana/data';
+import { type TraceLog } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Counter, Icon, useStyles2 } from '@grafana/ui';
+import { Counter, Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { autoColor } from '../../Theme';
+import { useTraceColorVars } from '../../traceColorVars';
+import { traceColors } from '../../traceColors.stylex';
 import { formatDuration } from '../../utils/date';
 
 import AccordianKeyValues from './AccordianKeyValues';
 
-import { alignIcon } from '.';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    AccordianLogs: css({
-      label: 'AccordianLogs',
-      position: 'relative',
-    }),
-    AccordianLogsHeader: css({
-      label: 'AccordianLogsHeader',
-      color: 'inherit',
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    AccordianLogsContent: css({
-      label: 'AccordianLogsContent',
-      background: autoColor(theme, '#f0f0f0'),
-      padding: '0.5rem 0.5rem 0.25rem 0.5rem',
-    }),
-    AccordianLogsFooter: css({
-      label: 'AccordianLogsFooter',
-      color: autoColor(theme, '#999'),
-    }),
-    AccordianKeyValuesItem: css({
-      marginBottom: theme.spacing(0.5),
-    }),
-    parenthesis: css({
-      color: `${autoColor(theme, '#777')}`,
-    }),
-  };
-};
+import { alignIconStyles } from '.';
 
 export type AccordianLogsProps = {
   interactive?: boolean;
@@ -81,7 +54,7 @@ export default function AccordianLogs({
   let headerProps: {} | null = null;
   if (interactive) {
     arrow = isOpen ? (
-      <Icon name={'angle-down'} className={alignIcon} />
+      <Icon name={'angle-down'} xstyle={alignIconStyles.alignIcon} />
     ) : (
       <Icon name={'angle-right'} className="u-align-icon" style={{ margin: '0 0.25rem 0 0' }} />
     );
@@ -93,10 +66,11 @@ export default function AccordianLogs({
     };
   }
 
-  const styles = useStyles2(getStyles);
+  // Also rendered in a span bar's log-marker popover, outside the TraceView root that sets these vars.
+  const traceColorVars = useTraceColorVars();
   return (
-    <div className={styles.AccordianLogs}>
-      <HeaderComponent className={styles.AccordianLogsHeader} {...headerProps}>
+    <div {...mergeStylexProps(stylex.props(styles.AccordianLogs), { style: traceColorVars })}>
+      <HeaderComponent {...stylex.props(styles.AccordianLogsHeader)} {...headerProps}>
         {arrow}{' '}
         <strong>
           <Trans i18nKey="explore.accordian-logs.events">Events</Trans>
@@ -104,7 +78,7 @@ export default function AccordianLogs({
         <Counter value={logs.length} variant="secondary" />
       </HeaderComponent>
       {isOpen && (
-        <div className={styles.AccordianLogsContent}>
+        <div {...stylex.props(styles.AccordianLogsContent)}>
           {_sortBy(logs, 'timestamp').map((log, i) => {
             const formattedDuration = formatDuration(log.timestamp - timestamp);
             const truncateLogNameInSummary = log.name && log.name.length > 20;
@@ -120,7 +94,7 @@ export default function AccordianLogs({
               <AccordianKeyValues
                 // `i` is necessary in the key because timestamps can repeat
                 key={`${log.timestamp}-${i}`}
-                className={i < logs.length - 1 ? styles.AccordianKeyValuesItem : null}
+                xstyle={i < logs.length - 1 && styles.AccordianKeyValuesItem}
                 data={log.fields || []}
                 logName={truncateLogNameInSummary ? log.name : undefined}
                 highContrast
@@ -131,7 +105,7 @@ export default function AccordianLogs({
               />
             );
           })}
-          <small className={styles.AccordianLogsFooter}>
+          <small {...stylex.props(styles.AccordianLogsFooter)}>
             <Trans i18nKey="explore.accordian-logs.footer">
               Event timestamps are relative to the start time of the full trace.
             </Trans>
@@ -141,3 +115,27 @@ export default function AccordianLogs({
     </div>
   );
 }
+
+const styles = stylex.create({
+  AccordianLogs: {
+    position: 'relative',
+  },
+  AccordianLogsHeader: {
+    color: 'inherit',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  AccordianLogsContent: {
+    backgroundColor: traceColors['--gf-trace-f0f0f0'],
+    paddingTop: '0.5rem',
+    paddingRight: '0.5rem',
+    paddingBottom: '0.25rem',
+    paddingLeft: '0.5rem',
+  },
+  AccordianLogsFooter: {
+    color: traceColors['--gf-trace-999'],
+  },
+  AccordianKeyValuesItem: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+});
