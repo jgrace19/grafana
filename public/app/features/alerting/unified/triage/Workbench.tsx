@@ -1,22 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { take } from 'lodash';
 import { useState } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type SceneQueryRunner } from '@grafana/scenes';
-import {
-  Box,
-  Button,
-  EmptyState,
-  LoadingBar,
-  ScrollContainer,
-  Stack,
-  Text,
-  useSplitter,
-  useStyles2,
-} from '@grafana/ui';
+import { Box, Button, EmptyState, LoadingBar, ScrollContainer, Stack, Text, useSplitter } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DEFAULT_PER_PAGE_PAGINATION } from 'app/core/constants';
 
 import LoadMoreHelper from '../rule-list/LoadMoreHelper';
@@ -149,8 +139,6 @@ export function Workbench({
   isRefreshing = false,
   hasActiveFilters = false,
 }: WorkbenchProps) {
-  const styles = useStyles2(getStyles);
-
   const [pageIndex, setPageIndex] = useState<number>(1);
   const [allExpanded, setAllExpanded] = useState(true);
   const { expandGeneration, collapseGeneration, expandAll, collapseAll } = useExpandCollapseAll();
@@ -197,15 +185,15 @@ export function Workbench({
         {/* dummy splitter to handle flex width of group items */}
         <div {...splitter.containerProps}>
           <div {...splitter.primaryProps}>
-            <div ref={leftColumnRef} className={cx(styles.flexFull, styles.minColumnWidth)} />
+            <div ref={leftColumnRef} {...stylex.props(styles.flexFull, styles.minColumnWidth)} />
           </div>
           {!showEmptyState && <div {...splitter.splitterProps} />}
           <div {...splitter.secondaryProps}>
-            <div ref={rightColumnRef} className={cx(styles.flexFull, styles.minColumnWidth)} />
+            <div ref={rightColumnRef} {...stylex.props(styles.flexFull, styles.minColumnWidth)} />
           </div>
         </div>
         {/* content goes here */}
-        <div data-testid="groups-container" className={cx(splitter.containerProps.className, styles.groupsContainer)}>
+        <div data-testid="groups-container" {...stylex.props(styles.groupsContainer)}>
           {showEmptyState ? (
             <Box
               display="flex"
@@ -232,12 +220,12 @@ export function Workbench({
             </Box>
           ) : (
             <>
-              <div className={cx(styles.groupItemWrapper(leftColumnWidth), styles.summaryContainer)}>
+              <div {...stylex.props(styles.groupItemWrapper(`${leftColumnWidth}px auto`), styles.summaryContainer)}>
                 <div />
                 <SummaryChartReact />
               </div>
               {groupBy && groupBy.length > 0 && (
-                <div className={styles.expandCollapseToolbar}>
+                <div {...stylex.props(styles.expandCollapseToolbar)}>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -261,7 +249,7 @@ export function Workbench({
                   </span>
                 </div>
               )}
-              <div className={styles.virtualizedContainer}>
+              <div {...stylex.props(styles.virtualizedContainer)}>
                 <WorkbenchProvider
                   leftColumnWidth={leftColumnWidth}
                   rightColumnWidth={rightColumnWidth}
@@ -272,7 +260,7 @@ export function Workbench({
                 >
                   <ScrollContainer height="100%" width="100%" scrollbarWidth="none" showScrollIndicators={showData}>
                     {isRefreshing && (
-                      <div className={styles.loadingBarContainer}>
+                      <div {...stylex.props(styles.loadingBarContainer)}>
                         <LoadingBar width={leftColumnWidth + rightColumnWidth} />
                       </div>
                     )}
@@ -300,51 +288,50 @@ export function Workbench({
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    groupsContainer: css({
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+const styles = stylex.create({
+  // Includes the splitter container's own styles (useSplitter, direction 'row'), with the direction overridden.
+  groupsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    flexGrow: 1,
+    overflow: 'hidden',
 
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    groupItemWrapper: (width: number) =>
-      css({
-        display: 'grid',
-        gridTemplateColumns: `${width}px auto`,
-        gap: theme.spacing(2),
-      }),
-    virtualizedContainer: css({
-      display: 'flex',
-      flex: 1,
-      wordBreak: 'break-all', // make very long rule names render higher rows
-      overflow: 'hidden', // Let AutoSizer handle the overflow
-    }),
-    summaryContainer: css({
-      height: theme.spacing(20),
-      marginBottom: theme.spacing(2),
-      alignItems: 'stretch',
-    }),
-    loadingBarContainer: css({
-      position: 'sticky',
-      top: 0,
-      zIndex: 1,
-    }),
-    headerContainer: css({}),
-    expandCollapseToolbar: css({
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      marginBottom: theme.spacing(1),
-    }),
-    flexFull: css({
-      flex: 1,
-    }),
-    minColumnWidth: css({
-      minWidth: 300,
-    }),
-  };
-};
+    position: 'absolute',
+    height: '100%',
+  },
+  groupItemWrapper: (gridTemplateColumns: string) => ({
+    display: 'grid',
+    gridTemplateColumns,
+    gap: spacing['--gf-spacing-x2'],
+  }),
+  virtualizedContainer: {
+    display: 'flex',
+    flex: '1',
+    wordBreak: 'break-all', // make very long rule names render higher rows
+    overflow: 'hidden', // Let AutoSizer handle the overflow
+  },
+  summaryContainer: {
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 20)`,
+    marginBottom: spacing['--gf-spacing-x2'],
+    alignItems: 'stretch',
+  },
+  loadingBarContainer: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+  },
+  expandCollapseToolbar: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  flexFull: {
+    flex: '1',
+  },
+  minColumnWidth: {
+    minWidth: 300,
+  },
+});

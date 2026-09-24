@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSet } from 'react-use';
 
-import { type GrafanaTheme2, type UrlQueryMap } from '@grafana/data';
+import { type UrlQueryMap } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, Button, LoadingPlaceholder, Stack, Tab, TabContent, TabsBar, useStyles2 } from '@grafana/ui';
+import { Alert, Button, LoadingPlaceholder, Stack, Tab, TabContent, TabsBar } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { useMuteTimings } from 'app/features/alerting/unified/components/mute-timings/useMuteTimings';
 import {
@@ -47,8 +48,6 @@ enum ActiveTab {
 }
 
 const NotificationPoliciesTabs = () => {
-  const styles = useStyles2(getStyles);
-
   // When V2 navigation is enabled, Time Intervals has its own dedicated tab in the navigation,
   // so we don't show local tabs here - just show the notification policies content directly
   const useV2Nav = config.featureToggles.alertingNavigationV2;
@@ -115,7 +114,7 @@ const NotificationPoliciesTabs = () => {
           />
         )}
       </TabsBar>
-      <TabContent className={styles.tabContent}>
+      <TabContent className={stylex.props(styles.tabContent).className}>
         {policyTreeTabActive && <PolicyTreeTab />}
         {muteTimingsTabActive && <TimeIntervalsTable />}
       </TabContent>
@@ -350,10 +349,10 @@ function PolicyTreeTab() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  tabContent: css({
-    marginTop: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  tabContent: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
 });
 
 interface QueryParamValues {

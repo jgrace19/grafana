@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useEffect } from 'react';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack, useTheme2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Spacer } from '../../components/Spacer';
 import { useWorkbenchContext } from '../WorkbenchContext';
+
+import './GenericRow.css';
 
 // Width of the md IconButton used as the expand/collapse chevron, in pixels.
 const CHEVRON_WIDTH_PX = 24;
@@ -20,9 +22,8 @@ interface GenericRowProps {
   content?: ReactNode;
   isOpenByDefault?: boolean;
   children?: ReactNode;
-  // allow overriding / adding styles for the row
-  leftColumnClassName?: string;
-  rightColumnClassName?: string;
+  // allow overriding / adding styles for the left column of the row
+  leftColumnXstyle?: stylex.StyleXStyles;
   depth?: number; // for indentation of nested rows
   showIndentBorder?: boolean; // draw a left border when depth > 0 (leaf rows only)
   /**
@@ -40,13 +41,12 @@ export const GenericRow = ({
   content,
   isOpenByDefault = false,
   children,
-  leftColumnClassName,
-  rightColumnClassName,
+  leftColumnXstyle,
   depth = 0,
   showIndentBorder = false,
   expandable = true,
 }: GenericRowProps) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
   const { expandGeneration, collapseGeneration } = useWorkbenchContext();
 
   const hasChildren = Boolean(children);
@@ -82,17 +82,19 @@ export const GenericRow = ({
 
   const showChildContent = isOpen && hasChildren;
 
+  const offsetPx = depth > 0 ? depth * 2 * theme.spacing.gridSize + (showIndentBorder ? theme.spacing.gridSize : 0) : 0;
+
   return (
     <>
       <div
-        className={cx(
-          styles.groupItemWrapper(width, depth, showIndentBorder),
-          depth > 0 && styles.indented(depth),
+        {...stylex.props(
+          styles.groupItemWrapper(`${Math.max(0, width - offsetPx)}px auto`),
+          depth > 0 && styles.indented(`calc(${spacing['--gf-spacing-grid-size']} * ${depth * 2})`),
           depth > 0 && showIndentBorder && styles.indentBorder
         )}
       >
-        <div className={cx(styles.leftColumn, styles.column, leftColumnClassName)}>
-          <div className={styles.columnContent}>
+        <div {...stylex.props(styles.leftColumn, styles.column, leftColumnXstyle)}>
+          <div {...stylex.props(styles.columnContent)}>
             <LeftCell
               title={title}
               metadata={metadata}
@@ -102,8 +104,8 @@ export const GenericRow = ({
             />
           </div>
         </div>
-        <div className={cx(styles.rightColumnWrapper, styles.column, rightColumnClassName)}>
-          {content && <div className={styles.columnContent}>{content}</div>}
+        <div {...stylex.props(styles.rightColumnWrapper, styles.column)}>
+          {content && <div {...stylex.props(styles.columnContent)}>{content}</div>}
         </div>
       </div>
       {showChildContent ? children : null}
@@ -120,21 +122,19 @@ interface LeftCellProps {
 }
 
 const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onToggle }: LeftCellProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
       {onToggle ? (
         <IconButton
           name={isOpen ? 'angle-down' : 'angle-right'}
           onClick={onToggle}
-          className={styles.dropdownIcon}
+          className="gf-generic-row-toggle"
           variant="secondary"
           size="md"
           aria-label={t('alerting.group-wrapper.toggle', 'Toggle group')}
         />
       ) : (
-        <div className={styles.chevronPlaceholder} />
+        <div {...stylex.props(styles.chevronPlaceholder)} />
       )}
       <Stack direction="column" alignItems="flex-start" gap={0} flex={1}>
         <Stack direction="row" alignItems="center" gap={1} width="100%">
@@ -148,48 +148,39 @@ const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onTog
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    dropdownIcon: css({
-      alignSelf: 'flex-start',
-      marginTop: theme.spacing(0.5),
-    }),
-    column: css({
-      display: 'flex',
-      position: 'relative',
-      flexBasis: 0,
-    }),
-    leftColumn: css({
-      overflow: 'hidden',
-    }),
-    rightColumnWrapper: css({
-      minWidth: 'min-content',
-      flexGrow: 1,
-    }),
-    columnContent: css({
-      padding: 5,
-      width: '100%',
-    }),
-    groupItemWrapper: (width: number, depth: number, showIndentBorder: boolean) => {
-      const offsetPx =
-        depth > 0 ? depth * 2 * theme.spacing.gridSize + (showIndentBorder ? theme.spacing.gridSize : 0) : 0;
-      return css({
-        display: 'grid',
-        gridTemplateColumns: `${Math.max(0, width - offsetPx)}px auto`,
-        gap: theme.spacing(2),
-      });
-    },
-    indented: (depth: number) =>
-      css({
-        marginLeft: theme.spacing(depth * 2),
-      }),
-    indentBorder: css({
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      paddingLeft: theme.spacing(1),
-    }),
-    chevronPlaceholder: css({
-      width: CHEVRON_WIDTH_PX,
-      flexShrink: 0,
-    }),
-  };
-};
+const styles = stylex.create({
+  column: {
+    display: 'flex',
+    position: 'relative',
+    flexBasis: 0,
+  },
+  leftColumn: {
+    overflow: 'hidden',
+  },
+  rightColumnWrapper: {
+    minWidth: 'min-content',
+    flexGrow: 1,
+  },
+  columnContent: {
+    padding: 5,
+    width: '100%',
+  },
+  groupItemWrapper: (gridTemplateColumns: string) => ({
+    display: 'grid',
+    gridTemplateColumns,
+    gap: spacing['--gf-spacing-x2'],
+  }),
+  indented: (marginLeft: string) => ({
+    marginLeft,
+  }),
+  indentBorder: {
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  chevronPlaceholder: {
+    width: CHEVRON_WIDTH_PX,
+    flexShrink: 0,
+  },
+});

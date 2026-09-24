@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   type CellProps,
@@ -15,8 +14,9 @@ import {
   Spinner,
   Stack,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import {
   type Repository,
   useGetRepositoryFilesQuery,
@@ -46,7 +46,6 @@ function getGrafanaLink(item: TreeItem) {
 }
 
 export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
-  const styles = useStyles2(getStyles);
   const name = repo.metadata?.name ?? '';
 
   const filesQuery = useGetRepositoryFilesQuery({ name });
@@ -82,8 +81,8 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
           const link = getGrafanaLink(item);
 
           return (
-            <div className={styles.titleCell} style={{ paddingLeft: level * 24 }}>
-              <Icon name={iconName} className={styles.icon} />
+            <div {...mergeStylexProps(stylex.props(styles.titleCell), { style: { paddingLeft: level * 24 } })}>
+              <Icon name={iconName} xstyle={styles.icon} />
               {link ? <Link href={link}>{item.title}</Link> : <span>{item.title}</span>}
             </div>
           );
@@ -108,7 +107,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
               >
                 <Icon
                   name="exclamation-triangle"
-                  className={styles.warningIcon}
+                  xstyle={styles.warningIcon}
                   aria-label={t('provisioning.resource-tree.missing-folder-metadata', 'Missing folder metadata file')}
                 />
               </Tooltip>
@@ -120,7 +119,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
           return (
             <Icon
               name={status === 'synced' ? 'check-circle' : 'sync'}
-              className={status === 'synced' ? styles.syncedIcon : undefined}
+              xstyle={status === 'synced' ? styles.syncedIcon : undefined}
               title={
                 status === 'synced'
                   ? t('provisioning.resource-tree.status-synced', 'Synced')
@@ -139,7 +138,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
             return null;
           }
           return (
-            <span title={hash} className={styles.hash}>
+            <span title={hash} {...stylex.props(styles.hash)}>
               {hash.substring(0, 7)}
             </span>
           );
@@ -192,7 +191,7 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
         },
       },
     ],
-    [provisioningFolderMetadataEnabled, repo.spec, styles]
+    [provisioningFolderMetadataEnabled, repo.spec]
   );
 
   if (isLoading) {
@@ -221,25 +220,25 @@ export function ResourceTreeView({ repo }: ResourceTreeViewProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  titleCell: css({
+const styles = stylex.create({
+  titleCell: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  icon: css({
-    color: theme.colors.text.secondary,
+    gap: spacing['--gf-spacing-x1'],
+  },
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
     flexShrink: 0,
-  }),
-  hash: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-  syncedIcon: css({
-    color: theme.colors.success.text,
-  }),
-  warningIcon: css({
-    color: theme.colors.warning.text,
-  }),
+  },
+  hash: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  syncedIcon: {
+    color: colors['--gf-colors-success-text'],
+  },
+  warningIcon: {
+    color: colors['--gf-colors-warning-text'],
+  },
 });

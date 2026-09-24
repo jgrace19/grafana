@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { FeatureState, type NavModelItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FeatureBadge, useStyles2 } from '@grafana/ui';
+import { FeatureBadge } from '@grafana/ui';
 
 import { useAlertRule } from '../../components/rule-viewer/RuleContext';
 import { EnrichmentAction, useEnrichmentAbility } from '../../hooks/useAbilities';
@@ -74,19 +74,16 @@ export function __clearRuleViewTabsForTests() {
   ruleViewTabBuilders.splice(0, ruleViewTabBuilders.length);
 }
 
-function getStyles() {
-  return {
-    tabSuffix: css({
-      marginLeft: 8,
-    }),
-  };
-}
-
 function EnrichmentTabSuffix() {
-  const styles = useStyles2(getStyles);
   return (
-    <span className={styles.tabSuffix}>
+    <span {...stylex.props(styles.tabSuffix)}>
       <FeatureBadge featureState={FeatureState.new} />
     </span>
   );
 }
+
+const styles = stylex.create({
+  tabSuffix: {
+    marginLeft: 8,
+  },
+});

@@ -1,8 +1,10 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending ClipboardButton migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ClipboardButton, useStyles2, CodeEditor } from '@grafana/ui';
+import { ClipboardButton, CodeEditor } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   code: string;
@@ -12,14 +14,13 @@ interface Props {
 export const CodeBlock = ({ code, copyCode = true }: Props) => {
   const lineCount = code.split('\n').length;
   const useMinHeight = lineCount * 24 <= 42; // 24px per line, 42px minimum
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {copyCode && (
         <ClipboardButton
           aria-label={t('provisioning.code-block.aria-label-copy', 'Copy code to clipboard')}
-          className={styles.copyButton}
+          className={copyButton}
           variant="secondary"
           size="sm"
           icon="copy"
@@ -45,16 +46,23 @@ export const CodeBlock = ({ code, copyCode = true }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     position: 'relative',
-    margin: `${theme.spacing(2)} 0`,
-    border: `1px solid ${theme.colors.border.medium}`,
-  }),
-  copyButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-  }),
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
+});
+
+// stylex: pending ClipboardButton migration. Its own Emotion `position: relative` would beat a layered StyleX class.
+const copyButton = css({
+  position: 'absolute',
+  top: spacing['--gf-spacing-x1'],
+  right: spacing['--gf-spacing-x1'],
+  zIndex: 1,
 });
