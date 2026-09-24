@@ -1,9 +1,0 @@
-/*
- * Override on ToolbarButton, which takes no xstyle and sets its own `display`. Unlayered, and the doubled class
- * outranks ToolbarButton's rules (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-dashboard-controls-button.gf-dashboard-controls-button {
-  display: inline-flex;
-  margin-bottom: var(--gf-spacing-x1);
-  margin-right: var(--gf-spacing-x1);
-}

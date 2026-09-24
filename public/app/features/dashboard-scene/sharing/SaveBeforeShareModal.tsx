@@ -1,11 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useEffect } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
 import { type DashboardScene } from '../scene/DashboardScene';
-
-import './SaveBeforeShareModal.css';
 
 interface Props {
   dashboard: DashboardScene;
@@ -61,7 +60,7 @@ export function SaveBeforeShareModal({ dashboard, onContinue, onDismiss, title, 
   }
 
   return (
-    <Modal isOpen={true} title={title ?? defaultTitle} onDismiss={onDismiss} className="gf-save-before-share-modal">
+    <Modal isOpen={true} title={title ?? defaultTitle} onDismiss={onDismiss} xstyle={styles.modal}>
       <h5>{message ?? defaultMessage}</h5>
       <Modal.ButtonRow>
         <Button variant="secondary" onClick={onCancel} fill="outline">
@@ -79,3 +78,9 @@ export function SaveBeforeShareModal({ dashboard, onContinue, onDismiss, title, 
     </Modal>
   );
 }
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

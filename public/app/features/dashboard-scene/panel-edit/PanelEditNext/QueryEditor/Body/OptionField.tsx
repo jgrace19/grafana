@@ -7,8 +7,6 @@ import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { QUERY_OPTION_FIELD_CONFIG } from '../../constants';
 import { type QueryOptionField } from '../types';
 
-import './OptionField.css';
-
 export interface OptionFieldProps {
   field: QueryOptionField;
   onBlur?: (event: FocusEvent<HTMLInputElement>, field: QueryOptionField) => void;
@@ -51,7 +49,7 @@ export function OptionField({
             autoFocus={!disabled && focusedField === field}
             disabled={disabled}
             aria-label={label}
-            className="gf-query-option-field-input"
+            xstyle={styles.input}
           />
         )}
         {hint && <span {...stylex.props(styles.hint)}>{`= ${hint}`}</span>}
@@ -61,6 +59,11 @@ export function OptionField({
 }
 
 const styles = stylex.create({
+  // 80px is CONTENT_SIDE_BAR.labelWidth in ../../constants.ts.
+  input: {
+    width: '80px',
+    flexShrink: 0,
+  },
   field: {
     display: 'flex',
     alignItems: 'center',

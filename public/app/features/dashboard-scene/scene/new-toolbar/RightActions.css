@@ -1,7 +1,0 @@
-/*
- * Override on ToolbarButtonRow, which takes no xstyle and sets its own padding. Unlayered, and the doubled class
- * outranks ToolbarButtonRow's rule (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-dashboard-right-actions.gf-dashboard-right-actions {
-  padding-left: var(--gf-spacing-x0-5);
-}

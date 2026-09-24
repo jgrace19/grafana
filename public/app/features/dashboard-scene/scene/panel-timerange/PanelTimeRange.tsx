@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { capitalize } from 'lodash';
 
 import { type DataQueryRequest, dateMath, getDefaultTimeRange, rangeUtil, type TimeRange } from '@grafana/data';
@@ -14,14 +15,13 @@ import {
   VizPanel,
 } from '@grafana/scenes';
 import { Icon, PanelChrome, Stack, TimePickerTooltip, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type TimeOverrideResult } from 'app/features/dashboard/utils/panel';
 
 import { getDashboardSceneFor } from '../../utils/utils';
 
 import { DEFAULT_COMPARE_OPTIONS, PanelTimeRangeDrawer, type PanelTimeRangeZoomBehavior } from './PanelTimeRangeDrawer';
 import { getCompareTimeRange, timeShiftAlignmentProcessor } from './utils';
-
-import './PanelTimeRange.css';
 
 export interface PanelTimeRangeState extends SceneTimeRangeState {
   enabled?: boolean;
@@ -250,7 +250,7 @@ function PanelTimeRangeRenderer({ model }: SceneComponentProps<PanelTimeRange>) 
 
   return (
     <Tooltip content={<TimePickerTooltip timeRange={model.state.value} timeZone={model.getTimeZone()} />}>
-      <PanelChrome.TitleItem className="gf-panel-time-shift" onClick={onClick}>
+      <PanelChrome.TitleItem xstyle={styles.timeShift} onClick={onClick}>
         <Stack gap={1} alignItems={'center'}>
           <Icon name="clock-nine" size="sm" />
           <div>{timeInfo}</div>
@@ -259,3 +259,12 @@ function PanelTimeRangeRenderer({ model }: SceneComponentProps<PanelTimeRange>) 
     </Tooltip>
   );
 }
+
+const styles = stylex.create({
+  // TitleItem's own :hover colour still wins.
+  timeShift: {
+    color: { default: colors['--gf-colors-text-link'], ':hover': colors['--gf-colors-text-primary'] },
+    gap: spacing['--gf-spacing-x0-5'],
+    whiteSpace: 'nowrap',
+  },
+});

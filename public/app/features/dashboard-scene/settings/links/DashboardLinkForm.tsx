@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import { type SelectableValue } from '@grafana/data';
@@ -6,8 +7,6 @@ import { type DashboardLink } from '@grafana/schema';
 import { CollapsableSection, TagsInput, Select, Field, Input, Checkbox, Button, Stack } from '@grafana/ui';
 
 import { LINK_ICON_MAP, NEW_LINK } from './utils';
-
-import './DashboardLinkForm.css';
 
 const linkIconOptions = Object.keys(LINK_ICON_MAP).map((key) => ({ label: key, value: key }));
 
@@ -112,7 +111,7 @@ export function DashboardLinkForm({ link, onUpdate, onGoBack }: DashboardLinkFor
         <CollapsableSection
           label={t('dashboard-scene.dashboard-link-form.label-options', 'Options')}
           isOpen={true}
-          contentClassName="gf-dashboard-link-form-options"
+          contentXstyle={styles.options}
         >
           <Stack direction="column" gap={2}>
             {/* Show as dropdown */}
@@ -184,3 +183,12 @@ export function DashboardLinkForm({ link, onUpdate, onGoBack }: DashboardLinkFor
     </div>
   );
 }
+
+const styles = stylex.create({
+  options: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+});

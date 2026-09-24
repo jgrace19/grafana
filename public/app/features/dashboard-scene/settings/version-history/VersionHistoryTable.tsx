@@ -59,7 +59,7 @@ export const VersionHistoryTable = ({
                     'Toggle selection of version {{version}}',
                     { version: version.version }
                   )}
-                  className="gf-version-history-checkbox"
+                  xstyle={styles.checkbox}
                   checked={version.checked}
                   onChange={(ev) => onCheck(ev, version.id)}
                   disabled={!version.checked && canCompare}
@@ -107,8 +107,11 @@ export const VersionHistoryTable = ({
   );
 };
 
-// The table cells and version checkboxes are styled by VersionHistoryTable.css.
+// The table cells are styled by VersionHistoryTable.css.
 const styles = stylex.create({
+  checkbox: {
+    display: 'inline',
+  },
   margin: {
     marginBottom: spacing['--gf-spacing-x4'],
   },

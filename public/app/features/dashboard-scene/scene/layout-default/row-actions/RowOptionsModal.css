@@ -1,7 +1,0 @@
-/*
- * Override on Modal, which takes no xstyle and sets its own width. Unlayered, and the doubled class outranks the
- * modal's rules (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-row-options-modal.gf-row-options-modal {
-  width: 500px;
-}

@@ -1,10 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { t } from '@grafana/i18n';
 import { type SceneObject } from '@grafana/scenes';
 import { Modal } from '@grafana/ui';
 
 import { type OnRowOptionsUpdate, RowOptionsForm } from './RowOptionsForm';
-
-import './RowOptionsModal.css';
 
 export interface RowOptionsModalProps {
   title: string;
@@ -28,7 +28,7 @@ export const RowOptionsModal = ({
       isOpen={true}
       title={t('dashboard.default-layout.row-options.modal.title', 'Row options')}
       onDismiss={onDismiss}
-      className="gf-row-options-modal"
+      xstyle={styles.modal}
     >
       <RowOptionsForm
         sceneContext={parent}
@@ -41,3 +41,9 @@ export const RowOptionsModal = ({
     </Modal>
   );
 };
+
+const styles = stylex.create({
+  modal: {
+    width: '500px',
+  },
+});

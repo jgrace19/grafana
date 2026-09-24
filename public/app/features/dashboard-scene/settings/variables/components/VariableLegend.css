@@ -1,8 +1,0 @@
-/*
- * Override on Legend, which takes no xstyle and sets its own margin. Unlayered, and the doubled class outranks
- * Legend's rule (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-variable-legend.gf-variable-legend {
-  margin-top: var(--gf-spacing-x3);
-  margin-bottom: var(--gf-spacing-x1);
-}

@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -12,6 +13,7 @@ import {
   sceneGraph,
 } from '@grafana/scenes';
 import { Box, Card, Stack } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
@@ -31,8 +33,6 @@ import {
   getVariableScene,
   getVariableTypeSelectOptions,
 } from './utils';
-
-import './VariableTypeSelectionPane.css';
 
 export function openAddVariablePane(dashboard: DashboardScene) {
   const element = new VariableAdd({ dashboardRef: dashboard.getRef() });
@@ -202,7 +202,7 @@ export function VariableTypeSelectionUI({ onSelectType }: { onSelectType: (type:
             data-testid={selectors.components.PanelEditor.ElementEditPane.variableType(option.value!)}
           >
             <Card.Heading>{option.label}</Card.Heading>
-            <Card.Description className="gf-variable-type-card-description">{option.description}</Card.Description>
+            <Card.Description xstyle={styles.cardDescription}>{option.description}</Card.Description>
           </Card>
         ))}
       </Stack>
@@ -307,3 +307,10 @@ export function collectDescendantVariables(sceneObject: SceneObject): SceneVaria
   });
   return result;
 }
+
+const styles = stylex.create({
+  cardDescription: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    marginTop: spacing['--gf-spacing-x0'],
+  },
+});

@@ -1,4 +1,7 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { ToolbarButtonRow } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 
@@ -17,8 +20,6 @@ import { SaveDashboard } from './actions/SaveDashboard';
 import { SaveLibraryPanelButton } from './actions/SaveLibraryPanelButton';
 import { UnlinkLibraryPanelButton } from './actions/UnlinkLibraryPanelButton';
 import { getDynamicActions, renderActionElements } from './utils';
-
-import './RightActions.css';
 
 export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   const { editPanel, editable, editview, isEditing, meta, viewPanel } = dashboard.useState();
@@ -39,7 +40,7 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
   const showPlayButtons = isPlaying && isShowingDashboard && !isEditingDashboard;
 
   return (
-    <ToolbarButtonRow alignment="right" className="gf-dashboard-right-actions">
+    <ToolbarButtonRow alignment="right" xstyle={styles.row}>
       {renderActionElements(
         [
           // This adds the presence indicators in enterprise
@@ -111,3 +112,9 @@ export const RightActions = ({ dashboard }: { dashboard: DashboardScene }) => {
     </ToolbarButtonRow>
   );
 };
+
+const styles = stylex.create({
+  row: {
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

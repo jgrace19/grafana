@@ -1,9 +1,0 @@
-/*
- * Override on CodeEditor's container, which takes no xstyle and hides its overflow. Unlayered, and the doubled class
- * outranks CodeEditor's rule (which may be inserted later) like the Emotion `containerStyles` class it replaces.
- */
-.gf-dashboard-schema-code-editor.gf-dashboard-schema-code-editor {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: visible;
-}

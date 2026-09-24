@@ -1,7 +1,0 @@
-/*
- * Override on Field, which takes no xstyle and sets its own bottom margin. Unlayered, and the doubled class outranks
- * Field's rule (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-email-list-field.gf-email-list-field {
-  margin-bottom: 0;
-}

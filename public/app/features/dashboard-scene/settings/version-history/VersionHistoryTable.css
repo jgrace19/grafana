@@ -5,11 +5,3 @@
 .gf-version-history-table td {
   white-space: normal;
 }
-
-/*
- * Override on Checkbox, which takes no xstyle and sets its own display. The doubled class outranks Checkbox's rule
- * (which may be inserted later) like the Emotion className override it replaces.
- */
-.gf-version-history-checkbox.gf-version-history-checkbox {
-  display: inline;
-}

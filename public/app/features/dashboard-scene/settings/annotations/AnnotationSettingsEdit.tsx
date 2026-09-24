@@ -28,14 +28,13 @@ import {
   type ComboboxOption,
   Combobox,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ColorValueEditor } from 'app/core/components/OptionsUI/color';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { NEW_ANNOTATION_NAME } from '../../scene/DashboardDataLayerSet';
 import { getPanelIdForVizPanel } from '../../utils/utils';
-
-import './AnnotationSettingsEdit.css';
 
 type Props = {
   annotation: AnnotationQuery;
@@ -248,7 +247,7 @@ export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate
 
   return (
     <div>
-      <FieldSet className="gf-annotation-settings-form">
+      <FieldSet xstyle={styles.form}>
         <Stack direction="column" gap={2}>
           {/* Name */}
           <Field noMargin label={t('dashboard-scene.annotation-settings-edit.label-name', 'Name')}>
@@ -420,6 +419,11 @@ export const AnnotationSettingsEdit = ({ annotation, editIndex, panels, onUpdate
 };
 
 const styles = stylex.create({
+  // FieldSet's own :last-child margin still wins.
+  form: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+    marginBottom: { default: spacing['--gf-spacing-x2'], ':last-child': 0 },
+  },
   select: {
     marginTop: '8px',
   },

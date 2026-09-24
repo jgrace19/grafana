@@ -13,8 +13,6 @@ import { type PublicDashboard } from 'app/features/dashboard/components/ShareMod
 import { type DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 
-import './EmailListConfiguration.css';
-
 const selectors = e2eSelectors.pages.ShareDashboardModal.PublicDashboard.EmailSharingConfiguration;
 
 const RecipientMenu = ({ onDelete, onReshare }: { onDelete: () => void; onReshare: () => void }) => {
@@ -104,7 +102,7 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
         'public-dashboard.email-sharing.recipient-list-description',
         "Only people you've directly invited can access this dashboard"
       )}
-      className="gf-email-list-field"
+      xstyle={styles.field}
     >
       {!!publicDashboard?.recipients?.length ? (
         <div {...stylex.props(styles.listContainer)}>
@@ -121,8 +119,10 @@ export const EmailListConfiguration = ({ dashboard }: { dashboard: DashboardScen
   );
 };
 
-// The Field margin override lives in EmailListConfiguration.css.
 const styles = stylex.create({
+  field: {
+    marginBottom: 0,
+  },
   listContainer: {
     maxHeight: '140px',
     overflowY: 'auto',

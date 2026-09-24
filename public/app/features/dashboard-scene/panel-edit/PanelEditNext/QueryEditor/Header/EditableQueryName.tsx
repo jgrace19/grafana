@@ -4,12 +4,10 @@ import { useMemo, useState } from 'react';
 import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
 import { Input, FieldValidationMessage, Icon, Text } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
-import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { trackRenameInitiated } from '../../tracking';
-
-import './EditableQueryName.css';
 
 interface EditableQueryNameProps {
   query: DataQuery;
@@ -126,16 +124,12 @@ export function EditableQueryName({ query, queries, onQueryUpdate, readOnly }: E
           onFocus={onFocus}
           onChange={onInputChange}
           invalid={validationError !== null}
-          className={
-            mergeStylexProps(stylex.props(styles.queryNameInput), { className: 'gf-editable-query-name-input' })
-              .className
-          }
+          xstyle={styles.queryNameInput}
+          inputXstyle={styles.queryNameInputElement}
           data-testid="query-name-input"
         />
         {validationError && (
-          <FieldValidationMessage className="gf-editable-query-name-validation">
-            {validationError}
-          </FieldValidationMessage>
+          <FieldValidationMessage xstyle={styles.validation}>{validationError}</FieldValidationMessage>
         )}
       </div>
     );
@@ -204,6 +198,19 @@ const styles = stylex.create({
   },
   queryNameInput: {
     maxWidth: '300px',
+  },
+  queryNameInputElement: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  // Floats the validation message under the input.
+  validation: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    marginTop: spacing['--gf-spacing-x0-5'],
+    whiteSpace: 'normal',
+    maxWidth: 'min(360px, 40vw)',
+    zIndex: zIndex.tooltip,
   },
   inputRow: {
     position: 'relative',

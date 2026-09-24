@@ -10,8 +10,6 @@ import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { fetchDashboardSchema } from './dashboardSchemaFetcher';
 
-import './DashboardSchemaEditor.css';
-
 export type SchemaEditorFormat = 'json' | 'yaml';
 
 interface JSONSchema {
@@ -258,7 +256,7 @@ export function DashboardSchemaEditor({
           showLineNumbers={true}
           showMiniMap={true}
           readOnly={readOnly}
-          containerStyles="gf-dashboard-schema-code-editor"
+          containerXstyle={styles.codeEditor}
           onBeforeEditorMount={(monaco) => {
             monacoRef.current = monaco;
           }}
@@ -289,8 +287,14 @@ function configureSchemaDiagnostics(monaco: typeof MonacoEditorModule, schema: J
   });
 }
 
-// CodeEditor's container overrides live in DashboardSchemaEditor.css.
 const styles = stylex.create({
+  codeEditor: {
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
+    minHeight: 0,
+    overflow: 'visible',
+  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
