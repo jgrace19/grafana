@@ -177,7 +177,10 @@ const AnnotationsStep = () => {
                     <ValueInputComponent
                       data-testid={`annotation-value-${index}`}
                       id={`annotation-${index}`}
-                      className={clsx('gf-alerting-annotation-value-input', !isUrl && 'gf-alerting-annotation-value-textarea')}
+                      className={clsx(
+                        'gf-alerting-annotation-value-input',
+                        !isUrl && 'gf-alerting-annotation-value-textarea'
+                      )}
                       {...register(`annotations.${index}.value`)}
                       placeholder={
                         isUrl

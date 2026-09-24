@@ -1,4 +1,3 @@
-
 import { t } from '@grafana/i18n';
 import { CollapsableSection, Icon, Stack, Text } from '@grafana/ui';
 import './CollapsibleRenameList.css';
@@ -80,4 +79,3 @@ export function RenamedResourcesList({ renamedReceivers, renamedTimeIntervals }:
     </Stack>
   );
 }
-
