@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
@@ -7,6 +6,8 @@ import { Alert, Button, IconButton, Modal, Sidebar, Tooltip } from '@grafana/ui'
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardSchemaEditor, type SchemaEditorFormat } from '../v2schema/DashboardSchemaEditor';
+
+import './DashboardCodePane.css';
 
 export interface DashboardCodePaneProps {
   initialValue: string;
@@ -92,8 +93,8 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
           title={t('dashboard.code-pane.modal-title', 'Edit dashboard as code')}
           isOpen
           onDismiss={() => setIsExpanded(false)}
-          className={modalOverrides.modal}
-          contentClassName={modalOverrides.modalContent}
+          className="gf-dashboard-code-pane-modal"
+          contentClassName="gf-dashboard-code-pane-modal-content"
           closeOnBackdropClick={false}
           closeOnEscape={false}
         >
@@ -115,23 +116,6 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
     </div>
   );
 }
-
-// stylex: pending Modal migration. These override Modal's own width, max-width and content overflow, which are
-// unlayered Emotion and would beat StyleX classes.
-const modalOverrides = {
-  modal: css({
-    width: '90vw',
-    height: '90vh',
-    maxWidth: '90vw',
-  }),
-  modalContent: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-  }),
-};
 
 const styles = stylex.create({
   wrapper: {

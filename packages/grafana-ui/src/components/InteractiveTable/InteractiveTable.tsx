@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { Fragment, type ReactNode, useCallback, useEffect, useMemo } from 'react';
 import {
@@ -13,10 +13,12 @@ import {
   useTable,
 } from 'react-table';
 
-import { type GrafanaTheme2, type IconName, isTruthy } from '@grafana/data';
+import { type IconName, isTruthy } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 import { Pagination } from '../Pagination/Pagination';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -24,92 +26,6 @@ import { type PopoverContent } from '../Tooltip/types';
 
 import { type Column } from './types';
 import { EXPANDER_CELL_ID, getColumns } from './utils';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const rowHoverBg = theme.colors.emphasize(theme.colors.background.primary, 0.03);
-
-  return {
-    container: css({
-      display: 'flex',
-      gap: theme.spacing(2),
-      flexDirection: 'column',
-      width: '100%',
-      overflowX: 'auto',
-    }),
-    cell: css({
-      padding: theme.spacing(1),
-      minWidth: theme.spacing(3),
-    }),
-    table: css({
-      borderRadius: theme.shape.radius.default,
-      width: '100%',
-    }),
-    disableGrow: css({
-      width: 0,
-    }),
-    header: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      minWidth: theme.spacing(3),
-      '&, & > button': {
-        position: 'relative',
-        whiteSpace: 'nowrap',
-        padding: theme.spacing(1),
-      },
-      '& > button': {
-        '&:after': {
-          content: '"\\00a0"',
-        },
-        width: '100%',
-        height: '100%',
-        background: 'none',
-        border: 'none',
-        paddingRight: theme.spacing(2.5),
-        textAlign: 'left',
-        fontWeight: theme.typography.fontWeightMedium,
-      },
-    }),
-    row: css({
-      label: 'row',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-
-      '&:hover': {
-        backgroundColor: rowHoverBg,
-      },
-
-      '&:last-child': {
-        borderBottom: 0,
-      },
-    }),
-    expandedRow: css({
-      label: 'expanded-row-content',
-      borderBottom: 'none',
-    }),
-    expandedContentCell: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      position: 'relative',
-      padding: theme.spacing(2, 2, 2, 5),
-
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        width: '1px',
-        top: 0,
-        left: '16px',
-        bottom: theme.spacing(2),
-        background: theme.colors.border.medium,
-      },
-    }),
-    expandedContentRow: css({
-      label: 'expanded-row-content',
-    }),
-    sortableHeader: css({
-      /* increases selector's specificity so that it always takes precedence over default styles  */
-      '&&': {
-        padding: 0,
-      },
-    }),
-  };
-};
 
 export type InteractiveTableHeaderTooltip = {
   content: PopoverContent;
@@ -200,7 +116,8 @@ export function InteractiveTable<TableData extends object>({
   initialSortBy = [],
   disableSortRemove,
 }: Props<TableData>) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const rowHoverBg = theme.colors.emphasize(theme.colors.background.primary, 0.03);
   const tableColumns = useMemo(() => {
     return getColumns<TableData>(columns, showExpandAll);
   }, [columns, showExpandAll]);
@@ -263,8 +180,8 @@ export function InteractiveTable<TableData extends object>({
   }, [paginationEnabled, pageSize, tableInstance.setPageSize, tableInstance]);
 
   return (
-    <div className={styles.container}>
-      <table {...getTableProps()} className={cx(styles.table, className)}>
+    <div {...stylex.props(styles.container)}>
+      <table {...getTableProps()} {...mergeStylexProps(stylex.props(styles.table), { className })}>
         <thead>
           {headerGroups.map((headerGroup) => {
             const { key, ...headerRowProps } = headerGroup.getHeaderGroupProps();
@@ -280,10 +197,12 @@ export function InteractiveTable<TableData extends object>({
                     <th
                       key={key}
                       {...headerCellProps}
-                      className={cx(styles.header, column.widthClass, {
-                        [styles.disableGrow]: column.width === 0,
-                        [styles.sortableHeader]: column.canSort,
-                      })}
+                      {...stylex.props(
+                        styles.header,
+                        column.widthStyle,
+                        column.width === 0 && styles.disableGrow,
+                        column.canSort && styles.sortableHeader
+                      )}
                       {...(column.isSorted && { 'aria-sort': column.isSortedDesc ? 'descending' : 'ascending' })}
                     >
                       <ColumnHeader column={column} headerTooltip={headerTooltip} />
@@ -306,20 +225,20 @@ export function InteractiveTable<TableData extends object>({
 
             return (
               <Fragment key={key}>
-                <tr {...otherRowProps} className={cx(styles.row, isExpanded && styles.expandedRow)}>
+                <tr {...otherRowProps} {...stylex.props(styles.row, styles.rowHover(rowHoverBg), isExpanded && styles.expandedRow)}>
                   {row.cells.map((cell) => {
                     const { key, ...otherCellProps } = cell.getCellProps();
 
                     return (
-                      <td key={key} {...otherCellProps} className={cx(styles.cell, cell.column.widthClass)}>
+                      <td key={key} {...otherCellProps} {...stylex.props(styles.cell, cell.column.widthStyle)}>
                         {cell.render('Cell', { __rowID: rowId })}
                       </td>
                     );
                   })}
                 </tr>
                 {isExpanded && renderExpandedRow && (
-                  <tr {...otherRowProps} id={rowId} className={styles.expandedContentRow}>
-                    <td className={styles.expandedContentCell} colSpan={row.cells.length}>
+                  <tr {...otherRowProps} id={rowId}>
+                    <td {...stylex.props(styles.expandedContentCell)} colSpan={row.cells.length}>
                       {renderExpandedRow(row.original)}
                     </td>
                   </tr>
@@ -346,16 +265,6 @@ const useUniqueId = () => {
   return useMemo(() => uniqueId('InteractiveTable'), []);
 };
 
-const getColumnHeaderStyles = (theme: GrafanaTheme2) => ({
-  sortIcon: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-  }),
-  headerTooltipIcon: css({
-    marginLeft: theme.spacing(0.5),
-  }),
-});
-
 function ColumnHeader<T extends object>({
   column: { canSort, render, isSorted, isSortedDesc, getSortByToggleProps, Header, id },
   headerTooltip,
@@ -363,7 +272,6 @@ function ColumnHeader<T extends object>({
   column: HeaderGroup<T>;
   headerTooltip?: InteractiveTableHeaderTooltip;
 }) {
-  const styles = useStyles2(getColumnHeaderStyles);
   const { onClick } = getSortByToggleProps();
 
   const children = (
@@ -372,14 +280,14 @@ function ColumnHeader<T extends object>({
       {headerTooltip && (
         <Tooltip theme="info-alt" content={headerTooltip.content} placement="top-end">
           <Icon
-            className={styles.headerTooltipIcon}
+            xstyle={columnHeaderStyles.headerTooltipIcon}
             name={headerTooltip.iconName || 'info-circle'}
             data-testid={'header-tooltip-icon'}
           />
         </Tooltip>
       )}
       {isSorted && (
-        <span aria-hidden="true" className={styles.sortIcon}>
+        <span aria-hidden="true" {...stylex.props(columnHeaderStyles.sortIcon)}>
           <Icon name={isSortedDesc ? 'angle-down' : 'angle-up'} />
         </span>
       )}
@@ -394,6 +302,7 @@ function ColumnHeader<T extends object>({
         })}
         type="button"
         onClick={onClick}
+        {...stylex.props(columnHeaderStyles.sortButton)}
       >
         {children}
       </button>
@@ -402,3 +311,109 @@ function ColumnHeader<T extends object>({
 
   return children;
 }
+
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x2'],
+    flexDirection: 'column',
+    width: '100%',
+    overflowX: 'auto',
+  },
+  cell: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    minWidth: spacing['--gf-spacing-x3'],
+  },
+  table: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    width: '100%',
+  },
+  disableGrow: {
+    width: 0,
+  },
+  // The sort button's half of `'&, & > button'` is `columnHeaderStyles.sortButton`.
+  header: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    minWidth: spacing['--gf-spacing-x3'],
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  row: {
+    borderBottomWidth: { default: '1px', ':last-child': 0 },
+    borderBottomStyle: { default: 'solid', ':last-child': 'none' },
+    borderBottomColor: { default: colors['--gf-colors-border-weak'], ':last-child': 'currentcolor' },
+  },
+  rowHover: (backgroundColor: string) => ({
+    backgroundColor: { default: null, ':hover': backgroundColor },
+  }),
+  // `borderBottom: 'none'`; the row's `:last-child` reset still applied on top of it.
+  expandedRow: {
+    borderBottomWidth: { default: 'medium', ':last-child': 0 },
+    borderBottomStyle: 'none',
+    borderBottomColor: 'currentcolor',
+  },
+  expandedContentCell: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    position: 'relative',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x5'],
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      width: '1px',
+      top: 0,
+      left: '16px',
+      bottom: spacing['--gf-spacing-x2'],
+      backgroundColor: colors['--gf-colors-border-medium'],
+    },
+  },
+  sortableHeader: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+});
+
+const columnHeaderStyles = stylex.create({
+  sortIcon: {
+    position: 'absolute',
+    top: spacing['--gf-spacing-x1'],
+  },
+  headerTooltipIcon: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  sortButton: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    borderWidth: 'medium',
+    borderColor: 'currentcolor',
+    textAlign: 'left',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    '::after': {
+      content: '"\\00a0"',
+    },
+  },
+});

@@ -1,0 +1,8 @@
+/*
+ * The arm and magnifier live inside the SVG markup that react-inlinesvg injects, which StyleX can't target.
+ * Unlayered, at the specificity of the Emotion rule it replaces.
+ */
+.gf-grot-not-found #grot-not-found-arm,
+.gf-grot-not-found #grot-not-found-magnifier {
+  transform-origin: center;
+}

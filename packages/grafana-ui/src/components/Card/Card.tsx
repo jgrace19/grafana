@@ -1,15 +1,18 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { memo, cloneElement, type FC, useMemo, useContext, type ReactNode } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 
-import { CardContainer, type CardContainerProps, getCardContainerStyles } from './CardContainer';
+import { CardContainer, type CardContainerProps } from './CardContainer';
+
+import './Card.css';
 
 /**
  * @public
@@ -77,22 +80,21 @@ export const Card: CardInterface = ({
 
   const disableHover = disabled || (!onClick && !href);
   const onCardClick = onClick && !disabled ? onClick : undefined;
-  const styles = useStyles2(
-    getCardContainerStyles,
-    disabled,
-    disableHover,
-    hasDescriptionComponent,
-    isSelected,
-    isCompact,
-    noMargin
-  );
+  const isSelectable = isSelected !== undefined;
 
   return (
     <CardContainer
       disableEvents={disabled}
       disableHover={disableHover}
       isSelected={isSelected}
-      className={cx(styles.container, className)}
+      className={className}
+      xstyle={[
+        styles.container,
+        hasDescriptionComponent ? styles.gridWithDescription : styles.grid,
+        isCompact && styles.compact,
+        isSelectable && styles.selectable,
+        isSelected && (disableHover ? styles.selected : styles.selectedHoverable),
+      ]}
       noMargin={noMargin}
       hasDescriptionComponent={hasDescriptionComponent}
       {...htmlProps}
@@ -115,7 +117,6 @@ interface ChildProps {
 /** Main heading for the card */
 const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & { 'aria-label'?: string }) => {
   const context = useContext(CardContext);
-  const styles = useStyles2(getHeadingStyles);
 
   const { href, onClick, isSelected } = context ?? {
     href: undefined,
@@ -123,15 +124,19 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
     isSelected: undefined,
   };
   const optionLabel = t('grafana-ui.card.option', 'option');
+  const linkHackClassName = clsx('gf-card-link-hack', stylex.props(headingStyles.linkHack).className);
 
   return (
-    <div data-testid={selectors.components.Card.heading} className={cx(styles.heading, className)}>
+    <div
+      data-testid={selectors.components.Card.heading}
+      {...mergeStylexProps(stylex.props(headingStyles.heading), { className: clsx('gf-card-heading', className) })}
+    >
       {href ? (
-        <a href={href} className={styles.linkHack} aria-label={ariaLabel} onClick={onClick}>
+        <a href={href} className={linkHackClassName} aria-label={ariaLabel} onClick={onClick}>
           {children}
         </a>
       ) : onClick ? (
-        <button onClick={onClick} className={styles.linkHack} aria-label={ariaLabel} type="button">
+        <button onClick={onClick} className={linkHackClassName} aria-label={ariaLabel} type="button">
           {children}
         </button>
       ) : (
@@ -144,92 +149,24 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
 };
 Heading.displayName = 'Heading';
 
-const getHeadingStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    gridArea: 'Heading',
-    justifySelf: 'start',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 0,
-    fontSize: theme.typography.size.md,
-    letterSpacing: 'inherit',
-    lineHeight: theme.typography.body.lineHeight,
-    color: theme.colors.text.primary,
-    fontWeight: theme.typography.fontWeightMedium,
-    '& input[readonly]': {
-      cursor: 'inherit',
-    },
-  }),
-  linkHack: css({
-    all: 'unset',
-    '&::after': {
-      position: 'absolute',
-      content: '""',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      borderRadius: theme.shape.radius.default,
-    },
-
-    '&:focus-visible': {
-      outline: 'none',
-      outlineOffset: 0,
-      boxShadow: 'none',
-
-      '&::after': {
-        ...getFocusStyles(theme),
-        zIndex: 1,
-      },
-    },
-  }),
-});
-
 const Tags = ({ children, className }: ChildProps) => {
-  const styles = useStyles2(getTagStyles);
-  return <div className={cx(styles.tagList, className)}>{children}</div>;
+  return <div {...mergeStylexProps(stylex.props(tagStyles.tagList), { className })}>{children}</div>;
 };
 Tags.displayName = 'Tags';
 
-const getTagStyles = (theme: GrafanaTheme2) => ({
-  tagList: css({
-    position: 'relative',
-    gridArea: 'Tags',
-    alignSelf: 'center',
-  }),
-});
-
 /** Card description text */
 const Description = ({ children, className }: ChildProps) => {
-  const styles = useStyles2(getDescriptionStyles);
   const Element = typeof children === 'string' ? 'p' : 'div';
-  return <Element className={cx(styles.description, className)}>{children}</Element>;
+  return <Element {...mergeStylexProps(stylex.props(descriptionStyles.description), { className })}>{children}</Element>;
 };
 Description.displayName = 'Description';
 
-const getDescriptionStyles = (theme: GrafanaTheme2) => ({
-  description: css({
-    width: '100%',
-    gridArea: 'Description',
-    margin: theme.spacing(1, 0, 0),
-    color: theme.colors.text.secondary,
-    lineHeight: theme.typography.body.lineHeight,
-  }),
-});
-
 const Figure = ({ children, align = 'start', className }: ChildProps & { align?: 'start' | 'center' }) => {
-  const styles = useStyles2(getFigureStyles);
   return (
     <div
-      className={cx(
-        styles.media,
-        className,
-        css({
-          alignSelf: align,
-        })
-      )}
+      {...mergeStylexProps(stylex.props(figureStyles.media, figureAlignStyles[align]), {
+        className: clsx('gf-card-figure', className),
+      })}
     >
       {children}
     </div>
@@ -237,26 +174,7 @@ const Figure = ({ children, align = 'start', className }: ChildProps & { align?:
 };
 Figure.displayName = 'Figure';
 
-const getFigureStyles = (theme: GrafanaTheme2) => ({
-  media: css({
-    position: 'relative',
-    gridArea: 'Figure',
-
-    marginRight: theme.spacing(2),
-    width: '40px',
-
-    '> img': {
-      width: '100%',
-    },
-
-    '&:empty': {
-      display: 'none',
-    },
-  }),
-});
-
 const Meta = memo(({ children, className, separator = '|' }: ChildProps & { separator?: string }) => {
-  const styles = useStyles2(getMetaStyles);
   let meta = children;
 
   const filtered = React.Children.toArray(children).filter(Boolean);
@@ -264,7 +182,7 @@ const Meta = memo(({ children, className, separator = '|' }: ChildProps & { sepa
     return null;
   }
   meta = filtered.map((element, i) => (
-    <div key={`element_${i}`} className={styles.metadataItem}>
+    <div key={`element_${i}`} {...stylex.props(metaStyles.metadataItem)}>
       {element}
     </div>
   ));
@@ -272,36 +190,15 @@ const Meta = memo(({ children, className, separator = '|' }: ChildProps & { sepa
   if (filtered.length > 1 && separator) {
     meta = filtered.reduce((prev, curr, i) => [
       prev,
-      <span key={`separator_${i}`} className={styles.separator}>
+      <span key={`separator_${i}`} {...stylex.props(metaStyles.separator)}>
         {separator}
       </span>,
       curr,
     ]);
   }
-  return <div className={cx(styles.metadata, className)}>{meta}</div>;
+  return <div {...mergeStylexProps(stylex.props(metaStyles.metadata), { className })}>{meta}</div>;
 });
 Meta.displayName = 'Meta';
-
-const getMetaStyles = (theme: GrafanaTheme2) => ({
-  metadata: css({
-    gridArea: 'Meta',
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    fontSize: theme.typography.size.sm,
-    color: theme.colors.text.secondary,
-    margin: theme.spacing(0.5, 0, 0),
-    lineHeight: theme.typography.bodySmall.lineHeight,
-    overflowWrap: 'anywhere',
-  }),
-  metadataItem: css({
-    // Needed to allow for clickable children in metadata
-    zIndex: 0,
-  }),
-  separator: css({
-    margin: `0 ${theme.spacing(1)}`,
-  }),
-});
 
 interface ActionsProps extends ChildProps {
   children?: React.ReactNode;
@@ -309,13 +206,16 @@ interface ActionsProps extends ChildProps {
 }
 
 const BaseActions = ({ children, disabled, variant, className }: ActionsProps) => {
-  const styles = useStyles2(getActionStyles);
   const context = useContext(CardContext);
   const isDisabled = context?.disabled || disabled;
 
-  const css = variant === 'primary' ? styles.actions : styles.secondaryActions;
   return (
-    <div className={cx(css, className)}>
+    <div
+      {...mergeStylexProps(
+        stylex.props(variant === 'primary' ? actionStyles.actions : actionStyles.secondaryActions),
+        { className }
+      )}
+    >
       {React.Children.map(children, (child) => {
         return React.isValidElement<Record<string, unknown>>(child)
           ? cloneElement(child, child.type !== React.Fragment ? { disabled: isDisabled, ...child.props } : undefined)
@@ -324,27 +224,6 @@ const BaseActions = ({ children, disabled, variant, className }: ActionsProps) =
     </div>
   );
 };
-
-const getActionStyles = (theme: GrafanaTheme2) => ({
-  actions: css({
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing(1),
-    gridArea: 'Actions',
-    marginTop: theme.spacing(2),
-  }),
-  secondaryActions: css({
-    alignSelf: 'center',
-    color: theme.colors.text.secondary,
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing(1),
-    gridArea: 'Secondary',
-    marginTop: theme.spacing(2),
-  }),
-});
 
 const Actions = ({ children, disabled, className }: ChildProps) => {
   return (
@@ -364,28 +243,6 @@ const SecondaryActions = ({ children, disabled, className }: ChildProps) => {
 };
 SecondaryActions.displayName = 'SecondaryActions';
 
-/**
- * @public
- * @deprecated Use `className` on respective components to modify styles
- */
-export const getCardStyles = (theme: GrafanaTheme2) => {
-  return {
-    inner: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-      flexWrap: 'wrap',
-    }),
-    ...getHeadingStyles(theme),
-    ...getMetaStyles(theme),
-    ...getDescriptionStyles(theme),
-    ...getFigureStyles(theme),
-    ...getActionStyles(theme),
-    ...getTagStyles(theme),
-  };
-};
-
 Card.Heading = Heading;
 Card.Tags = Tags;
 Card.Figure = Figure;
@@ -393,3 +250,195 @@ Card.Meta = Meta;
 Card.Actions = Actions;
 Card.SecondaryActions = SecondaryActions;
 Card.Description = Description;
+
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+const styles = stylex.create({
+  container: {
+    display: 'grid',
+    gridAutoColumns: '1fr',
+    gridAutoFlow: 'row',
+    width: '100%',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  grid: {
+    gridTemplateAreas: '"Figure Heading Tags" "Figure Meta Tags" "Figure Actions Secondary"',
+    gridTemplateRows: '1fr auto auto',
+    gridTemplateColumns: 'auto 1fr auto',
+  },
+  gridWithDescription: {
+    gridTemplateAreas:
+      '"Figure Heading Tags" "Figure Meta Tags" "Figure Description Tags" "Figure Actions Secondary"',
+    gridTemplateRows: 'auto auto 1fr auto',
+    gridTemplateColumns: 'auto 1fr auto',
+  },
+  compact: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  selectable: {
+    cursor: 'pointer',
+  },
+  selected: {
+    outlineStyle: 'solid',
+    outlineWidth: '2px',
+    outlineColor: colors['--gf-colors-primary-border'],
+  },
+  // CardContainer's `:focus` ring still wins over the selected outline.
+  selectedHoverable: {
+    outlineStyle: { default: 'solid', ':focus': 'dotted' },
+    outlineWidth: '2px',
+    outlineColor: { default: colors['--gf-colors-primary-border'], ':focus': 'transparent' },
+  },
+});
+
+// `all: unset`, the heading's `input[readonly]` cursor and the figure's `> img` rule are in Card.css.
+const headingStyles = stylex.create({
+  heading: {
+    gridColumnEnd: 'Heading',
+    gridColumnStart: 'Heading',
+    gridRowEnd: 'Heading',
+    gridRowStart: 'Heading',
+    justifySelf: 'start',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    letterSpacing: 'inherit',
+    lineHeight: typography['--gf-typography-body-line-height'],
+    color: colors['--gf-colors-text-primary'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+  linkHack: {
+    '::after': {
+      position: 'absolute',
+      content: '""',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      borderRadius: shape['--gf-shape-radius-default'],
+      outlineStyle: { default: null, ':focus-visible': 'dotted' },
+      outlineWidth: { default: null, ':focus-visible': '2px' },
+      outlineColor: { default: null, ':focus-visible': 'transparent' },
+      outlineOffset: { default: null, ':focus-visible': '2px' },
+      boxShadow: { default: null, ':focus-visible': focusRing },
+      transitionProperty: { default: null, ':focus-visible': 'outline, outline-offset, box-shadow' },
+      transitionDuration: { default: null, ':focus-visible': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+      transitionTimingFunction: {
+        default: null,
+        ':focus-visible': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+      },
+      zIndex: { default: null, ':focus-visible': 1 },
+    },
+  },
+});
+
+const tagStyles = stylex.create({
+  tagList: {
+    position: 'relative',
+    gridColumnEnd: 'Tags',
+    gridColumnStart: 'Tags',
+    gridRowEnd: 'Tags',
+    gridRowStart: 'Tags',
+    alignSelf: 'center',
+  },
+});
+
+const descriptionStyles = stylex.create({
+  description: {
+    width: '100%',
+    gridColumnEnd: 'Description',
+    gridColumnStart: 'Description',
+    gridRowEnd: 'Description',
+    gridRowStart: 'Description',
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    color: colors['--gf-colors-text-secondary'],
+    lineHeight: typography['--gf-typography-body-line-height'],
+  },
+});
+
+const figureStyles = stylex.create({
+  media: {
+    position: 'relative',
+    gridColumnEnd: 'Figure',
+    gridColumnStart: 'Figure',
+    gridRowEnd: 'Figure',
+    gridRowStart: 'Figure',
+    marginRight: spacing['--gf-spacing-x2'],
+    width: '40px',
+    display: { default: null, ':empty': 'none' },
+  },
+});
+
+const figureAlignStyles = stylex.create({
+  start: { alignSelf: 'start' },
+  center: { alignSelf: 'center' },
+});
+
+const metaStyles = stylex.create({
+  metadata: {
+    gridColumnEnd: 'Meta',
+    gridColumnStart: 'Meta',
+    gridRowEnd: 'Meta',
+    gridRowStart: 'Meta',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    fontSize: typography['--gf-typography-size-sm'],
+    color: colors['--gf-colors-text-secondary'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    overflowWrap: 'anywhere',
+  },
+  metadataItem: {
+    // Needed to allow for clickable children in metadata
+    zIndex: 0,
+  },
+  separator: {
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});
+
+const actionStyles = stylex.create({
+  actions: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing['--gf-spacing-x1'],
+    gridColumnEnd: 'Actions',
+    gridColumnStart: 'Actions',
+    gridRowEnd: 'Actions',
+    gridRowStart: 'Actions',
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+  secondaryActions: {
+    alignSelf: 'center',
+    color: colors['--gf-colors-text-secondary'],
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing['--gf-spacing-x1'],
+    gridColumnEnd: 'Secondary',
+    gridColumnStart: 'Secondary',
+    gridRowEnd: 'Secondary',
+    gridRowStart: 'Secondary',
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+});

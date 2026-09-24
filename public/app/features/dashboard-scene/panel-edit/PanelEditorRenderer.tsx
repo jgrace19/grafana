@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
 
@@ -51,7 +50,9 @@ export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>)
       <NavToolbarActions dashboard={dashboard} />
       <div
         {...containerProps}
-        className={cx(containerProps.className, splitterOverrides.content)}
+        className={
+          mergeStylexProps({ className: containerProps.className }, { className: 'gf-panel-editor-content' }).className
+        }
         data-testid={selectors.components.PanelEditor.General.content}
       >
         <div {...primaryProps} className={mergeClassNames(primaryProps.className, styles.body)}>
@@ -187,27 +188,6 @@ function mergeClassNames(className: string | undefined, style: stylex.StyleXStyl
 
 // Must match scrollReflowMediaCondition in useScrollReflowLimit.ts.
 const scrollReflowMediaQuery = '@media (max-height: 540px)';
-
-// stylex: pending Splitter migration. `content` overrides the useSplitter container's overflow (and display, when
-// the splitter isn't disabled), which is unlayered Emotion and would beat a StyleX class. Emotion's cx merges it
-// after the splitter class.
-const splitterOverrides = {
-  content: css({
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    overflow: 'unset',
-    [scrollReflowMediaQuery]: {
-      height: 'auto',
-      display: 'grid',
-      gridTemplateColumns: 'minmax(470px, 1fr) 330px',
-      gridTemplateRows: '1fr',
-      gap: 'var(--gf-spacing-x1)',
-      position: 'static',
-      width: '100%',
-    },
-  }),
-};
 
 const styles = stylex.create({
   pageContainer: {

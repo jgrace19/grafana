@@ -103,26 +103,16 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
   // U1 primitives
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
+  // U6 data
+  'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  // U3 pickers
+  'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
 ];
 
 // App files migrated to StyleX. Same ban as stylexMigratedUiFiles. Each app slice appends its files or directories.
 const stylexMigratedAppFiles = [
   // D1 dashboard-scene panel edit and edit pane
   'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
-];
-
-// Migrated app files that still override an unmigrated child with Emotion (`// stylex: pending <Child> migration`).
-// Each one is also in scripts/stylex/emotion-allowlist.txt; remove both entries once the child migrates.
-const stylexPendingEmotionAppFiles = [
-  // D1: Modal (U4), useSplitter and getDragStyles (U8), Input and FieldValidationMessage (U2), CollapsableSection
-  'public/app/features/dashboard-scene/edit-pane/DashboardCodePane.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditorRenderer.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/PanelEditorRendererNext.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/hooks.ts',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/OptionField.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Body/TransformationTypePicker.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Header/EditableQueryName.tsx',
-  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Sidebar/SidebarCollapsableHeader.tsx',
 ];
 
 const stylexRestrictedImports = {
@@ -747,7 +737,6 @@ module.exports = [
     // Must come after grafana/no-extensions-imports, whose restrictions it repeats.
     name: 'grafana/stylex-migrated-app',
     files: stylexMigratedAppFiles,
-    ignores: stylexPendingEmotionAppFiles,
     rules: {
       'no-restricted-imports': [
         'error',
