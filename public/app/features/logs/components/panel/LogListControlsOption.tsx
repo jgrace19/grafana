@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Dropdown, Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
+import { Dropdown, Icon, IconButton, Tooltip } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 interface LogControlOptionProps {
   label?: string;
@@ -26,13 +27,11 @@ export const LogListControlsOption = React.forwardRef<HTMLButtonElement, Props>(
     }: Props,
     ref
   ) => {
-    const styles = useStyles2(getStyles, expanded);
-
     return (
-      <div className={`${styles.container} ${stickToBottom ? styles.marginTopAuto : ''}`}>
-        <label className={styles.label}>
-          <span className={styles.labelText}>{label ?? tooltip}</span>
-          <span className={styles.iconContainer}>
+      <div {...stylex.props(styles.container, stickToBottom && styles.marginTopAuto)}>
+        <label {...stylex.props(styles.label, expanded && styles.labelExpanded)}>
+          <span {...stylex.props(expanded ? styles.labelText : styles.labelTextHidden)}>{label ?? tooltip}</span>
+          <span {...stylex.props(styles.iconContainer)}>
             <IconButton
               name={iconButtonName}
               tooltip={tooltip}
@@ -76,20 +75,21 @@ export const LogListControlsSelectOption = React.forwardRef<SVGElement, SelectPr
     }: SelectProps,
     ref
   ) => {
-    const styles = useStyles2(getStyles, expanded);
-
     return (
-      <div className={styles.container}>
-        <label className={styles.label}>
-          <span className={styles.labelText}>{label ?? tooltip}</span>
+      <div {...stylex.props(styles.container)}>
+        <label {...stylex.props(styles.label, expanded && styles.labelExpanded)}>
+          <span {...stylex.props(expanded ? styles.labelText : styles.labelTextHidden)}>{label ?? tooltip}</span>
           <span>
             <Dropdown overlay={dropdown} placement="auto-end">
-              <div className={styles.iconContainer}>
+              <div {...stylex.props(styles.iconContainer)}>
                 <Tooltip content={tooltip}>
                   <button
                     aria-pressed={isActive}
                     aria-label={buttonAriaLabel}
-                    className={`${styles.customControlButton} ${isActive ? styles.controlButtonActive : styles.controlButton}`}
+                    {...stylex.props(
+                      styles.customControlButton,
+                      isActive ? styles.controlButtonActive : styles.controlButton
+                    )}
                     type="button"
                   >
                     <Icon
@@ -97,9 +97,9 @@ export const LogListControlsSelectOption = React.forwardRef<SVGElement, SelectPr
                       ref={ref}
                       name={iconButtonName}
                       size="lg"
-                      className={styles.customControlIcon}
+                      xstyle={styles.customControlIcon}
                     />
-                    {isActive && <span className={styles.customControlTag}>{customTagText}</span>}
+                    {isActive && <span {...stylex.props(styles.customControlTag)}>{customTagText}</span>}
                   </button>
                 </Tooltip>
               </div>
@@ -112,100 +112,99 @@ export const LogListControlsSelectOption = React.forwardRef<SVGElement, SelectPr
 );
 
 LogListControlsSelectOption.displayName = 'LogListControlsSelectOption';
-const getStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  const hoverSize = '26';
-  return {
-    customControlTag: css({
-      color: theme.colors.primary.text,
-      fontSize: 10,
-      position: 'absolute',
-      bottom: -4,
-      right: 1,
-      lineHeight: '10px',
-      backgroundColor: theme.colors.background.primary,
-      paddingLeft: 2,
-    }),
-    customControlIcon: css({
-      verticalAlign: 'baseline',
-    }),
-    customControlButton: css({
-      position: 'relative',
-      zIndex: 0,
-      margin: 0,
-      boxShadow: 'none',
-      border: 'none',
-      display: 'flex',
-      background: 'transparent',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 0,
-      overflow: 'visible',
-      width: '100%',
-    }),
-    controlButtonActive: css({
-      margin: 0,
-      color: theme.colors.text.secondary,
-      height: theme.spacing(2),
-      '&:hover': {
-        '&:before': {
-          backgroundColor: theme.colors.action.hover,
-          opacity: 1,
-        },
-      },
-      '&:before': {
-        zIndex: -1,
-        position: 'absolute',
-        opacity: 0,
-        width: `${hoverSize}px`,
-        height: `${hoverSize}px`,
-        borderRadius: theme.shape.radius.default,
-        content: '""',
-        [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-          transitionDuration: '0.2s',
-          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          transitionProperty: 'opacity',
-        },
-      },
-      '&:after': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        height: 2,
-        borderRadius: theme.shape.radius.default,
-        bottom: theme.spacing(-1),
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-        width: theme.spacing(2.25),
-        opacity: 1,
-      },
-    }),
-    controlButton: css({
-      margin: 0,
-      color: theme.colors.text.secondary,
-      height: theme.spacing(2),
-    }),
-    marginTopAuto: css({
-      marginTop: 'auto',
-      marginBottom: theme.spacing(1),
-    }),
-    labelText: css({
-      display: expanded ? 'block' : 'none',
-    }),
-    iconContainer: css({
-      display: 'flex',
-      alignItems: 'center',
-      height: '16px',
-    }),
-    container: css({
-      fontSize: theme.typography.pxToRem(12),
-      height: theme.spacing(2),
-      width: 'auto',
-    }),
-    label: css({
-      display: 'flex',
-      justifyContent: expanded ? 'space-between' : 'center',
-      marginRight: expanded ? '2.5px' : 0,
-    }),
-  };
-};
-
 LogListControlsOption.displayName = 'LogListControlsOption';
+
+const hoverSize = '26px';
+
+const styles = stylex.create({
+  customControlTag: {
+    color: colors['--gf-colors-primary-text'],
+    fontSize: 10,
+    position: 'absolute',
+    bottom: -4,
+    right: 1,
+    lineHeight: '10px',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    paddingLeft: 2,
+  },
+  customControlIcon: {
+    verticalAlign: 'baseline',
+  },
+  customControlButton: {
+    position: 'relative',
+    zIndex: 0,
+    margin: 0,
+    boxShadow: 'none',
+    borderStyle: 'none',
+    display: 'flex',
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+    overflow: 'visible',
+    width: '100%',
+  },
+  controlButtonActive: {
+    margin: 0,
+    color: colors['--gf-colors-text-secondary'],
+    height: spacing['--gf-spacing-x2'],
+    '::before': {
+      zIndex: -1,
+      position: 'absolute',
+      opacity: { default: 0, ':hover': 1 },
+      backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+      width: hoverSize,
+      height: hoverSize,
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '""',
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.2s' },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    },
+    '::after': {
+      display: 'block',
+      content: '" "',
+      position: 'absolute',
+      height: 2,
+      borderRadius: shape['--gf-shape-radius-default'],
+      bottom: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+      width: `calc(${spacing['--gf-spacing-grid-size']} * 2.25)`,
+      opacity: 1,
+    },
+  },
+  controlButton: {
+    margin: 0,
+    color: colors['--gf-colors-text-secondary'],
+    height: spacing['--gf-spacing-x2'],
+  },
+  marginTopAuto: {
+    marginTop: 'auto',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  labelText: {
+    display: 'block',
+  },
+  labelTextHidden: {
+    display: 'none',
+  },
+  iconContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '16px',
+  },
+  container: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    height: spacing['--gf-spacing-x2'],
+    width: 'auto',
+  },
+  label: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 0,
+  },
+  labelExpanded: {
+    justifyContent: 'space-between',
+    marginRight: '2.5px',
+  },
+});

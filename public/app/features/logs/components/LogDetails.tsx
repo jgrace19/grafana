@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo } from 'react';
 
 import {
@@ -15,13 +15,14 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { usePluginLinks } from '@grafana/runtime';
 import { type PopoverContent, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
 
 import { calculateLogsLabelStats, calculateStats } from '../utils';
 
 import { LogDetailsBody } from './LogDetailsBody';
 import { LogDetailsRow } from './LogDetailsRow';
-import { getLogLevelStyles, type LogRowStyles } from './getLogRowStyles';
+import { getLogLevelStyle, LOGS_DETAILS_TABLE_CLASS, LOGS_ROW_CLASS, logRowStyles } from './getLogRowStyles';
 import { getAllFields, createLogLineLinks } from './logParser';
 
 export interface Props {
@@ -29,10 +30,8 @@ export interface Props {
   showDuplicates: boolean;
   getRows: () => LogRowModel[];
   wrapLogMessage: boolean;
-  className?: string;
   hasError?: boolean;
   app?: CoreApp;
-  styles: LogRowStyles;
 
   onClickFilterLabel?: (key: string, value: string, frame?: DataFrame) => void;
   onClickFilterOutLabel?: (key: string, value: string, frame?: DataFrame) => void;
@@ -102,21 +101,18 @@ export const LogDetails = memo(
     onClickFilterLabel,
     getRows,
     showDuplicates,
-    className,
     onClickShowField,
     onClickHideField,
     displayedFields,
     getFieldLinks,
     wrapLogMessage,
     onPinLine,
-    styles,
     pinLineButtonTooltipTitle,
     timeRange,
     isFilterLabelActive,
   }: Props) => {
     const theme = useTheme2();
     const links = useAttributesExtensionLinks(row, timeRange);
-    const levelStyles = getLogLevelStyles(theme, row.logLevel);
     const labels = row.labels ? row.labels : {};
     const labelsAvailable = Object.keys(labels).length > 0;
     const fieldsAndLinks = getAllFields(row, getFieldLinks);
@@ -136,25 +132,39 @@ export const LogDetails = memo(
           fieldsAndLinks.filter((f) => f.links?.length === 0 && f.fieldIndex !== row.entryFieldIndex).sort();
     const fieldsAvailable = fields && fields.length > 0;
 
-    // If logs with error, we are not showing the level color
-    const levelClassName = hasError
-      ? ''
-      : `${levelStyles.logsRowLevelColor} ${styles.logsRowLevel} ${styles.logsRowLevelDetails}`;
-
     return (
-      <tr className={cx(className, styles.logDetails)}>
+      <tr
+        {...mergeStylexProps(
+          stylex.props(logRowStyles.logsRow, hasError && logRowStyles.errorLogRow, logRowStyles.logDetails),
+          { className: LOGS_ROW_CLASS }
+        )}
+      >
         {showDuplicates && <td />}
-        <td className={levelClassName} aria-label={t('logs.un-themed-log-details.aria-label-log-level', 'Log level')} />
+        <td
+          // If logs with error, we are not showing the level color
+          {...stylex.props(
+            !hasError && [
+              logRowStyles.logsRowLevel,
+              getLogLevelStyle(theme, row.logLevel),
+              logRowStyles.logsRowLevelDetails,
+            ]
+          )}
+          aria-label={t('logs.un-themed-log-details.aria-label-log-level', 'Log level')}
+        />
         <td colSpan={4}>
-          <div className={styles.logDetailsContainer}>
-            <table className={styles.logDetailsTable}>
+          <div {...stylex.props(logRowStyles.logDetailsContainer)}>
+            <table
+              {...mergeStylexProps(stylex.props(logRowStyles.logDetailsTable), {
+                className: LOGS_DETAILS_TABLE_CLASS,
+              })}
+            >
               <tbody>
                 {displayedFields && displayedFields.length > 0 && (
                   <>
                     <tr>
                       <td
                         colSpan={100}
-                        className={styles.logDetailsHeading}
+                        {...stylex.props(logRowStyles.logDetailsHeading)}
                         aria-label={t('logs.un-themed-log-details.aria-label-line', 'Log line')}
                       >
                         <Trans i18nKey="logs.log-details.log-line">Log line</Trans>
@@ -167,7 +177,6 @@ export const LogDetails = memo(
                       app={app}
                       displayedFields={displayedFields}
                       disableActions={false}
-                      theme={theme}
                     />
                   </>
                 )}
@@ -175,7 +184,7 @@ export const LogDetails = memo(
                   <tr>
                     <td
                       colSpan={100}
-                      className={styles.logDetailsHeading}
+                      {...stylex.props(logRowStyles.logDetailsHeading)}
                       aria-label={t('logs.un-themed-log-details.aria-label-fields', 'Fields')}
                     >
                       <Trans i18nKey="logs.log-details.fields">Fields</Trans>
@@ -233,7 +242,7 @@ export const LogDetails = memo(
                   <tr>
                     <td
                       colSpan={100}
-                      className={styles.logDetailsHeading}
+                      {...stylex.props(logRowStyles.logDetailsHeading)}
                       aria-label={t('logs.un-themed-log-details.aria-label-data-links', 'Data links')}
                     >
                       <Trans i18nKey="logs.log-details.links">Links</Trans>

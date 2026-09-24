@@ -1,0 +1,33 @@
+/*
+ * Styles buttons rendered by ClipboardButton, so StyleX can't target them. Deliberately not in a cascade layer:
+ * like the Emotion rules they replace, they must win over the buttons' own styles.
+ */
+.gf-log-line-details-value button {
+  visibility: hidden;
+}
+
+.gf-log-line-details-value:hover button {
+  visibility: visible;
+}
+
+.gf-log-line-details-copy > button {
+  color: var(--gf-colors-text-secondary);
+  gap: 0;
+  padding: 0;
+  justify-content: center;
+  border-radius: var(--gf-shape-radius-circle);
+  height: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-sm));
+  width: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-sm));
+}
+
+.gf-log-line-details-copy > button svg {
+  margin: 0;
+}
+
+.gf-log-line-details-copy > button span > div {
+  top: -5px;
+}
+
+.gf-log-line-details-copy > button span > div button {
+  color: var(--gf-colors-success-main);
+}

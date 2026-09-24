@@ -1,19 +1,20 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { Resizable } from 're-resizable';
 import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, Icon, ScrollContainer, Tab, TabsBar, useStyles2 } from '@grafana/ui';
+import { getDragStyles, Icon, ScrollContainer, Tab, TabsBar, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getFieldSelectorWidth } from '../fieldSelector/fieldSelectorUtils';
 
 import { getDetailsScrollPosition, saveDetailsScrollPosition, useLogDetailsContext } from './LogDetailsContext';
 import { LogLineDetailsComponent } from './LogLineDetailsComponent';
 import { LogLineDetailsHeader } from './LogLineDetailsHeader';
-import { type LogListFontSize } from './LogList';
 import { useLogListContext } from './LogListContext';
 import { type LogListModel } from './processing';
 import { LOG_LIST_MIN_WIDTH } from './virtualization';
@@ -34,9 +35,9 @@ export const LogLineDetails = memo(
   ({ containerElement, focusLogLine, logs, timeRange, timeZone, showControls, showFieldSelector }: Props) => {
     const { noInteractions, fontSize, logOptionsStorageKey } = useLogListContext();
     const { detailsWidth, setDetailsWidth } = useLogDetailsContext();
-    const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
-    const styles = useStyles2(getStyles, 'sidebar', showControls, fontSize, inlineLogDetailsNoScrolls);
-    const dragStyles = useStyles2(getDragStyles);
+    const theme = useTheme2();
+    // getDragStyles is a @grafana/ui Emotion helper; the resize handle it styles belongs to that package.
+    const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const handleResize = useCallback(() => {
@@ -69,7 +70,14 @@ export const LogLineDetails = memo(
         minWidth={40}
         maxWidth={maxWidth}
       >
-        <div className={styles.container} ref={containerRef}>
+        <div
+          {...stylex.props(
+            styles.container,
+            showControls ? styles.containerWithControls : styles.containerRounded,
+            fontSize === 'small' && styles.fontSizeSmall
+          )}
+          ref={containerRef}
+        >
           <LogLineDetailsTabs focusLogLine={focusLogLine} logs={logs} timeRange={timeRange} timeZone={timeZone} />
         </div>
       </Resizable>
@@ -80,13 +88,10 @@ LogLineDetails.displayName = 'LogLineDetails';
 
 const LogLineDetailsTabs = memo(
   ({ focusLogLine, logs, timeRange, timeZone }: Pick<Props, 'focusLogLine' | 'logs' | 'timeRange' | 'timeZone'>) => {
-    const { app, fontSize, noInteractions, wrapLogMessage } = useLogListContext();
+    const { app, noInteractions, wrapLogMessage } = useLogListContext();
     const { currentLog, setCurrentLog, showDetails, toggleDetails } = useLogDetailsContext();
     const [search, setSearch] = useState('');
     const inputRef = useRef('');
-    const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
-
-    const styles = useStyles2(getStyles, 'sidebar', undefined, fontSize, inlineLogDetailsNoScrolls);
 
     useEffect(() => {
       // When wrapping is enabled and details is in sidebar mode, the logs panel width changes and the
@@ -118,7 +123,7 @@ const LogLineDetailsTabs = memo(
     }
 
     return (
-      <div className={styles.tabsWrapper}>
+      <div {...stylex.props(styles.tabsWrapper)}>
         {showDetails.length > 1 && (
           <TabsBar>
             {tabs.map((log) => {
@@ -172,7 +177,6 @@ export const InlineLogLineDetails = memo(({ logs, log, onResize, timeRange, time
   const { app, fontSize, noInteractions } = useLogListContext();
   const { detailsWidth } = useLogDetailsContext();
   const inlineLogDetailsNoScrolls = useBooleanFlagValue('inlineLogDetailsNoScrolls', false);
-  const styles = useStyles2(getStyles, 'inline', undefined, fontSize, inlineLogDetailsNoScrolls);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
   const inputRef = useRef('');
@@ -217,8 +221,13 @@ export const InlineLogLineDetails = memo(({ logs, log, onResize, timeRange, time
   }, [inlineLogDetailsNoScrolls, autoScrolled, log, scrollRef.current?.scrollHeight]);
 
   return (
-    <div className={`${styles.inlineWrapper} log-line-inline-details`} style={{ maxWidth: detailsWidth }}>
-      <div className={styles.inlineContainer}>
+    <div
+      {...mergeStylexProps(
+        stylex.props(styles.inlineWrapper, !inlineLogDetailsNoScrolls && styles.inlineWrapperHeight),
+        { className: 'log-line-inline-details', style: { maxWidth: detailsWidth } }
+      )}
+    >
+      <div {...stylex.props(styles.inlineContainer, fontSize === 'small' && styles.fontSizeSmall)}>
         <LogLineDetailsHeader log={log} search={search} onSearch={handleSearch} />
         {inlineLogDetailsNoScrolls ? (
           <div>
@@ -237,39 +246,47 @@ InlineLogLineDetails.displayName = 'InlineLogLineDetails';
 
 export const LOG_LINE_DETAILS_HEIGHT = 45;
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  mode: LogLineDetailsMode,
-  showControls: boolean | undefined,
-  fontSize: LogListFontSize,
-  inlineLogDetailsNoScrolls: boolean
-) => ({
-  inlineWrapper: css({
-    gridColumn: '1 / -1',
-    height: inlineLogDetailsNoScrolls === false ? `${LOG_LINE_DETAILS_HEIGHT}vh` : undefined,
-    padding: theme.spacing(1, 2, 1.5, 2),
+const styles = stylex.create({
+  inlineWrapper: {
+    gridColumnEnd: '-1',
+    gridColumnStart: '1',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingLeft: spacing['--gf-spacing-x2'],
     marginRight: 1,
-  }),
-  inlineContainer: css({
-    backgroundColor: theme.colors.background.secondary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
+  },
+  inlineWrapperHeight: {
+    height: `${LOG_LINE_DETAILS_HEIGHT}vh`,
+  },
+  inlineContainer: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    fontSize: fontSize === 'small' ? theme.typography.bodySmall.fontSize : undefined,
-    lineHeight: fontSize === 'small' ? theme.typography.bodySmall.lineHeight : undefined,
-  }),
-  container: css({
-    backgroundColor: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderBottomRightRadius: showControls ? undefined : theme.shape.radius.default,
-    borderRight: mode === 'sidebar' && showControls ? 'none' : undefined,
-    borderTopRightRadius: showControls ? undefined : theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
+  },
+  container: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
     height: '100%',
-    fontSize: fontSize === 'small' ? theme.typography.bodySmall.fontSize : undefined,
-    lineHeight: fontSize === 'small' ? theme.typography.bodySmall.lineHeight : undefined,
-  }),
-  tabsWrapper: css({ height: '100%', display: 'flex', flexDirection: 'column' }),
+  },
+  containerWithControls: {
+    borderRightStyle: 'none',
+  },
+  containerRounded: {
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+  },
+  fontSizeSmall: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+  },
+  tabsWrapper: { height: '100%', display: 'flex', flexDirection: 'column' },
 });

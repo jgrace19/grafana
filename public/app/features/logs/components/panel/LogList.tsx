@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { type Grammar } from 'prismjs';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
@@ -10,7 +10,6 @@ import {
   type DataFrame,
   type EventBus,
   EventBusSrv,
-  type GrafanaTheme2,
   type LogLevel,
   type LogRowModel,
   LogsDedupStrategy,
@@ -20,7 +19,8 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { ConfirmModal, Icon, type PopoverContent, useStyles2, useTheme2 } from '@grafana/ui';
+import { ConfirmModal, Icon, type PopoverContent, useTheme2 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { PopoverMenu } from 'app/features/explore/Logs/PopoverMenu';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
 
@@ -28,17 +28,18 @@ import { LogListFieldSelector } from '../fieldSelector/LogListFieldSelector';
 
 import { type InfiniteScrollMode, InfiniteScroll, type LoadMoreLogsType } from './InfiniteScroll';
 import { LogDetailsContextProvider, useLogDetailsContext } from './LogDetailsContext';
-import { getGridTemplateColumns, type LogLineTimestampResolution } from './LogLine';
+import { getGridTemplateColumns, getLogLineVarStyles, type LogLineTimestampResolution } from './LogLine';
 import { LogLineDetails, type LogLineDetailsMode } from './LogLineDetails';
 import { type GetRowContextQueryFn, type LogLineMenuCustomItem } from './LogLineMenu';
 import { LogListContextProvider, type LogListState, useLogListContext } from './LogListContext';
 import { LogListControls } from './LogListControls';
 import { LOG_LIST_SEARCH_HEIGHT, LogListSearch } from './LogListSearch';
 import { LogListSearchContextProvider, useLogListSearchContext } from './LogListSearchContext';
+import { logLineVars } from './logLine.stylex';
 import { preProcessLogs, type LogListModel, getLevelsFromLogs } from './processing';
 import { useKeyBindings } from './useKeyBindings';
 import { usePopoverMenu } from './usePopoverMenu';
-import { LogLineVirtualization, getLogLineSize, type LogFieldDimension, ScrollToLogsEvent } from './virtualization';
+import { LogLineVirtualization, getLogLineSize, ScrollToLogsEvent } from './virtualization';
 
 export interface Props {
   app: CoreApp;
@@ -323,7 +324,14 @@ const LogListComponent = ({
       wrapLogMessage,
     ]
   );
-  const styles = useStyles2(getStyles, dimensions, displayedFields, { unwrappedColumns });
+  const gridTemplateColumns = useMemo(
+    () => getGridTemplateColumns(dimensions, displayedFields, unwrappedColumns),
+    [dimensions, displayedFields, unwrappedColumns]
+  );
+  const logLineVarStyles = useMemo(
+    () => getLogLineVarStyles(theme, virtualization, displayedFields),
+    [displayedFields, theme, virtualization]
+  );
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
   const widthContainer = wrapperRef.current ?? containerElement;
   const {
@@ -493,7 +501,7 @@ const LogListComponent = ({
   }
 
   return (
-    <div className={styles.logListContainer}>
+    <div {...stylex.props(styles.logListContainer)}>
       {showControls && <LogListControls logLevels={logLevels} eventBus={eventBus} />}
       {detailsMode === 'sidebar' && showDetails.length > 0 && (
         <LogLineDetails
@@ -506,7 +514,10 @@ const LogListComponent = ({
           showFieldSelector={showFieldSelector}
         />
       )}
-      <div className={styles.logListWrapper} ref={wrapperRef}>
+      <div
+        {...stylex.props(styles.logListWrapper, logLineVarStyles, styles.columns(gridTemplateColumns))}
+        ref={wrapperRef}
+      >
         {popoverState.selection && popoverState.selectedRow && (
           <PopoverMenu
             close={closePopoverMenu}
@@ -529,7 +540,7 @@ const LogListComponent = ({
                   You are about to disable the logs filter menu. To re-enable it, select text in a log line while
                   holding the alt key.
                 </Trans>
-                <div className={styles.shortcut}>
+                <div {...stylex.props(styles.shortcut)}>
                   <Icon name="keyboard" />
                   <Trans i18nKey="logs.log-rows.disable-popover-message.shortcut">alt+select to enable again</Trans>
                 </div>
@@ -560,7 +571,6 @@ const LogListComponent = ({
         >
           {({ getItemKey, itemCount, onItemsRendered, Renderer }) => (
             <VariableSizeList
-              className={styles.logList}
               height={listHeight}
               itemCount={itemCount}
               itemSize={getLogLineSize.bind(null, virtualization, filteredLogs, widthContainer, displayedFields, {
@@ -591,44 +601,6 @@ const LogListComponent = ({
   );
 };
 
-function getStyles(
-  theme: GrafanaTheme2,
-  dimensions: LogFieldDimension[],
-  displayedFields: string[] = [],
-  { unwrappedColumns }: { unwrappedColumns: boolean }
-) {
-  return {
-    logList: css({
-      '& .unwrapped-log-line': {
-        display: 'grid',
-        gridTemplateColumns: getGridTemplateColumns(dimensions, displayedFields, unwrappedColumns),
-        '& .field': {
-          overflow: 'hidden',
-        },
-      },
-    }),
-    logListContainer: css({
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      // Minimum width to prevent rendering issues and a sausage-like logs panel.
-      minWidth: theme.spacing(35),
-    }),
-    logListWrapper: css({
-      position: 'relative',
-      width: '100%',
-    }),
-    shortcut: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      color: theme.colors.text.secondary,
-      opacity: 0.7,
-      fontSize: theme.typography.bodySmall.fontSize,
-      marginTop: theme.spacing(1),
-    }),
-  };
-}
-
 function handleScrollToEvent(event: ScrollToLogsEvent, logs: LogListModel[], list: VariableSizeList | null) {
   if (event.payload.scrollTo === 'top') {
     list?.scrollTo(0);
@@ -650,3 +622,29 @@ function getListHeight(containerElement: HTMLDivElement, app: CoreApp, searchVis
       : containerElement.clientHeight) - (searchVisible ? LOG_LIST_SEARCH_HEIGHT : 0)
   );
 }
+
+const styles = stylex.create({
+  logListContainer: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    // Minimum width to prevent rendering issues and a sausage-like logs panel.
+    minWidth: `calc(${spacing['--gf-spacing-grid-size']} * 35)`,
+  },
+  logListWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  columns: (gridTemplateColumns: string) => ({
+    [logLineVars.gridTemplateColumns]: gridTemplateColumns,
+    [logLineVars.unwrappedFieldOverflow]: 'hidden',
+  }),
+  shortcut: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+    opacity: 0.7,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+});

@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { partition } from 'lodash';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -28,7 +29,9 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
-import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack, useTheme2 } from '@grafana/ui';
+import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack, useStyles2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { splitOpen } from 'app/features/explore/state/main';
 import { useDispatch } from 'app/types/store';
 
@@ -107,8 +110,7 @@ export const LogLineContext = memo(
     const eventBusRef = useRef(new EventBusSrv());
 
     const dispatch = useDispatch();
-    const theme = useTheme2();
-    const styles = getStyles(theme);
+    const modalStyles = useStyles2(getPendingModalStyles);
     const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
 
     const timeRange = useMemo(() => {
@@ -358,21 +360,21 @@ export const LogLineContext = memo(
       <Modal
         isOpen={open}
         title={t('logs.log-line-context.title-log-context', 'Log context')}
-        contentClassName={styles.flexColumn}
-        className={styles.modal}
+        contentClassName={modalStyles.flexColumn}
+        className={modalStyles.modal}
         onDismiss={handleClose}
       >
         {getLogRowContextUi && <div>{getLogRowContextUi(log, updateResults)}</div>}
         <Collapse
           isOpen={showLog}
           onToggle={() => setShowLog(!showLog)}
-          className={styles.referenceLogLine}
+          className={stylex.props(styles.referenceLogLine).className}
           label={t('logs.log-line-context.title-log-line', 'Referenced log line')}
         >
           <LogLineDetailsLog log={logListModel} syntaxHighlighting={syntaxHighlighting} />
         </Collapse>
-        <div className={styles.controls}>
-          <div className={styles.controlGroup}>
+        <div {...stylex.props(styles.controls)}>
+          <div {...stylex.props(styles.controlGroup)}>
             {datasourceInstance?.supportsAdjustableWindow && (
               <Stack>
                 <InlineLabel
@@ -409,7 +411,7 @@ export const LogLineContext = memo(
               </Button>
             )}
           </div>
-          <div className={styles.controlGroup}>
+          <div {...stylex.props(styles.controlGroup)}>
             <Button variant="secondary" onClick={onScrollCenterClick}>
               <Trans i18nKey="logs.log-line-context.center-matched-line">Center matched line</Trans>
             </Button>
@@ -420,7 +422,7 @@ export const LogLineContext = memo(
             )}
           </div>
         </div>
-        <div className={styles.loadingIndicator}>
+        <div {...stylex.props(styles.loadingIndicator)}>
           {aboveState === LoadingState.Loading && (
             <LoadingIndicator
               adjective={
@@ -434,8 +436,8 @@ export const LogLineContext = memo(
             <Trans i18nKey="logs.log-line-context.no-more-logs-available">No more logs available.</Trans>
           )}
         </div>
-        <div className={styles.wrapper}>
-          <div className={styles.logsContainer} ref={containerRef}>
+        <div {...stylex.props(styles.wrapper)}>
+          <div {...stylex.props(styles.logsContainer)} ref={containerRef}>
             {containerRef.current && (
               <LogList
                 app={CoreApp.Unknown}
@@ -470,7 +472,7 @@ export const LogLineContext = memo(
             )}
           </div>
         </div>
-        <div className={styles.loadingIndicator}>
+        <div {...stylex.props(styles.loadingIndicator)}>
           {belowState === LoadingState.Loading && (
             <LoadingIndicator
               adjective={
@@ -489,78 +491,6 @@ export const LogLineContext = memo(
   }
 );
 LogLineContext.displayName = 'LogLineContext';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      width: '85vw',
-      height: '80vh',
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-        height: '100vh',
-      },
-    }),
-    loadingIndicator: css({
-      height: theme.spacing(3),
-      minHeight: theme.spacing(3),
-      textAlign: 'center',
-    }),
-    referenceLogLine: css({
-      flex: 0,
-    }),
-    wrapper: css({
-      border: `1px solid ${theme.colors.border.weak}`,
-      padding: theme.spacing(0, 1, 1, 0),
-      flex: '1 1 auto',
-      minHeight: 0,
-    }),
-    logsContainer: css({
-      height: '100%',
-      overflow: 'hidden',
-    }),
-    flexColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0, 3, 3, 3),
-      height: '100%',
-      gap: theme.spacing(0.5),
-    }),
-    link: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      ':hover': {
-        color: theme.colors.text.link,
-      },
-    }),
-    logPreview: css({
-      overflow: 'hidden',
-      textAlign: 'left',
-      textOverflow: 'ellipsis',
-      width: '75vw',
-      whiteSpace: 'nowrap',
-    }),
-    controls: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      gap: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column',
-      },
-    }),
-    controlGroup: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      flexDirection: 'row',
-      [theme.breakpoints.down('lg')]: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-      },
-      [theme.breakpoints.down('sm')]: {
-        alignItems: 'center',
-      },
-    }),
-  };
-};
 
 const getLoadMoreDirection = (place: 'above' | 'below', sortOrder: LogsSortOrder): LogRowContextQueryDirection => {
   if (place === 'above' && sortOrder === LogsSortOrder.Descending) {
@@ -608,3 +538,62 @@ function getTimeWindowOptions() {
     value: interval.toString(),
   }));
 }
+
+// stylex: pending Modal migration
+const getPendingModalStyles = (theme: GrafanaTheme2) => ({
+  modal: css({
+    width: '85vw',
+    height: '80vh',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+      height: '100vh',
+    },
+  }),
+  flexColumn: css({
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(0, 3, 3, 3),
+    height: '100%',
+    gap: theme.spacing(0.5),
+  }),
+});
+
+const styles = stylex.create({
+  loadingIndicator: {
+    height: spacing['--gf-spacing-x3'],
+    minHeight: spacing['--gf-spacing-x3'],
+    textAlign: 'center',
+  },
+  referenceLogLine: {
+    flex: '0',
+  },
+  wrapper: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: 'auto',
+    minHeight: 0,
+  },
+  logsContainer: {
+    height: '100%',
+    overflow: 'hidden',
+  },
+  controls: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x2'],
+    flexDirection: { default: null, [bp.smDown]: 'column' },
+  },
+  controlGroup: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    flexDirection: { default: 'row', [bp.lgDown]: 'column' },
+    alignItems: { default: null, [bp.lgDown]: 'flex-start', [bp.smDown]: 'center' },
+  },
+});

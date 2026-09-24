@@ -1,10 +1,12 @@
 import { css } from '@emotion/css';
 import { DragDropContext, Draggable, type DraggableProvided, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Card, IconButton, useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useLogDetailsContext } from './LogDetailsContext';
 import { type LogLineDetailsMode } from './LogLineDetails';
@@ -92,14 +94,14 @@ const DisplayedField = ({
 }: DraggableDisplayedFieldProps & { provided: DraggableProvided }) => {
   const { displayedFields, onClickHideField } = useLogListContext();
   const { detailsMode } = useLogDetailsContext();
-  const styles = useStyles2(getStyles, detailsMode);
+  const cardStyles = useStyles2(getPendingCardStyles, detailsMode);
   const nextIndex = index === displayedFields.length - 1 ? 0 : index + 1;
   const prevIndex = index === 0 ? displayedFields.length - 1 : index - 1;
   return (
     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-      <Card noMargin className={styles.fieldCard}>
-        <div className={styles.fieldWrapper}>
-          <div className={styles.field}>{getNormalizedFieldName(field)}</div>
+      <Card noMargin className={cardStyles.fieldCard}>
+        <div {...stylex.props(styles.fieldWrapper)}>
+          <div {...stylex.props(styles.field)}>{getNormalizedFieldName(field)}</div>
           {displayedFields.length > 1 && (
             <>
               <IconButton
@@ -127,7 +129,8 @@ const DisplayedField = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, detailsMode: LogLineDetailsMode) => ({
+// stylex: pending Card migration
+const getPendingCardStyles = (theme: GrafanaTheme2, detailsMode: LogLineDetailsMode) => ({
   fieldCard: css({
     display: 'block',
     padding: theme.spacing(1),
@@ -137,13 +140,16 @@ const getStyles = (theme: GrafanaTheme2, detailsMode: LogLineDetailsMode) => ({
     textOverflow: 'ellipsis',
     wordBreak: 'break-word',
   }),
-  fieldWrapper: css({
+});
+
+const styles = stylex.create({
+  fieldWrapper: {
     cursor: 'move',
     display: 'flex',
-    gap: theme.spacing(0.5),
+    gap: spacing['--gf-spacing-x0-5'],
     justifyContent: 'space-evenly',
-  }),
-  field: css({
-    flex: 1,
-  }),
+  },
+  field: {
+    flex: '1',
+  },
 });

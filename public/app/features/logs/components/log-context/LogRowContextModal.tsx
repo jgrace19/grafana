@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { partition } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as React from 'react';
@@ -21,7 +22,9 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
-import { Button, Modal, useTheme2 } from '@grafana/ui';
+import { Button, Modal, useStyles2, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SETTINGS_KEYS } from 'app/features/explore/Logs/utils/logs';
 import { splitOpen } from 'app/features/explore/state/main';
 import { useDispatch } from 'app/types/store';
@@ -32,93 +35,7 @@ import { LoadingIndicator } from '../LoadingIndicator';
 import { LogRows } from '../LogRows';
 
 import { LogContextButtons } from './LogContextButtons';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      width: '85vw',
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-      },
-    }),
-    sticky: css({
-      position: 'sticky',
-      zIndex: 1,
-      top: '-1px',
-      bottom: '-1px',
-    }),
-    entry: css({
-      '& > td': {
-        padding: theme.spacing(1, 0, 1, 0),
-      },
-      background: theme.colors.emphasize(theme.colors.background.secondary),
-
-      '& > table': {
-        marginBottom: 0,
-      },
-
-      '& .log-row-menu': {
-        marginTop: '-6px',
-      },
-    }),
-    datasourceUi: css({
-      paddingBottom: theme.spacing(1.25),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    logRowGroups: css({
-      overflow: 'auto',
-      maxHeight: '75%',
-      alignSelf: 'stretch',
-      display: 'inline-block',
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      '& > table': {
-        minWidth: '100%',
-      },
-    }),
-    flexColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(0, 3, 3, 3),
-    }),
-    flexRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      '& > div:last-child': {
-        marginLeft: 'auto',
-      },
-    }),
-    noMarginBottom: css({
-      '& > table': {
-        marginBottom: 0,
-      },
-    }),
-    hidden: css({
-      display: 'none',
-    }),
-    paddingTop: css({
-      paddingTop: theme.spacing(1),
-    }),
-    paddingBottom: css({
-      paddingBottom: theme.spacing(1),
-    }),
-    link: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      ':hover': {
-        color: theme.colors.text.link,
-      },
-    }),
-    loadingCell: css({
-      position: 'sticky',
-      left: '50%',
-      display: 'inline-block',
-      transform: 'translateX(-50%)',
-    }),
-  };
-};
+import './LogRowContextModal.css';
 
 interface LogRowContextModalProps {
   row: LogRowModel;
@@ -219,7 +136,7 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
 
   const dispatch = useDispatch();
   const theme = useTheme2();
-  const styles = getStyles(theme);
+  const modalStyles = useStyles2(getPendingModalStyles);
 
   const [sticky, setSticky] = useState(true);
 
@@ -495,13 +412,13 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
     <Modal
       isOpen={open}
       title={t('logs.log-row-context-modal.title-log-context', 'Log context')}
-      contentClassName={styles.flexColumn}
-      className={styles.modal}
+      contentClassName={modalStyles.flexColumn}
+      className={modalStyles.modal}
       onDismiss={onClose}
     >
-      {getLogRowContextUi && <div className={styles.datasourceUi}>{getLogRowContextUi(row, updateResults)}</div>}
-      <div className={cx(styles.flexRow, styles.paddingBottom)}>
-        <div>
+      {getLogRowContextUi && <div {...stylex.props(styles.datasourceUi)}>{getLogRowContextUi(row, updateResults)}</div>}
+      <div {...stylex.props(styles.flexRow, styles.paddingBottom)}>
+        <div {...stylex.props(styles.flexRowEnd)}>
           <LogContextButtons
             wrapLines={wrapLines}
             onChangeWrapLines={setWrapLines}
@@ -509,11 +426,11 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
           />
         </div>
       </div>
-      <div ref={scrollElement} className={styles.logRowGroups}>
-        <table>
+      <div ref={scrollElement} {...stylex.props(styles.logRowGroups)}>
+        <table {...stylex.props(styles.logRowGroupsTable)}>
           <tbody>
             <tr>
-              <td className={styles.loadingCell}>
+              <td {...stylex.props(styles.loadingCell)}>
                 {loadingStateAbove !== LoadingState.Done && loadingStateAbove !== LoadingState.Error && (
                   <div ref={aboveLoadingElement}>
                     <LoadingIndicator adjective="newer" />
@@ -534,7 +451,7 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr>
-              <td className={styles.noMarginBottom}>
+              <td>
                 <LogRows
                   logRows={context.above.rows}
                   dedupStrategy={LogsDedupStrategy.none}
@@ -553,8 +470,18 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr ref={preEntryElement}></tr>
-            <tr ref={entryElement} className={cx(styles.entry, sticky ? styles.sticky : null)} data-testid="entry-row">
-              <td className={styles.noMarginBottom}>
+            <tr
+              ref={entryElement}
+              {...mergeStylexProps(
+                stylex.props(
+                  styles.entryBackground(theme.colors.emphasize(theme.colors.background.secondary)),
+                  sticky && styles.sticky
+                ),
+                { className: 'gf-logs-context-entry' }
+              )}
+              data-testid="entry-row"
+            >
+              <td {...stylex.props(styles.entryCell)}>
                 <LogRows
                   logRows={[row]}
                   dedupStrategy={LogsDedupStrategy.none}
@@ -598,7 +525,7 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
               </td>
             </tr>
             <tr>
-              <td className={styles.loadingCell}>
+              <td {...stylex.props(styles.loadingCell)}>
                 {loadingStateBelow !== LoadingState.Done && loadingStateBelow !== LoadingState.Error && (
                   <div ref={belowLoadingElement}>
                     <LoadingIndicator adjective="older" />
@@ -659,3 +586,71 @@ export const LogRowContextModal: React.FunctionComponent<LogRowContextModalProps
     </Modal>
   );
 };
+
+// stylex: pending Modal migration
+const getPendingModalStyles = (theme: GrafanaTheme2) => ({
+  modal: css({
+    width: '85vw',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+    },
+  }),
+  flexColumn: css({
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(0, 3, 3, 3),
+  }),
+});
+
+const styles = stylex.create({
+  sticky: {
+    position: 'sticky',
+    zIndex: 1,
+    top: '-1px',
+    bottom: '-1px',
+  },
+  entryBackground: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  entryCell: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+  },
+  datasourceUi: {
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  logRowGroups: {
+    overflow: 'auto',
+    maxHeight: '75%',
+    alignSelf: 'stretch',
+    display: 'inline-block',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  logRowGroupsTable: {
+    minWidth: '100%',
+  },
+  flexRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  flexRowEnd: {
+    marginLeft: 'auto',
+  },
+  paddingBottom: {
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  loadingCell: {
+    position: 'sticky',
+    left: '50%',
+    display: 'inline-block',
+    transform: 'translateX(-50%)',
+  },
+});

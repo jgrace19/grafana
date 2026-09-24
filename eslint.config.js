@@ -128,6 +128,13 @@ const stylexMigratedAppFiles = [
   'public/app/core/navigation/*.{ts,tsx}',
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  // L1 logs (LogLineContext and LogRowContextModal keep pending Emotion Modal overrides)
+  'public/app/features/logs/*.{ts,tsx}',
+  'public/app/features/logs/components/*.{ts,tsx}',
+  'public/app/features/logs/components/{fieldSelector,mocks,otel}/**/*.{ts,tsx}',
+  'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
+  'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
+  'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent, userEvent } from 'test/test-utils';
+import { render, screen, waitFor, fireEvent, userEvent, within } from 'test/test-utils';
 
 import {
   createDataFrame,
@@ -561,9 +561,9 @@ describe('LogRowContextModal', () => {
       />
     );
 
+    // Sticky is a static style jsdom can't see; the sticky entry is the pinned one.
     await waitFor(() => {
-      const rows = screen.getByTestId('entry-row');
-      expect(rows).toHaveStyle('position: sticky');
+      expect(within(screen.getByTestId('entry-row')).getByLabelText('Unpin line')).toBeInTheDocument();
     });
   });
 
@@ -579,15 +579,14 @@ describe('LogRowContextModal', () => {
       />
     );
 
+    // Sticky is a static style jsdom can't see; the sticky entry is the pinned one.
     await waitFor(() => {
-      const rows = screen.getByTestId('entry-row');
-      expect(rows).toHaveStyle('position: sticky');
+      expect(within(screen.getByTestId('entry-row')).getByLabelText('Unpin line')).toBeInTheDocument();
     });
     const unpinButtons = screen.getAllByLabelText('Unpin line')[0];
     fireEvent.click(unpinButtons);
     await waitFor(() => {
-      const rows = screen.getByTestId('entry-row');
-      expect(rows).not.toHaveStyle('position: sticky');
+      expect(within(screen.getByTestId('entry-row')).queryByLabelText('Unpin line')).not.toBeInTheDocument();
     });
   });
 });

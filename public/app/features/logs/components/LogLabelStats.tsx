@@ -1,51 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type LogLabelStatsModel, type GrafanaTheme2 } from '@grafana/data';
+import { type LogLabelStatsModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LogLabelStatsRow } from './LogLabelStatsRow';
 
 const STATS_ROW_LIMIT = 5;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    logsStats: css({
-      label: 'logs-stats',
-      background: 'inherit',
-      color: theme.colors.text.primary,
-      wordBreak: 'break-all',
-      width: 'fit-content',
-      maxWidth: '100%',
-    }),
-    logsStatsHeader: css({
-      label: 'logs-stats__header',
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      display: 'flex',
-    }),
-    logsStatsTitle: css({
-      label: 'logs-stats__title',
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingRight: theme.spacing(2),
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      flexGrow: 1,
-    }),
-    logsStatsClose: css({
-      label: 'logs-stats__close',
-      cursor: 'pointer',
-    }),
-    logsStatsBody: css({
-      label: 'logs-stats__body',
-      padding: '5px 0px',
-    }),
-  };
-};
-
 interface Props {
-  className?: string;
+  /** Replaces the default container styles. */
+  xstyle?: stylex.StyleXStyles;
   stats: LogLabelStatsModel[];
   label: string;
   value: string;
@@ -53,8 +19,7 @@ interface Props {
   isLabel?: boolean;
 }
 
-export const LogLabelStats = ({ className, label, rowCount, stats, value, isLabel }: Props) => {
-  const style = useStyles2(getStyles);
+export const LogLabelStats = ({ xstyle, label, rowCount, stats, value, isLabel }: Props) => {
   const rows = useMemo(() => {
     const topRows = stats.slice(0, STATS_ROW_LIMIT);
     let activeRow = topRows.find((row) => row.value === value);
@@ -75,9 +40,9 @@ export const LogLabelStats = ({ className, label, rowCount, stats, value, isLabe
   const otherProportion = otherCount / total;
 
   return (
-    <div className={className ?? style.logsStats} data-testid="logLabelStats">
-      <div className={style.logsStatsHeader}>
-        <div className={style.logsStatsTitle}>
+    <div {...stylex.props(xstyle ?? styles.logsStats)} data-testid="logLabelStats">
+      <div {...stylex.props(styles.logsStatsHeader)}>
+        <div {...stylex.props(styles.logsStatsTitle)}>
           {isLabel
             ? t(
                 'logs.un-themed-log-label-stats.label-log-stats',
@@ -94,7 +59,7 @@ export const LogLabelStats = ({ className, label, rowCount, stats, value, isLabe
               )}
         </div>
       </div>
-      <div className={style.logsStatsBody}>
+      <div {...stylex.props(styles.logsStatsBody)}>
         {rows.topRows.map((stat) => (
           <LogLabelStatsRow key={stat.value} {...stat} active={stat.value === value} />
         ))}
@@ -108,3 +73,33 @@ export const LogLabelStats = ({ className, label, rowCount, stats, value, isLabe
     </div>
   );
 };
+
+const styles = stylex.create({
+  logsStats: {
+    backgroundColor: 'inherit',
+    color: colors['--gf-colors-text-primary'],
+    wordBreak: 'break-all',
+    width: 'fit-content',
+    maxWidth: '100%',
+  },
+  logsStatsHeader: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+    display: 'flex',
+  },
+  logsStatsTitle: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    flexGrow: 1,
+  },
+  logsStatsBody: {
+    paddingTop: '5px',
+    paddingRight: '0px',
+    paddingBottom: '5px',
+    paddingLeft: '0px',
+  },
+});
