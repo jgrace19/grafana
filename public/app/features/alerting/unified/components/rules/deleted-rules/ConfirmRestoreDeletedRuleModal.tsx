@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps } from 'react';
 
@@ -22,6 +20,7 @@ import { stringifyErrorLike } from '../../../utils/misc';
 import { grafanaRuleDtoToFormValues } from '../../../utils/rule-form';
 import { rulerRuleType } from '../../../utils/rules';
 import { createRelativeUrl } from '../../../utils/url';
+import './DeletedRuleModal.css';
 
 type ModalProps = Pick<ComponentProps<typeof ConfirmModal>, 'isOpen' | 'onDismiss'> & {
   isOpen: boolean;
@@ -73,7 +72,7 @@ export const ConfirmRestoreDeletedRuleModal = ({
       isOpen={isOpen}
       title={title}
       confirmText={confirmText}
-      modalClass={pendingEmotionStyles.modal}
+      modalClass="gf-alerting-deleted-rule-modal"
       confirmButtonVariant={!error ? 'destructive' : 'primary'}
       body={
         <Stack direction="column" gap={2}>
@@ -121,13 +120,6 @@ function RulePreview({ rule }: { rule: RulerRuleDTO }) {
     </div>
   );
 }
-
-// stylex: pending Modal migration
-const pendingEmotionStyles = {
-  modal: css({
-    width: '700px',
-  }),
-};
 
 const styles = stylex.create({
   content: {
