@@ -1,5 +1,5 @@
-import { css, cx } from '@emotion/css';
 import { type StoryFn, type Meta } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 import tinycolor from 'tinycolor2';
 
 import { InlineList } from './InlineList';
@@ -42,21 +42,11 @@ const getItem = (inline = false) => {
   const rawRenderer = (item: ReturnType<typeof generateListItems>[0]) => <>{item.name}</>;
   const customRenderer = (item: ReturnType<typeof generateListItems>[0], index: number) => (
     <div
-      className={cx([
-        css({
-          color: 'white',
-          fontWeight: 'bold',
-          background: tinycolor.fromRatio({ h: index / 26, s: 1, v: 1 }).toHexString(),
-          padding: '10px',
-        }),
-        inline
-          ? css({
-              marginRight: '20px',
-            })
-          : css({
-              marginBottom: '20px',
-            }),
-      ])}
+      {...stylex.props(
+        styles.item,
+        styles.background(tinycolor.fromRatio({ h: index / 26, s: 1, v: 1 }).toHexString()),
+        inline ? styles.inline : styles.block
+      )}
     >
       {item.name}
     </div>
@@ -87,3 +77,21 @@ export const inline: StoryFn = (args) => {
     />
   );
 };
+
+const styles = stylex.create({
+  item: {
+    color: 'white',
+    fontWeight: 'bold',
+    paddingTop: '10px',
+    paddingRight: '10px',
+    paddingBottom: '10px',
+    paddingLeft: '10px',
+  },
+  background: (backgroundColor: string) => ({ backgroundColor }),
+  inline: {
+    marginRight: '20px',
+  },
+  block: {
+    marginBottom: '20px',
+  },
+});

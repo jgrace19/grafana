@@ -103,6 +103,10 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
   // U1 primitives
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
+  // U6 data
+  'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  // U3 pickers
+  'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX, appended per slice like stylexMigratedUiFiles.

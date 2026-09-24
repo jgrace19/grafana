@@ -1,22 +1,18 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import './Segment.css';
 
-export const getSegmentStyles = (theme: GrafanaTheme2) => {
-  return {
-    segment: css({
-      cursor: 'pointer',
-      width: 'auto',
-    }),
+export const segmentStyles = stylex.create({
+  segment: {
+    cursor: 'pointer',
+  },
 
-    queryPlaceholder: css({
-      color: theme.colors.text.disabled,
-    }),
+  disabled: {
+    cursor: 'not-allowed',
+    opacity: 0.65,
+    boxShadow: 'none',
+  },
+});
 
-    disabled: css({
-      cursor: 'not-allowed',
-      opacity: 0.65,
-      boxShadow: 'none',
-    }),
-  };
-};
+/** Recolours InlineLabel, which sets its own colour: see Segment.css. */
+export const SEGMENT_PLACEHOLDER_CLASS = 'gf-segment-placeholder';

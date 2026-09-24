@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { bp } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 
 export interface CallToActionCardProps {
   message?: string | JSX.Element;
@@ -18,37 +18,34 @@ export interface CallToActionCardProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-deprecated-calltoactioncard--docs
  */
 export const CallToActionCard = ({ message, callToActionElement, footer, className }: CallToActionCardProps) => {
-  const css = useStyles2(getStyles);
-
   return (
-    <div className={cx([css.wrapper, className])}>
-      {message && <div className={css.message}>{message}</div>}
+    <div {...mergeStylexProps(stylex.props(styles.wrapper), { className })}>
+      {message && <div {...stylex.props(styles.message)}>{message}</div>}
       {callToActionElement}
-      {footer && <div className={css.footer}>{footer}</div>}
+      {footer && <div {...stylex.props(styles.footer)}>{footer}</div>}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    label: 'call-to-action-card',
-    background: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
+const styles = stylex.create({
+  wrapper: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
-    padding: theme.spacing(3),
-    [theme.breakpoints.down('sm')]: {
-      padding: theme.spacing(3, 1),
-    },
-  }),
-  message: css({
-    marginBottom: theme.spacing(3),
+    paddingTop: spacing['--gf-spacing-x3'],
+    paddingBottom: spacing['--gf-spacing-x3'],
+    paddingLeft: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: { default: spacing['--gf-spacing-x3'], [bp.smDown]: spacing['--gf-spacing-x1'] },
+  },
+  message: {
+    marginBottom: spacing['--gf-spacing-x3'],
     fontStyle: 'italic',
-  }),
-  footer: css({
-    marginTop: theme.spacing(3),
-  }),
+  },
+  footer: {
+    marginTop: spacing['--gf-spacing-x3'],
+  },
 });

@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { InlineFieldRow } from '../Forms/InlineFieldRow';
 import { InlineLabel } from '../Forms/InlineLabel';
+
+import './Segment.css';
 
 /**
  * Horizontal section for editor components.
@@ -27,16 +27,15 @@ export const SegmentSection = ({
   // Fill the space at the end
   fill?: boolean;
 }) => {
-  const styles = useStyles2(getStyles);
   return (
     <>
       <InlineFieldRow>
-        <InlineLabel htmlFor={htmlFor} width={12} className={styles.label}>
+        <InlineLabel htmlFor={htmlFor} width={12} className="gf-segment-section-label">
           {label}
         </InlineLabel>
         {children}
         {fill && (
-          <div className={styles.fill}>
+          <div {...stylex.props(styles.fill)}>
             <InlineLabel>{''}</InlineLabel>
           </div>
         )}
@@ -45,12 +44,9 @@ export const SegmentSection = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  label: css({
-    color: theme.colors.primary.text,
-  }),
-  fill: css({
+const styles = stylex.create({
+  fill: {
     flexGrow: 1,
-    marginBottom: theme.spacing(0.5),
-  }),
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
 });
