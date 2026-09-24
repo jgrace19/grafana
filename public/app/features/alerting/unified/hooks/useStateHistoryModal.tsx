@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Modal, useStyles2 } from '@grafana/ui';
+import { Modal } from '@grafana/ui';
 import { type RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
+
+import './useStateHistoryModal.css';
 
 const AnnotationsStateHistory = lazy(() => import('../components/rules/state-history/StateHistory'));
 const LokiStateHistory = lazy(() => import('../components/rules/state-history/LokiStateHistory'));
@@ -18,8 +18,6 @@ export enum StateHistoryImplementation {
 function useStateHistoryModal() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [rule, setRule] = useState<RulerGrafanaRuleDTO | undefined>();
-
-  const styles = useStyles2(getStyles);
 
   // can be "loki", "multiple" or "annotations"
   const stateHistoryBackend = config.unifiedAlerting.stateHistory?.backend;
@@ -56,8 +54,8 @@ function useStateHistoryModal() {
         closeOnBackdropClick={true}
         closeOnEscape={true}
         title={t('alerting.use-state-history-modal.state-history-modal.title-state-history', 'State history')}
-        className={styles.modal}
-        contentClassName={styles.modalContent}
+        className="gf-state-history-modal"
+        contentClassName="gf-state-history-modal-content"
       >
         <Suspense fallback={'Loading...'}>
           {implementation === StateHistoryImplementation.Loki && <LokiStateHistory ruleUID={rule.grafana_alert.uid} />}
@@ -67,7 +65,7 @@ function useStateHistoryModal() {
         </Suspense>
       </Modal>
     );
-  }, [rule, showModal, dismissModal, implementation, styles]);
+  }, [rule, showModal, dismissModal, implementation]);
 
   return {
     StateHistoryModal,
@@ -75,18 +73,5 @@ function useStateHistoryModal() {
     hideStateHistoryModal: dismissModal,
   };
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '80%',
-    height: '80%',
-    minWidth: '800px',
-  }),
-  modalContent: css({
-    height: '100%',
-    width: '100%',
-    padding: theme.spacing(2),
-  }),
-});
 
 export { useStateHistoryModal };

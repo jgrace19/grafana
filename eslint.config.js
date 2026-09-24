@@ -105,6 +105,15 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
 ];
 
+// public/app files migrated to StyleX, appended per slice like stylexMigratedUiFiles.
+const stylexMigratedAppFiles = [
+  // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
+  'public/app/features/alerting/*.{ts,tsx}',
+  'public/app/features/alerting/state/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/*.{ts,tsx}',
+  'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
+];
+
 const stylexRestrictedImports = {
   patterns: [
     {
@@ -715,6 +724,27 @@ module.exports = [
             {
               group: ['@grafana/runtime'],
               message: "'@grafana/runtime' should not be imported from library packages",
+            },
+            ...stylexRestrictedImports.patterns,
+          ],
+          paths: stylexRestrictedImports.paths,
+        }),
+      ],
+    },
+  },
+
+  {
+    // Must come after grafana/no-extensions-imports, whose restrictions it repeats.
+    name: 'grafana/stylex-migrated-app',
+    files: stylexMigratedAppFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            {
+              group: ['app/extensions', 'app/extensions/*'],
+              message: 'Importing from app/extensions is not allowed',
             },
             ...stylexRestrictedImports.patterns,
           ],

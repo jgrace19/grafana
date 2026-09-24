@@ -1,0 +1,15 @@
+/*
+ * Modal is still styled with Emotion, whose rules are injected after this sheet. Repeating the class beats
+ * Modal's own width and padding, as the Emotion override merged into Modal's class did.
+ */
+.gf-state-history-modal.gf-state-history-modal {
+  width: 80%;
+  height: 80%;
+  min-width: 800px;
+}
+
+.gf-state-history-modal-content.gf-state-history-modal-content {
+  height: 100%;
+  width: 100%;
+  padding: var(--gf-spacing-x2);
+}
