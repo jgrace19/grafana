@@ -9,8 +9,6 @@ import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.st
 import { LayerName } from './LayerName';
 import { type LayerElement } from './types';
 
-import './LayerDragDropList.css';
-
 export const DATA_TEST_ID = 'layer-drag-drop-list';
 
 export type LayerDragDropListProps<T extends LayerElement> = {
@@ -86,7 +84,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                               <IconButton
                                 name="copy"
                                 tooltip={t('layers.layer-drag-drop-list.duplicate-tooltip', 'Duplicate')}
-                                className="gf-layer-action-icon"
+                                xstyle={styles.actionIcon}
                                 onClick={() => onDuplicate(element)}
                               />
                             ) : null}
@@ -94,7 +92,7 @@ export const LayerDragDropList = <T extends LayerElement>({
                             <IconButton
                               name="trash-alt"
                               tooltip={t('layers.layer-drag-drop-list.remove-tooltip', 'Remove')}
-                              className="gf-layer-action-icon"
+                              xstyle={styles.actionIcon}
                               onClick={() => onDelete(element)}
                             />
                           </>
@@ -127,6 +125,9 @@ export const LayerDragDropList = <T extends LayerElement>({
 };
 
 const styles = stylex.create({
+  actionIcon: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+  },
   row: {
     paddingTop: spacing['--gf-spacing-x0-5'],
     paddingRight: spacing['--gf-spacing-x1'],

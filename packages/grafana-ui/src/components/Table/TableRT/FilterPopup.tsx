@@ -75,7 +75,7 @@ export const FilterPopup = ({
         <Stack direction="column" gap={3}>
           <Stack direction="column" gap={0.5}>
             <Stack justifyContent="space-between" alignItems="center">
-              <Label className="gf-table-rt-filter-label">
+              <Label xstyle={styles.label}>
                 <Trans i18nKey="grafana-ui.table.filter-popup-heading">Filter by values:</Trans>
               </Label>
               <IconButton
@@ -126,8 +126,10 @@ export const FilterPopup = ({
   );
 };
 
-// The Label margin override is in TableRT.css.
 const styles = stylex.create({
+  label: {
+    marginBottom: 0,
+  },
   filterContainer: {
     width: '100%',
     minWidth: '250px',

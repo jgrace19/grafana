@@ -10,8 +10,3 @@
 .gf-table-rt-pagination li {
   margin-bottom: 0;
 }
-
-/* FilterPopup's Label (Forms). Doubled while Label is still Emotion: its rule is inserted after this sheet. */
-.gf-table-rt-filter-label.gf-table-rt-filter-label {
-  margin-bottom: 0;
-}

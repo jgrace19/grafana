@@ -137,9 +137,7 @@ export const FilterPopup = memo(
         ref={containerRef}
       >
         <Stack direction="column">
-          <Stack alignItems="center">
-            {field && <Label className="gf-table-ng-filter-label">{getDisplayName(field)}</Label>}
-          </Stack>
+          <Stack alignItems="center">{field && <Label xstyle={styles.label}>{getDisplayName(field)}</Label>}</Stack>
 
           <Stack gap={1}>
             <div {...stylex.props(styles.inputContainer)}>
@@ -151,7 +149,7 @@ export const FilterPopup = memo(
                 value={searchFilter}
                 suffix={
                   <ButtonSelect
-                    className="gf-table-ng-filter-operator"
+                    xstyle={styles.operator}
                     options={operators}
                     onChange={setOperator}
                     value={operator}
@@ -220,6 +218,24 @@ const styles = stylex.create({
   inputContainer: {
     width: 300,
   },
+  label: {
+    marginBottom: 0,
+  },
+  // Over ButtonSelect's ToolbarButton, in every interaction state.
+  operator: {
+    fontSize: '12px',
+    color: {
+      default: colors['--gf-colors-text-secondary'],
+      ':hover': colors['--gf-colors-text-primary'],
+      ':focus': colors['--gf-colors-text-primary'],
+      ':active': colors['--gf-colors-text-primary'],
+    },
+    backgroundColor: {
+      default: 'transparent',
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': 'transparent',
+      ':focus': 'transparent',
+      ':active': 'transparent',
+    },
+  },
 });
-
-// The Label and ButtonSelect overrides are in TableNG.css.

@@ -29,14 +29,11 @@ public/app/features/plugins/admin/mocks/catalogPlugin.mock.ts # false positive: 
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.LoginBoxBackground() returns a class name, and BrandingSettings.loginBoxBackground overrides it with one
-public/app/core/components/Login/LoginLayout.tsx # C1: still exports the Emotion getLoginStyles for PublicDashboardNotAvailable (D3); LoginLayout itself is StyleX
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
 
 public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
-# D3 dashboard: className overrides that must keep Emotion's cascade until the child migrates (conventions §3.9)
-public/app/features/dashboard/components/PublicDashboardNotAvailable/PublicDashboardNotAvailable.tsx # stylex: pending core Branding/LoginLayout migration (LoginBackground :before override, getLoginStyles)
 # M1 datasources, connections, correlations
 packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx # benchmark of Emotion patterns (sandbox Benchmarks page); Emotion is what it measures
 # M1 library-panels, inspector, panel, query

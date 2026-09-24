@@ -23,6 +23,7 @@ export function SegmentInput({
   onChange,
   Component,
   className,
+  xstyle,
   placeholder,
   inputPlaceholder,
   disabled,
@@ -52,6 +53,7 @@ export function SegmentInput({
                 segmentStyles.segment,
                 disabled && segmentStyles.disabled,
                 placeholder !== undefined && !value && segmentStyles.placeholder,
+                xstyle,
               ]}
             >
               {initialValue || placeholder}

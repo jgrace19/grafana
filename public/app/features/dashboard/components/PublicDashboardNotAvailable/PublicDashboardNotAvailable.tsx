@@ -1,28 +1,26 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending core Branding/LoginLayout migration (see container)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-// eslint-disable-next-line no-restricted-imports -- stylex: pending core LoginLayout migration (getLoginStyles is Emotion)
-import { useStyles2 } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Branding } from '../../../../core/components/Branding/Branding';
-import { getLoginStyles } from '../../../../core/components/Login/LoginLayout';
 
 const selectors = e2eSelectors.pages.PublicDashboard.NotAvailable;
 
 export const PublicDashboardNotAvailable = ({ paused }: { paused?: boolean }) => {
-  const loginStyles = useStyles2(getLoginStyles);
-
   const loginBoxBackground = Branding.LoginBoxBackground();
 
   return (
-    <Branding.LoginBackground className={container} data-testid={selectors.container}>
+    <Branding.LoginBackground
+      // `gf-login-anim` shows LoginBackground's image straight away.
+      className={`${stylex.props(styles.container).className} gf-login-anim`}
+      data-testid={selectors.container}
+    >
       <div {...mergeStylexProps(stylex.props(styles.box), { className: loginBoxBackground })}>
-        <Branding.LoginLogo className={loginStyles.loginLogo} />
+        <Branding.LoginLogo className={stylex.props(styles.loginLogo).className} />
         <p {...stylex.props(styles.title)} data-testid={selectors.title}>
           {paused
             ? t(
@@ -44,19 +42,18 @@ export const PublicDashboardNotAvailable = ({ paused }: { paused?: boolean }) =>
   );
 };
 
-// stylex: pending core Branding migration. LoginBackground's own Emotion `:before` opacity would beat StyleX.
-const container = css({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100%',
-
-  ':before': {
-    opacity: 1,
-  },
-});
-
 const styles = stylex.create({
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
+  loginLogo: {
+    width: '100%',
+    maxWidth: { default: 60, [bp.smUp]: 100 },
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
   box: {
     width: '608px',
     display: 'flex',

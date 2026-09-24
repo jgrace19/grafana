@@ -27,6 +27,7 @@ export function Segment<T>({
   onChange,
   Component,
   className,
+  xstyle,
   allowCustomValue,
   allowEmptyValue,
   placeholder,
@@ -55,6 +56,7 @@ export function Segment<T>({
                 segmentStyles.segment,
                 disabled && segmentStyles.disabled,
                 placeholder !== undefined && !value && segmentStyles.placeholder,
+                xstyle,
               ]}
             >
               {label || placeholder}
