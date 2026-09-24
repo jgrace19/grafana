@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 import Highlighter from 'react-highlight-words';
 
@@ -7,12 +7,12 @@ import {
   type FieldConfigOptionsRegistry,
   FieldConfigProperty,
   type FieldOverrideContext,
-  type GrafanaTheme2,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Counter, Field, Stack, IconButton, Label, useStyles2 } from '@grafana/ui';
+import { Counter, Field, Stack, IconButton, Label } from '@grafana/ui';
 
 import { OptionsPaneCategory } from './OptionsPaneCategory';
+import './DynamicConfigValueEditor.css';
 
 interface DynamicConfigValueEditorProps {
   property: DynamicConfigValue;
@@ -33,8 +33,6 @@ export const DynamicConfigValueEditor = ({
   isSystemOverride,
   searchQuery,
 }: DynamicConfigValueEditorProps) => {
-  const styles = useStyles2(getStyles);
-
   const item = registry?.getIfExists(property.id);
 
   const componentId = useId();
@@ -92,10 +90,7 @@ export const DynamicConfigValueEditor = ({
       <OptionsPaneCategory
         id={item.name}
         renderTitle={renderLabel(false, true)}
-        className={css({
-          paddingLeft: 0,
-          paddingRight: 0,
-        })}
+        xstyle={styles.collapsibleCategory}
         isNested
         isOpenDefault={property.value !== undefined}
       >
@@ -129,21 +124,18 @@ export const DynamicConfigValueEditor = ({
 
   return (
     <div
-      className={cx(
-        isCollapsible && styles.collapsibleOverrideEditor,
-        !isCollapsible && 'dynamicConfigValueEditor--nonCollapsible'
-      )}
+      className={
+        isCollapsible ? 'gf-dynamic-config-value-editor--collapsible' : 'dynamicConfigValueEditor--nonCollapsible'
+      }
     >
       {editor}
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapsibleOverrideEditor: css({
-    label: 'collapsibleOverrideEditor',
-    '& + .dynamicConfigValueEditor--nonCollapsible': {
-      marginTop: theme.spacing(1),
-    },
-  }),
+const styles = stylex.create({
+  collapsibleCategory: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 });

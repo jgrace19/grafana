@@ -1,12 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import * as React from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Button, Counter, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Counter, Icon, Tooltip, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 import { PANEL_EDITOR_UI_STATE_STORAGE_KEY } from './state/reducers';
@@ -19,6 +21,8 @@ export interface OptionsPaneCategoryProps {
   itemsCount?: number;
   forceOpen?: boolean;
   className?: string;
+  /** StyleX overrides for the category box, applied after its own styles */
+  xstyle?: StyleXStyles;
   isNested?: boolean;
   children: ReactNode;
   sandboxId?: string;
@@ -39,6 +43,7 @@ export const OptionsPaneCategory = React.memo(
     isOpenDefault = true,
     renderTitle,
     className,
+    xstyle,
     itemsCount,
     isNested = false,
     sandboxId,
@@ -84,23 +89,18 @@ export const OptionsPaneCategory = React.memo(
       };
     }
 
-    const styles = useStyles2(getStyles);
-    const boxStyles = cx(
-      {
-        [styles.box]: true,
-        [styles.boxNestedExpanded]: isNested && isExpanded,
-      },
-      className
+    const theme = useTheme2();
+    const boxProps = mergeStylexProps(
+      stylex.props(styles.box, isNested && isExpanded && styles.boxNestedExpanded, xstyle),
+      { className }
     );
-
-    const headerStyles = cx(styles.header, {
-      [styles.headerExpanded]: isExpanded,
-      [styles.headerNested]: isNested,
-    });
-
-    const bodyStyles = cx(styles.body, {
-      [styles.bodyNested]: isNested,
-    });
+    const headerProps = stylex.props(
+      styles.header,
+      styles.headerHover(theme.colors.emphasize(theme.colors.background.primary, 0.03)),
+      isExpanded && styles.headerExpanded,
+      isNested && styles.headerNested
+    );
+    const bodyProps = stylex.props(styles.body, isNested && styles.bodyNested);
 
     /**
      * Disabled categories just show the disabled header and icon
@@ -108,17 +108,17 @@ export const OptionsPaneCategory = React.memo(
     if (disabledText) {
       return (
         <div
-          className={boxStyles}
+          {...boxProps}
           data-plugin-sandbox={sandboxId}
           data-testid={selectors.components.OptionsGroup.group(id)}
           ref={ref}
         >
           <Tooltip interactive={!(typeof disabledText === 'string')} content={disabledText}>
-            <div className={headerStyles}>
-              <h6 id={`button-${id}`} className={cx(styles.title, styles.titleDisabled)}>
+            <div {...headerProps}>
+              <h6 id={`button-${id}`} {...stylex.props(styles.title, styles.titleDisabled)}>
                 {renderTitle(isExpanded)}
               </h6>
-              <Icon size="sm" name="ban" className={styles.disabledIcon} />
+              <Icon size="sm" name="ban" xstyle={styles.disabledIcon} />
             </div>
           </Tooltip>
         </div>
@@ -127,7 +127,7 @@ export const OptionsPaneCategory = React.memo(
 
     return (
       <div
-        className={boxStyles}
+        {...boxProps}
         data-plugin-sandbox={sandboxId}
         data-testid={selectors.components.OptionsGroup.group(id)}
         ref={ref}
@@ -135,8 +135,8 @@ export const OptionsPaneCategory = React.memo(
         {/* disabling a11y rules here because there's a Button that handles keyboard interaction */}
         {/* this just provides a better experience for mouse users */}
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-        <div className={headerStyles} onClick={onToggle}>
-          <h6 id={`button-${id}`} className={cx(styles.title, isExpanded && styles.titleExpanded)}>
+        <div {...headerProps} onClick={onToggle}>
+          <h6 id={`button-${id}`} {...stylex.props(styles.title, isExpanded && styles.titleExpanded)}>
             {renderTitle(isExpanded)}
           </h6>
           <Button
@@ -151,13 +151,13 @@ export const OptionsPaneCategory = React.memo(
             size="md"
             variant="secondary"
             aria-expanded={isExpanded}
-            className={styles.toggleButton}
+            className={stylex.props(styles.toggleButton).className}
             icon={isExpanded ? 'angle-up' : 'angle-down'}
             onClick={onToggle}
           />
         </div>
         {isExpanded && (
-          <div className={bodyStyles} id={id} aria-labelledby={`button-${id}`}>
+          <div {...bodyProps} id={id} aria-labelledby={`button-${id}`}>
             {children}
           </div>
         )}
@@ -167,70 +167,83 @@ export const OptionsPaneCategory = React.memo(
 );
 OptionsPaneCategory.displayName = 'OptionsPaneCategory';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  box: css({
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-  }),
-  boxNestedExpanded: css({
-    marginBottom: theme.spacing(2),
-  }),
-  title: css({
+const styles = stylex.create({
+  box: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+  },
+  boxNestedExpanded: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  title: {
     flexGrow: 1,
     overflow: 'hidden',
     lineHeight: 1.5,
     fontSize: '1rem',
-    fontWeight: theme.typography.fontWeightMedium,
+    fontWeight: typography['--gf-typography-font-weight-medium'],
     margin: 0,
-    color: theme.colors.text.secondary,
-  }),
-  titleExpanded: css({
-    color: theme.colors.text.primary,
-  }),
-  header: css({
+    color: colors['--gf-colors-text-secondary'],
+  },
+  titleExpanded: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  header: {
     display: 'flex',
     alignItems: 'center',
-    padding: theme.spacing(0.5, 1.5),
-    color: theme.colors.text.primary,
-    fontWeight: theme.typography.fontWeightMedium,
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    color: colors['--gf-colors-text-primary'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
     cursor: 'pointer',
-    '&:hover': {
-      background: theme.colors.emphasize(theme.colors.background.primary, 0.03),
-    },
+  },
+  headerHover: (hoverBackground: string) => ({
+    backgroundColor: { default: null, ':hover': hoverBackground },
   }),
-  toggleButton: css({
+  toggleButton: {
     alignSelf: 'baseline',
-  }),
-  headerExpanded: css({
-    color: theme.colors.text.primary,
-  }),
-  headerNested: css({
-    padding: theme.spacing(0.5, 0, 0.5, 0),
-  }),
-  body: css({
-    padding: theme.spacing(1, 2, 1, 2),
-  }),
-  titleDisabled: css({
-    color: theme.colors.text.disabled,
+  },
+  headerExpanded: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  headerNested: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+  },
+  body: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  titleDisabled: {
+    color: colors['--gf-colors-text-disabled'],
     cursor: 'not-allowed',
-  }),
-  disabledIcon: css({
-    color: theme.colors.text.disabled,
-    margin: theme.spacing(1, 1, 1, 0),
-  }),
-  bodyNested: css({
+  },
+  disabledIcon: {
+    color: colors['--gf-colors-text-disabled'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
+  bodyNested: {
     position: 'relative',
     paddingRight: 0,
-
-    '&:before': {
+    '::before': {
       content: "''",
       position: 'absolute',
       top: 0,
       left: '1px',
       width: '1px',
       height: '100%',
-      background: theme.colors.border.weak,
+      backgroundColor: colors['--gf-colors-border-weak'],
     },
-  }),
+  },
 });
 
 const getOptionGroupStorageKey = (id: string) => `${PANEL_EDITOR_UI_STATE_STORAGE_KEY}.optionGroup[${id}]`;

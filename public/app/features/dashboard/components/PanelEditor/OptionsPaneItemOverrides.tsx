@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Tooltip, useStyles2 } from '@grafana/ui';
+import { Tooltip } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type OptionPaneItemOverrideInfo } from './types';
 
@@ -10,14 +10,12 @@ export interface Props {
 }
 
 export function OptionsPaneItemOverrides({ overrides }: Props) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       {overrides.map((override, index) => (
         <Tooltip content={override.tooltip} key={index.toString()} placement="top">
           <div>
-            <div aria-hidden="true" className={styles[override.type]} />
+            <div aria-hidden="true" {...stylex.props(styles.common, typeStyles[override.type])} />
             <span className="sr-only">{override.description}</span>
           </div>
         </Tooltip>
@@ -26,28 +24,25 @@ export function OptionsPaneItemOverrides({ overrides }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const common = {
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+  },
+  common: {
     width: 8,
     height: 8,
-    borderRadius: theme.shape.radius.circle,
-    marginLeft: theme.spacing(1),
+    borderRadius: shape['--gf-shape-radius-circle'],
+    marginLeft: spacing['--gf-spacing-x1'],
     top: '-1px',
-  };
+    position: 'relative',
+  },
+});
 
-  return {
-    wrapper: css({
-      display: 'flex',
-    }),
-    rule: css({
-      ...common,
-      position: 'relative',
-      backgroundColor: theme.colors.primary.main,
-    }),
-    data: css({
-      ...common,
-      position: 'relative',
-      backgroundColor: theme.colors.warning.main,
-    }),
-  };
-};
+const typeStyles = stylex.create({
+  rule: {
+    backgroundColor: colors['--gf-colors-primary-main'],
+  },
+  data: {
+    backgroundColor: colors['--gf-colors-warning-main'],
+  },
+});

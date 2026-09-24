@@ -1,15 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ButtonHTMLAttributes } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
 export const ListNewButton = ({ children, ...restProps }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.buttonWrapper}>
+    <div {...stylex.props(styles.buttonWrapper)}>
       <Button icon="plus" {...restProps}>
         {children}
       </Button>
@@ -17,8 +16,11 @@ export const ListNewButton = ({ children, ...restProps }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonWrapper: css({
-    padding: `${theme.spacing(3)} 0`,
-  }),
+const styles = stylex.create({
+  buttonWrapper: {
+    paddingTop: spacing['--gf-spacing-x3'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x3'],
+    paddingLeft: 0,
+  },
 });
