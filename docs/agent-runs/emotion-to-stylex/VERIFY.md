@@ -492,3 +492,89 @@ and the StyleX build in dark and light and compared with the same property set a
 
 - **Result:** `compared 1104 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-divider.json`).
 - **Screenshots:** `layout-divider--{basic,examples}-{dark,light}-{baseline,stylex-divider}.png`.
+
+## Definition of Done — full cohort (Tags, Badge, Divider)
+
+- Date (UTC): 2026-09-24T03:00:02Z
+- Base commit: `172caf5ac2` plus working tree
+- Paths: `packages/grafana-ui/src/components/Tags` `packages/grafana-ui/src/components/Badge` `packages/grafana-ui/src/components/Divider`
+
+### Residual Emotion imports: PASS
+
+```sh
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} packages/grafana-ui/src/components/Tags packages/grafana-ui/src/components/Badge packages/grafana-ui/src/components/Divider
+```
+
+Exit code: 1 (pass = 1)
+
+```text
+
+```
+
+### Unit tests: PASS
+
+```sh
+yarn jest --no-watch packages/grafana-ui/src/components/Tags packages/grafana-ui/src/components/Badge packages/grafana-ui/src/components/Divider
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+PASS packages/grafana-ui/src/components/TagsInput/TagsInput.test.tsx
+PASS packages/grafana-ui/src/components/Badge/Badge.test.tsx
+PASS packages/grafana-ui/src/components/Tags/Tag.test.tsx
+PASS packages/grafana-ui/src/components/Divider/Divider.test.tsx
+PASS packages/grafana-ui/src/components/Tags/TagList.test.tsx
+
+Test Suites: 5 passed, 5 total
+Tests:       50 passed, 50 total
+Snapshots:   0 total
+Time:        3.004 s
+Ran all test suites matching /packages\/grafana-ui\/src\/components\/Tags|packages\/grafana-ui\/src\/components\/Badge|packages\/grafana-ui\/src\/components\/Divider/i.
+```
+
+### @grafana/ui typecheck: PASS
+
+```sh
+yarn workspace @grafana/ui typecheck
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+
+```
+
+### ESLint: PASS
+
+```sh
+yarn eslint --cache packages/grafana-ui/src/components/Tags packages/grafana-ui/src/components/Badge packages/grafana-ui/src/components/Divider
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+[@stylistic/eslint-plugin-ts] This package is deprecated in favor of the unified @stylistic/eslint-plugin, please consider migrating to the main package
+```
+
+## Regression and local CI reproduction
+
+These checks cover code outside the lane paths that the foundation or cohort could affect.
+
+- **Consumers of Tag, TagList, Badge, and Divider:** `yarn jest --no-watch` over the 34 colocated tests of source files
+  that import them (alerting, dashboards, plugins admin, provisioning, command palette, and others): 34 suites, 278 tests
+  passed.
+- **All of `@grafana/ui`:** `yarn jest --no-watch packages/grafana-ui`: 151 suites, 1588 tests passed, 59 snapshots
+  unchanged.
+- **Decoupled plugin Jest (`@swc/jest` wrapper):** Loki `configuration/ConfigEditor.test.tsx` and
+  `components/LokiQueryEditor.test.tsx`: 22 tests passed. With plain `@swc/jest` the same suite fails at import with
+  `Unexpected 'stylex.defineVars' call at runtime`, which confirms the wrapper is required.
+- **App webpack:** `NODE_ENV=dev yarn webpack --config scripts/webpack/webpack.dev.js --env noTsCheck=1 --env noLint=1`:
+  `compiled successfully`, exit 0.
+- **Package build:** `yarn workspace @grafana/ui build`: exit 0. `dist/esm/components/{Badge,Tags,Divider}` import
+  `themes/stylex/inject.mjs` and contain no `stylex.create` or `stylex.defineVars` calls.
+- **Root typecheck:** `yarn tsc --noEmit`: exit 0.
+- **ESLint over all `@grafana/ui` sources (StyleX rules enabled):** `yarn eslint --cache packages/grafana-ui/src`: exit 0.
+- **Lockfile:** `yarn install --immutable --check-cache`: exit 0.
+- **Prettier:** `yarn prettier:check` reports 8 files that are already unformatted on the base branch and are not touched
+  by this PR, plus the gitignored Storybook `mockServiceWorker.js`. Every file changed by this PR is formatted.
