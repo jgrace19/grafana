@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 
-import { isTableCellStylesKeyEqual } from '../styles';
 import { type DataLinksCellProps, type TableCellStyles } from '../types';
-import { getCellLinks, getJustifyContent } from '../utils';
+import { getCellLinks } from '../utils';
 
 export const DataLinksCell = ({ field, rowIdx }: DataLinksCellProps) => {
   const links = getCellLinks(field, rowIdx);
@@ -19,28 +18,22 @@ export const DataLinksCell = ({ field, rowIdx }: DataLinksCellProps) => {
   ));
 };
 
-export const getStyles: TableCellStyles = memoize(
-  (theme, { textWrap, textAlign }) =>
-    css({
-      ...(textWrap && {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: `${getJustifyContent(textAlign)} !important`, // we can't guarantee order, and alignItems is set on a sibling class.
-      }),
-      '> a': {
-        flexWrap: 'nowrap',
-        ...(!textWrap && {
-          paddingInline: theme.spacing(0.5),
-          borderRight: `2px solid ${theme.colors.border.medium}`,
-          '&:first-child': {
-            paddingInlineStart: 0,
-          },
-          '&:last-child': {
-            paddingInlineEnd: 0,
-            borderRight: 'none',
-          },
-        }),
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+// The link rules (`> a`) are in TableNG.css.
+export const getStyles: TableCellStyles = (_theme, { textWrap, textAlign }) => ({
+  xstyle: textWrap && [styles.wrap, alignItemsStyles[textAlign]],
+  className: clsx('gf-table-ng-data-links', !textWrap && 'gf-table-ng-data-links-inline'),
+});
+
+const styles = stylex.create({
+  wrap: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+});
+
+// Applied after the default and max-height cell styles, so it no longer needs Emotion's `!important`.
+const alignItemsStyles = stylex.create({
+  left: { alignItems: 'flex-start' },
+  right: { alignItems: 'flex-end' },
+  center: { alignItems: 'center' },
+});

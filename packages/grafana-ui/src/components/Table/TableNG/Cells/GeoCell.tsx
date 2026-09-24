@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import WKT from 'ol/format/WKT';
 import { Geometry } from 'ol/geom';
 
@@ -19,11 +19,13 @@ export function GeoCell({ value }: GeoCellProps) {
   return disp;
 }
 
-const styles = css({
-  fontFamily: 'monospace',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-});
+export const getStyles: TableCellStyles = () => ({ xstyle: styles.geo });
 
-export const getStyles: TableCellStyles = () => styles;
+const styles = stylex.create({
+  geo: {
+    fontFamily: 'monospace',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+});

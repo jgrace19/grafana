@@ -105,8 +105,7 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Table/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
