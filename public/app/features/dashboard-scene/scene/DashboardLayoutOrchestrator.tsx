@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import {
   sceneGraph,
@@ -13,7 +12,8 @@ import {
   VizPanel,
   type SceneGridItemLike,
 } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
 
 import { dashboardEditActions, DashboardStateChangedEvent, ObjectsReorderedOnCanvasEvent } from '../edit-pane/shared';
@@ -1023,7 +1023,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
  */
 function DragPreviewRenderer({ model }: SceneComponentProps<DashboardLayoutOrchestrator>) {
   const { dragPreview } = model.useState();
-  const styles = useStyles2(getPreviewStyles);
 
   if (!dragPreview) {
     return null;
@@ -1035,7 +1034,7 @@ function DragPreviewRenderer({ model }: SceneComponentProps<DashboardLayoutOrche
 
   const preview = (
     <div
-      className={styles.preview}
+      {...stylex.props(styles.preview)}
       style={{
         left: previewLeft,
         top: previewTop,
@@ -1043,35 +1042,44 @@ function DragPreviewRenderer({ model }: SceneComponentProps<DashboardLayoutOrche
         height: dragPreview.height,
       }}
     >
-      <span className={styles.label}>{dragPreview.label}</span>
+      <span {...stylex.props(styles.label)}>{dragPreview.label}</span>
     </div>
   );
 
   return createPortal(preview, document.body);
 }
 
-const getPreviewStyles = (theme: GrafanaTheme2) => ({
-  preview: css({
+const styles = stylex.create({
+  preview: {
     position: 'fixed',
-    background: theme.colors.background.primary,
-    border: `1px dashed ${theme.colors.primary.main}`,
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'dashed',
+    borderColor: colors['--gf-colors-primary-main'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
     pointerEvents: 'none',
-    zIndex: theme.zIndex.tooltip,
+    zIndex: zIndex.tooltip,
     overflow: 'hidden',
     opacity: 0.9,
-  }),
-  label: css({
-    // Match panel header styling
+  },
+  // Matches the panel header (theme.typography.h6).
+  label: {
     display: 'flex',
     alignItems: 'center',
-    height: theme.spacing(theme.components.panel.headerHeight),
-    padding: theme.spacing(0.5, 1, 0, 1.5),
-    color: theme.colors.text.primary,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-panel-header-height']})`,
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    color: colors['--gf-colors-text-primary'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    ...theme.typography.h6,
-  }),
+    fontFamily: typography['--gf-typography-h6-font-family'],
+    fontWeight: typography['--gf-typography-h6-font-weight'],
+    fontSize: typography['--gf-typography-h6-font-size'],
+    lineHeight: typography['--gf-typography-h6-line-height'],
+    letterSpacing: typography['--gf-typography-h6-letter-spacing'],
+  },
 });

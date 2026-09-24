@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type SceneComponentProps, VizPanel } from '@grafana/scenes';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { SHARED_DASHBOARD_QUERY } from 'app/plugins/datasource/dashboard/constants';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 
@@ -15,11 +16,12 @@ import { RowRepeaterBehavior } from '../RowRepeaterBehavior';
 import { type RowActions } from './RowActions';
 import { RowOptionsButton } from './RowOptionsButton';
 
+import './RowActionsRenderer.css';
+
 export function RowActionsRenderer({ model }: SceneComponentProps<RowActions>) {
   const row = model.getParent();
   const { title, children } = row.useState();
   const { meta, isEditing } = useDashboardState(model);
-  const styles = useStyles2(getStyles);
 
   const isUsingDashboardDS = useMemo(
     () =>
@@ -48,7 +50,7 @@ export function RowActionsRenderer({ model }: SceneComponentProps<RowActions>) {
     <>
       {meta.canEdit && isEditing && (
         <>
-          <div className={styles.rowActions}>
+          <div {...mergeStylexProps(stylex.props(styles.rowActions), { className: 'gf-row-actions' })}>
             <RowOptionsButton
               title={title}
               repeat={behaviour instanceof RowRepeaterBehavior ? behaviour.state.variableName : undefined}
@@ -70,22 +72,10 @@ export function RowActionsRenderer({ model }: SceneComponentProps<RowActions>) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    rowActions: css({
-      color: theme.colors.text.secondary,
-      lineHeight: '27px',
-
-      button: {
-        color: theme.colors.text.secondary,
-        paddingLeft: theme.spacing(2),
-        background: 'transparent',
-        border: 'none',
-
-        '&:hover': {
-          color: theme.colors.text.maxContrast,
-        },
-      },
-    }),
-  };
-};
+// The action buttons, including the one RowOptionsButton renders, are styled by RowActionsRenderer.css.
+const styles = stylex.create({
+  rowActions: {
+    color: colors['--gf-colors-text-secondary'],
+    lineHeight: '27px',
+  },
+});

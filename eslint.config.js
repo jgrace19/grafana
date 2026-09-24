@@ -134,6 +134,12 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
 ];
 
+// public/app files migrated to StyleX, with the same ban. Each app slice appends its files or directories here.
+const stylexMigratedAppFiles = [
+  // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
+  'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
+];
+
 const stylexRestrictedImports = {
   patterns: [
     {

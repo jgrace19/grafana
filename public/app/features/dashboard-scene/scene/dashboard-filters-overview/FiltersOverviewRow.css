@@ -1,0 +1,28 @@
+/*
+ * The operator and value cells restyle the Select / MultiSelect DOM they wrap (react-select + Emotion), which StyleX
+ * can't target. Unlayered on purpose, with the same doubled-class specificity as the Emotion `&&` rules it replaces.
+ */
+.gf-filters-overview-operator-cell.gf-filters-overview-operator-cell > * {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: unset;
+}
+
+.gf-filters-overview-operator-cell.gf-filters-overview-operator-cell > * > *,
+.gf-filters-overview-operator-cell.gf-filters-overview-operator-cell input {
+  border-radius: unset;
+}
+
+.gf-filters-overview-value-cell.gf-filters-overview-value-cell > * {
+  width: 100%;
+  padding-left: 0;
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+}
+
+.gf-filters-overview-value-cell.gf-filters-overview-value-cell > * > *,
+.gf-filters-overview-value-cell.gf-filters-overview-value-cell input {
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+}
