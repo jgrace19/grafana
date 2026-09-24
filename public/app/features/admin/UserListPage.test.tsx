@@ -105,7 +105,7 @@ describe('Tables rendering', () => {
 
     renderPage();
 
-    expect(screen.getByTestId(tabsSelector.allUsers).className.includes('activeTabStyle')).toBeTruthy();
+    expect(screen.getByTestId(tabsSelector.allUsers)).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId(tabsSelector.orgUsers)).toBeInTheDocument();
 
     expect(screen.getByTestId(selectors.UserListAdminPage.container)).toBeInTheDocument();
@@ -115,12 +115,13 @@ describe('Tables rendering', () => {
 
     renderPage();
 
-    expect(screen.getByTestId(tabsSelector.allUsers).className.includes('activeTabStyle')).toBeTruthy();
+    expect(screen.getByTestId(tabsSelector.allUsers)).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId(tabsSelector.orgUsers)).toBeInTheDocument();
     expect(screen.getByTestId(selectors.UserListAdminPage.container)).toBeInTheDocument();
 
     await userEvent.click(screen.getByTestId(tabsSelector.orgUsers));
-    expect(screen.getByTestId(tabsSelector.orgUsers).className.includes('activeTabStyle')).toBeTruthy();
+    expect(screen.getByTestId(tabsSelector.orgUsers)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(tabsSelector.allUsers)).toHaveAttribute('aria-selected', 'false');
     expect(screen.getByTestId(selectors.UsersListPage.container)).toBeInTheDocument();
   });
   it('should render UsersListPage when user has org read permissions and is not admin', async () => {
@@ -148,7 +149,8 @@ describe('Tables rendering', () => {
     expect(screen.queryByTestId(tabsSelector.publicDashboardsUsers)).toBeInTheDocument();
 
     await userEvent.click(screen.getByTestId(tabsSelector.publicDashboardsUsers));
-    expect(screen.getByTestId(tabsSelector.publicDashboardsUsers).className.includes('activeTabStyle')).toBeTruthy();
+    expect(screen.getByTestId(tabsSelector.publicDashboardsUsers)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(tabsSelector.users)).toHaveAttribute('aria-selected', 'false');
     expect(screen.getByTestId(selectors.UsersListPublicDashboardsPage.container)).toBeInTheDocument();
   });
   it('should render UsersListPage when user is not admin and does not have nor org read perms neither email sharing enabled', async () => {
