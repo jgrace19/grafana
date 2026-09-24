@@ -1,12 +1,15 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
-import { FIELD_NAME_FACET_KEY, type GrafanaTheme2 } from '@grafana/data';
+import { FIELD_NAME_FACET_KEY } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Checkbox } from '../Forms/Checkbox';
 import { Icon } from '../Icon/Icon';
+
+import './FacetedLabelsFilter.global.css';
 
 export interface FacetedLabelsFilterProps {
   /** Map of label keys to their sorted unique values, from extractFacetedLabels */
@@ -20,7 +23,6 @@ export interface FacetedLabelsFilterProps {
 }
 
 export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: FacetedLabelsFilterProps) {
-  const styles = useStyles2(getStyles);
   const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>({});
   const labelKeys = Object.keys(labels);
 
@@ -58,20 +60,24 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
     return null;
   }
 
-  const renderCheckboxList = (key: string, values: string[], className: string) => {
+  const renderCheckboxList = (key: string, values: string[], listStyle: stylex.StyleXStyles) => {
     const selectedValues = selected[key] ?? [];
     return (
-      <div className={className}>
+      <div {...stylex.props(listStyle)}>
         {values.map((value) => (
           <Checkbox
             key={value}
             label={value}
             value={selectedValues.includes(value)}
             onChange={() => toggleValue(key, value)}
-            className={styles.checkbox}
+            className={stylex.props(styles.checkbox).className}
           />
         ))}
-        <button type="button" className={styles.toggleAll} onClick={() => toggleAllForKey(key)}>
+        <button
+          type="button"
+          {...mergeStylexProps(stylex.props(styles.toggleAll), { className: 'gf-faceted-labels-filter-button' })}
+          onClick={() => toggleAllForKey(key)}
+        >
           {selectedValues.length === values.length ? (
             <Trans i18nKey="grafana-ui.viz-legend.faceted-deselect-all">Deselect all</Trans>
           ) : (
@@ -83,10 +89,10 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
   };
 
   return (
-    <div className={cx(styles.container, dimmed && styles.dimmed)} data-testid="faceted-labels-filter">
+    <div {...stylex.props(styles.container, dimmed && styles.dimmed)} data-testid="faceted-labels-filter">
       {seriesValues && (
-        <div className={styles.section}>
-          <span className={styles.sectionLabel}>
+        <div {...stylex.props(styles.section)}>
+          <span {...stylex.props(styles.sectionLabel)}>
             <Trans i18nKey="grafana-ui.viz-legend.faceted-by-name">By name</Trans>
           </span>
           {renderCheckboxList(FIELD_NAME_FACET_KEY, seriesValues, styles.checkboxList)}
@@ -94,19 +100,23 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
       )}
 
       {realLabelKeys.length > 0 && (
-        <div className={styles.section}>
-          <span className={styles.sectionLabel}>
+        <div {...stylex.props(styles.section)}>
+          <span {...stylex.props(styles.sectionLabel)}>
             <Trans i18nKey="grafana-ui.viz-legend.faceted-by-labels">By labels</Trans>
           </span>
           {realLabelKeys.map((key) => {
             const selectedValues = selected[key] ?? [];
             const isExpanded = expandedKeys[key] ?? false;
             return (
-              <div key={key} className={styles.labelGroup}>
-                <button type="button" className={styles.labelKey} onClick={() => toggleExpanded(key)}>
+              <div key={key} {...stylex.props(styles.labelGroup)}>
+                <button
+                  type="button"
+                  {...mergeStylexProps(stylex.props(styles.labelKey), { className: 'gf-faceted-labels-filter-button' })}
+                  onClick={() => toggleExpanded(key)}
+                >
                   <Icon name={isExpanded ? 'angle-down' : 'angle-right'} size="sm" />
-                  <span className={styles.keyName}>{key}</span>
-                  {selectedValues.length > 0 && <span className={styles.count}>{selectedValues.length}</span>}
+                  <span {...stylex.props(styles.keyName)}>{key}</span>
+                  {selectedValues.length > 0 && <span {...stylex.props(styles.count)}>{selectedValues.length}</span>}
                 </button>
                 {isExpanded && renderCheckboxList(key, labels[key], styles.checkboxListIndented)}
               </div>
@@ -120,80 +130,85 @@ export function FacetedLabelsFilter({ labels, selected, onChange, dimmed }: Face
 
 FacetedLabelsFilter.displayName = 'FacetedLabelsFilter';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
     minWidth: '150px',
-    padding: theme.spacing(1.5, 1, 1, 1),
-    gap: theme.spacing(1),
-  }),
-  dimmed: css({
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  dimmed: {
     opacity: 0.5,
-  }),
-  section: css({
+  },
+  section: {
     display: 'flex',
     flexDirection: 'column',
-  }),
-  sectionLabel: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(0.25),
-  }),
-  toggleAll: css({
-    all: 'unset',
+  },
+  sectionLabel: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+  },
+  toggleAll: {
     cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.link,
-    marginTop: theme.spacing(0.25),
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  }),
-  labelGroup: css({
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-link'],
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  labelGroup: {
     display: 'flex',
     flexDirection: 'column',
-  }),
-  labelKey: css({
-    all: 'unset',
+  },
+  labelKey: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5),
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
     cursor: 'pointer',
-    padding: theme.spacing(0.25, 0),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.primary,
-    '&:hover': {
-      color: theme.colors.text.maxContrast,
-    },
-  }),
-  keyName: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  count: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.primary.text,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  checkboxList: css({
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingLeft: 0,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: { default: colors['--gf-colors-text-primary'], ':hover': colors['--gf-colors-text-max-contrast'] },
+  },
+  keyName: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  count: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-primary-text'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+  checkboxList: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing(0.25),
-    padding: theme.spacing(0, 0, 0.5, 0.5),
-  }),
-  checkboxListIndented: css({
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  checkboxListIndented: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing(0.25),
-    padding: theme.spacing(0, 0, 0.5, 2.5),
-  }),
-  checkbox: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.25)`,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2.5)`,
+  },
+  checkbox: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
 });
