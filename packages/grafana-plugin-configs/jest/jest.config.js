@@ -22,8 +22,9 @@ export default {
   },
   testMatch: ['<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}', '<rootDir>/**/*.{spec,test,jest}.{js,jsx,ts,tsx}'],
   transform: {
+    // @swc/jest behind a StyleX pass: @grafana/ui resolves to source here, and its StyleX calls only run compiled.
     '^.+\\.(t|j)sx?$': [
-      '@swc/jest',
+      path.resolve(import.meta.dirname, '../../../scripts/jest/stylex-swc-transform.js'),
       {
         sourceMaps: 'inline',
         jsc: {

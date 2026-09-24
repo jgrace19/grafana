@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ErrorInfo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, locationUtil, PageLayoutType } from '@grafana/data';
+import { locationUtil, PageLayoutType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ErrorWithStack, useStyles2 } from '@grafana/ui';
+import { Button, ErrorWithStack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Page } from '../components/Page/Page';
 
@@ -16,7 +17,6 @@ interface Props {
 export function GrafanaRouteError({ error, errorInfo }: Props) {
   const location = useLocation();
   const isChunkLoadingError = error?.name === 'ChunkLoadError';
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     // Auto reload page 1 time if we have a chunk load error
@@ -29,7 +29,7 @@ export function GrafanaRouteError({ error, errorInfo }: Props) {
 
   return (
     <Page navId="error" layout={PageLayoutType.Canvas}>
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         {isChunkLoadingError && (
           <div>
             <h2>
@@ -60,9 +60,12 @@ export function GrafanaRouteError({ error, errorInfo }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     width: '500px',
-    margin: theme.spacing(8, 'auto'),
-  }),
+    marginTop: spacing['--gf-spacing-x8'],
+    marginRight: 'auto',
+    marginBottom: spacing['--gf-spacing-x8'],
+    marginLeft: 'auto',
+  },
 });

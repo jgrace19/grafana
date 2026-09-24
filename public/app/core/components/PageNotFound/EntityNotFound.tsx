@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Stack, EmptyState, LinkButton, useStyles2 } from '@grafana/ui';
+import { Stack, EmptyState, LinkButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   /**
@@ -13,11 +13,10 @@ export interface Props {
 }
 
 export function EntityNotFound({ entity = 'Page' }: Props) {
-  const styles = useStyles2(getStyles);
   const lowerCaseEntity = entity.toLowerCase();
 
   return (
-    <div className={styles.container} data-testid={selectors.components.EntityNotFound.container}>
+    <div {...stylex.props(styles.container)} data-testid={selectors.components.EntityNotFound.container}>
       <EmptyState
         message={t('entity-not-found.title', '{{entity}} not found', { entity })}
         variant="not-found"
@@ -47,10 +46,11 @@ export function EntityNotFound({ entity = 'Page' }: Props) {
   );
 }
 
-export function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      padding: theme.spacing(8, 2, 2, 2),
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    paddingTop: spacing['--gf-spacing-x8'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+});
