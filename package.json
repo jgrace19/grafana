@@ -248,6 +248,8 @@
     "open": "^10.2.0",
     "ora": "^9.0.0",
     "pdf-parse": "^1.1.1",
+    "pixelmatch": "5.3.0",
+    "pngjs": "6.0.0",
     "postcss": "8.5.6",
     "postcss-loader": "8.1.1",
     "postcss-reporter": "7.1.0",

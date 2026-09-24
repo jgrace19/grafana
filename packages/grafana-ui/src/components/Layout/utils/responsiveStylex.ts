@@ -1,5 +1,3 @@
-import { spacing } from '../../../themes/stylex/tokens.stylex';
-
 import { type ResponsiveProp } from './responsiveness';
 
 /** `[base, xs, sm, md, lg, xl, xxl]`, the arguments of a responsive StyleX dynamic style. */
@@ -40,18 +38,13 @@ export function responsiveArgs<T, V>(
   return [undefined, apply(prop.xs), apply(prop.sm), apply(prop.md), apply(prop.lg), apply(prop.xl), apply(prop.xxl)];
 }
 
-type SpacingVar = Extract<keyof typeof spacing, string>;
-
-const isSpacingVar = (name: string): name is SpacingVar => name in spacing;
-
-/** Equivalent of `theme.spacing(value)` as a CSS value backed by the `--gf-spacing-*` tokens. */
+/**
+ * Equivalent of `theme.spacing(value)` as a CSS value on the `--gf-spacing-grid-size` token. Built as a
+ * string rather than read from the token objects, so no token object has to ship in the JS bundle.
+ */
 export function spacingValue(value: number | string): string {
   if (typeof value === 'string') {
     return value;
   }
-  const name = `--gf-spacing-x${String(value).replace('.', '-')}`;
-  if (isSpacingVar(name)) {
-    return String(spacing[name]);
-  }
-  return `calc(${spacing['--gf-spacing-grid-size']} * ${value})`;
+  return `calc(var(--gf-spacing-grid-size) * ${value})`;
 }

@@ -234,240 +234,79 @@ export type ThemeCssVarName =
   | '--gf-v1-palette-warn'
   | '--gf-v1-palette-critical';
 
-// [var name, theme path, serialisation]. Paths are read dynamically because some theme values exist at
-// runtime without being part of the GrafanaTheme2 type.
-const TOKENS: Array<[ThemeCssVarName, string[], 'string' | 'px' | 'number']> = [
-  ['--gf-colors-border-weak', ['colors', 'border', 'weak'], 'string'],
-  ['--gf-colors-border-medium', ['colors', 'border', 'medium'], 'string'],
-  ['--gf-colors-border-strong', ['colors', 'border', 'strong'], 'string'],
-  ['--gf-colors-text-primary', ['colors', 'text', 'primary'], 'string'],
-  ['--gf-colors-text-secondary', ['colors', 'text', 'secondary'], 'string'],
-  ['--gf-colors-text-disabled', ['colors', 'text', 'disabled'], 'string'],
-  ['--gf-colors-text-link', ['colors', 'text', 'link'], 'string'],
-  ['--gf-colors-text-max-contrast', ['colors', 'text', 'maxContrast'], 'string'],
-  ['--gf-colors-primary-main', ['colors', 'primary', 'main'], 'string'],
-  ['--gf-colors-primary-text', ['colors', 'primary', 'text'], 'string'],
-  ['--gf-colors-primary-border', ['colors', 'primary', 'border'], 'string'],
-  ['--gf-colors-primary-shade', ['colors', 'primary', 'shade'], 'string'],
-  ['--gf-colors-primary-transparent', ['colors', 'primary', 'transparent'], 'string'],
-  ['--gf-colors-primary-contrast-text', ['colors', 'primary', 'contrastText'], 'string'],
-  ['--gf-colors-primary-border-transparent', ['colors', 'primary', 'borderTransparent'], 'string'],
-  ['--gf-colors-secondary-main', ['colors', 'secondary', 'main'], 'string'],
-  ['--gf-colors-secondary-shade', ['colors', 'secondary', 'shade'], 'string'],
-  ['--gf-colors-secondary-transparent', ['colors', 'secondary', 'transparent'], 'string'],
-  ['--gf-colors-secondary-text', ['colors', 'secondary', 'text'], 'string'],
-  ['--gf-colors-secondary-contrast-text', ['colors', 'secondary', 'contrastText'], 'string'],
-  ['--gf-colors-secondary-border', ['colors', 'secondary', 'border'], 'string'],
-  ['--gf-colors-secondary-border-transparent', ['colors', 'secondary', 'borderTransparent'], 'string'],
-  ['--gf-colors-info-main', ['colors', 'info', 'main'], 'string'],
-  ['--gf-colors-info-text', ['colors', 'info', 'text'], 'string'],
-  ['--gf-colors-info-border', ['colors', 'info', 'border'], 'string'],
-  ['--gf-colors-info-shade', ['colors', 'info', 'shade'], 'string'],
-  ['--gf-colors-info-transparent', ['colors', 'info', 'transparent'], 'string'],
-  ['--gf-colors-info-contrast-text', ['colors', 'info', 'contrastText'], 'string'],
-  ['--gf-colors-info-border-transparent', ['colors', 'info', 'borderTransparent'], 'string'],
-  ['--gf-colors-error-main', ['colors', 'error', 'main'], 'string'],
-  ['--gf-colors-error-text', ['colors', 'error', 'text'], 'string'],
-  ['--gf-colors-error-border', ['colors', 'error', 'border'], 'string'],
-  ['--gf-colors-error-shade', ['colors', 'error', 'shade'], 'string'],
-  ['--gf-colors-error-transparent', ['colors', 'error', 'transparent'], 'string'],
-  ['--gf-colors-error-contrast-text', ['colors', 'error', 'contrastText'], 'string'],
-  ['--gf-colors-error-border-transparent', ['colors', 'error', 'borderTransparent'], 'string'],
-  ['--gf-colors-success-main', ['colors', 'success', 'main'], 'string'],
-  ['--gf-colors-success-text', ['colors', 'success', 'text'], 'string'],
-  ['--gf-colors-success-border', ['colors', 'success', 'border'], 'string'],
-  ['--gf-colors-success-shade', ['colors', 'success', 'shade'], 'string'],
-  ['--gf-colors-success-transparent', ['colors', 'success', 'transparent'], 'string'],
-  ['--gf-colors-success-contrast-text', ['colors', 'success', 'contrastText'], 'string'],
-  ['--gf-colors-success-border-transparent', ['colors', 'success', 'borderTransparent'], 'string'],
-  ['--gf-colors-warning-main', ['colors', 'warning', 'main'], 'string'],
-  ['--gf-colors-warning-text', ['colors', 'warning', 'text'], 'string'],
-  ['--gf-colors-warning-border', ['colors', 'warning', 'border'], 'string'],
-  ['--gf-colors-warning-shade', ['colors', 'warning', 'shade'], 'string'],
-  ['--gf-colors-warning-transparent', ['colors', 'warning', 'transparent'], 'string'],
-  ['--gf-colors-warning-contrast-text', ['colors', 'warning', 'contrastText'], 'string'],
-  ['--gf-colors-warning-border-transparent', ['colors', 'warning', 'borderTransparent'], 'string'],
-  ['--gf-colors-background-canvas', ['colors', 'background', 'canvas'], 'string'],
-  ['--gf-colors-background-primary', ['colors', 'background', 'primary'], 'string'],
-  ['--gf-colors-background-secondary', ['colors', 'background', 'secondary'], 'string'],
-  ['--gf-colors-background-elevated', ['colors', 'background', 'elevated'], 'string'],
-  ['--gf-colors-action-hover', ['colors', 'action', 'hover'], 'string'],
-  ['--gf-colors-action-selected', ['colors', 'action', 'selected'], 'string'],
-  ['--gf-colors-action-selected-border', ['colors', 'action', 'selectedBorder'], 'string'],
-  ['--gf-colors-action-focus', ['colors', 'action', 'focus'], 'string'],
-  ['--gf-colors-action-hover-opacity', ['colors', 'action', 'hoverOpacity'], 'number'],
-  ['--gf-colors-action-disabled-text', ['colors', 'action', 'disabledText'], 'string'],
-  ['--gf-colors-action-disabled-background', ['colors', 'action', 'disabledBackground'], 'string'],
-  ['--gf-colors-action-disabled-opacity', ['colors', 'action', 'disabledOpacity'], 'number'],
-  ['--gf-colors-gradients-brand-horizontal', ['colors', 'gradients', 'brandHorizontal'], 'string'],
-  ['--gf-colors-gradients-brand-vertical', ['colors', 'gradients', 'brandVertical'], 'string'],
-  ['--gf-colors-scrollbar', ['colors', 'scrollbar'], 'string'],
-  ['--gf-spacing-grid-size', ['spacing', 'gridSize'], 'px'],
-  ['--gf-spacing-x0', ['spacing', 'x0'], 'string'],
-  ['--gf-spacing-x0-25', ['spacing', 'x0_25'], 'string'],
-  ['--gf-spacing-x0-5', ['spacing', 'x0_5'], 'string'],
-  ['--gf-spacing-x1', ['spacing', 'x1'], 'string'],
-  ['--gf-spacing-x1-5', ['spacing', 'x1_5'], 'string'],
-  ['--gf-spacing-x2', ['spacing', 'x2'], 'string'],
-  ['--gf-spacing-x2-5', ['spacing', 'x2_5'], 'string'],
-  ['--gf-spacing-x3', ['spacing', 'x3'], 'string'],
-  ['--gf-spacing-x4', ['spacing', 'x4'], 'string'],
-  ['--gf-spacing-x5', ['spacing', 'x5'], 'string'],
-  ['--gf-spacing-x6', ['spacing', 'x6'], 'string'],
-  ['--gf-spacing-x8', ['spacing', 'x8'], 'string'],
-  ['--gf-spacing-x10', ['spacing', 'x10'], 'string'],
-  ['--gf-shape-radius-default', ['shape', 'radius', 'default'], 'string'],
-  ['--gf-shape-radius-md', ['shape', 'radius', 'md'], 'string'],
-  ['--gf-shape-radius-sm', ['shape', 'radius', 'sm'], 'string'],
-  ['--gf-shape-radius-lg', ['shape', 'radius', 'lg'], 'string'],
-  ['--gf-shape-radius-pill', ['shape', 'radius', 'pill'], 'string'],
-  ['--gf-shape-radius-circle', ['shape', 'radius', 'circle'], 'string'],
-  ['--gf-typography-html-font-size', ['typography', 'htmlFontSize'], 'px'],
-  ['--gf-typography-font-family', ['typography', 'fontFamily'], 'string'],
-  ['--gf-typography-font-family-monospace', ['typography', 'fontFamilyMonospace'], 'string'],
-  ['--gf-typography-font-size', ['typography', 'fontSize'], 'px'],
-  ['--gf-typography-font-weight-light', ['typography', 'fontWeightLight'], 'number'],
-  ['--gf-typography-font-weight-regular', ['typography', 'fontWeightRegular'], 'number'],
-  ['--gf-typography-font-weight-medium', ['typography', 'fontWeightMedium'], 'number'],
-  ['--gf-typography-font-weight-bold', ['typography', 'fontWeightBold'], 'number'],
-  ['--gf-typography-size-base', ['typography', 'size', 'base'], 'string'],
-  ['--gf-typography-size-xs', ['typography', 'size', 'xs'], 'string'],
-  ['--gf-typography-size-sm', ['typography', 'size', 'sm'], 'string'],
-  ['--gf-typography-size-md', ['typography', 'size', 'md'], 'string'],
-  ['--gf-typography-size-lg', ['typography', 'size', 'lg'], 'string'],
-  ['--gf-typography-h1-font-family', ['typography', 'h1', 'fontFamily'], 'string'],
-  ['--gf-typography-h1-font-weight', ['typography', 'h1', 'fontWeight'], 'number'],
-  ['--gf-typography-h1-font-size', ['typography', 'h1', 'fontSize'], 'string'],
-  ['--gf-typography-h1-line-height', ['typography', 'h1', 'lineHeight'], 'number'],
-  ['--gf-typography-h1-letter-spacing', ['typography', 'h1', 'letterSpacing'], 'string'],
-  ['--gf-typography-h2-font-family', ['typography', 'h2', 'fontFamily'], 'string'],
-  ['--gf-typography-h2-font-weight', ['typography', 'h2', 'fontWeight'], 'number'],
-  ['--gf-typography-h2-font-size', ['typography', 'h2', 'fontSize'], 'string'],
-  ['--gf-typography-h2-line-height', ['typography', 'h2', 'lineHeight'], 'number'],
-  ['--gf-typography-h2-letter-spacing', ['typography', 'h2', 'letterSpacing'], 'string'],
-  ['--gf-typography-h3-font-family', ['typography', 'h3', 'fontFamily'], 'string'],
-  ['--gf-typography-h3-font-weight', ['typography', 'h3', 'fontWeight'], 'number'],
-  ['--gf-typography-h3-font-size', ['typography', 'h3', 'fontSize'], 'string'],
-  ['--gf-typography-h3-line-height', ['typography', 'h3', 'lineHeight'], 'number'],
-  ['--gf-typography-h3-letter-spacing', ['typography', 'h3', 'letterSpacing'], 'string'],
-  ['--gf-typography-h4-font-family', ['typography', 'h4', 'fontFamily'], 'string'],
-  ['--gf-typography-h4-font-weight', ['typography', 'h4', 'fontWeight'], 'number'],
-  ['--gf-typography-h4-font-size', ['typography', 'h4', 'fontSize'], 'string'],
-  ['--gf-typography-h4-line-height', ['typography', 'h4', 'lineHeight'], 'number'],
-  ['--gf-typography-h4-letter-spacing', ['typography', 'h4', 'letterSpacing'], 'string'],
-  ['--gf-typography-h5-font-family', ['typography', 'h5', 'fontFamily'], 'string'],
-  ['--gf-typography-h5-font-weight', ['typography', 'h5', 'fontWeight'], 'number'],
-  ['--gf-typography-h5-font-size', ['typography', 'h5', 'fontSize'], 'string'],
-  ['--gf-typography-h5-line-height', ['typography', 'h5', 'lineHeight'], 'number'],
-  ['--gf-typography-h5-letter-spacing', ['typography', 'h5', 'letterSpacing'], 'string'],
-  ['--gf-typography-h6-font-family', ['typography', 'h6', 'fontFamily'], 'string'],
-  ['--gf-typography-h6-font-weight', ['typography', 'h6', 'fontWeight'], 'number'],
-  ['--gf-typography-h6-font-size', ['typography', 'h6', 'fontSize'], 'string'],
-  ['--gf-typography-h6-line-height', ['typography', 'h6', 'lineHeight'], 'number'],
-  ['--gf-typography-h6-letter-spacing', ['typography', 'h6', 'letterSpacing'], 'string'],
-  ['--gf-typography-body-font-family', ['typography', 'body', 'fontFamily'], 'string'],
-  ['--gf-typography-body-font-weight', ['typography', 'body', 'fontWeight'], 'number'],
-  ['--gf-typography-body-font-size', ['typography', 'body', 'fontSize'], 'string'],
-  ['--gf-typography-body-line-height', ['typography', 'body', 'lineHeight'], 'number'],
-  ['--gf-typography-body-letter-spacing', ['typography', 'body', 'letterSpacing'], 'string'],
-  ['--gf-typography-body-small-font-family', ['typography', 'bodySmall', 'fontFamily'], 'string'],
-  ['--gf-typography-body-small-font-weight', ['typography', 'bodySmall', 'fontWeight'], 'number'],
-  ['--gf-typography-body-small-font-size', ['typography', 'bodySmall', 'fontSize'], 'string'],
-  ['--gf-typography-body-small-line-height', ['typography', 'bodySmall', 'lineHeight'], 'number'],
-  ['--gf-typography-body-small-letter-spacing', ['typography', 'bodySmall', 'letterSpacing'], 'string'],
-  ['--gf-typography-code-font-family', ['typography', 'code', 'fontFamily'], 'string'],
-  ['--gf-typography-code-font-weight', ['typography', 'code', 'fontWeight'], 'number'],
-  ['--gf-typography-code-font-size', ['typography', 'code', 'fontSize'], 'string'],
-  ['--gf-typography-code-line-height', ['typography', 'code', 'lineHeight'], 'number'],
-  ['--gf-typography-code-letter-spacing', ['typography', 'code', 'letterSpacing'], 'string'],
-  ['--gf-shadows-z1', ['shadows', 'z1'], 'string'],
-  ['--gf-shadows-z2', ['shadows', 'z2'], 'string'],
-  ['--gf-shadows-z3', ['shadows', 'z3'], 'string'],
-  ['--gf-components-height-sm', ['components', 'height', 'sm'], 'number'],
-  ['--gf-components-height-md', ['components', 'height', 'md'], 'number'],
-  ['--gf-components-height-lg', ['components', 'height', 'lg'], 'number'],
-  ['--gf-components-input-border-color', ['components', 'input', 'borderColor'], 'string'],
-  ['--gf-components-input-border-hover', ['components', 'input', 'borderHover'], 'string'],
-  ['--gf-components-input-text', ['components', 'input', 'text'], 'string'],
-  ['--gf-components-input-background', ['components', 'input', 'background'], 'string'],
-  ['--gf-components-panel-padding', ['components', 'panel', 'padding'], 'number'],
-  ['--gf-components-panel-header-height', ['components', 'panel', 'headerHeight'], 'number'],
-  ['--gf-components-panel-background', ['components', 'panel', 'background'], 'string'],
-  ['--gf-components-panel-border-color', ['components', 'panel', 'borderColor'], 'string'],
-  ['--gf-components-panel-box-shadow', ['components', 'panel', 'boxShadow'], 'string'],
-  ['--gf-components-dropdown-background', ['components', 'dropdown', 'background'], 'string'],
-  ['--gf-components-tooltip-background', ['components', 'tooltip', 'background'], 'string'],
-  ['--gf-components-tooltip-text', ['components', 'tooltip', 'text'], 'string'],
-  ['--gf-components-dashboard-background', ['components', 'dashboard', 'background'], 'string'],
-  ['--gf-components-dashboard-padding', ['components', 'dashboard', 'padding'], 'number'],
-  ['--gf-components-drawer-padding', ['components', 'drawer', 'padding'], 'number'],
-  ['--gf-components-overlay-background', ['components', 'overlay', 'background'], 'string'],
-  ['--gf-components-sidemenu-width', ['components', 'sidemenu', 'width'], 'number'],
-  ['--gf-components-menu-tabs-height', ['components', 'menuTabs', 'height'], 'number'],
-  ['--gf-components-text-highlight-text', ['components', 'textHighlight', 'text'], 'string'],
-  ['--gf-components-text-highlight-background', ['components', 'textHighlight', 'background'], 'string'],
-  ['--gf-components-horizontal-drawer-default-height', ['components', 'horizontalDrawer', 'defaultHeight'], 'number'],
-  ['--gf-components-table-row-hover-background', ['components', 'table', 'rowHoverBackground'], 'string'],
-  ['--gf-components-table-row-selected', ['components', 'table', 'rowSelected'], 'string'],
-  ['--gf-components-menu-padding', ['components', 'menu', 'padding'], 'number'],
-  ['--gf-v1-palette-gray98', ['v1', 'palette', 'gray98'], 'string'],
-  ['--gf-v1-palette-gray97', ['v1', 'palette', 'gray97'], 'string'],
-  ['--gf-v1-palette-gray95', ['v1', 'palette', 'gray95'], 'string'],
-  ['--gf-v1-palette-gray90', ['v1', 'palette', 'gray90'], 'string'],
-  ['--gf-v1-palette-gray85', ['v1', 'palette', 'gray85'], 'string'],
-  ['--gf-v1-palette-gray70', ['v1', 'palette', 'gray70'], 'string'],
-  ['--gf-v1-palette-gray60', ['v1', 'palette', 'gray60'], 'string'],
-  ['--gf-v1-palette-gray33', ['v1', 'palette', 'gray33'], 'string'],
-  ['--gf-v1-palette-gray25', ['v1', 'palette', 'gray25'], 'string'],
-  ['--gf-v1-palette-gray15', ['v1', 'palette', 'gray15'], 'string'],
-  ['--gf-v1-palette-gray10', ['v1', 'palette', 'gray10'], 'string'],
-  ['--gf-v1-palette-gray05', ['v1', 'palette', 'gray05'], 'string'],
-  ['--gf-v1-palette-blue95', ['v1', 'palette', 'blue95'], 'string'],
-  ['--gf-v1-palette-blue85', ['v1', 'palette', 'blue85'], 'string'],
-  ['--gf-v1-palette-blue80', ['v1', 'palette', 'blue80'], 'string'],
-  ['--gf-v1-palette-blue77', ['v1', 'palette', 'blue77'], 'string'],
-  ['--gf-v1-palette-red88', ['v1', 'palette', 'red88'], 'string'],
-  ['--gf-v1-palette-black', ['v1', 'palette', 'black'], 'string'],
-  ['--gf-v1-palette-white', ['v1', 'palette', 'white'], 'string'],
-  ['--gf-v1-palette-dark1', ['v1', 'palette', 'dark1'], 'string'],
-  ['--gf-v1-palette-dark2', ['v1', 'palette', 'dark2'], 'string'],
-  ['--gf-v1-palette-dark3', ['v1', 'palette', 'dark3'], 'string'],
-  ['--gf-v1-palette-dark4', ['v1', 'palette', 'dark4'], 'string'],
-  ['--gf-v1-palette-dark5', ['v1', 'palette', 'dark5'], 'string'],
-  ['--gf-v1-palette-dark6', ['v1', 'palette', 'dark6'], 'string'],
-  ['--gf-v1-palette-dark7', ['v1', 'palette', 'dark7'], 'string'],
-  ['--gf-v1-palette-dark8', ['v1', 'palette', 'dark8'], 'string'],
-  ['--gf-v1-palette-dark9', ['v1', 'palette', 'dark9'], 'string'],
-  ['--gf-v1-palette-dark10', ['v1', 'palette', 'dark10'], 'string'],
-  ['--gf-v1-palette-gray1', ['v1', 'palette', 'gray1'], 'string'],
-  ['--gf-v1-palette-gray2', ['v1', 'palette', 'gray2'], 'string'],
-  ['--gf-v1-palette-gray3', ['v1', 'palette', 'gray3'], 'string'],
-  ['--gf-v1-palette-gray4', ['v1', 'palette', 'gray4'], 'string'],
-  ['--gf-v1-palette-gray5', ['v1', 'palette', 'gray5'], 'string'],
-  ['--gf-v1-palette-gray6', ['v1', 'palette', 'gray6'], 'string'],
-  ['--gf-v1-palette-gray7', ['v1', 'palette', 'gray7'], 'string'],
-  ['--gf-v1-palette-red-base', ['v1', 'palette', 'redBase'], 'string'],
-  ['--gf-v1-palette-red-shade', ['v1', 'palette', 'redShade'], 'string'],
-  ['--gf-v1-palette-green-base', ['v1', 'palette', 'greenBase'], 'string'],
-  ['--gf-v1-palette-green-shade', ['v1', 'palette', 'greenShade'], 'string'],
-  ['--gf-v1-palette-red', ['v1', 'palette', 'red'], 'string'],
-  ['--gf-v1-palette-yellow', ['v1', 'palette', 'yellow'], 'string'],
-  ['--gf-v1-palette-purple', ['v1', 'palette', 'purple'], 'string'],
-  ['--gf-v1-palette-variable', ['v1', 'palette', 'variable'], 'string'],
-  ['--gf-v1-palette-orange', ['v1', 'palette', 'orange'], 'string'],
-  ['--gf-v1-palette-orange-dark', ['v1', 'palette', 'orangeDark'], 'string'],
-  ['--gf-v1-palette-brand-primary', ['v1', 'palette', 'brandPrimary'], 'string'],
-  ['--gf-v1-palette-brand-success', ['v1', 'palette', 'brandSuccess'], 'string'],
-  ['--gf-v1-palette-brand-warning', ['v1', 'palette', 'brandWarning'], 'string'],
-  ['--gf-v1-palette-brand-danger', ['v1', 'palette', 'brandDanger'], 'string'],
-  ['--gf-v1-palette-query-red', ['v1', 'palette', 'queryRed'], 'string'],
-  ['--gf-v1-palette-query-green', ['v1', 'palette', 'queryGreen'], 'string'],
-  ['--gf-v1-palette-query-purple', ['v1', 'palette', 'queryPurple'], 'string'],
-  ['--gf-v1-palette-query-orange', ['v1', 'palette', 'queryOrange'], 'string'],
-  ['--gf-v1-palette-online', ['v1', 'palette', 'online'], 'string'],
-  ['--gf-v1-palette-warn', ['v1', 'palette', 'warn'], 'string'],
-  ['--gf-v1-palette-critical', ['v1', 'palette', 'critical'], 'string'],
-];
+// Theme paths of every token, space-separated to keep the bundle small. Read dynamically because some
+// theme values exist at runtime without being part of the GrafanaTheme2 type.
+const TOKEN_PATHS =
+  'colors.border.weak colors.border.medium colors.border.strong colors.text.primary ' +
+  'colors.text.secondary colors.text.disabled colors.text.link colors.text.maxContrast ' +
+  'colors.primary.main colors.primary.text colors.primary.border colors.primary.shade ' +
+  'colors.primary.transparent colors.primary.contrastText colors.primary.borderTransparent ' +
+  'colors.secondary.main colors.secondary.shade colors.secondary.transparent colors.secondary.text ' +
+  'colors.secondary.contrastText colors.secondary.border colors.secondary.borderTransparent ' +
+  'colors.info.main colors.info.text colors.info.border colors.info.shade colors.info.transparent ' +
+  'colors.info.contrastText colors.info.borderTransparent colors.error.main colors.error.text ' +
+  'colors.error.border colors.error.shade colors.error.transparent colors.error.contrastText ' +
+  'colors.error.borderTransparent colors.success.main colors.success.text colors.success.border ' +
+  'colors.success.shade colors.success.transparent colors.success.contrastText ' +
+  'colors.success.borderTransparent colors.warning.main colors.warning.text colors.warning.border ' +
+  'colors.warning.shade colors.warning.transparent colors.warning.contrastText ' +
+  'colors.warning.borderTransparent colors.background.canvas colors.background.primary ' +
+  'colors.background.secondary colors.background.elevated colors.action.hover colors.action.selected ' +
+  'colors.action.selectedBorder colors.action.focus colors.action.hoverOpacity ' +
+  'colors.action.disabledText colors.action.disabledBackground colors.action.disabledOpacity ' +
+  'colors.gradients.brandHorizontal colors.gradients.brandVertical colors.scrollbar spacing.gridSize ' +
+  'spacing.x0 spacing.x0_25 spacing.x0_5 spacing.x1 spacing.x1_5 spacing.x2 spacing.x2_5 spacing.x3 ' +
+  'spacing.x4 spacing.x5 spacing.x6 spacing.x8 spacing.x10 shape.radius.default shape.radius.md ' +
+  'shape.radius.sm shape.radius.lg shape.radius.pill shape.radius.circle typography.htmlFontSize ' +
+  'typography.fontFamily typography.fontFamilyMonospace typography.fontSize typography.fontWeightLight ' +
+  'typography.fontWeightRegular typography.fontWeightMedium typography.fontWeightBold ' +
+  'typography.size.base typography.size.xs typography.size.sm typography.size.md typography.size.lg ' +
+  'typography.h1.fontFamily typography.h1.fontWeight typography.h1.fontSize typography.h1.lineHeight ' +
+  'typography.h1.letterSpacing typography.h2.fontFamily typography.h2.fontWeight typography.h2.fontSize ' +
+  'typography.h2.lineHeight typography.h2.letterSpacing typography.h3.fontFamily ' +
+  'typography.h3.fontWeight typography.h3.fontSize typography.h3.lineHeight typography.h3.letterSpacing ' +
+  'typography.h4.fontFamily typography.h4.fontWeight typography.h4.fontSize typography.h4.lineHeight ' +
+  'typography.h4.letterSpacing typography.h5.fontFamily typography.h5.fontWeight typography.h5.fontSize ' +
+  'typography.h5.lineHeight typography.h5.letterSpacing typography.h6.fontFamily ' +
+  'typography.h6.fontWeight typography.h6.fontSize typography.h6.lineHeight typography.h6.letterSpacing ' +
+  'typography.body.fontFamily typography.body.fontWeight typography.body.fontSize ' +
+  'typography.body.lineHeight typography.body.letterSpacing typography.bodySmall.fontFamily ' +
+  'typography.bodySmall.fontWeight typography.bodySmall.fontSize typography.bodySmall.lineHeight ' +
+  'typography.bodySmall.letterSpacing typography.code.fontFamily typography.code.fontWeight ' +
+  'typography.code.fontSize typography.code.lineHeight typography.code.letterSpacing shadows.z1 ' +
+  'shadows.z2 shadows.z3 components.height.sm components.height.md components.height.lg ' +
+  'components.input.borderColor components.input.borderHover components.input.text ' +
+  'components.input.background components.panel.padding components.panel.headerHeight ' +
+  'components.panel.background components.panel.borderColor components.panel.boxShadow ' +
+  'components.dropdown.background components.tooltip.background components.tooltip.text ' +
+  'components.dashboard.background components.dashboard.padding components.drawer.padding ' +
+  'components.overlay.background components.sidemenu.width components.menuTabs.height ' +
+  'components.textHighlight.text components.textHighlight.background ' +
+  'components.horizontalDrawer.defaultHeight components.table.rowHoverBackground ' +
+  'components.table.rowSelected components.menu.padding v1.palette.gray98 v1.palette.gray97 ' +
+  'v1.palette.gray95 v1.palette.gray90 v1.palette.gray85 v1.palette.gray70 v1.palette.gray60 ' +
+  'v1.palette.gray33 v1.palette.gray25 v1.palette.gray15 v1.palette.gray10 v1.palette.gray05 ' +
+  'v1.palette.blue95 v1.palette.blue85 v1.palette.blue80 v1.palette.blue77 v1.palette.red88 ' +
+  'v1.palette.black v1.palette.white v1.palette.dark1 v1.palette.dark2 v1.palette.dark3 v1.palette.dark4 ' +
+  'v1.palette.dark5 v1.palette.dark6 v1.palette.dark7 v1.palette.dark8 v1.palette.dark9 ' +
+  'v1.palette.dark10 v1.palette.gray1 v1.palette.gray2 v1.palette.gray3 v1.palette.gray4 ' +
+  'v1.palette.gray5 v1.palette.gray6 v1.palette.gray7 v1.palette.redBase v1.palette.redShade ' +
+  'v1.palette.greenBase v1.palette.greenShade v1.palette.red v1.palette.yellow v1.palette.purple ' +
+  'v1.palette.variable v1.palette.orange v1.palette.orangeDark v1.palette.brandPrimary ' +
+  'v1.palette.brandSuccess v1.palette.brandWarning v1.palette.brandDanger v1.palette.queryRed ' +
+  'v1.palette.queryGreen v1.palette.queryPurple v1.palette.queryOrange v1.palette.online v1.palette.warn ' +
+  'v1.palette.critical';
+const PX_PATHS = new Set(['spacing.gridSize', 'typography.fontSize', 'typography.htmlFontSize']);
+
+const kebab = (key: string) =>
+  key
+    .replace(/_/g, '-')
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .toLowerCase();
+
+function isThemeCssVarName(name: string): name is ThemeCssVarName {
+  return name.startsWith('--gf-');
+}
 
 function readPath(theme: GrafanaTheme2, path: string[]): unknown {
   let value: unknown = theme;
@@ -487,9 +326,14 @@ function readPath(theme: GrafanaTheme2, path: string[]): unknown {
  */
 export function themeToCssVars(theme: GrafanaTheme2): Partial<Record<ThemeCssVarName, string>> {
   const vars: Partial<Record<ThemeCssVarName, string>> = {};
-  for (const [name, path, kind] of TOKENS) {
+  for (const dotted of TOKEN_PATHS.split(' ')) {
+    const path = dotted.split('.');
+    const name = `--gf-${path.map(kebab).join('-')}`;
     const value = readPath(theme, path);
-    vars[name] = value === undefined || value === null ? 'initial' : kind === 'px' ? `${value}px` : String(value);
+    if (isThemeCssVarName(name)) {
+      vars[name] =
+        value === undefined || value === null ? 'initial' : PX_PATHS.has(dotted) ? `${value}px` : String(value);
+    }
   }
   return vars;
 }

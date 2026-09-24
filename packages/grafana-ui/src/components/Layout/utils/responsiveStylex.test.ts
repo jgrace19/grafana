@@ -40,14 +40,10 @@ describe('responsiveArgs', () => {
 });
 
 describe('spacingValue', () => {
-  it('uses the spacing token for token multiples', () => {
-    expect(spacingValue(1)).toBe('var(--gf-spacing-x1)');
-    expect(spacingValue(0.5)).toBe('var(--gf-spacing-x0-5)');
-    expect(spacingValue(0)).toBe('var(--gf-spacing-x0)');
-  });
-
-  it('falls back to a calc on the grid size', () => {
+  it('scales the grid size token like theme.spacing()', () => {
+    expect(spacingValue(1)).toBe('calc(var(--gf-spacing-grid-size) * 1)');
     expect(spacingValue(0.75)).toBe('calc(var(--gf-spacing-grid-size) * 0.75)');
+    expect(spacingValue(0)).toBe('calc(var(--gf-spacing-grid-size) * 0)');
   });
 
   it('passes strings through like theme.spacing()', () => {

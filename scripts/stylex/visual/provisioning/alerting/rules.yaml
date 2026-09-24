@@ -1,0 +1,131 @@
+apiVersion: 1
+
+# Rules are paused and the server runs with execute_alerts=false, so they never
+# evaluate: state, health and "last evaluation" stay identical across runs.
+groups:
+  - orgId: 1
+    name: Baseline checks
+    folder: Alerting Baseline
+    interval: 1m
+    rules:
+      - uid: vb-rule-cpu
+        title: High CPU usage
+        condition: C
+        for: 5m
+        isPaused: true
+        noDataState: NoData
+        execErrState: Error
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: CPU usage above 80% on a baseline host
+          description: Fixed csv_metric_values series used for visual regression baselines.
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: vb-testdata
+            model:
+              refId: A
+              scenarioId: csv_metric_values
+              stringInput: 10,20,90,30,5,0
+              alias: cpu
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [80]
+      - uid: vb-rule-errors
+        title: Error rate elevated
+        condition: C
+        for: 1m
+        isPaused: true
+        labels:
+          severity: warning
+          team: checkout
+        annotations:
+          summary: Error ratio above 5%
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: vb-testdata
+            model:
+              refId: A
+              scenarioId: csv_metric_values
+              stringInput: 1,2,3,2,1
+              alias: errors
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: mean
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+  - orgId: 1
+    name: Latency
+    folder: Alerting Baseline
+    interval: 5m
+    rules:
+      - uid: vb-rule-latency
+        title: p95 latency over SLO
+        condition: C
+        for: 10m
+        isPaused: true
+        labels:
+          severity: info
+        annotations:
+          summary: p95 latency above 300ms
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: vb-testdata
+            model:
+              refId: A
+              scenarioId: csv_metric_values
+              stringInput: 120,180,240,310,280
+              alias: p95
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [300]

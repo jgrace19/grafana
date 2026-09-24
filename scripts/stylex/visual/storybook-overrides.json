@@ -1,0 +1,11 @@
+{
+  "masks": [
+    {
+      "patterns": ["^alerting-contact-points-contactpointselector--", "^alerting-notification-policies-routingtreeselector--"],
+      "selectors": [
+        "xpath=//input[@role=\"combobox\"]/ancestor::*[.//*[local-name()=\"svg\" and starts-with(@data-testid,\"icon-\")]][1]//*[local-name()=\"svg\" and starts-with(@data-testid,\"icon-\")]"
+      ],
+      "reason": "Combobox/MultiCombobox suffix icon only (16x16). After async options load, Icon (react-inlinesvg) sometimes keeps the spinner SVG content although its data-testid is already icon-angle-down; reproducible on main without the harness."
+    }
+  ]
+}

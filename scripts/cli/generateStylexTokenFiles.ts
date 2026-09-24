@@ -110,16 +110,20 @@ function tokensFile(theme: GrafanaTheme2, groups: Record<VarGroup, TokenLeaf[]>)
 
 function cssVarsFile(groups: Record<VarGroup, TokenLeaf[]>) {
   const all = VAR_GROUPS.flatMap((g) => groups[g]);
+  for (const leaf of all) {
+    if (leaf.path.some((key) => key.includes('.') || key.includes(' '))) {
+      throw new Error(`Theme path ${leaf.path.join('.')} can't be encoded in TOKEN_PATHS`);
+    }
+  }
   let out = `${HEADER}\n`;
   out += `import { type GrafanaTheme2 } from '@grafana/data';\n\n`;
   out += `export type ThemeCssVarName =\n${all.map((l) => `  | '${l.varName}'`).join('\n')};\n\n`;
-  out += `// [var name, theme path, serialisation]. Paths are read dynamically because some theme values exist at\n`;
-  out += `// runtime without being part of the GrafanaTheme2 type.\n`;
-  out += `const TOKENS: Array<[ThemeCssVarName, string[], 'string' | 'px' | 'number']> = [\n`;
-  for (const leaf of all) {
-    out += `  ['${leaf.varName}', ${JSON.stringify(leaf.path)}, '${leaf.kind}'],\n`;
-  }
-  out += `];\n\n`;
+  out += `// Theme paths of every token, space-separated to keep the bundle small. Read dynamically because some\n`;
+  out += `// theme values exist at runtime without being part of the GrafanaTheme2 type.\n`;
+  out += `const TOKEN_PATHS =\n${wrapWords(all.map((l) => l.path.join('.')))};\n`;
+  out += `const PX_PATHS = new Set(${JSON.stringify([...PX_NUMBER_PATHS])});\n\n`;
+  out += `const kebab = (key: string) =>\n  key\n    .replace(/_/g, '-')\n    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')\n    .toLowerCase();\n\n`;
+  out += `function isThemeCssVarName(name: string): name is ThemeCssVarName {\n  return name.startsWith('--gf-');\n}\n\n`;
   out += `function readPath(theme: GrafanaTheme2, path: string[]): unknown {\n`;
   out += `  let value: unknown = theme;\n`;
   out += `  for (const key of path) {\n`;
@@ -133,13 +137,32 @@ function cssVarsFile(groups: Record<VarGroup, TokenLeaf[]>) {
   out += `/**\n * Maps a theme to the \`--gf-*\` custom properties declared in tokens.stylex.ts. A value the theme omits\n * (e.g. letterSpacing for non-default fonts) maps to \`initial\`, the guaranteed-invalid value, so the\n * property using it computes to \`unset\`, just like Emotion omitting the declaration.\n */\n`;
   out += `export function themeToCssVars(theme: GrafanaTheme2): Partial<Record<ThemeCssVarName, string>> {\n`;
   out += `  const vars: Partial<Record<ThemeCssVarName, string>> = {};\n`;
-  out += `  for (const [name, path, kind] of TOKENS) {\n`;
+  out += `  for (const dotted of TOKEN_PATHS.split(' ')) {\n`;
+  out += `    const path = dotted.split('.');\n`;
+  out += `    const name = \`--gf-\${path.map(kebab).join('-')}\`;\n`;
   out += `    const value = readPath(theme, path);\n`;
-  out += `    vars[name] = value === undefined || value === null ? 'initial' : kind === 'px' ? \`\${value}px\` : String(value);\n`;
+  out += `    if (isThemeCssVarName(name)) {\n`;
+  out += `      vars[name] = value === undefined || value === null ? 'initial' : PX_PATHS.has(dotted) ? \`\${value}px\` : String(value);\n`;
+  out += `    }\n`;
   out += `  }\n`;
   out += `  return vars;\n`;
   out += `}\n`;
   return out;
+}
+
+/** A long space-separated string literal, split into concatenated lines for readability. */
+function wrapWords(words: string[]) {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    if (line && line.length + word.length > 100) {
+      lines.push(line);
+      line = '';
+    }
+    line += (line ? ' ' : '') + word;
+  }
+  lines.push(line);
+  return lines.map((l, i) => `  '${l}${i < lines.length - 1 ? ' ' : ''}'`).join(' +\n');
 }
 
 function constantsFile(theme: GrafanaTheme2) {

@@ -1,0 +1,28 @@
+apiVersion: 1
+
+datasources:
+  - name: TestData
+    uid: vb-testdata
+    type: grafana-testdata-datasource
+    access: proxy
+    isDefault: true
+    editable: false
+
+  # Never queried during capture; exists so the data source list and a rich
+  # config page (Prometheus) render. The URL is intentionally unreachable.
+  - name: Prometheus (baseline)
+    uid: vb-prometheus
+    type: prometheus
+    access: proxy
+    url: http://127.0.0.1:9
+    editable: true
+    jsonData:
+      httpMethod: POST
+      timeInterval: 30s
+
+  - name: Loki (baseline)
+    uid: vb-loki
+    type: loki
+    access: proxy
+    url: http://127.0.0.1:9
+    editable: true

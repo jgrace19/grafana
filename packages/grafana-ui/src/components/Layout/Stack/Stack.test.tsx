@@ -26,11 +26,11 @@ describe('Stack', () => {
     expect(className).not.toMatch(/undefined|NaN|null/);
   });
 
-  it('sets responsive gap values as token vars', () => {
+  it('sets responsive gap values from the grid size token', () => {
     render(<Stack data-testid="stack" gap={{ xs: 1, lg: 4 }} />);
     const style = screen.getByTestId('stack').getAttribute('style') ?? '';
 
-    expect(style).toContain('var(--gf-spacing-x1)');
-    expect(style).toContain('var(--gf-spacing-x4)');
+    expect(style).toContain('calc(var(--gf-spacing-grid-size) * 1)');
+    expect(style).toContain('calc(var(--gf-spacing-grid-size) * 4)');
   });
 });
