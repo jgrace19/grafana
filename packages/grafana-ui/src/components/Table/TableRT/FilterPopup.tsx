@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Label migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
@@ -77,7 +75,7 @@ export const FilterPopup = ({
         <Stack direction="column" gap={3}>
           <Stack direction="column" gap={0.5}>
             <Stack justifyContent="space-between" alignItems="center">
-              <Label className={labelOverride}>
+              <Label className="gf-table-rt-filter-label">
                 <Trans i18nKey="grafana-ui.table.filter-popup-heading">Filter by values:</Trans>
               </Label>
               <IconButton
@@ -128,11 +126,7 @@ export const FilterPopup = ({
   );
 };
 
-// stylex: pending Label migration. Label's own Emotion margin would beat a StyleX class.
-const labelOverride = css({
-  marginBottom: 0,
-});
-
+// The Label margin override is in TableRT.css.
 const styles = stylex.create({
   filterContainer: {
     width: '100%',
