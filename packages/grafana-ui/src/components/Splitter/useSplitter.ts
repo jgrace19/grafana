@@ -347,11 +347,12 @@ export function useSplitter(options: UseSplitterOptions) {
       onDoubleClick,
       onBlur,
       ref: splitterRef,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       style: {
         ...dragHandle.style,
         [measurementProp]: `${handleSize}px`,
         '--gf-drag-handle-grip-color': getDragHandleGripColor(theme),
-      },
+      } as React.CSSProperties,
       role: 'separator',
       'aria-valuemin': 0,
       'aria-valuemax': 100,
