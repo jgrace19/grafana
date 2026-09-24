@@ -6,9 +6,8 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { TextArea } from '@grafana/ui';
 
+import { VARIABLE_TEXTAREA_CLASS } from '../../dashboard-scene/settings/variables/components/VariableTextAreaField';
 import { type VariableQueryEditorProps } from '../types';
-
-import './LegacyVariableQueryEditor.css';
 
 export const LEGACY_VARIABLE_QUERY_EDITOR_NAME = 'Grafana-LegacyVariableQueryEditor';
 
@@ -42,7 +41,7 @@ export const LegacyVariableQueryEditor = ({ onChange, query }: VariableQueryEdit
       required
       data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsQueryInput}
       cols={52}
-      className="gf-legacy-variable-query"
+      className={VARIABLE_TEXTAREA_CLASS}
     />
   );
 };
