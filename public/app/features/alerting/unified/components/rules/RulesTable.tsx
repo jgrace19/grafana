@@ -7,7 +7,7 @@ import { t } from '@grafana/i18n';
 import { Pagination, Tooltip } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
-import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedRule, type RulesSource } from 'app/types/unified-alerting';
 
 import { DEFAULT_PER_PAGE_PAGINATION } from '../../../../../core/constants';
