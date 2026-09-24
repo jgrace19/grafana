@@ -1,14 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Checkbox, Button, Tag, ModalsController, useStyles2 } from '@grafana/ui';
+import { Checkbox, Button, Tag, ModalsController } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 
 import { RevertDashboardModal } from './RevertDashboardModal';
+
+import './VersionHistoryTable.css';
 
 type VersionsTableProps = {
   versions: DecoratedRevisionModel[];
@@ -25,11 +28,9 @@ export const VersionHistoryTable = ({
   onRestore,
   isLoadingUserDisplayNames,
 }: VersionsTableProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.margin}>
-      <table className={cx('filter-table', styles.table)}>
+    <div {...stylex.props(styles.margin)}>
+      <table className={clsx('filter-table', 'gf-version-history-table')}>
         <thead>
           <tr>
             <th className="width-4"></th>
@@ -58,9 +59,7 @@ export const VersionHistoryTable = ({
                     'Toggle selection of version {{version}}',
                     { version: version.version }
                   )}
-                  className={css({
-                    display: 'inline',
-                  })}
+                  className="gf-version-history-checkbox"
                   checked={version.checked}
                   onChange={(ev) => onCheck(ev, version.id)}
                   disabled={!version.checked && canCompare}
@@ -108,15 +107,9 @@ export const VersionHistoryTable = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    margin: css({
-      marginBottom: theme.spacing(4),
-    }),
-    table: css({
-      td: {
-        whiteSpace: 'normal !important',
-      },
-    }),
-  };
-}
+// The table cells and version checkboxes are styled by VersionHistoryTable.css.
+const styles = stylex.create({
+  margin: {
+    marginBottom: spacing['--gf-spacing-x4'],
+  },
+});
