@@ -3,12 +3,10 @@ import { useState } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Button } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { isV2StoredVersion } from 'app/features/dashboard/api/utils';
 
 import { type DashboardScene } from '../scene/DashboardScene';
-
-import './DashboardConversionWarningBanner.css';
 
 interface DashboardConversionWarningBannerProps {
   dashboard: DashboardScene;
@@ -48,7 +46,7 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
               size="sm"
               fill="text"
               onClick={() => setIsExpanded(true)}
-              className="gf-conversion-banner-link-button"
+              xstyle={styles.linkButton}
             >
               <Trans i18nKey="dashboard-scene.conversion-warning-banner.read-more">Read more</Trans>
             </Button>
@@ -88,7 +86,7 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
                 size="sm"
                 fill="text"
                 onClick={() => setIsExpanded(false)}
-                className="gf-conversion-banner-link-button"
+                xstyle={styles.linkButton}
               >
                 <Trans i18nKey="dashboard-scene.conversion-warning-banner.read-less">Read less</Trans>
               </Button>
@@ -100,8 +98,16 @@ export function DashboardConversionWarningBanner({ dashboard }: DashboardConvers
   );
 }
 
-// The link-style Button overrides live in DashboardConversionWarningBanner.css.
 const styles = stylex.create({
+  linkButton: {
+    marginTop: 0,
+    marginLeft: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    fontSize: '1rem',
+    verticalAlign: 'baseline',
+    color: colors['--gf-colors-text-link'],
+  },
   buttonContainer: {
     marginTop: spacing['--gf-spacing-x1'],
   },

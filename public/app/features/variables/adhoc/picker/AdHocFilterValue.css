@@ -1,9 +1,0 @@
-/* SegmentAsync renders an InlineLabel (a label) that sets its own display and width; label.gf-* (0,1,1) beats its single
- * class in either stylesheet order. */
-label.gf-adhoc-filter-value {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 500px;
-}

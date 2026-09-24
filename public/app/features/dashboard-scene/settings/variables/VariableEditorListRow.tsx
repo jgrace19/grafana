@@ -7,14 +7,12 @@ import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type SceneVariable } from '@grafana/scenes';
 import { Button, ConfirmModal, Icon, IconButton, Tooltip, useTheme2 } from '@grafana/ui';
-import { spacing, v1 } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, spacing, v1 } from '@grafana/ui/stylex/tokens.stylex';
 
 import { VariableUsagesButton } from '../../variables/VariableUsagesButton';
 import { type UsagesToNetwork, type VariableUsageTree, getVariableUsages } from '../../variables/utils';
 
 import { getDefinition } from './utils';
-
-import './VariableEditorListRow.css';
 
 export interface VariableEditorListRowProps {
   index: number;
@@ -71,7 +69,7 @@ export function VariableEditorListRow({
                 event.preventDefault();
                 propsOnEdit(identifier);
               }}
-              className="gf-variable-name-link"
+              xstyle={styles.nameLink}
               data-testid={selectors.pages.Dashboard.Settings.Variables.List.tableRowNameFields(variableState.name)}
             >
               {variableState.name}
@@ -199,8 +197,11 @@ function VariableCheckIndicator({ passed }: VariableCheckIndicatorProps): ReactE
   );
 }
 
-// The name Button's color override lives in VariableEditorListRow.css.
 const styles = stylex.create({
+  nameLink: {
+    cursor: 'pointer',
+    color: colors['--gf-colors-primary-text'],
+  },
   dragHandle: {
     cursor: 'grab',
     marginLeft: spacing['--gf-spacing-x1'],

@@ -7,8 +7,6 @@ import { IconButton, ReactUtils } from '@grafana/ui';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import './SettingsBarHeader.css';
-
 export interface Props {
   onRowToggle: () => void;
   isContentVisible?: boolean;
@@ -30,7 +28,7 @@ export function SettingsBarHeader({ headerElement, isContentVisible = false, onR
               ? t('public-dashboard.settings-bar-header.collapse-settings-tooltip', 'Collapse settings')
               : t('public-dashboard.settings-bar-header.expand-settings-tooltip', 'Expand settings')
           }
-          className="gf-settings-bar-header-collapse-icon"
+          xstyle={styles.collapseIcon}
           onClick={onRowToggle}
           aria-expanded={isContentVisible}
           {...rest}
@@ -52,6 +50,10 @@ export function SettingsBarHeader({ headerElement, isContentVisible = false, onR
 SettingsBarHeader.displayName = 'SettingsBarHeader';
 
 const styles = stylex.create({
+  collapseIcon: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    color: colors['--gf-colors-text-disabled'],
+  },
   wrapper: {
     padding: spacing['--gf-spacing-x0-5'],
     borderRadius: shape['--gf-shape-radius-default'],

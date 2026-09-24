@@ -1,8 +1,0 @@
-/*
- * Card has no xstyle, and a StyleX class string would race its own styles for these properties (conventions §3.9).
- * Unlayered, this beats its layered StyleX.
- */
-.gf-transformation-picker-card {
-  margin: 0;
-  padding: var(--gf-spacing-x1);
-}

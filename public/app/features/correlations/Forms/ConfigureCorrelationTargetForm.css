@@ -1,7 +1,0 @@
-/*
- * Caps the width of the correlation type Select. Select is StyleX but only takes className and sets its own
- * max-width, so the override is an unlayered class, which beats the layered StyleX rule.
- */
-.gf-correlation-type-select {
-  max-width: calc(var(--gf-spacing-grid-size) * 40);
-}

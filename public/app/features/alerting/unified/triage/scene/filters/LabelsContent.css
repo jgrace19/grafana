@@ -1,24 +1,4 @@
-/*
- * Button and IconButton (StyleX) set these properties themselves, and the button text sits in a span they render.
- * Unlayered rules beat their layered styles, as the Emotion classes did.
- */
-.gf-labels-content-toggle {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.gf-labels-content-key {
-  font-weight: var(--gf-typography-font-weight-bold);
-  color: var(--gf-colors-text-secondary);
-  min-width: 0;
-}
-
-.gf-labels-content-value {
-  flex: 1;
-  min-width: 0;
-  justify-self: stretch;
-}
-
+/* Truncates the label Buttons' content span, which no StyleX override prop reaches. Unlayered, like the Emotion rule it replaces. */
 .gf-labels-content-key > span,
 .gf-labels-content-value > span {
   overflow: hidden;
@@ -26,9 +6,4 @@
   text-overflow: ellipsis;
   display: block;
   min-width: 0;
-}
-
-.gf-labels-content-active {
-  background: var(--gf-colors-action-selected);
-  border-radius: var(--gf-shape-radius-default);
 }

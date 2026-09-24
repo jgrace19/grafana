@@ -22,7 +22,6 @@ import { type GrafanaQuery } from 'app/plugins/datasource/grafana/types';
 
 import { useDatasource, useDatasources } from '../../hooks';
 
-import './DataSourcePicker.css';
 import { DataSourceList } from './DataSourceList';
 import { DataSourceLogo, DataSourceLogoPlaceHolder } from './DataSourceLogo';
 import { DataSourceModal } from './DataSourceModal';
@@ -250,13 +249,7 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
       >
         <Input
           id={inputId || 'data-source-picker'}
-          className={
-            inputHasFocus
-              ? undefined
-              : disabled
-                ? 'gf-data-source-picker-input-disabled'
-                : 'gf-data-source-picker-input'
-          }
+          inputXstyle={inputHasFocus ? undefined : disabled ? inputStyles.placeholderDisabled : inputStyles.placeholder}
           data-testid={selectors.components.DataSourcePicker.inputV2}
           aria-label={t('datasources.data-source-picker.aria-label-select-a-data-source', 'Select a data source')}
           autoComplete="off"
@@ -480,5 +473,14 @@ const footerStyles = stylex.create({
     borderTopStyle: 'solid',
     borderTopColor: colors['--gf-colors-border-weak'],
     backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+});
+
+const inputStyles = stylex.create({
+  placeholder: {
+    '::placeholder': { color: colors['--gf-colors-text-primary'] },
+  },
+  placeholderDisabled: {
+    '::placeholder': { color: colors['--gf-colors-action-disabled-text'] },
   },
 });

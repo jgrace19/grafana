@@ -1,11 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
-import cx from 'classnames';
 
 import { t, Trans } from '@grafana/i18n';
 import { Badge, Button, Spinner, Tooltip } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
-
-import './CompatibilityBadge.css';
 
 /**
  * Discriminated union for compatibility check states.
@@ -104,7 +101,7 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
             text={t('dashboard-library.compatibility-badge.error-text', 'Error')}
             icon="exclamation-circle"
             color="red"
-            className={cx('gf-compatibility-badge-clickable', stylex.props(styles.clickableBadge).className)}
+            xstyle={styles.clickableBadge}
           />
         </span>
       </Tooltip>
@@ -232,6 +229,8 @@ const styles = stylex.create({
     alignItems: 'center',
   },
   clickableBadge: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
     cursor: 'pointer',
     opacity: { default: null, ':hover': 0.8 },
   },

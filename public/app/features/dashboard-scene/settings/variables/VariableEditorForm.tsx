@@ -30,8 +30,6 @@ import {
   validateVariableName,
 } from './utils';
 
-import './VariableEditorForm.css';
-
 interface VariableEditorFormProps {
   variable: SceneVariable;
   onTypeChange: (type: EditableVariableType) => void;
@@ -179,7 +177,7 @@ export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete 
             >
               {runQueryState.loading ? (
                 <LoadingPlaceholder
-                  className="gf-variable-editor-loading"
+                  xstyle={styles.loading}
                   text={t('dashboard-scene.variable-editor-form.text-running-query', 'Running query...')}
                 />
               ) : (
@@ -193,8 +191,10 @@ export function VariableEditorForm({ variable, onTypeChange, onGoBack, onDelete 
   );
 }
 
-// The LoadingPlaceholder margin override lives in VariableEditorForm.css.
 const styles = stylex.create({
+  loading: {
+    marginBottom: 0,
+  },
   buttonContainer: {
     marginTop: spacing['--gf-spacing-x2'],
   },

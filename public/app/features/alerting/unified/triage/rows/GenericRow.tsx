@@ -9,8 +9,6 @@ import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Spacer } from '../../components/Spacer';
 import { useWorkbenchContext } from '../WorkbenchContext';
 
-import './GenericRow.css';
-
 // Width of the md IconButton used as the expand/collapse chevron, in pixels.
 const CHEVRON_WIDTH_PX = 24;
 
@@ -128,7 +126,7 @@ const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onTog
         <IconButton
           name={isOpen ? 'angle-down' : 'angle-right'}
           onClick={onToggle}
-          className="gf-generic-row-toggle"
+          xstyle={styles.toggle}
           variant="secondary"
           size="md"
           aria-label={t('alerting.group-wrapper.toggle', 'Toggle group')}
@@ -149,6 +147,10 @@ const LeftCell = ({ title, metadata = null, actions = null, isOpen = true, onTog
 };
 
 const styles = stylex.create({
+  toggle: {
+    alignSelf: 'flex-start',
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
   column: {
     display: 'flex',
     position: 'relative',

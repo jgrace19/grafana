@@ -1,14 +1,14 @@
+import * as stylex from '@stylexjs/stylex';
 import { Controller, type FieldError, useFormContext, useWatch } from 'react-hook-form';
 
 import { type DataSourceInstanceSettings } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type CorrelationExternal } from '@grafana/runtime';
 import { Field, FieldSet, Input, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 
 import { type CorrelationType } from '../types';
-
-import './ConfigureCorrelationTargetForm.css';
 
 import { QueryEditorField } from './QueryEditorField';
 import { useCorrelationsFormContext } from './correlationsFormContext';
@@ -67,7 +67,7 @@ export const ConfigureCorrelationTargetForm = () => {
               invalid={!!errors.type}
             >
               <Select
-                className="gf-correlation-type-select"
+                xstyle={styles.typeSelect}
                 value={correlationType}
                 onChange={(value) => onChange(value.value)}
                 options={Object.values(CORR_TYPES_SELECT)}
@@ -170,3 +170,9 @@ export const ConfigureCorrelationTargetForm = () => {
     </>
   );
 };
+
+const styles = stylex.create({
+  typeSelect: {
+    maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 40)`,
+  },
+});

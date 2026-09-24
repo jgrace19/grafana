@@ -4,10 +4,8 @@ import React, { cloneElement, useCallback, useState } from 'react';
 
 import { t } from '@grafana/i18n';
 import { IconButton, Portal } from '@grafana/ui';
-import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
-
-import './ControlActionsPopover.css';
 
 export function ControlActionsPopover({
   isEditable,
@@ -77,7 +75,7 @@ export function ControlEditActions({
         name="pen"
         variant="primary"
         size="md"
-        className="gf-control-edit-action gf-control-edit-action--edit"
+        xstyle={[styles.editAction, styles.editActionEdit]}
         onPointerDown={onClickEditInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-edit', 'Edit')}
       />
@@ -86,7 +84,7 @@ export function ControlEditActions({
         name="trash-alt"
         variant="destructive"
         size="md"
-        className="gf-control-edit-action gf-control-edit-action--delete"
+        xstyle={[styles.editAction, styles.editActionDelete]}
         onPointerDown={onClickDeleteInternal}
         aria-label={t('dashboard-scene.control-edit-actions.aria-label-delete', 'Delete')}
       />
@@ -94,8 +92,36 @@ export function ControlEditActions({
   );
 }
 
-// The IconButton overrides live in ControlActionsPopover.css: they must beat IconButton's own margin and color.
 const styles = stylex.create({
+  // Over IconButton: its keyboard-focus transition still applies; the colour transition covers every other state.
+  editAction: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    transitionProperty: {
+      default: null,
+      ':focus': 'outline, outline-offset, box-shadow',
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': 'color' },
+    },
+    transitionDuration: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' },
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': '250ms' },
+    },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+      [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': 'cubic-bezier(0.4, 0, 0.2, 1)' },
+    },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: { default: null, ':not(:focus-visible)': '0ms' } },
+  },
+  editActionEdit: {
+    color: { default: colors['--gf-colors-text-primary'], ':hover': colors['--gf-colors-primary-text'] },
+  },
+  editActionDelete: {
+    color: { default: colors['--gf-colors-text-primary'], ':hover': colors['--gf-colors-error-text'] },
+  },
   popover: {
     zIndex: zIndex.portal,
   },

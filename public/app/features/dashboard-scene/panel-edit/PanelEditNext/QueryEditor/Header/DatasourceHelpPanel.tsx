@@ -7,8 +7,6 @@ import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
 
-import './DatasourceHelpPanel.css';
-
 export function DatasourceHelpPanel() {
   const { selectedQuery, selectedQueryDsData, selectedQueryDsLoading, toggleDatasourceHelp } =
     useQueryEditorUIContext();
@@ -39,7 +37,7 @@ export function DatasourceHelpPanel() {
         size="md"
         tooltip={t('query-editor-next.help.close', 'Close help')}
         onClick={toggleDatasourceHelp}
-        className="gf-datasource-help-panel-close"
+        xstyle={styles.close}
         aria-label={t('query-editor-next.help.close-aria', 'Close help panel')}
       />
       <DatasourceCheatsheet query={selectedQuery} datasource={datasource} onClickExample={onClickExample} />
@@ -48,6 +46,12 @@ export function DatasourceHelpPanel() {
 }
 
 const styles = stylex.create({
+  close: {
+    position: 'absolute',
+    top: spacing['--gf-spacing-x1'],
+    right: spacing['--gf-spacing-x1'],
+    zIndex: 1,
+  },
   container: {
     position: 'relative',
     paddingTop: spacing['--gf-spacing-x2'],

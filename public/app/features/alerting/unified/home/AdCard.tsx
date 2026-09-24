@@ -10,8 +10,6 @@ import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
 import { isOpenSourceBuildOrUnlicenced } from 'app/features/admin/EnterpriseAuthFeaturesCard';
 
-import './AdCard.css';
-
 type AdCardProps = {
   title: string;
   description: string;
@@ -59,12 +57,7 @@ export default function AdCard({ title, description, href, logoUrl, items, helpF
         ))}
       </div>
       <Divider />
-      <Button
-        fill="solid"
-        variant="secondary"
-        onClick={() => window.open(href, '_blank')}
-        className="gf-ad-card-button"
-      >
+      <Button fill="solid" variant="secondary" onClick={() => window.open(href, '_blank')} xstyle={styles.button}>
         <Trans i18nKey="alerting.ad.learn-more">Learn more</Trans>
         <Icon name="external-link-alt" xstyle={styles.buttonIcon} />
       </Button>
@@ -73,6 +66,10 @@ export default function AdCard({ title, description, href, logoUrl, items, helpF
 }
 
 const styles = stylex.create({
+  button: {
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
   logo: {
     objectFit: 'contain',
     width: '47px',

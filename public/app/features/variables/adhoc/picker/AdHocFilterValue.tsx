@@ -1,10 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { type AdHocVariableFilter, type DataSourceRef, type SelectableValue } from '@grafana/data';
 import { SegmentAsync } from '@grafana/ui';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 
 import { getDatasourceSrv } from '../../../plugins/datasource_srv';
-
-import './AdHocFilterValue.css';
 
 interface Props {
   datasource: DataSourceRef;
@@ -30,7 +30,7 @@ export const AdHocFilterValue = ({
   return (
     <div className="gf-form" data-testid="AdHocFilterValue-value-wrapper">
       <SegmentAsync
-        className="gf-adhoc-filter-value"
+        xstyle={styles.value}
         disabled={disabled}
         placeholder={placeHolder}
         value={filterValue}
@@ -59,3 +59,13 @@ const fetchFilterValues = async (
   const metrics = Array.isArray(response) ? response : response.data;
   return metrics.map((m) => ({ label: m.text, value: m.text }));
 };
+
+const styles = stylex.create({
+  value: {
+    display: 'block',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: '500px',
+  },
+});

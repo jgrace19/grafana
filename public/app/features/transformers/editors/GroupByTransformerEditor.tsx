@@ -18,8 +18,6 @@ import darkImage from '../images/dark/groupBy.svg';
 import lightImage from '../images/light/groupBy.svg';
 import { DataFieldsErrorWrapper } from '../utils';
 
-import './GroupByTransformerEditor.css';
-
 interface FieldProps {
   fieldName: string;
   config?: GroupByFieldOptions;
@@ -113,7 +111,7 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
   ];
 
   return (
-    <InlineField className="gf-group-by-field" label={fieldName} grow shrink>
+    <InlineField labelXstyle={styles.label} label={fieldName} grow shrink>
       <Stack gap={0.5} direction="row">
         <div {...stylex.props(styles.operation)}>
           <Combobox
@@ -144,6 +142,9 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
 };
 
 const styles = stylex.create({
+  label: {
+    minWidth: `calc(${spacing['--gf-spacing-grid-size']} * 32)`,
+  },
   operation: {
     flexShrink: 0,
     height: '100%',

@@ -68,6 +68,7 @@ const ButtonDisplay = ({ data }: CanvasElementProps<ButtonConfig, ButtonData>) =
       variant={data?.style?.variant}
       onClick={onClick}
       className="gf-canvas-button"
+      xstyle={styles.button}
       style={getContentStyle(data)}
     >
       <span>
@@ -230,6 +231,11 @@ export const buttonItem: CanvasElementItem<ButtonConfig, ButtonData> = {
 };
 
 const styles = stylex.create({
+  button: {
+    height: '100%',
+    width: '100%',
+    display: 'grid',
+  },
   buttonSpinner: {
     marginRight: spacing['--gf-spacing-x0-5'],
   },

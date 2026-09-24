@@ -109,6 +109,7 @@ export function QueryEditorFooter() {
               fill="text"
               size="sm"
               className="gf-query-editor-footer-item"
+              xstyle={styles.item}
               onClick={(e) => handleItemClick(e, item.id)}
               aria-label={t('query-editor-next.footer.edit-option', 'Edit {{label}}', { label: item.label })}
             >
@@ -124,6 +125,12 @@ export function QueryEditorFooter() {
 }
 
 const styles = stylex.create({
+  item: {
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
   container: {
     position: 'sticky',
     bottom: 0,

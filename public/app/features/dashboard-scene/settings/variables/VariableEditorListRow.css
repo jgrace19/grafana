@@ -1,8 +1,0 @@
-/*
- * Override on Button, which takes no xstyle. Unlayered on purpose so it beats Button's own text color, like the
- * Emotion className override it replaces.
- */
-.gf-variable-name-link {
-  cursor: pointer;
-  color: var(--gf-colors-primary-text);
-}
