@@ -34,6 +34,7 @@ export function ClipboardButton({
   getText,
   icon,
   variant,
+  xstyle,
   ...buttonProps
 }: Props) {
   const [showCopySuccess, setShowCopySuccess] = useState(false);
@@ -79,11 +80,8 @@ export function ClipboardButton({
         icon={icon}
         variant={showCopySuccess ? 'success' : variant}
         {...buttonProps}
-        className={clsx(
-          'gf-clipboard-button',
-          showCopySuccess && 'gf-clipboard-button--success',
-          buttonProps.className
-        )}
+        className={clsx(showCopySuccess && 'gf-clipboard-button--success', buttonProps.className)}
+        xstyle={[styles.button, xstyle]}
         ref={buttonRef}
       >
         {children}
@@ -119,6 +117,9 @@ const copyText = async (text: string, buttonRef: React.MutableRefObject<HTMLButt
 };
 
 const styles = stylex.create({
+  button: {
+    position: 'relative',
+  },
   successOverlay: {
     position: 'absolute',
     top: 0,

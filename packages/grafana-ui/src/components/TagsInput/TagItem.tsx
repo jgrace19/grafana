@@ -8,8 +8,6 @@ import { colors, components, shape, spacing, typography } from '../../themes/sty
 import { getTagColorsFromName } from '../../utils/tags';
 import { IconButton } from '../IconButton/IconButton';
 
-import './TagsInput.css';
-
 interface Props {
   name: string;
   disabled?: boolean;
@@ -43,13 +41,20 @@ export const TagItem = ({ name, disabled, onRemove, autoColors = true }: Props) 
         disabled={disabled}
         tooltip={t('grafana-ui.tags-input.remove', 'Remove tag: {{name}}', { name })}
         onClick={() => onRemove(name)}
-        className="gf-tags-input-remove"
+        xstyle={styles.remove}
       />
     </li>
   );
 };
 
 const styles = stylex.create({
+  // IconButton's hover background never shows.
+  remove: {
+    marginRight: 0,
+    '::before': {
+      opacity: 0,
+    },
+  },
   itemStyle: {
     display: 'flex',
     gap: '3px',

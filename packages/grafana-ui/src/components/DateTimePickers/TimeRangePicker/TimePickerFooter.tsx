@@ -19,8 +19,6 @@ import { TimeZoneOffset } from '../TimeZonePicker/TimeZoneOffset';
 import { TimeZoneTitle } from '../TimeZonePicker/TimeZoneTitle';
 import { getMonthOptions } from '../options';
 
-import './TimePickerFooter.css';
-
 interface Props {
   timeZone?: TimeZone;
   fiscalYearStartMonth?: number;
@@ -112,7 +110,7 @@ export const TimePickerFooter = (props: Props) => {
               aria-controls={fiscalYearSettingsId}
             />
           </TabsBar>
-          <TabContent className="gf-time-picker-footer-tab-content">
+          <TabContent xstyle={styles.tabContent}>
             {editMode === 'tz' ? (
               <section
                 role="tabpanel"
@@ -162,6 +160,10 @@ export const TimePickerFooter = (props: Props) => {
 };
 
 const styles = stylex.create({
+  tabContent: {
+    backgroundColor: 'inherit',
+    backgroundImage: 'inherit',
+  },
   container: {
     borderTopWidth: '1px',
     borderTopStyle: 'solid',

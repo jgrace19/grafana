@@ -11,8 +11,6 @@ import { colors, components, shadows, shape, spacing, typography } from '../../t
 import { Alert } from '../Alert/Alert';
 import { IconButton } from '../IconButton/IconButton';
 
-import './Carousel.css';
-
 // Define the image item interface
 export interface CarouselImage {
   path: string;
@@ -148,7 +146,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
                 aria-label={t('carousel.close', 'Close')}
                 size="xl"
                 onClick={closePreview}
-                className="gf-carousel-close"
+                xstyle={styles.close}
               />
 
               <IconButton
@@ -186,6 +184,12 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
 const grid = spacing['--gf-spacing-grid-size'];
 
 const styles = stylex.create({
+  close: {
+    color: colors['--gf-colors-text-primary'],
+    position: 'fixed',
+    top: `calc(${grid} * 2)`,
+    right: `calc(${grid} * 2)`,
+  },
   // Also resets the native button (the old clearButtonStyles).
   imageButton: {
     backgroundColor: 'transparent',

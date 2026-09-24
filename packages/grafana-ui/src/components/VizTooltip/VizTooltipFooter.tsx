@@ -80,7 +80,11 @@ const renderDataLinks = makeRenderLinksOrActions<LinkModel>(
     <Trans i18nKey="grafana-ui.viz-tooltip.footer-click-to-navigate">Click to open {{ linkTitle: title }}</Trans>
   ),
   (item, i) => (
-    <DataLinkButton link={item} key={i} buttonProps={{ className: 'gf-viz-tooltip-footer-link', fill: 'text' }} />
+    <DataLinkButton
+      link={item}
+      key={i}
+      buttonProps={{ className: 'gf-viz-tooltip-footer-link', fill: 'text', xstyle: styles.link }}
+    />
   ),
   0.5
 );
@@ -153,7 +157,21 @@ export const VizTooltipFooter = ({
   );
 };
 
+// Button's own focus background still applies unless hovered, as it did under the Emotion class.
 const styles = stylex.create({
+  link: {
+    cursor: 'pointer',
+    paddingLeft: 0,
+    paddingRight: 0,
+    height: 'auto',
+    textDecoration: { default: null, ':hover': 'underline', ':focus': { default: 'none', ':hover': 'underline' } },
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': 'transparent',
+      ':focus': { default: colors['--gf-colors-primary-transparent'], ':hover': 'transparent' },
+      ':active': 'transparent',
+    },
+  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
