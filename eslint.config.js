@@ -103,6 +103,9 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
   // U1 primitives
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
+  // U4 overlays
+  'packages/grafana-ui/src/components/{Alert,ConfirmModal,ContextMenu,Drawer,Dropdown,InlineToast,Menu,Modal,Toggletip,Tooltip}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/utils/tooltipUtils.ts',
 ];
 
 const stylexRestrictedImports = {

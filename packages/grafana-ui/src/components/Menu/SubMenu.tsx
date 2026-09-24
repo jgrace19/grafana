@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
 import { autoUpdate, useFloating } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type CSSProperties, type ReactElement } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { Icon } from '../Icon/Icon';
 
@@ -29,7 +30,6 @@ const SUBMENU_POSITION = 'right-start';
 
 /** @internal */
 export const SubMenu = memo(({ parentItemRef, items, isOpen, close, customStyle }: SubMenuProps) => {
-  const styles = useStyles2(getStyles);
   // the order of middleware is important!
   const middleware = [...getPositioningMiddleware(SUBMENU_POSITION)];
 
@@ -51,20 +51,16 @@ export const SubMenu = memo(({ parentItemRef, items, isOpen, close, customStyle 
 
   return (
     <>
-      <div className={styles.iconWrapper} aria-hidden data-testid={selectors.components.Menu.SubMenu.icon}>
-        <Icon name="angle-right" className={styles.icon} />
+      <div {...stylex.props(styles.iconWrapper)} aria-hidden data-testid={selectors.components.Menu.SubMenu.icon}>
+        <Icon name="angle-right" xstyle={styles.icon} />
       </div>
       {isOpen && (
         <div
           ref={refs.setFloating}
-          className={styles.subMenu}
+          {...mergeStylexProps(stylex.props(styles.subMenu), { style: { ...floatingStyles, ...customStyle } })}
           data-testid={selectors.components.Menu.SubMenu.container}
-          style={{
-            ...floatingStyles,
-            ...customStyle,
-          }}
         >
-          <div tabIndex={-1} className={styles.itemsWrapper} role="menu" onKeyDown={handleKeys}>
+          <div tabIndex={-1} {...stylex.props(styles.itemsWrapper)} role="menu" onKeyDown={handleKeys}>
             {items}
           </div>
         </div>
@@ -75,28 +71,28 @@ export const SubMenu = memo(({ parentItemRef, items, isOpen, close, customStyle 
 
 SubMenu.displayName = 'SubMenu';
 
-/** @internal */
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    iconWrapper: css({
-      display: 'flex',
-      flex: 1,
-      justifyContent: 'end',
-    }),
-    icon: css({
-      opacity: 0.7,
-      marginLeft: theme.spacing(1),
-      color: theme.colors.text.secondary,
-    }),
-    itemsWrapper: css({
-      background: theme.colors.background.elevated,
-      padding: theme.spacing(0.5),
-      boxShadow: theme.shadows.z3,
-      display: 'inline-block',
-      borderRadius: theme.shape.radius.default,
-    }),
-    subMenu: css({
-      zIndex: theme.zIndex.dropdown,
-    }),
-  };
-};
+const styles = stylex.create({
+  iconWrapper: {
+    display: 'flex',
+    flex: '1',
+    justifyContent: 'end',
+  },
+  icon: {
+    opacity: 0.7,
+    marginLeft: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  itemsWrapper: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    display: 'inline-block',
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  subMenu: {
+    zIndex: zIndex.dropdown,
+  },
+});

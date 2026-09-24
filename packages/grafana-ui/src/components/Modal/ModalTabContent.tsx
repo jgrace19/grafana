@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 
 interface Props {
@@ -15,23 +13,24 @@ interface Props {
 
 /** @internal */
 export const ModalTabContent = ({ children }: React.PropsWithChildren<Props>) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <div>
-      <div className={styles.header}>
-        <div className={styles.content}>{children}</div>
+      <div {...stylex.props(styles.header)}>
+        <div {...stylex.props(styles.content)}>{children}</div>
       </div>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  header: css({
+const styles = stylex.create({
+  header: {
     display: 'flex',
-    margin: theme.spacing(0, 0, 3, 0),
-  }),
-  content: css({
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x3'],
+    marginLeft: 0,
+  },
+  content: {
     flexGrow: 1,
-  }),
+  },
 });

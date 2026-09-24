@@ -1,0 +1,14 @@
+/*
+ * A destructive MenuItem recolours every icon inside it, including the SubMenu arrow (which sets its own colour)
+ * and icons in a caller's `component`, which StyleX can't target. Deliberately not in a cascade layer: like the
+ * Emotion rule it replaces, it must win over the icons' own styles.
+ */
+.gf-menu-item-destructive svg {
+  color: var(--gf-colors-error-text);
+}
+
+.gf-menu-item-destructive:hover svg,
+.gf-menu-item-destructive:focus svg,
+.gf-menu-item-destructive:focus-visible svg {
+  color: var(--gf-colors-error-contrast-text);
+}

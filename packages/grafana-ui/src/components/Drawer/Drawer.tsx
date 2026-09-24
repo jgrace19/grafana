@@ -1,20 +1,22 @@
-import { css, cx } from '@emotion/css';
 import { FloatingFocusManager, useFloating } from '@floating-ui/react';
 import RcDrawer from '@rc-component/drawer';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useEffect, useId, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getDragStyles } from '../DragHandle/DragHandle';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { bp, motion, zIndex } from '../../themes/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 import { Stack } from '../Layout/Stack/Stack';
 import { getPortalContainer } from '../Portal/Portal';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 import { Text } from '../Text/Text';
+
+import './Drawer.global.css';
 
 export interface Props {
   children: ReactNode;
@@ -77,9 +79,7 @@ export function Drawer({
 }: Props) {
   const [drawerWidth, onMouseDown, onTouchStart] = useResizebleDrawer();
 
-  const styles = useStyles2(getStyles);
-  const wrapperStyles = useStyles2(getWrapperStyles, size);
-  const dragStyles = useStyles2(getDragStyles);
+  const theme = useTheme2();
   const titleId = useId();
 
   const { context, refs } = useFloating({
@@ -94,7 +94,7 @@ export function Drawer({
   // Adds body class while open so the toolbar nav can hide some actions while drawer is open
   useBodyClassWhileOpen();
 
-  const content = <div className={styles.content}>{children}</div>;
+  const content = <div {...stylex.props(styles.content)}>{children}</div>;
   const overrideWidth = drawerWidth ?? width ?? drawerSizes[size].width;
   const minWidth = drawerSizes[size].minWidth;
 
@@ -104,10 +104,10 @@ export function Drawer({
       onClose={onClose}
       placement="right"
       getContainer={'.main-view'}
-      className={styles.drawerContent}
-      rootClassName={styles.drawer}
+      className={stylex.props(styles.drawerContent).className}
+      rootClassName={stylex.props(styles.drawer).className}
       classNames={{
-        wrapper: wrapperStyles,
+        wrapper: stylex.props(styles.wrapper).className,
       }}
       styles={{
         wrapper: {
@@ -120,27 +120,30 @@ export function Drawer({
       width={''}
       motion={{
         motionAppear: true,
-        motionName: styles.drawerMotion,
+        motionName: 'gf-drawer-motion',
       }}
-      maskClassName={styles.mask}
+      maskClassName={stylex.props(styles.mask).className}
       maskClosable={closeOnMaskClick}
       maskMotion={{
         motionAppear: true,
-        motionName: styles.maskMotion,
+        motionName: 'gf-drawer-mask-motion',
       }}
       // this is handled by floating-ui
       autoFocus={false}
     >
       <FloatingFocusManager context={context} modal getInsideElements={() => [getPortalContainer()]}>
-        <div className={styles.container} ref={refs.setFloating}>
+        <div {...stylex.props(styles.container)} ref={refs.setFloating}>
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
           <div
-            className={cx(dragStyles.dragHandleVertical, styles.resizer)}
+            {...stylex.props(
+              styles.resizer,
+              styles.resizerHandleColor(theme.colors.emphasize(theme.colors.background.secondary, 0.15))
+            )}
             onMouseDown={onMouseDown}
             onTouchStart={onTouchStart}
           />
-          <div className={cx(styles.header, Boolean(tabs) && styles.headerWithTabs)}>
-            <div className={styles.actions}>
+          <div {...stylex.props(styles.header, Boolean(tabs) && styles.headerWithTabs)}>
+            <div {...stylex.props(styles.actions)}>
               <IconButton
                 name="times"
                 variant="secondary"
@@ -155,7 +158,7 @@ export function Drawer({
                   {title}
                 </Text>
                 {subtitle && (
-                  <div className={styles.subtitle} data-testid={selectors.components.Drawer.General.subtitle}>
+                  <div {...stylex.props(styles.subtitle)} data-testid={selectors.components.Drawer.General.subtitle}>
                     {subtitle}
                   </div>
                 )}
@@ -163,7 +166,7 @@ export function Drawer({
             ) : (
               <div id={titleId}>{title}</div>
             )}
-            {tabs && <div className={styles.tabsWrapper}>{tabs}</div>}
+            {tabs && <div {...stylex.props(styles.tabsWrapper)}>{tabs}</div>}
           </div>
           {!scrollableContent ? content : <ScrollContainer showScrollIndicators>{content}</ScrollContainer>}
         </div>
@@ -243,138 +246,150 @@ function useBodyClassWhileOpen() {
   }, []);
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      flex: '1 1 0',
-      minHeight: '100%',
-      position: 'relative',
-    }),
-    drawer: css({
-      inset: 0,
-      position: 'fixed',
-      zIndex: theme.zIndex.modalBackdrop,
-      pointerEvents: 'none',
+const easeInOut = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
-      '.rc-drawer-content-wrapper': {
-        boxShadow: theme.shadows.z3,
-      },
-    }),
-    drawerContent: css({
-      backgroundColor: theme.colors.background.primary,
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      pointerEvents: 'auto',
-      width: '100%',
-    }),
-    drawerMotion: css({
-      '&-appear': {
-        [theme.transitions.handleMotion('no-preference')]: {
-          transform: 'translateX(100%)',
-          transition: 'none',
-        },
-        [theme.transitions.handleMotion('reduce')]: {
-          opacity: 0,
-        },
-        '&-active': {
-          [theme.transitions.handleMotion('no-preference')]: {
-            transform: 'translateX(0)',
-            transition: theme.transitions.create('transform'),
-          },
-          [theme.transitions.handleMotion('reduce')]: {
-            transition: `opacity 0.2s ease-in-out`,
-            opacity: 1,
-          },
-        },
-      },
-    }),
-    // we want the mask itself to span the whole page including the top bar
-    // this ensures trying to click something in the top bar will close the drawer correctly
-    // but we don't want the backdrop styling to apply over the top bar as it looks weird
-    // instead have a child pseudo element to apply the backdrop styling below the top bar
-    mask: css({
-      inset: 0,
-      pointerEvents: 'auto',
-      position: 'fixed',
-      zIndex: theme.zIndex.modalBackdrop,
-
-      '&:before': {
-        backgroundColor: theme.components.overlay.background,
-        bottom: 0,
-        content: '""',
-        left: 0,
-        position: 'fixed',
-        right: 0,
-        top: 0,
-      },
-    }),
-    maskMotion: css({
-      '&-appear': {
-        opacity: 0,
-
-        '&-active': {
-          opacity: 1,
-          [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-            transition: theme.transitions.create('opacity'),
-          },
-        },
-      },
-    }),
-    header: css({
-      label: 'drawer-header',
-      flexGrow: 0,
-      padding: theme.spacing(2, 2, 3),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    headerWithTabs: css({
-      borderBottom: 'none',
-    }),
-    actions: css({
-      position: 'absolute',
-      right: theme.spacing(1),
-      top: theme.spacing(1),
-    }),
-    subtitle: css({
-      label: 'drawer-subtitle',
-      color: theme.colors.text.secondary,
-    }),
-    content: css({
-      padding: theme.spacing(theme.components.drawer?.padding ?? 2),
-      height: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-    }),
-    tabsWrapper: css({
-      label: 'drawer-tabs',
-      paddingLeft: theme.spacing(2),
-      margin: theme.spacing(1, -1, -3, -3),
-    }),
-    resizer: css({
-      top: 0,
-      left: theme.spacing(-1),
-      bottom: 0,
-      position: 'absolute',
-      zIndex: theme.zIndex.modal,
-    }),
-  };
-};
-
-function getWrapperStyles(theme: GrafanaTheme2, size: 'sm' | 'md' | 'lg') {
-  return css({
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minHeight: '100%',
+    position: 'relative',
+  },
+  drawer: {
+    top: 0,
+    right: 0,
     bottom: 0,
-    label: `drawer-content-wrapper-${size}`,
+    left: 0,
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    pointerEvents: 'none',
+  },
+  // rc-drawer puts classNames.wrapper on .rc-drawer-content-wrapper. Its width comes from the inline
+  // `styles.wrapper`, which only !important can beat on small screens.
+  wrapper: {
+    bottom: 0,
     position: 'absolute',
     right: 0,
     top: 0,
-    zIndex: theme.zIndex.modalBackdrop,
-
-    [theme.breakpoints.down('md')]: {
-      width: `calc(100% - ${theme.spacing(2)}) !important`,
-      minWidth: '0 !important',
+    zIndex: zIndex.modalBackdrop,
+    boxShadow: shadows['--gf-shadows-z3'],
+    width: { default: null, [bp.mdDown]: `calc(100% - ${spacing['--gf-spacing-x2']}) !important` },
+    minWidth: { default: null, [bp.mdDown]: '0 !important' },
+  },
+  drawerContent: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    pointerEvents: 'auto',
+    width: '100%',
+  },
+  // we want the mask itself to span the whole page including the top bar
+  // this ensures trying to click something in the top bar will close the drawer correctly
+  // but we don't want the backdrop styling to apply over the top bar as it looks weird
+  // instead have a child pseudo element to apply the backdrop styling below the top bar
+  mask: {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    pointerEvents: 'auto',
+    position: 'fixed',
+    zIndex: zIndex.modalBackdrop,
+    '::before': {
+      backgroundColor: components['--gf-components-overlay-background'],
+      bottom: 0,
+      content: '""',
+      left: 0,
+      position: 'fixed',
+      right: 0,
+      top: 0,
     },
-  });
-}
+  },
+  header: {
+    flexGrow: 0,
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x3'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  headerWithTabs: {
+    borderBottomStyle: 'none',
+  },
+  actions: {
+    position: 'absolute',
+    right: spacing['--gf-spacing-x1'],
+    top: spacing['--gf-spacing-x1'],
+  },
+  subtitle: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  content: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-drawer-padding']})`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-drawer-padding']})`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-drawer-padding']})`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-drawer-padding']})`,
+    height: '100%',
+    flexGrow: 1,
+    minHeight: 0,
+  },
+  tabsWrapper: {
+    paddingLeft: spacing['--gf-spacing-x2'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * -3)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -3)`,
+  },
+  // DragHandle's getDragStyles().dragHandleVertical (still Emotion) merged with the resizer position.
+  resizer: {
+    cursor: 'col-resize',
+    width: spacing['--gf-spacing-x2'],
+    top: 0,
+    left: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+    bottom: 0,
+    position: 'absolute',
+    zIndex: zIndex.modal,
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'border-color' },
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '300ms' },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easeInOut },
+      transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+      zIndex: 1,
+      borderRightWidth: '1px',
+      borderRightStyle: 'solid',
+      borderRightColor: { default: 'transparent', ':hover': colors['--gf-colors-primary-border'] },
+      height: '100%',
+      left: '50%',
+      transform: 'translateX(-50%)',
+    },
+    '::after': {
+      content: '""',
+      position: 'absolute',
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background' },
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '300ms' },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easeInOut },
+      transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+      transform: 'translate(-50%, -50%)',
+      borderRadius: shape['--gf-shape-radius-pill'],
+      zIndex: 1,
+      left: '50%',
+      top: '50%',
+      height: 200,
+      width: 4,
+    },
+  },
+  resizerHandleColor: (color: string) => ({
+    '::after': {
+      backgroundColor: { default: color, ':hover': colors['--gf-colors-primary-border'] },
+    },
+  }),
+});

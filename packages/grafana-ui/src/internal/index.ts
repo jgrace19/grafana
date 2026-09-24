@@ -53,7 +53,7 @@ export { getSelectStyles } from '../components/Select/getSelectStyles';
 export type { Props as InputProps } from '../components/Input/Input';
 export type { ModalsContextState } from '../components/Modal/ModalsContext';
 export { ModalBase, type ModalBaseProps } from '../components/Modal/ModalBase';
-export { getModalStyles } from '../components/Modal/getModalStyles';
+export { getModalStyles } from '../compat/emotion/getModalStyles';
 export { MultiValueRemove, type MultiValueRemoveProps } from '../components/Select/MultiValue';
 export { getSvgSize } from '../components/Icon/utils';
 export { LoadingIndicator } from '../components/PanelChrome/LoadingIndicator';

@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import {
   arrow,
   autoUpdate,
@@ -11,14 +10,16 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { type Placement } from '@popperjs/core';
+import * as stylex from '@stylexjs/stylex';
 import { memo, cloneElement, isValidElement, useRef, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, spacing } from '../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../utils/floating';
-import { buildTooltipTheme, getPlacement } from '../../utils/tooltipUtils';
+import { getPlacement, tooltipStyles } from '../../utils/tooltipUtils';
 import { IconButton } from '../IconButton/IconButton';
 import { getPortalContainer, Portal } from '../Portal/Portal';
 
@@ -73,8 +74,6 @@ export const Toggletip = memo(
   }: ToggletipProps) => {
     const arrowRef = useRef(null);
     const grafanaTheme = useTheme2();
-    const styles = useStyles2(getStyles);
-    const style = styles[theme];
     const [controlledVisible, setControlledVisible] = useState(show);
     const isOpen = show ?? controlledVisible;
     const floatingUIPlacement = getPlacement(placement);
@@ -126,23 +125,23 @@ export const Toggletip = memo(
             <FloatingFocusManager context={context} modal={true} getInsideElements={() => [getPortalContainer()]}>
               <div
                 data-testid="toggletip-content"
-                className={cx(style.container, {
-                  [styles.fitContent]: fitContent,
-                })}
+                {...mergeStylexProps(
+                  stylex.props(tooltipStyles.container, containerStyles[theme], fitContent && styles.fitContent),
+                  { style: floatingStyles }
+                )}
                 ref={refs.setFloating}
-                style={floatingStyles}
                 {...getFloatingProps()}
               >
                 <FloatingArrow
                   strokeWidth={0.3}
                   stroke={grafanaTheme.colors.border.weak}
-                  className={style.arrow}
+                  className={stylex.props(arrowStyles[theme]).className}
                   ref={arrowRef}
                   context={context}
                 />
-                {Boolean(title) && <div className={style.header}>{title}</div>}
+                {Boolean(title) && <div {...stylex.props(tooltipStyles.header)}>{title}</div>}
                 {closeButton && (
-                  <div className={style.headerClose}>
+                  <div {...stylex.props(tooltipStyles.headerClose)}>
                     <IconButton
                       aria-label={t('grafana-ui.toggletip.close', 'Close')}
                       name="times"
@@ -154,11 +153,11 @@ export const Toggletip = memo(
                     />
                   </div>
                 )}
-                <div className={style.body}>
+                <div {...stylex.props(tooltipStyles.body)}>
                   {(typeof content === 'string' || isValidElement(content)) && content}
                   {typeof content === 'function' && content({})}
                 </div>
-                {Boolean(footer) && <div className={style.footer}>{footer}</div>}
+                {Boolean(footer) && <div {...stylex.props(tooltipStyles.footer)}>{footer}</div>}
               </div>
             </FloatingFocusManager>
           </Portal>
@@ -170,27 +169,34 @@ export const Toggletip = memo(
 
 Toggletip.displayName = 'Toggletip';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  const info = buildTooltipTheme(
-    theme,
-    theme.colors.background.primary,
-    theme.colors.border.weak,
-    theme.components.tooltip.text,
-    { topBottom: 2, rightLeft: 2 }
-  );
-  const error = buildTooltipTheme(
-    theme,
-    theme.colors.error.main,
-    theme.colors.error.main,
-    theme.colors.error.contrastText,
-    { topBottom: 2, rightLeft: 2 }
-  );
+const containerStyles = stylex.create({
+  info: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderColor: colors['--gf-colors-border-weak'],
+    color: components['--gf-components-tooltip-text'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  error: {
+    backgroundColor: colors['--gf-colors-error-main'],
+    borderColor: colors['--gf-colors-error-main'],
+    color: colors['--gf-colors-error-contrast-text'],
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+});
 
-  return {
-    info,
-    error,
-    fitContent: css({
-      maxWidth: 'fit-content',
-    }),
-  };
-};
+const arrowStyles = stylex.create({
+  info: { fill: colors['--gf-colors-background-primary'] },
+  error: { fill: colors['--gf-colors-error-main'] },
+});
+
+const styles = stylex.create({
+  fitContent: {
+    maxWidth: 'fit-content',
+  },
+});

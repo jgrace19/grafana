@@ -1,17 +1,18 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type AriaRole, type HTMLAttributes, type ReactNode } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Button } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
 import { Box } from '../Layout/Box/Box';
 import { Stack } from '../Layout/Stack/Stack';
+import { spacingValue } from '../Layout/utils/responsiveStylex';
 import { Text } from '../Text/Text';
 export type AlertVariant = 'success' | 'warning' | 'error' | 'info';
 
@@ -45,15 +46,14 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
       bottomSpacing,
       topSpacing,
       className,
+      style,
       severity = 'error',
       action,
       ...restProps
     },
     ref
   ) => {
-    const theme = useTheme2();
     const hasTitle = Boolean(title);
-    const styles = getStyles(theme, severity, hasTitle, elevated, bottomSpacing, topSpacing);
     const rolesBySeverity: Record<AlertVariant, AriaRole> = {
       error: 'alert',
       warning: 'alert',
@@ -66,7 +66,20 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
     const closeLabel = t('grafana-ui.alert.close-button', 'Close alert');
 
     return (
-      <div ref={ref} className={cx(styles.wrapper, className)} role={role} aria-label={ariaLabel} {...restProps}>
+      <div
+        ref={ref}
+        {...mergeStylexProps(
+          stylex.props(
+            styles.wrapper,
+            bottomSpacing !== undefined && styles.marginBottom(spacingValue(bottomSpacing)),
+            topSpacing !== undefined && styles.marginTop(spacingValue(topSpacing))
+          ),
+          { className, style }
+        )}
+        role={role}
+        aria-label={ariaLabel}
+        {...restProps}
+      >
         <Box
           data-testid={selectors.components.Alert.alertV2(severity)}
           display="flex"
@@ -80,7 +93,7 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
           boxShadow={elevated ? 'z3' : undefined}
         >
           <Box paddingTop={1} paddingRight={2}>
-            <div className={styles.icon}>
+            <div {...stylex.props(styles.icon, iconColorStyles[severity])}>
               <Icon size="xl" name={getIconFromSeverity(severity)} />
             </div>
           </Box>
@@ -90,7 +103,7 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
               <Text color="primary" weight="medium">
                 {title}
               </Text>
-              {children && <div className={styles.content}>{children}</div>}
+              {children && <div {...stylex.props(styles.content, hasTitle && styles.contentWithTitle)}>{children}</div>}
             </Box>
             <Stack alignItems="center" wrap="wrap">
               {action}
@@ -103,7 +116,7 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
           </Stack>
           {/* If onRemove is specified, giving preference to onRemove */}
           {onRemove && !buttonContent && (
-            <div className={styles.close}>
+            <div {...stylex.props(styles.close)}>
               <Button
                 aria-label={closeLabel}
                 icon="times"
@@ -135,53 +148,52 @@ export const getIconFromSeverity = (severity: AlertVariant): IconName => {
   }
 };
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  severity: AlertVariant,
-  hasTitle: boolean,
-  elevated?: boolean,
-  bottomSpacing?: number,
-  topSpacing?: number
-) => {
-  const color = theme.colors[severity];
+const styles = stylex.create({
+  wrapper: {
+    flexGrow: 1,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginTop: 0,
+    position: 'relative',
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      backgroundColor: colors['--gf-colors-background-primary'],
+      borderRadius: shape['--gf-shape-radius-default'],
+      zIndex: -1,
+    },
+  },
+  marginBottom: (value: string) => ({ marginBottom: value }),
+  marginTop: (value: string) => ({ marginTop: value }),
+  icon: {
+    position: 'relative',
+    top: '-1px',
+  },
+  content: {
+    color: colors['--gf-colors-text-primary'],
+    paddingTop: 0,
+    maxHeight: '50vh',
+    overflowY: 'auto',
+  },
+  contentWithTitle: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+  },
+  close: {
+    position: 'relative',
+    color: colors['--gf-colors-text-secondary'],
+    backgroundColor: 'transparent',
+    display: 'flex',
+    top: '-6px',
+    right: '-14px',
+  },
+});
 
-  return {
-    wrapper: css({
-      flexGrow: 1,
-      marginBottom: theme.spacing(bottomSpacing ?? 2),
-      marginTop: theme.spacing(topSpacing ?? 0),
-      position: 'relative',
-
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        background: theme.colors.background.primary,
-        borderRadius: theme.shape.radius.default,
-        zIndex: -1,
-      },
-    }),
-    icon: css({
-      color: color.text,
-      position: 'relative',
-      top: '-1px',
-    }),
-    content: css({
-      color: theme.colors.text.primary,
-      paddingTop: hasTitle ? theme.spacing(0.5) : 0,
-      maxHeight: '50vh',
-      overflowY: 'auto',
-    }),
-    close: css({
-      position: 'relative',
-      color: theme.colors.text.secondary,
-      background: 'none',
-      display: 'flex',
-      top: '-6px',
-      right: '-14px',
-    }),
-  };
-};
+const iconColorStyles = stylex.create({
+  success: { color: colors['--gf-colors-success-text'] },
+  warning: { color: colors['--gf-colors-warning-text'] },
+  error: { color: colors['--gf-colors-error-text'] },
+  info: { color: colors['--gf-colors-info-text'] },
+});

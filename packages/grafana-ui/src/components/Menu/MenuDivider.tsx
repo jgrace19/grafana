@@ -1,20 +1,18 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 
 export function MenuDivider() {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.divider} />;
+  return <div {...stylex.props(styles.divider)} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    divider: css({
-      height: 1,
-      backgroundColor: theme.colors.border.weak,
-      margin: theme.spacing(1, 0),
-    }),
-  };
-};
+const styles = stylex.create({
+  divider: {
+    height: 1,
+    backgroundColor: colors['--gf-colors-border-weak'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
+});
