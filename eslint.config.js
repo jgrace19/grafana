@@ -196,6 +196,7 @@ const stylexMigratedAppFiles = [
   'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
   'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

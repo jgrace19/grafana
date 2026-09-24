@@ -4,7 +4,7 @@ import type React from 'react';
 import { buildVizAndDataPaneGrid, getDefaultSidebarRatio, useRatioResize } from './hooks';
 
 jest.mock('@grafana/ui', () => ({
-  useStyles2: jest.fn(),
+  useTheme2: jest.fn(() => ({})),
 }));
 jest.mock('@grafana/ui/internal', () => ({
   getDragHandleClassNames: jest.fn(() => ({ dragHandleVertical: 'drag-v', dragHandleHorizontal: 'drag-h' })),
