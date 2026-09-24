@@ -1,4 +1,3 @@
-import { useFocusRing } from '@react-aria/focus';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
@@ -28,7 +27,6 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 export const ColorSwatch = React.forwardRef<HTMLDivElement, Props>(
   ({ color, label, variant = ColorSwatchVariant.Small, isSelected, 'aria-label': ariaLabel, ...otherProps }, ref) => {
     const theme = useTheme2();
-    const { isFocusVisible, focusProps } = useFocusRing();
     const isSmall = variant === ColorSwatchVariant.Small;
     const hasLabel = !!label;
     const colorLabel = ariaLabel || label;
@@ -46,11 +44,9 @@ export const ColorSwatch = React.forwardRef<HTMLDivElement, Props>(
             isSmall ? styles.swatchSmall : styles.swatchLarge,
             styles.background(color),
             tinycolor(color).getAlpha() < 0.1 && styles.transparentBorder,
-            isFocusVisible && styles.focusVisible,
             isSelected &&
               styles.selected(`inset 0 0 0 2px ${color}, inset 0 0 0 4px ${theme.colors.getContrastText(color)}`)
           )}
-          {...focusProps}
           aria-label={
             colorLabel
               ? t('grafana-ui.color-swatch.aria-label-selected-color', '{{colorLabel}} color', { colorLabel })
@@ -77,9 +73,9 @@ const styles = stylex.create({
   swatch: {
     borderStyle: 'none',
     borderRadius: shape['--gf-shape-radius-circle'],
-    outlineOffset: '1px',
-    outlineStyle: 'none',
-    boxShadow: 'none',
+    // The global `button:focus-visible` ring and `button:focus` outline reset out-specified the Emotion
+    // swatch styles on main, so the swatch leaves outline alone and yields box-shadow to the ring.
+    boxShadow: { default: null, ':not(:focus-visible)': 'none' },
     transitionProperty: { default: null, [motion.noPreference]: 'transform' },
     transitionDuration: { default: null, [motion.noPreference]: durations.short },
     transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeInOut },
@@ -104,12 +100,7 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderColor: colors['--gf-colors-border-medium'],
   },
-  focusVisible: {
-    outlineWidth: '2px',
-    outlineStyle: 'solid',
-    outlineColor: colors['--gf-colors-primary-main'],
-  },
   selected: (boxShadow: string) => ({
-    boxShadow,
+    boxShadow: { default: null, ':not(:focus-visible)': boxShadow },
   }),
 });
