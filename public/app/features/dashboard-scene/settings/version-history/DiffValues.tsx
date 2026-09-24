@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isArray, isObject, isUndefined } from 'lodash';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Icon } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type Diff } from './utils';
 
@@ -11,26 +11,32 @@ type DiffProps = {
 };
 
 export const DiffValues = ({ diff }: DiffProps) => {
-  const styles = useStyles2(getStyles);
   const hasLeftValue =
     !isUndefined(diff.originalValue) && !isArray(diff.originalValue) && !isObject(diff.originalValue);
   const hasRightValue = !isUndefined(diff.value) && !isArray(diff.value) && !isObject(diff.value);
 
   return (
     <>
-      {hasLeftValue && <span className={styles}>{String(diff.originalValue)}</span>}
+      {hasLeftValue && <span {...stylex.props(styles.value)}>{String(diff.originalValue)}</span>}
       {hasLeftValue && hasRightValue ? <Icon name="arrow-right" /> : null}
-      {hasRightValue && <span className={styles}>{String(diff.value)}</span>}
+      {hasRightValue && <span {...stylex.props(styles.value)}>{String(diff.value)}</span>}
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) =>
-  css({
-    backgroundColor: theme.colors.action.hover,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.primary,
-    fontSize: theme.typography.body.fontSize,
-    margin: theme.spacing(0, 0.5),
-    padding: theme.spacing(0.25, 0.5),
-  });
+const styles = stylex.create({
+  value: {
+    backgroundColor: colors['--gf-colors-action-hover'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-primary'],
+    fontSize: typography['--gf-typography-body-font-size'],
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    paddingTop: spacing['--gf-spacing-x0-25'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-25'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

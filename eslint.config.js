@@ -154,6 +154,8 @@ const stylexMigratedAppFiles = [
   // A1 alerting components
   'public/app/features/alerting/unified/components/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // D2 dashboard-scene settings
+  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

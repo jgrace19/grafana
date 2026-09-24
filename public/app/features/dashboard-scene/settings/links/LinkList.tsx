@@ -1,17 +1,19 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import type { DashboardLink } from '@grafana/schema';
-import { Box, Button, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Box, Button, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { dashboardEditActions } from '../../edit-pane/shared';
 import { type DashboardScene } from '../../scene/DashboardScene';
 import { DashboardInteractions } from '../../utils/interactions';
 
 import { openAddLinkPane, openLinkEditPane } from './LinkAddEditableElement';
+import { linkContentMarker } from './markers.stylex';
 
 function partitionLinks(links: DashboardLink[]) {
   const standardLinks: Array<{ link: DashboardLink; originalIndex: number }> = [];
@@ -30,7 +32,6 @@ function partitionLinks(links: DashboardLink[]) {
 
 export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
   const { links } = dashboard.useState();
-  const styles = useStyles2(getStyles);
 
   const onSelectLink = useCallback(
     (linkIndex: number) => {
@@ -104,14 +105,18 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
           {list.map((item, index) => (
             <Draggable key={`link-${item.originalIndex}`} draggableId={`link-${item.originalIndex}`} index={index}>
               {(draggableProvided) => (
-                <div className={styles.linkItem} ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
+                <div
+                  {...stylex.props(styles.linkItem)}
+                  ref={draggableProvided.innerRef}
+                  {...draggableProvided.draggableProps}
+                >
                   <div {...draggableProvided.dragHandleProps} onPointerDown={onPointerDown}>
                     <Tooltip content={t('dashboard.edit-pane.links.reorder', 'Drag to reorder')} placement="top">
-                      <Icon name="draggabledots" size="md" className={styles.dragHandle} />
+                      <Icon name="draggabledots" size="md" xstyle={styles.dragHandle} />
                     </Tooltip>
                   </div>
                   <div
-                    className={styles.linkContent}
+                    {...stylex.props(styles.linkContent, linkContentMarker)}
                     aria-label={t('dashboard-scene.link-list.render-list.aria-label-link', 'Link')}
                     role="button"
                     tabIndex={0}
@@ -125,10 +130,15 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
                   >
                     <Text truncate>{item.link.title || t('dashboard.edit-pane.links.untitled', 'Untitled link')}</Text>
                     {item.link.placement === 'inControlsMenu' && (
-                      <Icon name="sliders-v-alt" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="sliders-v-alt" size="sm" xstyle={styles.hiddenIcon} />
                     )}
                     <Stack direction="row" gap={1} alignItems="center">
-                      <Button variant="primary" size="sm" fill="outline">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        fill="outline"
+                        className={stylex.props(styles.selectButton).className}
+                      >
                         <Trans i18nKey="dashboard.edit-pane.links.select-link">Select</Trans>
                       </Button>
                     </Stack>
@@ -162,50 +172,40 @@ export function LinkList({ dashboard }: { dashboard: DashboardScene }) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    linkItem: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      padding: theme.spacing(0.5),
-    }),
-    linkContent: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing(0.5),
-      width: '100%',
-      cursor: 'pointer',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-      button: {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        color: theme.colors.text.link,
-        button: {
-          visibility: 'visible',
-        },
-      },
-    }),
-    dragHandle: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'grab',
-      color: theme.colors.text.secondary,
-      '&:active': {
-        cursor: 'grabbing',
-      },
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  linkItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    padding: spacing['--gf-spacing-x0-5'],
+  },
+  linkContent: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x0-5'],
+    width: '100%',
+    cursor: 'pointer',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'color' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '250ms' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+  },
+  // Button doesn't set visibility itself, so a StyleX class can't conflict with it.
+  selectButton: {
+    visibility: { default: 'hidden', [stylex.when.ancestor(':hover', linkContentMarker)]: 'visible' },
+  },
+  dragHandle: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: { default: 'grab', ':active': 'grabbing' },
+    color: colors['--gf-colors-text-secondary'],
+  },
+  hiddenIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});
