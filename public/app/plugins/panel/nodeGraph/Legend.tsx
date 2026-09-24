@@ -1,26 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 
 import { type Field, FieldColorModeId, type GrafanaTheme2 } from '@grafana/data';
 import { LegendDisplayMode } from '@grafana/schema';
-import { Icon, useStyles2, useTheme2, VizLegend, type VizLegendItem, VizLegendListItem } from '@grafana/ui';
+import { Icon, useTheme2, VizLegend, type VizLegendItem, VizLegendListItem } from '@grafana/ui';
 
 import { type Config } from './layout';
+import './Legend.css';
 import { type NodeDatum } from './types';
-
-function getStyles() {
-  return {
-    item: css({
-      label: 'LegendItem',
-      flexGrow: 0,
-    }),
-
-    legend: css({
-      label: 'Legend',
-      pointerEvents: 'all',
-    }),
-  };
-}
 
 interface Props {
   nodes: NodeDatum[];
@@ -33,7 +20,6 @@ export const Legend = function Legend(props: Props) {
   const { nodes, onSort, sort, sortable } = props;
 
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const colorItems = getColorLegendItems(nodes, theme);
 
   const onClick = useCallback(
@@ -48,7 +34,7 @@ export const Legend = function Legend(props: Props) {
 
   return (
     <VizLegend<ItemData>
-      className={styles.legend}
+      className={stylex.props(styles.legend).className}
       displayMode={LegendDisplayMode.List}
       placement={'bottom'}
       items={colorItems}
@@ -57,7 +43,7 @@ export const Legend = function Legend(props: Props) {
           <>
             <VizLegendListItem
               item={item}
-              className={styles.item}
+              className="gf-nodegraph-legend-item"
               onLabelClick={sortable ? onClick : undefined}
               allItemsSelected={false}
             />
@@ -116,3 +102,9 @@ function getColorLegendItems(nodes: NodeDatum[], theme: GrafanaTheme2): Array<Vi
     return item;
   });
 }
+
+const styles = stylex.create({
+  legend: {
+    pointerEvents: 'all',
+  },
+});
