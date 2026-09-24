@@ -58,7 +58,13 @@ describe('StyleX state rules', () => {
   const byDecl = (decl: string) => rules.filter((r) => r.decl.replace(/\s+/g, '') === decl);
 
   it('keeps base, media-only, :where and pseudo-element-only rules in the StyleX layers', () => {
-    for (const decl of ['color:black', 'background-color:white', 'color:silver', 'background-color:pink', 'opacity:0']) {
+    for (const decl of [
+      'color:black',
+      'background-color:white',
+      'color:silver',
+      'background-color:pink',
+      'opacity:0',
+    ]) {
       expect(byDecl(decl)).toEqual([expect.objectContaining({ layered: true })]);
     }
   });
