@@ -1,17 +1,18 @@
-import { css, cx, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Dropdown, Menu, useStyles2 } from '@grafana/ui';
+import { Button, Dropdown, Menu } from '@grafana/ui';
+import { easings, motion } from '@grafana/ui/stylex/constants.stylex';
 
 import { startIntercomSurvey } from '../../tracking';
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
 
+import './ExperimentalFeedbackButton.css';
+
 export function ExperimentalFeedbackButton() {
   const { showVersionBanner } = useQueryEditorUIContext();
   const { onSwitchToClassic } = useActionsContext();
-  const styles = useStyles2(getStyles);
 
   // Track whether the banner was visible when this component first mounted.
   // If it was, the user dismissed it - animate the button in.
@@ -42,14 +43,14 @@ export function ExperimentalFeedbackButton() {
   );
 
   return (
-    <div className={cx(styles.wrapper, shouldAnimate && styles.animated)}>
+    <div {...stylex.props(styles.wrapper, shouldAnimate && styles.animated)}>
       <Dropdown overlay={menu} placement="bottom-end">
         <Button
           size="sm"
           fill="text"
           icon="flask"
           variant="secondary"
-          className={styles.button}
+          className="gf-experimental-feedback-button"
           tooltip={t('query-editor-next.experimental-button.tooltip', 'Experimental feature options')}
           aria-label={t('query-editor-next.experimental-button.aria-label', 'Experimental feature options')}
         />
@@ -58,7 +59,7 @@ export function ExperimentalFeedbackButton() {
   );
 }
 
-const slideInAndPulse = keyframes({
+const slideInAndPulse = stylex.keyframes({
   '0%': {
     opacity: 0,
     transform: 'translateX(24px) scale(0.6)',
@@ -76,19 +77,15 @@ const slideInAndPulse = keyframes({
   },
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
-  }),
-  animated: css({
-    [theme.transitions.handleMotion('no-preference')]: {
-      animation: `${slideInAndPulse} 0.6s ${theme.transitions.easing.easeOut} 100ms both`,
-    },
-  }),
-  button: css({
-    color: theme.colors.warning.main,
-    '&:hover': {
-      color: theme.colors.warning.text,
-    },
-  }),
+  },
+  animated: {
+    animationName: { default: null, [motion.noPreference]: slideInAndPulse },
+    animationDuration: { default: null, [motion.noPreference]: '0.6s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: easings.easeOut },
+    animationDelay: { default: null, [motion.noPreference]: '100ms' },
+    animationFillMode: { default: null, [motion.noPreference]: 'both' },
+  },
 });

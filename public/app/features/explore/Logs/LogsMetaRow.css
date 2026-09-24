@@ -1,0 +1,8 @@
+/*
+ * Normalises the meta items' text (MetaInfoText, log labels, error values), which StyleX can't target. Unlayered
+ * at the Emotion rule's specificity (0,1,1), so it still beats those children's own styles.
+ */
+.gf-explore-logs-meta span {
+  font-weight: normal;
+  line-height: 1.25em;
+}

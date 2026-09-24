@@ -1,0 +1,4 @@
+/* Flips the split-resize ToolbarButton's icon, which StyleX can't target. */
+.gf-explore-rotate-split-icon > div > svg {
+  transform: rotate(180deg);
+}

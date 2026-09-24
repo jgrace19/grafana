@@ -1,0 +1,8 @@
+/*
+ * IconButton sets its own margins and takes no StyleX override. Not in a cascade layer, so this wins over them
+ * like the Emotion className it replaces.
+ */
+.gf-canvas-quick-positioning-button {
+  margin-left: 5px;
+  margin-right: 5px;
+}

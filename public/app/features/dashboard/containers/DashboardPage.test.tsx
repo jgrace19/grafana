@@ -4,7 +4,6 @@ import { useEffectOnce } from 'react-use';
 import { mockToolkitActionCreator } from 'test/core/redux/mocks';
 import { render } from 'test/test-utils';
 
-import { createTheme } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { config, setDataSourceSrv } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
@@ -113,7 +112,6 @@ function setup(propOverrides?: Partial<Props>) {
     cancelVariables: jest.fn(),
     templateVarsChangedInUrl: jest.fn(),
     dashboard: null,
-    theme: createTheme(),
   };
 
   Object.assign(props, propOverrides);
@@ -179,7 +177,6 @@ describe('DashboardPage', () => {
         cancelVariables: jest.fn(),
         templateVarsChangedInUrl: jest.fn(),
         dashboard: getTestDashboard(),
-        theme: createTheme(),
       };
 
       render(

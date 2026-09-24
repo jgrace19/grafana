@@ -1,0 +1,12 @@
+/*
+ * SubMenuItems styles legacy classes inside the variable pickers, which StyleX can't target. Unlayered and at the
+ * Emotion rules' specificity, so it still beats the pickers' own styles.
+ */
+.gf-submenu-item .fa-caret-down {
+  font-size: 75%;
+  padding-left: var(--gf-spacing-x1);
+}
+
+.gf-submenu-item .gf-form {
+  margin-bottom: 0;
+}

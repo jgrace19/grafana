@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Stack, Text, Icon, Box } from '@grafana/ui';
+import { Stack, Text, Icon, Box } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type RecentScope } from './types';
 
@@ -13,15 +13,14 @@ interface RecentScopesProps {
 }
 
 export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
-  const styles = useStyles2(getStyles);
   const [expanded, setExpanded] = useState(false);
 
   const contentId = useId();
   return (
     <fieldset>
-      <legend className={styles.legend}>
+      <legend {...stylex.props(styles.legend)}>
         <button
-          className={styles.expandButton}
+          {...stylex.props(styles.expandButton)}
           aria-expanded={expanded}
           aria-controls={contentId}
           onClick={() => setExpanded(!expanded)}
@@ -38,7 +37,7 @@ export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
           {expanded &&
             recentScopes.map((recentScopeSet) => (
               <button
-                className={styles.recentScopeButton}
+                {...stylex.props(styles.recentScopeButton)}
                 key={
                   recentScopeSet.map((s) => s.metadata.name).join(',') + recentScopeSet[0]?.parentNode?.metadata?.name
                 }
@@ -64,28 +63,39 @@ export const RecentScopes = ({ recentScopes, onSelect }: RecentScopesProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  recentScopeButton: css({
+const styles = stylex.create({
+  recentScopeButton: {
     textAlign: 'left',
-    background: 'none',
-    border: 'none',
-    padding: 0,
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     cursor: 'pointer',
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     alignItems: 'center',
-  }),
-  expandButton: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    background: 'none',
-    border: 'none',
-    padding: 0,
+  },
+  expandButton: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
     cursor: 'pointer',
-  }),
-  legend: css({
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+  },
+  legend: {
     marginBottom: 0,
-    padding: `${theme.spacing(0.5)} 0`,
-  }),
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+  },
 });

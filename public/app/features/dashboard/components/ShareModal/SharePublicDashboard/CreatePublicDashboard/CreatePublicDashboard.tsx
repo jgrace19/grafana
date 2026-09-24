@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
-import { Button, Spinner, useStyles2 } from '@grafana/ui';
+import { Button, Spinner } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useCreatePublicDashboardMutation } from 'app/features/dashboard/api/publicDashboardApi';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
@@ -42,7 +42,6 @@ export const CreatePublicDashboardBase = ({
   dashboard,
   hasError = false,
 }: CreatePublicDashboarBaseProps) => {
-  const styles = useStyles2(getStyles);
   const hasWritePermissions = contextSrv.hasPermission(AccessControlAction.DashboardsPublicWrite);
   const [createPublicDashboard, { isLoading, isError }] = useCreatePublicDashboardMutation();
   const onCreate = () => {
@@ -58,12 +57,12 @@ export const CreatePublicDashboardBase = ({
   const disableInputs = !hasWritePermissions || isLoading || isError || hasError;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <div>
-        <p className={styles.title}>
+        <p {...stylex.props(styles.title)}>
           <Trans i18nKey="public-dashboard.create-page.welcome-title">Welcome to public dashboards!</Trans>
         </p>
-        <p className={styles.description}>
+        <p {...stylex.props(styles.description)}>
           <Trans i18nKey="public-dashboard.create-page.unsupported-features-desc">
             Currently, we don’t support template variables or frontend data sources
           </Trans>
@@ -79,13 +78,13 @@ export const CreatePublicDashboardBase = ({
       )}
 
       <form onSubmit={handleSubmit(onCreate)}>
-        <div className={styles.checkboxes}>
+        <div {...stylex.props(styles.checkboxes)}>
           <AcknowledgeCheckboxes disabled={disableInputs} register={register} />
         </div>
-        <div className={styles.buttonContainer}>
+        <div {...stylex.props(styles.buttonContainer)}>
           <Button type="submit" disabled={disableInputs || !isValid} data-testid={selectors.CreateButton}>
             <Trans i18nKey="public-dashboard.create-page.generate-public-url-button">Generate public URL</Trans>
-            {isLoading && <Spinner className={styles.loadingSpinner} />}
+            {isLoading && <Spinner className={stylex.props(styles.loadingSpinner).className} />}
           </Button>
         </div>
       </form>
@@ -109,28 +108,34 @@ export function CreatePublicDashboard({ hasError }: { hasError?: boolean }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(4),
-  }),
-  title: css({
-    fontSize: theme.typography.h4.fontSize,
-    margin: theme.spacing(0, 0, 2),
-  }),
-  description: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(0),
-  }),
-  checkboxes: css({
-    margin: theme.spacing(0, 0, 4),
-  }),
-  buttonContainer: css({
+    gap: spacing['--gf-spacing-x4'],
+  },
+  title: {
+    fontSize: typography['--gf-typography-h4-font-size'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x2'],
+    marginLeft: 0,
+  },
+  description: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x0'],
+  },
+  checkboxes: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x4'],
+    marginLeft: 0,
+  },
+  buttonContainer: {
     display: 'flex',
     justifyContent: 'end',
-  }),
-  loadingSpinner: css({
-    marginLeft: theme.spacing(1),
-  }),
+  },
+  loadingSpinner: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
 });

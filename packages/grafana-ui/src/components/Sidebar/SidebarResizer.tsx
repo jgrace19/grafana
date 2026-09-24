@@ -1,14 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 
 import { useSidebarContext } from './useSidebar';
 
 export function SidebarResizer() {
-  const styles = useStyles2(getStyles);
   const sidebarContext = useSidebarContext();
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef<number | null>(null);
@@ -61,7 +58,7 @@ export function SidebarResizer() {
   return (
     <div
       ref={resizerRef}
-      className={styles[sidebarContext.position]}
+      {...stylex.props(styles.resizer, positionStyles[sidebarContext.position])}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -69,31 +66,28 @@ export function SidebarResizer() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    right: css({
-      position: 'absolute',
-      width: theme.spacing.gridSize,
-      left: -theme.spacing.gridSize,
-      top: theme.shape.radius.default,
-      bottom: theme.shape.radius.default,
-      cursor: 'col-resize',
-      zIndex: 1,
-      '&:hover': {
-        borderRight: `1px solid ${theme.colors.primary.border}`,
-      },
-    }),
-    left: css({
-      position: 'absolute',
-      width: theme.spacing.gridSize,
-      right: -theme.spacing.gridSize,
-      top: theme.shape.radius.default,
-      bottom: theme.shape.radius.default,
-      cursor: 'col-resize',
-      zIndex: 1,
-      '&:hover': {
-        borderLeft: `1px solid ${theme.colors.primary.border}`,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  resizer: {
+    position: 'absolute',
+    width: spacing['--gf-spacing-grid-size'],
+    top: shape['--gf-shape-radius-default'],
+    bottom: shape['--gf-shape-radius-default'],
+    cursor: 'col-resize',
+    zIndex: 1,
+  },
+});
+
+const positionStyles = stylex.create({
+  right: {
+    left: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+    borderRightWidth: { default: null, ':hover': '1px' },
+    borderRightStyle: { default: null, ':hover': 'solid' },
+    borderRightColor: { default: null, ':hover': colors['--gf-colors-primary-border'] },
+  },
+  left: {
+    right: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
+    borderLeftWidth: { default: null, ':hover': '1px' },
+    borderLeftStyle: { default: null, ':hover': 'solid' },
+    borderLeftColor: { default: null, ':hover': colors['--gf-colors-primary-border'] },
+  },
+});

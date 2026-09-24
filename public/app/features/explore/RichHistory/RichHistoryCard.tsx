@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
-import { useCallback, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { useState } from 'react';
 import * as React from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import { type GrafanaTheme2, type DataSourceApi } from '@grafana/data';
+import { type DataSourceApi } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction, getAppEvents } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { TextArea, Button, IconButton, useStyles2 } from '@grafana/ui';
+import { TextArea, Button, IconButton } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { copyStringToClipboard } from 'app/core/utils/explore';
@@ -24,6 +26,8 @@ import icnDatasourceSvg from 'img/icn-datasource.svg';
 import ExploreRunQueryButton from '../ExploreRunQueryButton';
 
 import { RichHistoryAddToLibrary } from './RichHistoryAddToLibrary';
+
+import './RichHistoryCard.css';
 
 const mapDispatchToProps = {
   changeDatasource,
@@ -42,106 +46,11 @@ interface OwnProps<T extends DataQuery = DataQuery> {
 
 export type Props<T extends DataQuery = DataQuery> = ConnectedProps<typeof connector> & OwnProps<T>;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  /* Hard-coded value so all buttons and icons on right side of card are aligned */
-  const rightColumnWidth = '240px';
-  const rightColumnContentWidth = '170px';
-
-  /* If datasource was removed, card will have inactive color */
-  const cardColor = theme.colors.background.secondary;
-
-  return {
-    queryCard: css({
-      position: 'relative',
-      display: 'flex',
-      flexDirection: 'column',
-      border: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(1, 0),
-      backgroundColor: cardColor,
-      borderRadius: theme.shape.radius.default,
-      '.starred': {
-        color: theme.v1.palette.orange,
-      },
-    }),
-    cardRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1),
-      borderBottom: 'none',
-      ':first-of-type': {
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
-        padding: theme.spacing(0.5, 1),
-      },
-      img: {
-        height: `${theme.typography.fontSize}px`,
-        maxWidth: `${theme.typography.fontSize}px`,
-        marginRight: theme.spacing(1),
-      },
-    }),
-    queryActionButtons: css({
-      maxWidth: rightColumnContentWidth,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      fontSize: theme.typography.size.base,
-      button: {
-        marginLeft: theme.spacing(1),
-      },
-    }),
-    queryContainer: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      width: `calc(100% - ${rightColumnWidth})`,
-    }),
-    updateCommentContainer: css({
-      width: `calc(100% + ${rightColumnWidth})`,
-      marginTop: theme.spacing(1),
-    }),
-    comment: css({
-      overflowWrap: 'break-word',
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightRegular,
-      marginTop: theme.spacing(0.5),
-    }),
-    commentButtonRow: css({
-      '> *': {
-        marginTop: theme.spacing(1),
-        marginRight: theme.spacing(1),
-      },
-    }),
-    textArea: css({
-      width: '100%',
-    }),
-    runButton: css({
-      maxWidth: rightColumnContentWidth,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      button: {
-        height: 'auto',
-        padding: theme.spacing(0.5, 2),
-        lineHeight: 1.4,
-        span: {
-          whiteSpace: 'normal !important',
-        },
-      },
-    }),
-    loader: css({
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-};
-
 export function RichHistoryCard(props: Props) {
   const { queryHistoryItem, commentHistoryItem, starHistoryItem, deleteHistoryItem, datasourceInstances } = props;
 
   const [activeUpdateComment, setActiveUpdateComment] = useState(false);
   const [comment, setComment] = useState<string | undefined>(queryHistoryItem.comment);
-  const styles = useStyles2(getStyles);
 
   const cardRootDatasource = datasourceInstances
     ? datasourceInstances.find((di) => di.uid === queryHistoryItem.datasourceUid)
@@ -241,7 +150,7 @@ export function RichHistoryCard(props: Props) {
 
   const updateComment = (
     <div
-      className={styles.updateCommentContainer}
+      {...stylex.props(styles.updateCommentContainer)}
       aria-label={
         comment
           ? t('explore.rich-history-card.update-comment-form', 'Update comment form')
@@ -257,13 +166,17 @@ export function RichHistoryCard(props: Props) {
             : t('explore.rich-history-card.optional-description', 'An optional description of what the query does.')
         }
         onChange={(e) => setComment(e.currentTarget.value)}
-        className={styles.textArea}
+        className={stylex.props(styles.textArea).className}
       />
-      <div className={styles.commentButtonRow}>
-        <Button onClick={onUpdateComment}>
+      <div>
+        <Button onClick={onUpdateComment} className={stylex.props(styles.commentButton).className}>
           <Trans i18nKey="explore.rich-history-card.save-comment">Save comment</Trans>
         </Button>
-        <Button variant="secondary" onClick={onCancelUpdateComment}>
+        <Button
+          variant="secondary"
+          onClick={onCancelUpdateComment}
+          className={stylex.props(styles.commentButton).className}
+        >
           <Trans i18nKey="explore.rich-history-card.cancel">Cancel</Trans>
         </Button>
       </div>
@@ -271,7 +184,9 @@ export function RichHistoryCard(props: Props) {
   );
 
   const queryActionButtons = (
-    <div className={styles.queryActionButtons}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.queryActionButtons), { className: 'gf-explore-rich-history-actions' })}
+    >
       <IconButton
         name="comment-alt"
         onClick={toggleActiveUpdateComment}
@@ -317,14 +232,14 @@ export function RichHistoryCard(props: Props) {
   );
 
   return (
-    <div className={styles.queryCard}>
-      <div className={styles.cardRow}>
+    <div {...stylex.props(styles.queryCard)}>
+      <div {...stylex.props(styles.cardRow)}>
         <DatasourceInfo dsApi={cardRootDatasource} size="sm" />
 
         {queryActionButtons}
       </div>
-      <div className={cx(styles.cardRow)}>
-        <div className={styles.queryContainer}>
+      <div {...stylex.props(styles.cardRow)}>
+        <div {...stylex.props(styles.queryContainer)}>
           {queryHistoryItem?.queries.map((q, i) => {
             const queryDs = datasourceInstances?.find((ds) => ds.uid === q.datasource?.uid);
             return (
@@ -338,7 +253,7 @@ export function RichHistoryCard(props: Props) {
           {!activeUpdateComment && queryHistoryItem.comment && (
             <div
               aria-label={t('explore.rich-history-card.query-comment-label', 'Query comment')}
-              className={styles.comment}
+              {...stylex.props(styles.comment)}
             >
               {queryHistoryItem.comment}
             </div>
@@ -347,7 +262,7 @@ export function RichHistoryCard(props: Props) {
         </div>
         {!activeUpdateComment && <RichHistoryAddToLibrary query={queryHistoryItem?.queries[0]} />}
         {!activeUpdateComment && (
-          <div className={styles.runButton}>
+          <div {...mergeStylexProps(stylex.props(styles.runButton), { className: 'gf-explore-rich-history-run' })}>
             <ExploreRunQueryButton queries={queryHistoryItem.queries} rootDatasourceUid={cardRootDatasource?.uid} />
           </div>
         )}
@@ -355,26 +270,6 @@ export function RichHistoryCard(props: Props) {
     </div>
   );
 }
-
-const getQueryStyles = (theme: GrafanaTheme2) => ({
-  queryRow: css({
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    display: 'flex',
-    flexDirection: 'row',
-    padding: theme.spacing(0.5, 0),
-    gap: theme.spacing(0.5),
-    ':first-child': {
-      borderTop: 'none',
-    },
-  }),
-  dsInfoContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  queryText: css({
-    wordBreak: 'break-all',
-  }),
-});
 
 interface QueryProps {
   query: {
@@ -386,39 +281,29 @@ interface QueryProps {
 }
 
 const Query = ({ query, showDsInfo = false }: QueryProps) => {
-  const styles = useStyles2(getQueryStyles);
-
   return (
-    <div className={styles.queryRow}>
+    <div {...stylex.props(styles.queryRow)}>
       {showDsInfo && (
-        <div className={styles.dsInfoContainer}>
+        <div {...stylex.props(styles.dsInfoContainer)}>
           <DatasourceInfo dsApi={query.datasource} size="md" />
           {': '}
         </div>
       )}
-      <span aria-label={t('explore.rich-history-card.query-text-label', 'Query text')} className={styles.queryText}>
+      <span
+        aria-label={t('explore.rich-history-card.query-text-label', 'Query text')}
+        {...stylex.props(styles.queryText)}
+      >
         {createQueryText(query.query, query.datasource)}
       </span>
     </div>
   );
 };
 
-const getDsInfoStyles = (size: 'sm' | 'md') => (theme: GrafanaTheme2) =>
-  css({
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: theme.typography[size === 'sm' ? 'bodySmall' : 'body'].fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    whiteSpace: 'nowrap',
-  });
-
 function DatasourceInfo({ dsApi, size }: { dsApi?: DataSourceApi; size: 'sm' | 'md' }) {
-  const getStyles = useCallback((theme: GrafanaTheme2) => getDsInfoStyles(size)(theme), [size]);
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles}>
+    <div {...stylex.props(styles.dsInfo, size === 'sm' && styles.dsInfoSmall)}>
       <img
+        {...stylex.props(styles.dsInfoImage)}
         src={dsApi?.meta.info.logos.small || icnDatasourceSvg}
         alt={dsApi?.type || t('explore.rich-history-card.datasource-not-exist', 'Data source does not exist anymore')}
         aria-label={t('explore.rich-history-card.datasource-icon-label', 'Data source icon')}
@@ -431,3 +316,105 @@ function DatasourceInfo({ dsApi, size }: { dsApi?: DataSourceApi; size: 'sm' | '
 }
 
 export default connector(RichHistoryCard);
+
+/* Hard-coded value so all buttons and icons on right side of card are aligned */
+const rightColumnWidth = '240px';
+const rightColumnContentWidth = '170px';
+
+const styles = stylex.create({
+  queryCard: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+    marginRight: 0,
+    /* If datasource was removed, card will have inactive color */
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  cardRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: { default: spacing['--gf-spacing-x1'], ':first-of-type': spacing['--gf-spacing-x0-5'] },
+    paddingBottom: { default: spacing['--gf-spacing-x1'], ':first-of-type': spacing['--gf-spacing-x0-5'] },
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    borderBottomWidth: { default: null, ':first-of-type': '1px' },
+    borderBottomStyle: { default: 'none', ':first-of-type': 'solid' },
+    borderBottomColor: { default: null, ':first-of-type': colors['--gf-colors-border-weak'] },
+  },
+  queryActionButtons: {
+    maxWidth: rightColumnContentWidth,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    fontSize: typography['--gf-typography-size-base'],
+  },
+  queryContainer: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    width: `calc(100% - ${rightColumnWidth})`,
+  },
+  updateCommentContainer: {
+    width: `calc(100% + ${rightColumnWidth})`,
+    marginTop: spacing['--gf-spacing-x1'],
+  },
+  comment: {
+    overflowWrap: 'break-word',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+  // `.commentButtonRow > *`
+  commentButton: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  textArea: {
+    width: '100%',
+  },
+  runButton: {
+    maxWidth: rightColumnContentWidth,
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  queryRow: {
+    borderTopWidth: '1px',
+    borderTopStyle: { default: 'solid', ':first-child': 'none' },
+    borderTopColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    flexDirection: 'row',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+    paddingRight: 0,
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  dsInfoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  queryText: {
+    wordBreak: 'break-all',
+  },
+  dsInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: typography['--gf-typography-body-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    whiteSpace: 'nowrap',
+  },
+  dsInfoSmall: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  // `.cardRow img`: every data source icon sits in a card row.
+  dsInfoImage: {
+    height: typography['--gf-typography-font-size'],
+    maxWidth: typography['--gf-typography-font-size'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});

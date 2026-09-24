@@ -1,0 +1,6 @@
+/* The label is RadioButtonDot's; its last descendants hold the label text. */
+.gf-scopes-tree-title > label :last-child {
+  font-size: var(--gf-typography-h6-font-size);
+  line-height: calc(var(--gf-typography-h6-font-size) * var(--gf-typography-h6-line-height));
+  font-weight: var(--gf-typography-font-weight-regular);
+}

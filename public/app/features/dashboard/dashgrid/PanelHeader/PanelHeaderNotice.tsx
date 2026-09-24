@@ -1,9 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending ToolbarButton migration (see toolbarButtonNotice)
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type QueryResultMetaNotice } from '@grafana/data';
-import { Icon, ToolbarButton, Tooltip, useStyles2 } from '@grafana/ui';
-import { getFocusStyles, getMouseFocusStyles } from '@grafana/ui/internal';
+import { type QueryResultMetaNotice } from '@grafana/data';
+import { Icon, ToolbarButton, Tooltip } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   notice: QueryResultMetaNotice;
@@ -11,15 +14,13 @@ interface Props {
 }
 
 export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const iconName =
     notice.severity === 'error' || notice.severity === 'warning' ? 'exclamation-triangle' : 'file-landscape-alt';
 
   if (notice.inspect && onClick) {
     return (
       <ToolbarButton
-        className={styles.notice}
+        className={toolbarButtonNotice}
         icon={iconName}
         iconSize="md"
         key={notice.severity}
@@ -31,7 +32,7 @@ export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
 
   if (notice.link) {
     return (
-      <a className={styles.notice} aria-label={notice.text} href={notice.link} target="_blank" rel="noreferrer">
+      <a {...stylex.props(styles.notice)} aria-label={notice.text} href={notice.link} target="_blank" rel="noreferrer">
         <Icon name={iconName} style={{ marginRight: '8px' }} size="md" />
       </a>
     );
@@ -39,41 +40,59 @@ export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
 
   return (
     <Tooltip key={notice.severity} content={notice.text}>
-      <span className={styles.iconTooltip}>
+      <span {...stylex.props(styles.iconTooltip)}>
         <Icon name={iconName} size="md" />
       </span>
     </Tooltip>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  notice: css({
-    background: 'inherit',
-    border: 'none',
-    borderRadius: theme.shape.radius.default,
-  }),
-  iconTooltip: css({
-    color: `${theme.colors.text.secondary}`,
+// stylex: pending ToolbarButton migration. ToolbarButton's own Emotion background and border would beat StyleX.
+const toolbarButtonNotice = css({
+  background: 'inherit',
+  border: 'none',
+  borderRadius: shape['--gf-shape-radius-default'],
+});
+
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
+
+const styles = stylex.create({
+  notice: {
     backgroundColor: 'inherit',
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  // The Emotion source's mouse-focus rule had an invalid selector (`&: focus`) and never applied. Its `:hover` came
+  // after `:focus`, so hover wins while focused too.
+  iconTooltip: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    backgroundColor: { default: 'inherit', ':hover': colors['--gf-colors-background-secondary'] },
     cursor: 'auto',
-    border: 'none',
-    borderRadius: `${theme.shape.radius.default}`,
-    padding: `${theme.spacing(0, 1)}`,
-    height: ` ${theme.spacing(theme.components.height.md)}`,
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-
-    '&:focus, &:focus-visible': {
-      ...getFocusStyles(theme),
-      zIndex: 1,
+    outlineStyle: { default: null, ':focus': 'dotted' },
+    outlineWidth: { default: null, ':focus': '2px' },
+    outlineColor: { default: null, ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    boxShadow: {
+      default: null,
+      ':hover': shadows['--gf-shadows-z1'],
+      ':focus': { default: focusRing, ':hover': shadows['--gf-shadows-z1'] },
     },
-    '&: focus:not(:focus-visible)': getMouseFocusStyles(theme),
-
-    '&:hover ': {
-      boxShadow: `${theme.shadows.z1}`,
-      color: `${theme.colors.text.primary}`,
-      background: `${theme.colors.background.secondary}`,
+    transitionProperty: { default: null, ':focus': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
     },
-  }),
+    zIndex: { default: null, ':focus': 1 },
+  },
 });

@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type SelectableValue, type GrafanaTheme2 } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 
 import { IconButton } from '../../components/IconButton/IconButton';
 import { Tab } from '../../components/Tabs/Tab';
 import { TabContent } from '../../components/Tabs/TabContent';
 import { TabsBar } from '../../components/Tabs/TabsBar';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Box } from '../Layout/Box/Box';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
@@ -30,15 +30,14 @@ export interface TabbedContainerProps {
 
 export function TabbedContainer({ tabs, defaultTab, closeIconTooltip, onClose, testId }: TabbedContainerProps) {
   const [activeTab, setActiveTab] = useState(tabs.some((tab) => tab.value === defaultTab) ? defaultTab : tabs[0].value);
-  const styles = useStyles2(getStyles);
 
   const onSelectTab = (item: SelectableValue<string>) => {
     setActiveTab(item.value!);
   };
 
   return (
-    <div className={styles.container} data-testid={testId}>
-      <TabsBar className={styles.tabs}>
+    <div {...stylex.props(styles.container)} data-testid={testId}>
+      <TabsBar xstyle={styles.tabs}>
         {tabs.map((t) => (
           <Tab
             key={t.value}
@@ -53,30 +52,32 @@ export function TabbedContainer({ tabs, defaultTab, closeIconTooltip, onClose, t
         </Box>
       </TabsBar>
       <ScrollContainer>
-        <TabContent className={styles.tabContent}>{tabs.find((t) => t.value === activeTab)?.content}</TabContent>
+        <TabContent xstyle={styles.tabContent}>{tabs.find((t) => t.value === activeTab)?.content}</TabContent>
       </ScrollContainer>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    flex: '1 1 0',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
     minHeight: 0,
-  }),
-  tabContent: css({
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.primary,
-    flex: 1,
-  }),
-  tabs: css({
-    paddingTop: theme.spacing(0.5),
-    borderColor: theme.colors.border.weak,
-    ul: {
-      marginLeft: theme.spacing(2),
-    },
-  }),
+  },
+  tabContent: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    flex: '1',
+  },
+  tabs: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    borderColor: colors['--gf-colors-border-weak'],
+  },
 });

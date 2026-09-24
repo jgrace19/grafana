@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { memo, Children, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { bp } from '../../themes/stylex/constants.stylex';
+import { mixins } from '../../themes/stylex/mixins';
+import { colors, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
@@ -59,29 +60,24 @@ export const PageToolbar = memo(
     forceShowLeftItems = false,
     'data-testid': testId,
   }: Props) => {
-    const styles = useStyles2(getStyles);
-
     /**
      * .page-toolbar css class is used for some legacy css view modes (TV/Kiosk) and
      * media queries for mobile view when toolbar needs left padding to make room
      * for mobile menu icon. This logic hopefully can be changed when we move to a full react
      * app and change how the app side menu & mobile menu is rendered.
      */
-    const mainStyle = cx(
+    const mainStyle = clsx(
       'page-toolbar',
-      styles.toolbar,
-      {
-        ['page-toolbar--fullscreen']: isFullscreen,
-        [styles.noPageIcon]: !pageIcon,
-      },
+      stylex.props(styles.toolbar, !pageIcon && styles.noPageIcon).className,
+      isFullscreen && 'page-toolbar--fullscreen',
       className
     );
 
     const titleEl = (
       <>
-        <span className={styles.truncateText}>{title}</span>
+        <span {...stylex.props(styles.truncateText)}>{title}</span>
         {section && (
-          <span className={styles.pre}>
+          <span {...stylex.props(styles.pre)}>
             {' / '}
             {section}
           </span>
@@ -100,14 +96,14 @@ export const PageToolbar = memo(
 
     return (
       <nav className={mainStyle} aria-label={ariaLabel} data-testid={testId}>
-        <div className={styles.leftWrapper}>
+        <div {...stylex.props(styles.leftWrapper)}>
           {pageIcon && !onGoBack && (
-            <div className={styles.pageIcon}>
+            <div {...stylex.props(styles.pageIcon)}>
               <Icon name={pageIcon} size="lg" aria-hidden />
             </div>
           )}
           {onGoBack && (
-            <div className={styles.pageIcon}>
+            <div {...stylex.props(styles.pageIcon)}>
               <IconButton
                 name="arrow-left"
                 tooltip={goBackLabel}
@@ -118,18 +114,18 @@ export const PageToolbar = memo(
               />
             </div>
           )}
-          <nav aria-label={searchLinksLabel} className={styles.navElement}>
+          <nav aria-label={searchLinksLabel} {...stylex.props(styles.navElement)}>
             {parent && parentHref && (
               <>
                 <Link
                   aria-label={searchParentFolderLabel}
-                  className={cx(styles.titleText, styles.parentLink, styles.titleLink, styles.truncateText)}
+                  {...stylex.props(mixins.focusRing, styles.titleText, styles.parentLink, styles.truncateText)}
                   href={parentHref}
                 >
-                  {parent} <span className={styles.parentIcon}></span>
+                  {parent} <span {...stylex.props(styles.parentIcon)}></span>
                 </Link>
                 {titleHref && (
-                  <span className={cx(styles.titleText, styles.titleDivider)} aria-hidden>
+                  <span {...stylex.props(styles.titleText, styles.titleDivider)} aria-hidden>
                     {'/'}
                   </span>
                 )}
@@ -137,26 +133,26 @@ export const PageToolbar = memo(
             )}
 
             {(title || Boolean(leftItems?.length)) && (
-              <div className={styles.titleWrapper}>
+              <div {...stylex.props(styles.titleWrapper)}>
                 {title && (
-                  <h1 className={styles.h1Styles}>
+                  <h1 {...stylex.props(styles.h1Styles)}>
                     {titleHref ? (
                       <Link
                         aria-label={searchDashboardNameLabel}
-                        className={cx(styles.titleText, styles.titleLink)}
+                        {...stylex.props(mixins.focusRing, styles.titleText)}
                         href={titleHref}
                       >
                         {titleEl}
                       </Link>
                     ) : (
-                      <div className={styles.titleText}>{titleEl}</div>
+                      <div {...stylex.props(styles.titleText)}>{titleEl}</div>
                     )}
                   </h1>
                 )}
 
                 {leftItems?.map((child, index) => (
                   <div
-                    className={cx(styles.leftActionItem, { [styles.forceShowLeftActionItems]: forceShowLeftItems })}
+                    {...stylex.props(styles.leftActionItem, forceShowLeftItems && styles.forceShowLeftActionItems)}
                     key={index}
                   >
                     {child}
@@ -176,102 +172,86 @@ export const PageToolbar = memo(
 
 PageToolbar.displayName = 'PageToolbar';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const { spacing, typography } = theme;
+const grid = spacing['--gf-spacing-grid-size'];
 
-  const focusStyle = getFocusStyles(theme);
-
-  return {
-    pre: css({
-      whiteSpace: 'pre',
-    }),
-    toolbar: css({
-      alignItems: 'center',
-      background: theme.colors.background.canvas,
-      display: 'flex',
-      gap: theme.spacing(2),
-      justifyContent: 'space-between',
-      padding: theme.spacing(2, 2),
-
-      [theme.breakpoints.down('md')]: {
-        paddingLeft: '53px',
-      },
-    }),
-    noPageIcon: css({
-      [theme.breakpoints.down('md')]: {
-        paddingLeft: theme.spacing(2),
-      },
-    }),
-    leftWrapper: css({
-      display: 'flex',
-      flexWrap: 'nowrap',
-      maxWidth: '70%',
-    }),
-    pageIcon: css({
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'flex',
-        paddingRight: theme.spacing(1),
-        alignItems: 'center',
-      },
-    }),
-    truncateText: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    titleWrapper: css({
-      display: 'flex',
-      margin: 0,
-      minWidth: 0,
-    }),
-    navElement: css({
-      display: 'flex',
-      alignItems: 'center',
-      minWidth: 0,
-    }),
-    h1Styles: css({
-      margin: spacing(0, 1, 0, 0),
-      lineHeight: 'inherit',
-      flexGrow: 1,
-      minWidth: 0,
-    }),
-    parentIcon: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-    titleText: css({
-      display: 'flex',
-      fontSize: typography.size.lg,
-      margin: 0,
-      borderRadius: theme.shape.radius.default,
-    }),
-    titleLink: css({
-      '&:focus-visible': focusStyle,
-    }),
-    titleDivider: css({
-      padding: spacing(0, 0.5, 0, 0.5),
-      display: 'none',
-      [theme.breakpoints.up('md')]: {
-        display: 'unset',
-      },
-    }),
-    parentLink: css({
-      display: 'none',
-      [theme.breakpoints.up('md')]: {
-        display: 'unset',
-        flex: 1,
-      },
-    }),
-    leftActionItem: css({
-      display: 'none',
-      alignItems: 'center',
-      paddingRight: spacing(0.5),
-      [theme.breakpoints.up('md')]: {
-        display: 'flex',
-      },
-    }),
-    forceShowLeftActionItems: css({
-      display: 'flex',
-    }),
-  };
-};
+const styles = stylex.create({
+  pre: {
+    whiteSpace: 'pre',
+  },
+  toolbar: {
+    alignItems: 'center',
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    display: 'flex',
+    gap: `calc(${grid} * 2)`,
+    justifyContent: 'space-between',
+    paddingTop: `calc(${grid} * 2)`,
+    paddingRight: `calc(${grid} * 2)`,
+    paddingBottom: `calc(${grid} * 2)`,
+    paddingLeft: { default: `calc(${grid} * 2)`, [bp.mdDown]: '53px' },
+  },
+  noPageIcon: {
+    paddingLeft: `calc(${grid} * 2)`,
+  },
+  leftWrapper: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    maxWidth: '70%',
+  },
+  pageIcon: {
+    display: { default: 'none', [bp.smUp]: 'flex' },
+    paddingRight: { default: null, [bp.smUp]: grid },
+    alignItems: { default: null, [bp.smUp]: 'center' },
+  },
+  truncateText: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  titleWrapper: {
+    display: 'flex',
+    margin: 0,
+    minWidth: 0,
+  },
+  navElement: {
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: 0,
+  },
+  h1Styles: {
+    marginTop: 0,
+    marginRight: grid,
+    marginBottom: 0,
+    marginLeft: 0,
+    lineHeight: 'inherit',
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  parentIcon: {
+    marginLeft: `calc(${grid} * 0.5)`,
+  },
+  titleText: {
+    display: 'flex',
+    fontSize: typography['--gf-typography-size-lg'],
+    margin: 0,
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  titleDivider: {
+    paddingTop: 0,
+    paddingRight: `calc(${grid} * 0.5)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${grid} * 0.5)`,
+    display: { default: 'none', [bp.mdUp]: 'unset' },
+  },
+  parentLink: {
+    display: { default: 'none', [bp.mdUp]: 'unset' },
+    flex: { default: null, [bp.mdUp]: '1' },
+  },
+  leftActionItem: {
+    display: { default: 'none', [bp.mdUp]: 'flex' },
+    alignItems: 'center',
+    paddingRight: `calc(${grid} * 0.5)`,
+  },
+  forceShowLeftActionItems: {
+    display: 'flex',
+  },
+});

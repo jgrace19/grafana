@@ -1,0 +1,6 @@
+/*
+ * Removes the CollapsableSection content padding. Unlayered, and the class is doubled because CollapsableSection's Emotion rules load after this lazy chunk's stylesheet.
+ */
+.gf-sidebar-collapsable-content.gf-sidebar-collapsable-content {
+  padding: 0;
+}

@@ -1,13 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState, type JSX } from 'react';
 
-import { type AnnotationQuery, type EventBus, type GrafanaTheme2 } from '@grafana/data';
+import { type AnnotationQuery, type EventBus } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { InlineField, InlineFieldRow, InlineSwitch, useStyles2 } from '@grafana/ui';
-import { LoadingIndicator } from '@grafana/ui/internal';
+import { InlineField, InlineFieldRow, InlineSwitch } from '@grafana/ui';
+import { LoadingIndicator, mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { AnnotationQueryFinished, AnnotationQueryStarted } from '../../../../types/events';
 import { getDashboardQueryRunner } from '../../../query/state/DashboardQueryRunner/DashboardQueryRunner';
+
+import './AnnotationPicker.css';
 
 export interface AnnotationPickerProps {
   events: EventBus;
@@ -17,7 +20,6 @@ export interface AnnotationPickerProps {
 
 export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: AnnotationPickerProps): JSX.Element => {
   const [loading, setLoading] = useState(false);
-  const styles = useStyles2(getStyles);
   const onCancel = () => getDashboardQueryRunner().cancel(annotation);
 
   useEffect(() => {
@@ -43,7 +45,10 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
   });
 
   return (
-    <div key={annotation.name} className={styles.annotation}>
+    <div
+      key={annotation.name}
+      {...mergeStylexProps(stylex.props(styles.annotation), { className: 'gf-annotation-picker' })}
+    >
       <InlineFieldRow>
         <InlineField
           label={annotation.name}
@@ -58,7 +63,7 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
             data-testid={selectors.pages.Dashboard.SubMenu.Annotations.annotationToggle(annotation.name)}
           />
         </InlineField>
-        <div className={styles.indicator}>
+        <div {...stylex.props(styles.indicator)}>
           <LoadingIndicator loading={loading} onCancel={onCancel} />
         </div>
       </InlineFieldRow>
@@ -66,22 +71,17 @@ export const AnnotationPicker = ({ annotation, events, onEnabledChanged }: Annot
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    annotation: css({
-      display: 'inline-block',
-      marginRight: theme.spacing(1),
-      '.fa-caret-down': {
-        fontSize: '75%',
-        paddingLeft: theme.spacing(1),
-      },
-      '.gf-form-inline .gf-form': {
-        marginBottom: 0,
-      },
-    }),
-    indicator: css({
-      alignSelf: 'center',
-      padding: `0 ${theme.spacing(0.5)}`,
-    }),
-  };
-}
+// The rules for the children's legacy classes live in AnnotationPicker.css.
+const styles = stylex.create({
+  annotation: {
+    display: 'inline-block',
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  indicator: {
+    alignSelf: 'center',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

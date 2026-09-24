@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { SettingsBarHeader, type Props as SettingsBarHeaderProps } from './SettingsBarHeader';
 
@@ -12,7 +11,6 @@ export interface Props extends Pick<SettingsBarHeaderProps, 'headerElement' | 't
 }
 
 export function SettingsBar({ children, title, headerElement, ...rest }: Props) {
-  const styles = useStyles2(getStyles);
   const [isContentVisible, setIsContentVisible] = useState(false);
 
   function onRowToggle() {
@@ -28,18 +26,16 @@ export function SettingsBar({ children, title, headerElement, ...rest }: Props) 
         headerElement={headerElement}
         {...rest}
       />
-      {isContentVisible && <div className={styles.content}>{children}</div>}
+      {isContentVisible && <div {...stylex.props(styles.content)}>{children}</div>}
     </>
   );
 }
 
 SettingsBar.displayName = 'SettingsBar';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    content: css({
-      marginTop: theme.spacing(1),
-      marginLeft: theme.spacing(4),
-    }),
-  };
-};
+const styles = stylex.create({
+  content: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x4'],
+  },
+});

@@ -1,0 +1,6 @@
+/* Overrides IconButton's own StyleX margin, so it stays unlayered like the Emotion class it replaces. */
+.gf-scopes-exchange-icon {
+  opacity: 0.7;
+  flex-shrink: 0;
+  margin-top: var(--gf-spacing-x0-25);
+}

@@ -1,19 +1,13 @@
-import { css } from '@emotion/css';
 import { autoUpdate, useFloating } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type VariableSuggestion } from '@grafana/data';
-import {
-  FieldValidationMessage,
-  floatingUtils,
-  Input,
-  Portal,
-  ScrollContainer,
-  TextArea,
-  useTheme2,
-} from '@grafana/ui';
-import { DataLinkSuggestions } from '@grafana/ui/internal';
+import { type VariableSuggestion } from '@grafana/data';
+import { FieldValidationMessage, floatingUtils, Input, Portal, ScrollContainer, TextArea } from '@grafana/ui';
+import { DataLinkSuggestions, mergeStylexProps } from '@grafana/ui/internal';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { shadows } from '@grafana/ui/stylex/tokens.stylex';
 
 const modulo = (a: number, n: number) => a - n * Math.floor(a / n);
 const ERROR_TOOLTIP_OFFSET = 8;
@@ -36,23 +30,23 @@ interface SuggestionsInputProps {
   autoFocus?: boolean;
 }
 
-const getStyles = (theme: GrafanaTheme2, inputHeight: number) => {
-  return {
-    suggestionsWrapper: css({
-      boxShadow: theme.shadows.z2,
-    }),
-    errorTooltip: css({
-      position: 'absolute',
-      top: inputHeight + ERROR_TOOLTIP_OFFSET + 'px',
-      zIndex: theme.zIndex.tooltip,
-    }),
-    inputWrapper: css({
-      position: 'relative',
-    }),
-    // Wrapper with child selector needed.
-    // When classnames are applied to the same element as the wrapper, it causes the suggestions to stop working
-  };
-};
+const styles = stylex.create({
+  suggestionsWrapper: {
+    boxShadow: shadows['--gf-shadows-z2'],
+  },
+  errorTooltip: {
+    position: 'absolute',
+    zIndex: zIndex.tooltip,
+  },
+  errorTooltipTop: (top: string) => ({
+    top,
+  }),
+  // Wrapper with child selector needed.
+  // When classnames are applied to the same element as the wrapper, it causes the suggestions to stop working
+  inputWrapper: {
+    position: 'relative',
+  },
+});
 
 export const SuggestionsInput = ({
   value = '',
@@ -73,9 +67,6 @@ export const SuggestionsInput = ({
   const [inputHeight, setInputHeight] = useState<number>(0);
   const [startPos, setStartPos] = useState<number>(0);
   const placement = 'bottom-start';
-
-  const theme = useTheme2();
-  const styles = getStyles(theme, inputHeight);
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined);
 
@@ -190,10 +181,10 @@ export const SuggestionsInput = ({
   };
 
   return (
-    <div className={styles.inputWrapper} style={style ?? {}}>
+    <div {...mergeStylexProps(stylex.props(styles.inputWrapper), { style: style ?? {} })}>
       {showingSuggestions && (
         <Portal>
-          <div ref={refs.setFloating} style={floatingStyles} className={styles.suggestionsWrapper}>
+          <div ref={refs.setFloating} style={floatingStyles} {...stylex.props(styles.suggestionsWrapper)}>
             <ScrollContainer
               maxHeight="300px"
               onScroll={(event) => setScrollTop(event.currentTarget.scrollTop ?? 0)}
@@ -215,7 +206,7 @@ export const SuggestionsInput = ({
         </Portal>
       )}
       {invalid && error && (
-        <div className={styles.errorTooltip}>
+        <div {...stylex.props(styles.errorTooltip, styles.errorTooltipTop(`${inputHeight + ERROR_TOOLTIP_OFFSET}px`))}>
           <FieldValidationMessage>{error}</FieldValidationMessage>
         </div>
       )}

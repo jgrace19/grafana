@@ -1,11 +1,14 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ButtonHTMLAttributes, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type IconName, isIconName, type GrafanaTheme2 } from '@grafana/data';
+import { type IconName, isIconName } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, Icon, Tooltip, useTheme2 } from '@grafana/ui';
-import { type TooltipPlacement } from '@grafana/ui/internal';
+import { Button, Icon, Tooltip } from '@grafana/ui';
+import { mergeStylexProps, type TooltipPlacement } from '@grafana/ui/internal';
+import { colors, components, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './ContentOutlineItemButton.css';
 
 type CommonProps = {
   contentOutlineExpanded?: boolean;
@@ -14,7 +17,10 @@ type CommonProps = {
   tooltip?: string;
   tooltipPlacement?: TooltipPlacement;
   className?: string;
-  indentStyle?: string;
+  /** @internal first-party StyleX overrides for the item button, applied after its own styles */
+  xstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX styles for the item's container (indentation, highlight) */
+  indentXstyle?: stylex.StyleXStyles;
   collapsible?: boolean;
   collapsed?: boolean;
   isActive?: boolean;
@@ -34,7 +40,8 @@ export function ContentOutlineItemButton({
   tooltip,
   tooltipPlacement = 'bottom',
   className,
-  indentStyle,
+  xstyle,
+  indentXstyle,
   collapsible,
   collapsed,
   isActive,
@@ -45,11 +52,6 @@ export function ContentOutlineItemButton({
   onRemove,
   ...rest
 }: ContentOutlineItemButtonProps) {
-  const theme = useTheme2();
-  const styles = getStyles(theme, color);
-
-  const buttonStyles = cx(styles.button, className);
-
   const textRef = useRef<HTMLElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
 
@@ -60,10 +62,10 @@ export function ContentOutlineItemButton({
   }, [title]);
 
   const body = (
-    <div className={cx(styles.buttonContainer, indentStyle)}>
+    <div {...stylex.props(styles.buttonContainer, indentXstyle)}>
       {collapsible && (
         <button
-          className={styles.collapseButton}
+          {...stylex.props(styles.collapseButton)}
           onClick={toggleCollapsed}
           aria-label={t(
             'explore.content-outline-item-button.body.aria-label-content-outline-item-collapse-button',
@@ -76,16 +78,22 @@ export function ContentOutlineItemButton({
         </button>
       )}
       <button
-        className={cx(buttonStyles, {
-          [styles.active]: isActive,
-          [styles.extraHighlight]: extraHighlight,
-        })}
+        {...mergeStylexProps(
+          stylex.props(
+            styles.button,
+            xstyle,
+            isActive && styles.active,
+            extraHighlight && styles.extraHighlight,
+            (isActive || extraHighlight) && (color !== undefined ? styles.markerColor(color) : styles.markerGradient)
+          ),
+          { className }
+        )}
         aria-label={tooltip}
         {...rest}
       >
         <OutlineIcon icon={icon} />
         {title && (
-          <span className={styles.textContainer} ref={textRef}>
+          <span {...stylex.props(styles.textContainer)} ref={textRef}>
             {title}
           </span>
         )}
@@ -97,7 +105,7 @@ export function ContentOutlineItemButton({
             'Delete item'
           )}
           variant="destructive"
-          className={styles.deleteButton}
+          className="gf-explore-outline-delete-button"
           icon="times"
           onClick={() => onRemove()}
           data-testid="content-outline-item-delete-button"
@@ -130,97 +138,89 @@ function OutlineIcon({ icon }: { icon: IconName | React.ReactNode }) {
   return icon;
 }
 
-const getStyles = (theme: GrafanaTheme2, color?: string) => {
-  return {
-    buttonContainer: css({
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      flexGrow: 1,
-      gap: theme.spacing(0.25),
-      width: '100%',
-      overflow: 'hidden',
-    }),
-    button: css({
-      label: 'content-outline-item-button',
-      display: 'flex',
-      alignItems: 'center',
-      height: theme.spacing(theme.components.height.md),
-      gap: theme.spacing(0.5),
-      color: theme.colors.text.secondary,
-      width: '100%',
-      background: 'transparent',
-      overflow: 'hidden',
-      border: 'none',
-    }),
-    collapseButton: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: theme.spacing(3),
-      height: theme.spacing(4),
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.secondary,
-      background: 'transparent',
-      border: 'none',
-      overflow: 'hidden',
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-        background: theme.colors.secondary.shade,
-      },
-    }),
-    textContainer: css({
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      fontSize: theme.typography.bodySmall.fontSize,
-      marginLeft: theme.spacing(0.5),
-    }),
-    active: css({
-      backgroundColor: theme.colors.background.secondary,
-      borderTopRightRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      position: 'relative',
-      height: theme.spacing(theme.components.height.md),
-
-      '&::before': {
-        backgroundImage: color !== undefined ? 'none' : theme.colors.gradients.brandVertical,
-        backgroundColor: color !== undefined ? color : 'none',
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        transform: 'translateX(-50%)',
-        width: theme.spacing(0.5),
-        left: '2px',
-      },
-    }),
-    extraHighlight: css({
-      backgroundColor: theme.colors.background.secondary,
-      borderTopRightRadius: theme.shape.radius.default,
-      borderBottomRightRadius: theme.shape.radius.default,
-      position: 'relative',
-
-      '&::before': {
-        backgroundImage: color !== undefined ? 'none' : theme.colors.gradients.brandVertical,
-        backgroundColor: color !== undefined ? color : 'none',
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        transform: 'translateX(-50%)',
-        width: theme.spacing(0.5),
-        left: '2px',
-      },
-    }),
-    deleteButton: css({
-      width: theme.spacing(1),
-      height: theme.spacing(1),
-      padding: theme.spacing(0.75, 0.75),
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  buttonContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    flexGrow: 1,
+    gap: spacing['--gf-spacing-x0-25'],
+    width: '100%',
+    overflow: 'hidden',
+  },
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    gap: spacing['--gf-spacing-x0-5'],
+    color: colors['--gf-colors-text-secondary'],
+    width: '100%',
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
+    borderStyle: 'none',
+  },
+  collapseButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: spacing['--gf-spacing-x3'],
+    height: spacing['--gf-spacing-x4'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-secondary-shade'] },
+    borderStyle: 'none',
+    overflow: 'hidden',
+  },
+  textContainer: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  active: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    position: 'relative',
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    '::before': {
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '" "',
+      display: 'block',
+      height: '100%',
+      position: 'absolute',
+      transform: 'translateX(-50%)',
+      width: spacing['--gf-spacing-x0-5'],
+      left: '2px',
+    },
+  },
+  extraHighlight: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    position: 'relative',
+    '::before': {
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '" "',
+      display: 'block',
+      height: '100%',
+      position: 'absolute',
+      transform: 'translateX(-50%)',
+      width: spacing['--gf-spacing-x0-5'],
+      left: '2px',
+    },
+  },
+  // The active/highlighted marker: the item's colour, or the brand gradient when it has none.
+  markerColor: (color: string) => ({
+    '::before': {
+      backgroundImage: 'none',
+      backgroundColor: color,
+    },
+  }),
+  markerGradient: {
+    '::before': {
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+    },
+  },
+});

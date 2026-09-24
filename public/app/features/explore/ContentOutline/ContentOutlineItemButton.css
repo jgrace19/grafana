@@ -1,0 +1,10 @@
+/*
+ * Sizes the item's delete Button, which has no xstyle. Unlayered, like the Emotion class it replaces, so it beats
+ * Button's own size styles.
+ */
+.gf-explore-outline-delete-button {
+  width: var(--gf-spacing-x1);
+  height: var(--gf-spacing-x1);
+  padding: calc(var(--gf-spacing-grid-size) * 0.75) calc(var(--gf-spacing-grid-size) * 0.75);
+  margin-right: var(--gf-spacing-x0-5);
+}

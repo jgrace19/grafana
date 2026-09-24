@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import {
   Alert,
@@ -15,8 +14,8 @@ import {
   TabContent,
   TabsBar,
   Text,
-  useStyles2,
 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type SQLSchemaData, type SQLSchemaField, type SQLSchemas } from '../hooks/useSQLSchemas';
 
@@ -35,8 +34,6 @@ interface SchemaInspectorPanelProps {
 }
 
 export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspectorPanelProps) => {
-  const styles = useStyles2(getStyles);
-
   const schemaResponse: SQLSchemas = schemas ?? {};
   const refIds = Object.keys(schemaResponse);
 
@@ -53,7 +50,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
         cell: ({ row }: { row: { original: SchemaField } }) => (
           <Stack direction="row" alignItems="center" gap={1}>
             <Icon name={getFieldTypeIcon(row.original.mysqlType)} />
-            <div className={styles.tableCell}>{row.original.name}</div>
+            <div {...stylex.props(styles.tableCell)}>{row.original.name}</div>
           </Stack>
         ),
       },
@@ -70,7 +67,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
         cell: ({ row }: { row: { original: SchemaField } }) => (
           <Icon
             name={row.original.nullable ? 'check' : 'times'}
-            className={row.original.nullable ? styles.nullableIcon : styles.requiredIcon}
+            xstyle={row.original.nullable ? styles.nullableIcon : styles.requiredIcon}
           />
         ),
       },
@@ -96,11 +93,11 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
           // Format as a proper array string with quoted strings
           const arrayString = JSON.stringify(sampleValues);
 
-          return <div className={styles.tableCell}>{arrayString}</div>;
+          return <div {...stylex.props(styles.tableCell)}>{arrayString}</div>;
         },
       },
     ],
-    [styles]
+    []
   );
 
   const renderSchemaFields = (fields: SchemaField[], sampleRows: SampleRows | null) => {
@@ -112,7 +109,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
     }));
 
     return (
-      <div className={styles.tableContainer}>
+      <div {...stylex.props(styles.tableContainer)}>
         <InteractiveTable
           columns={columns}
           data={enhancedFields}
@@ -126,7 +123,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
   const renderSchemaTabContent = ({ columns, error, sampleRows }: SchemaData) => {
     if (error) {
       return (
-        <div className={styles.schemaInfoContainer}>
+        <div {...stylex.props(styles.schemaInfoContainer)}>
           <Alert title={t('expressions.sql-schema.query-error-title', 'Query error')} severity="error">
             {error}
           </Alert>
@@ -136,7 +133,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
 
     if (!columns || columns.length === 0) {
       return (
-        <div className={styles.schemaInfoContainer}>
+        <div {...stylex.props(styles.schemaInfoContainer)}>
           <Alert severity="warning" title={t('expressions.sql-schema.no-fields-title', 'No schema information')}>
             <Trans i18nKey="expressions.sql-schema.no-fields-desc">This query returned no schema information.</Trans>
           </Alert>
@@ -150,7 +147,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
   const renderContent = () => {
     if (error) {
       return (
-        <div className={styles.schemaInfoContainer}>
+        <div {...stylex.props(styles.schemaInfoContainer)}>
           <Alert title={t('expressions.sql-schema.error-title', 'Error')} severity="error">
             {error.message}
           </Alert>
@@ -160,7 +157,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
 
     if (loading) {
       return (
-        <div className={styles.schemaInfoContainer}>
+        <div {...stylex.props(styles.schemaInfoContainer)}>
           <Stack direction="row" alignItems="center" gap={1}>
             <Spinner />
             <Text variant="code" color="secondary">
@@ -173,7 +170,7 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
 
     if (!activeSchemaData || refIds.length === 0) {
       return (
-        <div className={styles.schemaInfoContainer}>
+        <div {...stylex.props(styles.schemaInfoContainer)}>
           <Alert
             severity="warning"
             title={t('expressions.sql-schema.no-data-title', 'No schema information available')}
@@ -208,27 +205,35 @@ export const SchemaInspectorPanel = ({ schemas, loading, error }: SchemaInspecto
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  schemaInfoContainer: css({
-    padding: theme.spacing(1),
-  }),
-  tableCell: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  tableContainer: css({
-    margin: theme.spacing(1),
+const styles = stylex.create({
+  schemaInfoContainer: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  tableCell: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  tableContainer: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x1'],
     overflowY: 'auto',
     overflowX: 'auto',
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.background.primary,
-  }),
-  nullableIcon: css({
-    color: theme.colors.success.text,
-  }),
-  requiredIcon: css({
-    color: theme.colors.warning.text,
-  }),
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  nullableIcon: {
+    color: colors['--gf-colors-success-text'],
+  },
+  requiredIcon: {
+    color: colors['--gf-colors-warning-text'],
+  },
 });

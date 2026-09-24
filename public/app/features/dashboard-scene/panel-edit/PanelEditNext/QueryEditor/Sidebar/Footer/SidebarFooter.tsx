@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, Text, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-import { FOOTER_HEIGHT, getQueryEditorColors, QueryEditorType } from '../../../constants';
+import { getQueryEditorColors, QueryEditorType } from '../../../constants';
 import {
   useAlertingContext,
   usePanelContext,
@@ -17,7 +17,7 @@ export function SidebarFooter() {
   const { transformations } = usePanelContext();
   const { alertRules } = useAlertingContext();
   const { cardType } = useQueryEditorUIContext();
-  const styles = useStyles2(getStyles);
+  const themeColors = getQueryEditorColors(useTheme2());
 
   const isAlertView = cardType === QueryEditorType.Alert;
   const total = isAlertView ? alertRules.length : queries.length + transformations.length;
@@ -31,20 +31,20 @@ export function SidebarFooter() {
     : t('query-editor-next.sidebar.footer-items', '{{count}} items', { count: total });
 
   return (
-    <div className={styles.footer}>
+    <div {...stylex.props(styles.footer, styles.background(themeColors.sidebarFooterBackground))}>
       <Text weight="medium" variant="bodySmall">
         {suffixText}
       </Text>
       {!isAlertView && (
         <Stack direction="row" alignItems="center" gap={2}>
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <Icon name="eye" size="sm" className={styles.icon} />
+            <Icon name="eye" size="sm" xstyle={styles.icon} />
             <Text weight="medium" variant="bodySmall">
               {visible}
             </Text>
           </Stack>
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <Icon name="eye-slash" size="sm" className={styles.icon} />
+            <Icon name="eye-slash" size="sm" xstyle={styles.icon} />
             <Text weight="medium" variant="bodySmall">
               {hidden}
             </Text>
@@ -55,22 +55,28 @@ export function SidebarFooter() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const themeColors = getQueryEditorColors(theme);
-  return {
-    footer: css({
-      marginTop: 'auto',
-      background: themeColors.sidebarFooterBackground,
-      padding: theme.spacing(0, 1.5),
-      height: FOOTER_HEIGHT,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      borderRadius: `0 0 ${theme.shape.radius.default} ${theme.shape.radius.default}`,
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-    }),
-    icon: css({
-      color: theme.colors.text.secondary,
-    }),
-  };
-}
+const styles = stylex.create({
+  footer: {
+    marginTop: 'auto',
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    // FOOTER_HEIGHT in ../../../constants.ts
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopLeftRadius: 'unset',
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+  },
+  background: (backgroundColor: string) => ({ backgroundColor }),
+  icon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

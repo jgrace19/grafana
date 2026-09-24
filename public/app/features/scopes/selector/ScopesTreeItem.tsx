@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import Highlighter from 'react-highlight-words';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Checkbox, Icon, RadioButtonDot, useStyles2, Text } from '@grafana/ui';
+import { Checkbox, Icon, RadioButtonDot, Text } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -10,6 +11,8 @@ import { ScopesTree } from './ScopesTree';
 import { isNodeExpandable, isNodeSelectable } from './scopesTreeUtils';
 import { type NodesMap, type SelectedScope, type TreeNode } from './types';
 import { useScopeActions } from './useScopeActions';
+
+import './ScopesTreeItem.css';
 
 // Helper components for rendering different selectable content types
 interface RadioButtonDotProps {
@@ -47,9 +50,8 @@ interface LinkLikeButtonProps {
 }
 
 function ScopeLinkLikeButton({ scopeNodeId, onClick, children }: LinkLikeButtonProps) {
-  const styles = useStyles2(getStyles);
   return (
-    <button className={styles.linkLikeItem} data-testid={`scopes-tree-${scopeNodeId}-link`} onClick={onClick}>
+    <button {...stylex.props(styles.linkLikeItem)} data-testid={`scopes-tree-${scopeNodeId}-link`} onClick={onClick}>
       {children}
     </button>
   );
@@ -72,9 +74,8 @@ function ScopeCheckboxWithLabel({
   children,
   'aria-labelledby': ariaLabelledby,
 }: CheckboxWithLabelProps) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.checkboxWithLabel}>
+    <div {...stylex.props(styles.checkboxWithLabel)}>
       <Checkbox
         id={scopeNodeId}
         checked={selected}
@@ -84,7 +85,7 @@ function ScopeCheckboxWithLabel({
         aria-labelledby={ariaLabelledby ?? undefined}
       />
       {showLabel && (
-        <label htmlFor={scopeNodeId} className={styles.checkboxLabel}>
+        <label htmlFor={scopeNodeId} {...stylex.props(styles.checkboxLabel)}>
           {children}
         </label>
       )}
@@ -128,8 +129,6 @@ function ScopeExpandButton({
   selected,
   onSelect,
 }: ExpandButtonProps) {
-  const styles = useStyles2(getStyles);
-
   const buttonId = getTreeItemElementId(scopeNodeId) + '-button';
 
   const SelectComponent = () => {
@@ -161,7 +160,7 @@ function ScopeExpandButton({
       <SelectComponent />
       <button
         id={buttonId}
-        className={styles.expand}
+        {...stylex.props(styles.expand)}
         data-testid={`scopes-tree-${scopeNodeId}-expand`}
         onClick={onClick}
         aria-expanded={expanded}
@@ -194,7 +193,6 @@ export function ScopesTreeItem({
   highlighted,
 }: ScopesTreeItemProps) {
   const { selectScope, deselectScope, toggleExpandedNode } = useScopeActions();
-  const styles = useStyles2(getStyles);
   const services = useScopesServices();
   const { closeAndApply } = services?.scopesSelectorService || {};
   if (anyChildExpanded && !treeNode.expanded) {
@@ -229,13 +227,16 @@ export function ScopesTreeItem({
       // aria-selected refers to the highlighted item in the tree, not the selected checkbox/radio button
       aria-selected={highlighted}
       aria-expanded={isExpandable ? treeNode.expanded : undefined}
-      className={anyChildExpanded ? styles.expandedContainer : undefined}
+      {...stylex.props(anyChildExpanded && styles.expandedContainer)}
     >
       <div
-        className={cx(
-          styles.title,
-          isSelectable && !treeNode.expanded && styles.titlePadding,
-          highlighted && styles.highlighted
+        {...mergeStylexProps(
+          stylex.props(
+            styles.title,
+            isSelectable && !treeNode.expanded && styles.titlePadding,
+            highlighted && styles.highlighted
+          ),
+          { className: 'gf-scopes-tree-title' }
         )}
         data-testid={`scopes-tree-${treeNode.scopeNodeId}`}
       >
@@ -289,7 +290,7 @@ export function ScopesTreeItem({
         )}
       </div>
 
-      <div id={childrenId} className={styles.children}>
+      <div id={childrenId} {...stylex.props(styles.children)}>
         {treeNode.expanded && (
           <ScopesTree
             tree={treeNode}
@@ -316,76 +317,87 @@ export const getTreeItemElementId = (scopeNodeId?: string) => {
   return scopeNodeId ? `scopes-tree-item-${scopeNodeId}` : undefined;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    highlighted: css({
-      background: theme.colors.action.focus,
-      borderRadius: theme.shape.radius.default,
-    }),
-    expandedContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      maxHeight: '100%',
-    }),
-    title: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(1),
-      fontSize: theme.typography.pxToRem(14),
-      lineHeight: theme.typography.pxToRem(22),
-      padding: theme.spacing(0.5, 0),
-
-      '& > label :last-child': css({
-        fontSize: theme.typography.pxToRem(14),
-        lineHeight: theme.typography.pxToRem(22),
-        fontWeight: theme.typography.fontWeightRegular,
-      }),
-    }),
-    titlePadding: css({
-      // Fix for checkboxes and radios outline overflow due to scrollbars
-      paddingLeft: theme.spacing(0.5),
-    }),
-    checkboxWithLabel: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(1),
-    }),
-    checkboxLabel: css({
-      fontSize: theme.typography.pxToRem(14),
-      lineHeight: theme.typography.pxToRem(22),
-      fontWeight: theme.typography.fontWeightRegular,
-      cursor: 'pointer',
-      margin: 0,
-    }),
-    expand: css({
-      alignItems: 'center',
-      background: 'none',
-      border: 0,
-      display: 'flex',
-      gap: theme.spacing(1),
-      margin: 0,
-      padding: 0,
-    }),
-    linkLikeItem: css({
-      alignItems: 'center',
-      background: 'none',
-      border: 0,
-      display: 'flex',
-      gap: theme.spacing(1),
-      margin: 0,
-      padding: 0,
-      textDecoration: 'none',
-
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-    children: css({
-      display: 'flex',
-      flexDirection: 'column',
-      overflowY: 'hidden',
-      maxHeight: '100%',
-      paddingLeft: theme.spacing(4),
-    }),
-  };
-};
+const styles = stylex.create({
+  highlighted: {
+    backgroundColor: colors['--gf-colors-action-focus'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  expandedContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '100%',
+  },
+  title: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    // pxToRem(14) and pxToRem(22): the h6 variant is 14px on a 22px line in every theme.
+    fontSize: typography['--gf-typography-h6-font-size'],
+    lineHeight: `calc(${typography['--gf-typography-h6-font-size']} * ${typography['--gf-typography-h6-line-height']})`,
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+  },
+  titlePadding: {
+    // Fix for checkboxes and radios outline overflow due to scrollbars
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  checkboxWithLabel: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  checkboxLabel: {
+    fontSize: typography['--gf-typography-h6-font-size'],
+    lineHeight: `calc(${typography['--gf-typography-h6-font-size']} * ${typography['--gf-typography-h6-line-height']})`,
+    fontWeight: typography['--gf-typography-font-weight-regular'],
+    cursor: 'pointer',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
+  expand: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderWidth: 0,
+    borderStyle: 'none',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  linkLikeItem: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderWidth: 0,
+    borderStyle: 'none',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    textDecoration: { default: 'none', ':hover': 'underline' },
+  },
+  children: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'hidden',
+    maxHeight: '100%',
+    paddingLeft: spacing['--gf-spacing-x4'],
+  },
+});

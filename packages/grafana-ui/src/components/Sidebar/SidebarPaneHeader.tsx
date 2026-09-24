@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { IconButton } from '../IconButton/IconButton';
 import { Text } from '../Text/Text';
 
@@ -17,7 +16,6 @@ export interface Props {
 }
 
 export function SidebarPaneHeader({ children, title }: Props) {
-  const styles = useStyles2(getStyles);
   const sidebarContext = useSidebarContext();
 
   if (!sidebarContext) {
@@ -25,7 +23,7 @@ export function SidebarPaneHeader({ children, title }: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       {sidebarContext.onClosePane && (
         <IconButton
           variant="secondary"
@@ -45,18 +43,18 @@ export function SidebarPaneHeader({ children, title }: Props) {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-      padding: theme.spacing(1.5),
-      height: theme.spacing(6),
-      gap: theme.spacing(1),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-    flexGrow: css({
-      flexGrow: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 6)`,
+    gap: spacing['--gf-spacing-grid-size'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+});

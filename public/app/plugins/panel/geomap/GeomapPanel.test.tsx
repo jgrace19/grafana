@@ -110,10 +110,6 @@ jest.mock('ol/proj', () => ({
   transformExtent: jest.fn((extent) => extent),
 }));
 
-jest.mock('./globalStyles', () => ({
-  getGlobalStyles: jest.fn().mockReturnValue({}),
-}));
-
 jest.mock('ol/interaction/MouseWheelZoom', () => {
   return jest.fn().mockImplementation(() => ({
     setActive: jest.fn(),

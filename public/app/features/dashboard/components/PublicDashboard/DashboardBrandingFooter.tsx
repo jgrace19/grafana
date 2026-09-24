@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import i18n from 'i18next';
 
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
+import { textUtil } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import grafanaTextLogoDarkSvg from 'img/grafana_text_logo_dark.svg';
 import grafanaTextLogoLightSvg from 'img/grafana_text_logo_light.svg';
 
@@ -66,7 +68,6 @@ export const DashboardBrandingFooter = function ({
   logo,
   hide,
 }: DashboardBrandingFooterProps) {
-  const styles = useStyles2((theme) => getStyles(theme, { paddingX, useMinHeight }));
   const theme = useTheme2();
   const conf = useGetPublicDashboardConfig();
 
@@ -86,7 +87,8 @@ export const DashboardBrandingFooter = function ({
 
   // `conf.footerText` is already styled by `useGetPublicDashboardConfig()`. Avoid double-wrapping styles.
   const resolvedText = text !== undefined ? text : defaultText;
-  const footerText = resolvedText !== undefined ? <span className={styles.text}>{resolvedText}</span> : conf.footerText;
+  const footerText =
+    resolvedText !== undefined ? <span {...stylex.props(styles.text)}>{resolvedText}</span> : conf.footerText;
 
   // `logo=""` intentionally hides the logo, so we check `!== undefined` (not `??`).
   const footerLogo = logo !== undefined ? logo : (defaultLogo ?? conf.footerLogo);
@@ -100,53 +102,54 @@ export const DashboardBrandingFooter = function ({
 
   return (
     <div
-      className={cx(
+      {...stylex.props(
         styles.footer,
-        paddingX !== undefined && styles.footerPaddingX,
+        paddingX !== undefined && styles.footerPaddingX(`calc(${spacing['--gf-spacing-grid-size']} * ${paddingX})`),
         useMinHeight && styles.footerMinHeight
       )}
       data-testid={selectors.footer}
     >
-      <a className={styles.link} href={href} target="_blank" rel="noreferrer noopener">
-        {footerText} {logoSrc ? <img className={styles.logoImg} alt="" src={logoSrc} /> : null}
+      <a {...stylex.props(styles.link)} href={href} target="_blank" rel="noreferrer noopener">
+        {footerText} {logoSrc ? <img {...stylex.props(styles.logoImg)} alt="" src={logoSrc} /> : null}
       </a>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, opts: { paddingX?: number; useMinHeight?: boolean }) => {
-  return {
-    footer: css({
-      display: 'flex',
-      justifyContent: 'end',
-      height: '30px',
-      backgroundColor: theme.colors.background.canvas,
-      position: 'sticky',
-      bottom: 0,
-      zIndex: theme.zIndex.navbarFixed,
-      padding: theme.spacing(0.5, 0),
-    }),
-    footerPaddingX: css({
-      boxSizing: 'border-box',
-      paddingLeft: theme.spacing(opts.paddingX ?? 0),
-      paddingRight: theme.spacing(opts.paddingX ?? 0),
-    }),
-    footerMinHeight: css({
-      height: 'auto',
-      minHeight: '30px',
-      alignItems: 'center',
-    }),
-    link: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    logoImg: css({
-      height: '16px',
-      marginLeft: theme.spacing(0.5),
-    }),
-    text: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.body.fontSize,
-    }),
-  };
-};
+const styles = stylex.create({
+  footer: {
+    display: 'flex',
+    justifyContent: 'end',
+    height: '30px',
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    position: 'sticky',
+    bottom: 0,
+    zIndex: zIndex.navbarFixed,
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: 0,
+  },
+  footerPaddingX: (padding: string) => ({
+    boxSizing: 'border-box',
+    paddingLeft: padding,
+    paddingRight: padding,
+  }),
+  footerMinHeight: {
+    height: 'auto',
+    minHeight: '30px',
+    alignItems: 'center',
+  },
+  link: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  logoImg: {
+    height: '16px',
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  text: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
+});

@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { createRef, PureComponent } from 'react';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { FixedSizeList } from 'react-window';
 
-import { type GrafanaTheme2, ThemeContext } from '@grafana/data';
+import { ThemeContext } from '@grafana/data';
 
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { colors, components, shadows, shape } from '../../themes/stylex/tokens.stylex';
 import { type CompletionItem, type CompletionItemGroup, CompletionItemKind } from '../../types/completion';
 import { flattenGroupItems, calculateLongestLabel, calculateListSizes } from '../../utils/typeahead';
 
@@ -159,14 +161,12 @@ export class Typeahead extends PureComponent<Props, State> {
   render() {
     const { prefix, isOpen = false, origin } = this.props;
     const { allItems, listWidth, listHeight, itemHeight, hoveredItem, typeaheadIndex } = this.state;
-    const styles = getStyles(this.context);
-
     const showDocumentation = hoveredItem || typeaheadIndex;
     const documentationItem = allItems[hoveredItem ? hoveredItem : typeaheadIndex || 0];
 
     return (
       <Portal origin={origin} isOpen={isOpen} style={this.menuPosition}>
-        <ul role="menu" className={styles.typeahead} data-testid="typeahead">
+        <ul role="menu" {...stylex.props(styles.typeahead)} data-testid="typeahead">
           <FixedSizeList
             ref={this.listRef}
             itemCount={allItems.length}
@@ -242,23 +242,21 @@ class Portal extends PureComponent<React.PropsWithChildren<PortalProps>, {}> {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  typeahead: css({
+const styles = stylex.create({
+  typeahead: {
     position: 'relative',
-    zIndex: theme.zIndex.typeahead,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.components.panel.borderColor}`,
+    zIndex: zIndex.typeahead,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
     maxHeight: '66vh',
     overflowY: 'scroll',
     overflowX: 'hidden',
-    outline: 'none',
+    outlineStyle: 'none',
     listStyle: 'none',
-    background: theme.components.panel.background,
-    color: theme.colors.text.primary,
-    boxShadow: theme.shadows.z2,
-
-    strong: {
-      color: theme.v1.palette.yellow,
-    },
-  }),
+    backgroundColor: components['--gf-components-panel-background'],
+    color: colors['--gf-colors-text-primary'],
+    boxShadow: shadows['--gf-shadows-z2'],
+  },
 });
