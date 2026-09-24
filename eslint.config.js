@@ -212,6 +212,7 @@ const stylexMigratedAppFiles = [
   'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
   // Lock-down B: RolePicker, core options slider, Input look-alikes
   'public/app/core/components/RolePicker/*.{ts,tsx}',
+  'public/app/core/components/OptionsUI/slider.tsx',
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.

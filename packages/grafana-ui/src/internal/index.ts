@@ -49,8 +49,6 @@ export type { FieldMatcherUIRegistryItem } from '../components/MatchersUI/types'
 export { RefIDMultiPicker, RefIDPicker, stringsToRegexp } from '../components/MatchersUI/FieldsByFrameRefIdMatcher';
 export { getAllFieldTypeIconOptions } from '../components/MatchersUI/FieldTypeMatcherEditor';
 
-export { getStyles as getSliderStyles } from '../compat/emotion/sliderStyles';
-export { getSelectStyles } from '../compat/emotion/getSelectStyles';
 export type { Props as InputProps } from '../components/Input/Input';
 export { inputStyles, inputBorderStyles, inputInvalidBorderStyles } from '../components/Input/Input';
 export type { ModalsContextState } from '../components/Modal/ModalsContext';

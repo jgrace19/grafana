@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
-import { Global } from '@emotion/react';
 import Slider from '@rc-component/slider';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type StandardEditorProps, type GrafanaTheme2, type SliderFieldConfigSettings } from '@grafana/data';
-import { useTheme2 } from '@grafana/ui';
-import { getSliderStyles } from '@grafana/ui/internal';
+import { type StandardEditorProps, type SliderFieldConfigSettings } from '@grafana/data';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
+import '@rc-component/slider/assets/index.css';
+import './slider.css';
 import { NumberInput } from './NumberInput';
 
 type Props = StandardEditorProps<number, SliderFieldConfigSettings>;
@@ -27,7 +28,6 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
   // Core slider specific parameters and state
   const inputWidthDefault = 75;
   const isHorizontal = true;
-  const theme = useTheme2();
   const [sliderValue, setSliderValue] = useState<number>(value ?? min);
   const [inputWidth, setInputWidth] = useState<number>(inputWidthDefault);
 
@@ -85,16 +85,9 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
     [onChange]
   );
 
-  // Styles
-  const styles = getSliderStyles(theme, isHorizontal, Boolean(marks));
-  const stylesSlider = getStylesSlider(theme, inputWidth);
-  const sliderInputClassNames = !isHorizontal ? [styles.sliderInputVertical] : [];
-
   return (
-    <div className={cx(styles.container, styles.slider)}>
-      {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
-      <Global styles={styles.slider} />
-      <div className={cx(styles.sliderInput, ...sliderInputClassNames)}>
+    <div {...mergeStylexProps(stylex.props(styles.container), { className: 'gf-slider-editor' })}>
+      <div {...stylex.props(styles.sliderInput)}>
         <Slider
           min={min}
           max={max}
@@ -108,7 +101,7 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
           marks={marks}
           included={included}
         />
-        <span className={stylesSlider.numberInputWrapper} ref={inputRef}>
+        <span {...stylex.props(styles.numberInputWrapper, styles.width(inputWidth))} ref={inputRef}>
           <NumberInput id={id} value={sliderValue} onChange={onSliderInputChange} max={max} min={min} step={step} />
         </span>
       </div>
@@ -128,16 +121,25 @@ function getTextWidth(text: string, font: string): number | null {
   return null;
 }
 
-// stylex: pending a StyleX rewrite like U7's Slider. Renders the compat getSliderStyles' Emotion classes and <Global> rc-slider overrides.
-const getStylesSlider = (theme: GrafanaTheme2, width: number) => {
-  return {
-    numberInputWrapper: css({
-      marginLeft: theme.spacing(3),
-      maxHeight: '32px',
-      maxWidth: width,
-      minWidth: width,
-      overflow: 'visible',
-      width: '100%',
-    }),
-  };
-};
+// Horizontal, and always with marks (the editor defaults them to min and max).
+const styles = stylex.create({
+  container: {
+    width: '100%',
+    margin: 'inherit',
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    height: 'auto',
+  },
+  sliderInput: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  numberInputWrapper: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+    maxHeight: '32px',
+    overflow: 'visible',
+    width: '100%',
+  },
+  width: (width: number) => ({ maxWidth: width, minWidth: width }),
+});
