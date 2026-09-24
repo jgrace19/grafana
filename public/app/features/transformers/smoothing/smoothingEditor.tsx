@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { smoothingEditorStyles } from './smoothingEditor.stylex';
 import { useMemo } from 'react';
 
 import {
@@ -61,12 +63,7 @@ export const SmoothingTransformerEditor = ({
                 )}
               >
                 <span
-                  className={css({
-                    marginLeft: '8px',
-                    color: theme.colors.text.secondary,
-                    fontSize: theme.typography.bodySmall.fontSize,
-                  })}
-                >
+                                  >
                   {t('transformers.smoothing.effective-resolution', 'Effective: {{value}}', {
                     value: effectiveResolution,
                   })}

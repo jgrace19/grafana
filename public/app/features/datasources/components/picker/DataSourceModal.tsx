@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourceModalStyles } from './DataSourceModal.stylex';
 import { once } from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -6,7 +8,7 @@ import { type DataSourceInstanceSettings, type DataSourceRef, type GrafanaTheme2
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction, useFavoriteDatasources } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Modal, useStyles2, Input, Icon, ScrollContainer } from '@grafana/ui';
+import { Modal, Input, Icon, ScrollContainer } from '@grafana/ui';
 import { type GrafanaQuery } from 'app/plugins/datasource/grafana/types';
 
 import { useDatasources } from '../../hooks';
@@ -64,7 +66,6 @@ export function DataSourceModal({
   onDismiss,
   reportedInteractionFrom,
 }: DataSourceModalProps) {
-  const styles = useStyles2(getDataSourceModalStyles);
   const [search, setSearch] = useState('');
   const analyticsInteractionSrc = reportedInteractionFrom || 'modal';
   const favoriteDataSources = useFavoriteDatasources();
@@ -149,16 +150,16 @@ export function DataSourceModal({
       closeOnEscape={true}
       closeOnBackdropClick={true}
       isOpen={true}
-      className={styles.modal}
-      contentClassName={styles.modalContent}
+      {...stylex.props(dataSourceModalStyles.modal)}
+      contentClassName={cn('modalContent')}
       onClickBackdrop={onDismissModal}
       onDismiss={onDismissModal}
     >
-      <div className={styles.leftColumn}>
+      <div {...stylex.props(dataSourceModalStyles.leftColumn)}>
         <Input
           type="search"
           autoFocus
-          className={styles.searchInput}
+          {...stylex.props(dataSourceModalStyles.searchInput)}
           value={search}
           prefix={<Icon name="search" />}
           placeholder={t('data-source-picker.modal.input-placeholder', 'Select data source')}
@@ -192,19 +193,19 @@ export function DataSourceModal({
             favoriteDataSources={favoriteDataSources}
             scrollRef={scrollRef}
           />
-          <BuiltInList className={styles.appendBuiltInDataSourcesList} />
+          <BuiltInList className={cn('appendBuiltInDataSourcesList')} />
         </ScrollContainer>
       </div>
-      <div className={styles.rightColumn}>
-        <div className={styles.builtInDataSources}>
-          <div className={styles.builtInDataSourcesList}>
+      <div {...stylex.props(dataSourceModalStyles.rightColumn)}>
+        <div {...stylex.props(dataSourceModalStyles.builtInDataSources)}>
+          <div {...stylex.props(dataSourceModalStyles.builtInDataSourcesList)}>
             <ScrollContainer>
               <BuiltInList />
             </ScrollContainer>
           </div>
         </div>
-        <div className={styles.newDSSection}>
-          <span className={styles.newDSDescription}>
+        <div {...stylex.props(dataSourceModalStyles.newDSSection)}>
+          <span {...stylex.props(dataSourceModalStyles.newDSDescription)}>
             <Trans i18nKey="data-source-picker.modal.configure-new-data-source">
               Open a new tab and configure a data source
             </Trans>
@@ -225,99 +226,20 @@ export function DataSourceModal({
   );
 }
 
-function getDataSourceModalStyles(theme: GrafanaTheme2) {
+const cn = (key: keyof typeof dataSourceModalStyles) =>
+  mergeStylexClassName(stylex.props(dataSourceModalStyles[key]), undefined).className ?? '';
+
+function getDataSourceModalStyles(_theme: GrafanaTheme2) {
   return {
-    modal: css({
-      width: '80%',
-      maxWidth: '1200px',
-      minHeight: '80%',
-
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-      },
-    }),
-    modalContent: css({
-      display: 'flex',
-      flexDirection: 'row',
-      flex: 1,
-
-      [theme.breakpoints.down('md')]: {
-        flexDirection: 'column',
-      },
-    }),
-    leftColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '50%',
-      maxHeight: '100%',
-      paddingRight: theme.spacing(4),
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-        borderRight: 0,
-        paddingRight: 0,
-        flex: 1,
-        overflowY: 'auto',
-      },
-    }),
-    rightColumn: css({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '50%',
-      minHeight: '100%',
-      justifyItems: 'space-evenly',
-      alignItems: 'stretch',
-      paddingLeft: theme.spacing(4),
-
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-        paddingLeft: 0,
-        flexShrink: 0,
-      },
-    }),
-    builtInDataSources: css({
-      flex: '1 1',
-
-      [theme.breakpoints.down('md')]: {
-        display: 'none',
-      },
-    }),
-    builtInDataSourcesList: css({
-      [theme.breakpoints.down('md')]: {
-        display: 'none',
-        marginBottom: 0,
-      },
-
-      marginBottom: theme.spacing(4),
-    }),
-    appendBuiltInDataSourcesList: css({
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
-      },
-    }),
-    newDSSection: css({
-      display: 'flex',
-      flexDirection: 'row',
-      width: '100%',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingTop: theme.spacing(1),
-    }),
-    newDSDescription: css({
-      flex: '1 0',
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      color: theme.colors.text.secondary,
-      [theme.breakpoints.down('sm')]: {
-        visibility: 'hidden',
-      },
-    }),
-    searchInput: css({
-      width: '100%',
-      minHeight: '32px',
-      marginBottom: theme.spacing(1),
-    }),
+    modal: cn('modal'),
+    modalContent: cn('modalContent'),
+    leftColumn: cn('leftColumn'),
+    rightColumn: cn('rightColumn'),
+    builtInDataSources: cn('builtInDataSources'),
+    builtInDataSourcesList: cn('builtInDataSourcesList'),
+    appendBuiltInDataSourcesList: cn('appendBuiltInDataSourcesList'),
+    newDSSection: cn('newDSSection'),
+    newDSDescription: cn('newDSDescription'),
+    searchInput: cn('searchInput'),
   };
 }

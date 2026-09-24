@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { type Unsubscribable } from 'rxjs';
@@ -17,12 +18,14 @@ import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv, locationService } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Button, InlineFormLabel, Modal, ScrollContainer, Stack, stylesFactory } from '@grafana/ui';
+import { Button, InlineFormLabel, Modal, ScrollContainer, Stack } from '@grafana/ui';
 import { PluginHelp } from 'app/core/components/PluginHelp/PluginHelp';
 import config from 'app/core/config';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { addQuery, queryIsEmpty } from 'app/core/utils/query';
 import { DataSourceModal } from 'app/features/datasources/components/picker/DataSourceModal';
+
+import { queryGroupStyles } from './QueryGroup.stylex';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 import { dataSource as expressionDatasource } from 'app/features/expressions/ExpressionDatasource';
 import { isSharedDashboardQuery } from 'app/plugins/datasource/dashboard/runSharedRequest';
@@ -356,34 +359,17 @@ export class QueryGroup extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory(() => {
-  const { theme } = config;
+const cn = (key: keyof typeof queryGroupStyles) =>
+  mergeStylexClassName(stylex.props(queryGroupStyles[key]), undefined).className ?? '';
 
-  return {
-    innerWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing.md,
-    }),
-    dataSourceRow: css({
-      display: 'flex',
-      marginBottom: theme.spacing.md,
-    }),
-    dataSourceRowItem: css({
-      marginRight: theme.spacing.inlineFormMargin,
-    }),
-    dataSourceRowItemOptions: css({
-      flexGrow: 1,
-      marginRight: theme.spacing.inlineFormMargin,
-    }),
-    queriesWrapper: css({
-      paddingBottom: '16px',
-    }),
-    expressionWrapper: css({}),
-    expressionButton: css({
-      marginRight: theme.spacing.sm,
-    }),
-  };
+const getStyles = () => ({
+  innerWrapper: cn('innerWrapper'),
+  dataSourceRow: cn('dataSourceRow'),
+  dataSourceRowItem: cn('dataSourceRowItem'),
+  dataSourceRowItemOptions: cn('dataSourceRowItemOptions'),
+  queriesWrapper: cn('queriesWrapper'),
+  expressionWrapper: cn('expressionWrapper'),
+  expressionButton: cn('expressionButton'),
 });
 
 type QueriesTabStyles = ReturnType<typeof getStyles>;

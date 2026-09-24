@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useCallback, useEffect, useRef } from 'react';
 import * as React from 'react';
 import { useObservable } from 'react-use';
@@ -7,6 +6,8 @@ import { of } from 'rxjs';
 import { type DataFrame, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Input, usePanelContext, useStyles2 } from '@grafana/ui';
+
+import { getCanvasTextMetricStyles } from './canvasTextMetricStyles';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
 import { TextDimensionEditor } from 'app/features/dimensions/editors/TextDimensionEditor';
@@ -22,7 +23,7 @@ import { Align, type TextConfig, type TextData, VAlign } from '../types';
 
 const TextDisplay = (props: CanvasElementProps<TextConfig, TextData>) => {
   const { data, isSelected } = props;
-  const styles = useStyles2(getStyles(data));
+  const styles = useStyles2(getCanvasTextMetricStyles(data));
 
   const context = usePanelContext();
   const scene = context.instanceState?.scene;
@@ -94,36 +95,13 @@ const TextEdit = (props: CanvasElementProps<TextConfig, TextData>) => {
     [context.instanceState?.scene, context.instanceState?.selected]
   );
 
-  const styles = useStyles2(getStyles(data));
+  const styles = useStyles2(getCanvasTextMetricStyles(data));
   return (
     <div className={styles.inlineEditorContainer}>
       {panelData && <Input defaultValue={config.text?.fixed ?? ''} onKeyDown={onKeyDown} onKeyUp={onKeyUp} autoFocus />}
     </div>
   );
 };
-
-const getStyles = (data: TextData | undefined) => (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    display: 'table',
-  }),
-  inlineEditorContainer: css({
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(1),
-  }),
-  span: css({
-    display: 'table-cell',
-    verticalAlign: data?.valign,
-    textAlign: data?.align,
-    fontSize: `${data?.size}px`,
-    color: data?.color,
-  }),
-});
 
 export const textItem: CanvasElementItem<TextConfig, TextData> = {
   id: 'text',

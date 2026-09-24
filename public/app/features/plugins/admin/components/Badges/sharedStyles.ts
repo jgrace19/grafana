@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2 } from '@grafana/data';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
-export const getBadgeColor = (theme: GrafanaTheme2) =>
-  css({
-    background: theme.colors.background.primary,
-    borderColor: theme.colors.border.strong,
-    color: theme.colors.text.secondary,
-  });
+import { badgeSharedStyles } from './sharedStyles.stylex';
+
+/** @deprecated Emotion compat — use badgeSharedStyles with StyleX. */
+export const getBadgeColor = (_theme: GrafanaTheme2) =>
+  mergeStylexClassName(stylex.props(badgeSharedStyles.badgeColor), undefined).className;

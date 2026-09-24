@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type PanelData, type QueryResultMetaStat, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
+import { inspectStatsTabStyles } from './InspectStatsTab.stylex';
 import { InspectStatsTable } from './InspectStatsTable';
 import { InspectStatsTraceIdsTable } from './InspectStatsTraceIdsTable';
 
@@ -62,7 +63,7 @@ export const InspectStatsTab = ({ data, timeZone }: InspectStatsTabProps) => {
   const traceIdsStatsTableName = t('dashboard.inspect-stats.data-traceids', 'Trace IDs');
 
   return (
-    <div data-testid={selectors.components.PanelInspector.Stats.content} className={containerStyles}>
+    <div data-testid={selectors.components.PanelInspector.Stats.content} {...stylex.props(inspectStatsTabStyles.container)}>
       <InspectStatsTable timeZone={timeZone} name={statsTableName} stats={stats} />
       <InspectStatsTable timeZone={timeZone} name={dataStatsTableName} stats={dataStats} />
       <InspectStatsTraceIdsTable name={traceIdsStatsTableName} traceIds={data.traceIds ?? []} />
@@ -70,7 +71,3 @@ export const InspectStatsTab = ({ data, timeZone }: InspectStatsTabProps) => {
   );
 };
 
-const containerStyles = css({
-  height: '100%',
-  overflowY: 'scroll',
-});

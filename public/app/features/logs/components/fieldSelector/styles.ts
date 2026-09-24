@@ -1,14 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { logsFieldSelectorWrapperStylesX } from './styles.stylex';
+
+const cn = (key: keyof typeof logsFieldSelectorWrapperStylesX) =>
+  mergeStylexClassName(stylex.props(logsFieldSelectorWrapperStylesX[key]), undefined).className ?? '';
 
 export const logsFieldSelectorWrapperStyles = {
-  collapsedButtonContainer: css({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingTop: 2,
-  }),
-  collapsedButton: css({
-    margin: 0,
-  }),
+  collapsedButtonContainer: cn('collapsedButtonContainer'),
+  collapsedButton: cn('collapsedButton'),
 };

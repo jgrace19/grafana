@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import cx from 'classnames';
 import * as React from 'react';
 
 import { type GrafanaTheme2, type TraceKeyValuePair } from '@grafana/data';
 import { DURATION, NONE, TAG } from '@grafana/o11y-ds-frontend';
 import { Icon, stylesFactory, withTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { autoColor } from '../Theme';
 import { type SpanBarOptions } from '../settings/SpanBarSettings';
@@ -42,21 +43,23 @@ const nameWrapperMatchingFilterClassName = 'nameWrapperMatchingFilter';
 const viewClassName = 'jaegerView';
 const nameColumnClassName = 'nameColumn';
 
+function sxClass(styles: stylex.StyleXStyles) {
+  return mergeStylexClassName(stylex.props(styles), undefined).className ?? '';
+}
+
 const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly: boolean, serviceColor: string) => {
-  const animations = {
-    flash: keyframes`
-    from {
-      background-color: ${autoColor(theme, '#68b9ff')};
-    }
-    to {
-      background-color: 'default';
-    }
-  `,
-  };
+  const flash = stylex.keyframes({
+    from: {
+      backgroundColor: autoColor(theme, '#68b9ff'),
+    },
+    to: {
+      backgroundColor: 'transparent',
+    },
+  });
   const backgroundColor = showSpanFilterMatchesOnly ? '' : autoColor(theme, '#fffce4');
 
   return {
-    nameWrapper: css({
+    nameWrapper: sxClass({
       label: 'nameWrapper',
       lineHeight: '27px',
       overflow: 'hidden',
@@ -66,7 +69,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         background: theme.colors.background.secondary,
       },
     }),
-    nameWrapperMatchingFilter: css({
+    nameWrapperMatchingFilter: sxClass({
       label: 'nameWrapperMatchingFilter',
       backgroundColor: backgroundColor,
 
@@ -74,7 +77,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         background: backgroundColor,
       },
     }),
-    nameColumn: css({
+    nameColumn: sxClass({
       label: 'nameColumn',
       position: 'relative',
       whiteSpace: 'nowrap',
@@ -83,26 +86,26 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         zIndex: 1,
       },
     }),
-    endpointName: css({
+    endpointName: sxClass({
       label: 'endpointName',
       color: autoColor(theme, '#484848'),
       fontSize: '0.9em',
     }),
-    view: css({
+    view: sxClass({
       label: 'view',
       position: 'relative',
     }),
-    viewExpanded: css({
+    viewExpanded: sxClass({
       label: 'viewExpanded',
       background: autoColor(theme, '#f8f8f8'),
       outline: `1px solid ${autoColor(theme, '#ddd')}`,
     }),
-    viewExpandedAndMatchingFilter: css({
+    viewExpandedAndMatchingFilter: sxClass({
       label: 'viewExpandedAndMatchingFilter',
       background: autoColor(theme, '#fff3d7'),
       outline: `1px solid ${autoColor(theme, '#ddd')}`,
     }),
-    row: css({
+    row: sxClass({
       label: 'row',
       fontSize: '0.9em',
 
@@ -130,7 +133,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         borderBottomStyle: 'solid',
       },
     }),
-    rowClippingLeft: css({
+    rowClippingLeft: sxClass({
       label: 'rowClippingLeft',
       [`& .${nameColumnClassName}::before`]: {
         content: '" "',
@@ -146,7 +149,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         zIndex: -1,
       },
     }),
-    rowClippingRight: css({
+    rowClippingRight: sxClass({
       label: 'rowClippingRight',
       [`& .${viewClassName}::before`]: {
         content: '" "',
@@ -162,7 +165,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         zIndex: 1,
       },
     }),
-    rowExpanded: css({
+    rowExpanded: sxClass({
       label: 'rowExpanded',
       [`& .${spanBarClassName}`]: {
         opacity: 1,
@@ -181,7 +184,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         background: autoColor(theme, '#eee'),
       },
     }),
-    rowMatchingFilter: css({
+    rowMatchingFilter: sxClass({
       label: 'rowMatchingFilter',
 
       [`&:hover .${nameWrapperClassName}`]: {
@@ -197,15 +200,19 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
         outline: `1px solid ${autoColor(theme, '#ddd')}`,
       },
     }),
-    rowFocused: css({
+    rowFocused: sxClass({
       label: 'rowFocused',
       [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${animations.flash} 1s cubic-bezier(0.12, 0, 0.39, 0)`,
+        animationName: flash,
+        animationDuration: '1s',
+        animationTimingFunction: 'cubic-bezier(0.12, 0, 0.39, 0)',
       },
       [`& .${viewClassName}`]: {
         backgroundColor: autoColor(theme, '#cbe7ff'),
         [theme.transitions.handleMotion('no-preference')]: {
-          animation: `${animations.flash} 1s cubic-bezier(0.12, 0, 0.39, 0)`,
+          animationName: flash,
+        animationDuration: '1s',
+        animationTimingFunction: 'cubic-bezier(0.12, 0, 0.39, 0)',
         },
       },
       [`& .${spanBarClassName}`]: {
@@ -216,7 +223,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
       },
     }),
 
-    rowError: css({
+    rowError: sxClass({
       label: 'rowError',
 
       [`&:hover .${nameWrapperClassName}`]: {
@@ -228,14 +235,14 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
       },
     }),
 
-    rowExpandedAndMatchingFilter: css({
+    rowExpandedAndMatchingFilter: sxClass({
       label: 'rowExpandedAndMatchingFilter',
       [`&:hover .${viewClassName}`]: {
         background: autoColor(theme, '#ffeccf'),
       },
     }),
 
-    name: css({
+    name: sxClass({
       label: 'name',
       color: autoColor(theme, '#000'),
       cursor: 'pointer',
@@ -262,24 +269,24 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
       borderBottomWidth: '2px',
       borderBottomStyle: 'solid',
     }),
-    nameDetailExpanded: css({
+    nameDetailExpanded: sxClass({
       label: 'nameDetailExpanded',
       '&::before': {
         bottom: 0,
       },
     }),
-    svcName: css({
+    svcName: sxClass({
       label: 'svcName',
       fontSize: '0.9em',
       fontWeight: '500',
       marginRight: '0.25rem',
     }),
-    svcNameChildrenCollapsed: css({
+    svcNameChildrenCollapsed: sxClass({
       label: 'svcNameChildrenCollapsed',
       fontWeight: '500',
       fontStyle: 'italic',
     }),
-    errorIcon: css({
+    errorIcon: sxClass({
       label: 'errorIcon',
       borderRadius: theme.shape.radius.md,
       color: autoColor(theme, '#fff'),
@@ -287,7 +294,7 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
       marginRight: '0.25rem',
       padding: '1px',
     }),
-    rpcColorMarker: css({
+    rpcColorMarker: sxClass({
       label: 'rpcColorMarker',
       borderRadius: theme.shape.radius.md,
       display: 'inline-block',
@@ -298,11 +305,11 @@ const getStyles = stylesFactory((theme: GrafanaTheme2, showSpanFilterMatchesOnly
       width: '1em',
       verticalAlign: 'middle',
     }),
-    labelRight: css({
+    labelRight: sxClass({
       label: 'labelRight',
       left: '100%',
     }),
-    labelLeft: css({
+    labelLeft: sxClass({
       label: 'labelLeft',
       right: '100%',
     }),

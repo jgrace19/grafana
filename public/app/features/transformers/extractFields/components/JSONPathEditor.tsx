@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import clsx from 'clsx';
 import { useState } from 'react';
 import * as React from 'react';
 
@@ -6,6 +7,8 @@ import { Trans, t } from '@grafana/i18n';
 import { Button, InlineField, InlineFieldRow, IconButton, Input } from '@grafana/ui';
 
 import { type JSONPath } from '../types';
+
+import { jsonPathEditorStyles } from './JSONPathEditor.stylex';
 
 interface Props {
   options: JSONPath[];
@@ -16,8 +19,6 @@ export function JSONPathEditor({ options, onChange }: Props) {
   const [paths, setPaths] = useState<JSONPath[]>(options);
 
   const tooltips = getTooltips();
-  const style = getStyle();
-
   const addJSONPath = () => {
     paths.push({ path: '' });
     setPaths([...paths]);
@@ -48,7 +49,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
   };
 
   return (
-    <ol className={cx(style.list)}>
+    <ol {...stylex.props(jsonPathEditorStyles.list)}>
       {paths &&
         paths.map((path: JSONPath, key: number) => (
           <li key={key}>
@@ -72,7 +73,7 @@ export function JSONPathEditor({ options, onChange }: Props) {
                   onChange={(event: React.SyntheticEvent<HTMLInputElement>) => onJSONPathChange(event, key, 'alias')}
                 />
               </InlineField>
-              <InlineField className={cx(style.removeIcon)}>
+              <InlineField {...stylex.props(jsonPathEditorStyles.removeIcon)}>
                 <IconButton
                   onClick={() => removeJSONPath(key)}
                   name={'trash-alt'}
@@ -177,14 +178,3 @@ const getTooltips = () => {
   };
 };
 
-function getStyle() {
-  return {
-    list: css({
-      marginLeft: '20px',
-    }),
-    removeIcon: css({
-      margin: '0 0 0 4px',
-      alignItems: 'center',
-    }),
-  };
-}

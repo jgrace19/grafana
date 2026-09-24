@@ -1,11 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { activeFieldsStyles } from './ActiveFields.stylex';
 import { DragDropContext, Draggable, type DraggableProvided, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useCallback, useMemo } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 import { Field } from './Field';
 import { type FieldWithStats } from './FieldSelector';
@@ -32,7 +33,6 @@ export const ActiveFields = ({
   toggle,
   toggleLevel,
 }: Props) => {
-  const styles = useStyles2(getLogsFieldsStyles);
 
   const onDragEnd = useCallback(
     (result: DropResult) => {
@@ -77,16 +77,16 @@ export const ActiveFields = ({
   return (
     <>
       {logLevelActive !== undefined && toggleLevel && (
-        <div className={styles.columnWrapper}>
+        <div {...stylex.props(activeFieldsStyles.columnWrapper)}>
           <LogLevelField active={Boolean(logLevelActive)} toggle={toggleLevel} />
         </div>
       )}
       {(active.length || suggested.length) && (
         <>
-          <div className={styles.columnHeader}>
+          <div {...stylex.props(activeFieldsStyles.columnHeader)}>
             <Trans i18nKey="explore.logs-table-multi-select.selected-fields">Selected fields</Trans>
             {active.length > 0 && (
-              <button onClick={clear} className={styles.columnHeaderButton}>
+              <button onClick={clear} {...stylex.props(activeFieldsStyles.columnHeaderButton)}>
                 <Trans i18nKey="explore.logs-table-multi-select.reset">Reset</Trans>
               </button>
             )}
@@ -94,7 +94,7 @@ export const ActiveFields = ({
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="order-fields" direction="vertical">
               {(provided) => (
-                <div className={styles.columnWrapper} {...provided.droppableProps} ref={provided.innerRef}>
+                <div {...stylex.props(activeFieldsStyles.columnWrapper)} {...provided.droppableProps} ref={provided.innerRef}>
                   {active.map((field, index) => (
                     <Draggable
                       draggableId={field.name}
@@ -104,7 +104,7 @@ export const ActiveFields = ({
                     >
                       {(provided: DraggableProvided, snapshot) => (
                         <div
-                          className={cx(styles.wrap, snapshot.isDragging ? styles.dragging : undefined)}
+                          {...mergeStylexClassName(stylex.props(activeFieldsStyles.wrap, , snapshot.isDragging ? styles.dragging : undefined), undefined)}
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
@@ -131,12 +131,12 @@ export const ActiveFields = ({
           </DragDropContext>
           {suggested.length > 0 && (
             <>
-              <div className={styles.columnSubHeader}>
+              <div {...stylex.props(activeFieldsStyles.columnSubHeader)}>
                 <Trans i18nKey="explore.logs-table-multi-select.suggested-fields">Suggested</Trans>
               </div>
-              <div className={styles.columnWrapper}>
+              <div {...stylex.props(activeFieldsStyles.columnWrapper)}>
                 {suggested.map((field) => (
-                  <div className={styles.wrap} key={field.name}>
+                  <div {...stylex.props(activeFieldsStyles.wrap)} key={field.name}>
                     <Field field={field} toggle={toggleSelectedField} />
                   </div>
                 ))}
@@ -149,46 +149,18 @@ export const ActiveFields = ({
   );
 };
 
-export function getLogsFieldsStyles(theme: GrafanaTheme2) {
+const cn = (key: keyof typeof activeFieldsStyles) =>
+  mergeStylexClassName(stylex.props(activeFieldsStyles[key]), undefined).className ?? '';
+
+/** @deprecated Emotion compat — use activeFieldsStyles with StyleX. */
+export function getLogsFieldsStyles(_theme: GrafanaTheme2) {
   return {
-    wrap: css({
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      display: 'flex',
-      background: theme.colors.background.primary,
-    }),
-    dragging: css({
-      background: theme.colors.background.secondary,
-    }),
-    columnHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.h6.fontSize,
-      background: theme.colors.background.secondary,
-      position: 'sticky',
-      top: 0,
-      left: 0,
-      paddingTop: theme.spacing(0.75),
-      paddingRight: theme.spacing(0.75),
-      paddingBottom: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1.5),
-      zIndex: 3,
-      marginBottom: theme.spacing(2),
-    }),
-    columnSubHeader: css({
-      padding: theme.spacing(0, 0, 0.75, 0.5),
-      color: theme.colors.text.secondary,
-    }),
-    columnHeaderButton: css({
-      appearance: 'none',
-      background: 'none',
-      border: 'none',
-      fontSize: theme.typography.pxToRem(11),
-    }),
-    columnWrapper: css({
-      marginBottom: theme.spacing(1.5),
-      // need some space or the outline of the checkbox is cut off
-      paddingLeft: theme.spacing(0.5),
-    }),
+    wrap: cn('wrap'),
+    dragging: cn('dragging'),
+    columnHeader: cn('columnHeader'),
+    columnSubHeader: cn('columnSubHeader'),
+    columnHeaderButton: cn('columnHeaderButton'),
+    columnWrapper: cn('columnWrapper'),
   };
 }
+

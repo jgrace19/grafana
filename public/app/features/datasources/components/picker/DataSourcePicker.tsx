@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { dataSourcePickerStyles } from './DataSourcePicker.stylex';
 import { autoUpdate, offset, size, useFloating } from '@floating-ui/react';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
@@ -304,24 +306,7 @@ export function DataSourcePicker(props: DataSourcePickerProps) {
   );
 }
 
-function getStylesDropdown(theme: GrafanaTheme2, props: DataSourcePickerProps) {
-  return {
-    container: css({
-      position: 'relative',
-      cursor: props.disabled ? 'not-allowed' : 'pointer',
-      width: theme.spacing(props.width || 'auto'),
-    }),
-    trigger: css({
-      cursor: 'pointer',
-      pointerEvents: props.disabled ? 'none' : 'auto',
-    }),
-    input: css({
-      'input::placeholder': {
-        color: props.disabled ? theme.colors.action.disabledText : theme.colors.text.primary,
-      },
-    }),
-  };
-}
+
 
 export interface PickerContentProps extends DataSourcePickerProps {
   keyboardEvents: Observable<React.KeyboardEvent>;
@@ -376,46 +361,7 @@ const PickerContent = React.forwardRef<HTMLDivElement, PickerContentProps>((prop
 });
 PickerContent.displayName = 'PickerContent';
 
-function getStylesPickerContent(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      background: theme.colors.background.elevated,
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z3,
-      overflow: 'hidden',
-      minWidth: calculateMinWidth('97vw'),
-      [theme.breakpoints.up('md')]: {
-        minWidth: calculateMinWidth('80vw'),
-      },
-      [theme.breakpoints.up('lg')]: {
-        minWidth: calculateMinWidth('60vw'),
-      },
-      [theme.breakpoints.up('xl')]: {
-        minWidth: calculateMinWidth('50vw'),
-      },
-      [theme.breakpoints.up('xxl')]: {
-        minWidth: calculateMinWidth('40vw'),
-      },
-    }),
-    picker: css({
-      background: theme.colors.background.secondary,
-    }),
-    dataSourceList: css({
-      flex: 1,
-    }),
-    footer: css({
-      flex: 0,
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1.5),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
-  };
-}
+
 
 function calculateMinWidth(width: string): string {
   return `min(700px, ${width})`;
@@ -477,16 +423,26 @@ function Footer({ onClose, onChange, ...props }: FooterProps) {
   );
 }
 
-function getStylesFooter(theme: GrafanaTheme2) {
+const cn = (key: keyof typeof dataSourcePickerStyles) =>
+  mergeStylexClassName(stylex.props(dataSourcePickerStyles[key]), undefined).className ?? '';
+
+function getStylesDropdown(theme: GrafanaTheme2, props: DataSourcePickerProps) {
   return {
-    footer: css({
-      flex: 0,
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1.5),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      backgroundColor: theme.colors.background.secondary,
-    }),
+    container: mergeStylexClassName(stylex.props(dataSourcePickerStyles.dropdown_container, { width: theme.spacing(props.width || 'auto'), position: 'relative', cursor: props.disabled ? 'not-allowed' : 'pointer' }), undefined).className ?? '',
+    trigger: mergeStylexClassName(stylex.props(dataSourcePickerStyles.dropdown_trigger, { cursor: 'pointer', pointerEvents: props.disabled ? 'none' : 'auto' }), undefined).className ?? '',
+    input: mergeStylexClassName(stylex.props(dataSourcePickerStyles.dropdown_input, { 'input::placeholder': { color: props.disabled ? theme.colors.action.disabledText : theme.colors.text.primary } }), undefined).className ?? '',
   };
+}
+
+function getStylesPickerContent(_theme: GrafanaTheme2) {
+  return {
+    container: cn('picker_container'),
+    picker: cn('picker_picker'),
+    dataSourceList: cn('picker_dataSourceList'),
+    footer: cn('picker_footer'),
+  };
+}
+
+function getStylesFooter(_theme: GrafanaTheme2) {
+  return { footer: cn('footer_footer') };
 }

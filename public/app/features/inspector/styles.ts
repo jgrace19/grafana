@@ -1,76 +1,32 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { stylesFactory } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { panelInspectorStyles } from './styles.stylex';
+
+function panelInspectorClassNames() {
+  const cn = (key: keyof typeof panelInspectorStyles) =>
+    mergeStylexClassName(stylex.props(panelInspectorStyles[key]), undefined).className ?? '';
+  return {
+    heading: cn('heading'),
+    wrap: cn('wrap'),
+    toolbar: cn('toolbar'),
+    toolbarItem: cn('toolbarItem'),
+    content: cn('content'),
+    editor: cn('editor'),
+    viewer: cn('viewer'),
+    dataFrameSelect: cn('dataFrameSelect'),
+    leftActions: cn('leftActions'),
+    options: cn('options'),
+    dataDisplayOptions: cn('dataDisplayOptions'),
+    selects: cn('selects'),
+  };
+}
 
 /** @deprecated */
-export const getPanelInspectorStyles = stylesFactory(() => {
-  return getPanelInspectorStyles2(config.theme2);
-});
+export const getPanelInspectorStyles = () => getPanelInspectorStyles2(config.theme2);
 
-export const getPanelInspectorStyles2 = (theme: GrafanaTheme2) => {
-  return {
-    heading: css({
-      fontSize: theme.typography.body.fontSize,
-      marginBottom: theme.spacing(1),
-    }),
-    wrap: css({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      flex: '1 1 0',
-      minHeight: 0,
-    }),
-    toolbar: css({
-      display: 'flex',
-      width: '100%',
-      flexGrow: 0,
-      alignItems: 'flex-end',
-      justifyContent: 'flex-end',
-      marginBottom: theme.v1.spacing.sm,
-    }),
-    toolbarItem: css({
-      marginLeft: theme.v1.spacing.md,
-    }),
-    content: css({
-      flexGrow: 1,
-      height: '100%',
-    }),
-    editor: css({
-      fontFamily: 'monospace',
-      height: '100%',
-      flexGrow: 1,
-    }),
-    viewer: css({
-      overflow: 'scroll',
-    }),
-    dataFrameSelect: css({
-      flexGrow: 2,
-    }),
-    leftActions: css({
-      display: 'flex',
-      flexGrow: 1,
-
-      maxWidth: '85%',
-      '@media (max-width: 1345px)': {
-        maxWidth: '75%',
-      },
-    }),
-    options: css({
-      paddingTop: theme.v1.spacing.sm,
-    }),
-    dataDisplayOptions: css({
-      flexGrow: 1,
-      minWidth: '300px',
-      marginRight: theme.v1.spacing.sm,
-    }),
-    selects: css({
-      display: 'flex',
-      '> *': {
-        marginRight: theme.v1.spacing.sm,
-      },
-    }),
-  };
-};
+/** @deprecated Emotion compat — use panelInspectorStyles with StyleX. */
+export const getPanelInspectorStyles2 = (_theme: GrafanaTheme2) => panelInspectorClassNames();

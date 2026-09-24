@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 
 import { type DataSourcePluginMeta } from '@grafana/data';
 import { List } from '@grafana/ui';
@@ -22,11 +21,6 @@ export function DataSourceTypeCardList({ dataSourcePlugins, onClickDataSourceTyp
       items={dataSourcePlugins}
       getItemKey={(item) => item.id.toString()}
       renderItem={(item) => <DataSourceTypeCard dataSourcePlugin={item} onClick={() => onClickDataSourceType(item)} />}
-      className={css({
-        '> li': {
-          marginBottom: '2px',
-        },
-      })}
-    />
+          />
   );
 }

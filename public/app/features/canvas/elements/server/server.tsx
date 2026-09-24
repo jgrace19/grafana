@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { t } from '@grafana/i18n';
 import { type ColorDimensionConfig, type ScalarDimensionConfig } from '@grafana/schema';
 import config from 'app/core/config';
@@ -14,6 +15,8 @@ import { ServerDatabase } from './types/database';
 import { ServerSingle } from './types/single';
 import { ServerStack } from './types/stack';
 import { ServerTerminal } from './types/terminal';
+
+import { serverCanvasStyles } from './server.stylex';
 
 interface ServerConfig {
   blinkRate?: ScalarDimensionConfig;
@@ -154,39 +157,32 @@ export const serverItem: CanvasElementItem<ServerConfig, ServerData> = {
   },
 };
 
-export const getServerStyles = (data: ServerData | undefined) => (theme: GrafanaTheme2) => ({
-  bulb: css({
-    '@keyframes blink': {
-      '0%': {
-        fillOpacity: 0,
-      },
-      '50%': {
-        fillOpacity: 1,
-      },
-      '100%': {
-        fillOpacity: 0,
-      },
-    },
-  }),
-  server: css({
-    fill: data?.statusColor ?? 'transparent',
-  }),
-  circle: css({
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      animation: `blink ${data?.blinkRate ? 1 / data.blinkRate : 0}s infinite step-end`,
-    },
-    fill: data?.bulbColor,
-    stroke: 'none',
-  }),
-  circleBack: css({
-    fill: outlineColor,
-    stroke: 'none',
-    opacity: 1,
-  }),
-  outline: css({
-    stroke: outlineColor,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-    strokeWidth: '4px',
-  }),
-});
+export const getServerStyles = (data: ServerData | undefined) => (theme: GrafanaTheme2) => {
+  const motionQuery = theme.transitions.handleMotion('no-preference', 'reduce');
+  const blinkDuration = data?.blinkRate ? `${1 / data.blinkRate}s` : '0s';
+
+  return {
+    bulb: mergeStylexClassName(stylex.props(serverCanvasStyles.bulb), undefined).className ?? '',
+    server:
+      mergeStylexClassName(
+        stylex.props(serverCanvasStyles.server, { fill: data?.statusColor ?? 'transparent' }),
+        undefined
+      ).className ?? '',
+    circle:
+      mergeStylexClassName(
+        stylex.props(serverCanvasStyles.circle, {
+          [motionQuery]: {
+            animationDuration: blinkDuration,
+          },
+          fill: data?.bulbColor,
+        }),
+        undefined
+      ).className ?? '',
+    circleBack:
+      mergeStylexClassName(stylex.props(serverCanvasStyles.circleBack, { fill: outlineColor }), undefined).className ??
+      '',
+    outline:
+      mergeStylexClassName(stylex.props(serverCanvasStyles.outline, { stroke: outlineColor }), undefined).className ??
+      '',
+  };
+};

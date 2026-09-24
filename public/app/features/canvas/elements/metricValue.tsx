@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { useCallback } from 'react';
 import { useObservable } from 'react-use';
 import { of } from 'rxjs';
@@ -24,6 +23,8 @@ import {
   defaultBgColor,
   defaultTextColor,
 } from '../element';
+
+import { getCanvasTextMetricStyles } from './canvasTextMetricStyles';
 import { type ElementState } from '../runtime/element';
 import { Align, type TextConfig, type TextData, VAlign } from '../types';
 
@@ -34,7 +35,7 @@ const dummyFieldSettings: StandardEditorsRegistryItem<string, FieldNamePickerCon
 
 const MetricValueDisplay = (props: CanvasElementProps<TextConfig, TextData>) => {
   const { data, isSelected, config } = props;
-  const styles = useStyles2(getStyles(data));
+  const styles = useStyles2(getCanvasTextMetricStyles(data));
 
   const context = usePanelContext();
   const scene = context.instanceState?.scene;
@@ -105,7 +106,7 @@ const MetricValueEdit = (props: CanvasElementProps<TextConfig, TextData>) => {
     [context.instanceState?.scene, context.instanceState?.selected]
   );
 
-  const styles = useStyles2(getStyles(data));
+  const styles = useStyles2(getCanvasTextMetricStyles(data));
   return (
     <div className={styles.inlineEditorContainer}>
       {panelData && (
@@ -119,29 +120,6 @@ const MetricValueEdit = (props: CanvasElementProps<TextConfig, TextData>) => {
     </div>
   );
 };
-
-const getStyles = (data: TextData | undefined) => (theme: GrafanaTheme2) => ({
-  container: css({
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    display: 'table',
-  }),
-  inlineEditorContainer: css({
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(1),
-  }),
-  span: css({
-    display: 'table-cell',
-    verticalAlign: data?.valign,
-    textAlign: data?.align,
-    fontSize: `${data?.size}px`,
-    color: data?.color,
-  }),
-});
 
 export const metricValueItem: CanvasElementItem<TextConfig, TextData> = {
   id: 'metric-value',

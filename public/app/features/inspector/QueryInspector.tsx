@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
@@ -9,6 +9,7 @@ import { config } from '@grafana/runtime';
 import { Button, ClipboardButton, JSONFormatter, LoadingPlaceholder, Space, Stack } from '@grafana/ui';
 import { backendSrv } from 'app/core/services/backend_srv';
 
+import { queryInspectorStyles } from './QueryInspector.stylex';
 import { getPanelInspectorStyles2 } from './styles';
 
 interface ExecutedQueryInfo {
@@ -191,21 +192,13 @@ export class QueryInspector extends PureComponent<Props, State> {
       return null;
     }
 
-    const styles = {
-      refId: css({
-        fontWeight: config.theme.typography.weight.semibold,
-        color: config.theme.colors.textBlue,
-        marginRight: '8px',
-      }),
-    };
-
     return (
       <div>
         {executedQueries.map((info) => {
           return (
             <Stack key={info.refId} gap={1} direction="column">
               <div>
-                <span className={styles.refId}>{info.refId}:</span>
+                <span {...stylex.props(queryInspectorStyles.refId)}>{info.refId}:</span>
                 {info.frames > 1 && (
                   <span>
                     <Trans i18nKey="inspector.query-inspector.count-frames" count={info.frames}>

@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -138,11 +137,9 @@ const getModalWrapper = ({
   height,
   config,
 }: PluginExtensionOpenModalOptions & { config: AddedLinkRegistryItem }) => {
-  const className = css({ width, height });
-
   const ModalWrapper = ({ onDismiss }: ModalWrapperProps) => {
     return (
-      <Modal title={title} className={className} isOpen onDismiss={onDismiss} onClickBackdrop={onDismiss}>
+      <Modal title={title} style={{ width, height }} isOpen onDismiss={onDismiss} onClickBackdrop={onDismiss}>
         {/*
           We also add an error boundary here (apart from the one in the `wrapWithPluginContext`)
           so the error appears inside the modal (and not at the bottom of the page.)

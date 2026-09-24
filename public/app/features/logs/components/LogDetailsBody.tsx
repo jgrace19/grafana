@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { logDetailsBodyStyles } from './LogDetailsBody.stylex';
 import memoizeOne from 'memoize-one';
 
 import { type CoreApp, type GrafanaTheme2, type LogRowModel } from '@grafana/data';
@@ -19,16 +20,6 @@ export interface Props extends Themeable2 {
   theme: GrafanaTheme2;
 }
 
-const getStyles = memoizeOne((theme: GrafanaTheme2) => {
-  return {
-    buttonRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-});
 
 export const LogDetailsBody = (props: Props) => {
   const showField = () => {
@@ -60,7 +51,7 @@ export const LogDetailsBody = (props: Props) => {
   };
 
   const { theme, displayedFields, disableActions, row } = props;
-  const styles = getStyles(theme);
+  
   const rowStyles = getLogRowStyles(theme);
 
   const toggleFieldButton =
@@ -82,7 +73,7 @@ export const LogDetailsBody = (props: Props) => {
   return (
     <tr className={rowStyles.logDetailsValue}>
       <td className={rowStyles.logsDetailsIcon}>
-        <div className={styles.buttonRow}>{!disableActions && displayedFields && toggleFieldButton}</div>
+        <div {...stylex.props(logDetailsBodyStyles.buttonRow)}>{!disableActions && displayedFields && toggleFieldButton}</div>
       </td>
 
       <td className={rowStyles.logDetailsLabel} colSpan={100}>

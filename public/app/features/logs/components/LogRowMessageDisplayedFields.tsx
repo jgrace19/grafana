@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { memo, type ReactNode, useMemo } from 'react';
 
 import { type LogRowModel } from '@grafana/data';
@@ -8,6 +9,7 @@ import { LogRowMenuCell } from './LogRowMenuCell';
 import { LOG_LINE_BODY_FIELD_NAME } from './fieldSelector/logFields';
 import { type LogRowStyles } from './getLogRowStyles';
 import { getAllFields } from './logParser';
+import { logRowMessageDisplayedFieldsStyles } from './LogRowMessageDisplayedFields.stylex';
 
 export interface Props {
   row: LogRowModel;
@@ -42,7 +44,9 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
     preview,
     ...rest
   } = props;
-  const wrapClassName = wrapLogMessage ? '' : displayedFieldsStyles.noWrap;
+  const wrapClassName = wrapLogMessage
+    ? ''
+    : mergeStylexClassName(stylex.props(logRowMessageDisplayedFieldsStyles.noWrap), undefined).className;
   const fields = useMemo(() => getAllFields(row, getFieldLinks), [getFieldLinks, row]);
   // only single key/value rows are filterable, so we only need the first field key for filtering
   const line = useMemo(() => {
@@ -104,11 +108,5 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
     </>
   );
 });
-
-const displayedFieldsStyles = {
-  noWrap: css({
-    whiteSpace: 'nowrap',
-  }),
-};
 
 LogRowMessageDisplayedFields.displayName = 'LogRowMessageDisplayedFields';

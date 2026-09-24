@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { isString } from 'lodash';
 import { type CSSProperties } from 'react';
 
@@ -14,6 +15,8 @@ import { type LineConfig } from 'app/plugins/panel/canvas/panelcfg.gen';
 
 import { type CanvasElementItem, type CanvasElementOptions, type CanvasElementProps, defaultBgColor } from '../element';
 
+import { canvasIconStyles } from './icon.stylex';
+
 export interface IconConfig {
   path?: ResourceDimensionConfig;
   fill?: ColorDimensionConfig;
@@ -28,12 +31,7 @@ interface IconData {
   links?: LinkModel[];
 }
 
-// When a stoke is defined, we want the path to be in page units
-const svgStrokePathClass = css({
-  path: {
-    vectorEffect: 'non-scaling-stroke',
-  },
-});
+const svgStrokePathClass = mergeStylexClassName(stylex.props(canvasIconStyles.svgStrokePath), undefined).className;
 
 export function IconDisplay(props: CanvasElementProps<IconConfig, IconData>) {
   const { data } = props;
