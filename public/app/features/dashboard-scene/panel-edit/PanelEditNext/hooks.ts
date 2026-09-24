@@ -2,7 +2,8 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { getDragStyles, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../../edit-pane/shared';
@@ -19,7 +20,7 @@ const CONTROLS_ROW_HEIGHT = 'auto';
 const MIN_SIDEBAR_RATIO = 0.1;
 const MAX_SIDEBAR_RATIO = 0.5;
 const MIN_SIDEBAR_PIXELS = 220;
-// Override the getDragStyles click-target size, see hooks.css.
+// Override the getDragHandleClassNames click-target size, see hooks.css.
 const vizResizerClassName = 'gf-panel-editor-viz-resizer';
 const sidebarResizerClassName = 'gf-panel-editor-sidebar-resizer';
 // Pre-mount placeholder — useLayoutEffect replaces this with the responsive default before the first paint.
@@ -50,8 +51,7 @@ export function useRatioResize({
   className,
 }: UseRatioResizeOptions) {
   const [ratio, setRatio] = useState(initialRatio);
-  const theme = useTheme2();
-  const styles = useMemo(() => getDragStyles(theme, 'middle'), [theme]);
+  const styles = getDragHandleClassNames('middle');
 
   const ratioRef = useRef(ratio);
   const minRatioRef = useRef(minRatio);

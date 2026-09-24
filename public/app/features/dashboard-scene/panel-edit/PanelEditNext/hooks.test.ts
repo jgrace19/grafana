@@ -5,7 +5,9 @@ import { buildVizAndDataPaneGrid, getDefaultSidebarRatio, useRatioResize } from 
 
 jest.mock('@grafana/ui', () => ({
   useTheme2: jest.fn(() => ({})),
-  getDragStyles: jest.fn(() => ({ dragHandleVertical: 'drag-v', dragHandleHorizontal: 'drag-h' })),
+}));
+jest.mock('@grafana/ui/internal', () => ({
+  getDragHandleClassNames: jest.fn(() => ({ dragHandleVertical: 'drag-v', dragHandleHorizontal: 'drag-h' })),
 }));
 
 jest.mock('@grafana/runtime', () => ({ config: { featureToggles: {} } }));
