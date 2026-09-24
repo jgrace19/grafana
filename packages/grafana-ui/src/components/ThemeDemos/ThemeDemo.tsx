@@ -1,5 +1,5 @@
 /* eslint-disable @grafana/i18n/no-untranslated-strings */
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 import * as React from 'react';
 
@@ -13,6 +13,7 @@ import {
 } from '@grafana/data';
 
 import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { allButtonVariants, Button } from '../Button/Button';
 import { Card } from '../Card/Card';
 import { CollapsableSection } from '../Collapse/CollapsableSection';
@@ -125,12 +126,7 @@ export const ThemeDemo = () => {
   ];
 
   return (
-    <div
-      className={css({
-        width: '100%',
-        color: t.colors.text.primary,
-      })}
-    >
+    <div {...stylex.props(styles.root)}>
       <DemoBox bg="canvas">
         <CollapsableSection label="Layers" isOpen={true}>
           <DemoText>t.colors.background.canvas</DemoText>
@@ -162,14 +158,14 @@ export const ThemeDemo = () => {
         </CollapsableSection>
         <CollapsableSection label="Rich colors" isOpen={true}>
           <DemoBox bg="primary" scrollable>
-            <table className={colorsTableStyle(t)}>
+            <table {...stylex.props(styles.colorsTable)}>
               <thead>
                 <tr>
-                  <td>name</td>
-                  <td>main</td>
-                  <td>shade (used for hover)</td>
-                  <td>transparent</td>
-                  <td>border & text</td>
+                  <td {...stylex.props(styles.td)}>name</td>
+                  <td {...stylex.props(styles.td)}>main</td>
+                  <td {...stylex.props(styles.td)}>shade (used for hover)</td>
+                  <td {...stylex.props(styles.td)}>transparent</td>
+                  <td {...stylex.props(styles.td)}>border & text</td>
                 </tr>
               </thead>
               <tbody>
@@ -182,15 +178,15 @@ export const ThemeDemo = () => {
         </CollapsableSection>
         <CollapsableSection label="Viz hues" isOpen={true}>
           <DemoBox bg="primary" scrollable>
-            <table className={colorsTableStyle(t)}>
+            <table {...stylex.props(styles.colorsTable)}>
               <thead>
                 <tr>
-                  <td>name</td>
-                  <td>super-light</td>
-                  <td>light</td>
-                  <td>primary</td>
-                  <td>semi-dark</td>
-                  <td>dark</td>
+                  <td {...stylex.props(styles.td)}>name</td>
+                  <td {...stylex.props(styles.td)}>super-light</td>
+                  <td {...stylex.props(styles.td)}>light</td>
+                  <td {...stylex.props(styles.td)}>primary</td>
+                  <td {...stylex.props(styles.td)}>semi-dark</td>
+                  <td {...stylex.props(styles.td)}>dark</td>
                 </tr>
               </thead>
               <tbody>
@@ -313,19 +309,20 @@ interface VizHuesDemoProps {
   theme: GrafanaTheme2;
 }
 
-export function VizHuesDemo({ theme, color }: VizHuesDemoProps) {
+export function VizHuesDemo({ color }: VizHuesDemoProps) {
   return (
     <tr>
-      <td>{color.name}</td>
+      <td {...stylex.props(styles.td)}>{color.name}</td>
       {color.shades.map((shade, index) => (
-        <td key={index}>
+        <td key={index} {...stylex.props(styles.td)}>
           <div
-            className={css({
-              background: shade.color,
-              borderRadius: theme.shape.radius.default,
-              color: colorManipulator.getContrastRatio('#FFFFFF', shade.color) >= 4.5 ? '#FFFFFF' : '#000000',
-              padding: theme.spacing(1),
-            })}
+            {...stylex.props(
+              styles.swatch,
+              styles.colors(
+                shade.color,
+                colorManipulator.getContrastRatio('#FFFFFF', shade.color) >= 4.5 ? '#FFFFFF' : '#000000'
+              )
+            )}
           >
             {shade.color}
           </div>
@@ -343,69 +340,28 @@ interface RichColorDemoProps {
 export function RichColorDemo({ theme, color }: RichColorDemoProps) {
   return (
     <tr>
-      <td>{color.name}</td>
-      <td>
-        <div
-          className={css({
-            background: color.main,
-            borderRadius: theme.shape.radius.default,
-            color: color.contrastText,
-            padding: theme.spacing(1),
-            fontWeight: 500,
-          })}
-        >
+      <td {...stylex.props(styles.td)}>{color.name}</td>
+      <td {...stylex.props(styles.td)}>
+        <div {...stylex.props(styles.swatch, styles.colors(color.main, color.contrastText), styles.mainSwatch)}>
           {color.main}
         </div>
       </td>
-      <td>
+      <td {...stylex.props(styles.td)}>
         <div
-          className={css({
-            background: color.shade,
-            color: theme.colors.getContrastText(color.shade, 4.5),
-            borderRadius: theme.shape.radius.default,
-            padding: theme.spacing(1),
-          })}
+          {...stylex.props(styles.swatch, styles.colors(color.shade, theme.colors.getContrastText(color.shade, 4.5)))}
         >
           {color.shade}
         </div>
       </td>
-      <td>
-        <div
-          className={css({
-            background: color.transparent,
-            borderRadius: theme.shape.radius.default,
-            padding: theme.spacing(1),
-          })}
-        >
-          {color.shade}
-        </div>
+      <td {...stylex.props(styles.td)}>
+        <div {...stylex.props(styles.swatch, styles.background(color.transparent))}>{color.shade}</div>
       </td>
-      <td>
-        <div
-          className={css({
-            border: `1px solid ${color.border}`,
-            color: color.text,
-            borderRadius: theme.shape.radius.default,
-            padding: theme.spacing(1),
-          })}
-        >
-          {color.text}
-        </div>
+      <td {...stylex.props(styles.td)}>
+        <div {...stylex.props(styles.swatch, styles.outlined(color.border, color.text))}>{color.text}</div>
       </td>
     </tr>
   );
 }
-
-const colorsTableStyle = (theme: GrafanaTheme2) =>
-  css({
-    textAlign: 'center',
-    overflow: 'auto',
-
-    td: {
-      padding: theme.spacing(1),
-      textAlign: 'center',
-    },
-  });
 
 export function TextColors({ t }: { t: GrafanaTheme2 }) {
   return (
@@ -427,64 +383,83 @@ export function TextColors({ t }: { t: GrafanaTheme2 }) {
 }
 
 export function ShadowDemo({ name, shadow }: { name: string; shadow: string }) {
-  const t = useTheme2();
-  const style = css({
-    padding: t.spacing(2),
-    borderRadius: t.shape.radius.default,
-    boxShadow: shadow,
-  });
-  return <div className={style}>{name}</div>;
+  return <div {...stylex.props(styles.shadowDemo, styles.shadow(shadow))}>{name}</div>;
 }
 
 export function ActionsDemo() {
-  const t = useTheme2();
-
-  const item = css({
-    borderRadius: t.shape.radius.default,
-    padding: t.spacing(1),
-    ':hover': {
-      background: t.colors.action.hover,
-    },
-  });
-  const hover = css({
-    background: t.colors.action.hover,
-  });
-  const selected = css({
-    background: t.colors.action.selected,
-  });
-  const focused = css({
-    background: t.colors.action.focus,
-  });
+  const items = (
+    <Stack direction="column">
+      <div {...stylex.props(styles.item)}>item</div>
+      <div {...stylex.props(styles.item)}>item</div>
+      <div {...stylex.props(styles.item, styles.itemHover)}>item hover</div>
+      <div {...stylex.props(styles.item, styles.itemSelected)}>item selected</div>
+      <div {...stylex.props(styles.item, styles.itemFocused)}>item focused</div>
+    </Stack>
+  );
 
   return (
     <Stack justifyContent="flex-start">
-      <DemoBox bg="canvas">
-        <Stack direction="column">
-          <div className={item}>item</div>
-          <div className={item}>item</div>
-          <div className={cx(item, hover)}>item hover</div>
-          <div className={cx(item, selected)}>item selected</div>
-          <div className={cx(item, focused)}>item focused</div>
-        </Stack>
-      </DemoBox>
-      <DemoBox bg="primary">
-        <Stack direction="column">
-          <div className={item}>item</div>
-          <div className={item}>item</div>
-          <div className={cx(item, hover)}>item hover</div>
-          <div className={cx(item, selected)}>item selected</div>
-          <div className={cx(item, focused)}>item focused</div>
-        </Stack>
-      </DemoBox>
-      <DemoBox bg="secondary">
-        <Stack direction="column">
-          <div className={item}>item</div>
-          <div className={item}>item</div>
-          <div className={cx(item, hover)}>item hover</div>
-          <div className={cx(item, selected)}>item selected</div>
-          <div className={cx(item, focused)}>item focused</div>
-        </Stack>
-      </DemoBox>
+      <DemoBox bg="canvas">{items}</DemoBox>
+      <DemoBox bg="primary">{items}</DemoBox>
+      <DemoBox bg="secondary">{items}</DemoBox>
     </Stack>
   );
 }
+
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  root: {
+    width: '100%',
+    color: colors['--gf-colors-text-primary'],
+  },
+  colorsTable: {
+    textAlign: 'center',
+    overflow: 'auto',
+  },
+  td: {
+    padding: grid,
+    textAlign: 'center',
+  },
+  swatch: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: grid,
+  },
+  mainSwatch: {
+    fontWeight: 500,
+  },
+  colors: (backgroundColor: string, color: string) => ({
+    backgroundColor,
+    color,
+  }),
+  background: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  outlined: (borderColor: string, color: string) => ({
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor,
+    color,
+  }),
+  shadowDemo: {
+    padding: `calc(${grid} * 2)`,
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  shadow: (boxShadow: string) => ({
+    boxShadow,
+  }),
+  item: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: grid,
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+  },
+  itemHover: {
+    backgroundColor: colors['--gf-colors-action-hover'],
+  },
+  itemSelected: {
+    backgroundColor: { default: colors['--gf-colors-action-selected'], ':hover': colors['--gf-colors-action-hover'] },
+  },
+  itemFocused: {
+    backgroundColor: { default: colors['--gf-colors-action-focus'], ':hover': colors['--gf-colors-action-hover'] },
+  },
+});

@@ -1,0 +1,10 @@
+/*
+ * Positions the close IconButton. Deliberately not in a cascade layer: like the Emotion class it replaces, it
+ * must win over the IconButton's own colour and position.
+ */
+.gf-carousel-close {
+  color: var(--gf-colors-text-primary);
+  position: fixed;
+  top: calc(var(--gf-spacing-grid-size) * 2);
+  right: calc(var(--gf-spacing-grid-size) * 2);
+}

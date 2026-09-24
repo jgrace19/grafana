@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 
 export interface Props {
   children: JSX.Element | string;
@@ -15,20 +13,22 @@ export interface Props {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-deprecated-emptysearchresult--docs
  */
 const EmptySearchResult = ({ children }: Props) => {
-  const styles = useStyles2(getStyles);
-  return <div className={styles.container}>{children}</div>;
+  return <div {...stylex.props(styles.container)}>{children}</div>;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      borderLeft: `3px solid ${theme.colors.info.main}`,
-      backgroundColor: `${theme.colors.background.secondary}`,
-      padding: theme.spacing(2),
-      minWidth: '350px',
-      borderRadius: theme.shape.radius.default,
-      marginBottom: theme.spacing(4),
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    borderLeftWidth: '3px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-info-main'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    minWidth: '350px',
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 4)`,
+  },
+});
 export { EmptySearchResult };

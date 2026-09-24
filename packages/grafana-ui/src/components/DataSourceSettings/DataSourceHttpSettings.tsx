@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, useCallback, useId, useMemo } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { Alert } from '../Alert/Alert';
 import { Button } from '../Button/Button';
 import { Field } from '../Forms/Field';
@@ -108,7 +108,6 @@ export const DataSourceHttpSettings = (props: HttpSettingsProps) => {
 
   const [isAccessHelpVisible, setIsAccessHelpVisible] = useState(false);
   const [azureAuthEnabled, setAzureAuthEnabled] = useState(false);
-  const theme = useTheme2();
   let urlTooltip;
 
   const onSettingsChange = useCallback(
@@ -175,12 +174,6 @@ export const DataSourceHttpSettings = (props: HttpSettingsProps) => {
   const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(
     dataSourceConfig.url
   );
-
-  const gridLayout = css({
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr',
-    gap: theme.spacing(0.5),
-  });
 
   const fromFieldId = useId();
 
@@ -293,7 +286,7 @@ export const DataSourceHttpSettings = (props: HttpSettingsProps) => {
         </h3>
         <Stack direction="column" gap={4}>
           <div>
-            <div className={gridLayout}>
+            <div {...stylex.props(styles.gridLayout)}>
               <InlineField
                 label={t('grafana-ui.data-source-http-settings.basic-auth-label', 'Basic auth')}
                 labelWidth={LABEL_WIDTH}
@@ -404,3 +397,11 @@ export const DataSourceHttpSettings = (props: HttpSettingsProps) => {
     </Stack>
   );
 };
+
+const styles = stylex.create({
+  gridLayout: {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+});

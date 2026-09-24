@@ -1,16 +1,18 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type IconName, isIconName } from '@grafana/data';
+import { type IconName, isIconName } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { getActiveButtonStyles, getPropertiesForVariant } from '../../compat/emotion/buttonStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles, getMouseFocusStyles, mediaUp } from '../../themes/mixins';
+import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconSize } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
+
+import './ToolbarButton.css';
 
 interface BaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Icon name */
@@ -59,7 +61,6 @@ export type ToolbarButtonVariant = 'default' | 'primary' | 'destructive' | 'acti
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/navigation-toolbarbutton--docs
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>((props, ref) => {
-  const styles = useStyles2(getStyles);
   const {
     tooltip,
     icon,
@@ -78,21 +79,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>((
     ...rest
   } = props;
 
-  const buttonStyles = cx(
-    {
-      [styles.button]: true,
-      [styles.buttonFullWidth]: fullWidth,
-      [styles.narrow]: narrow,
-    },
-    styles[variant],
+  const buttonStyles = clsx(
+    'gf-toolbar-button',
+    stylex.props(
+      styles.button,
+      fullWidth && styles.buttonFullWidth,
+      narrow && styles.narrow,
+      variantStyles[variant],
+      variant === 'active' && styles.activeIndicator
+    ).className,
     className
   );
-
-  const contentStyles = cx({
-    [styles.content]: true,
-    [styles.contentWithIcon]: !!icon,
-    [styles.contentWithRightIcon]: isOpen !== undefined,
-  });
 
   const body = (
     <button
@@ -104,11 +101,21 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>((
       {...rest}
     >
       {renderIcon(icon, iconSize)}
-      {imgSrc && <img className={styles.img} src={imgSrc} alt={imgAlt ?? ''} />}
-      {children && !iconOnly && <div className={contentStyles}>{children}</div>}
+      {imgSrc && <img {...stylex.props(styles.img)} src={imgSrc} alt={imgAlt ?? ''} />}
+      {children && !iconOnly && (
+        <div
+          {...stylex.props(
+            styles.content,
+            !!icon && styles.contentWithIcon,
+            isOpen !== undefined && styles.contentWithRightIcon
+          )}
+        >
+          {children}
+        </div>
+      )}
       {isOpen === false && <Icon name="angle-down" />}
       {isOpen === true && <Icon name="angle-up" />}
-      {isHighlighted && <div className={styles.highlight} />}
+      {isHighlighted && <div {...stylex.props(styles.highlight)} />}
     </button>
   );
 
@@ -139,136 +146,234 @@ function renderIcon(icon: IconName | React.ReactNode, iconSize?: IconSize) {
   return icon;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const primaryVariant = getPropertiesForVariant(theme, 'primary', 'solid');
-  const destructiveVariant = getPropertiesForVariant(theme, 'destructive', 'solid');
+const grid = spacing['--gf-spacing-grid-size'];
+const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
-  const defaultOld = css({
-    color: theme.colors.text.primary,
-    background: theme.colors.secondary.main,
-
-    '&:hover, &:focus': {
-      color: theme.colors.text.primary,
-      background: theme.colors.secondary.shade,
-      border: `1px solid ${theme.colors.border.medium}`,
+const styles = stylex.create({
+  button: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    height: `calc(${grid} * ${components['--gf-components-height-md']})`,
+    paddingTop: 0,
+    paddingRight: grid,
+    paddingBottom: 0,
+    paddingLeft: grid,
+    borderRadius: shape['--gf-shape-radius-default'],
+    lineHeight: `calc(${components['--gf-components-height-md']} * ${grid} - 2px)`,
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    whiteSpace: 'nowrap',
+    // Any focus shows the ring above its siblings; a mouse focus (:focus:not(:focus-visible)) removes it again.
+    zIndex: { default: null, ':focus': 1 },
+    outlineStyle: { default: null, ':focus': { default: 'dotted', ':not(:focus-visible)': 'none' } },
+    outlineWidth: { default: null, ':focus': '2px' },
+    outlineColor: { default: null, ':focus': 'transparent' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    transitionProperty: {
+      default: null,
+      [motion.noPreferenceOrReduce]: {
+        default: 'background-color, border-color, color',
+        ':focus': 'outline, outline-offset, box-shadow',
+      },
     },
-
-    '&:active': {
-      ...getActiveButtonStyles(theme.colors.secondary, 'solid'),
+    transitionDuration: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: durations.short, ':focus': '0.2s' },
     },
-  });
-
-  return {
-    button: css({
-      label: 'toolbar-button',
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      height: theme.spacing(theme.components.height.md),
-      padding: theme.spacing(0, 1),
-      borderRadius: theme.shape.radius.default,
-      lineHeight: `${theme.components.height.md * theme.spacing.gridSize - 2}px`,
-      fontWeight: theme.typography.fontWeightMedium,
-      border: `1px solid ${theme.colors.secondary.border}`,
-      whiteSpace: 'nowrap',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['background-color', 'border-color', 'color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-
-      [theme.breakpoints.down('md')]: {
-        width: 'auto !important',
-      },
-
-      '&:focus, &:focus-visible': {
-        ...getFocusStyles(theme),
-        zIndex: 1,
-      },
-
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-
-      '&[disabled], &:disabled': {
-        cursor: 'not-allowed',
-        opacity: theme.colors.action.disabledOpacity,
-        background: theme.colors.action.disabledBackground,
-        boxShadow: 'none',
-
-        '&:hover': {
-          color: theme.colors.text.disabled,
-          background: theme.colors.action.disabledBackground,
-          boxShadow: 'none',
-        },
-      },
-    }),
-    default: css({
-      color: theme.colors.text.secondary,
-      background: 'transparent',
-      border: `1px solid transparent`,
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-        background: theme.colors.action.hover,
-      },
-
-      '&:active': {
-        ...getActiveButtonStyles(theme.colors.secondary, 'solid'),
-      },
-    }),
-    canvas: defaultOld,
-    active: cx(
-      defaultOld,
-      css({
-        '&::before': {
-          display: 'block',
-          content: '" "',
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          height: '2px',
-          bottom: 0,
-          borderRadius: theme.shape.radius.default,
-          backgroundImage: theme.colors.gradients.brandHorizontal,
-        },
-      })
-    ),
-    primary: css(primaryVariant),
-    destructive: css(destructiveVariant),
-    narrow: css({
-      padding: theme.spacing(0, 0.5),
-    }),
-    img: css({
-      width: '16px',
-      height: '16px',
-      marginRight: theme.spacing(1),
-    }),
-    buttonFullWidth: css({
-      flexGrow: 1,
-    }),
-    content: css({
-      display: 'flex',
-      flexGrow: 1,
-    }),
-    contentWithIcon: css({
-      display: 'none',
-      paddingLeft: theme.spacing(1),
-
-      [`@media ${mediaUp(theme.v1.breakpoints.md)}`]: {
-        display: 'block',
-      },
-    }),
-    contentWithRightIcon: css({
-      paddingRight: theme.spacing(0.5),
-    }),
-    highlight: css({
-      backgroundColor: theme.colors.success.main,
-      borderRadius: theme.shape.radius.circle,
-      width: '6px',
-      height: '6px',
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreferenceOrReduce]: { default: easings.easeInOut, ':focus': 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    opacity: { default: null, ':disabled': colors['--gf-colors-action-disabled-opacity'] },
+  },
+  activeIndicator: {
+    '::before': {
+      display: 'block',
+      content: '" "',
       position: 'absolute',
-      top: '-3px',
-      right: '-3px',
-      zIndex: 1,
-    }),
-  };
-};
+      left: 0,
+      right: 0,
+      height: '2px',
+      bottom: 0,
+      borderRadius: shape['--gf-shape-radius-default'],
+      backgroundImage: colors['--gf-colors-gradients-brand-horizontal'],
+    },
+  },
+  narrow: {
+    paddingRight: `calc(${grid} * 0.5)`,
+    paddingLeft: `calc(${grid} * 0.5)`,
+  },
+  img: {
+    width: '16px',
+    height: '16px',
+    marginRight: grid,
+  },
+  buttonFullWidth: {
+    flexGrow: 1,
+  },
+  content: {
+    display: 'flex',
+    flexGrow: 1,
+  },
+  contentWithIcon: {
+    display: { default: 'none', '@media only screen and (min-width: 769px)': 'block' },
+    paddingLeft: grid,
+  },
+  contentWithRightIcon: {
+    paddingRight: `calc(${grid} * 0.5)`,
+  },
+  highlight: {
+    backgroundColor: colors['--gf-colors-success-main'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    width: '6px',
+    height: '6px',
+    position: 'absolute',
+    top: '-3px',
+    right: '-3px',
+    zIndex: 1,
+  },
+});
+
+// Each variant writes every state of the properties it shares with the others, so one namespace fully
+// decides them. A disabled button keeps the variant's colour until hovered; its background and shadow always
+// switch (the old `&[disabled]` rules). The primary and destructive hover shadow beats the keyboard focus
+// ring, as the variant's `&:hover` rule came after the base `&:focus` rule.
+const variantStyles = stylex.create({
+  default: {
+    color: {
+      default: colors['--gf-colors-text-secondary'],
+      ':hover': { default: colors['--gf-colors-text-primary'], ':disabled': colors['--gf-colors-text-disabled'] },
+    },
+    backgroundColor: {
+      default: 'transparent',
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-action-hover'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    borderColor: 'transparent',
+    boxShadow: {
+      default: null,
+      ':disabled': 'none',
+      ':focus': { default: focusRing, ':not(:focus-visible)': 'none' },
+    },
+  },
+  canvas: {
+    color: {
+      default: colors['--gf-colors-text-primary'],
+      ':hover': { default: colors['--gf-colors-text-primary'], ':disabled': colors['--gf-colors-text-disabled'] },
+    },
+    backgroundColor: {
+      default: colors['--gf-colors-secondary-main'],
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-secondary-shade'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':focus': colors['--gf-colors-secondary-shade'],
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    borderColor: {
+      default: colors['--gf-colors-secondary-border'],
+      ':hover': colors['--gf-colors-border-medium'],
+      ':focus': colors['--gf-colors-border-medium'],
+    },
+    boxShadow: {
+      default: null,
+      ':disabled': 'none',
+      ':focus': { default: focusRing, ':not(:focus-visible)': 'none' },
+    },
+  },
+  active: {
+    color: {
+      default: colors['--gf-colors-text-primary'],
+      ':hover': { default: colors['--gf-colors-text-primary'], ':disabled': colors['--gf-colors-text-disabled'] },
+    },
+    backgroundColor: {
+      default: colors['--gf-colors-secondary-main'],
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-secondary-shade'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':focus': colors['--gf-colors-secondary-shade'],
+      ':active': colors['--gf-colors-secondary-main'],
+    },
+    borderColor: {
+      default: colors['--gf-colors-secondary-border'],
+      ':hover': colors['--gf-colors-border-medium'],
+      ':focus': colors['--gf-colors-border-medium'],
+    },
+    boxShadow: {
+      default: null,
+      ':disabled': 'none',
+      ':focus': { default: focusRing, ':not(:focus-visible)': 'none' },
+    },
+  },
+  primary: {
+    color: {
+      default: colors['--gf-colors-primary-contrast-text'],
+      ':hover': {
+        default: colors['--gf-colors-primary-contrast-text'],
+        ':disabled': colors['--gf-colors-text-disabled'],
+      },
+    },
+    backgroundColor: {
+      default: colors['--gf-colors-primary-main'],
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-primary-shade'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':focus': colors['--gf-colors-primary-shade'],
+      ':active': colors['--gf-colors-primary-main'],
+    },
+    borderColor: 'transparent',
+    boxShadow: {
+      default: null,
+      ':disabled': 'none',
+      ':hover': { default: shadows['--gf-shadows-z1'], ':disabled': 'none' },
+      ':focus': {
+        default: focusRing,
+        ':hover': { default: shadows['--gf-shadows-z1'], ':not(:focus-visible)': 'none' },
+        ':not(:focus-visible)': 'none',
+      },
+    },
+  },
+  destructive: {
+    color: {
+      default: colors['--gf-colors-error-contrast-text'],
+      ':hover': {
+        default: colors['--gf-colors-error-contrast-text'],
+        ':disabled': colors['--gf-colors-text-disabled'],
+      },
+    },
+    backgroundColor: {
+      default: colors['--gf-colors-error-main'],
+      ':disabled': colors['--gf-colors-action-disabled-background'],
+      ':hover': {
+        default: colors['--gf-colors-error-shade'],
+        ':disabled': colors['--gf-colors-action-disabled-background'],
+      },
+      ':focus': colors['--gf-colors-error-shade'],
+      ':active': colors['--gf-colors-error-main'],
+    },
+    borderColor: 'transparent',
+    boxShadow: {
+      default: null,
+      ':disabled': 'none',
+      ':hover': { default: shadows['--gf-shadows-z1'], ':disabled': 'none' },
+      ':focus': {
+        default: focusRing,
+        ':hover': { default: shadows['--gf-shadows-z1'], ':not(:focus-visible)': 'none' },
+        ':not(:focus-visible)': 'none',
+      },
+    },
+  },
+});

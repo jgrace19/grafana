@@ -1,13 +1,14 @@
-import { css, cx } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { Children, forwardRef, type HTMLAttributes, useState, useRef, useLayoutEffect, createRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
+import { zIndex } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { getPortalContainer } from '../Portal/Portal';
 
 import { ToolbarButton } from './ToolbarButton';
@@ -44,9 +45,7 @@ export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
       overflowItemsRef
     );
     const { dialogProps } = useDialog({}, overflowItemsRef);
-    const theme = useTheme2();
     const overflowButtonOrder = alignment === 'left' ? childVisibility.indexOf(false) - 1 : childVisibility.length;
-    const styles = getStyles(theme, overflowButtonOrder, alignment);
 
     useLayoutEffect(() => {
       const intersectionObserver = new IntersectionObserver(
@@ -79,18 +78,22 @@ export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
     }, [children]);
 
     return (
-      <div ref={containerRef} className={cx(styles.container, className)} {...rest}>
+      <div
+        ref={containerRef}
+        {...mergeStylexProps(stylex.props(styles.container, alignmentStyles[alignment]), { className })}
+        {...rest}
+      >
         {childrenWithoutNull.map((child, index) => (
           <div
             key={index}
             style={{ order: index, visibility: childVisibility[index] ? 'visible' : 'hidden' }}
-            className={styles.childWrapper}
+            {...stylex.props(styles.childWrapper)}
           >
             {child}
           </div>
         ))}
         {childVisibility.includes(false) && (
-          <div ref={overflowRef} className={styles.overflowButton}>
+          <div ref={overflowRef} {...stylex.props(styles.overflowButton(overflowButtonOrder))}>
             <ToolbarButton
               variant={showOverflowItems ? 'active' : 'default'}
               tooltip={t('grafana-ui.toolbar-button-row.show-more', 'Show more items')}
@@ -101,7 +104,7 @@ export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
             />
             {showOverflowItems && (
               <FocusScope contain autoFocus>
-                <div className={styles.overflowItems} ref={overflowItemsRef} {...overlayProps} {...dialogProps}>
+                <div {...stylex.props(styles.overflowItems)} ref={overflowItemsRef} {...overlayProps} {...dialogProps}>
                   {childrenWithoutNull.map((child, index) => !childVisibility[index] && child)}
                 </div>
               </FocusScope>
@@ -115,38 +118,51 @@ export const ToolbarButtonRow = forwardRef<HTMLDivElement, Props>(
 
 ToolbarButtonRow.displayName = 'ToolbarButtonRow';
 
-const getStyles = (theme: GrafanaTheme2, overflowButtonOrder: number, alignment: Props['alignment']) => ({
-  overflowButton: css({
-    order: overflowButtonOrder,
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  overflowButton: (order: number) => ({
+    order,
   }),
-  overflowItems: css({
+  overflowItems: {
     alignItems: 'center',
-    backgroundColor: theme.colors.background.primary,
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z2,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z2'],
     display: 'flex',
     flexWrap: 'wrap',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(1),
+    gap: grid,
+    marginTop: grid,
     maxWidth: '80vw',
-    padding: theme.spacing(0.5, 1),
+    paddingTop: `calc(${grid} * 0.5)`,
+    paddingRight: grid,
+    paddingBottom: `calc(${grid} * 0.5)`,
+    paddingLeft: grid,
     position: 'absolute',
     right: 0,
     top: '100%',
     width: 'max-content',
-    zIndex: theme.zIndex.dropdown,
-  }),
-  container: css({
+    zIndex: zIndex.dropdown,
+  },
+  container: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(1),
-    justifyContent: alignment === 'left' ? 'flex-start' : 'flex-end',
+    gap: grid,
     minWidth: 0,
     position: 'relative',
-  }),
-  childWrapper: css({
+  },
+  childWrapper: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
+    gap: grid,
+  },
+});
+
+const alignmentStyles = stylex.create({
+  left: {
+    justifyContent: 'flex-start',
+  },
+  right: {
+    justifyContent: 'flex-end',
+  },
 });
