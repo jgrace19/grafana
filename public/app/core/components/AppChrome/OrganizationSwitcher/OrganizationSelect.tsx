@@ -1,17 +1,16 @@
-import { css } from '@emotion/css';
 import { useMemo, useState } from 'react';
 
-import { type SelectableValue, type GrafanaTheme2 } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Select, useStyles2 } from '@grafana/ui';
+import { Icon, Select } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type UserOrg } from 'app/types/user';
 
 import { type OrganizationBaseProps } from './types';
 
-export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBaseProps) {
-  const styles = useStyles2(getStyles);
+import './OrganizationSelect.css';
 
+export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBaseProps) {
   const { orgId } = contextSrv.user;
 
   const options = useMemo(
@@ -38,25 +37,9 @@ export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBasePro
       width={'auto'}
       value={value}
       prefix={<Icon className="prefix-icon" name="building" />}
-      className={styles.select}
+      className="gf-org-select"
       options={options}
       onChange={onChange}
     />
   );
 }
-
-// stylex: pending Select migration (U3). These override Select's own Emotion border/background/color.
-const getStyles = (theme: GrafanaTheme2) => ({
-  select: css({
-    border: 'none',
-    background: 'none',
-    color: theme.colors.text.secondary,
-    '&:hover': {
-      color: theme.colors.text.primary,
-
-      '& .prefix-icon': css({
-        color: theme.colors.text.primary,
-      }),
-    },
-  }),
-});

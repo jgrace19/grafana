@@ -119,6 +119,7 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/AppChrome/{AppChrome,AppChromeMenu}.tsx',
   'public/app/core/components/AppChrome/ExtensionSidebar/ExtensionSidebar.tsx',
   'public/app/core/components/AppChrome/MegaMenu/*.{ts,tsx}',
+  'public/app/core/components/AppChrome/OrganizationSwitcher/OrganizationSelect.tsx',
   'public/app/core/components/AppChrome/{NavToolbar,News,ReturnToPrevious}/*.{ts,tsx}',
   'public/app/core/components/AppChrome/TopBar/{SignInLink,SingleTopBar,SingleTopBarActions,TopNavBarMenu}.tsx',
   'public/app/core/components/{Breadcrumbs,Footer,Indent,PageInfo,PageNotFound}/*.{ts,tsx}',
