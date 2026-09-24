@@ -1,6 +1,7 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/PromQueryField.tsx
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
 import {
   type DataFrame,
@@ -19,6 +20,7 @@ import { type PrometheusDatasource } from '../datasource';
 import { getInitHints } from '../query_hints';
 import { type PromOptions, type PromQuery } from '../types';
 
+import { promQueryFieldStyles } from './PromQueryField.stylex';
 import { MetricsBrowser } from './metrics-browser/MetricsBrowser';
 import { MetricsBrowserProvider } from './metrics-browser/MetricsBrowserContext';
 import { MonacoQueryFieldWrapper } from './monaco-query-field/MonacoQueryFieldWrapper';
@@ -159,17 +161,13 @@ export const PromQueryField = (props: PromQueryFieldProps) => {
       )}
       {ExtraFieldElement}
       {hint ? (
-        <div
-          className={css({
-            flexBasis: '100%',
-          })}
-        >
+        <div {...stylex.props(promQueryFieldStyles.hintRow)}>
           <div className="text-warning">
             {hint.label}{' '}
             {hint.fix ? (
               <button
                 type="button"
-                className={cx(clearButtonStyles(theme), 'text-link', 'muted')}
+                className={clsx(clearButtonStyles(theme), 'text-link', 'muted')}
                 onClick={onClickHintFix}
               >
                 {hint.fix.label}

@@ -1,14 +1,16 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationHeader.tsx
-import { css } from '@emotion/css';
 import { type DraggableProvided } from '@hello-pangea/dnd';
 import { memo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FlexItem } from '@grafana/plugin-ui';
-import { Button, Select, useStyles2 } from '@grafana/ui';
+import { Button, Select } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { OperationInfoButton } from './OperationInfoButton';
+import { operationHeaderStyles } from './OperationHeader.stylex';
 import { type QueryBuilderOperation, type QueryBuilderOperationDef, type VisualQueryModeller } from './types';
 
 interface Props {
@@ -28,7 +30,6 @@ interface State {
 
 export const OperationHeader = memo<Props>(
   ({ operation, def, index, onChange, onRemove, queryModeller, dragHandleProps }) => {
-    const styles = useStyles2(getStyles);
     const [state, setState] = useState<State>({});
 
     const onToggleSwitcher = () => {
@@ -43,12 +44,17 @@ export const OperationHeader = memo<Props>(
     };
 
     return (
-      <div className={styles.header}>
+      <div {...stylex.props(operationHeaderStyles.header)}>
         {!state.isOpen && (
           <>
             <div {...dragHandleProps}>{def.name ?? def.id}</div>
             <FlexItem grow={1} />
-            <div className={`${styles.operationHeaderButtons} operation-header-show-on-hover`}>
+            <div
+              {...mergeStylexClassName(
+                stylex.props(operationHeaderStyles.operationHeaderButtons),
+                'operation-header-show-on-hover'
+              )}
+            >
               <Button
                 icon="angle-down"
                 size="sm"
@@ -76,7 +82,7 @@ export const OperationHeader = memo<Props>(
           </>
         )}
         {state.isOpen && (
-          <div className={styles.selectWrapper}>
+          <div {...stylex.props(operationHeaderStyles.selectWrapper)}>
             <Select
               autoFocus
               openMenuOnFocus
@@ -113,20 +119,3 @@ export const OperationHeader = memo<Props>(
 );
 
 OperationHeader.displayName = 'OperationHeader';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-      padding: theme.spacing(0.5, 0.5, 0.5, 1),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    operationHeaderButtons: css({
-      opacity: 1,
-    }),
-    selectWrapper: css({
-      paddingRight: theme.spacing(2),
-    }),
-  };
-};

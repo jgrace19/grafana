@@ -1,16 +1,18 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/components/NestedQuery.tsx
-import { css } from '@emotion/css';
 import { memo } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, toOption } from '@grafana/data';
+import { toOption } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { EditorRows, FlexItem } from '@grafana/plugin-ui';
-import { AutoSizeInput, IconButton, Select, useStyles2 } from '@grafana/ui';
+import { AutoSizeInput, IconButton, Select } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type PrometheusDatasource } from '../../datasource';
 import { binaryScalarDefs } from '../binaryScalarOperations';
 import { type PromVisualQueryBinary } from '../types';
 
+import { nestedQueryStyles } from './NestedQuery.stylex';
 import { QueryBuilderContent } from './QueryBuilderContent';
 
 interface NestedQueryProps {
@@ -25,12 +27,11 @@ interface NestedQueryProps {
 
 export const NestedQuery = memo<NestedQueryProps>((props) => {
   const { nestedQuery, index, datasource, onChange, onRemove, onRunQuery, showExplain } = props;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <div className={styles.name}>
+    <div {...stylex.props(nestedQueryStyles.card)}>
+      <div {...stylex.props(nestedQueryStyles.header)}>
+        <div {...stylex.props(nestedQueryStyles.name)}>
           <Trans i18nKey="grafana-prometheus.querybuilder.nested-query.operator">Operator</Trans>
         </div>
         <Select
@@ -44,10 +45,10 @@ export const NestedQuery = memo<NestedQueryProps>((props) => {
             });
           }}
         />
-        <div className={styles.name}>
+        <div {...stylex.props(nestedQueryStyles.name)}>
           <Trans i18nKey="grafana-prometheus.querybuilder.nested-query.vector-matches">Vector matches</Trans>
         </div>
-        <div className={styles.vectorMatchWrapper}>
+        <div {...stylex.props(nestedQueryStyles.vectorMatchWrapper)}>
           <Select<PromVisualQueryBinary['vectorMatchesType']>
             width="auto"
             value={nestedQuery.vectorMatchesType || 'on'}
@@ -67,7 +68,7 @@ export const NestedQuery = memo<NestedQueryProps>((props) => {
             }}
           />
           <AutoSizeInput
-            className={styles.vectorMatchInput}
+            {...mergeStylexClassName(stylex.props(nestedQueryStyles.vectorMatchInput))}
             minWidth={20}
             defaultValue={nestedQuery.vectorMatches}
             onCommitChange={(evt) => {
@@ -87,7 +88,7 @@ export const NestedQuery = memo<NestedQueryProps>((props) => {
           tooltip={t('grafana-prometheus.querybuilder.nested-query.tooltip-remove-match', 'Remove match')}
         />
       </div>
-      <div className={styles.body}>
+      <div {...stylex.props(nestedQueryStyles.body)}>
         <EditorRows>
           <QueryBuilderContent
             showExplain={showExplain}
@@ -107,37 +108,3 @@ export const NestedQuery = memo<NestedQueryProps>((props) => {
 const operators = binaryScalarDefs.map((def) => ({ label: def.sign, value: def.sign }));
 
 NestedQuery.displayName = 'NestedQuery';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      label: 'card',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    header: css({
-      label: 'header',
-      padding: theme.spacing(0.5, 0.5, 0.5, 1),
-      gap: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    name: css({
-      label: 'name',
-      whiteSpace: 'nowrap',
-    }),
-    body: css({
-      label: 'body',
-      paddingLeft: theme.spacing(2),
-    }),
-    vectorMatchInput: css({
-      label: 'vectorMatchInput',
-      marginLeft: -1,
-    }),
-    vectorMatchWrapper: css({
-      label: 'vectorMatchWrapper',
-      display: 'flex',
-    }),
-  };
-};

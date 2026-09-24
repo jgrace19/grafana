@@ -1,17 +1,16 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { useMemo } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Label, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Label, Stack } from '@grafana/ui';
 
 import { EMPTY_SELECTOR } from '../../constants';
 
 import { useMetricsBrowser } from './MetricsBrowserContext';
-import { getStylesSelectorActions } from './styles';
+import { metricsBrowserClassNames as styles } from './styles.stylex';
 
 export function SelectorActions() {
-  const styles = useStyles2(getStylesSelectorActions);
   const { validationStatus, onValidationClick, getSelector, onChange, status, err, onClearClick } = useMetricsBrowser();
 
   const selector = getSelector();
@@ -28,7 +27,7 @@ export function SelectorActions() {
   const empty = useMemo(() => selector === EMPTY_SELECTOR, [selector]);
 
   return (
-    <div className={styles.section}>
+    <div className={styles.sectionSpaced}>
       <Label>
         <Trans i18nKey="grafana-prometheus.components.selector-actions.resulting-selector">4. Resulting selector</Trans>
       </Label>
@@ -86,8 +85,8 @@ export function SelectorActions() {
         >
           <Trans i18nKey="grafana-prometheus.components.selector-actions.clear">Clear</Trans>
         </Button>
-        <div className={cx(styles.status, (status || err) && styles.statusShowing)}>
-          <span className={err ? styles.error : ''}>{err || status}</span>
+        <div className={clsx(styles.status, (status || err) && styles.statusShowing)}>
+          <span className={err ? styles.error : undefined}>{err || status}</span>
         </div>
       </Stack>
     </div>

@@ -1,10 +1,11 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationParamEditor.tsx
-import { css } from '@emotion/css';
 import { type ComponentType } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type SelectableValue, toOption } from '@grafana/data';
+import { type SelectableValue, toOption } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { AutoSizeInput, Button, Checkbox, Select, useStyles2, Stack } from '@grafana/ui';
+import { AutoSizeInput, Button, Checkbox, Select, Stack } from '@grafana/ui';
+import { operationParamEditorRegistryStyles } from './OperationParamEditorRegistry.stylex';
 
 import { LabelParamEditor } from '../components/LabelParamEditor';
 
@@ -115,7 +116,6 @@ function SelectInputParamEditor({
   operationId,
   onChange,
 }: QueryBuilderOperationParamEditorProps) {
-  const styles = useStyles2(getStyles);
   let selectOptions = paramDef.options as SelectableValue[];
 
   if (!selectOptions[0]?.label) {
@@ -131,7 +131,7 @@ function SelectInputParamEditor({
   // This makes it easier to understand what needs to be selected and what is optional.
   if (!value && paramDef.optional) {
     return (
-      <div className={styles.optionalParam}>
+      <div {...stylex.props(operationParamEditorRegistryStyles.optionalParam)}>
         <Button
           size="sm"
           variant="secondary"
@@ -175,10 +175,3 @@ function SelectInputParamEditor({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    optionalParam: css({
-      marginTop: theme.spacing(1),
-    }),
-  };
-};

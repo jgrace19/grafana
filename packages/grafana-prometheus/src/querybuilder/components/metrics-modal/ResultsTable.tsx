@@ -1,16 +1,20 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/components/metrics-modal/ResultsTable.tsx
+import clsx from 'clsx';
 import { type ReactElement, useMemo } from 'react';
 import Highlighter from 'react-highlight-words';
 
 import { t, Trans } from '@grafana/i18n';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Tooltip } from '@grafana/ui';
 
 import { docsTip } from '../../../configuration/shared/utils';
+import { stylexClassNames } from '../../../stylex/classNames';
 import { type PromVisualQuery } from '../../types';
 
 import { useMetricsModal } from './MetricsModalContext';
-import { getResultsTableStyles } from './styles';
+import { resultsTableStyles } from './styles.stylex';
 import { type MetricData } from './types';
+
+const styles = stylexClassNames(resultsTableStyles);
 
 type ResultsTableProps = {
   onChange: (query: PromVisualQuery) => void;
@@ -34,8 +38,6 @@ export function ResultsTable(props: ResultsTableProps) {
     return filteredMetricsData.slice(startIndex, endIndex);
   }, [filteredMetricsData, pageNum, resultsPerPage]);
 
-  const styles = useStyles2(getResultsTableStyles);
-
   function selectMetric(metric: MetricData) {
     if (metric.value) {
       onChange({ ...query, metric: metric.value });
@@ -46,8 +48,8 @@ export function ResultsTable(props: ResultsTableProps) {
   function metaRows(metric: MetricData) {
     return (
       <>
-        <td>{displayType(metric.type ?? '')}</td>
-        <td>
+        <td className={styles.tableCell}>{displayType(metric.type ?? '')}</td>
+        <td className={styles.tableCell}>
           <Highlighter
             textToHighlight={metric.description ?? ''}
             searchWords={[]}
@@ -134,13 +136,13 @@ export function ResultsTable(props: ResultsTableProps) {
     <table className={styles.table}>
       <thead className={styles.stickyHeader}>
         <tr>
-          <th className={`${styles.nameWidth} ${styles.tableHeaderPadding}`}>
+          <th className={clsx(styles.nameWidth, styles.tableHeaderPadding, styles.tableCell)}>
             <Trans i18nKey="grafana-prometheus.querybuilder.results-table.name">Name</Trans>
           </th>
-          <th className={`${styles.typeWidth} ${styles.tableHeaderPadding}`}>
+          <th className={clsx(styles.typeWidth, styles.tableHeaderPadding, styles.tableCell)}>
             <Trans i18nKey="grafana-prometheus.querybuilder.results-table.type">Type</Trans>
           </th>
-          <th className={`${styles.descriptionWidth} ${styles.tableHeaderPadding}`}>
+          <th className={clsx(styles.descriptionWidth, styles.tableHeaderPadding, styles.tableCell)}>
             <Trans i18nKey="grafana-prometheus.querybuilder.results-table.description">Description</Trans>
           </th>
         </tr>
@@ -151,7 +153,7 @@ export function ResultsTable(props: ResultsTableProps) {
             slicedMetrics.map((metric: MetricData, idx: number) => {
               return (
                 <tr key={metric?.value ?? idx} className={styles.row} onClick={() => selectMetric(metric)}>
-                  <td className={styles.nameOverflow}>
+                  <td className={clsx(styles.nameOverflow, styles.tableCell)}>
                     <Highlighter
                       textToHighlight={metric?.value ?? ''}
                       searchWords={searchedText.split(' ')}

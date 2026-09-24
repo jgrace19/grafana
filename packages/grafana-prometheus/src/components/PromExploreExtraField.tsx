@@ -1,17 +1,19 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/PromExploreExtraField.tsx
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { memo, useCallback } from 'react';
 import * as React from 'react';
 import { usePrevious } from 'react-use';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { InlineFormLabel, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { InlineFormLabel, RadioButtonGroup } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type PrometheusDatasource } from '../datasource';
 import { type PromQuery } from '../types';
 
+import { promExploreExtraFieldStyles } from './PromExploreExtraField.stylex';
 import { PromExemplarField } from './PromExemplarField';
 
 export interface PromExploreExtraFieldProps {
@@ -24,7 +26,6 @@ export interface PromExploreExtraFieldProps {
 export const PromExploreExtraField = memo(({ query, datasource, onChange, onRunQuery }: PromExploreExtraFieldProps) => {
   const rangeOptions = getQueryTypeOptions(true);
   const prevQuery = usePrevious(query);
-  const styles = useStyles2(getStyles);
 
   const onExemplarChange = useCallback(
     (exemplar: boolean) => {
@@ -53,6 +54,13 @@ export const PromExploreExtraField = memo(({ query, datasource, onChange, onRunQ
 
   const onQueryTypeChange = getQueryTypeChangeHandler(query, onChange);
 
+  const queryTypeFieldProps = mergeStylexClassName(
+    stylex.props(promExploreExtraFieldStyles.queryTypeField, promExploreExtraFieldStyles.nowrap),
+    'gf-form'
+  );
+
+  const stepFieldProps = mergeStylexClassName(stylex.props(promExploreExtraFieldStyles.nowrap), 'gf-form');
+
   return (
     <div
       aria-label={t(
@@ -65,13 +73,8 @@ export const PromExploreExtraField = memo(({ query, datasource, onChange, onRunQ
       {/*Query type field*/}
       <div
         data-testid={promExploreExtraFieldTestIds.queryTypeField}
-        className={cx(
-          'gf-form',
-          styles.queryTypeField,
-          css({
-            flexWrap: 'nowrap',
-          })
-        )}
+        {...queryTypeFieldProps}
+        className={clsx(queryTypeFieldProps.className)}
         aria-label={t(
           'grafana-prometheus.components.prom-explore-extra-field.aria-label-query-type-field',
           'Query type field'
@@ -90,12 +93,8 @@ export const PromExploreExtraField = memo(({ query, datasource, onChange, onRunQ
       {/*Step field*/}
       <div
         data-testid={promExploreExtraFieldTestIds.stepField}
-        className={cx(
-          'gf-form',
-          css({
-            flexWrap: 'nowrap',
-          })
-        )}
+        {...stepFieldProps}
+        className={clsx(stepFieldProps.className)}
         aria-label={t('grafana-prometheus.components.prom-explore-extra-field.aria-label-step-field', 'Step field')}
       >
         <InlineFormLabel
@@ -183,9 +182,3 @@ export const promExploreExtraFieldTestIds = {
   stepField: 'prom-editor-extra-field-step',
   queryTypeField: 'prom-editor-extra-field-query-type',
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  queryTypeField: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});

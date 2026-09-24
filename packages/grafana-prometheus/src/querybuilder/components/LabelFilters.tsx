@@ -1,6 +1,6 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/components/LabelFilters.tsx
-import { css, cx } from '@emotion/css';
 import { isEqual } from 'lodash';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
@@ -10,6 +10,7 @@ import { InlineFieldRow, InlineLabel } from '@grafana/ui';
 
 import { type QueryBuilderLabelFilter } from '../shared/types';
 
+import { labelFiltersStyles } from './LabelFilters.stylex';
 import { LabelFilterItem } from './LabelFilterItem';
 
 export const MISSING_LABEL_FILTER_ERROR_MESSAGE = 'Select at least 1 label filter (label and value)';
@@ -86,13 +87,7 @@ export function LabelFilters({
     <>
       {variableEditor ? (
         <InlineFieldRow>
-          <div
-            className={cx(
-              css({
-                display: 'flex',
-              })
-            )}
-          >
+          <div {...stylex.props(labelFiltersStyles.flexRow)}>
             <InlineLabel
               width={20}
               tooltip={

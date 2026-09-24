@@ -1,10 +1,12 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/QueryOptionGroup.tsx
-import { css } from '@emotion/css';
 import * as React from 'react';
 import { useToggle } from 'react-use';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Collapse, useStyles2, Stack } from '@grafana/ui';
+import { Collapse, Stack } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { queryOptionGroupStyles } from './QueryOptionGroup.stylex';
 
 interface Props {
   title: string;
@@ -14,19 +16,18 @@ interface Props {
 
 export function QueryOptionGroup({ title, children, collapsedInfo }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(queryOptionGroupStyles.wrapper)}>
       <Collapse
-        className={styles.collapse}
+        {...mergeStylexClassName(stylex.props(queryOptionGroupStyles.collapse))}
         isOpen={isOpen}
         onToggle={toggleOpen}
         label={
           <Stack gap={0}>
-            <h6 className={styles.title}>{title}</h6>
+            <h6 {...stylex.props(queryOptionGroupStyles.title)}>{title}</h6>
             {!isOpen && (
-              <div className={styles.description}>
+              <div {...stylex.props(queryOptionGroupStyles.description)}>
                 {collapsedInfo.map((x, i) => (
                   <span key={i}>{x}</span>
                 ))}
@@ -35,51 +36,8 @@ export function QueryOptionGroup({ title, children, collapsedInfo }: Props) {
           </Stack>
         }
       >
-        <div className={styles.body}>{children}</div>
+        <div {...stylex.props(queryOptionGroupStyles.body)}>{children}</div>
       </Collapse>
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    collapse: css({
-      backgroundColor: 'unset',
-      border: 'unset',
-      marginBottom: 0,
-
-      ['> button']: {
-        padding: theme.spacing(0, 1),
-      },
-    }),
-    wrapper: css({
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'baseline',
-    }),
-    title: css({
-      flexGrow: 1,
-      overflow: 'hidden',
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      margin: 0,
-    }),
-    description: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.bodySmall.fontWeight,
-      paddingLeft: theme.spacing(2),
-      gap: theme.spacing(2),
-      display: 'flex',
-    }),
-    body: css({
-      display: 'flex',
-      gap: theme.spacing(2),
-      flexWrap: 'wrap',
-    }),
-    tooltip: css({
-      marginRight: theme.spacing(0.25),
-    }),
-  };
-};

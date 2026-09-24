@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import { memo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
 import { type DataSourceApi, getDefaultTimeRange, type PanelData } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -19,6 +19,7 @@ import { promQueryModeller } from '../shared/modeller_instance';
 import { type QueryBuilderOperation } from '../shared/types';
 import { type PromVisualQuery } from '../types';
 
+import { queryBuilderContentStyles } from './QueryBuilderContent.stylex';
 import { MetricsLabelsSection } from './MetricsLabelsSection';
 import { EXPLAIN_LABEL_FILTER_CONTENT } from './PromQueryBuilderExplained';
 
@@ -49,11 +50,7 @@ export const QueryBuilderContent = memo<QueryBuilderContentProps>((props) => {
         />
       </EditorRow>
       {initHints.length ? (
-        <div
-          className={css({
-            flexBasis: '100%',
-          })}
-        >
+        <div {...stylex.props(queryBuilderContentStyles.initHintRow)}>
           <div className="text-warning">
             {initHints[0].label}{' '}
             {initHints[0].fix ? (

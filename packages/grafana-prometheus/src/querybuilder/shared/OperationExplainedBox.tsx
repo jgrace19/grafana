@@ -1,9 +1,10 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationExplainedBox.tsx
-import { css } from '@emotion/css';
 import * as React from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, renderMarkdown } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { renderMarkdown } from '@grafana/data';
+
+import { operationExplainedBoxStyles } from './OperationExplainedBox.stylex';
 
 interface Props {
   title?: React.ReactNode;
@@ -13,18 +14,18 @@ interface Props {
 }
 
 export function OperationExplainedBox({ title, stepNumber, markdown, children }: Props) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.box}>
-      {stepNumber !== undefined && <div className={styles.stepNumber}>{stepNumber}</div>}
+    <div {...stylex.props(operationExplainedBoxStyles.box)}>
+      {stepNumber !== undefined && (
+        <div {...stylex.props(operationExplainedBoxStyles.stepNumber)}>{stepNumber}</div>
+      )}
       <div>
         {title && (
-          <div className={styles.header}>
+          <div {...stylex.props(operationExplainedBoxStyles.header)}>
             <span>{title}</span>
           </div>
         )}
-        <div className={styles.body}>
+        <div {...stylex.props(operationExplainedBoxStyles.body)}>
           {markdown && <div dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}></div>}
           {children}
         </div>
@@ -32,43 +33,3 @@ export function OperationExplainedBox({ title, stepNumber, markdown, children }:
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    box: css({
-      background: theme.colors.background.secondary,
-      padding: theme.spacing(1),
-      borderRadius: theme.shape.radius.default,
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1.5),
-    }),
-    stepNumber: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      background: theme.colors.secondary.main,
-      minWidth: theme.spacing(2.5),
-      minHeight: theme.spacing(2.5),
-      borderRadius: theme.shape.radius.circle,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    header: css({
-      display: 'flex',
-      alignItems: 'center',
-      fontFamily: theme.typography.fontFamilyMonospace,
-    }),
-    body: css({
-      color: theme.colors.text.secondary,
-      'p:last-child': {
-        margin: 0,
-      },
-      a: {
-        color: theme.colors.text.link,
-        textDecoration: 'underline',
-      },
-    }),
-  };
-};

@@ -2,16 +2,14 @@ import { useMemo, useState } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { BrowserLabel as PromLabel, Input, Label, useStyles2, Spinner } from '@grafana/ui';
+import { BrowserLabel as PromLabel, Input, Label, Spinner } from '@grafana/ui';
 
 import { METRIC_LABEL } from '../../constants';
 
 import { useMetricsBrowser } from './MetricsBrowserContext';
-import { getStylesLabelSelector, getStylesMetricsBrowser } from './styles';
+import { metricsBrowserClassNames as styles } from './styles.stylex';
 
 export function LabelSelector() {
-  const styles = useStyles2(getStylesLabelSelector);
-  const sharedStyles = useStyles2(getStylesMetricsBrowser);
   const [labelSearchTerm, setLabelSearchTerm] = useState('');
   const { labelKeys, isLoadingLabelKeys, selectedLabelKeys, onLabelKeyClick } = useMetricsBrowser();
 
@@ -22,7 +20,7 @@ export function LabelSelector() {
   }, [labelKeys, labelSearchTerm, selectedLabelKeys]);
 
   return (
-    <div className={styles.section}>
+    <div className={styles.sectionSpaced}>
       <Label
         description={t(
           'grafana-prometheus.components.label-selector.description-select-labels',
@@ -46,7 +44,7 @@ export function LabelSelector() {
       </div>
       {/* Using fixed height here to prevent jumpy layout */}
       {isLoadingLabelKeys ? (
-        <div className={sharedStyles.spinner}>
+        <div className={styles.spinner}>
           <Spinner size="xl" />
         </div>
       ) : (

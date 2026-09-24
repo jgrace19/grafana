@@ -1,19 +1,22 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/components/metrics-modal/MetricsModal.tsx
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 
 import { type SelectableValue, type TimeRange } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
-import { Icon, Input, Modal, MultiSelect, Pagination, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, Input, Modal, MultiSelect, Pagination, Spinner } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import * as stylex from '@stylexjs/stylex';
 
 import { type PrometheusDatasource } from '../../../datasource';
+import { stylexClassNames } from '../../../stylex/classNames';
 import { type PromVisualQuery } from '../../types';
 
 import { FeedbackLink } from './FeedbackLink';
 import { MetricsModalContextProvider, useMetricsModal } from './MetricsModalContext';
 import { ResultsTable } from './ResultsTable';
 import { getPlaceholders, getPromTypes } from './helpers';
-import { getMetricsModalStyles } from './styles';
+import { metricsModalStyles } from './styles.stylex';
 import { metricsModaltestIds } from './testIds';
 import { type PromFilterOption } from './types';
 
@@ -25,6 +28,8 @@ interface MetricsModalProps {
   onClose: () => void;
   onChange: (query: PromVisualQuery) => void;
 }
+
+const styles = stylexClassNames(metricsModalStyles);
 
 const MetricsModalContent = (props: MetricsModalProps) => {
   const { isOpen, onClose, onChange, query, timeRange } = props;
@@ -40,7 +45,6 @@ const MetricsModalContent = (props: MetricsModalProps) => {
     searchedText,
     setSearchedText,
   } = useMetricsModal();
-  const styles = useStyles2(getMetricsModalStyles);
   const placeholders = getPlaceholders();
   const promTypes = getPromTypes();
 
@@ -64,14 +68,14 @@ const MetricsModalContent = (props: MetricsModalProps) => {
       title={t('grafana-prometheus.querybuilder.metrics-modal.title-metrics-explorer', 'Metrics explorer')}
       onDismiss={onClose}
       aria-label={t('grafana-prometheus.querybuilder.metrics-modal.aria-label-browse-metrics', 'Browse metrics')}
-      className={styles.modal}
+      {...mergeStylexClassName(stylex.props(metricsModalStyles.modal))}
     >
       <FeedbackLink feedbackUrl="https://forms.gle/DEMAJHoAMpe3e54CA" />
       <div
         className={styles.inputWrapper}
         data-testid={selectors.components.DataSource.Prometheus.queryEditor.builder.metricsExplorer}
       >
-        <div className={cx(styles.inputItem, styles.inputItemFirst)}>
+        <div className={clsx(styles.inputItem, styles.inputItemFirst)}>
           <Input
             autoFocus={true}
             data-testid={metricsModaltestIds.searchMetric}
@@ -96,7 +100,7 @@ const MetricsModalContent = (props: MetricsModalProps) => {
           />
         </div>
         <div>
-          <Spinner className={`${styles.loadingSpinner} ${isLoading ? styles.visible : ''}`} />
+          <Spinner className={clsx(styles.loadingSpinner, isLoading && styles.visible)} />
         </div>
       </div>
       <div className={styles.resultsData}>

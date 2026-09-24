@@ -1,11 +1,14 @@
-import { css } from '@emotion/css';
 import { useCallback, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type SelectableValue, type TimeRange } from '@grafana/data';
+import { type SelectableValue, type TimeRange } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { EditorField, EditorFieldGroup } from '@grafana/plugin-ui';
-import { Button, InlineField, InlineFieldRow, Combobox, type ComboboxOption, useTheme2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Combobox, type ComboboxOption } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { metricComboboxStyles } from './MetricCombobox.stylex';
 
 import { METRIC_LABEL } from '../../constants';
 import { type PrometheusDatasource } from '../../datasource';
@@ -37,8 +40,6 @@ export function MetricCombobox({
   timeRange,
 }: Readonly<MetricComboboxProps>) {
   const [metricsModalOpen, setMetricsModalOpen] = useState(false);
-  const styles = getStyles(useTheme2());
-
   /**
    * Gets label_values response from prometheus API for current autocomplete query string and any existing labels filters
    */
@@ -79,7 +80,7 @@ export function MetricCombobox({
 
   const asyncSelect = () => {
     return (
-      <div className={styles.wrapper}>
+      <div {...stylex.props(metricComboboxStyles.wrapper)}>
         <Combobox
           placeholder={t(
             'grafana-prometheus.querybuilder.metric-combobox.async-select.placeholder-select-metric',
@@ -104,7 +105,7 @@ export function MetricCombobox({
           )}
           variant="secondary"
           icon="book-open"
-          className={styles.button}
+          {...mergeStylexClassName(stylex.props(metricComboboxStyles.button))}
           onClick={() => setMetricsModalOpen(true)}
         />
       </div>
@@ -150,18 +151,3 @@ export function MetricCombobox({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      input: {
-        borderTopRightRadius: 'unset',
-        borderBottomRightRadius: 'unset',
-      },
-    }),
-    button: css({
-      borderTopLeftRadius: 'unset',
-      borderBottomLeftRadius: 'unset',
-    }),
-  };
-};

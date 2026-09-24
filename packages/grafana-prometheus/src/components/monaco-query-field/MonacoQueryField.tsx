@@ -1,14 +1,16 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/monaco-query-field/MonacoQueryField.tsx
-import { css } from '@emotion/css';
 import { parser } from '@prometheus-io/lezer-promql';
+import * as stylex from '@stylexjs/stylex';
 import { promLanguageDefinition } from 'monaco-promql';
 import { useEffect, useRef } from 'react';
 import { useLatest } from 'react-use';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { type Monaco, type monacoTypes, ReactMonacoEditor, useTheme2 } from '@grafana/ui';
+import { type Monaco, type monacoTypes, ReactMonacoEditor } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { monacoQueryFieldStyles } from './MonacoQueryField.stylex';
 
 import { type Props } from './MonacoQueryFieldProps';
 import { getOverrideServices } from './getOverrideServices';
@@ -78,28 +80,6 @@ function ensurePromQL(monaco: Monaco) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2, placeholder: string) => {
-  return {
-    container: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'start',
-      alignItems: 'center',
-      height: '100%',
-      overflow: 'hidden',
-    }),
-    placeholder: css({
-      '::after': {
-        content: `'${placeholder}'`,
-        fontFamily: theme.typography.fontFamilyMonospace,
-        opacity: 0.6,
-      },
-    }),
-  };
-};
-
 const MonacoQueryField = (props: Props) => {
   const id = uuidv4();
 
@@ -115,8 +95,13 @@ const MonacoQueryField = (props: Props) => {
 
   const autocompleteDisposeFun = useRef<(() => void) | null>(null);
 
-  const theme = useTheme2();
-  const styles = getStyles(theme, placeholder);
+  const placeholderClassName = stylex.props(monacoQueryFieldStyles.placeholder).className;
+
+  useEffect(() => {
+    if (containerRef.current && placeholder) {
+      containerRef.current.style.setProperty('--prom-monaco-placeholder', `'${placeholder.replace(/'/g, "\\'")}'`);
+    }
+  }, [placeholder]);
 
   useEffect(() => {
     // when we unmount, we unregister the autocomplete-function, if it was registered
@@ -128,7 +113,7 @@ const MonacoQueryField = (props: Props) => {
   return (
     <div
       data-testid={selectors.components.QueryField.container}
-      className={styles.container}
+      {...mergeStylexClassName(stylex.props(monacoQueryFieldStyles.container))}
       // NOTE: we will be setting inline-style-width/height on this element
       ref={containerRef}
     >
@@ -260,7 +245,7 @@ const MonacoQueryField = (props: Props) => {
               {
                 range: new monaco.Range(1, 1, 1, 1),
                 options: {
-                  className: styles.placeholder,
+                  className: placeholderClassName,
                   isWholeLine: true,
                 },
               },

@@ -1,9 +1,10 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationsEditorRow.tsx
-import { css } from '@emotion/css';
 import * as React from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Stack } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
+
+import { operationsEditorRowStyles } from './OperationsEditorRow.stylex';
 
 interface Props {
   operationsLength: number;
@@ -11,21 +12,13 @@ interface Props {
 }
 
 export function OperationsEditorRow({ operationsLength, children }: Props) {
-  const styles = useStyles2(getStyles, operationsLength);
-
   return (
-    <div className={styles.root}>
+    <div
+      {...stylex.props(
+        operationsLength ? operationsEditorRowStyles.rootWithOperations : operationsEditorRowStyles.rootEmpty
+      )}
+    >
       <Stack gap={1}>{children}</Stack>
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2, operationsLength: number) => {
-  return {
-    root: css({
-      padding: theme.spacing(1, 1, operationsLength ? 1 : 0, 1),
-      backgroundColor: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-};

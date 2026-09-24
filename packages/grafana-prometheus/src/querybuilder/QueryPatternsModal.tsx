@@ -1,16 +1,17 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/QueryPatternsModal.tsx
-import { css } from '@emotion/css';
 import { capitalize } from 'lodash';
 import { useMemo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type CoreApp, type DataQuery, getNextRefId, type GrafanaTheme2 } from '@grafana/data';
+import { type CoreApp, type DataQuery, getNextRefId } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, Collapse, Modal, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Collapse, Modal, Stack } from '@grafana/ui';
 
 import { type PromQuery } from '../types';
 
 import { QueryPattern } from './QueryPattern';
+import { queryPatternsModalStyles } from './QueryPatternsModal.stylex';
 import { buildVisualQueryFromString } from './parsing';
 import { promQueryModeller } from './shared/modeller_instance';
 import { type PromQueryPattern, PromQueryPatternType } from './types';
@@ -30,7 +31,6 @@ export const QueryPatternsModal = (props: Props) => {
   const [openTabs, setOpenTabs] = useState<string[]>([]);
   const [selectedPatternName, setSelectedPatternName] = useState<string | null>(null);
 
-  const styles = useStyles2(getStyles);
   const hasNewQueryOption = !!onAddQuery;
   const hasPreviousQuery = useMemo(() => {
     const visualQuery = buildVisualQueryFromString(query.expr ?? '');
@@ -88,7 +88,7 @@ export const QueryPatternsModal = (props: Props) => {
       )}
       onDismiss={onClose}
     >
-      <div className={styles.spacing}>
+      <div {...stylex.props(queryPatternsModalStyles.spacing)}>
         <Trans i18nKey="grafana-prometheus.querybuilder.query-patterns-modal.description-kick-start-your-query">
           Kick start your query by selecting one of these queries. You can then continue to complete your query.
         </Trans>
@@ -157,10 +157,3 @@ export const QueryPatternsModal = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spacing: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};

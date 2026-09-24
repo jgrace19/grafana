@@ -1,12 +1,15 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationEditor.tsx
-import { css, cx } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
 import { useEffect, useId, useState } from 'react';
 import * as React from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type DataSourceApi, type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type DataSourceApi, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Stack, Tooltip } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { operationEditorStyles } from './OperationEditor.stylex';
 
 import { OperationHeader } from './OperationHeader';
 import { getOperationParamEditor } from './OperationParamEditorRegistry';
@@ -46,7 +49,6 @@ export function OperationEditor({
   highlight,
   timeRange,
 }: Props) {
-  const styles = useStyles2(getStyles);
   const def = queryModeller.getOperationDef(operation.id);
   const shouldFlash = useFlash(flash);
   const id = useId();
@@ -87,18 +89,22 @@ export function OperationEditor({
     const Editor = getOperationParamEditor(paramDef);
 
     operationElements.push(
-      <div className={styles.paramRow} key={`${paramIndex}-1`}>
+      <div {...stylex.props(operationEditorStyles.paramRow)} key={`${paramIndex}-1`}>
         {!paramDef.hideName && (
-          <div className={styles.paramName}>
+          <div {...stylex.props(operationEditorStyles.paramName)}>
             <label htmlFor={getOperationParamId(id, paramIndex)}>{paramDef.name}</label>
             {paramDef.description && (
               <Tooltip placement="top" content={paramDef.description} theme="info">
-                <Icon name="info-circle" size="sm" className={styles.infoIcon} />
+                <Icon
+                  name="info-circle"
+                  size="sm"
+                  className={stylex.props(operationEditorStyles.infoIcon).className}
+                />
               </Tooltip>
             )}
           </div>
         )}
-        <div className={styles.paramValue}>
+        <div {...stylex.props(operationEditorStyles.paramValue)}>
           <Stack gap={0.5} direction="row" alignItems="center">
             <Editor
               paramDef={paramDef}
@@ -136,7 +142,7 @@ export function OperationEditor({
   if (def.params.length > 0) {
     const lastParamDef = def.params[def.params.length - 1];
     if (lastParamDef.restParam) {
-      restParam = renderAddRestParamButton(lastParamDef, onAddRestParam, index, operation.params.length, styles);
+      restParam = renderAddRestParamButton(lastParamDef, onAddRestParam, index, operation.params.length);
     }
   }
 
@@ -144,7 +150,12 @@ export function OperationEditor({
     <Draggable draggableId={`operation-${index}`} index={index}>
       {(provided) => (
         <div
-          className={cx(styles.card, (shouldFlash || highlight) && styles.cardHighlight)}
+          {...mergeStylexClassName(
+            stylex.props(
+              operationEditorStyles.card,
+              (shouldFlash || highlight) && operationEditorStyles.cardHighlight
+            )
+          )}
           ref={provided.innerRef}
           {...provided.draggableProps}
           data-testid={`operations.${index}.wrapper`}
@@ -158,12 +169,12 @@ export function OperationEditor({
             onRemove={onRemove}
             queryModeller={queryModeller}
           />
-          <div className={styles.body}>{operationElements}</div>
+          <div {...stylex.props(operationEditorStyles.body)}>{operationElements}</div>
           {restParam}
           {index < query.operations.length - 1 && (
-            <div className={styles.arrow}>
-              <div className={styles.arrowLine} />
-              <div className={styles.arrowArrow} />
+            <div {...stylex.props(operationEditorStyles.arrow)}>
+              <div {...stylex.props(operationEditorStyles.arrowLine)} />
+              <div {...stylex.props(operationEditorStyles.arrowArrow)} />
             </div>
           )}
         </div>
@@ -199,11 +210,10 @@ function renderAddRestParamButton(
   paramDef: QueryBuilderOperationParamDef,
   onAddRestParam: () => void,
   operationIndex: number,
-  paramIndex: number,
-  styles: OperationEditorStyles
+  paramIndex: number
 ) {
   return (
-    <div className={styles.restParam} key={`${paramIndex}-2`}>
+    <div {...stylex.props(operationEditorStyles.restParam)} key={`${paramIndex}-2`}>
       <Button
         size="sm"
         icon="plus"
@@ -232,89 +242,3 @@ function callParamChangedThenOnChange(
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    cardWrapper: css({
-      alignItems: 'stretch',
-    }),
-    error: css({
-      marginBottom: theme.spacing(1),
-    }),
-    card: css({
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.medium}`,
-      cursor: 'grab',
-      borderRadius: theme.shape.radius.default,
-      marginBottom: theme.spacing(1),
-      position: 'relative',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'all 0.5s ease-in 0s',
-      },
-      height: '100%',
-    }),
-    cardError: css({
-      boxShadow: `0px 0px 4px 0px ${theme.colors.warning.main}`,
-      border: `1px solid ${theme.colors.warning.main}`,
-    }),
-    cardHighlight: css({
-      boxShadow: `0px 0px 4px 0px ${theme.colors.primary.border}`,
-      border: `1px solid ${theme.colors.primary.border}`,
-    }),
-    infoIcon: css({
-      marginLeft: theme.spacing(0.5),
-      color: theme.colors.text.secondary,
-      ':hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-    body: css({
-      margin: theme.spacing(1, 1, 0.5, 1),
-      display: 'table',
-    }),
-    paramRow: css({
-      label: 'paramRow',
-      display: 'table-row',
-      verticalAlign: 'middle',
-    }),
-    paramName: css({
-      display: 'table-cell',
-      padding: theme.spacing(0, 1, 0, 0),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      verticalAlign: 'middle',
-      height: '32px',
-    }),
-    paramValue: css({
-      label: 'paramValue',
-      display: 'table-cell',
-      verticalAlign: 'middle',
-    }),
-    restParam: css({
-      padding: theme.spacing(0, 1, 1, 1),
-    }),
-    arrow: css({
-      position: 'absolute',
-      top: '0',
-      right: '-18px',
-      display: 'flex',
-    }),
-    arrowLine: css({
-      height: '2px',
-      width: '8px',
-      backgroundColor: theme.colors.border.strong,
-      position: 'relative',
-      top: '14px',
-    }),
-    arrowArrow: css({
-      width: 0,
-      height: 0,
-      borderTop: `5px solid transparent`,
-      borderBottom: `5px solid transparent`,
-      borderLeft: `7px solid ${theme.colors.border.strong}`,
-      position: 'relative',
-      top: '10px',
-    }),
-  };
-};
-
-type OperationEditorStyles = ReturnType<typeof getStyles>;

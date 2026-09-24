@@ -1,14 +1,17 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/QueryBuilderHints.tsx
-import { css } from '@emotion/css';
 import { useEffect, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type PanelData, type QueryHint } from '@grafana/data';
+import { type PanelData, type QueryHint } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Tooltip } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type PrometheusDatasource } from '../../datasource';
 import { type PromQueryModellerInterface, type PromVisualQuery } from '../types';
+
+import { queryBuilderHintsStyles } from './QueryBuilderHints.stylex';
 
 interface Props {
   query: PromVisualQuery;
@@ -28,7 +31,6 @@ export const QueryBuilderHints = ({
   buildVisualQueryFromString,
 }: Props) => {
   const [hints, setHints] = useState<QueryHint[]>([]);
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     const query = { expr: queryModeller.renderQuery(visualQuery), refId: '' };
@@ -38,9 +40,9 @@ export const QueryBuilderHints = ({
   }, [datasource, visualQuery, data, queryModeller]);
 
   return (
-    <div className={styles.root}>
+    <div {...stylex.props(queryBuilderHintsStyles.root)}>
       {hints.length > 0 && (
-        <div className={styles.container}>
+        <div {...stylex.props(queryBuilderHintsStyles.container)}>
           {hints.map((hint) => {
             return (
               // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
@@ -61,7 +63,7 @@ export const QueryBuilderHints = ({
                   }}
                   fill="outline"
                   size="sm"
-                  className={styles.hint}
+                  {...mergeStylexClassName(stylex.props(queryBuilderHintsStyles.hint))}
                 >
                   <Trans
                     i18nKey="grafana-prometheus.querybuilder.query-builder-hints.hint-details"
@@ -80,19 +82,3 @@ export const QueryBuilderHints = ({
 };
 
 QueryBuilderHints.displayName = 'QueryBuilderHints';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    root: css({
-      padding: theme.spacing(0.5),
-    }),
-    container: css({
-      display: 'flex',
-      alignItems: 'start',
-    }),
-    hint: css({
-      marginRight: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};

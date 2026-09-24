@@ -1,9 +1,14 @@
-import { css } from '@emotion/css';
 import type { JSX } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { FieldValidationMessage, TextLink } from '@grafana/ui';
+
+import { stylexClassNames } from '../../stylex/classNames';
+
+import { overhaulStylexStyles } from './utils.stylex';
+
+const overhaulClassNames = stylexClassNames(overhaulStylexStyles);
 
 /**
  * Use this to return a url in a tooltip in a field. Don't forget to make the field interactive to be able to click on the tooltip
@@ -73,56 +78,6 @@ export const validateInput = (
   }
 };
 
-export function overhaulStyles(theme: GrafanaTheme2) {
-  return {
-    additionalSettings: css({
-      marginBottom: '25px',
-    }),
-    secondaryGrey: css({
-      color: theme.colors.secondary.text,
-      opacity: '65%',
-    }),
-    inlineError: css({
-      margin: '0px 0px 4px 245px',
-    }),
-    switchField: css({
-      alignItems: 'center',
-    }),
-    sectionHeaderPadding: css({
-      paddingTop: '32px',
-    }),
-    sectionBottomPadding: css({
-      paddingBottom: '28px',
-    }),
-    subsectionText: css({
-      fontSize: '12px',
-    }),
-    hrBottomSpace: css({
-      marginBottom: '56px',
-    }),
-    hrTopSpace: css({
-      marginTop: '50px',
-    }),
-    textUnderline: css({
-      textDecoration: 'underline',
-    }),
-    versionMargin: css({
-      marginBottom: '12px',
-    }),
-    advancedHTTPSettingsMargin: css({
-      margin: '24px 0 8px 0',
-    }),
-    advancedSettings: css({
-      paddingTop: '32px',
-    }),
-    alertingTop: css({
-      marginTop: '40px !important',
-    }),
-    overhaulPageHeading: css({
-      fontWeight: 400,
-    }),
-    container: css({
-      maxwidth: 578,
-    }),
-  };
+export function overhaulStyles(_theme?: GrafanaTheme2) {
+  return overhaulClassNames;
 }

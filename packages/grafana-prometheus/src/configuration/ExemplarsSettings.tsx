@@ -1,13 +1,15 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/configuration/ExemplarsSettings.tsx
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { ConfigSubSection } from '@grafana/plugin-ui';
 import { Button, useTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type ExemplarTraceIdDestination } from '../types';
 
+import { exemplarsSettingsStyles } from './ExemplarsSettings.stylex';
 import { ExemplarSetting } from './ExemplarSetting';
 import { overhaulStyles } from './shared/utils';
 
@@ -51,9 +53,7 @@ export function ExemplarsSettings({ options, onChange, disabled }: Props) {
           <Button
             variant="secondary"
             data-testid={selectors.components.DataSource.Prometheus.configPage.exemplarsAddButton}
-            className={css({
-              marginBottom: '10px',
-            })}
+            {...mergeStylexClassName(stylex.props(exemplarsSettingsStyles.addButtonMargin))}
             icon="plus"
             onClick={(event) => {
               event.preventDefault();

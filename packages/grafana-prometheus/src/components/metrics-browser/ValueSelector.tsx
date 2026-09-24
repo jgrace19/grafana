@@ -3,16 +3,14 @@ import { FixedSizeList } from 'react-window';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
-import { BrowserLabel as PromLabel, Input, Label, useStyles2, Spinner } from '@grafana/ui';
+import { BrowserLabel as PromLabel, Input, Label, Spinner } from '@grafana/ui';
 
 import { LIST_ITEM_SIZE } from '../../constants';
 
 import { useMetricsBrowser } from './MetricsBrowserContext';
-import { getStylesMetricsBrowser, getStylesValueSelector } from './styles';
+import { metricsBrowserClassNames as styles } from './styles.stylex';
 
 export function ValueSelector() {
-  const styles = useStyles2(getStylesValueSelector);
-  const sharedStyles = useStyles2(getStylesMetricsBrowser);
 
   const [valueSearchTerm, setValueSearchTerm] = useState('');
   const { labelValues, selectedLabelValues, isLoadingLabelValues, onLabelValueClick, onLabelKeyClick } =
@@ -29,7 +27,7 @@ export function ValueSelector() {
   }, [labelValues, valueSearchTerm]);
 
   return (
-    <div className={styles.section}>
+    <div className={styles.sectionSpaced}>
       <Label
         description={t(
           'grafana-prometheus.components.value-selector.description-search-field-values-across-selected-labels',
@@ -52,7 +50,7 @@ export function ValueSelector() {
         />
       </div>
       {isLoadingLabelValues ? (
-        <div className={sharedStyles.spinner}>
+        <div className={styles.spinner}>
           <Spinner size="xl" />
         </div>
       ) : (

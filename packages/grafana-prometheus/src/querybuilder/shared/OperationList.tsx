@@ -1,14 +1,15 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/shared/OperationList.tsx
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useState } from 'react';
 import { useMountedState, usePrevious } from 'react-use';
+import * as stylex from '@stylexjs/stylex';
 
-import { type DataSourceApi, type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type DataSourceApi, type TimeRange } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Cascader, type CascaderOption, useStyles2, Stack } from '@grafana/ui';
+import { Button, Cascader, type CascaderOption, Stack } from '@grafana/ui';
 
 import { OperationEditor } from './OperationEditor';
+import { operationListStyles } from './OperationList.stylex';
 import { type QueryBuilderOperation, type QueryWithOperations, type VisualQueryModeller } from './types';
 
 interface Props<T extends QueryWithOperations> {
@@ -31,7 +32,6 @@ export function OperationList<T extends QueryWithOperations>({
   highlightedOp,
   timeRange,
 }: Props<T>) {
-  const styles = useStyles2(getStyles);
   const { operations } = query;
 
   const opsToHighlight = useOperationsHighlight(operations);
@@ -93,7 +93,11 @@ export function OperationList<T extends QueryWithOperations>({
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="sortable-field-mappings" direction="horizontal">
               {(provided) => (
-                <div className={styles.operationList} ref={provided.innerRef} {...provided.droppableProps}>
+                <div
+                  {...stylex.props(operationListStyles.operationList)}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
                   {operations.map((op, index) => {
                     return (
                       <OperationEditor
@@ -118,7 +122,7 @@ export function OperationList<T extends QueryWithOperations>({
             </Droppable>
           </DragDropContext>
         )}
-        <div className={styles.addButton}>
+        <div {...stylex.props(operationListStyles.addButton)}>
           {cascaderOpen ? (
             <Cascader
               options={addOptions}
@@ -187,25 +191,3 @@ function useOperationsHighlight(operations: QueryBuilderOperation[]) {
 function isSameOp(op1?: string, op2?: string) {
   return op1 === op2 || `__${op1}_by` === op2 || op1 === `__${op2}_by`;
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    heading: css({
-      label: 'heading',
-      fontSize: 12,
-      fontWeight: theme.typography.fontWeightMedium,
-      marginBottom: 0,
-    }),
-    operationList: css({
-      label: 'operationList',
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: theme.spacing(2),
-    }),
-    addButton: css({
-      label: 'addButton',
-      width: 126,
-      paddingBottom: theme.spacing(1),
-    }),
-  };
-};

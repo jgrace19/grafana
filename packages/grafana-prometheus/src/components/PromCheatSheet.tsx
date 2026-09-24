@@ -1,11 +1,12 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/PromCheatSheet.tsx
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type QueryEditorHelpProps } from '@grafana/data';
+import { type QueryEditorHelpProps } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import { type PromQuery } from '../types';
+
+import { promCheatSheetStyles } from './PromCheatSheet.stylex';
 
 const CHEAT_SHEET_ITEMS = [
   {
@@ -32,20 +33,18 @@ const CHEAT_SHEET_ITEMS = [
 ];
 
 export const PromCheatSheet = (props: QueryEditorHelpProps<PromQuery>) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <div>
       <h2>
         <Trans i18nKey="grafana-prometheus.components.prom-cheat-sheet.prom-ql-cheat-sheet">PromQL Cheat Sheet</Trans>
       </h2>
       {CHEAT_SHEET_ITEMS.map((item, index) => (
-        <div className={styles.cheatSheetItem} key={index}>
-          <div className={styles.cheatSheetItemTitle}>{item.title}</div>
+        <div {...stylex.props(promCheatSheetStyles.cheatSheetItem)} key={index}>
+          <div {...stylex.props(promCheatSheetStyles.cheatSheetItemTitle)}>{item.title}</div>
           {item.expression ? (
             <button
               type="button"
-              className={styles.cheatSheetExample}
+              {...stylex.props(promCheatSheetStyles.cheatSheetExample)}
               onClick={(e) => props.onClickExample({ refId: 'A', expr: item.expression })}
             >
               <code>{item.expression}</code>
@@ -57,20 +56,3 @@ export const PromCheatSheet = (props: QueryEditorHelpProps<PromQuery>) => {
     </div>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  cheatSheetItem: css({
-    margin: theme.spacing(3, 0),
-  }),
-  cheatSheetItemTitle: css({
-    fontSize: theme.typography.h3.fontSize,
-  }),
-  cheatSheetExample: css({
-    margin: theme.spacing(0.5, 0),
-    // element is interactive, clear button styles
-    textAlign: 'left',
-    border: 'none',
-    background: 'transparent',
-    display: 'block',
-  }),
-});

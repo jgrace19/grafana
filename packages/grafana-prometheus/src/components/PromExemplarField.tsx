@@ -1,14 +1,16 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/PromExemplarField.tsx
-import { css, cx } from '@emotion/css';
 import { useEffect, useState } from 'react';
 import { usePrevious } from 'react-use';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { IconButton, InlineLabel, Tooltip, useStyles2 } from '@grafana/ui';
+import { IconButton, InlineLabel, Tooltip } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 
 import { type PrometheusDatasource } from '../datasource';
 import { type PromQuery } from '../types';
+
+import { promExemplarFieldStyles } from './PromExemplarField.stylex';
 
 interface Props {
   onChange: (exemplar: boolean) => void;
@@ -19,7 +21,6 @@ interface Props {
 
 export function PromExemplarField({ datasource, onChange, query, ...rest }: Props) {
   const [error, setError] = useState<string | null>(null);
-  const styles = useStyles2(getStyles);
   const prevError = usePrevious(error);
 
   useEffect(() => {
@@ -38,17 +39,14 @@ export function PromExemplarField({ datasource, onChange, query, ...rest }: Prop
     }
   }, [datasource.exemplarsAvailable, query.instant, query.range, onChange, prevError, error]);
 
-  const iconButtonStyles = cx(
-    {
-      [styles.activeIcon]: !!query.exemplar,
-    },
-    styles.eyeIcon
+  const iconButtonProps = mergeStylexClassName(
+    stylex.props(promExemplarFieldStyles.eyeIcon, query.exemplar && promExemplarFieldStyles.activeIcon)
   );
 
   return (
     <InlineLabel width="auto" data-testid={rest['data-testid']}>
       <Tooltip content={error ?? ''}>
-        <div className={styles.iconWrapper}>
+        <div {...stylex.props(promExemplarFieldStyles.iconWrapper)}>
           <Trans i18nKey="grafana-prometheus.components.prom-exemplar-field.exemplars">Exemplars</Trans>
           <IconButton
             name="eye"
@@ -64,7 +62,7 @@ export function PromExemplarField({ datasource, onChange, query, ...rest }: Prop
                   )
             }
             disabled={!!error}
-            className={iconButtonStyles}
+            {...iconButtonProps}
             onClick={() => {
               onChange(!query.exemplar);
             }}
@@ -73,19 +71,4 @@ export function PromExemplarField({ datasource, onChange, query, ...rest }: Prop
       </Tooltip>
     </InlineLabel>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    eyeIcon: css({
-      marginLeft: theme.spacing(2),
-    }),
-    activeIcon: css({
-      color: theme.colors.primary.main,
-    }),
-    iconWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-  };
 }

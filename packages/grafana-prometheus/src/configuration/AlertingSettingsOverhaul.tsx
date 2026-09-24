@@ -1,5 +1,5 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/configuration/AlertingSettingsOverhaul.tsx
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import type { JSX } from 'react';
 
 import { type DataSourceJsonData, type DataSourcePluginOptionsEditorProps } from '@grafana/data';
@@ -31,7 +31,7 @@ export function AlertingSettingsOverhaul<T extends AlertingConfig>({
   return (
     <ConfigSubSection
       title={t('grafana-prometheus.configuration.alerting-settings-overhaul.title-alerting', 'Alerting')}
-      className={cx(styles.container, styles.alertingTop)}
+      className={clsx(styles.container, styles.alertingTop)}
     >
       <div className="gf-form-group">
         <div className="gf-form-inline">
