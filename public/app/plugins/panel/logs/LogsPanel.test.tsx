@@ -16,7 +16,7 @@ import {
   LogSortOrderChangeEvent,
 } from '@grafana/data';
 import { config, getAppEvents } from '@grafana/runtime';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line no-restricted-imports, @typescript-eslint/no-restricted-imports
 import * as grafanaUI from '@grafana/ui';
 import * as styles from 'app/features/logs/components/getLogRowStyles';
 import { type LogRowContextModal } from 'app/features/logs/components/log-context/LogRowContextModal';

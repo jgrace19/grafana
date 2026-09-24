@@ -105,6 +105,7 @@ export { ColorIndicator, ColorPlacement, type VizTooltipItem } from '../componen
 export { mapMouseEventToMode } from '../components/VizLegend/utils';
 export { Carousel } from '../components/Carousel/Carousel';
 
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- public API re-export for plugins (compat/emotion)
 export { getFocusStyles, getMouseFocusStyles, getTooltipContainerStyles } from '../compat/emotion/mixins';
 
 export { optsWithHideZeros } from '../options/builder/tooltip';

@@ -12,6 +12,8 @@ const reactPlugin = require('eslint-plugin-react');
 const reactPreferFunctionComponentPlugin = require('eslint-plugin-react-prefer-function-component');
 const testingLibraryPlugin = require('eslint-plugin-testing-library');
 const unicornPlugin = require('eslint-plugin-unicorn');
+const fs = require('fs');
+const path = require('path');
 
 const grafanaConfig = require('@grafana/eslint-config/flat');
 const grafanaPlugin = require('@grafana/eslint-plugin');
@@ -97,165 +99,14 @@ const datavizDefaultImportsRestrictions = [
   },
 ];
 
-// Files migrated to StyleX. Emotion and the Emotion-era style hooks are banned in them. Each migration
-// slice appends its files or directories here (see the StyleX conventions doc).
-const stylexMigratedUiFiles = [
-  'packages/grafana-ui/src/themes/stylex/**/*.{ts,tsx}',
-  // U1 primitives
-  'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
-  // U6 data
-  'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/Table/**/*.{ts,tsx}',
-  // U3 pickers
-  'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
-  // U5 time
-  'packages/grafana-ui/src/components/{DateTimePickers,RefreshPicker}/**/*.{ts,tsx}',
-  // U7 viz
-  'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
-  // U8 chrome/globals
-  'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/utils/skeleton.tsx',
-  // U8 chrome
-  'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
-  // U7 viz (part 2)
-  'packages/grafana-ui/src/components/{BarGauge,BigValue,ColorPicker,DataLinks,Slider}/**/*.{ts,tsx}',
-  // U8 long tail
-  'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
-  'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
-  // U2 inputs
-  'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
-  // U4 overlays
-  'packages/grafana-ui/src/components/{Alert,ConfirmModal,ContextMenu,Drawer,Dropdown,InlineToast,Menu,Modal,Toggletip,Tooltip}/**/*.{ts,tsx}',
-  'packages/grafana-ui/src/utils/tooltipUtils.ts',
-];
-
-// public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
-const stylexMigratedAppFiles = [
-  // E1 explore
-  'public/app/features/explore/TraceView/**/*.{ts,tsx}',
-  'public/app/features/explore/**/*.{ts,tsx}',
-  // C1 core: app chrome and page frame
-  'public/app/core/components/AppChrome/{AppChrome,AppChromeMenu}.tsx',
-  'public/app/core/components/AppChrome/ExtensionSidebar/ExtensionSidebar.tsx',
-  'public/app/core/components/AppChrome/MegaMenu/*.{ts,tsx}',
-  'public/app/core/components/AppChrome/OrganizationSwitcher/OrganizationSelect.tsx',
-  'public/app/core/components/AppChrome/{NavToolbar,News,ReturnToPrevious}/*.{ts,tsx}',
-  'public/app/core/components/AppChrome/TopBar/{SignInLink,SingleTopBar,SingleTopBarActions,TopNavBarMenu}.tsx',
-  'public/app/core/components/{Breadcrumbs,Footer,Indent,PageInfo,PageNotFound}/*.{ts,tsx}',
-  'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
-  'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
-  'public/app/core/navigation/*.{ts,tsx}',
-  // P1 core-bundled panels
-  'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
-  'public/app/plugins/panel/{nodeGraph,timeseries}/**/*.{ts,tsx}',
-  'public/app/plugins/panel/{canvas,geomap}/**/*.{ts,tsx}',
-  // D3 dashboard
-  'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
-  // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
-  'public/app/features/dashboard-scene/scene/**/*.{ts,tsx}',
-  // D2 dashboard-scene: remaining directories
-  'public/app/features/dashboard-scene/{assistant,components,conditional-rendering,embedding,inspect,pages,saving,sharing,solo,utils,v2schema}/**/*.{ts,tsx}',
-  // M2 admin and misc features
-  'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
-  'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,ServerStatsCard,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
-  'public/app/features/admin/ldap/LdapSettingsPage.tsx',
-  'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
-  'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
-  // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
-  'public/app/features/alerting/*.{ts,tsx}',
-  'public/app/features/alerting/state/**/*.{ts,tsx}',
-  'public/app/features/alerting/unified/*.{ts,tsx}',
-  'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
-  // M1 plugins, provisioning
-  'public/app/features/plugins/**/*.{ts,tsx}',
-  'public/app/features/provisioning/**/*.{ts,tsx}',
-  'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
-  // P2 core-bundled datasource plugins
-  'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
-  // A1 alerting components
-  'public/app/features/alerting/unified/components/*.{ts,tsx}',
-  'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
-  // M2b browse/manage dashboards, search, command palette, playlist, bookmarks, annotations
-  'public/app/features/{annotations,bookmarks,commandPalette,playlist}/**/*.{ts,tsx}',
-  'public/app/features/browse-dashboards/{BrowseDashboardsPage,RecentlyDeletedPage}.tsx',
-  'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell,TagsCell}.tsx',
-  'public/app/features/browse-dashboards/components/FolderDetailsActions/FolderDetailsActions.tsx',
-  'public/app/features/manage-dashboards/components/SnapshotListTableRow.tsx',
-  'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
-  'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
-  'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable,columns}.tsx',
-  // D2 dashboard-scene settings
-  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
-  // C1 core: forms, login, folder picker, preferences, theme selector
-  'public/app/core/components/{AccessControl,ForgottenPassword,Form,RolePickerDrawer,SharedPreferences,Theme,ThemeSelector}/*.{ts,tsx}',
-  'public/app/core/components/Branding/{Branding,OrangeBadge}.tsx',
-  'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
-  'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
-  'public/app/core/components/Upgrade/ProBadge.tsx',
-  // M3 features long tail
-  'public/app/features/{actions,canvas,dimensions,geo,visualization}/**/*.{ts,tsx}',
-  // D1 dashboard-scene panel edit and edit pane
-  'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
-  'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
-  'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
-  'public/app/features/alerting/unified/components/{rule-editor,expressions,backtesting,create-folder,export,saved-searches}/**/*.{ts,tsx}',
-  'public/app/features/alerting/unified/components/notification-policies/{formStyles.ts,EditDefaultPolicyForm.tsx,EditNotificationPolicyForm.tsx}',
-  // L1 logs
-  'public/app/features/logs/*.{ts,tsx}',
-  'public/app/features/logs/components/*.{ts,tsx}',
-  'public/app/features/logs/components/{fieldSelector,mocks,otel}/**/*.{ts,tsx}',
-  'public/app/features/logs/components/log-context/*.{ts,tsx}',
-  'public/app/features/logs/components/panel/*.{ts,tsx}',
-  'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
-  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
-  // D3 dashboard (part 2)
-  'public/app/features/dashboard/components/{PublicDashboard,PublicDashboardNotAvailable,SaveDashboard,ShareModal,SubMenu,TransformationsEditor,VersionHistory}/**/*.{ts,tsx}',
-  'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
-  'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
-  'public/app/features/alerting/unified/components/{receivers,contact-points,mute-timings,settings}/**/*.{ts,tsx}',
-  'public/app/features/alerting/unified/components/{notification-policies,silences,alert-groups,import-to-gma}/**/*.{ts,tsx}',
-  // Lock-down B: RolePicker, core options slider, Input look-alikes
-  'public/app/core/components/RolePicker/*.{ts,tsx}',
-  'public/app/core/components/OptionsUI/slider.tsx',
-  'public/app/core/components/NestedFolderPicker/{NestedFolderPicker,Skeleton,Trigger}.tsx',
-  'public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx',
-  // Lock-down A: interim overrides converted to xstyle
-  'public/app/core/components/AppChrome/TopBar/ProfileButton.tsx',
-  'public/app/core/components/AppNotifications/StoredNotificationItem.tsx',
-  'public/app/core/components/Login/LoginServiceButtons.tsx',
-  'public/app/core/components/NavLandingPage/NavLandingPageCard.tsx',
-  'public/app/core/components/Page/EditableTitle.tsx',
-  'public/app/core/components/QueryOperationRow/{QueryOperationAction,QueryOperationRowHeader}.tsx',
-  'public/app/core/components/SplashScreenModal/SplashScreenNav.tsx',
-  'public/app/core/components/Upgrade/UpgradeBox.tsx',
-  'public/app/features/admin/ldap/LdapDrawer.tsx',
-  'public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx',
-  'public/app/features/datasources/**/*.{ts,tsx}',
-  'public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx',
-  'public/app/features/panel/components/VizTypePicker/PanelTypeCard.tsx',
-  // Lock-down A: overlay overrides converted to xstyle after U4
-  'public/app/core/components/{FormPrompt,SplashScreenModal}/*.{ts,tsx}',
-  'public/app/features/admin/UserOrgs.tsx',
-  'public/app/features/admin/UserListPublicDashboardPage/*.{ts,tsx}',
-  'public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx',
-  'public/app/features/connections/tabs/ConnectData/NoAccessModal/*.{ts,tsx}',
-  'public/app/features/library-panels/**/*.{ts,tsx}',
-  'public/app/features/live/**/*.{ts,tsx}',
-  'public/app/features/serviceaccounts/components/CreateTokenModal.tsx',
-  'public/app/features/users/TokenRevokedModal.tsx',
-  // Lock-down A part 2: Emotion-free files that were listed as not migrated, and the login page
-  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,SplitPaneWrapper,TagFilter,ValidationLabels}/*.{ts,tsx}',
-  'public/app/core/components/CardButton.tsx',
-  'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
-  'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
-  'public/app/core/components/Login/LoginLayout.tsx',
-  'public/app/features/{correlations,inspector,query}/**/*.{ts,tsx}',
-];
-
-// Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
-/** @type {string[]} */
-const stylexNotMigratedAppFiles = [];
+// The StyleX migration scope. Emotion and the Emotion-era style hooks are banned everywhere in it except the
+// paths in scripts/stylex/emotion-allowlist.txt (the same list scripts/stylex/check-emotion.sh reads).
+const stylexScopeFiles = ['packages/grafana-ui/src/**/*.{ts,tsx}', 'public/app/**/*.{ts,tsx}'];
+const emotionAllowlist = fs
+  .readFileSync(path.join(__dirname, 'scripts/stylex/emotion-allowlist.txt'), 'utf8')
+  .split('\n')
+  .map((line) => line.replace(/\s*#.*/, '').trim())
+  .filter(Boolean);
 
 const stylexRestrictedImports = {
   patterns: [
@@ -849,52 +700,16 @@ module.exports = [
       '@stylexjs/enforce-extension': 'error',
       '@grafana/stylex-no-unreduced-motion': 'error',
       '@grafana/stylex-no-border-radius-literal': 'error',
+      '@grafana/stylex-no-toggled-pseudo-state': 'error',
     },
   },
   {
-    // Must come after grafana/packages-that-cant-import-runtime, whose restrictions it repeats.
-    name: 'grafana/stylex-migrated-ui',
-    files: stylexMigratedUiFiles,
+    // A separate rule from no-restricted-imports, so it adds to the per-directory restrictions instead of replacing them.
+    name: 'grafana/stylex-scope',
+    files: stylexScopeFiles,
+    ignores: emotionAllowlist,
     rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [
-            {
-              group: ['@grafana/*/internal'],
-              message: "'internal' exports are not available in NPM packages because they are not published to NPM",
-            },
-            {
-              group: ['@grafana/runtime'],
-              message: "'@grafana/runtime' should not be imported from library packages",
-            },
-            ...stylexRestrictedImports.patterns,
-          ],
-          paths: stylexRestrictedImports.paths,
-        }),
-      ],
-    },
-  },
-
-  {
-    // Must come after grafana/no-extensions-imports, whose restriction it repeats.
-    name: 'grafana/stylex-migrated-app',
-    files: stylexMigratedAppFiles,
-    ignores: stylexNotMigratedAppFiles,
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        withBaseRestrictedImportsConfig({
-          patterns: [
-            {
-              group: ['app/extensions', 'app/extensions/*'],
-              message: 'Importing from app/extensions is not allowed',
-            },
-            ...stylexRestrictedImports.patterns,
-          ],
-          paths: stylexRestrictedImports.paths,
-        }),
-      ],
+      '@typescript-eslint/no-restricted-imports': ['error', stylexRestrictedImports],
     },
   },
 

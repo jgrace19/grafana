@@ -3,7 +3,7 @@ import selectEvent from 'react-select-event';
 
 import { type CustomVariableModel, type DataSourceInstanceSettings } from '@grafana/data';
 import type * as runtime from '@grafana/runtime';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line no-restricted-imports, @typescript-eslint/no-restricted-imports
 import type * as ui from '@grafana/ui';
 
 import { type CloudWatchMetricsQuery, MetricEditorMode, MetricQueryType } from '../../../dataquery.gen';

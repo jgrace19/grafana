@@ -12,6 +12,7 @@ import { AsyncSelect, Select } from './components/Forms/Legacy/Select/Select';
 import { Switch } from './components/Forms/Legacy/Switch/Switch';
 import { SecretFormField } from './components/SecretFormField/SecretFormField';
 import * as commonOptionsBuilder from './options/builder';
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- public API re-export for plugins (compat/emotion)
 import * as styleMixins from './themes/mixins';
 import * as DOMUtil from './utils/dom';
 import * as floatingUtils from './utils/floating';
@@ -437,6 +438,7 @@ export { logOptions } from './utils/logOptions';
 export { DOMUtil, ReactUtils, floatingUtils };
 
 export { ThemeContext } from '@grafana/data';
+/* eslint-disable @typescript-eslint/no-restricted-imports -- public API re-exports for plugins */
 export {
   withTheme,
   withTheme2,
@@ -448,6 +450,7 @@ export {
 } from './themes/ThemeContext';
 export { getTheme, mockTheme } from './themes/getTheme';
 export { stylesFactory } from './themes/stylesFactory';
+/* eslint-enable @typescript-eslint/no-restricted-imports */
 export { GlobalStyles } from './themes/GlobalStyles/GlobalStyles';
 
 export { styleMixins, commonOptionsBuilder };
