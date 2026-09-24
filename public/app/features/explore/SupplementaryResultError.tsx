@@ -1,9 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useState } from 'react';
 
-import { type DataQueryError, type GrafanaTheme2 } from '@grafana/data';
+import { type DataQueryError } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Alert, type AlertVariant, Button, useTheme2 } from '@grafana/ui';
+import { Alert, type AlertVariant, Button } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { breakpointWidths } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './SupplementaryResultError.css';
 
 type Props = {
   error?: DataQueryError;
@@ -25,8 +30,6 @@ export function SupplementaryResultError(props: Props) {
   // /public/app/features/explore/ErrorContainer.tsx
   const message = props.message ?? error?.message ?? error?.data?.message ?? '';
   const showButton = typeof message === 'string' && message.length > SHORT_ERROR_MESSAGE_LIMIT;
-  const theme = useTheme2();
-  const styles = getStyles(theme);
 
   const dismiss = useCallback(() => {
     setDismissed(true);
@@ -39,10 +42,14 @@ export function SupplementaryResultError(props: Props) {
   }
 
   return (
-    <div className={styles.supplementaryErrorContainer}>
+    <div {...stylex.props(styles.supplementaryErrorContainer)}>
       <Alert title={title} severity={severity} onRemove={handleRemove}>
         {showButton ? (
-          <div className={styles.messageWrapper}>
+          <div
+            {...mergeStylexProps(stylex.props(styles.messageWrapper), {
+              className: 'gf-explore-supplementary-message',
+            })}
+          >
             {!isOpen ? (
               <Button
                 variant="secondary"
@@ -58,7 +65,11 @@ export function SupplementaryResultError(props: Props) {
             )}
           </div>
         ) : (
-          <div className={`${styles.messageWrapper} ${styles.suggestedActionWrapper}`}>
+          <div
+            {...mergeStylexProps(stylex.props(styles.messageWrapper, styles.suggestedActionWrapper), {
+              className: 'gf-explore-supplementary-message',
+            })}
+          >
             {message}
             {suggestedAction && onSuggestedAction && (
               <Button variant="primary" size="xs" onClick={onSuggestedAction}>
@@ -72,27 +83,20 @@ export function SupplementaryResultError(props: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    supplementaryErrorContainer: css({
-      width: '60%',
-      minWidth: `${theme.breakpoints.values.sm}px`,
-      maxWidth: `${theme.breakpoints.values.md}px`,
-      margin: '0 auto',
-    }),
-    messageWrapper: css({
-      minHeight: theme.spacing(3),
-      ['ul']: {
-        paddingLeft: theme.spacing(2),
-      },
-      ['button']: {
-        position: 'absolute',
-        bottom: theme.spacing(2),
-        right: theme.spacing(2),
-      },
-    }),
-    suggestedActionWrapper: css({
-      paddingBottom: theme.spacing(5),
-    }),
-  };
-};
+const styles = stylex.create({
+  supplementaryErrorContainer: {
+    width: '60%',
+    minWidth: breakpointWidths.sm,
+    maxWidth: breakpointWidths.md,
+    marginTop: 0,
+    marginRight: 'auto',
+    marginBottom: 0,
+    marginLeft: 'auto',
+  },
+  messageWrapper: {
+    minHeight: spacing['--gf-spacing-x3'],
+  },
+  suggestedActionWrapper: {
+    paddingBottom: spacing['--gf-spacing-x5'],
+  },
+});

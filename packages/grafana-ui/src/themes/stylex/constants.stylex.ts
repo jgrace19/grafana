@@ -58,3 +58,13 @@ export const zIndex = stylex.defineConsts({
   modal: 1060,
   portal: 1061,
 });
+
+/** `theme.breakpoints.values.<key>` in px. */
+export const breakpointWidths = stylex.defineConsts({
+  xs: '0px',
+  sm: '544px',
+  md: '769px',
+  lg: '992px',
+  xl: '1200px',
+  xxl: '1440px',
+});

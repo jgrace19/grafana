@@ -113,6 +113,7 @@ const stylexMigratedUiFiles = [
 const stylexMigratedAppFiles = [
   // E1 explore
   'public/app/features/explore/TraceView/**/*.{ts,tsx}',
+  'public/app/features/explore/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

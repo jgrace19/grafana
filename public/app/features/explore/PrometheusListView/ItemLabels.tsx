@@ -1,26 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type Field, type GrafanaTheme2 } from '@grafana/data';
+import { type Field } from '@grafana/data';
 import { InstantQueryRefIdIndex } from '@grafana/prometheus';
-import { useStyles2 } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
-import { rawListItemColumnWidth } from './RawListItem';
-
-const getItemLabelsStyles = (theme: GrafanaTheme2, expanded: boolean) => {
-  return {
-    valueNavigation: css({
-      width: rawListItemColumnWidth,
-      fontWeight: 'bold',
-    }),
-    valueNavigationWrapper: css({
-      display: 'flex',
-      justifyContent: 'flex-end',
-    }),
-    itemLabelsWrap: css({
-      borderBottom: expanded ? `1px solid ${theme.colors.border.medium}` : '',
-    }),
-  };
-};
+import { rawListLayout } from './rawListLayout.stylex';
 
 export const formatValueName = (name: string): string => {
   if (name.includes(InstantQueryRefIdIndex)) {
@@ -30,13 +14,11 @@ export const formatValueName = (name: string): string => {
 };
 
 export const ItemLabels = ({ valueLabels, expanded }: { valueLabels: Field[]; expanded: boolean }) => {
-  const styles = useStyles2(getItemLabelsStyles, expanded);
-
   return (
-    <div className={styles.itemLabelsWrap}>
-      <div className={styles.valueNavigationWrapper}>
+    <div {...stylex.props(expanded && styles.itemLabelsWrapExpanded)}>
+      <div {...stylex.props(styles.valueNavigationWrapper)}>
         {valueLabels.map((value, index) => (
-          <span className={styles.valueNavigation} key={value.name}>
+          <span {...stylex.props(styles.valueNavigation)} key={value.name}>
             {formatValueName(value.name)}
           </span>
         ))}
@@ -44,3 +26,19 @@ export const ItemLabels = ({ valueLabels, expanded }: { valueLabels: Field[]; ex
     </div>
   );
 };
+
+const styles = stylex.create({
+  valueNavigation: {
+    width: rawListLayout.columnWidth,
+    fontWeight: 'bold',
+  },
+  valueNavigationWrapper: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  itemLabelsWrapExpanded: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+  },
+});

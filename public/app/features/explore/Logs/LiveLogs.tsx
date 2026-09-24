@@ -1,12 +1,15 @@
-import { css, cx, keyframes } from '@emotion/css';
-import { PureComponent } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, PureComponent } from 'react';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import { type LogRowModel, dateTimeFormat, type GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { type LogRowModel, dateTimeFormat, LogsSortOrder } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type TimeZone } from '@grafana/schema';
-import { Button, type Themeable2, withTheme2 } from '@grafana/ui';
+import { Button, type Themeable2, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LogMessageAnsi } from '../../logs/components/LogMessageAnsi';
 import { getLogRowStyles } from '../../logs/components/getLogRowStyles';
@@ -14,51 +17,7 @@ import { sortLogRows } from '../../logs/utils';
 import { ElapsedTime } from '../ElapsedTime';
 import { filterLogRowsByIndex } from '../state/utils';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const fade = keyframes({
-    from: {
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-    },
-    to: {
-      backgroundColor: 'transparent',
-    },
-  });
-
-  return {
-    logsRowsLive: css({
-      label: 'logs-rows-live',
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-      display: 'flex',
-      flexFlow: 'column nowrap',
-      height: '60vh',
-      overflowY: 'scroll',
-      ':first-child': {
-        marginTop: 'auto !important',
-      },
-    }),
-    logsRowFade: css({
-      label: 'logs-row-fresh',
-      color: theme.colors.text.primary,
-      backgroundColor: tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${fade} 1s ease-out 1s 1 normal forwards`,
-      },
-    }),
-    logsRowsIndicator: css({
-      fontSize: theme.typography.h6.fontSize,
-      paddingTop: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    button: css({
-      marginRight: theme.spacing(1),
-    }),
-    fullWidth: css({
-      width: '100%',
-    }),
-  };
-};
+import { liveLogsVars } from './LiveLogs.stylex';
 
 export interface Props extends Themeable2 {
   logRows?: LogRowModel[];
@@ -131,20 +90,22 @@ class LiveLogs extends PureComponent<Props, State> {
 
   render() {
     const { theme, timeZone, onPause, onResume, onClear, isPaused } = this.props;
-    const styles = getStyles(theme);
     const { logsRow, logsRowLocalTime, logsRowMessage } = getLogRowStyles(theme);
+    const freshRowColor: CSSProperties & Record<string, string> = {
+      '--gf-live-logs-fresh-row': tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString(),
+    };
 
     return (
       <div>
-        <table className={styles.fullWidth}>
+        <table {...stylex.props(styles.fullWidth)}>
           <tbody
             onScroll={isPaused ? undefined : this.onScroll}
-            className={styles.logsRowsLive}
+            {...mergeStylexProps(stylex.props(styles.logsRowsLive), { style: freshRowColor })}
             ref={this.scrollContainerRef}
           >
             {this.rowsToRender().map((row: LogRowModel) => {
               return (
-                <tr className={cx(logsRow, styles.logsRowFade)} key={row.uid}>
+                <tr {...mergeStylexProps(stylex.props(styles.logsRowFade), { className: logsRow })} key={row.uid}>
                   <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
                   <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
                 </tr>
@@ -163,19 +124,29 @@ class LiveLogs extends PureComponent<Props, State> {
             />
           </tbody>
         </table>
-        <div className={styles.logsRowsIndicator}>
+        <div {...stylex.props(styles.logsRowsIndicator)}>
           <Button
             icon={isPaused ? 'play' : 'pause'}
             variant="secondary"
             onClick={isPaused ? onResume : onPause}
-            className={styles.button}
+            className={stylex.props(styles.button).className}
           >
             {isPaused ? t('explore.live-logs.resume', 'Resume') : t('explore.live-logs.pause', 'Pause')}
           </Button>
-          <Button icon="trash-alt" variant="secondary" onClick={onClear} className={styles.button}>
+          <Button
+            icon="trash-alt"
+            variant="secondary"
+            onClick={onClear}
+            className={stylex.props(styles.button).className}
+          >
             <Trans i18nKey="explore.live-logs.clear-logs">Clear logs</Trans>
           </Button>
-          <Button icon="square-shape" variant="secondary" onClick={this.props.stopLive} className={styles.button}>
+          <Button
+            icon="square-shape"
+            variant="secondary"
+            onClick={this.props.stopLive}
+            className={stylex.props(styles.button).className}
+          >
             <Trans i18nKey="explore.live-logs.exit-live-mode">Exit live mode</Trans>
           </Button>
           {isPaused ||
@@ -195,4 +166,52 @@ class LiveLogs extends PureComponent<Props, State> {
   }
 }
 
-export const LiveLogsWithTheme = withTheme2(LiveLogs);
+export function LiveLogsWithTheme(props: Omit<Props, 'theme'>) {
+  const theme = useTheme2();
+  return <LiveLogs {...props} theme={theme} />;
+}
+
+const fade = stylex.keyframes({
+  from: {
+    backgroundColor: liveLogsVars['--gf-live-logs-fresh-row'],
+  },
+  to: {
+    backgroundColor: 'transparent',
+  },
+});
+
+const styles = stylex.create({
+  logsRowsLive: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    height: '60vh',
+    overflowY: 'scroll',
+    marginTop: { default: null, ':first-child': 'auto' },
+  },
+  logsRowFade: {
+    color: colors['--gf-colors-text-primary'],
+    backgroundColor: liveLogsVars['--gf-live-logs-fresh-row'],
+    animationName: { default: null, [motion.noPreferenceOrReduce]: fade },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '1s' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-out' },
+    animationDelay: { default: null, [motion.noPreferenceOrReduce]: '1s' },
+    animationIterationCount: { default: null, [motion.noPreferenceOrReduce]: 1 },
+    animationDirection: { default: null, [motion.noPreferenceOrReduce]: 'normal' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'forwards' },
+  },
+  logsRowsIndicator: {
+    fontSize: typography['--gf-typography-h6-font-size'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    display: 'flex',
+    alignItems: 'center',
+  },
+  button: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  fullWidth: {
+    width: '100%',
+  },
+});
