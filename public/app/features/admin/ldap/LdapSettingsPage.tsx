@@ -1,13 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { connect } from 'react-redux';
 
-import { AppEvents, type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { AppEvents, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getBackendSrv, getAppEvents, locationService, reportInteraction } from '@grafana/runtime';
 import {
-  useStyles2,
   Alert,
   Box,
   Button,
@@ -23,6 +22,7 @@ import {
   MultiSelect,
   SecretInput,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { FormPrompt } from 'app/core/components/FormPrompt/FormPrompt';
 import { Page } from 'app/core/components/Page/Page';
 import config from 'app/core/config';
@@ -32,6 +32,7 @@ import { type StoreState } from 'app/types/store';
 
 import { LdapDrawerComponent } from './LdapDrawer';
 import { LdapTestDrawer } from './LdapTestDrawer';
+import './LdapMultiSelect.css';
 
 const appEvents = getAppEvents();
 
@@ -120,8 +121,6 @@ export const LdapSettingsPage = () => {
     reset,
     watch,
   } = methods;
-
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     async function init() {
@@ -290,7 +289,7 @@ export const LdapSettingsPage = () => {
             <FormPrompt confirmRedirect={isDirty} onDiscard={onDiscard} />
             {isLoading && <Loader />}
             {!isLoading && (
-              <section className={styles.form}>
+              <section {...stylex.props(styles.form)}>
                 <h3>
                   <Trans i18nKey="ldap-settings-page.title">Basic Settings</Trans>
                 </h3>
@@ -372,7 +371,7 @@ export const LdapSettingsPage = () => {
                       <MultiSelect
                         {...field}
                         allowCustomValue
-                        className={styles.multiSelect}
+                        className="gf-ldap-multi-select"
                         noOptionsMessage=""
                         placeholder={t('ldap-settings-page.search-base-dns.placeholder', 'example: dc=grafana,dc=org')}
                         onChange={(v) => onChange(v.map(({ value }) => String(value)))}
@@ -465,17 +464,10 @@ export const LdapSettingsPage = () => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    form: css({
-      width: theme.spacing(68),
-    }),
-    multiSelect: css({
-      'div:last-of-type > svg': {
-        display: 'none',
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  form: {
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 68)`,
+  },
+});
 
 export default connector(LdapSettingsPage);

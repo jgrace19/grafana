@@ -132,6 +132,12 @@ const stylexMigratedAppFiles = [
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
+  // M2 admin and misc features
+  'public/app/features/{auth-config,gops,invites,migrate-to-cloud,notifications,profile,teams,theme-playground}/**/*.{ts,tsx}',
+  'public/app/features/admin/{AdminOrgsTable,EnterpriseAuthFeaturesCard,LicenseChrome,ServerStats,UpgradePage,UserListAdminPage,UserListAnonymousPage,UserListPage,UserPermissions,UserProfile}.tsx',
+  'public/app/features/admin/ldap/LdapSettingsPage.tsx',
+  'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
+  'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
 ];
 
 const stylexRestrictedImports = {

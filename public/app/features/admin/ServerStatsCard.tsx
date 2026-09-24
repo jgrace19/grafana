@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type { JSX } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Card, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface StatItem {
   name: string;
@@ -20,23 +22,23 @@ export interface Props {
 }
 
 export const ServerStatsCard = ({ content, footer, isLoading }: Props) => {
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
   return (
-    <Card noMargin className={styles.container}>
+    <Card noMargin className={pendingStyles.container}>
       {content.map((item, index) => (
         <Stack key={index} justifyContent="space-between" alignItems="center">
           <Stack alignItems={'center'}>
-            <span className={cx({ [styles.indent]: !!item.indent })}>{item.name}</span>
+            <span {...stylex.props(!!item.indent && styles.indent)}>{item.name}</span>
             {item.tooltip && (
               <Tooltip content={String(item.tooltip)} placement="auto-start">
-                <Icon name="info-circle" className={styles.tooltip} />
+                <Icon name="info-circle" xstyle={styles.tooltip} />
               </Tooltip>
             )}
           </Stack>
           {isLoading ? (
             <Skeleton width={60} />
           ) : (
-            <span className={item.highlight ? styles.highlight : ''}>{item.value}</span>
+            <span {...stylex.props(item.highlight && styles.highlight)}>{item.value}</span>
           )}
         </Stack>
       ))}
@@ -45,24 +47,29 @@ export const ServerStatsCard = ({ content, footer, isLoading }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-      padding: theme.spacing(2),
-    }),
-    indent: css({
-      marginLeft: theme.spacing(2),
-    }),
-    tooltip: css({
-      color: theme.colors.secondary.text,
-    }),
-    highlight: css({
-      color: theme.colors.warning.text,
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-      marginRight: `-${theme.spacing(1)}`,
-    }),
-  };
-};
+// stylex: pending Card migration
+const getPendingStyles = (theme: GrafanaTheme2) => ({
+  container: css({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    padding: theme.spacing(2),
+  }),
+});
+
+const styles = stylex.create({
+  indent: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  tooltip: {
+    color: colors['--gf-colors-secondary-text'],
+  },
+  highlight: {
+    color: colors['--gf-colors-warning-text'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    marginRight: `calc(-1 * ${spacing['--gf-spacing-x1']})`,
+  },
+});

@@ -27,3 +27,12 @@ public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides To
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
+public/app/features/admin/ServerStatsCard.tsx # stylex: pending Card migration (U6); className override of Card's display/padding
+public/app/features/admin/UserOrgs.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/overflow
+public/app/features/admin/UserListPublicDashboardPage/DashboardsListModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/admin/UserListPublicDashboardPage/DeleteUserModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/admin/ldap/LdapDrawer.tsx # stylex: pending Label migration (U2); className override of Label font size
+public/app/features/live/LiveConnectionWarning.tsx # stylex: pending Alert migration (U4); className override of Alert position
+public/app/features/live/dashboard/DashboardChangedModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/serviceaccounts/components/CreateTokenModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/users/TokenRevokedModal.tsx # stylex: pending InfoBox/Alert and Modal migration (U4); overrides of Alert margin and getModalStyles backdrop
