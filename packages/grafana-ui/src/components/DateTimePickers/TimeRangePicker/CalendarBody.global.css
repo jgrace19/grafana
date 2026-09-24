@@ -85,7 +85,10 @@
   }
 
   /* Hovering a date before any is clicked. */
-  .gf-calendar .react-calendar__tile:hover:not(.react-calendar__tile--hover):not(.react-calendar__tile--active):not(.react-calendar__tile--hasActive) {
+  .gf-calendar
+    .react-calendar__tile:hover:not(.react-calendar__tile--hover):not(.react-calendar__tile--active):not(
+      .react-calendar__tile--hasActive
+    ) {
     background-color: var(--gf-colors-action-hover);
     border-radius: var(--gf-shape-radius-pill);
   }
