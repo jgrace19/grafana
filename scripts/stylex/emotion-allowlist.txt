@@ -64,3 +64,4 @@ public/app/core/components/NestedFolderPicker/Trigger.tsx # C1: composes getInpu
 public/app/core/components/RolePicker/** # C1: own styles share elements with getSelectStyles/getInputStyles/Checkbox Emotion classes; needs a dedicated rewrite after U2
 public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
+

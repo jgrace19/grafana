@@ -174,6 +174,8 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
   'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
   'public/app/core/components/Upgrade/ProBadge.tsx',
+  // M3 features long tail
+  'public/app/features/{actions,canvas,dimensions,geo,visualization}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
