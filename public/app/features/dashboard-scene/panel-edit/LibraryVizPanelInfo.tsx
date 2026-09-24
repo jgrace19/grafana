@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
+import { dateTimeFormat } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type LibraryPanelBehavior } from '../scene/LibraryPanelBehavior';
 
@@ -11,8 +11,6 @@ interface Props {
 }
 
 export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const libraryPanelState = libraryPanel.useState();
   const tz = libraryPanelState.$timeRange?.getTimeZone();
   const meta = libraryPanelState._loadedPanel?.meta;
@@ -21,13 +19,13 @@ export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
   }
 
   return (
-    <div className={styles.info}>
-      <div className={styles.libraryPanelInfo}>
+    <div {...stylex.props(styles.info)}>
+      <div {...stylex.props(styles.libraryPanelInfo)}>
         <Trans i18nKey="dashboard-scene.library-viz-panel-info.usage-count" count={meta.connectedDashboards}>
           Used on {'{{count}}'} dashboards
         </Trans>
       </div>
-      <div className={styles.libraryPanelInfo}>
+      <div {...stylex.props(styles.libraryPanelInfo)}>
         <Trans
           i18nKey="dashboard-scene.library-viz-panel-info.last-edited"
           values={{ timeAgo: dateTimeFormat(meta.updated, { format: 'L', timeZone: tz }) }}
@@ -36,7 +34,7 @@ export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
               <>
                 {meta.updatedBy.avatarUrl && (
                   <img
-                    className={styles.userAvatar}
+                    {...stylex.props(styles.userAvatar)}
                     src={meta.updatedBy.avatarUrl}
                     alt={`Avatar for ${meta.updatedBy.name}`}
                   />
@@ -54,22 +52,20 @@ export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    info: css({
-      lineHeight: 1,
-    }),
-    libraryPanelInfo: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    userAvatar: css({
-      borderRadius: theme.shape.radius.circle,
-      boxSizing: 'content-box',
-      width: '22px',
-      height: '22px',
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  info: {
+    lineHeight: 1,
+  },
+  libraryPanelInfo: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  userAvatar: {
+    borderRadius: shape['--gf-shape-radius-circle'],
+    boxSizing: 'content-box',
+    width: '22px',
+    height: '22px',
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+});

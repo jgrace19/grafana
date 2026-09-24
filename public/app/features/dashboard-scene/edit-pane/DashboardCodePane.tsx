@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Alert, Button, IconButton, Modal, Sidebar, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Button, IconButton, Modal, Sidebar, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardSchemaEditor, type SchemaEditorFormat } from '../v2schema/DashboardSchemaEditor';
 
@@ -13,8 +14,6 @@ export interface DashboardCodePaneProps {
 }
 
 export function DashboardCodePane({ initialValue, onApply }: DashboardCodePaneProps) {
-  const styles = useStyles2(getStyles);
-
   const [hasValidationErrors, setHasValidationErrors] = useState(true);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [jsonText, setJsonText] = useState(initialValue);
@@ -70,14 +69,14 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <Sidebar.PaneHeader title={t('dashboard.code-pane.header', 'Edit as code')} />
-      <div className={styles.content}>
+      <div {...stylex.props(styles.content)}>
         {errorAlert}
-        <div className={styles.editorContainer}>
-          <DashboardSchemaEditor {...editorProps} containerStyles={styles.codeEditor} />
+        <div {...stylex.props(styles.editorContainer)}>
+          <DashboardSchemaEditor {...editorProps} containerStyles={stylex.props(styles.codeEditor).className} />
         </div>
-        <div className={styles.toolbar}>
+        <div {...stylex.props(styles.toolbar)}>
           {applyButton}
           <IconButton
             name="expand-arrows"
@@ -93,15 +92,15 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
           title={t('dashboard.code-pane.modal-title', 'Edit dashboard as code')}
           isOpen
           onDismiss={() => setIsExpanded(false)}
-          className={styles.modal}
-          contentClassName={styles.modalContent}
+          className={modalOverrides.modal}
+          contentClassName={modalOverrides.modalContent}
           closeOnBackdropClick={false}
           closeOnEscape={false}
         >
-          <div className={styles.modalEditorWrapper}>
+          <div {...stylex.props(styles.modalEditorWrapper)}>
             {errorAlert}
             <DashboardSchemaEditor {...editorProps} />
-            <div className={styles.toolbar}>
+            <div {...stylex.props(styles.toolbar)}>
               {applyButton}
               <IconButton
                 name="compress-arrows"
@@ -117,34 +116,9 @@ export function DashboardCodePane({ initialValue, onApply }: DashboardCodePanePr
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: '1 1 0',
-    height: '100%',
-  }),
-  content: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
-    padding: theme.spacing(1),
-    gap: theme.spacing(1),
-  }),
-  editorContainer: css({
-    flex: 1,
-    minHeight: 0,
-  }),
-  codeEditor: css({
-    height: '100%',
-  }),
-  toolbar: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flex: '0 0 auto',
-  }),
+// stylex: pending Modal migration. These override Modal's own width, max-width and content overflow, which are
+// unlayered Emotion and would beat StyleX classes.
+const modalOverrides = {
   modal: css({
     width: '90vw',
     height: '90vh',
@@ -157,11 +131,54 @@ const getStyles = (theme: GrafanaTheme2) => ({
     minHeight: 0,
     overflow: 'hidden',
   }),
-  modalEditorWrapper: css({
+};
+
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    height: '100%',
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
     minHeight: 0,
-    gap: theme.spacing(1),
-  }),
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    gap: spacing['--gf-spacing-x1'],
+  },
+  editorContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    minHeight: 0,
+  },
+  codeEditor: {
+    height: '100%',
+  },
+  toolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+  },
+  modalEditorWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    minHeight: 0,
+    gap: spacing['--gf-spacing-x1'],
+  },
 });

@@ -1,11 +1,13 @@
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type SceneComponentProps, type VizPanel } from '@grafana/scenes';
-import { Button, Spinner, ToolbarButton, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, Spinner, ToolbarButton, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../edit-pane/shared';
@@ -16,12 +18,13 @@ import { getDashboardSceneFor, getLibraryPanelBehavior } from '../utils/utils';
 import { type PanelEditor } from './PanelEditor';
 import { SaveLibraryVizPanelModal } from './SaveLibraryVizPanelModal';
 import { useSnappingSplitter } from './splitter/useSnappingSplitter';
-import { scrollReflowMediaCondition, useScrollReflowLimit } from './useScrollReflowLimit';
+import { useScrollReflowLimit } from './useScrollReflowLimit';
+
+import './PanelEditorRenderer.css';
 
 export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>) {
   const dashboard = getDashboardSceneFor(model);
   const { optionsPane } = model.useState();
-  const styles = useStyles2(getStyles);
   const [isInitiallyCollapsed, setIsCollapsed] = useEditPaneCollapsed();
 
   const isScrollingLayout = useScrollReflowLimit();
@@ -48,22 +51,22 @@ export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>)
       <NavToolbarActions dashboard={dashboard} />
       <div
         {...containerProps}
-        className={cx(containerProps.className, styles.content)}
+        className={cx(containerProps.className, splitterOverrides.content)}
         data-testid={selectors.components.PanelEditor.General.content}
       >
-        <div {...primaryProps} className={cx(primaryProps.className, styles.body)}>
+        <div {...primaryProps} className={mergeClassNames(primaryProps.className, styles.body)}>
           <VizAndDataPane model={model} />
         </div>
         <div {...splitterProps} />
-        <div {...secondaryProps} className={cx(secondaryProps.className, styles.optionsPane)}>
+        <div {...secondaryProps} className={mergeClassNames(secondaryProps.className, styles.optionsPane)}>
           {splitterState.collapsed && (
-            <div className={styles.expandOptionsWrapper}>
+            <div {...stylex.props(styles.expandOptionsWrapper)}>
               <ToolbarButton
                 tooltip={t('dashboard-scene.panel-editor-renderer.tooltip-open-options-pane', 'Open options pane')}
                 icon={'arrow-to-right'}
                 onClick={onToggleCollapse}
                 variant="canvas"
-                className={styles.rotate180}
+                className={stylex.props(styles.rotate180).className}
                 aria-label={t(
                   'dashboard-scene.panel-editor-renderer.aria-label-open-options-pane',
                   'Open options pane'
@@ -85,7 +88,6 @@ function VizAndDataPane({ model }: SceneComponentProps<PanelEditor>) {
   const panel = model.getPanel();
   const libraryPanel = getLibraryPanelBehavior(panel);
   const { controls } = dashboard.useState();
-  const styles = useStyles2(getStyles);
 
   const isScrollingLayout = useScrollReflowLimit();
 
@@ -98,21 +100,24 @@ function VizAndDataPane({ model }: SceneComponentProps<PanelEditor>) {
       disabled: isScrollingLayout,
     });
 
-  containerProps.className = cx(containerProps.className, styles.container);
+  containerProps.className = mergeClassNames(containerProps.className, styles.container);
 
   if (!dataPane && !isScrollingLayout) {
     primaryProps.style.flexGrow = 1;
   }
 
   return (
-    <div className={cx(styles.pageContainer, controls && styles.pageContainerWithControls)}>
+    <div {...stylex.props(styles.pageContainer, controls && styles.pageContainerWithControls)}>
       {controls && (
-        <div className={styles.controlsWrapper}>
+        <div {...stylex.props(styles.controlsWrapper)}>
           <controls.Component model={controls} />
         </div>
       )}
       <div {...containerProps}>
-        <div {...primaryProps} className={cx(primaryProps.className, isScrollingLayout && styles.fixedSizeViz)}>
+        <div
+          {...primaryProps}
+          className={mergeClassNames(primaryProps.className, isScrollingLayout && styles.fixedSizeViz)}
+        >
           <VizWrapper panel={panel} tableView={tableView} />
         </div>
         {showLibraryPanelSaveModal && libraryPanel && (
@@ -135,17 +140,17 @@ function VizAndDataPane({ model }: SceneComponentProps<PanelEditor>) {
             <div {...splitterProps} />
             <div
               {...secondaryProps}
-              className={cx(secondaryProps.className, isScrollingLayout && styles.fullSizeEditor)}
+              className={mergeClassNames(secondaryProps.className, isScrollingLayout && styles.fullSizeEditor)}
             >
               {splitterState.collapsed && (
-                <div className={styles.expandDataPane}>
+                <div {...stylex.props(styles.expandDataPane)}>
                   <Button
                     tooltip={t('dashboard-scene.viz-and-data-pane.tooltip-open-query-pane', 'Open query pane')}
                     icon={'arrow-to-right'}
                     onClick={onToggleCollapse}
                     variant="secondary"
                     size="sm"
-                    className={styles.openDataPaneButton}
+                    className="gf-panel-editor-open-data-pane-button"
                     aria-label={t('dashboard-scene.viz-and-data-pane.aria-label-open-query-pane', 'Open query pane')}
                   />
                 </div>
@@ -166,120 +171,130 @@ interface VizWrapperProps {
 }
 
 function VizWrapper({ panel, tableView }: VizWrapperProps) {
-  const styles = useStyles2(getStyles);
   const panelToShow = tableView ?? panel;
 
   return (
-    <div className={styles.vizWrapper}>
+    <div {...stylex.props(styles.vizWrapper)}>
       <panelToShow.Component model={panelToShow} />
     </div>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  const scrollReflowMediaQuery = '@media ' + scrollReflowMediaCondition;
-  return {
-    pageContainer: css({
+/** Adds a StyleX style to a class name from useSnappingSplitter (Emotion today). */
+function mergeClassNames(className: string | undefined, style: stylex.StyleXStyles | false): string {
+  return mergeStylexProps(stylex.props(style), { className }).className ?? '';
+}
+
+// Must match scrollReflowMediaCondition in useScrollReflowLimit.ts.
+const scrollReflowMediaQuery = '@media (max-height: 540px)';
+
+// stylex: pending Splitter migration. `content` overrides the useSplitter container's overflow (and display, when
+// the splitter isn't disabled), which is unlayered Emotion and would beat a StyleX class. Emotion's cx merges it
+// after the splitter class.
+const splitterOverrides = {
+  content: css({
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    overflow: 'unset',
+    [scrollReflowMediaQuery]: {
+      height: 'auto',
       display: 'grid',
-      gridTemplateAreas: `
-        "panels"`,
-      gridTemplateColumns: `1fr`,
+      gridTemplateColumns: 'minmax(470px, 1fr) 330px',
       gridTemplateRows: '1fr',
-      height: '100%',
-      [scrollReflowMediaQuery]: {
-        gridTemplateColumns: `100%`,
-      },
-    }),
-    pageContainerWithControls: css({
-      gridTemplateAreas: `
+      gap: 'var(--gf-spacing-x1)',
+      position: 'static',
+      width: '100%',
+    },
+  }),
+};
+
+const styles = stylex.create({
+  pageContainer: {
+    display: 'grid',
+    gridTemplateAreas: `
+        "panels"`,
+    gridTemplateColumns: { default: '1fr', [scrollReflowMediaQuery]: '100%' },
+    gridTemplateRows: '1fr',
+    height: '100%',
+  },
+  pageContainerWithControls: {
+    gridTemplateAreas: `
         "controls"
         "panels"`,
-      gridTemplateRows: 'auto 1fr',
-    }),
-    container: css({
-      gridArea: 'panels',
-      height: '100%',
-    }),
-    canvasContent: css({
-      label: 'canvas-content',
-      display: 'flex',
-      flexDirection: 'column',
-      flexBasis: '100%',
-      flexGrow: 1,
-      minHeight: 0,
-      width: '100%',
-    }),
-    content: css({
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      overflow: 'unset',
-      [scrollReflowMediaQuery]: {
-        height: 'auto',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(470px, 1fr) 330px',
-        gridTemplateRows: '1fr',
-        gap: theme.spacing(1),
-        position: 'static',
-        width: '100%',
-      },
-    }),
-    body: css({
-      label: 'body',
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
-    }),
-    optionsPane: css({
-      flexDirection: 'column',
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      background: theme.colors.background.primary,
-      marginTop: theme.spacing(2),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      borderTopLeftRadius: theme.shape.radius.default,
-    }),
-    expandOptionsWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(2, 1),
-    }),
-    expandDataPane: css({
-      display: 'flex',
-      flexDirection: 'row',
-      padding: theme.spacing(1),
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      background: theme.colors.background.primary,
-      flexGrow: 1,
-      justifyContent: 'space-around',
-    }),
-    rotate180: css({
-      rotate: '180deg',
-    }),
-    controlsWrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 0,
-      gridArea: 'controls',
-    }),
-    openDataPaneButton: css({
-      width: theme.spacing(8),
-      justifyContent: 'center',
-      svg: {
-        rotate: '-90deg',
-      },
-    }),
-    vizWrapper: css({
-      height: '100%',
-      width: '100%',
-      paddingLeft: theme.spacing(2),
-    }),
-    fixedSizeViz: css({
-      height: '100vh',
-    }),
-    fullSizeEditor: css({
-      height: 'max-content',
-    }),
-  };
-}
+    gridTemplateRows: 'auto 1fr',
+  },
+  container: {
+    gridColumnEnd: 'panels',
+    gridColumnStart: 'panels',
+    gridRowEnd: 'panels',
+    gridRowStart: 'panels',
+    height: '100%',
+  },
+  body: {
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+  },
+  optionsPane: {
+    flexDirection: 'column',
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    marginTop: spacing['--gf-spacing-x2'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+  },
+  expandOptionsWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  expandDataPane: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    flexGrow: 1,
+    justifyContent: 'space-around',
+  },
+  rotate180: {
+    rotate: '180deg',
+  },
+  controlsWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 0,
+    gridColumnEnd: 'controls',
+    gridColumnStart: 'controls',
+    gridRowEnd: 'controls',
+    gridRowStart: 'controls',
+  },
+  vizWrapper: {
+    height: '100%',
+    width: '100%',
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  fixedSizeViz: {
+    height: '100vh',
+  },
+  fullSizeEditor: {
+    height: 'max-content',
+  },
+});

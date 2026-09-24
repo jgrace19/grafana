@@ -1,0 +1,12 @@
+/*
+ * Restyles the StyleX Button (no xstyle prop) and rotates its icon, which StyleX can't target. This file is
+ * deliberately not in a cascade layer: like the Emotion class it replaces, it must win over Button's own styles.
+ */
+.gf-panel-editor-open-data-pane-button {
+  width: var(--gf-spacing-x8);
+  justify-content: center;
+}
+
+.gf-panel-editor-open-data-pane-button svg {
+  rotate: -90deg;
+}
