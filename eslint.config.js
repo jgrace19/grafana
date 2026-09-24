@@ -157,6 +157,7 @@ const stylexMigratedAppFiles = [
   // A1 alerting components
   'public/app/features/alerting/unified/components/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // M2b browse/manage dashboards, search, command palette, playlist, bookmarks, annotations
   'public/app/features/{annotations,bookmarks,commandPalette,playlist}/**/*.{ts,tsx}',
   'public/app/features/browse-dashboards/{BrowseDashboardsPage,RecentlyDeletedPage}.tsx',
   'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell,TagsCell}.tsx',
