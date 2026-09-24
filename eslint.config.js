@@ -140,6 +140,11 @@ const stylexMigratedAppFiles = [
   'public/app/features/admin/ldap/LdapSettingsPage.tsx',
   'public/app/features/serviceaccounts/ServiceAccountsListPage.tsx',
   'public/app/features/serviceaccounts/components/{ServiceAccountProfile,ServiceAccountProfileRow,ServiceAccountTokensTable,ServiceAccountsListItem}.tsx',
+  // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
+  'public/app/features/alerting/*.{ts,tsx}',
+  'public/app/features/alerting/state/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/*.{ts,tsx}',
+  'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

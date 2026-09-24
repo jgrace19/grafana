@@ -1,0 +1,6 @@
+/*
+ * Button (StyleX) sets its own padding. An unlayered rule beats its layered styles, as the Emotion class did.
+ */
+.gf-ad-card-button {
+  padding: 0 var(--gf-spacing-x2);
+}

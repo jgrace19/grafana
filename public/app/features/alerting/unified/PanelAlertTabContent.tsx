@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, LoadingPlaceholder, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Alert, LoadingPlaceholder, ScrollContainer } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
@@ -21,7 +21,6 @@ interface Props {
 }
 
 export const PanelAlertTabContent = ({ dashboard, panel }: Props) => {
-  const styles = useStyles2(getStyles);
   const { errors, loading, rules } = usePanelCombinedRules({
     dashboardUID: dashboard.uid,
     panelId: panel.id,
@@ -51,7 +50,7 @@ export const PanelAlertTabContent = ({ dashboard, panel }: Props) => {
 
   if (loading && !rules.length) {
     return (
-      <div className={styles.innerWrapper}>
+      <div {...stylex.props(styles.innerWrapper)}>
         {alert}
         <LoadingPlaceholder text={t('alerting.panel-alert-tab-content.text-loading-rules', 'Loading rules...')} />
       </div>
@@ -61,11 +60,15 @@ export const PanelAlertTabContent = ({ dashboard, panel }: Props) => {
   if (rules.length) {
     return (
       <ScrollContainer minHeight="100%">
-        <div className={styles.innerWrapper}>
+        <div {...stylex.props(styles.innerWrapper)}>
           {alert}
           <RulesTable rules={rules} />
           {!!dashboard.meta.canSave && canCreateRules && (
-            <NewRuleFromPanelButton className={styles.newButton} panel={panel} dashboard={dashboard} />
+            <NewRuleFromPanelButton
+              className={stylex.props(styles.newButton).className}
+              panel={panel}
+              dashboard={dashboard}
+            />
           )}
         </div>
       </ScrollContainer>
@@ -75,7 +78,7 @@ export const PanelAlertTabContent = ({ dashboard, panel }: Props) => {
   const isNew = !Boolean(dashboard.uid);
 
   return (
-    <div data-testid={selectors.components.PanelAlertTabContent.content} className={styles.noRulesWrapper}>
+    <div data-testid={selectors.components.PanelAlertTabContent.content} {...stylex.props(styles.noRulesWrapper)}>
       {alert}
       {!isNew && (
         <>
@@ -101,16 +104,16 @@ export const PanelAlertTabContent = ({ dashboard, panel }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  newButton: css({
-    marginTop: theme.spacing(3),
-  }),
-  innerWrapper: css({
-    padding: theme.spacing(2),
-  }),
-  noRulesWrapper: css({
-    margin: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  newButton: {
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  innerWrapper: {
+    padding: spacing['--gf-spacing-x2'],
+  },
+  noRulesWrapper: {
+    margin: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x3'],
+  },
 });

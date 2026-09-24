@@ -1,25 +1,13 @@
-import { css, cx } from '@emotion/css';
-import { type PropsOf } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
+import { type ComponentProps } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { ContactPointSelector, RoutingTreeSelector } from '@grafana/alerting/unstable';
 import type { RoutingTree } from '@grafana/api-clients/rtkq/notifications.alerting/v1beta1';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import {
-  Button,
-  Combobox,
-  Icon,
-  Input,
-  Label,
-  MultiCombobox,
-  Stack,
-  Text,
-  Tooltip,
-  useStyles2,
-  useTheme2,
-} from '@grafana/ui';
+import { Button, Combobox, Icon, Input, Label, MultiCombobox, Stack, Text, Tooltip, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { PromAlertingRuleState, PromRuleType } from 'app/types/unified-alerting-dto';
@@ -41,6 +29,8 @@ import {
   usePortalContainer,
 } from './utils';
 
+import './RulesFilterSidebar.css';
+
 const SIDEBAR_WIDTH = 250;
 
 /**
@@ -48,11 +38,10 @@ const SIDEBAR_WIDTH = 250;
  * All filters apply immediately on change; rule name applies on blur or Enter.
  */
 export function RulesFilterSidebar() {
-  const styles = useStyles2(getStyles);
   const { hasActiveFilters, clearAll, searchQuery, filterState } = useRulesFilter();
 
   return (
-    <div className={styles.sidebar}>
+    <div {...stylex.props(styles.sidebar)}>
       <Stack direction="column" gap={0}>
         <Stack direction="row" justifyContent="flex-end">
           <Button size="sm" variant="primary" fill="text" onClick={clearAll} disabled={!hasActiveFilters}>
@@ -72,7 +61,6 @@ interface FilterSidebarFormProps {
 }
 
 function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   const { updateFilters } = useRulesFilter();
@@ -211,7 +199,7 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
           </SidebarField>
         </SidebarSection>
 
-        <div className={styles.divider} />
+        <div {...stylex.props(styles.divider)} />
 
         <SidebarSection>
           <SidebarField label={<Trans i18nKey="alerting.search.property.namespace">Folder / Namespace</Trans>}>
@@ -260,7 +248,7 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
           </SidebarField>
         </SidebarSection>
 
-        <div className={styles.divider} />
+        <div {...stylex.props(styles.divider)} />
 
         <SidebarSection>
           <SidebarField
@@ -350,7 +338,7 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
           </SidebarField>
         </SidebarSection>
 
-        <div className={styles.divider} />
+        <div {...stylex.props(styles.divider)} />
 
         {(canRenderContactPointSelector || config.featureToggles.alertingMultiplePolicies) && (
           <>
@@ -472,7 +460,7 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
                 </SidebarField>
               )}
             </SidebarSection>
-            <div className={styles.divider} />
+            <div {...stylex.props(styles.divider)} />
           </>
         )}
 
@@ -531,7 +519,7 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
 
         {pluginsFilterEnabled && (
           <>
-            <div className={styles.divider} />
+            <div {...stylex.props(styles.divider)} />
             <SidebarSection>
               <SidebarField
                 label={<Trans i18nKey="alerting.rules-filter.plugin-rules">Plugin rules</Trans>}
@@ -569,9 +557,8 @@ function FilterSidebarForm({ filterState }: FilterSidebarFormProps) {
 // ---------------------------------------------------------------------------
 
 function SidebarSection({ children }: { children: React.ReactNode }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.section}>
+    <div {...stylex.props(styles.section)}>
       <Stack direction="column" gap={1.5}>
         {children}
       </Stack>
@@ -588,13 +575,12 @@ function SidebarField({
   children: React.ReactNode;
   labelId?: string;
 }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.field}>
-      <Label id={labelId} className={styles.fieldLabel}>
+    <div {...stylex.props(styles.field)}>
+      <Label id={labelId} className="gf-rules-filter-field-label">
         {label}
       </Label>
-      <div className={styles.fieldValue}>{children}</div>
+      <div {...stylex.props(styles.fieldValue)}>{children}</div>
     </div>
   );
 }
@@ -602,8 +588,8 @@ function SidebarField({
 interface ToggleOption<T> {
   label: string;
   value: T;
-  icon?: PropsOf<typeof Icon>['name'];
-  color?: PropsOf<typeof Text>['color'];
+  icon?: ComponentProps<typeof Icon>['name'];
+  color?: ComponentProps<typeof Text>['color'];
 }
 
 interface ToggleButtonGroupProps<T> {
@@ -614,7 +600,6 @@ interface ToggleButtonGroupProps<T> {
 }
 
 function ToggleButtonGroup<T>({ options, value, onChange, 'aria-labelledby': labelledBy }: ToggleButtonGroupProps<T>) {
-  const styles = useStyles2(getStyles);
   return (
     <div role="radiogroup" aria-labelledby={labelledBy}>
       <Stack direction="column" gap={0.5}>
@@ -626,15 +611,15 @@ function ToggleButtonGroup<T>({ options, value, onChange, 'aria-labelledby': lab
               type="button"
               role="radio"
               aria-checked={isActive}
-              className={cx(styles.toggleButton, isActive && styles.toggleButtonActive)}
+              {...stylex.props(styles.toggleButton, isActive && styles.toggleButtonActive)}
               onClick={() => onChange(opt.value)}
             >
               {opt.icon && (
                 <Text color={opt.color}>
-                  <Icon name={opt.icon} size="sm" className={styles.toggleButtonIcon} aria-hidden="true" />
+                  <Icon name={opt.icon} size="sm" xstyle={styles.toggleButtonIcon} aria-hidden="true" />
                 </Text>
               )}
-              <span className={styles.toggleButtonLabel}>{opt.label}</span>
+              <span {...stylex.props(styles.toggleButtonLabel)}>{opt.label}</span>
             </button>
           );
         })}
@@ -643,80 +628,66 @@ function ToggleButtonGroup<T>({ options, value, onChange, 'aria-labelledby': lab
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    sidebar: css({
-      width: SIDEBAR_WIDTH,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      flexDirection: 'column',
-      flexShrink: 0,
-      paddingRight: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-    }),
-    section: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
-    divider: css({
-      borderTop: `1px solid ${theme.colors.border.weak}`,
-      flexShrink: 0,
-    }),
-    field: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    fieldLabel: css({
-      marginBottom: 0,
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    fieldValue: css({
-      position: 'relative',
-    }),
-    fieldValueActive: css({
-      paddingLeft: theme.spacing(1),
-      '&::before': {
-        content: '""',
-        display: 'block',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: theme.spacing(0.25),
-        backgroundImage: theme.colors.gradients.brandVertical,
-        borderRadius: theme.shape.radius.default,
-      },
-    }),
-    toggleButton: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.75),
-      width: '100%',
-      padding: `${theme.spacing(0.5)} ${theme.spacing(0.75)}`,
-      background: 'none',
-      border: `1px solid transparent`,
-      borderRadius: theme.shape.radius.default,
-      cursor: 'pointer',
-      color: theme.colors.text.secondary,
-      textAlign: 'left',
-      fontSize: theme.typography.bodySmall.fontSize,
-      '&:hover': {
-        background: theme.colors.action.hover,
-        color: theme.colors.text.primary,
-      },
-    }),
-    toggleButtonActive: css({
-      background: theme.colors.action.selected,
-      color: theme.colors.text.primary,
-    }),
-    toggleButtonIcon: css({
-      flexShrink: 0,
-    }),
-    toggleButtonLabel: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-}
+const styles = stylex.create({
+  sidebar: {
+    width: SIDEBAR_WIDTH,
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    flexDirection: 'column',
+    flexShrink: 0,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+  section: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  divider: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    flexShrink: 0,
+  },
+  field: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  fieldValue: {
+    position: 'relative',
+  },
+  toggleButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    width: '100%',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+    backgroundImage: 'none',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+    borderRadius: shape['--gf-shape-radius-default'],
+    cursor: 'pointer',
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+    textAlign: 'left',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  // Repeats the hover state: a later namespace replaces the whole property, conditions included.
+  toggleButtonActive: {
+    backgroundColor: { default: colors['--gf-colors-action-selected'], ':hover': colors['--gf-colors-action-hover'] },
+    color: colors['--gf-colors-text-primary'],
+  },
+  toggleButtonIcon: {
+    flexShrink: 0,
+  },
+  toggleButtonLabel: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+});
