@@ -1,0 +1,17 @@
+/*
+ * Sizes the Modal, which has no xstyle prop and sets its own width, max-width and content overflow. Unlayered, and
+ * the class is doubled so it also beats Modal's Emotion rules, which load after this lazy chunk's stylesheet.
+ */
+.gf-dashboard-code-pane-modal.gf-dashboard-code-pane-modal {
+  width: 90vw;
+  height: 90vh;
+  max-width: 90vw;
+}
+
+.gf-dashboard-code-pane-modal-content.gf-dashboard-code-pane-modal-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}

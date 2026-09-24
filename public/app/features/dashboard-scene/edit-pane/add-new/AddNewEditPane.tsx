@@ -1,12 +1,12 @@
-import { css, cx } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneObject } from '@grafana/scenes';
-import { ScrollContainer, Sidebar, useStyles2 } from '@grafana/ui';
+import { ScrollContainer, Sidebar } from '@grafana/ui';
+import { shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import addPanelImg from 'img/dashboards/add-panel.png';
 
 import { useClipboardState } from '../../scene/layouts-shared/useClipboardState';
@@ -30,7 +30,6 @@ interface AddNewEditPaneProps {
 
 export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedElement }: AddNewEditPaneProps) {
   const { hasCopiedPanel } = useClipboardState();
-  const styles = useStyles2(getStyles);
   const dashboardScene = getDashboardSceneFor(dashboard);
   const orchestrator = dashboardScene.state.layoutOrchestrator;
 
@@ -40,7 +39,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <Sidebar.PaneHeader title={t('dashboard.add.pane-header', 'Add')} />
       <ScrollContainer showScrollIndicators={true}>
         <AddNewSection
@@ -52,7 +51,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
               {(dropProvided) => (
                 <div ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
                   <Draggable draggableId="new-panel-drag" index={0}>
-                    {(dragProvided, dragSnapshot) => {
+                    {(dragProvided) => {
                       return (
                         <div
                           role="button"
@@ -61,7 +60,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           {...dragProvided.dragHandleProps}
-                          className={cx(styles.imageContainer, dragSnapshot.isDragging && styles.dragging)}
+                          className={stylex.props(styles.imageContainer).className}
                           onClick={onAddPanel}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
@@ -94,7 +93,7 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
                           {...dragProvided.dragHandleProps}
                         >
                           <AddButton
-                            className={styles.pasteButton}
+                            className={stylex.props(styles.pasteButton).className}
                             icon="clipboard-alt"
                             tabIndex={0}
                             onClick={onPastePanel}
@@ -136,30 +135,24 @@ export function AddNewEditPane({ onAddPanel, onPastePanel, dashboard, selectedEl
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: '1 1 0',
-      height: '100%',
-    }),
-    dragging: css({
-      cursor: 'move',
-    }),
-    imageContainer: css({
-      cursor: 'pointer',
-      opacity: 0.8,
-      overflow: 'hidden',
-      borderRadius: theme.shape.radius.sm,
-      width: '100%',
-      '&:hover': {
-        opacity: 1,
-      },
-    }),
-    pasteButton: css({
-      width: '100%',
-      marginTop: theme.spacing(2),
-    }),
-  };
-}
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    height: '100%',
+  },
+  imageContainer: {
+    cursor: 'pointer',
+    opacity: { default: 0.8, ':hover': 1 },
+    overflow: 'hidden',
+    borderRadius: shape['--gf-shape-radius-sm'],
+    width: '100%',
+  },
+  pasteButton: {
+    width: '100%',
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+});

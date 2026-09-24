@@ -176,6 +176,10 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/Upgrade/ProBadge.tsx',
   // M3 features long tail
   'public/app/features/{actions,canvas,dimensions,geo,visualization}/**/*.{ts,tsx}',
+  // D1 dashboard-scene panel edit and edit pane
+  'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

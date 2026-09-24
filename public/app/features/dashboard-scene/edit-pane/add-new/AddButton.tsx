@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import { type IconName } from '@grafana/data';
+import { Button } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-import { type IconName, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Button } from '@grafana/ui';
+import './AddButton.css';
 
 type AddButtonProps = {
   icon: IconName;
@@ -16,10 +17,9 @@ type AddButtonProps = {
 };
 
 export function AddButton({ icon, label, tooltip, tabIndex, onClick, onKeyDown, className, disabled }: AddButtonProps) {
-  const styles = useStyles2(getStyles);
   return (
     <Button
-      className={cx(styles.iconButton, className)}
+      className={mergeStylexProps({ className: 'gf-add-button' }, { className }).className}
       variant="secondary"
       fill="outline"
       size="lg"
@@ -33,20 +33,4 @@ export function AddButton({ icon, label, tooltip, tabIndex, onClick, onKeyDown, 
       {label}
     </Button>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    iconButton: css({
-      display: 'flex',
-      padding: theme.spacing(1.5),
-      gap: theme.spacing(1.5),
-      alignItems: 'center',
-      fontSize: '14px',
-      '&:hover': {
-        background: theme.colors.background.elevated,
-        boxShadow: theme.shadows.z1,
-      },
-    }),
-  };
 }
