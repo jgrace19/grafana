@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import Skeleton from 'react-loading-skeleton';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, LinkButton, useStyles2 } from '@grafana/ui';
+import { Button, LinkButton } from '@grafana/ui';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type Snapshot } from 'app/features/dashboard/services/SnapshotSrv';
@@ -54,7 +54,6 @@ const SnapshotListTableRowComponent = ({ snapshot, onRemove }: Props) => {
 };
 
 const SnapshotListTableRowSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
   return (
     <tr {...rootProps}>
       <td>
@@ -65,10 +64,10 @@ const SnapshotListTableRowSkeleton: SkeletonComponent = ({ rootProps }) => {
       </td>
       <td></td>
       <td>
-        <Skeleton width={63} height={24} containerClassName={styles.blockSkeleton} />
+        <Skeleton width={63} height={24} containerClassName={stylex.props(styles.blockSkeleton).className} />
       </td>
       <td>
-        <Skeleton width={22} height={24} containerClassName={styles.blockSkeleton} />
+        <Skeleton width={22} height={24} containerClassName={stylex.props(styles.blockSkeleton).className} />
       </td>
     </tr>
   );
@@ -76,10 +75,10 @@ const SnapshotListTableRowSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 export const SnapshotListTableRow = attachSkeleton(SnapshotListTableRowComponent, SnapshotListTableRowSkeleton);
 
-const getSkeletonStyles = () => ({
-  blockSkeleton: css({
+const styles = stylex.create({
+  blockSkeleton: {
     // needed to align correctly in the table
     display: 'block',
     lineHeight: 1,
-  }),
+  },
 });

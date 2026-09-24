@@ -51,6 +51,9 @@ public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex:
 public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
+public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
+public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx # stylex: pending CollapsableSection migration (U8); overrides of its header, content and icon
+public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx # stylex: pending Label migration (U2); className override of Label max width
 public/app/core/components/Branding/LoginBoxBackground.compat.ts # C1: Branding.LoginBoxBackground() returns a class name, and BrandingSettings.loginBoxBackground overrides it with one
 public/app/core/components/FormPrompt/FormPrompt.tsx # C1: overrides Modal's own Emotion width; migrate with U4 (Modal)
 public/app/core/components/Login/LoginLayout.tsx # C1: still exports the Emotion getLoginStyles for PublicDashboardNotAvailable (D3); LoginLayout itself is StyleX

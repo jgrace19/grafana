@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useRef, useCallback, useState, type CSSProperties } from 'react';
 import * as React from 'react';
 import { useTable, type Column, type TableOptions, type Cell } from 'react-table';
@@ -6,13 +6,14 @@ import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { type Observable } from 'rxjs';
 
-import { type Field, type GrafanaTheme2 } from '@grafana/data';
+import { type Field } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
 import { TableCellHeight } from '@grafana/schema';
-import { useStyles2, useTheme2 } from '@grafana/ui';
-import { useTableStyles, TableCell } from '@grafana/ui/internal';
+import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps, useTableStyles, TableCell } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useCustomFlexLayout } from 'app/features/browse-dashboards/components/customFlexTableLayout';
 
 import { useSearchKeyboardNavigation } from '../../hooks/useSearchKeyboardSelection';
@@ -20,6 +21,7 @@ import { type QueryResponse } from '../../service/types';
 import { type SelectionChecker, type SelectionToggle } from '../selection';
 
 import { generateColumns } from './columns';
+import './SearchResultsTable.css';
 
 export type SearchResultsProps = {
   response: QueryResponse;
@@ -56,8 +58,6 @@ export const SearchResultsTable = React.memo(
     keyboardEvents,
     trackingSource,
   }: SearchResultsProps) => {
-    const styles = useStyles2(getStyles);
-    const columnStyles = useStyles2(getColumnStyles);
     const tableStyles = useTableStyles(useTheme2(), TableCellHeight.Sm);
     const infiniteLoaderRef = useRef<InfiniteLoader>(null);
     const [listEl, setListEl] = useState<FixedSizeList | null>(null);
@@ -93,7 +93,6 @@ export const SearchResultsTable = React.memo(
         selection,
         selectionToggle,
         clearSelection,
-        columnStyles,
         onTagSelected,
         onDatasourceChange,
         response.view?.length >= response.totalRows,
@@ -102,7 +101,6 @@ export const SearchResultsTable = React.memo(
     }, [
       response,
       width,
-      columnStyles,
       selection,
       selectionToggle,
       clearSelection,
@@ -149,10 +147,10 @@ export const SearchResultsTable = React.memo(
         prepareRow(row);
 
         const url = response.view.fields.url?.values[rowIndex];
-        let className = styles.rowContainer;
-        if (rowIndex === highlightIndex.y) {
-          className += ' ' + styles.selectedRow;
-        }
+        const { className } = mergeStylexProps(
+          stylex.props(styles.rowContainer, rowIndex === highlightIndex.y && styles.selectedRow),
+          { className: 'gf-search-results-row' }
+        );
         const { key, ...rowProps } = row.getRowProps({ style });
 
         return (
@@ -202,12 +200,12 @@ export const SearchResultsTable = React.memo(
           </div>
         );
       },
-      [rows, prepareRow, highlightIndex, styles, tableStyles, onClickItem, response.view, trackingSource]
+      [rows, prepareRow, highlightIndex, tableStyles, onClickItem, response.view, trackingSource]
     );
 
     if (!rows.length) {
       return (
-        <div className={styles.noData}>
+        <div {...stylex.props(styles.noData)}>
           <Trans i18nKey="search.search-results-table.no-data">No values</Trans>
         </div>
       );
@@ -225,11 +223,16 @@ export const SearchResultsTable = React.memo(
           });
 
           return (
-            <div key={key} {...headerGroupProps} className={styles.headerRow}>
+            <div key={key} {...headerGroupProps} className={stylex.props(styles.headerRow).className}>
               {headerGroup.headers.map((column) => {
                 const { key, ...headerProps } = column.getHeaderProps();
                 return (
-                  <div key={key} {...headerProps} role="columnheader" className={styles.headerCell}>
+                  <div
+                    key={key}
+                    {...headerProps}
+                    role="columnheader"
+                    className={stylex.props(styles.headerCell).className}
+                  >
                     {column.render('Header')}
                   </div>
                 );
@@ -269,108 +272,33 @@ export const SearchResultsTable = React.memo(
 );
 SearchResultsTable.displayName = 'SearchResultsTable';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const rowHoverBg = theme.colors.action.hover;
-
-  return {
-    noData: css({
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-    }),
-    headerCell: css({
-      alignItems: 'center',
-      display: 'flex',
-      overflo: 'hidden',
-      padding: theme.spacing(1),
-    }),
-    headerRow: css({
-      backgroundColor: theme.colors.background.secondary,
-      display: 'flex',
-      gap: theme.spacing(1),
-      height: `${ROW_HEIGHT}px`,
-    }),
-    selectedRow: css({
-      backgroundColor: rowHoverBg,
-      boxShadow: `inset 3px 0px ${theme.colors.primary.border}`,
-    }),
-    rowContainer: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      height: `${ROW_HEIGHT}px`,
-      label: 'row',
-      '&:hover': {
-        backgroundColor: rowHoverBg,
-      },
-
-      "&:not(:hover) div[role='cell']": {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      },
-    }),
-  };
-};
-
-// CSS for columns from react table
-const getColumnStyles = (theme: GrafanaTheme2) => {
-  return {
-    cell: css({
-      padding: theme.spacing(1),
-      overflow: 'hidden', // Required so flex children can do text-overflow: ellipsis
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    nameCellStyle: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-    }),
-    typeCell: css({
-      gap: theme.spacing(0.5),
-    }),
-    typeIcon: css({
-      fill: theme.colors.text.secondary,
-    }),
-    datasourceItem: css({
-      span: {
-        '&:hover': {
-          color: theme.colors.text.link,
-        },
-      },
-    }),
-    missingTitleText: css({
-      color: theme.colors.text.disabled,
-      fontStyle: 'italic',
-    }),
-    invalidDatasourceItem: css({
-      color: theme.colors.error.main,
-      textDecoration: 'line-through',
-    }),
-    locationContainer: css({
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: theme.spacing(1),
-      // No overflow:hidden here — it would clip the focus ring (box-shadow) from child <a> elements.
-      // The parent cell already clips the container width. Each locationItem handles its own truncation.
-    }),
-    locationItem: css({
-      alignItems: 'center',
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexWrap: 'nowrap',
-      gap: '4px',
-      overflow: 'hidden',
-    }),
-    explainItem: css({
-      cursor: 'pointer',
-    }),
-    tagList: css({
-      justifyContent: 'flex-start',
-      flexWrap: 'nowrap',
-    }),
-  };
-};
+const styles = stylex.create({
+  noData: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  headerCell: {
+    alignItems: 'center',
+    display: 'flex',
+    padding: spacing['--gf-spacing-x1'],
+  },
+  headerRow: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    height: `${ROW_HEIGHT}px`,
+  },
+  selectedRow: {
+    backgroundColor: colors['--gf-colors-action-hover'],
+    boxShadow: `inset 3px 0px ${colors['--gf-colors-primary-border']}`,
+  },
+  rowContainer: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    height: `${ROW_HEIGHT}px`,
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+  },
+});

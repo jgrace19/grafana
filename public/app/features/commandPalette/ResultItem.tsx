@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ActionId, type ActionImpl } from 'kbar';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { ManagerKind } from 'app/features/apiserver/types';
 
 export const ResultItem = React.forwardRef(
@@ -34,7 +34,7 @@ export const ResultItem = React.forwardRef(
       return action.ancestors.slice(index + 1);
     }, [action.ancestors, currentRootActionId]);
 
-    const styles = useStyles2(getResultItemStyles);
+    const theme = useTheme2();
 
     // type assertion needed because kbar's ActionImpl copies all properties from the input Action object at runtime,
     // but its TS type doesn't reflect custom properties like managedBy or url.
@@ -55,23 +55,30 @@ export const ResultItem = React.forwardRef(
     }
 
     return (
-      <div ref={ref} className={cx(styles.row, active && styles.activeRow)}>
-        <div className={styles.actionContainer}>
+      <div
+        ref={ref}
+        {...stylex.props(
+          styles.row,
+          active && styles.activeRow,
+          active && styles.activeRowBackground(theme.colors.emphasize(theme.colors.background.primary, 0.03))
+        )}
+      >
+        <div {...stylex.props(styles.actionContainer)}>
           {action.icon}
-          <div className={styles.textContainer}>
+          <div {...stylex.props(styles.textContainer)}>
             {ancestors.map((ancestor) => (
               <React.Fragment key={ancestor.id}>
                 {!hasCommandOrLink(ancestor) && (
                   <>
-                    <span className={styles.breadcrumbAncestor}>{ancestor.name}</span>
-                    <span className={styles.breadcrumbSeparator}>&rsaquo;</span>
+                    <span {...stylex.props(styles.breadcrumbAncestor)}>{ancestor.name}</span>
+                    <span {...stylex.props(styles.breadcrumbSeparator)}>&rsaquo;</span>
                   </>
                 )}
               </React.Fragment>
             ))}
             <span>{name}</span>
           </div>
-          {action.subtitle && <span className={styles.subtitleText}>{action.subtitle}</span>}
+          {action.subtitle && <span {...stylex.props(styles.subtitleText)}>{action.subtitle}</span>}
           {showProvisionedBadge && (
             <Badge
               color="purple"
@@ -88,65 +95,74 @@ export const ResultItem = React.forwardRef(
 
 ResultItem.displayName = 'ResultItem';
 
-const getResultItemStyles = (theme: GrafanaTheme2) => {
-  return {
-    row: css({
-      padding: theme.spacing(1, 2),
-      display: 'flex',
-      alightItems: 'center',
-      justifyContent: 'space-between',
-      cursor: 'pointer',
-      position: 'relative',
-      borderRadius: theme.shape.radius.default,
-      margin: theme.spacing(0, 1),
-    }),
-    activeRow: css({
-      color: theme.colors.text.maxContrast,
-      background: theme.colors.emphasize(theme.colors.background.primary, 0.03),
-      '&:before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: theme.spacing(0.5),
-        borderRadius: theme.shape.radius.default,
-        backgroundImage: theme.colors.gradients.brandVertical,
-      },
-    }),
-    actionContainer: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      alignItems: 'baseline',
-      fontSize: theme.typography.fontSize,
-      width: '100%',
-    }),
-    textContainer: css({
+const styles = stylex.create({
+  row: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    display: 'flex',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+    position: 'relative',
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x1'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  activeRow: {
+    color: colors['--gf-colors-text-max-contrast'],
+    '::before': {
       display: 'block',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-    breadcrumbAncestor: css({
-      color: theme.colors.text.secondary,
-    }),
-    breadcrumbSeparator: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    }),
-    subtitleText: css({
-      ...theme.typography.bodySmall,
-      color: theme.colors.text.secondary,
-      display: 'block',
-      flexBasis: '20%',
-      flexGrow: 1,
-      flexShrink: 0,
-      maxWidth: 'fit-content',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+      content: '" "',
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: spacing['--gf-spacing-x0-5'],
+      borderRadius: shape['--gf-shape-radius-default'],
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+    },
+  },
+  activeRowBackground: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
+  actionContainer: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    alignItems: 'baseline',
+    fontSize: typography['--gf-typography-font-size'],
+    width: '100%',
+  },
+  textContainer: {
+    display: 'block',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  breadcrumbAncestor: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  breadcrumbSeparator: {
+    color: colors['--gf-colors-text-secondary'],
+    marginLeft: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  subtitleText: {
+    fontFamily: typography['--gf-typography-body-small-font-family'],
+    fontWeight: typography['--gf-typography-body-small-font-weight'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    letterSpacing: typography['--gf-typography-body-small-letter-spacing'],
+    color: colors['--gf-colors-text-secondary'],
+    display: 'block',
+    flexBasis: '20%',
+    flexGrow: 1,
+    flexShrink: 0,
+    maxWidth: 'fit-content',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});

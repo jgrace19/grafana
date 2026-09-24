@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
 import { Draggable } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import pluralize from 'pluralize';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, IconButton, useStyles2, Spinner, type IconName } from '@grafana/ui';
+import { Icon, IconButton, Spinner, type IconName } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 
 import { type PlaylistItemUI } from './types';
@@ -17,8 +17,6 @@ interface Props {
 }
 
 export const PlaylistTableRows = ({ items, onDelete }: Props) => {
-  const styles = useStyles2(getStyles);
-
   if (!items?.length) {
     return (
       <div>
@@ -81,7 +79,7 @@ export const PlaylistTableRows = ({ items, onDelete }: Props) => {
     }
     return (
       <>
-        <Icon name={icon} className={styles.rightMargin} key="icon" />
+        <Icon name={icon} xstyle={styles.rightMargin} key="icon" />
         {info}
       </>
     );
@@ -92,9 +90,14 @@ export const PlaylistTableRows = ({ items, onDelete }: Props) => {
       {items.map((item, index) => (
         <Draggable key={`${index}/${item.value}`} draggableId={`${index}`} index={index}>
           {(provided) => (
-            <div className={styles.row} ref={provided.innerRef} {...provided.draggableProps} role="row">
+            <div
+              className={stylex.props(styles.row).className}
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              role="row"
+            >
               <div
-                className={styles.actions}
+                {...stylex.props(styles.actions)}
                 role="cell"
                 aria-label={t(
                   'playlist.playlist-table-rows.aria-label-playlist-item',
@@ -104,7 +107,7 @@ export const PlaylistTableRows = ({ items, onDelete }: Props) => {
               >
                 {renderItem(item)}
               </div>
-              <div className={styles.actions}>
+              <div {...stylex.props(styles.actions)}>
                 <IconButton
                   name="times"
                   size="md"
@@ -128,33 +131,25 @@ export const PlaylistTableRows = ({ items, onDelete }: Props) => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    row: css({
-      padding: theme.spacing(0.75),
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: '3px',
-
-      border: `1px solid ${theme.colors.border.medium}`,
-      '&:hover': {
-        border: `1px solid ${theme.colors.border.strong}`,
-      },
-    }),
-    rightMargin: css({
-      marginRight: '5px',
-    }),
-    actions: css({
-      alignItems: 'center',
-      justifyContent: 'center',
-      display: 'flex',
-    }),
-    settings: css({
-      label: 'settings',
-      textAlign: 'right',
-    }),
-  };
-}
+const styles = stylex.create({
+  row: {
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '3px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: { default: colors['--gf-colors-border-medium'], ':hover': colors['--gf-colors-border-strong'] },
+  },
+  rightMargin: {
+    marginRight: '5px',
+  },
+  actions: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+  },
+});
