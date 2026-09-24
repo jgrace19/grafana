@@ -8,7 +8,7 @@ import { type DateTime, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { zIndex } from '../../../themes/stylex/constants.stylex';
-import { colors, components, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
+import { colors, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { modalStyles } from '../../Modal/ModalBase';
 import { type WeekStart } from '../WeekStartPicker';
 

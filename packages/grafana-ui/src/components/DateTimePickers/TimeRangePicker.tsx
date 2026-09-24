@@ -18,7 +18,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
 import { bp, zIndex } from '../../themes/stylex/constants.stylex';
-import { components, spacing, typography, v1 } from '../../themes/stylex/tokens.stylex';
+import { spacing, typography, v1 } from '../../themes/stylex/tokens.stylex';
 import { getFeatureToggle } from '../../utils/featureToggle';
 import { ButtonGroup } from '../Button/ButtonGroup';
 import { modalStyles } from '../Modal/ModalBase';
