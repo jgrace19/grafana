@@ -295,3 +295,72 @@ the first clickable tag.
 - **Result:** `compared 1020 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-tags.json`).
 - **Screenshots:** `information-tag--single-{dark,light}-{baseline,stylex-tags}.png`,
   `information-taglist--list-{dark,light}-{baseline,stylex-tags}.png`.
+
+## Phase 1 — Lane Badge
+
+- Date (UTC): 2026-09-24T02:50:35Z
+- Base commit: `9777f72ab4` plus working tree
+- Paths: `packages/grafana-ui/src/components/Badge`
+
+### Residual Emotion imports: PASS
+
+```sh
+rg -n @emotion/css\|@emotion/react -g \*.\{ts\,tsx\} packages/grafana-ui/src/components/Badge
+```
+
+Exit code: 1 (pass = 1)
+
+```text
+
+```
+
+### Unit tests: PASS
+
+```sh
+yarn jest --no-watch packages/grafana-ui/src/components/Badge
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+PASS packages/grafana-ui/src/components/Badge/Badge.test.tsx
+
+Test Suites: 1 passed, 1 total
+Tests:       20 passed, 20 total
+Snapshots:   0 total
+Time:        1.379 s, estimated 2 s
+Ran all test suites matching /packages\/grafana-ui\/src\/components\/Badge/i.
+```
+
+### @grafana/ui typecheck: PASS
+
+```sh
+yarn workspace @grafana/ui typecheck
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+
+```
+
+### ESLint: PASS
+
+```sh
+yarn eslint --cache packages/grafana-ui/src/components/Badge
+```
+
+Exit code: 0 (pass = 0)
+
+```text
+[@stylistic/eslint-plugin-ts] This package is deprecated in favor of the unified @stylistic/eslint-plugin, please consider migrating to the main package
+```
+
+### Lane Badge browser style proof
+
+`information-badge--basic` and `information-badge--examples` (all seven colors, including the `brand` gradient) were
+captured from the Emotion baseline and the StyleX build in dark and light and compared with the same property set as
+the Tags lane.
+
+- **Result:** `compared 1564 values, 0 differences` (`parity-baseline.json` vs `parity-stylex-badge.json`).
+- **Screenshots:** `information-badge--{basic,examples}-{dark,light}-{baseline,stylex-badge}.png`.
