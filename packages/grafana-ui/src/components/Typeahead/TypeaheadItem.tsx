@@ -21,7 +21,7 @@ interface Props {
 
 export const TypeaheadItem = (props: Props) => {
   const { isSelected, item, prefix, style, onMouseEnter, onMouseLeave, onClickItem } = props;
-  const highlightClassName = stylex.props(styles.typeaheadItemMatch).className;
+  const highlightClassName = stylex.props(styles.typeaheadItemMatch).className ?? '';
   const label = item.label || '';
 
   if (item.kind === CompletionItemKind.GroupTitle) {
