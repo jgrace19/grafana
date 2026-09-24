@@ -1,14 +1,16 @@
-import { css } from '@emotion/css';
 import { type DOMAttributes } from '@react-types/shared';
+import * as stylex from '@stylexjs/stylex';
 import { memo, forwardRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
 import { usePatchUserPreferencesMutation } from '@grafana/api-clients/internal/rtkq/legacy/preferences';
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { setBookmark } from 'app/core/reducers/navBarTree';
 import { useDispatch, useSelector } from 'app/types/store';
@@ -17,6 +19,7 @@ import { MegaMenuExtensionPoint } from './MegaMenuExtensionPoint';
 import { MegaMenuHeader } from './MegaMenuHeader';
 import { MegaMenuItem } from './MegaMenuItem';
 import { usePinnedItems } from './hooks';
+import { megaMenu } from './megaMenu.stylex';
 import { enrichWithInteractionTracking, findByUrl, getActiveItem } from './utils';
 
 export const MENU_WIDTH = '300px';
@@ -28,7 +31,6 @@ export interface Props extends DOMAttributes {
 export const MegaMenu = memo(
   forwardRef<HTMLDivElement, Props>(({ onClose, ...restProps }, ref) => {
     const navTree = useSelector((state) => state.navBarTree);
-    const styles = useStyles2(getStyles);
     const location = useLocation();
     const { chrome } = useGrafana();
     const dispatch = useDispatch();
@@ -105,10 +107,10 @@ export const MegaMenu = memo(
     return (
       <div data-testid={selectors.components.NavMenu.Menu} ref={ref} {...restProps}>
         <MegaMenuHeader handleDockedMenu={handleDockedMenu} onClose={onClose} />
-        <nav className={styles.content}>
+        <nav {...stylex.props(styles.content)}>
           <ScrollContainer height="100%" overflowX="hidden" showScrollIndicators>
             <>
-              <ul className={styles.itemList} aria-label={t('navigation.megamenu.list-label', 'Navigation')}>
+              <ul {...stylex.props(styles.itemList)} aria-label={t('navigation.megamenu.list-label', 'Navigation')}>
                 {navItems.map((link, index) => (
                   <MegaMenuItem
                     key={link.text}
@@ -131,43 +133,23 @@ export const MegaMenu = memo(
 
 MegaMenu.displayName = 'MegaMenu';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    content: css({
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
-      flexGrow: 1,
-      position: 'relative',
-    }),
-    mobileHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1, 1, 1, 2),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
-      },
-    }),
-    itemList: css({
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      listStyleType: 'none',
-      padding: theme.spacing(1, 1, 2, 0.5),
-      [theme.breakpoints.up('md')]: {
-        width: MENU_WIDTH,
-      },
-    }),
-    dockMenuButton: css({
-      display: 'none',
-      position: 'relative',
-      top: theme.spacing(1),
-
-      [theme.breakpoints.up('xl')]: {
-        display: 'inline-flex',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    flexGrow: 1,
+    position: 'relative',
+  },
+  itemList: {
+    boxSizing: 'border-box',
+    display: 'flex',
+    flexDirection: 'column',
+    listStyleType: 'none',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    width: { default: null, [bp.mdUp]: megaMenu.width },
+  },
+});

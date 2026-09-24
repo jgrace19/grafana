@@ -1,7 +1,9 @@
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { getCellLinks } from '../../../utils/table';
 import { DataLinksActionsTooltip, renderSingleLink } from '../DataLinksActionsTooltip';
+import { getCellContainerProps } from '../TableRT/styles';
 import { TableCellDisplayMode, type TableCellProps } from '../types';
 import {
   tooltipOnClickHandler,
@@ -28,9 +30,9 @@ export const ImageCell = (props: TableCellProps) => {
   // The image element
   const img = (
     <img
+      {...stylex.props(tableStyles.imageCell)}
       style={{ height: tableStyles.cellHeight - DATALINKS_HEIGHT_OFFSET, width: 'auto' }}
       src={displayValue.text}
-      className={tableStyles.imageCell}
       alt={alt}
       title={title}
     />
@@ -40,8 +42,10 @@ export const ImageCell = (props: TableCellProps) => {
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       {...cellProps}
-      className={tableStyles.cellContainer}
-      style={{ ...cellProps.style, cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto' }}
+      {...getCellContainerProps(tableStyles.cellContainer, {
+        ...cellProps.style,
+        cursor: hasMultipleLinksOrActions ? 'context-menu' : 'auto',
+      })}
       onClick={tooltipOnClickHandler(setTooltipCoords)}
     >
       {/* If there are data links/actions, we render them with image */}

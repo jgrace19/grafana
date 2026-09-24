@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { type Field, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type Field, type SelectableValue } from '@grafana/data';
 
 import { Popover } from '../../../components/Tooltip/Popover';
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { colors } from '../../../themes/stylex/tokens.stylex';
 import { Icon } from '../../Icon/Icon';
 
 import { REGEX_OPERATOR } from './FilterList';
@@ -20,7 +20,6 @@ interface Props {
 export const Filter = ({ column, field, tableStyles }: Props) => {
   const ref = useRef<HTMLButtonElement>(null);
   const [isPopoverVisible, setPopoverVisible] = useState<boolean>(false);
-  const styles = useStyles2(getStyles);
   const filterEnabled = useMemo(() => Boolean(column.filterValue), [column.filterValue]);
   const onShowPopover = useCallback(() => setPopoverVisible(true), [setPopoverVisible]);
   const onClosePopover = useCallback(() => setPopoverVisible(false), [setPopoverVisible]);
@@ -32,7 +31,7 @@ export const Filter = ({ column, field, tableStyles }: Props) => {
   }
   return (
     <button
-      className={cx(tableStyles.headerFilter, filterEnabled ? styles.filterIconEnabled : styles.filterIconDisabled)}
+      {...stylex.props(tableStyles.headerFilter, filterEnabled ? styles.filterIconEnabled : styles.filterIconDisabled)}
       ref={ref}
       type="button"
       onClick={onShowPopover}
@@ -61,13 +60,11 @@ export const Filter = ({ column, field, tableStyles }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  filterIconEnabled: css({
-    label: 'filterIconEnabled',
-    color: theme.colors.primary.text,
-  }),
-  filterIconDisabled: css({
-    label: 'filterIconDisabled',
-    color: theme.colors.text.disabled,
-  }),
+const styles = stylex.create({
+  filterIconEnabled: {
+    color: colors['--gf-colors-primary-text'],
+  },
+  filterIconDisabled: {
+    color: colors['--gf-colors-text-disabled'],
+  },
 });

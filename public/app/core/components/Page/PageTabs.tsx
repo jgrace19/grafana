@@ -1,17 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type NavModelItem, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, TabsBar, Tab, toIconName } from '@grafana/ui';
+import { type NavModelItem } from '@grafana/data';
+import { TabsBar, Tab, toIconName } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   navItem: NavModelItem;
 }
 
 export function PageTabs({ navItem }: Props) {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.tabsWrapper}>
+    <div {...stylex.props(styles.tabsWrapper)}>
       <TabsBar>
         {navItem.children!.map((child, index) => {
           const icon = child.icon ? toIconName(child.icon) : undefined;
@@ -35,10 +34,8 @@ export function PageTabs({ navItem }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    tabsWrapper: css({
-      paddingBottom: theme.spacing(3),
-    }),
-  };
-};
+const styles = stylex.create({
+  tabsWrapper: {
+    paddingBottom: spacing['--gf-spacing-x3'],
+  },
+});

@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
-import { useStyles2, MenuItem, Icon, ContextMenu, useTheme2 } from '@grafana/ui';
+import { MenuItem, Icon, ContextMenu } from '@grafana/ui';
 
 import { type SpanLinkDef } from '../types/links';
 
@@ -11,14 +10,11 @@ interface SpanLinksProps {
   links: SpanLinkDef[];
   datasourceType: string;
   color: string;
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 }
 
-const renderMenuItems = (
-  links: SpanLinkDef[],
-  styles: ReturnType<typeof getStyles>,
-  closeMenu: () => void,
-  datasourceType: string
-) => {
+const renderMenuItems = (links: SpanLinkDef[], closeMenu: () => void, datasourceType: string) => {
   links.sort((linkA, linkB) => {
     // eslint-disable-next-line @grafana/no-locale-compare
     return (linkA.title || 'link').toLowerCase().localeCompare((linkB.title || 'link').toLowerCase());
@@ -45,21 +41,19 @@ const renderMenuItems = (
       }
       url={link.href}
       target={link.target}
-      className={styles.menuItem}
+      className={stylex.props(styles.menuItem).className}
     />
   ));
 };
 
-export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) => {
-  const theme = useTheme2();
-  const styles = useStyles2(() => getStyles(theme, color));
+export const SpanLinksMenu = ({ links, datasourceType, color, xstyle }: SpanLinksProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div data-testid="SpanLinksMenu" className={styles.wrapper}>
+    <div data-testid="SpanLinksMenu" {...stylex.props(styles.wrapper, styles.wrapperColor(`${color}CF`), xstyle)}>
       <button
         onClick={(e) => {
           setIsMenuOpen(true);
@@ -68,15 +62,15 @@ export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) 
             y: e.clientY,
           });
         }}
-        className={styles.button}
+        {...stylex.props(styles.button)}
       >
-        <Icon name="link" className={styles.icon} />
+        <Icon name="link" xstyle={styles.icon} />
       </button>
 
       {isMenuOpen ? (
         <ContextMenu
           onClose={() => setIsMenuOpen(false)}
-          renderMenuItems={() => renderMenuItems(links, styles, closeMenu, datasourceType)}
+          renderMenuItems={() => renderMenuItems(links, closeMenu, datasourceType)}
           focusOnOpen={false}
           x={menuPosition.x}
           y={menuPosition.y}
@@ -86,24 +80,29 @@ export const SpanLinksMenu = ({ links, datasourceType, color }: SpanLinksProps) 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, color: string) => ({
-  wrapper: css({
-    border: 'none',
-    borderBottom: `2px solid ${color}CF`,
-    paddingInline: '4px',
+const styles = stylex.create({
+  wrapper: {
+    borderStyle: 'none',
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+    paddingLeft: '4px',
+    paddingRight: '4px',
+  },
+  wrapperColor: (borderColor: string) => ({
+    borderBottomColor: borderColor,
   }),
-  button: css({
-    background: 'transparent',
-    border: 'none',
+  button: {
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
     padding: 0,
-  }),
-  icon: css({
-    background: 'transparent',
-    border: 'none',
+  },
+  icon: {
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
     padding: 0,
-  }),
-  menuItem: css({
+  },
+  menuItem: {
     maxWidth: '60ch',
     overflow: 'hidden',
-  }),
+  },
 });

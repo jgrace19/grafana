@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, type UIEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
 import { type Cell, type Row, type TableState, type HeaderGroup } from 'react-table';
@@ -283,7 +283,6 @@ export const RowsList = (props: RowsListProps) => {
       let additionalProps: React.HTMLAttributes<HTMLDivElement> = {};
       prepareRow(row);
 
-      const expandedRowStyle = tableState.expanded[row.id] ? css({ '&:hover': { background: 'inherit' } }) : {};
       const rowExpanded = nestedDataField && tableState.expanded[row.id];
 
       if (rowHighlightIndex !== undefined && row.index === rowHighlightIndex) {
@@ -322,7 +321,7 @@ export const RowsList = (props: RowsListProps) => {
         <div
           key={key}
           {...rowProps}
-          className={cx(tableStyles.row, expandedRowStyle)}
+          {...stylex.props(tableStyles.row, tableState.expanded[row.id] && tableStyles.expandedRow)}
           onMouseEnter={() => onRowHover(row.index, data)}
           onMouseLeave={onRowLeave}
         >
