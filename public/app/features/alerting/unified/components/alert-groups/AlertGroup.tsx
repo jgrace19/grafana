@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Stack, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
+import { Stack, TextLink, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
 
 import { useCanViewContactPoints } from '../../hooks/useAbilities';
@@ -22,7 +22,6 @@ interface Props {
 
 export const AlertGroup = ({ alertManagerSourceName, group }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
-  const styles = useStyles2(getStyles);
   const canViewContactPoint = useCanViewContactPoints();
 
   // When group is grouped, receiver.name is 'NONE' as it can contain multiple receivers
@@ -30,9 +29,9 @@ export const AlertGroup = ({ alertManagerSourceName, group }: Props) => {
   const contactPoint = group.receiver.name;
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <div className={styles.group} data-testid="alert-group">
+    <div {...stylex.props(styles.wrapper)}>
+      <div {...stylex.props(styles.header)}>
+        <div {...stylex.props(styles.group)} data-testid="alert-group">
           <CollapseToggle
             size="sm"
             isCollapsed={isCollapsed}
@@ -87,30 +86,24 @@ export const AlertGroup = ({ alertManagerSourceName, group }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    '& + &': {
-      marginTop: theme.spacing(2),
-    },
-  }),
-  header: css({
+const styles = stylex.create({
+  wrapper: {
+    marginTop: { default: null, ':not(:first-child)': spacing['--gf-spacing-x2'] },
+  },
+  header: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(1),
-    backgroundColor: theme.colors.background.secondary,
+    borderRadius: shape['--gf-shape-radius-default'],
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
     width: '100%',
-  }),
-  group: css({
+  },
+  group: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-  }),
-  disabledContactPointName: css({
-    opacity: 0.7,
-    cursor: 'not-allowed',
-  }),
+  },
 });

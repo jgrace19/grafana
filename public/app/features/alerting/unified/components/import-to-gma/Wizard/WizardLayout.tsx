@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Stepper } from './Stepper';
 
@@ -15,30 +14,28 @@ interface WizardLayoutProps {
  * with a sidebar (Stepper) and main content area
  */
 export const WizardLayout = ({ children }: WizardLayoutProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
+    <div {...stylex.props(styles.container)}>
+      <div {...stylex.props(styles.sidebar)}>
         <Stepper />
       </div>
-      <div className={styles.content}>{children}</div>
+      <div {...stylex.props(styles.content)}>{children}</div>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
-    gap: theme.spacing(4),
+    gap: spacing['--gf-spacing-x4'],
     minHeight: '600px',
-  }),
-  sidebar: css({
+  },
+  sidebar: {
     flexShrink: 0,
-    paddingTop: theme.spacing(1),
-  }),
-  content: css({
-    flex: 1,
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
+  content: {
+    flex: '1',
     maxWidth: '800px',
-  }),
+  },
 });

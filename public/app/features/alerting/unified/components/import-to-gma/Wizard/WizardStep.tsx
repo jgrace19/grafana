@@ -1,8 +1,10 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending FieldSet migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { FieldSet, Stack, useStyles2 } from '@grafana/ui';
+import { FieldSet, Stack } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { CancelButton } from './CancelButton';
 import { NextButton } from './NextButton';
@@ -57,7 +59,6 @@ export const WizardStep = ({
   disableNext = false,
   onCancel,
 }: WizardStepProps) => {
-  const styles = useStyles2(getStyles);
   const { setVisitedStep, setStepCompleted, setStepSkipped } = useStepperState();
 
   const handleNext = async () => {
@@ -91,10 +92,10 @@ export const WizardStep = ({
   };
 
   return (
-    <FieldSet label={label} className={styles.fieldSet}>
-      {subHeader && <div className={styles.subHeader}>{subHeader}</div>}
-      <div className={styles.content}>{children}</div>
-      <div className={styles.actions}>
+    <FieldSet label={label} className={pendingEmotionStyles.fieldSet}>
+      {subHeader && <div {...stylex.props(styles.subHeader)}>{subHeader}</div>}
+      <div {...stylex.props(styles.content)}>{children}</div>
+      <div {...stylex.props(styles.actions)}>
         <Stack direction="row" gap={1}>
           <PreviousButton onBack={handleBack} />
           <NextButton
@@ -111,29 +112,35 @@ export const WizardStep = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending FieldSet migration
+const pendingEmotionStyles = {
   fieldSet: css({
     '& legend': {
-      marginBottom: theme.spacing(0.5),
-      fontSize: theme.typography.h4.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
+      marginBottom: spacing['--gf-spacing-x0-5'],
+      fontSize: typography['--gf-typography-h4-font-size'],
+      fontWeight: typography['--gf-typography-font-weight-medium'],
     },
   }),
-  subHeader: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(3),
-    maxWidth: 800,
-  }),
-  content: css({
-    marginBottom: theme.spacing(4),
-    maxWidth: 800,
-  }),
-  actions: css({
+};
+
+const styles = stylex.create({
+  subHeader: {
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x3'],
+    maxWidth: '800px',
+  },
+  content: {
+    marginBottom: spacing['--gf-spacing-x4'],
+    maxWidth: '800px',
+  },
+  actions: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    maxWidth: 800,
-    paddingTop: theme.spacing(2),
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-  }),
+    maxWidth: '800px',
+    paddingTop: spacing['--gf-spacing-x2'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+  },
 });

@@ -1244,11 +1244,6 @@
       "count": 1
     }
   },
-  "public/app/features/alerting/unified/components/alert-groups/MatcherFilter.tsx": {
-    "@grafana/require-no-margin": {
-      "count": 1
-    }
-  },
   "public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx": {
     "@grafana/require-no-margin": {
       "count": 1

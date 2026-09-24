@@ -1,12 +1,15 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import { Alert, Box, Button, CodeEditor, Icon, Modal, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Box, Button, CodeEditor, Icon, Modal, Spinner, Stack, Text } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -51,6 +54,7 @@ import {
   useImportRules,
 } from './useImport';
 import { getRoutingTreeLabel } from './useRoutingTrees';
+import './ImportToGMA.css';
 
 export interface ImportFormValues {
   // Step 1: Alertmanager resources
@@ -532,8 +536,6 @@ interface ValidationStatusIndicatorProps {
 }
 
 function ValidationStatusIndicator({ result }: ValidationStatusIndicatorProps) {
-  const styles = useStyles2(getValidationIndicatorStyles);
-
   const hasRenames = result.renamedReceivers.length > 0 || result.renamedTimeIntervals.length > 0;
   const isSuccess = result.valid && !hasRenames;
   const isWarning = result.valid && hasRenames;
@@ -541,7 +543,7 @@ function ValidationStatusIndicator({ result }: ValidationStatusIndicatorProps) {
   if (isSuccess) {
     return (
       <Stack direction="row" gap={1} alignItems="center">
-        <Icon name="check-circle" className={styles.successIcon} />
+        <Icon name="check-circle" xstyle={validationIndicatorStyles.successIcon} />
         <Text color="success">
           {t('alerting.import-to-gma.review.validation-ok', 'No conflicts found. Ready to import.')}
         </Text>
@@ -553,7 +555,7 @@ function ValidationStatusIndicator({ result }: ValidationStatusIndicatorProps) {
     return (
       <Stack direction="column" gap={1}>
         <Stack direction="row" gap={1} alignItems="center">
-          <Icon name="exclamation-triangle" className={styles.warningIcon} />
+          <Icon name="exclamation-triangle" xstyle={validationIndicatorStyles.warningIcon} />
           <Text color="warning">
             {t(
               'alerting.import-to-gma.review.validation-warning',
@@ -572,7 +574,7 @@ function ValidationStatusIndicator({ result }: ValidationStatusIndicatorProps) {
   // Error case
   return (
     <Stack direction="row" gap={1} alignItems="center">
-      <Icon name="exclamation-circle" className={styles.errorIcon} />
+      <Icon name="exclamation-circle" xstyle={validationIndicatorStyles.errorIcon} />
       <Text color="error">
         {result.error || t('alerting.import-to-gma.review.validation-error', 'Validation failed.')}
       </Text>
@@ -580,10 +582,16 @@ function ValidationStatusIndicator({ result }: ValidationStatusIndicatorProps) {
   );
 }
 
-const getValidationIndicatorStyles = (theme: GrafanaTheme2) => ({
-  successIcon: css({ color: theme.colors.success.main }),
-  warningIcon: css({ color: theme.colors.warning.main }),
-  errorIcon: css({ color: theme.colors.error.main }),
+const validationIndicatorStyles = stylex.create({
+  successIcon: {
+    color: colors['--gf-colors-success-main'],
+  },
+  warningIcon: {
+    color: colors['--gf-colors-warning-main'],
+  },
+  errorIcon: {
+    color: colors['--gf-colors-error-main'],
+  },
 });
 
 // Review Step Component
@@ -596,7 +604,6 @@ interface ReviewStepProps {
 }
 
 function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFromDatasource }: ReviewStepProps) {
-  const styles = useStyles2(getStyles);
   const { setActiveStep } = useStepperState();
 
   const [showNotificationsPreview, setShowNotificationsPreview] = useState(false);
@@ -702,25 +709,27 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
       ) : (
         <Stack direction="column" gap={2}>
           {/* Notifications Summary Card */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
+          <div {...stylex.props(styles.card)}>
+            <div {...stylex.props(styles.cardHeader)}>
               <Text variant="h5" element="h3">
                 {t('alerting.import-to-gma.review.notifications-title', 'Notification Resources')}
               </Text>
               {willImportNotifications && (
-                <button type="button" className={styles.badgeWithIcon} onClick={handlePreviewNotifications}>
+                <button type="button" {...stylex.props(styles.badgeWithIcon)} onClick={handlePreviewNotifications}>
                   {t('alerting.import-to-gma.review.will-import-config', 'Will import this configuration')}
                   <Icon name="eye" size="sm" />
                 </button>
               )}
               {formData.step1Skipped && (
-                <span className={styles.badgeSkipped}>{t('alerting.import-to-gma.review.skipped', 'Skipped')}</span>
+                <span {...stylex.props(styles.badgeSkipped)}>
+                  {t('alerting.import-to-gma.review.skipped', 'Skipped')}
+                </span>
               )}
             </div>
-            <div className={styles.cardContent}>
+            <div {...stylex.props(styles.cardContent)}>
               {willImportNotifications ? (
                 <Stack direction="column" gap={1}>
-                  <div className={styles.row}>
+                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
                     <Text color="secondary">{t('alerting.import-to-gma.review.source', 'Source')}</Text>
                     <Text>
                       {formData.notificationsSource === 'yaml'
@@ -728,7 +737,7 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                         : formData.notificationsDatasourceName || 'Data source'}
                     </Text>
                   </div>
-                  <div className={styles.row}>
+                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
                     <Text color="secondary">{t('alerting.import-to-gma.review.policy-tree', 'Policy tree')}</Text>
                     <Stack direction="row" gap={1} alignItems="center" wrap="wrap">
                       <Text weight="medium">{formData.policyTreeName}</Text>
@@ -752,13 +761,13 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
           </div>
 
           {/* Rules Summary Card */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
+          <div {...stylex.props(styles.card)}>
+            <div {...stylex.props(styles.cardHeader)}>
               <Text variant="h5" element="h3">
                 {t('alerting.import-to-gma.review.rules-title', 'Alert Rules')}
               </Text>
               {willImportRules && (
-                <button type="button" className={styles.badgeWithIcon} onClick={handlePreviewRules}>
+                <button type="button" {...stylex.props(styles.badgeWithIcon)} onClick={handlePreviewRules}>
                   {rulesCount > 0
                     ? t('alerting.import-to-gma.review.will-import-rules-count', 'Will import {{count}} rules', {
                         count: rulesCount,
@@ -768,13 +777,15 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                 </button>
               )}
               {formData.step2Skipped && (
-                <span className={styles.badgeSkipped}>{t('alerting.import-to-gma.review.skipped', 'Skipped')}</span>
+                <span {...stylex.props(styles.badgeSkipped)}>
+                  {t('alerting.import-to-gma.review.skipped', 'Skipped')}
+                </span>
               )}
             </div>
-            <div className={styles.cardContent}>
+            <div {...stylex.props(styles.cardContent)}>
               {willImportRules ? (
                 <Stack direction="column" gap={1}>
-                  <div className={styles.row}>
+                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
                     <Text color="secondary">{t('alerting.import-to-gma.review.source', 'Source')}</Text>
                     <Text>
                       {formData.rulesSource === 'yaml'
@@ -782,7 +793,7 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                         : formData.rulesDatasourceName || 'Data source'}
                     </Text>
                   </div>
-                  <div className={styles.row}>
+                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
                     <Text color="secondary">{t('alerting.import-to-gma.review.routing', 'Notification routing')}</Text>
                     <Text>
                       {formData.selectedRoutingTree
@@ -793,7 +804,9 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                     </Text>
                   </div>
                   {(formData.namespace || formData.ruleGroup) && (
-                    <div className={styles.row}>
+                    <div
+                      {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}
+                    >
                       <Text color="secondary">{t('alerting.import-to-gma.review.filter', 'Filter')}</Text>
                       <Text>
                         {formData.namespace &&
@@ -804,12 +817,14 @@ function ReviewStep({ formData, onStartImport, onCancel, dryRunResult, rulesFrom
                     </div>
                   )}
                   {formData.targetFolder && (
-                    <div className={styles.row}>
+                    <div
+                      {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}
+                    >
                       <Text color="secondary">{t('alerting.import-to-gma.review.folder', 'Target folder')}</Text>
                       <Text>{formData.targetFolder.title}</Text>
                     </div>
                   )}
-                  <div className={styles.row}>
+                  <div {...mergeStylexProps(stylex.props(styles.row), { className: 'gf-alerting-import-review-row' })}>
                     <Text color="secondary">{t('alerting.import-to-gma.review.pause', 'Pause rules')}</Text>
                     <Stack direction="row" gap={0.5} alignItems="center">
                       {(formData.pauseAlertingRules || formData.pauseRecordingRules) && <Icon name="pause" size="sm" />}
@@ -874,17 +889,15 @@ interface PreviewContentModalProps {
 }
 
 function PreviewContentModal({ isOpen, title, content, isLoading, language, onDismiss }: PreviewContentModalProps) {
-  const styles = useStyles2(getPreviewModalStyles);
-
   return (
-    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={styles.modal}>
+    <Modal isOpen={isOpen} title={title} onDismiss={onDismiss} className={pendingEmotionStyles.previewModal}>
       {isLoading ? (
         <Stack direction="row" gap={2} alignItems="center" justifyContent="center">
           <Spinner />
           <Text>{t('alerting.import-to-gma.preview.loading', 'Loading content...')}</Text>
         </Stack>
       ) : (
-        <div className={styles.editorContainer}>
+        <div {...stylex.props(previewModalStyles.editorContainer)}>
           <CodeEditor
             width="100%"
             height={500}
@@ -909,16 +922,22 @@ function PreviewContentModal({ isOpen, title, content, isLoading, language, onDi
   );
 }
 
-const getPreviewModalStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
+// stylex: pending Modal migration
+const pendingEmotionStyles = {
+  previewModal: css({
     width: '900px',
     maxWidth: '90vw',
   }),
-  editorContainer: css({
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
+};
+
+const previewModalStyles = stylex.create({
+  editorContainer: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    borderRadius: shape['--gf-shape-radius-default'],
     overflow: 'hidden',
-  }),
+  },
 });
 
 // Confirm Import Modal Component
@@ -1011,62 +1030,61 @@ function ConfirmImportModal({ isOpen, importStatus, onConfirm, onDismiss }: Conf
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  card: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
+const styles = stylex.create({
+  card: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
     overflow: 'hidden',
-  }),
-  cardHeader: css({
+  },
+  cardHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: theme.spacing(2),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  cardContent: css({
-    padding: theme.spacing(2),
-  }),
-  row: css({
+    padding: spacing['--gf-spacing-x2'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  cardContent: {
+    padding: spacing['--gf-spacing-x2'],
+  },
+  row: {
     display: 'flex',
-    gap: theme.spacing(2),
-    '& > span:first-of-type': {
-      minWidth: '150px',
-    },
-  }),
-  badge: css({
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.success.transparent,
-    color: theme.colors.success.text,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  badgeSkipped: css({
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.warning.transparent,
-    color: theme.colors.warning.text,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  badgeWithIcon: css({
+    gap: spacing['--gf-spacing-x2'],
+  },
+  badgeSkipped: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-warning-transparent'],
+    color: colors['--gf-colors-warning-text'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+  badgeWithIcon: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    backgroundColor: theme.colors.success.transparent,
-    color: theme.colors.success.text,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    border: 'none',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.colors.success.shade,
+    gap: spacing['--gf-spacing-x0-5'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: {
+      default: colors['--gf-colors-success-transparent'],
+      ':hover': colors['--gf-colors-success-shade'],
     },
-  }),
+    color: colors['--gf-colors-success-text'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    borderStyle: 'none',
+    cursor: 'pointer',
+  },
 });
 
 export default withPageErrorBoundary(ImportToGMA);
