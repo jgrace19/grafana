@@ -83,6 +83,8 @@ export interface State {
 }
 
 export class UnthemedDashboardPage extends PureComponent<Props, State> {
+  static displayName = 'DashboardPage';
+
   declare context: GrafanaContextType;
   static contextType = GrafanaContext;
 
@@ -460,5 +462,4 @@ function updateStatePageNavFromProps(props: Props, state: State): State {
 }
 
 export const DashboardPage = UnthemedDashboardPage;
-DashboardPage.displayName = 'DashboardPage';
 export default connector(DashboardPage);
