@@ -1,0 +1,43 @@
+/* rc-drawer derives the motion classes from `motionName` (`<name>-appear`, `<name>-appear-active`). */
+@layer grafana-global {
+  @media (prefers-reduced-motion: no-preference) {
+    .gf-drawer-motion-appear {
+      transform: translateX(100%);
+      transition: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gf-drawer-motion-appear {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .gf-drawer-motion-appear-active {
+      transform: translateX(0);
+      transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gf-drawer-motion-appear-active {
+      transition: opacity 0.2s ease-in-out;
+      opacity: 1;
+    }
+  }
+
+  .gf-drawer-mask-motion-appear {
+    opacity: 0;
+  }
+
+  .gf-drawer-mask-motion-appear-active {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference), (prefers-reduced-motion: reduce) {
+    .gf-drawer-mask-motion-appear-active {
+      transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+  }
+}

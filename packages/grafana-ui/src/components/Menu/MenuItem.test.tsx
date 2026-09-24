@@ -115,19 +115,21 @@ describe('MenuItem', () => {
     it('passes the color string directly to the icon style', () => {
       render(getMenuItem({ iconColor: '#B877D9' }));
       const icon = screen.getByLabelText(selectors.components.Menu.MenuItem('Test')).querySelector('svg');
-      expect(icon).toHaveStyle({ color: '#B877D9' });
+      // The colour is a StyleX dynamic value: jsdom only sees the inline custom property that carries it.
+      // eslint-disable-next-line jest-dom/prefer-to-have-style
+      expect(icon).toHaveAttribute('style', expect.stringContaining('#B877D9'));
     });
 
     it('does not apply iconColor when destructive is true', () => {
       render(getMenuItem({ iconColor: '#B877D9', destructive: true }));
       const icon = screen.getByLabelText(selectors.components.Menu.MenuItem('Test')).querySelector('svg');
-      expect(icon).not.toHaveStyle({ color: '#B877D9' });
+      expect(icon?.getAttribute('style') ?? '').not.toContain('#B877D9');
     });
 
     it('does not apply iconColor when disabled is true', () => {
       render(getMenuItem({ iconColor: '#B877D9', disabled: true }));
       const icon = screen.getByLabelText(selectors.components.Menu.MenuItem('Test')).querySelector('svg');
-      expect(icon).not.toHaveStyle({ color: '#B877D9' });
+      expect(icon?.getAttribute('style') ?? '').not.toContain('#B877D9');
     });
 
     it('does not apply inline color style when iconColor is not set', () => {

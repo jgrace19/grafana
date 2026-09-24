@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
+/** @deprecated Emotion compat. Use the `Modal` / `ModalBase` components. */
 export const getModalStyles = (theme: GrafanaTheme2) => {
   return {
     modal: css({

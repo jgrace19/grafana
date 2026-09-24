@@ -1,13 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Button, type ButtonVariant } from '../Button/Button';
 import { Field } from '../Forms/Field';
 import { Input } from '../Input/Input';
@@ -62,7 +61,6 @@ export const ConfirmContent = ({
   disabled,
 }: ConfirmContentProps) => {
   const [isDisabled, setIsDisabled] = useState(disabled);
-  const styles = useStyles2(getStyles);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const onConfirmationTextChange = (event: React.FormEvent<HTMLInputElement>) => {
@@ -96,11 +94,11 @@ export const ConfirmContent = ({
   });
   return (
     <form onSubmit={handleSubmit(onConfirmClick)}>
-      <div className={styles.text}>
+      <div {...stylex.props(styles.text)}>
         {body}
-        {description ? <div className={styles.description}>{description}</div> : null}
+        {description ? <div {...stylex.props(styles.description)}>{description}</div> : null}
         {confirmPromptText ? (
-          <div className={styles.confirmationInput}>
+          <div {...stylex.props(styles.confirmationInput)}>
             <Stack alignItems="flex-start">
               <Field disabled={disabled}>
                 <Input
@@ -113,7 +111,7 @@ export const ConfirmContent = ({
           </div>
         ) : null}
       </div>
-      <div className={styles.buttonsContainer}>
+      <div {...stylex.props(styles.buttonsContainer)}>
         <Stack justifyContent={justifyButtons} gap={2} wrap="wrap">
           <Button variant={dismissButtonVariant} onClick={onDismiss} fill="outline">
             {dismissButtonLabel}
@@ -138,18 +136,18 @@ export const ConfirmContent = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  text: css({
-    fontSize: theme.typography.h5.fontSize,
-    color: theme.colors.text.primary,
-  }),
-  description: css({
-    fontSize: theme.typography.body.fontSize,
-  }),
-  confirmationInput: css({
-    paddingTop: theme.spacing(1),
-  }),
-  buttonsContainer: css({
-    paddingTop: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  text: {
+    fontSize: typography['--gf-typography-h5-font-size'],
+    color: colors['--gf-colors-text-primary'],
+  },
+  description: {
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
+  confirmationInput: {
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
+  buttonsContainer: {
+    paddingTop: spacing['--gf-spacing-x3'],
+  },
 });

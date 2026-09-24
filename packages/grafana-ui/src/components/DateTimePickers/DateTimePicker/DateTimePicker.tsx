@@ -23,13 +23,14 @@ import { t, Trans } from '@grafana/i18n';
 import { useTheme2 } from '../../../themes/ThemeContext';
 import { zIndex } from '../../../themes/stylex/constants.stylex';
 import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
-import { colors, components, shape, spacing } from '../../../themes/stylex/tokens.stylex';
+import { colors, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../../utils/floating';
 import { Button } from '../../Button/Button';
 import { InlineField } from '../../Forms/InlineField';
 import { Icon } from '../../Icon/Icon';
 import { Input } from '../../Input/Input';
 import { Stack } from '../../Layout/Stack/Stack';
+import { modalStyles } from '../../Modal/ModalBase';
 import { Portal } from '../../Portal/Portal';
 import { TimeOfDayPicker, POPUP_CLASS_NAME } from '../TimeOfDayPicker';
 import { calendarClassNames } from '../TimeRangePicker/CalendarBody';
@@ -169,7 +170,7 @@ export const DateTimePicker = ({
           </Portal>
         ) : (
           <Portal>
-            <div {...stylex.props(styles.modalBackdrop)} {...underlayProps} />
+            <div {...stylex.props(modalStyles.modalBackdrop)} {...underlayProps} />
             <FocusScope contain autoFocus restoreFocus>
               <div ref={ref} {...overlayProps} {...dialogProps}>
                 <div {...stylex.props(styles.modal)}>
@@ -412,15 +413,6 @@ const styles = stylex.create({
     transform: 'translate(-50%, -50%)',
     zIndex: zIndex.modal,
     maxWidth: '280px',
-  },
-  modalBackdrop: {
-    position: 'fixed',
-    zIndex: zIndex.modalBackdrop,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: components['--gf-components-overlay-background'],
   },
   clearIcon: {
     cursor: 'pointer',

@@ -8,7 +8,8 @@ import { type DateTime, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { zIndex } from '../../../themes/stylex/constants.stylex';
-import { colors, components, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
+import { colors, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
+import { modalStyles } from '../../Modal/ModalBase';
 import { type WeekStart } from '../WeekStartPicker';
 
 import { Body } from './CalendarBody';
@@ -84,7 +85,7 @@ function TimePickerCalendar(props: TimePickerCalendarProps) {
 
   return (
     <OverlayContainer>
-      <div {...stylex.props(styles.modalBackdrop)} />
+      <div {...stylex.props(modalStyles.modalBackdrop)} />
 
       <FocusScope contain autoFocus restoreFocus>
         <div {...stylex.props(styles.modal)}>
@@ -134,14 +135,5 @@ const styles = stylex.create({
     top: '50%',
     transform: 'translate(-50%, -50%)',
     zIndex: zIndex.modal,
-  },
-  modalBackdrop: {
-    position: 'fixed',
-    zIndex: zIndex.modalBackdrop,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: components['--gf-components-overlay-background'],
   },
 });

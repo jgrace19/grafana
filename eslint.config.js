@@ -125,6 +125,9 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
   // U2 inputs
   'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
+  // U4 overlays
+  'packages/grafana-ui/src/components/{Alert,ConfirmModal,ContextMenu,Drawer,Dropdown,InlineToast,Menu,Modal,Toggletip,Tooltip}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/utils/tooltipUtils.ts',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
 import { type Placement } from '@floating-ui/react';
-
-import { type GrafanaTheme2 } from '@grafana/data';
+import * as stylex from '@stylexjs/stylex';
 
 import { type TooltipPlacement } from '../components/Tooltip/types';
+import { motion, zIndex } from '../themes/stylex/constants.stylex';
+import { colors, shadows, shape, spacing, typography } from '../themes/stylex/tokens.stylex';
 
 export function getPlacement(placement?: TooltipPlacement): Placement {
   switch (placement) {
@@ -18,55 +18,41 @@ export function getPlacement(placement?: TooltipPlacement): Placement {
   }
 }
 
-export function buildTooltipTheme(
-  theme: GrafanaTheme2,
-  tooltipBg: string,
-  toggletipBorder: string,
-  tooltipText: string,
-  tooltipPadding: { topBottom: number; rightLeft: number }
-) {
-  return {
-    arrow: css({
-      fill: tooltipBg,
-    }),
-    container: css({
-      backgroundColor: tooltipBg,
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${toggletipBorder}`,
-      boxShadow: theme.shadows.z2,
-      color: tooltipText,
-      fontSize: theme.typography.bodySmall.fontSize,
-      padding: theme.spacing(tooltipPadding.topBottom, tooltipPadding.rightLeft),
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'opacity 0.3s',
-      },
-      zIndex: theme.zIndex.tooltip,
-      maxWidth: '400px',
-      overflowWrap: 'break-word',
-
-      "&[data-popper-interactive='false']": {
-        pointerEvents: 'none',
-      },
-    }),
-    headerClose: css({
-      color: theme.colors.text.secondary,
-      position: 'absolute',
-      right: theme.spacing(0.5),
-      top: theme.spacing(1),
-      backgroundColor: 'transparent',
-      border: 0,
-    }),
-    header: css({
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-    }),
-    body: css({
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
-    }),
-    footer: css({
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(1),
-    }),
-  };
-}
+/**
+ * Styles shared by Tooltip and Toggletip. Each component adds its own colours and padding per theme variant.
+ */
+export const tooltipStyles = stylex.create({
+  container: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    boxShadow: shadows['--gf-shadows-z2'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.3s' },
+    zIndex: zIndex.tooltip,
+    maxWidth: '400px',
+    overflowWrap: 'break-word',
+    pointerEvents: { default: null, ':is([data-popper-interactive="false"])': 'none' },
+  },
+  headerClose: {
+    color: colors['--gf-colors-text-secondary'],
+    position: 'absolute',
+    right: spacing['--gf-spacing-x0-5'],
+    top: spacing['--gf-spacing-x1'],
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+  },
+  header: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+  body: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  footer: {
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+});

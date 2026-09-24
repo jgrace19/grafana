@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
 import { type Meta } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 
 import { useTheme2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { StoryExample } from '../../utils/storybook/StoryExample';
 import { Stack } from '../Layout/Stack/Stack';
 import { Text } from '../Text/Text';
@@ -185,23 +186,18 @@ export function Examples() {
             <div>Custom style</div>
             <Menu style={{ padding: theme.spacing(1, 2) }}>
               <Menu.Group label="New dashboard">
-                <Menu.Item
-                  label="Blank"
-                  icon="plus"
-                  iconColor={theme.colors.success.text}
-                  className={css({ padding: theme.spacing(1, 2), minHeight: theme.spacing(5) })}
-                />
+                <Menu.Item label="Blank" icon="plus" iconColor={theme.colors.success.text} xstyle={styles.customItem} />
                 <Menu.Item
                   label="From template"
                   icon="table"
                   iconColor={theme.colors.success.text}
-                  className={css({ padding: theme.spacing(1, 2), minHeight: theme.spacing(5) })}
+                  xstyle={styles.customItem}
                 />
                 <Menu.Item
                   label="Import"
                   icon="download-alt"
                   iconColor={theme.colors.success.text}
-                  className={css({ padding: theme.spacing(1, 2), minHeight: theme.spacing(5) })}
+                  xstyle={styles.customItem}
                 />
               </Menu.Group>
               <Menu.Divider />
@@ -210,13 +206,13 @@ export function Examples() {
                   label="Create"
                   icon="plus"
                   iconColor={theme.colors.success.text}
-                  className={css({ padding: theme.spacing(1, 2), minHeight: theme.spacing(5) })}
+                  xstyle={styles.customItem}
                 />
                 <Menu.Item
                   label="Import"
                   icon="download-alt"
                   iconColor={theme.colors.success.text}
-                  className={css({ padding: theme.spacing(1, 2), minHeight: theme.spacing(5) })}
+                  xstyle={styles.customItem}
                 />
               </Menu.Group>
             </Menu>
@@ -261,3 +257,13 @@ export function Examples() {
 }
 
 export default meta;
+
+const styles = stylex.create({
+  customItem: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    minHeight: spacing['--gf-spacing-x5'],
+  },
+});
