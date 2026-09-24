@@ -134,7 +134,6 @@ const styles = stylex.create({
     position: 'relative',
     zIndex: 0,
     margin: 0,
-    boxShadow: 'none',
     borderStyle: 'none',
     display: 'flex',
     backgroundColor: 'transparent',
