@@ -19,8 +19,6 @@ import { getUniqueFeatureValues, type LayerContentInfo } from '../utils/getFeatu
 import { getSelectionInfo } from '../utils/selection';
 
 import { StyleEditor } from './StyleEditor';
-import './StyleRuleEditor.css';
-
 export interface StyleRuleEditorSettings {
   features: Observable<FeatureLike[]>;
   layerInfo: Observable<LayerContentInfo>;
@@ -144,7 +142,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             allowCustomValue
           />
         </InlineField>
-        <InlineField className="gf-geomap-style-rule-inline">
+        <InlineField xstyle={styles.inline}>
           <Select
             value={comparisonOperationOptions.find((v) => v.value === check.operation)}
             options={comparisonOperationOptions}
@@ -153,7 +151,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             width={8}
           />
         </InlineField>
-        <InlineField className="gf-geomap-style-rule-inline" grow={true}>
+        <InlineField xstyle={styles.inline} grow={true}>
           <div {...stylex.props(styles.flexRow)}>
             {(check.operation === ComparisonOperation.EQ || check.operation === ComparisonOperation.NEQ) && (
               <Select
@@ -205,6 +203,10 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
 };
 
 const styles = stylex.create({
+  inline: {
+    marginBottom: 0,
+    marginLeft: '4px',
+  },
   rule: {
     marginBottom: spacing['--gf-spacing-x1'],
   },

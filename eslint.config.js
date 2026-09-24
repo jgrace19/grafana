@@ -201,12 +201,12 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{rule-editor,expressions,backtesting,create-folder,export,saved-searches}/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/notification-policies/{formStyles.ts,EditDefaultPolicyForm.tsx,EditNotificationPolicyForm.tsx}',
-  // L1 logs (LogLineContext and LogRowContextModal keep pending Emotion Modal overrides)
+  // L1 logs
   'public/app/features/logs/*.{ts,tsx}',
   'public/app/features/logs/components/*.{ts,tsx}',
   'public/app/features/logs/components/{fieldSelector,mocks,otel}/**/*.{ts,tsx}',
-  'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
-  'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
+  'public/app/features/logs/components/log-context/*.{ts,tsx}',
+  'public/app/features/logs/components/panel/*.{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
   // D3 dashboard (part 2)
@@ -220,25 +220,44 @@ const stylexMigratedAppFiles = [
   'public/app/core/components/OptionsUI/slider.tsx',
   'public/app/core/components/NestedFolderPicker/{NestedFolderPicker,Skeleton,Trigger}.tsx',
   'public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx',
+  // Lock-down A: interim overrides converted to xstyle
+  'public/app/core/components/AppChrome/TopBar/ProfileButton.tsx',
+  'public/app/core/components/AppNotifications/StoredNotificationItem.tsx',
+  'public/app/core/components/Login/LoginServiceButtons.tsx',
+  'public/app/core/components/NavLandingPage/NavLandingPageCard.tsx',
+  'public/app/core/components/Page/EditableTitle.tsx',
+  'public/app/core/components/QueryOperationRow/{QueryOperationAction,QueryOperationRowHeader}.tsx',
+  'public/app/core/components/SplashScreenModal/SplashScreenNav.tsx',
+  'public/app/core/components/Upgrade/UpgradeBox.tsx',
+  'public/app/features/admin/ldap/LdapDrawer.tsx',
+  'public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx',
+  'public/app/features/datasources/**/*.{ts,tsx}',
+  'public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx',
+  'public/app/features/panel/components/VizTypePicker/PanelTypeCard.tsx',
+  // Lock-down A: overlay overrides converted to xstyle after U4
+  'public/app/core/components/{FormPrompt,SplashScreenModal}/*.{ts,tsx}',
+  'public/app/features/admin/UserOrgs.tsx',
+  'public/app/features/admin/UserListPublicDashboardPage/*.{ts,tsx}',
+  'public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx',
+  'public/app/features/connections/tabs/ConnectData/NoAccessModal/*.{ts,tsx}',
+  'public/app/features/library-panels/**/*.{ts,tsx}',
+  'public/app/features/live/**/*.{ts,tsx}',
+  'public/app/features/serviceaccounts/components/CreateTokenModal.tsx',
+  'public/app/features/users/TokenRevokedModal.tsx',
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
 const stylexNotMigratedAppFiles = [
   // C1 core: notifications, options UI, query rows, splash screen, tags and the rest of core/components
-  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,QueryOperationRow,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
+  'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
   'public/app/core/components/CardButton.tsx',
   'public/app/core/components/AppNotifications/{AppNotificationItem,AppNotificationList}.tsx',
   'public/app/core/components/OptionsUI/{color,fieldColor,strings,units}.tsx',
-  'public/app/core/components/SplashScreenModal/{SplashScreenNav,SplashScreenSlide}.tsx',
   'public/app/core/components/TagFilter/*.{ts,tsx}',
   // M1 datasources, connections, correlations
-  'public/app/features/datasources/**/*.{ts,tsx}',
-  'public/app/features/connections/**/*.{ts,tsx}',
   'public/app/features/correlations/**/*.{ts,tsx}',
   // M1 library-panels, inspector, panel, query
-  'public/app/features/library-panels/**/*.{ts,tsx}',
   'public/app/features/inspector/**/*.{ts,tsx}',
-  'public/app/features/panel/**/*.{ts,tsx}',
   'public/app/features/query/**/*.{ts,tsx}',
 ];
 

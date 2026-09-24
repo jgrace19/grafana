@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
@@ -67,7 +65,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
         )}
         <Grid columns={{ xs: 1, sm: 2, lg: lgColumn, xxl: xxlColumn }} gap={2} alignItems={'flex-start'}>
           <div {...stylex.props(styles.cardContainer)}>
-            <Card noMargin className={cardStyles.card}>
+            <Card noMargin xstyle={cardStyles.card}>
               <Card.Heading>
                 <Trans i18nKey="provisioning.repository-overview.resources">Resources</Trans>
               </Card.Heading>
@@ -85,7 +83,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
                   </Box>
                 )}
               </Card.Description>
-              <Card.Actions className={cardStyles.actions}>
+              <Card.Actions xstyle={cardStyles.actions}>
                 <LinkButton size="md" href={getFolderURL(repo)} icon="folder-open" variant="secondary">
                   <Trans i18nKey="provisioning.repository-overview.view-folder">View Folder</Trans>
                 </LinkButton>
@@ -102,7 +100,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
           {/* Webhook */}
           {status?.webhook && (
             <div {...stylex.props(styles.cardContainer)}>
-              <Card noMargin className={cardStyles.card}>
+              <Card noMargin xstyle={cardStyles.card}>
                 <Card.Heading>
                   <Trans i18nKey="provisioning.repository-overview.webhook">Webhook</Trans>
                 </Card.Heading>
@@ -135,7 +133,7 @@ export function RepositoryOverview({ repo }: { repo: Repository }) {
                   </Grid>
                 </Card.Description>
                 {webhookURL && (
-                  <Card.Actions className={cardStyles.actions}>
+                  <Card.Actions xstyle={cardStyles.actions}>
                     <LinkButton fill="outline" href={webhookURL} icon="external-link-alt">
                       <Trans i18nKey="provisioning.repository-overview.webhook-url">View Webhook</Trans>
                     </LinkButton>
@@ -193,19 +191,17 @@ const styles = stylex.create({
   },
 });
 
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's `display: grid` and the actions' margin-top.
-const cardStyles = {
-  card: css({
+const cardStyles = stylex.create({
+  card: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     gap: spacing['--gf-spacing-x2'],
-  }),
-  actions: css({
+  },
+  actions: {
     marginTop: 'auto',
-  }),
-};
+  },
+});
 
 function getWebhookURL(repo: Repository) {
   const { status, spec } = repo;

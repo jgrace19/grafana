@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -139,12 +138,15 @@ const getModalWrapper = ({
   height,
   config,
 }: PluginExtensionOpenModalOptions & { config: AddedLinkRegistryItem }) => {
-  // stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
-  const className = css({ width, height });
-
   const ModalWrapper = ({ onDismiss }: ModalWrapperProps) => {
     return (
-      <Modal title={title} className={className} isOpen onDismiss={onDismiss} onClickBackdrop={onDismiss}>
+      <Modal
+        title={title}
+        xstyle={[width !== undefined && modalStyles.width(width), height !== undefined && modalStyles.height(height)]}
+        isOpen
+        onDismiss={onDismiss}
+        onClickBackdrop={onDismiss}
+      >
         {/*
           We also add an error boundary here (apart from the one in the `wrapWithPluginContext`)
           so the error appears inside the modal (and not at the bottom of the page.)
@@ -648,3 +650,8 @@ export async function getAppPluginsToPreload(): Promise<AppPluginConfig[]> {
   const apps = await getAppPluginMetas();
   return getAppPluginsToPreloadSync(apps);
 }
+
+const modalStyles = stylex.create({
+  width: (width: string | number) => ({ width }),
+  height: (height: string | number) => ({ height }),
+});

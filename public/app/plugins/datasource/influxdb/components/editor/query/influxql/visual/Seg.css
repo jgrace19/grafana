@@ -1,5 +1,0 @@
-/* InlineLabel is still Emotion and sets its own width: the doubled class wins that tie. */
-.gf-influx-seg.gf-influx-seg {
-  width: auto;
-  cursor: pointer;
-}

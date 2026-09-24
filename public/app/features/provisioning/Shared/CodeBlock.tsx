@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending ClipboardButton migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { t } from '@grafana/i18n';
@@ -20,7 +18,7 @@ export const CodeBlock = ({ code, copyCode = true }: Props) => {
       {copyCode && (
         <ClipboardButton
           aria-label={t('provisioning.code-block.aria-label-copy', 'Copy code to clipboard')}
-          className={copyButton}
+          xstyle={styles.copyButton}
           variant="secondary"
           size="sm"
           icon="copy"
@@ -57,12 +55,10 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderColor: colors['--gf-colors-border-medium'],
   },
-});
-
-// stylex: pending ClipboardButton migration. Its own Emotion `position: relative` would beat a layered StyleX class.
-const copyButton = css({
-  position: 'absolute',
-  top: spacing['--gf-spacing-x1'],
-  right: spacing['--gf-spacing-x1'],
-  zIndex: 1,
+  copyButton: {
+    position: 'absolute',
+    top: spacing['--gf-spacing-x1'],
+    right: spacing['--gf-spacing-x1'],
+    zIndex: 1,
+  },
 });

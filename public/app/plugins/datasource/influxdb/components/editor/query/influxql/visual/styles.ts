@@ -1,3 +1,7 @@
-import './styles.css';
+import * as stylex from '@stylexjs/stylex';
 
-export const paddingRightClass = 'gf-influx-select-padding-right';
+export const selectStyles = stylex.create({
+  paddingRight: {
+    paddingRight: '4px',
+  },
+});

@@ -1,6 +1,8 @@
+import * as stylex from '@stylexjs/stylex';
 import { useId, useMemo, type JSX } from 'react';
 
 import { InlineLabel, SegmentSection } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import type InfluxDatasource from '../../../../../datasource';
 import {
@@ -32,8 +34,6 @@ import { InputSection } from './InputSection';
 import { OrderByTimeSection } from './OrderByTimeSection';
 import { PartListSection } from './PartListSection';
 import { TagsSection } from './TagsSection';
-import './VisualInfluxQLEditor.css';
-
 type Props = {
   query: InfluxQuery;
   onChange: (query: InfluxQuery) => void;
@@ -123,7 +123,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
           }
           onChange={handleFromSectionChange}
         />
-        <InlineLabel width="auto" className="gf-influx-section-label">
+        <InlineLabel width="auto" xstyle={styles.sectionLabel}>
           WHERE
         </InlineLabel>
         <TagsSection
@@ -180,7 +180,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, tz });
           }}
         />
-        <InlineLabel htmlFor={orderByTimeId} width="auto" className="gf-influx-section-label">
+        <InlineLabel htmlFor={orderByTimeId} width="auto" xstyle={styles.sectionLabel}>
           ORDER BY TIME
         </InlineLabel>
         <OrderByTimeSection
@@ -204,7 +204,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
             onAppliedChange({ ...query, limit });
           }}
         />
-        <InlineLabel width="auto" className="gf-influx-section-label">
+        <InlineLabel width="auto" xstyle={styles.sectionLabel}>
           SLIMIT
         </InlineLabel>
         <InputSection
@@ -225,7 +225,7 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
         />
         {query.resultFormat !== 'table' && (
           <>
-            <InlineLabel width="auto" className="gf-influx-section-label">
+            <InlineLabel width="auto" xstyle={styles.sectionLabel}>
               ALIAS
             </InlineLabel>
             <InputSection
@@ -242,3 +242,9 @@ export const VisualInfluxQLEditor = (props: Props): JSX.Element => {
     </div>
   );
 };
+
+const styles = stylex.create({
+  sectionLabel: {
+    color: colors['--gf-colors-primary-text'],
+  },
+});

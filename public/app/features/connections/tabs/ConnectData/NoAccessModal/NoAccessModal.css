@@ -1,0 +1,7 @@
+/*
+ * Links in the modal's content (arbitrary children, which StyleX can't target). Unlayered, at the specificity of the
+ * Emotion rule it replaces, so it still beats the global `a` colour.
+ */
+.gf-no-access-modal-content a {
+  color: var(--gf-colors-text-link);
+}

@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
 import { Trans } from '@grafana/i18n';
@@ -7,6 +5,8 @@ import { Modal, Icon, Button, TextLink } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CardGridItem } from '../CardGrid/CardGrid';
+
+import './NoAccessModal.css';
 
 export type NoAccessModalProps = {
   item: CardGridItem;
@@ -17,8 +17,9 @@ export type NoAccessModalProps = {
 export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
   return (
     <Modal
-      className={modalStyles.modal}
-      contentClassName={modalStyles.modalContent}
+      xstyle={modalStyles.modal}
+      contentClassName="gf-no-access-modal-content"
+      contentXstyle={modalStyles.modalContent}
       title={<NoAccessModalHeader item={item} />}
       ariaLabel={item.name}
       isOpen={isOpen}
@@ -74,20 +75,15 @@ export function NoAccessModalHeader({ item }: { item: CardGridItem }) {
   );
 }
 
-// stylex: pending Modal migration. Modal's own Emotion width and content overflow would beat layered StyleX classes.
-const modalStyles = {
-  modal: css({
+const modalStyles = stylex.create({
+  modal: {
     width: '500px',
-  }),
-  modalContent: css({
+  },
+  modalContent: {
     overflow: 'visible',
     color: colors['--gf-colors-text-secondary'],
-
-    a: {
-      color: colors['--gf-colors-text-link'],
-    },
-  }),
-};
+  },
+});
 
 const styles = stylex.create({
   description: {

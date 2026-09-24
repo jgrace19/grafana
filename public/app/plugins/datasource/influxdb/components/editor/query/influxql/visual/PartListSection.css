@@ -1,8 +1,0 @@
-/* Seg passes this class to InlineLabel, which is still Emotion and sets its own padding and margin: the doubled
-   class wins that tie. */
-.gf-influx-part-param.gf-influx-part-param {
-  padding-left: 0;
-  padding-right: 0;
-  margin-left: 0;
-  margin-right: 0;
-}

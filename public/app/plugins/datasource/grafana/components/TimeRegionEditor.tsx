@@ -10,8 +10,6 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type TimeRegionConfig, type TimeRegionMode } from 'app/core/utils/timeRegions';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 
-import './TimeRegionEditor.css';
-
 interface Props {
   value: TimeRegionConfig;
   onChange: (value?: TimeRegionConfig) => void;
@@ -139,7 +137,7 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   const to = getTime(value.to);
 
   return (
-    <FieldSet className={`gf-grafana-time-region-editor ${stylex.props(styles.wrapper).className}`}>
+    <FieldSet xstyle={styles.wrapper}>
       <Field
         label={t('dashboard-settings.time-regions.advanced-label', 'Advanced')}
         description={
@@ -232,8 +230,10 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
 };
 
 const styles = stylex.create({
+  // FieldSet's own :last-child margin still wins.
   wrapper: {
     maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+    marginBottom: { default: spacing['--gf-spacing-x2'], ':last-child': 0 },
   },
 
   timezoneContainer: {

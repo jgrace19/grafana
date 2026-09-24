@@ -7,15 +7,13 @@ import { Stack, Switch, Label, Tooltip, Grid } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type GaugePanelEffects } from './panelcfg.gen';
-import './EffectsEditor.css';
-
 function EffectsEditorInput(props: ComponentProps<typeof Switch> & { tooltip?: string }) {
   const id = useId();
   const content = (
     <div {...stylex.props(styles.container)}>
       <Stack gap={1} alignItems="center">
         <Switch {...props} id={id} />
-        <Label className="gf-gauge-effects-label" htmlFor={id}>
+        <Label xstyle={styles.label} htmlFor={id}>
           {props.label}
         </Label>
       </Stack>
@@ -53,6 +51,9 @@ export function EffectsEditor(props: StandardEditorProps<GaugePanelEffects>) {
 }
 
 const styles = stylex.create({
+  label: {
+    marginBottom: 0,
+  },
   container: {
     paddingTop: spacing['--gf-spacing-x0-5'],
     paddingBottom: spacing['--gf-spacing-x0-5'],

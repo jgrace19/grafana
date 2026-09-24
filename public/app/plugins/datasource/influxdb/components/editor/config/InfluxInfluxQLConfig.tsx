@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 
 import {
@@ -10,6 +11,7 @@ import {
   updateDatasourcePluginResetOption,
 } from '@grafana/data';
 import { Alert, Field, InlineLabel, Input, SecretInput, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type InfluxOptions, type InfluxSecureJsonData } from '../../../types';
 
@@ -19,8 +21,6 @@ import {
   trackInfluxDBConfigV1InfluxQLPasswordInputField,
   trackInfluxDBConfigV1InfluxQLUserInputField,
 } from './trackingv1';
-
-import './InfluxConfigField.css';
 
 const httpModes: SelectableValue[] = [
   { label: 'GET', value: 'GET' },
@@ -52,7 +52,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>Database</InlineLabel>}
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         htmlFor={`${htmlPrefix}-db`}
         noMargin
       >
@@ -76,7 +76,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
       <Field
         horizontal
         label={<InlineLabel width={WIDTH_SHORT}>User</InlineLabel>}
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         htmlFor={`${htmlPrefix}-user`}
         noMargin
       >
@@ -88,12 +88,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
           onBlur={trackInfluxDBConfigV1InfluxQLUserInputField}
         />
       </Field>
-      <Field
-        horizontal
-        label={<InlineLabel width={WIDTH_SHORT}>Password</InlineLabel>}
-        className="gf-influx-config-field"
-        noMargin
-      >
+      <Field horizontal label={<InlineLabel width={WIDTH_SHORT}>Password</InlineLabel>} xstyle={styles.field} noMargin>
         <SecretInput
           isConfigured={Boolean(secureJsonFields && secureJsonFields.password)}
           value={secureJsonData?.password || ''}
@@ -118,7 +113,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
           </InlineLabel>
         }
         htmlFor={`${htmlPrefix}-http-method`}
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         noMargin
       >
         <Select
@@ -141,7 +136,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Min time interval
           </InlineLabel>
         }
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         noMargin
       >
         <Input
@@ -162,7 +157,7 @@ export const InfluxInfluxQLConfig = (props: Props) => {
             Autocomplete range
           </InlineLabel>
         }
-        className="gf-influx-config-field"
+        xstyle={styles.field}
         noMargin
       >
         <Input
@@ -175,3 +170,13 @@ export const InfluxInfluxQLConfig = (props: Props) => {
     </>
   );
 };
+
+const styles = stylex.create({
+  field: {
+    justifyContent: 'initial',
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: 0,
+  },
+});

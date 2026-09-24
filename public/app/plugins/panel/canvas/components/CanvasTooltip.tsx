@@ -1,5 +1,6 @@
 import { useDialog } from '@react-aria/dialog';
 import { useOverlay } from '@react-aria/overlays';
+import * as stylex from '@stylexjs/stylex';
 import { createRef, useMemo } from 'react';
 
 import {
@@ -20,13 +21,12 @@ import {
   type VizTooltipItem,
   CloseButton,
 } from '@grafana/ui/internal';
+import { colors, shadows, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { getActions, getActionsDefaultField } from 'app/features/actions/utils';
 import { type Scene } from 'app/features/canvas/runtime/scene';
 
 import { getDataLinks } from '../../status-history/utils';
 import { getElementFields, getRowIndex } from '../utils';
-
-import './CanvasTooltip.css';
 
 interface Props {
   scene: Scene;
@@ -144,7 +144,7 @@ export const CanvasTooltip = ({ scene }: Props) => {
       {scene.tooltipPayload?.element && scene.tooltipPayload.anchorPoint && (
         <Portal zIndex={theme.zIndex.tooltip}>
           <VizTooltipContainer
-            className={scene.tooltipPayload.isOpen ? 'gf-canvas-tooltip gf-canvas-tooltip-pinned' : 'gf-canvas-tooltip'}
+            xstyle={[styles.tooltip, scene.tooltipPayload.isOpen && styles.tooltipPinned]}
             position={{ x: scene.tooltipPayload.anchorPoint.x, y: scene.tooltipPayload.anchorPoint.y }}
             offset={{ x: 5, y: 0 }}
             allowPointerEvents={scene.tooltipPayload.isOpen}
@@ -161,3 +161,23 @@ export const CanvasTooltip = ({ scene }: Props) => {
     </>
   );
 };
+
+const styles = stylex.create({
+  // Over VizTooltipContainer's own look; its inline style already fixes the position at 0, 0.
+  tooltip: {
+    whiteSpace: 'pre',
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    backgroundImage: 'none',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z2'],
+    userSelect: 'text',
+    padding: 0,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  tooltipPinned: {
+    boxShadow: shadows['--gf-shadows-z3'],
+  },
+});

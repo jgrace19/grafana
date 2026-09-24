@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex';
+
 import { type StandardEditorProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Icon, Stack } from '@grafana/ui';
@@ -15,6 +17,7 @@ export const PanZoomHelp = ({}: StandardEditorProps<string, unknown, unknown, un
           severity="info"
           buttonContent={<Icon name="question-circle" size="xl" />}
           className="gf-canvas-pan-zoom-help"
+          xstyle={styles.alert}
           onRemove={() => {
             const newWindow = window.open(helpUrl, '_blank', 'noopener,noreferrer');
             if (newWindow) {
@@ -48,3 +51,11 @@ export const PanZoomHelp = ({}: StandardEditorProps<string, unknown, unknown, un
     </>
   );
 };
+
+const styles = stylex.create({
+  alert: {
+    marginBottom: 0,
+    marginTop: '5px',
+    padding: '2px',
+  },
+});

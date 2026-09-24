@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { once } from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -152,8 +150,8 @@ export function DataSourceModal({
       closeOnEscape={true}
       closeOnBackdropClick={true}
       isOpen={true}
-      className={modalClassName}
-      contentClassName={stylex.props(styles.modalContent).className}
+      xstyle={styles.modal}
+      contentXstyle={styles.modalContent}
       onClickBackdrop={onDismissModal}
       onDismiss={onDismissModal}
     >
@@ -228,18 +226,12 @@ export function DataSourceModal({
   );
 }
 
-// stylex: pending Modal migration. Modal's own Emotion width would beat a layered StyleX class.
-const modalClassName = css({
-  width: '80%',
-  maxWidth: '1200px',
-  minHeight: '80%',
-
-  [bp.mdDown]: {
-    width: '100%',
-  },
-});
-
 const styles = stylex.create({
+  modal: {
+    width: { default: '80%', [bp.mdDown]: '100%' },
+    maxWidth: '1200px',
+    minHeight: '80%',
+  },
   modalContent: {
     display: 'flex',
     flexDirection: { default: 'row', [bp.mdDown]: 'column' },

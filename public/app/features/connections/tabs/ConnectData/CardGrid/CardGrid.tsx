@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
@@ -11,7 +9,7 @@ import { PluginDeprecatedBadge } from 'app/features/plugins/admin/components/Bad
 import { PluginDisabledBadge } from 'app/features/plugins/admin/components/Badges/PluginDisabledBadge';
 import { PluginInstalledBadge } from 'app/features/plugins/admin/components/Badges/PluginInstallBadge';
 import { PluginUpdateAvailableBadge } from 'app/features/plugins/admin/components/Badges/PluginUpdateAvailableBadge';
-import { badgeColorStyle } from 'app/features/plugins/admin/components/Badges/sharedStyles';
+import { badgeColorStyles } from 'app/features/plugins/admin/components/Badges/sharedStyles';
 import { isPluginUpdatable } from 'app/features/plugins/admin/helpers';
 import { type CatalogPlugin } from 'app/features/plugins/admin/types';
 
@@ -27,7 +25,7 @@ function PluginEnterpriseBadgeWithoutSignature() {
       aria-label={t('lock-icon', 'lock icon')}
       text={t('get-enterprise.title', 'Enterprise')}
       color="darkgrey"
-      style={badgeColorStyle}
+      xstyle={badgeColorStyles.badge}
       title={t('get-enterprise.requires-license', 'Requires a Grafana Enterprise license')}
     />
   );
@@ -49,7 +47,7 @@ export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
         <Card
           key={item.id}
           noMargin
-          className={cardStyles.card}
+          xstyle={styles.card}
           href={item.url}
           onClick={(e) => {
             if (onClickItem) {
@@ -57,12 +55,13 @@ export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
             }
           }}
         >
-          <Card.Heading className={cardStyles.heading}>{item.name}</Card.Heading>
+          <Card.Heading xstyle={styles.heading}>{item.name}</Card.Heading>
 
-          <Card.Figure align="center" className={cardStyles.figure}>
-            <img {...stylex.props(styles.logo)} src={item.logo} alt="" />
+          <Card.Figure align="center" xstyle={styles.figure}>
+            {/* Inline so the width beats Card's unlayered `.gf-card-figure > img` rule. */}
+            <img {...stylex.props(styles.logo)} style={{ width: logoWidth }} src={item.logo} alt="" />
           </Card.Figure>
-          <Card.Meta className={cardStyles.meta}>
+          <Card.Meta xstyle={styles.meta}>
             <Stack height="auto" wrap="wrap">
               {item.isEnterprise && <PluginEnterpriseBadgeWithoutSignature />}
               {item.isDeprecated && <PluginDeprecatedBadge />}
@@ -77,38 +76,31 @@ export const CardGrid = ({ items, onClickItem }: CardGridProps) => {
   );
 };
 
+const logoWidth = `calc(${spacing['--gf-spacing-grid-size']} * 7)`;
+
 const styles = stylex.create({
   logo: {
     marginRight: spacing['--gf-spacing-x3'],
     marginLeft: spacing['--gf-spacing-x1'],
-    width: `calc(${spacing['--gf-spacing-grid-size']} * 7)`,
     maxHeight: `calc(${spacing['--gf-spacing-grid-size']} * 7)`,
   },
-});
-
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's grid template, heading font, figure size and meta margin.
-const cardStyles = {
-  heading: css({
+  heading: {
     fontSize: typography['--gf-typography-h5-font-size'],
     fontWeight: 'inherit',
-  }),
-  figure: css({
+  },
+  figure: {
     width: 'inherit',
     marginRight: '0px',
-    '> img': {
-      width: `calc(${spacing['--gf-spacing-grid-size']} * 7)`,
-    },
-  }),
-  meta: css({
+  },
+  meta: {
     marginTop: '6px',
     position: 'relative',
-  }),
-  card: css({
+  },
+  card: {
     gridTemplateAreas: `
         "Figure   Heading   Actions"
         "Figure Description Actions"
         "Figure    Meta     Actions"
         "Figure     -       Actions"`,
-  }),
-};
+  },
+});

@@ -13,8 +13,6 @@ import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { type GrafanaAnnotationQuery, GrafanaAnnotationType, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { TimeRegionEditor } from './TimeRegionEditor';
-import './AnnotationQueryEditor.css';
-
 const matchTooltipContent = 'Enabling this returns annotations that match any of the tags specified below';
 
 const tagsTooltipContent = (
@@ -109,7 +107,7 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
   };
 
   return (
-    <FieldSet className={`gf-grafana-annotation-query-editor ${stylex.props(styles.container).className}`}>
+    <FieldSet xstyle={styles.container}>
       <Field label="Query type">
         <Select
           inputId="grafana-annotations__query-type"
@@ -163,7 +161,9 @@ export default function AnnotationQueryEditor({ query, onChange }: Props) {
 }
 
 const styles = stylex.create({
+  // FieldSet's own :last-child margin still wins.
   container: {
     maxWidth: `calc(${spacing['--gf-spacing-grid-size']} * 60)`,
+    marginBottom: { default: spacing['--gf-spacing-x2'], ':last-child': 0 },
   },
 });

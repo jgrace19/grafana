@@ -1,0 +1,8 @@
+/*
+ * Greys out the label and icon Menu.Item renders; the label sets its own colour on an internal span, which no StyleX
+ * override prop reaches. Unlayered, at the specificity of the Emotion rules it replaces.
+ */
+.gf-build-dashboard-disabled-item span,
+.gf-build-dashboard-disabled-item svg {
+  color: var(--gf-colors-action-disabled-text);
+}

@@ -114,12 +114,7 @@ export const LogGroupsSelector = ({
 
   return (
     <>
-      <Modal
-        className="gf-cloudwatch-log-groups-modal"
-        title="Select log groups"
-        isOpen={isModalOpen}
-        onDismiss={toggleModal}
-      >
+      <Modal xstyle={styles.modal} title="Select log groups" isOpen={isModalOpen} onDismiss={toggleModal}>
         <div {...stylex.props(styles.logGroupSelectionArea)}>
           <div {...stylex.props(styles.searchField)}>
             <EditorField label="Log group name prefix">
@@ -211,7 +206,7 @@ export const LogGroupsSelector = ({
           </div>
         </div>
         <Space layout="block" v={2} />
-        <Label className="gf-cloudwatch-log-group-count">
+        <Label xstyle={styles.logGroupCount}>
           {selectedLogGroupsCounter} log group{selectedLogGroupsCounter !== 1 && 's'} selected
         </Label>
         <Space layout="block" v={1} />
@@ -265,6 +260,13 @@ export const LogGroupsSelector = ({
 };
 
 const styles = stylex.create({
+  modal: {
+    width: '992px',
+  },
+  logGroupCount: {
+    color: colors['--gf-colors-text-secondary'],
+    maxWidth: 'none',
+  },
   table: {
     width: '100%',
     tableLayout: 'fixed',

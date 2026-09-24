@@ -1,0 +1,7 @@
+/*
+ * Lets the heading's link button fill the heading, so its text can ellipsis. The button is Card's internal element,
+ * reset by Card.css's unlayered `all: unset`, so this stays unlayered at the Emotion rule's specificity.
+ */
+.gf-data-source-card-heading > button {
+  width: 100%;
+}

@@ -1,5 +1,0 @@
-/* FieldSet is still Emotion and sets its own margin-bottom: the doubled class wins that tie. FieldSet's
-   :last-child margin-bottom: 0 used to beat this override, so it stays excluded. */
-.gf-grafana-annotation-query-editor.gf-grafana-annotation-query-editor:not(:last-child) {
-  margin-bottom: var(--gf-spacing-x2);
-}

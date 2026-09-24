@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { Link } from 'react-router-dom-v5-compat';
 
@@ -19,7 +17,7 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
   const { connection } = useConnectionStatus(connectionName);
 
   return (
-    <Card noMargin className={cardClassName}>
+    <Card noMargin xstyle={styles.card}>
       <Card.Heading>
         <Trans i18nKey="provisioning.repository-overview.health">Health</Trans>
       </Card.Heading>
@@ -90,16 +88,13 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
 }
 
 const styles = stylex.create({
+  card: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x2'],
+  },
   spanTwo: {
     gridColumn: 'span 2',
   },
-});
-
-// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
-// reliably overrides Card's `display: grid`.
-const cardClassName = css({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing['--gf-spacing-x2'],
 });
