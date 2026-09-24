@@ -207,6 +207,7 @@ const stylexMigratedAppFiles = [
 ];
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
+/** @type {string[]} */
 const stylexNotMigratedAppFiles = [];
 
 const stylexRestrictedImports = {
