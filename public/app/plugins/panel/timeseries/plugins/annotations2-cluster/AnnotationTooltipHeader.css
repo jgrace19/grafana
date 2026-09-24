@@ -1,0 +1,4 @@
+/* The control buttons are IconButtons, which StyleX can't target from here. Not in a cascade layer. */
+.gf-annotation-tooltip-controls > :last-child {
+  margin-left: 0;
+}

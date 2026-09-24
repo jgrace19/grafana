@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useMeasure from 'react-use/lib/useMeasure';
 
-import { type DataFrame, type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type DataFrame, type LinkModel } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, RadioButtonGroup, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, RadioButtonGroup, Spinner } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shadows, shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { Edge } from './Edge';
 import { EdgeLabel } from './EdgeLabel';
@@ -23,93 +24,6 @@ import { useHighlight } from './useHighlight';
 import { usePanning } from './usePanning';
 import { useZoom } from './useZoom';
 import { processNodes, type Bounds, findConnectedNodesForEdge, findConnectedNodesForNode } from './utils';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    label: 'wrapper',
-    height: '100%',
-    width: '100%',
-    overflow: 'hidden',
-    position: 'relative',
-  }),
-
-  svg: css({
-    label: 'svg',
-    height: '100%',
-    width: '100%',
-    overflow: 'visible',
-    fontSize: '10px',
-    cursor: 'move',
-  }),
-
-  svgPanning: css({
-    label: 'svgPanning',
-    userSelect: 'none',
-  }),
-
-  noDataMsg: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-    placeItems: 'center',
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-
-  mainGroup: css({
-    label: 'mainGroup',
-    willChange: 'transform',
-  }),
-
-  viewControls: css({
-    label: 'viewControls',
-    position: 'absolute',
-    left: '2px',
-    bottom: '3px',
-    right: 0,
-    display: 'flex',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    pointerEvents: 'none',
-  }),
-  layoutAlgorithm: css({
-    label: 'layoutAlgorithm',
-    pointerEvents: 'all',
-    position: 'absolute',
-    top: '8px',
-    right: '8px',
-    zIndex: 1,
-  }),
-  legend: css({
-    label: 'legend',
-    background: theme.colors.background.secondary,
-    boxShadow: theme.shadows.z1,
-    paddingBottom: '5px',
-    marginRight: '10px',
-  }),
-  viewControlsWrapper: css({
-    marginLeft: 'auto',
-  }),
-  alert: css({
-    label: 'alert',
-    padding: '5px 8px',
-    fontSize: '10px',
-    textShadow: '0 1px 0 rgba(0, 0, 0, 0.2)',
-    borderRadius: theme.shape.radius.default,
-    alignItems: 'center',
-    position: 'absolute',
-    right: 0,
-    background: theme.colors.warning.main,
-    color: theme.colors.warning.contrastText,
-  }),
-  loadingWrapper: css({
-    label: 'loadingWrapper',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-});
 
 // Limits the number of visible nodes, mainly for performance reasons. Nodes above the limit are accessible by expanding
 // parts of the graph. The specific number is arbitrary but should be a number of nodes where panning, zooming and other
@@ -215,7 +129,6 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
     setConfig,
     setFocusedNodeId
   );
-  const styles = useStyles2(getStyles);
 
   // This cannot be inline func, or it will create infinite render cycle.
   const topLevelRef = useCallback(
@@ -241,16 +154,16 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
   }, [firstNodesDataFrame, firstEdgesDataFrame]);
 
   return (
-    <div ref={topLevelRef} className={styles.wrapper}>
+    <div ref={topLevelRef} {...stylex.props(styles.wrapper)}>
       {loading ? (
-        <div className={styles.loadingWrapper}>
+        <div {...stylex.props(styles.loadingWrapper)}>
           <Trans i18nKey="nodeGraph.node-graph.computing-layout">Computing layout</Trans>&nbsp;
           <Spinner />
         </div>
       ) : null}
 
       {!panelId && (
-        <div className={styles.layoutAlgorithm}>
+        <div {...stylex.props(styles.layoutAlgorithm)}>
           <RadioButtonGroup
             size="sm"
             options={[
@@ -274,11 +187,14 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
         <svg
           ref={panRef}
           viewBox={`${-(width / 2)} ${-(height / 2)} ${width} ${height}`}
-          className={cx(styles.svg, isPanning && styles.svgPanning)}
+          {...stylex.props(styles.svg, isPanning && styles.svgPanning)}
         >
           <g
-            className={styles.mainGroup}
-            style={{ transform: `scale(${scale}) translate(${Math.floor(position.x)}px, ${Math.floor(position.y)}px)` }}
+            {...mergeStylexProps(stylex.props(styles.mainGroup), {
+              style: {
+                transform: `scale(${scale}) translate(${Math.floor(position.x)}px, ${Math.floor(position.y)}px)`,
+              },
+            })}
           >
             {!config.gridLayout && (
               <Edges
@@ -307,14 +223,14 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
           </g>
         </svg>
       ) : (
-        <div className={styles.noDataMsg}>
+        <div {...stylex.props(styles.noDataMsg)}>
           <Trans i18nKey="nodeGraph.node-graph.no-data">No data</Trans>
         </div>
       )}
 
-      <div className={styles.viewControls}>
+      <div {...stylex.props(styles.viewControls)}>
         {nodes.length ? (
-          <div className={styles.legend}>
+          <div {...stylex.props(styles.legend)}>
             <Legend
               sortable={config.gridLayout}
               nodes={nodes}
@@ -329,7 +245,7 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
           </div>
         ) : null}
 
-        <div className={styles.viewControlsWrapper}>
+        <div {...stylex.props(styles.viewControlsWrapper)}>
           <ViewControls<Config>
             config={config}
             onConfigChange={handleLayoutChange}
@@ -344,8 +260,8 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
 
       {hiddenNodesCount > 0 && (
         <div
-          className={styles.alert}
-          style={{ top: panelId ? '0px' : '40px' }} // panelId is undefined in Explore
+          // panelId is undefined in Explore
+          {...mergeStylexProps(stylex.props(styles.alert), { style: { top: panelId ? '0px' : '40px' } })}
           aria-label={t('nodeGraph.node-graph.aria-label-nodes-hidden-warning', 'Nodes hidden warning')}
         >
           <Trans i18nKey="nodeGraph.node-graph.hidden-nodes" count={hiddenNodesCount}>
@@ -356,8 +272,7 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
 
       {config.layoutAlgorithm === LayoutAlgorithm.Layered && processed.nodes.length > layeredLayoutThreshold && (
         <div
-          className={styles.alert}
-          style={{ top: panelId ? '30px' : '70px' }}
+          {...mergeStylexProps(stylex.props(styles.alert), { style: { top: panelId ? '30px' : '70px' } })}
           aria-label={t(
             'nodeGraph.node-graph.aria-label-layered-layout-performance-warning',
             'Layered layout performance warning'
@@ -499,3 +414,79 @@ function useHover() {
 
   return { nodeHover, setNodeHover, clearNodeHover, edgeHover, setEdgeHover, clearEdgeHover };
 }
+
+const styles = stylex.create({
+  wrapper: {
+    height: '100%',
+    width: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  svg: {
+    height: '100%',
+    width: '100%',
+    overflow: 'visible',
+    fontSize: '10px',
+    cursor: 'move',
+  },
+  svgPanning: {
+    userSelect: 'none',
+  },
+  noDataMsg: {
+    height: '100%',
+    width: '100%',
+    display: 'grid',
+    placeItems: 'center',
+    fontSize: typography['--gf-typography-h4-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  mainGroup: {
+    willChange: 'transform',
+  },
+  viewControls: {
+    position: 'absolute',
+    left: '2px',
+    bottom: '3px',
+    right: 0,
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    pointerEvents: 'none',
+  },
+  layoutAlgorithm: {
+    pointerEvents: 'all',
+    position: 'absolute',
+    top: '8px',
+    right: '8px',
+    zIndex: 1,
+  },
+  legend: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    boxShadow: shadows['--gf-shadows-z1'],
+    paddingBottom: '5px',
+    marginRight: '10px',
+  },
+  viewControlsWrapper: {
+    marginLeft: 'auto',
+  },
+  alert: {
+    paddingTop: '5px',
+    paddingRight: '8px',
+    paddingBottom: '5px',
+    paddingLeft: '8px',
+    fontSize: '10px',
+    textShadow: '0 1px 0 rgba(0, 0, 0, 0.2)',
+    borderRadius: shape['--gf-shape-radius-default'],
+    alignItems: 'center',
+    position: 'absolute',
+    right: 0,
+    backgroundColor: colors['--gf-colors-warning-main'],
+    color: colors['--gf-colors-warning-contrast-text'],
+  },
+  loadingWrapper: {
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

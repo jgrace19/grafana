@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import alertDef from 'app/features/alerting/state/alertDef';
 
 interface Props {
@@ -9,22 +8,21 @@ interface Props {
 }
 
 export const AnnotationAlertState = ({ alertState }: Props) => {
-  const styles = useStyles2(getStyles);
   if (!alertState) {
     return null;
   }
 
   const stateModel = alertDef.getStateDisplayModel(alertState);
   return (
-    <div className={styles.alertState}>
+    <div {...stylex.props(styles.alertState)}>
       <i className={stateModel.stateClass}>{stateModel.text}</i>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alertState: css({
-    paddingRight: theme.spacing(1),
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
+const styles = stylex.create({
+  alertState: {
+    paddingRight: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
 });
