@@ -6,12 +6,14 @@ const fs = require('fs');
 const path = require('path');
 
 const { cssLayers, getStylexBabelOptions } = require('../stylex/options');
+const { stateRulesVisitor } = require('../stylex/stateRules');
 
 const StylexCachePlugin = require('./plugins/StylexCachePlugin');
 
 /**
  * StyleX is compiled by @stylexjs/unplugin (its own Babel pass, before esbuild-loader) and the
  * collected CSS is appended to the `app` entry's extracted stylesheet, which index.html links first.
+ * State rules leave the cascade layers there (see scripts/stylex/stateRules.js).
  *
  * @param {{ dev: boolean, cssInjectionTarget?: (fileName: string) => boolean }} opts
  */
@@ -22,7 +24,7 @@ function getStylexWebpackPlugins({ dev, cssInjectionTarget = (fileName) => /(^|\
       useCSSLayers: cssLayers,
       cssInjectionTarget,
       devMode: 'off',
-      lightningcssOptions: { minify: !dev },
+      lightningcssOptions: { minify: !dev, visitor: stateRulesVisitor },
     }),
     new StylexCachePlugin(),
   ];
@@ -45,6 +47,10 @@ const stylexCacheVersion = [
   packageVersion('@stylexjs/babel-plugin'),
   compilerHash,
   packageVersion('@stylexjs/unplugin'),
+  crypto
+    .createHash('sha1')
+    .update(fs.readFileSync(require.resolve('../stylex/stateRules')))
+    .digest('hex'),
   JSON.stringify({ ...getStylexBabelOptions(), cssLayers }),
 ].join('|');
 
