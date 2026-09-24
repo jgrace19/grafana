@@ -53,9 +53,12 @@ export function Form<T extends FieldValues>({
 
   return (
     <form
-      {...mergeStylexProps(stylex.props(styles.form, styles.maxWidth(maxWidth !== 'none' ? maxWidth + 'px' : maxWidth)), {
-        style,
-      })}
+      {...mergeStylexProps(
+        stylex.props(styles.form, styles.maxWidth(maxWidth !== 'none' ? maxWidth + 'px' : maxWidth)),
+        {
+          style,
+        }
+      )}
       onSubmit={handleSubmit(onSubmit)}
       {...htmlProps}
     >

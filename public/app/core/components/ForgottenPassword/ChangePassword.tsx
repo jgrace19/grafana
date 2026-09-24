@@ -27,7 +27,6 @@ interface PasswordDTO {
 }
 
 export const ChangePassword = ({ onSubmit, onSkip, showDefaultPasswordWarning }: Props) => {
-
   const [displayValidationLabels, setDisplayValidationLabels] = useState(false);
   const [pristine, setPristine] = useState(true);
 

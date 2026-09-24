@@ -19,7 +19,6 @@ import { LoginServiceButtons } from './LoginServiceButtons';
 import { UserSignup } from './UserSignup';
 
 const LoginPage = () => {
-
   document.title = Branding.AppTitle;
 
   return (
@@ -42,7 +41,11 @@ const LoginPage = () => {
             {!isChangingPassword && (
               <InnerBox>
                 {loginErrorMessage && (
-                  <Alert className={stylex.props(styles.alert).className} severity="error" title={t('login.error.title', 'Login failed')}>
+                  <Alert
+                    className={stylex.props(styles.alert).className}
+                    severity="error"
+                    title={t('login.error.title', 'Login failed')}
+                  >
                     {loginErrorMessage}
                   </Alert>
                 )}

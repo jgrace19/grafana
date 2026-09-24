@@ -178,7 +178,13 @@ export const UpgradeContent = ({
           </Button>
         )}
         {featureUrl && (
-          <LinkButton fill={'text'} href={featureUrl} className={stylex.props(contentStyles.link).className} target="_blank" rel="noreferrer noopener">
+          <LinkButton
+            fill={'text'}
+            href={featureUrl}
+            className={stylex.props(contentStyles.link).className}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
             <Trans i18nKey="upgrade-box.learn-more">Learn more</Trans>
           </LinkButton>
         )}

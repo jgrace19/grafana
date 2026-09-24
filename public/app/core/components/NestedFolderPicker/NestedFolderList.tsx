@@ -157,7 +157,6 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
     siblings = (parentUID ? childrenCollections[parentUID] : rootCollection)?.items ?? [];
   }
 
-
   const handleExpand = useCallback(
     (ev: React.MouseEvent<HTMLButtonElement>) => {
       ev.preventDefault();

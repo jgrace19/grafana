@@ -13,7 +13,6 @@ export interface Props extends HTMLAttributes<HTMLSpanElement> {
 }
 
 export const ProBadge = ({ className, experimentId, eventVariant = '', ...htmlProps }: Props) => {
-
   useEffect(() => {
     if (experimentId) {
       reportExperimentView(experimentId, 'test', eventVariant);
