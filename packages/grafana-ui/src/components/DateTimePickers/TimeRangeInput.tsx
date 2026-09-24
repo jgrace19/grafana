@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
 import { useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import { FocusScope } from '@react-aria/focus';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, type MouseEvent, useState } from 'react';
 
-import { dateTime, getDefaultTimeRange, type GrafanaTheme2, type TimeRange, type TimeZone } from '@grafana/data';
+import { dateTime, getDefaultTimeRange, type TimeRange, type TimeZone } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion, zIndex } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
-import { getInputStyles } from '../Input/Input';
 
 import { TimePickerContent } from './TimeRangePicker/TimePickerContent';
 import { TimeRangeLabel } from './TimeRangePicker/TimeRangeLabel';
@@ -56,7 +57,6 @@ export const TimeRangeInput = ({
   showIcon = false,
 }: TimeRangeInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const styles = useStyles2(getStyles, disabled);
 
   const onOpen = (event: FormEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -99,23 +99,23 @@ export const TimeRangeInput = ({
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <button
         type="button"
-        className={styles.pickerInput}
+        {...stylex.props(styles.pickerInput, disabled && styles.inputDisabled)}
         data-testid={selectors.components.TimePicker.openButton}
         onClick={onOpen}
         ref={refs.setReference}
         {...getReferenceProps()}
       >
-        {showIcon && <Icon name="clock-nine" size={'sm'} className={styles.icon} />}
+        {showIcon && <Icon name="clock-nine" size={'sm'} xstyle={styles.icon} />}
 
         <TimeRangeLabel value={value} timeZone={timeZone} placeholder={placeholder} />
 
         {!disabled && (
-          <span className={styles.caretIcon}>
+          <span {...stylex.props(styles.caretIcon)}>
             {isValidTimeRange(value) && clearable && (
-              <Icon className={styles.clearIcon} name="times" size="lg" onClick={onRangeClear} />
+              <Icon xstyle={styles.clearIcon} name="times" size="lg" onClick={onRangeClear} />
             )}
             <Icon name={isOpen ? 'angle-up' : 'angle-down'} size="lg" />
           </span>
@@ -123,14 +123,18 @@ export const TimeRangeInput = ({
       </button>
       {isOpen && (
         <FocusScope contain autoFocus restoreFocus>
-          <section className={styles.content} ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
+          <section
+            {...mergeStylexProps(stylex.props(styles.content), { style: floatingStyles })}
+            ref={refs.setFloating}
+            {...getFloatingProps()}
+          >
             <TimePickerContent
               timeZone={timeZone}
               value={isValidTimeRange(value) ? value : getDefaultTimeRange()}
               onChange={onRangeChange}
               quickOptions={getQuickOptions()}
               onChangeTimeZone={onChangeTimeZone}
-              className={styles.content}
+              className={stylex.props(styles.content).className}
               hideTimeZone={hideTimeZone}
               isReversed={isReversed}
               hideQuickRanges={hideQuickRanges}
@@ -143,52 +147,93 @@ export const TimeRangeInput = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, disabled = false) => {
-  const inputStyles = getInputStyles({ theme, invalid: false });
-  return {
-    container: css({
-      display: 'flex',
-      position: 'relative',
-    }),
-    content: css({
-      marginLeft: 0,
-      position: 'absolute',
-      top: '116%',
-      zIndex: theme.zIndex.modal,
-    }),
-    pickerInput: cx(
-      inputStyles.input,
-      disabled && inputStyles.inputDisabled,
-      inputStyles.wrapper,
-      css({
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        cursor: 'pointer',
-        paddingRight: 0,
-        lineHeight: `${theme.spacing.gridSize * 4 - 2}px`,
-      })
-    ),
-    caretIcon: cx(
-      inputStyles.suffix,
-      css({
-        position: 'relative',
-        top: '-1px',
-        marginLeft: theme.spacing(0.5),
-      })
-    ),
-    clearIcon: css({
-      marginRight: theme.spacing(0.5),
-      '&:hover': {
-        color: theme.colors.text.maxContrast,
-      },
-    }),
-    placeholder: css({
-      color: theme.colors.text.disabled,
-      opacity: 1,
-    }),
-    icon: css({
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-};
+// The Input look (getInputStyles `input` + `wrapper`) as Emotion's merged class resolved it on a <button>.
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    position: 'relative',
+  },
+  content: {
+    marginLeft: 0,
+    position: 'absolute',
+    top: '116%',
+    zIndex: zIndex.modal,
+  },
+  pickerInput: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    backgroundColor: components['--gf-components-input-background'],
+    lineHeight: `calc(${spacing['--gf-spacing-grid-size']} * 4 - 2px)`,
+    fontSize: typography['--gf-typography-size-md'],
+    color: components['--gf-components-input-text'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    position: 'relative',
+    zIndex: 0,
+    flexGrow: 1,
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+    // Input's later `:focus { outline: none }` replaced the ring's transparent outline.
+    outlineStyle: { default: null, ':focus': 'none' },
+    outlineOffset: { default: null, ':focus': '2px' },
+    boxShadow: {
+      default: null,
+      ':focus': `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`,
+    },
+    transitionProperty: { default: null, ':focus': 'outline, outline-offset, box-shadow' },
+    transitionDuration: { default: null, ':focus': { default: null, [motion.noPreferenceOrReduce]: '0.2s' } },
+    transitionTimingFunction: {
+      default: null,
+      ':focus': { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.19, 1, 0.22, 1)' },
+    },
+  },
+  // Disabled keeps the hover border colour, like the Emotion rule it replaces.
+  inputDisabled: {
+    backgroundColor: colors['--gf-colors-action-disabled-background'],
+    color: colors['--gf-colors-action-disabled-text'],
+    borderColor: {
+      default: colors['--gf-colors-action-disabled-background'],
+      ':hover': components['--gf-components-input-border-hover'],
+    },
+    boxShadow: { default: null, ':focus': 'none' },
+  },
+  caretIcon: {
+    position: 'relative',
+    top: '-1px',
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    height: '100%',
+    minWidth: '28px',
+    color: colors['--gf-colors-text-secondary'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    borderLeftStyle: 'none',
+    borderTopLeftRadius: 'unset',
+    borderBottomLeftRadius: 'unset',
+    right: 0,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+  clearIcon: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    color: { default: null, ':hover': colors['--gf-colors-text-max-contrast'] },
+  },
+  icon: {
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+  },
+});

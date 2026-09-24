@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { type MouseEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -14,6 +15,7 @@ import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery, type TimeZone } from '@grafana/schema';
 import { Icon, type PopoverContent, Tooltip, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
 
 import { checkLogsError, checkLogsSampled, escapeUnescapedString } from '../utils';
@@ -22,7 +24,7 @@ import { LogDetails } from './LogDetails';
 import { LogLabels } from './LogLabels';
 import { LogRowMessage } from './LogRowMessage';
 import { LogRowMessageDisplayedFields } from './LogRowMessageDisplayedFields';
-import { getLogLevelStyles, type LogRowStyles } from './getLogRowStyles';
+import { getLogLevelStyle, LOGS_ROW_CLASS, LOGS_ROW_LABELS_CLASS, logRowStyles } from './getLogRowStyles';
 
 export interface Props {
   row: LogRowModel;
@@ -53,7 +55,6 @@ export interface Props {
     cacheFilters?: boolean
   ) => Promise<DataQuery | null>;
   onPermalinkClick?: (row: LogRowModel) => Promise<void>;
-  styles: LogRowStyles;
   permalinkedRowId?: string;
   scrollIntoView?: (element: HTMLElement) => void;
   isFilterLabelActive?: (key: string, value: string, refId?: string) => Promise<boolean>;
@@ -85,7 +86,6 @@ export const LogRow = ({
   getFieldLinks,
   forceEscape,
   app,
-  styles,
   getRowContextQuery,
   pinned,
   logRowMenuIconsBefore,
@@ -112,7 +112,7 @@ export const LogRow = ({
       }),
     [row.timeEpochMs, timeZone]
   );
-  const levelStyles = useMemo(() => getLogLevelStyles(theme, row.logLevel), [row.logLevel, theme]);
+  const levelStyle = getLogLevelStyle(theme, row.logLevel);
   const processedRow = useMemo(
     () => (row.hasUnescapedContent && forceEscape ? { ...row, entry: escapeUnescapedString(row.entry) } : row),
     [forceEscape, row]
@@ -205,7 +205,15 @@ export const LogRow = ({
     <>
       <tr
         ref={logLineRef}
-        className={`${styles.logsRow} ${hasError ? styles.errorLogRow : ''} ${showingContext || permalinked || pinned ? styles.highlightBackground : ''}`}
+        {...mergeStylexProps(
+          stylex.props(
+            logRowStyles.logsRow,
+            hasError && logRowStyles.errorLogRow,
+            (showingContext || permalinked || pinned) && logRowStyles.highlightBackground
+          ),
+          { className: LOGS_ROW_CLASS }
+        )}
+        data-highlighted={showingContext || permalinked || pinned || undefined}
         onClick={onRowClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -218,14 +226,14 @@ export const LogRow = ({
         onFocus={onMouseEnter}
       >
         {showDuplicates && (
-          <td className={styles.logsRowDuplicates}>
+          <td {...stylex.props(logRowStyles.logsRowDuplicates)}>
             {processedRow.duplicates && processedRow.duplicates > 0 ? `${processedRow.duplicates + 1}x` : null}
           </td>
         )}
         <td
-          className={
-            hasError || isSampled ? styles.logsRowWithError : `${levelStyles.logsRowLevelColor} ${styles.logsRowLevel}`
-          }
+          {...stylex.props(
+            hasError || isSampled ? logRowStyles.logsRowWithError : [logRowStyles.logsRowLevel, levelStyle]
+          )}
         >
           {hasError && (
             <Tooltip
@@ -233,32 +241,32 @@ export const LogRow = ({
               placement="right"
               theme="error"
             >
-              <Icon className={styles.logIconError} name="exclamation-triangle" size="xs" />
+              <Icon xstyle={logRowStyles.logIconError} name="exclamation-triangle" size="xs" />
             </Tooltip>
           )}
           {isSampled && (
             <Tooltip content={sampleMessage} placement="right" theme="info">
-              <Icon className={styles.logIconInfo} name="info-circle" size="xs" />
+              <Icon xstyle={logRowStyles.logIconInfo} name="info-circle" size="xs" />
             </Tooltip>
           )}
         </td>
         <td
           title={enableLogDetails ? (showDetails ? 'Hide log details' : 'See log details') : ''}
-          className={enableLogDetails ? styles.logsRowToggleDetails : ''}
+          {...stylex.props(enableLogDetails && logRowStyles.logsRowToggleDetails)}
         >
           {enableLogDetails && (
             <button
               aria-label={t('logs.log-row-message.see-details', `See log details`)}
-              className={styles.detailsToggle}
+              {...stylex.props(logRowStyles.detailsToggle)}
               aria-expanded={showDetails}
             >
-              <Icon className={styles.topVerticalAlign} name={showDetails ? 'angle-down' : 'angle-right'} />
+              <Icon xstyle={logRowStyles.topVerticalAlign} name={showDetails ? 'angle-down' : 'angle-right'} />
             </button>
           )}
         </td>
-        {showTime && <td className={styles.logsRowLocalTime}>{timestamp}</td>}
+        {showTime && <td {...stylex.props(logRowStyles.logsRowLocalTime)}>{timestamp}</td>}
         {showLabels && processedRow.uniqueLabels && (
-          <td className={styles.logsRowLabels}>
+          <td {...mergeStylexProps(stylex.props(logRowStyles.logsRowLabels), { className: LOGS_ROW_LABELS_CLASS })}>
             <LogLabels labels={processedRow.uniqueLabels} addTooltip={false} />
           </td>
         )}
@@ -271,7 +279,6 @@ export const LogRow = ({
             wrapLogMessage={wrapLogMessage}
             onOpenContext={onOpenContext}
             onPermalinkClick={props.onPermalinkClick}
-            styles={styles}
             onPinLine={props.onPinLine}
             onUnpinLine={props.onUnpinLine}
             pinned={pinned}
@@ -290,7 +297,6 @@ export const LogRow = ({
             onOpenContext={onOpenContext}
             onPermalinkClick={props.onPermalinkClick}
             app={app}
-            styles={styles}
             onPinLine={props.onPinLine}
             onUnpinLine={props.onUnpinLine}
             pinLineButtonTooltipTitle={props.pinLineButtonTooltipTitle}
@@ -307,7 +313,6 @@ export const LogRow = ({
       {showDetails && (
         <LogDetails
           onPinLine={props.onPinLine}
-          className={`${styles.logsRow} ${hasError ? styles.errorLogRow : ''} ${permalinked && !showDetails ? styles.highlightBackground : ''}`}
           showDuplicates={showDuplicates}
           getFieldLinks={getFieldLinks}
           onClickFilterLabel={onClickFilterLabel}
@@ -320,7 +325,6 @@ export const LogRow = ({
           hasError={hasError}
           displayedFields={displayedFields}
           app={app}
-          styles={styles}
           isFilterLabelActive={props.isFilterLabelActive}
           pinLineButtonTooltipTitle={props.pinLineButtonTooltipTitle}
           timeRange={props.timeRange}

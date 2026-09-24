@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, useCallback, useEffect, useId, useState } from 'react';
 import * as React from 'react';
 
@@ -6,7 +6,6 @@ import {
   type DateTime,
   dateTimeFormat,
   dateTimeParse,
-  type GrafanaTheme2,
   isDateTime,
   rangeUtil,
   type RawTimeRange,
@@ -16,7 +15,7 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { spacing } from '../../../themes/stylex/tokens.stylex';
 import { Button } from '../../Button/Button';
 import { Field } from '../../Forms/Field';
 import { Icon } from '../../Icon/Icon';
@@ -63,7 +62,6 @@ export const TimeRangeContent = (props: Props) => {
     weekStart,
   } = props;
   const [fromValue, toValue] = valueToState(value.raw.from, value.raw.to, timeZone);
-  const style = useStyles2(getStyles);
 
   const [from, setFrom] = useState<InputState>(fromValue);
   const [to, setTo] = useState<InputState>(toValue);
@@ -140,7 +138,7 @@ export const TimeRangeContent = (props: Props) => {
   const fiscalYear = rangeUtil.convertRawToRange({ from: 'now/fy', to: 'now/fy' }, timeZone, fiscalYearStartMonth);
 
   const fyTooltip = (
-    <div className={style.tooltip}>
+    <div {...stylex.props(styles.tooltip)}>
       {rangeUtil.isFiscal(value) ? (
         <Tooltip
           content={t('time-picker.range-content.fiscal-year', 'Fiscal year: {{from}} - {{to}}', {
@@ -167,7 +165,7 @@ export const TimeRangeContent = (props: Props) => {
 
   return (
     <div>
-      <div className={style.fieldContainer}>
+      <div {...stylex.props(styles.fieldContainer)}>
         <Field
           label={t('time-picker.range-content.from-input', 'From')}
           invalid={from.invalid}
@@ -185,7 +183,7 @@ export const TimeRangeContent = (props: Props) => {
         </Field>
         {fyTooltip}
       </div>
-      <div className={style.fieldContainer}>
+      <div {...stylex.props(styles.fieldContainer)}>
         <Field label={t('time-picker.range-content.to-input', 'To')} invalid={to.invalid} error={to.errorMessage}>
           <Input
             id={toFieldId}
@@ -199,7 +197,7 @@ export const TimeRangeContent = (props: Props) => {
         </Field>
         {fyTooltip}
       </div>
-      <div className={style.buttonsContainer}>
+      <div {...stylex.props(styles.buttonsContainer)}>
         <Button
           data-testid={selectors.components.TimePicker.copyTimeRange}
           icon="copy"
@@ -280,19 +278,17 @@ function valueAsString(value: DateTime | string, timeZone?: TimeZone): string {
   return value;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    fieldContainer: css({
-      display: 'flex',
-    }),
-    buttonsContainer: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      marginTop: theme.spacing(1),
-    }),
-    tooltip: css({
-      paddingLeft: theme.spacing(1),
-      paddingTop: theme.spacing(3),
-    }),
-  };
-}
+const styles = stylex.create({
+  fieldContainer: {
+    display: 'flex',
+  },
+  buttonsContainer: {
+    display: 'flex',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  tooltip: {
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+  },
+});

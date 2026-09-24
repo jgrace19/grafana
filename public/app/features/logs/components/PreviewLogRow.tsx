@@ -1,5 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
+
+import { mergeStylexProps } from '@grafana/ui/internal';
+
 import { type Props } from './LogRow';
 import { LogRowMessageDisplayedFields } from './LogRowMessageDisplayedFields';
+import { logRowStyles } from './getLogRowStyles';
 
 const emptyFn = () => {};
 export const PreviewLogRow = ({ row, showDuplicates, showLabels, showTime, displayedFields, ...rest }: Props) => {
@@ -21,9 +26,9 @@ export const PreviewLogRow = ({ row, showDuplicates, showLabels, showTime, displ
           preview
         />
       ) : (
-        <td className={rest.styles.logsRowMessage}>{row.entry}</td>
+        <td {...stylex.props(logRowStyles.logsRowMessage)}>{row.entry}</td>
       )}
-      <td className={`log-row-menu-cell ${rest.styles.logRowMenuCell}`}></td>
+      <td {...mergeStylexProps(stylex.props(logRowStyles.logRowMenuCell), { className: 'log-row-menu-cell' })}></td>
     </tr>
   );
 };

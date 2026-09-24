@@ -2,23 +2,19 @@ import { render, screen, fireEvent, getDefaultNormalizer } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { type ComponentProps } from 'react';
 
-import { CoreApp, createTheme, LogLevel, type LogRowModel } from '@grafana/data';
+import { CoreApp, LogLevel, type LogRowModel } from '@grafana/data';
 import { IconButton } from '@grafana/ui';
 
 import { LogRowMessage, MAX_CHARACTERS } from './LogRowMessage';
-import { getLogRowStyles } from './getLogRowStyles';
 import { createLogRow } from './mocks/logRow';
 
 const setup = (propOverrides?: Partial<ComponentProps<typeof LogRowMessage>>, rowOverrides?: Partial<LogRowModel>) => {
-  const theme = createTheme();
-  const styles = getLogRowStyles(theme);
   const props: ComponentProps<typeof LogRowMessage> = {
     wrapLogMessage: false,
     row: createLogRow({ entry: 'test123', logLevel: LogLevel.error, timeEpochMs: 1546297200000, ...rowOverrides }),
     onOpenContext: () => {},
     prettifyLogMessage: false,
     app: CoreApp.Explore,
-    styles,
     mouseIsOver: true,
     onBlur: jest.fn(),
     ...(propOverrides || {}),

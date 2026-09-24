@@ -1,15 +1,17 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import { usePrevious } from 'react-use';
 import { type ListChildComponentProps, type ListOnItemsRenderedProps } from 'react-window';
+import tinycolor from 'tinycolor2';
 
 import { type AbsoluteTimeRange, LogsSortOrder, type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Spinner, useStyles2 } from '@grafana/ui';
+import { Spinner, useTheme2 } from '@grafana/ui';
 
 import { canScrollBottom, canScrollTop, getVisibleRange, ScrollDirection, shouldLoadMore } from '../InfiniteScroll';
 
-import { getStyles, LogLine } from './LogLine';
+import { LogLine, logLineStyles } from './LogLine';
 import { LogLineMessage } from './LogLineMessage';
 import { type LogListModel } from './processing';
 import { type LogLineVirtualization } from './virtualization';
@@ -72,7 +74,7 @@ export const InfiniteScroll = ({
   const lastEvent = useRef<Event | WheelEvent | null>(null);
   const countRef = useRef(0);
   const lastLogOfPage = useRef<string[]>([]);
-  const styles = useStyles2(getStyles, virtualization, displayedFields);
+  const theme = useTheme2();
   const resetStateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollToLogLineRef = useRef<LogListModel | undefined>(undefined);
   const noScrollRef = useRef<undefined | boolean>(undefined);
@@ -205,7 +207,6 @@ export const InfiniteScroll = ({
         return (
           <LogLineMessage
             style={style}
-            styles={styles}
             onClick={infiniteLoaderState === 'pre-scroll-bottom' ? loadMoreBottom : undefined}
           >
             {getMessageFromInfiniteLoaderState(infiniteLoaderState, sortOrder)}
@@ -221,7 +222,6 @@ export const InfiniteScroll = ({
           onClick={onClick}
           showTime={showTime}
           style={style}
-          styles={styles}
           timeRange={timeRange}
           timeZone={timeZone}
           variant={getLogLineVariant(logs, index, lastLogOfPage.current)}
@@ -240,7 +240,6 @@ export const InfiniteScroll = ({
       onClick,
       showTime,
       sortOrder,
-      styles,
       timeRange,
       timeZone,
       virtualization,
@@ -281,8 +280,13 @@ export const InfiniteScroll = ({
   return (
     <>
       {infiniteLoaderState === 'pre-scroll-top' && (
-        <div className={styles.loadMoreTopContainer}>
-          <LogLineMessage style={{}} styles={styles} onClick={loadMoreTop}>
+        <div
+          {...stylex.props(
+            logLineStyles.loadMoreTopContainer,
+            logLineStyles.loadMoreTopBackground(tinycolor(theme.colors.background.primary).setAlpha(0.75).toString())
+          )}
+        >
+          <LogLineMessage style={{}} onClick={loadMoreTop}>
             {t('logs.infinite-scroll.load-more', 'Scroll to load more')}
           </LogLineMessage>
         </div>

@@ -1,8 +1,6 @@
-import { css, cx } from '@emotion/css';
-import { type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Card, useStyles2 } from '@grafana/ui';
+import { Card } from '@grafana/ui';
 
 import { type RuleFormType } from '../../../types/rule-form';
 
@@ -22,15 +20,15 @@ export interface SharedProps {
 
 const RuleType = (props: Props) => {
   const { name, description, image, selected = false, value, onClick, disabled = false } = props;
-  const styles = useStyles2(getStyles);
-
-  const cardStyles = cx({
-    [styles.wrapper]: true,
-    [styles.disabled]: disabled,
-  });
 
   return (
-    <Card noMargin className={cardStyles} isSelected={selected} onClick={() => onClick(value)} disabled={disabled}>
+    <Card
+      noMargin
+      style={disabled ? disabledCardStyle : cardStyle}
+      isSelected={selected}
+      onClick={() => onClick(value)}
+      disabled={disabled}
+    >
       <Card.Figure>
         <img src={image} alt="" />
       </Card.Figure>
@@ -40,15 +38,16 @@ const RuleType = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    width: '380px',
-    cursor: 'pointer',
-    userSelect: 'none',
-  }),
-  disabled: css({
-    opacity: '0.5',
-  }),
-});
+// Card has no xstyle for consumers, and these must win over its own width and cursor in every state.
+const cardStyle: CSSProperties = {
+  width: '380px',
+  cursor: 'pointer',
+  userSelect: 'none',
+};
+
+const disabledCardStyle: CSSProperties = {
+  ...cardStyle,
+  opacity: 0.5,
+};
 
 export { RuleType };

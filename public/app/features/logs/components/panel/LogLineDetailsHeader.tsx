@@ -1,16 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, type MouseEvent, useRef, type ChangeEvent } from 'react';
 
-import { colorManipulator, type GrafanaTheme2, type LogRowModel, store } from '@grafana/data';
+import { type LogRowModel, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, Input, useStyles2 } from '@grafana/ui';
+import { IconButton, Input } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { copyText, handleOpenLogsContextClick } from '../../utils';
 import { LOG_LINE_BODY_FIELD_NAME } from '../fieldSelector/logFields';
 
 import { useLogDetailsContext } from './LogDetailsContext';
-import { type LogLineDetailsMode } from './LogLineDetails';
 import { useLogIsPinned, useLogListContext } from './LogListContext';
 import { type LogListModel } from './processing';
 
@@ -40,7 +41,6 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   } = useLogListContext();
   const { closeDetails, detailsMode, setDetailsMode, toggleDetails } = useLogDetailsContext();
   const pinned = useLogIsPinned(log);
-  const styles = useStyles2(getStyles, detailsMode, wrapLogMessage);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const searchUsedRef = useRef(false);
@@ -151,14 +151,17 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   }, [log, toggleDetails]);
 
   return (
-    <div className={styles.header} ref={containerRef}>
+    <div
+      {...stylex.props(styles.header, !wrapLogMessage && detailsMode === 'inline' && styles.headerReversed)}
+      ref={containerRef}
+    >
       <Input
         onChange={handleSearch}
         placeholder={t('logs.log-line-details.search-placeholder', 'Search field names and values')}
         ref={inputRef}
         suffix={search !== '' ? clearSearch : undefined}
       />
-      <div className={styles.icons}>
+      <div {...stylex.props(styles.icons)}>
         {isAssistantAvailable && (
           <IconButton
             tooltip={t('logs.log-line-details.open-assistant', 'Explain log line in Assistant')}
@@ -243,7 +246,7 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
             tabIndex={0}
           />
         )}
-        <div className={`${styles.divider} ${styles.dividerMargin}`} />
+        <div {...stylex.props(styles.divider, styles.dividerMargin)} />
         <IconButton
           name={detailsMode === 'inline' ? 'web-section' : 'gf-layout-simple'}
           tooltip={
@@ -253,7 +256,7 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
           }
           onClick={toggleDetailsMode}
         />
-        <div className={styles.divider} />
+        <div {...stylex.props(styles.divider)} />
         {detailsMode === 'sidebar' ? (
           <IconButton
             name="times"
@@ -274,54 +277,42 @@ export const LogLineDetailsHeader = ({ focusLogLine, log, search, onSearch }: Pr
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, mode: LogLineDetailsMode, wrapLogMessage: boolean) => ({
-  container: css({
-    overflow: 'auto',
-    height: '100%',
-  }),
-  scrollContainer: css({
-    overflow: 'auto',
-    height: '100%',
-  }),
-  header: css({
+const styles = stylex.create({
+  header: {
     alignItems: 'center',
-    borderTopLeftRadius: theme.shape.radius.default,
-    borderTopRightRadius: theme.shape.radius.default,
-    background: theme.colors.background.canvas,
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-canvas'],
     display: 'flex',
-    flexDirection: !wrapLogMessage && mode === 'inline' ? 'row-reverse' : 'row',
-    gap: theme.spacing(0.75),
-    zIndex: theme.zIndex.navbarFixed,
-    height: theme.spacing(5.5),
-    marginBottom: theme.spacing(1),
-    padding: theme.spacing(0.5, 1),
+    flexDirection: 'row',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    zIndex: zIndex.navbarFixed,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 5.5)`,
+    marginBottom: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
     position: 'sticky',
     top: 0,
-  }),
-  icons: css({
+  },
+  headerReversed: {
+    flexDirection: 'row-reverse',
+  },
+  icons: {
     display: 'flex',
-    gap: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
     alignContent: 'center',
-  }),
-  copyLogButton: css({
-    padding: 0,
-    height: theme.spacing(4),
-    width: theme.spacing(2.5),
-    overflow: 'hidden',
-    '&:hover': {
-      backgroundColor: colorManipulator.alpha(theme.colors.text.primary, 0.12),
-    },
-  }),
-  componentWrapper: css({
-    padding: theme.spacing(0, 1, 1, 1),
-  }),
-  divider: css({
+  },
+  divider: {
     width: 1,
-    borderRight: `solid 1px ${theme.colors.border.medium}`,
-    height: theme.spacing(2.25),
-  }),
-  dividerMargin: css({
-    marginRight: theme.spacing(0.5),
-  }),
+    borderRightStyle: 'solid',
+    borderRightWidth: '1px',
+    borderRightColor: colors['--gf-colors-border-medium'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 2.25)`,
+  },
+  dividerMargin: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
 });

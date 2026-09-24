@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { startTransition, useCallback, useMemo, useState } from 'react';
 
-import { fuzzySearch, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { fuzzySearch } from '@grafana/data';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { defaultOptions } from 'app/plugins/panel/logstable/panelcfg.gen';
 
 import { reportInteractionOnce } from '../panel/analytics';
@@ -49,7 +49,6 @@ export const FieldSelector = ({
   toggleLevel,
 }: FieldSelectorProps) => {
   const [searchValue, setSearchValue] = useState<string>('');
-  const styles = useStyles2(getStyles);
 
   const onSearchInputChange = useCallback((e?: React.FormEvent<HTMLInputElement>) => {
     if (e === undefined) {
@@ -85,7 +84,7 @@ export const FieldSelector = ({
   }, [searchValue, suggestedFields]);
 
   return (
-    <section className={styles.sidebar}>
+    <section {...stylex.props(styles.sidebar)}>
       <FieldSearch collapse={collapse} onChange={onSearchInputChange} value={searchValue} />
       <FieldList
         activeFields={activeFields}
@@ -101,15 +100,16 @@ export const FieldSelector = ({
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    sidebar: css({
-      fontSize: theme.typography.pxToRem(11),
-      paddingRight: theme.spacing(3),
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-    }),
-  };
-}
+// theme.typography.pxToRem(11), derived from the 12px bodySmall size so it follows the theme's font sizes.
+const smallFontSize = `calc(${typography['--gf-typography-body-small-font-size']} * 11 / 12)`;
+
+const styles = stylex.create({
+  sidebar: {
+    fontSize: smallFontSize,
+    paddingRight: spacing['--gf-spacing-x3'],
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+});

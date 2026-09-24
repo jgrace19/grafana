@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, type SubmitErrorHandler, type UseFormWatch, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
-import { Alert, Button, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Stack } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import InfoPausedRule from 'app/features/alerting/unified/components/InfoPausedRule';
@@ -79,7 +79,6 @@ type Props = {
 };
 
 export const AlertRuleForm = ({ existing, prefill, isManualRestore }: Props) => {
-  const styles = useStyles2(getStyles);
   const notifyApp = useAppNotification();
 
   const routeParams = useParams<{ type: string; id: string }>();
@@ -228,8 +227,8 @@ export const AlertRuleForm = ({ existing, prefill, isManualRestore }: Props) => 
 
   return (
     <FormProvider {...formAPI}>
-      <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-        <div className={styles.contentOuter}>
+      <form onSubmit={(e) => e.preventDefault()} {...stylex.props(styles.form)}>
+        <div {...stylex.props(styles.contentOuter)}>
           {isManualRestore && (
             <Alert
               severity="warning"
@@ -394,17 +393,17 @@ function storeInLocalStorageValues(values: RuleFormValues) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  form: css({
+const styles = stylex.create({
+  form: {
     width: '100%',
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-  }),
-  contentOuter: css({
-    background: theme.colors.background.primary,
+  },
+  contentOuter: {
+    backgroundColor: colors['--gf-colors-background-primary'],
     overflow: 'hidden',
-    maxWidth: theme.breakpoints.values.xl,
-    flex: 1,
-  }),
+    maxWidth: '1200px',
+    flex: '1',
+  },
 });

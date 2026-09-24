@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent, type ReactNode, useState, useMemo, useCallback, useRef, useEffect, memo } from 'react';
 
 import {
@@ -23,7 +23,7 @@ import { disablePopoverMenu, enablePopoverMenu, isPopoverMenuDisabled, sortLogRo
 //Components
 import { LogRow } from './LogRow';
 import { PreviewLogRow } from './PreviewLogRow';
-import { getLogRowStyles } from './getLogRowStyles';
+import { getLogRowStyles, logRowStyles } from './getLogRowStyles';
 
 export interface Props {
   logRows?: LogRowModel[];
@@ -115,7 +115,7 @@ export const LogRows = memo(
     const [showDisablePopoverOptions, setShowDisablePopoverOptions] = useState(false);
     const logRowsRef = useRef<HTMLDivElement>(null);
     const theme = useTheme2();
-    const styles = getLogRowStyles(theme);
+    const { vars: rowVars } = getLogRowStyles(theme);
     const dedupedRows = deduplicatedRows ? deduplicatedRows : logRows;
     const dedupCount = useMemo(
       () => dedupedRows.reduce((sum, row) => (row.duplicates ? sum + row.duplicates : sum), 0),
@@ -252,7 +252,7 @@ export const LogRows = memo(
     }, []);
 
     return (
-      <div className={styles.logRows} ref={logRowsRef}>
+      <div {...stylex.props(logRowStyles.logRows, rowVars)} ref={logRowsRef}>
         {popoverState.selection && popoverState.selectedRow && (
           <PopoverMenu
             close={closePopoverMenu}
@@ -274,7 +274,7 @@ export const LogRows = memo(
                   You are about to disable the logs filter menu. To re-enable it, select text in a log line while
                   holding the alt key.
                 </Trans>
-                <div className={styles.shortcut}>
+                <div {...stylex.props(logRowStyles.shortcut)}>
                   <Icon name="keyboard" />
                   <Trans i18nKey="logs.log-rows.disable-popover-message.shortcut">alt+select to enable again</Trans>
                 </div>
@@ -285,7 +285,9 @@ export const LogRows = memo(
             onDismiss={onDisableCancel}
           />
         )}
-        <table className={cx(styles.logsRowsTable, props.overflowingContent ? '' : styles.logsRowsTableContain)}>
+        <table
+          {...stylex.props(logRowStyles.logsRowsTable, !props.overflowingContent && logRowStyles.logsRowsTableContain)}
+        >
           <tbody>
             {orderedRows.map((row, index) =>
               index < previewSize ? (
@@ -296,7 +298,6 @@ export const LogRows = memo(
                   showDuplicates={showDuplicates}
                   logsSortOrder={logsSortOrder}
                   onOpenContext={openContext}
-                  styles={styles}
                   onPermalinkClick={props.onPermalinkClick}
                   scrollIntoView={props.scrollIntoView}
                   permalinkedRowId={permalinkedRowId}
@@ -315,7 +316,6 @@ export const LogRows = memo(
                   enableLogDetails={false}
                   getRows={getRows}
                   onOpenContext={openContext}
-                  styles={styles}
                   showDuplicates={showDuplicates}
                   {...props}
                   row={row}

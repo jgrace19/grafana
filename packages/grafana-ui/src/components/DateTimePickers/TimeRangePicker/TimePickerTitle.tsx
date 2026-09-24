@@ -1,26 +1,20 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type PropsWithChildren } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    text: css({
-      fontSize: theme.typography.size.md,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-      margin: 0,
-      display: 'flex',
-    }),
-  };
-};
+import { colors, typography } from '../../../themes/stylex/tokens.stylex';
 
 export const TimePickerTitle = memo<PropsWithChildren<{}>>(({ children }) => {
-  const styles = useStyles2(getStyles);
-
-  return <h3 className={styles.text}>{children}</h3>;
+  return <h3 {...stylex.props(styles.text)}>{children}</h3>;
 });
 
 TimePickerTitle.displayName = 'TimePickerTitle';
+
+const styles = stylex.create({
+  text: {
+    fontSize: typography['--gf-typography-size-md'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-primary'],
+    margin: 0,
+    display: 'flex',
+  },
+});

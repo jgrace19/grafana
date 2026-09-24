@@ -1,9 +1,9 @@
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, type JSX } from 'react';
 
 import { t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
-import { getLogsFieldsStyles } from './ActiveFields';
+import { logsFieldsStyles } from './ActiveFields';
 import { EmptyFields } from './EmptyFields';
 import { Field } from './Field';
 import { type FieldWithStats } from './FieldSelector';
@@ -16,8 +16,6 @@ interface Props {
 }
 
 export const AvailableFields = ({ activeFields, fields, toggle, reorder }: Props): JSX.Element => {
-  const styles = useStyles2(getLogsFieldsStyles);
-
   const availableFields = useMemo(
     () => fields.filter((field) => !activeFields.includes(field.name)).sort(sortFields),
     [activeFields, fields]
@@ -25,11 +23,11 @@ export const AvailableFields = ({ activeFields, fields, toggle, reorder }: Props
 
   if (availableFields.length) {
     return (
-      <div className={styles.columnWrapper}>
+      <div {...stylex.props(logsFieldsStyles.columnWrapper)}>
         {availableFields.map((field) => (
           <div
             key={field.name}
-            className={styles.wrap}
+            {...stylex.props(logsFieldsStyles.wrap)}
             title={t('logs.field-selector.label-title', `{{fieldName}} appears in {{percentage}}% of log lines`, {
               fieldName: field.name,
               percentage: field.stats.percentOfLinesWithLabel,

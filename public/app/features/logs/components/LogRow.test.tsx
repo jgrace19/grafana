@@ -1,13 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type ComponentProps } from 'react';
-import tinycolor from 'tinycolor2';
 
-import { CoreApp, createTheme, LogLevel, type LogRowModel } from '@grafana/data';
+import { CoreApp, LogLevel, type LogRowModel } from '@grafana/data';
 import { mockTimeRange } from '@grafana/plugin-ui/test';
 
 import { LogRow } from './LogRow';
-import { getLogRowStyles } from './getLogRowStyles';
 import { createLogRow } from './mocks/logRow';
 
 const reportInteraction = jest.fn();
@@ -18,8 +16,6 @@ jest.mock('@grafana/runtime', () => ({
   usePluginLinks: jest.fn().mockReturnValue({ links: [] }),
 }));
 
-const theme = createTheme();
-const styles = getLogRowStyles(theme);
 const setup = (propOverrides?: Partial<ComponentProps<typeof LogRow>>, rowOverrides?: Partial<LogRowModel>) => {
   const props: ComponentProps<typeof LogRow> = {
     row: createLogRow({
@@ -40,7 +36,6 @@ const setup = (propOverrides?: Partial<ComponentProps<typeof LogRow>>, rowOverri
     showTime: false,
     wrapLogMessage: false,
     timeZone: 'utc',
-    styles,
     timeRange: mockTimeRange(),
     ...(propOverrides || {}),
   };
@@ -79,9 +74,7 @@ describe('LogRow', () => {
         scrollIntoView: jest.fn(),
       });
       const row = container.querySelector('tr');
-      expect(row).toHaveStyle(
-        `background-color: ${tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString()}`
-      );
+      expect(row).toHaveAttribute('data-highlighted', 'true');
     });
 
     it('does not highlight row details with different permalink-id', async () => {
@@ -94,20 +87,14 @@ describe('LogRow', () => {
       await userEvent.click(row!);
       const allRows = container.querySelectorAll('tr');
 
-      expect(row).toHaveStyle(
-        `background-color: ${tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString()}`
-      );
-      expect(allRows[allRows.length - 1]).not.toHaveStyle(
-        `background-color: ${tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString()}`
-      );
+      expect(row).toHaveAttribute('data-highlighted', 'true');
+      expect(allRows[allRows.length - 1]).not.toHaveAttribute('data-highlighted');
     });
 
     it('not highlights row with different permalink-id', () => {
       const { container } = setup({ permalinkedRowId: 'wrong-log-row-id' });
       const row = container.querySelector('tr');
-      expect(row).not.toHaveStyle(
-        `background-color: ${tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString()}`
-      );
+      expect(row).not.toHaveAttribute('data-highlighted');
     });
 
     it('calls `scrollIntoView` if permalink matches', () => {
@@ -161,6 +148,6 @@ describe('LogRow', () => {
     await userEvent.unhover(screen.getByText('test123'));
 
     const row = container.querySelector('tr');
-    expect(row).toHaveStyle(`background-color: ${tinycolor(theme.colors.info.transparent).setAlpha(0.25).toString()}`);
+    expect(row).toHaveAttribute('data-highlighted', 'true');
   });
 });
