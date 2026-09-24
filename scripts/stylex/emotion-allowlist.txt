@@ -53,6 +53,4 @@ public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDelet
 public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
 public/app/features/browse-dashboards/components/BrowseActions/SelectedMixResourcesMsgModal.tsx # stylex: pending Modal migration (U4); className override of Modal width
 public/app/features/browse-dashboards/components/RecentlyViewedDashboards.tsx # stylex: pending CollapsableSection migration (U8); overrides of its header, content and icon
-public/app/features/browse-dashboards/components/TagsCell.tsx # stylex: pending TagList migration (U3); className override of TagList alignment
 public/app/features/manage-dashboards/import/components/ImportSourceForm.tsx # stylex: pending Label migration (U2); className override of Label max width
-public/app/features/search/page/components/columns.tsx # stylex: pending TagList migration (U3); className override of TagList alignment

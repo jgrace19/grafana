@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { intervalToDuration } from 'date-fns';
 import Skeleton from 'react-loading-skeleton';
@@ -26,6 +25,7 @@ import { getIconForKind } from '../../service/utils';
 import { type SelectionChecker, type SelectionToggle } from '../selection';
 
 import { ExplainScorePopup } from './ExplainScorePopup';
+import './SearchResultsTable.css';
 import { type TableColumn } from './SearchResultsTable';
 
 const TYPE_COLUMN_WIDTH = 175;
@@ -498,7 +498,7 @@ function makeTagsColumn(
           {!response.isItemLoaded(p.row.index) ? (
             <TagList.Skeleton />
           ) : (
-            <>{tags ? <TagList className={pendingTagListClass} tags={tags} onClick={onTagSelected} /> : null}</>
+            <>{tags ? <TagList className="gf-search-results-tag-list" tags={tags} onClick={onTagSelected} /> : null}</>
           )}
         </div>
       );
@@ -546,12 +546,6 @@ function calcCoarseDuration(start: Date, end: Date) {
 
   return { minutes };
 }
-
-// stylex: pending TagList migration
-const pendingTagListClass = css({
-  justifyContent: 'flex-start',
-  flexWrap: 'nowrap',
-});
 
 const styles = stylex.create({
   cell: {

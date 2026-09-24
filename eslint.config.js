@@ -159,12 +159,12 @@ const stylexMigratedAppFiles = [
   'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
   'public/app/features/{annotations,bookmarks,commandPalette,playlist}/**/*.{ts,tsx}',
   'public/app/features/browse-dashboards/{BrowseDashboardsPage,RecentlyDeletedPage}.tsx',
-  'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell}.tsx',
+  'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell,TagsCell}.tsx',
   'public/app/features/browse-dashboards/components/FolderDetailsActions/FolderDetailsActions.tsx',
   'public/app/features/manage-dashboards/components/SnapshotListTableRow.tsx',
   'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
   'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
-  'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable}.tsx',
+  'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable,columns}.tsx',
 ];
 
 const stylexRestrictedImports = {
