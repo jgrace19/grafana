@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { PopupCard } from './HoverCard';
 import { builtinFunctions as FUNCTIONS, keywords as KEYWORDS } from './receivers/editor/language';
@@ -15,8 +15,6 @@ interface TokenizerProps {
 }
 
 function Tokenize({ input, delimiter = ['{{', '}}'] }: TokenizerProps) {
-  const styles = useStyles2(getStyles);
-
   const [open, close] = delimiter;
 
   /**
@@ -61,7 +59,7 @@ function Tokenize({ input, delimiter = ['{{', '}}'] }: TokenizerProps) {
     output.push(<br key={`${lineIndex}-newline`} />);
   });
 
-  return <span className={styles.wrapper}>{output}</span>;
+  return <span {...stylex.props(styles.wrapper)}>{output}</span>;
 }
 
 enum TokenType {
@@ -78,8 +76,6 @@ interface TokenProps {
 }
 
 function Token({ content, description, type }: TokenProps) {
-  const styles = useStyles2(getStyles);
-
   const disableCard = Boolean(type) === false;
 
   return (
@@ -87,13 +83,13 @@ function Token({ content, description, type }: TokenProps) {
       placement="top-start"
       disabled={disableCard}
       content={
-        <div className={styles.hoverTokenItem}>
+        <div {...stylex.props(styles.hoverTokenItem)}>
           <Badge tabIndex={0} text={<>{type}</>} color={'blue'} /> {description && <code>{description}</code>}
         </div>
       }
     >
       <span>
-        <Badge tabIndex={0} className={styles.token} text={content} color={'blue'} />
+        <Badge tabIndex={0} className={stylex.props(styles.token).className} text={content} color={'blue'} />
       </span>
     </PopupCard>
   );
@@ -126,28 +122,20 @@ function tokenType(input: string) {
   return tokenType;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     whiteSpace: 'pre-wrap',
-  }),
-  token: css({
+  },
+  token: {
     cursor: 'default',
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  popover: css({
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.medium}`,
-
-    padding: theme.spacing(1),
-  }),
-  hoverTokenItem: css({
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  hoverTokenItem: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+  },
 });
 
 export { Tokenize, Token };

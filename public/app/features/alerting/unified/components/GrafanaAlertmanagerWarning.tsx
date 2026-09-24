@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { AlertmanagerChoice } from '../../../../plugins/datasource/alertmanager/types';
 import { alertmanagerApi } from '../api/alertmanagerApi';
@@ -18,7 +18,6 @@ export function GrafanaAlertmanagerWarning({ currentAlertmanager }: GrafanaAlert
 }
 
 function GrafanaExternalAlertmanagerConfigWarning({ currentAlertmanager }: GrafanaAlertmanagerWarningProps) {
-  const styles = useStyles2(getStyles);
   const externalAlertmanager = currentAlertmanager !== GRAFANA_RULES_SOURCE_NAME;
 
   const [readConfigurationStatusSupported, readConfigurationStatusAllowed] = useAlertingAbility(
@@ -55,7 +54,7 @@ function GrafanaExternalAlertmanagerConfigWarning({ currentAlertmanager }: Grafa
           Grafana is configured to send alerts to external Alertmanagers only. Changing Grafana Alertmanager
           configuration will not affect delivery of your alerts.
         </Trans>
-        <div className={styles.adminHint}>
+        <div {...stylex.props(styles.adminHint)}>
           <Trans i18nKey="alerting.grafana-alertmanager-delivery-warning.admin-hint-external">
             To change your Alertmanager setup, go to the Alerting Admin page. If you do not have access, contact your
             Administrator.
@@ -78,7 +77,7 @@ function GrafanaExternalAlertmanagerConfigWarning({ currentAlertmanager }: Grafa
           Ensure you make configuration changes in the correct Alertmanagers; both internal and external. Changing one
           will not affect the others.
         </Trans>
-        <div className={styles.adminHint}>
+        <div {...stylex.props(styles.adminHint)}>
           <Trans i18nKey="alerting.grafana-alertmanager-delivery-warning.admin-hint-all">
             To change your Alertmanager setup, go to the Alerting Admin page. If you do not have access, contact your
             Administrator.
@@ -91,9 +90,9 @@ function GrafanaExternalAlertmanagerConfigWarning({ currentAlertmanager }: Grafa
   return null;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  adminHint: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.bodySmall.fontWeight,
-  }),
+const styles = stylex.create({
+  adminHint: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-body-small-font-weight'],
+  },
 });

@@ -1,20 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2, ReducerID, type SelectableValue } from '@grafana/data';
+import { ReducerID, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import {
-  Combobox,
-  type ComboboxOption,
-  Icon,
-  InlineField,
-  InlineFieldRow,
-  Input,
-  Stack,
-  Text,
-  useStyles2,
-} from '@grafana/ui';
+import { Combobox, type ComboboxOption, Icon, InlineField, InlineFieldRow, Input, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { ThresholdSelect } from 'app/features/expressions/components/ThresholdSelect';
 import { ToLabel } from 'app/features/expressions/components/ToLabel';
@@ -32,7 +23,6 @@ const DEFAULT_SIMPLE_CONDITION: SimpleCondition = {
 };
 
 export function RuleConditionSection() {
-  const base = useStyles2(getStyles);
   const { watch, setValue, getValues } = useFormContext<RuleFormValues>();
   const evaluateFor = watch('evaluateFor') || '0s';
 
@@ -104,8 +94,8 @@ export function RuleConditionSection() {
   );
 
   return (
-    <section className={base.section} aria-labelledby="condition-section-heading">
-      <div className={base.sectionHeaderRow}>
+    <section {...stylex.props(styles.section)} aria-labelledby="condition-section-heading">
+      <div {...stylex.props(styles.sectionHeaderRow)}>
         <Text element="h3" variant="h4" id="condition-section-heading">
           {`2. `}
           <Trans i18nKey="alerting.simplified.condition.title">Condition</Trans>
@@ -190,14 +180,12 @@ export function RuleConditionSection() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    section: css({ width: '100%' }),
-    sectionHeaderRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  section: { width: '100%' },
+  sectionHeaderRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});

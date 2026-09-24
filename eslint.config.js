@@ -151,6 +151,9 @@ const stylexMigratedAppFiles = [
   'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
   // P2 core-bundled datasource plugins
   'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
+  // A1 alerting components
+  'public/app/features/alerting/unified/components/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

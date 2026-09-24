@@ -1,14 +1,17 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Pagination migration
 import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { IconButton, Pagination, useStyles2 } from '@grafana/ui';
+import { IconButton, Pagination } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { usePagination } from '../hooks/usePagination';
-import { getPaginationStyles } from '../styles/pagination';
 
 interface DynamicTablePagination {
   itemsPerPage: number;
@@ -78,15 +81,14 @@ export const DynamicTable = <T extends object>({
   footerRow,
   dataTestId,
 }: DynamicTableProps<T>) => {
-  const defaultPaginationStyles = useStyles2(getPaginationStyles);
-
   if ((onCollapse || onExpand || isExpanded) && !(onCollapse && onExpand && isExpanded)) {
     throw new Error('either all of onCollapse, onExpand, isExpanded must be provided, or none');
   }
   if ((isExpandable || renderExpandedContent) && !(isExpandable && renderExpandedContent)) {
     throw new Error('either both isExpanded and renderExpandedContent must be provided, or neither');
   }
-  const styles = useStyles2(getStyles(cols, isExpandable, !!renderPrefixHeader));
+  const hasPrefixCell = !!renderPrefixHeader;
+  const sizes = getColumnSizes(cols, isExpandable, hasPrefixCell);
 
   const [expandedIds, setExpandedIds] = useState<Array<DynamicTableItemProps['id']>>([]);
 
@@ -103,14 +105,20 @@ export const DynamicTable = <T extends object>({
   const itemsPerPage = pagination?.itemsPerPage ?? items.length;
   const { page, numberOfPages, onPageChange, pageItems } = usePagination(items, 1, itemsPerPage);
 
+  const cellStyles = (alignColumn?: string) => [
+    styles.cell,
+    alignColumn ? styles.justifyContent(alignColumn) : styles.justifyContentInitial,
+  ];
+  const rowStyles = [styles.row, styles.gridTemplateColumns(sizes.join(' '))];
+
   return (
     <>
-      <div className={styles.container} data-testid={dataTestId ?? 'dynamic-table'}>
-        <div className={styles.row} data-testid="header">
+      <div {...stylex.props(styles.container)} data-testid={dataTestId ?? 'dynamic-table'}>
+        <div {...stylex.props(rowStyles)} data-testid="header">
           {renderPrefixHeader && renderPrefixHeader()}
-          {isExpandable && <div className={styles.cell()} />}
+          {isExpandable && <div {...stylex.props(cellStyles())} />}
           {cols.map((col) => (
-            <div className={styles.cell(col.alignColumn)} key={col.id}>
+            <div {...stylex.props(cellStyles(col.alignColumn))} key={col.id}>
               {col.label}
             </div>
           ))}
@@ -120,13 +128,13 @@ export const DynamicTable = <T extends object>({
           const isItemExpanded = isExpanded ? isExpanded(item) : expandedIds.includes(item.id);
           return (
             <div
-              className={styles.row}
+              {...stylex.props(rowStyles)}
               key={`${item.id}-${index}`}
               data-testid={testIdGenerator?.(item, index) ?? 'row'}
             >
               {renderPrefixCell && renderPrefixCell(item, index, items)}
               {isExpandable && (
-                <div className={cx(styles.cell(), styles.expandCell)}>
+                <div {...stylex.props(cellStyles(), styles.expandCell)}>
                   <IconButton
                     tooltip={
                       isItemExpanded
@@ -141,7 +149,9 @@ export const DynamicTable = <T extends object>({
               )}
               {cols.map((col) => (
                 <div
-                  className={cx(styles.cell(col.alignColumn), styles.bodyCell, col.className)}
+                  {...mergeStylexProps(stylex.props(cellStyles(col.alignColumn), styles.bodyCell), {
+                    className: col.className,
+                  })}
                   data-column={col.label}
                   key={`${item.id}-${col.id}`}
                 >
@@ -150,7 +160,10 @@ export const DynamicTable = <T extends object>({
               ))}
               {isItemExpanded && renderExpandedContent && (
                 <div
-                  className={styles.expandedContentRow}
+                  {...stylex.props(
+                    styles.expandedContentRow,
+                    styles.expandedContentColumns(hasPrefixCell ? '3' : '2', String(sizes.length + 1))
+                  )}
                   data-testid={selectors.components.AlertRules.expandedContent}
                 >
                   {renderExpandedContent(item, index, items)}
@@ -159,11 +172,11 @@ export const DynamicTable = <T extends object>({
             </div>
           );
         })}
-        {footerRow && <div className={cx(styles.row, styles.footerRow)}>{footerRow}</div>}
+        {footerRow && <div {...stylex.props(rowStyles, styles.footerRow)}>{footerRow}</div>}
       </div>
       {pagination && (
         <Pagination
-          className={cx(defaultPaginationStyles, paginationStyles)}
+          className={cx(pendingEmotionStyles.pagination, paginationStyles)}
           currentPage={page}
           numberOfPages={numberOfPages}
           onNavigate={onPageChange}
@@ -174,11 +187,7 @@ export const DynamicTable = <T extends object>({
   );
 };
 
-const getStyles = <T extends unknown>(
-  cols: Array<DynamicTableColumnProps<T>>,
-  isExpandable: boolean,
-  hasPrefixCell: boolean
-) => {
+function getColumnSizes<T>(cols: Array<DynamicTableColumnProps<T>>, isExpandable: boolean, hasPrefixCell: boolean) {
   const sizes = cols.map((col) => {
     if (!col.size) {
       return 'auto';
@@ -199,90 +208,108 @@ const getStyles = <T extends unknown>(
     sizes.unshift('0');
   }
 
-  return (theme: GrafanaTheme2) => ({
-    container: css({
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      color: theme.colors.text.secondary,
-    }),
-    row: css({
-      display: 'grid',
-      gridTemplateColumns: sizes.join(' '),
-      gridTemplateRows: '1fr auto',
+  return sizes;
+}
 
-      '&:nth-child(2n + 1)': {
-        backgroundColor: theme.colors.background.secondary,
-      },
-
-      '&:nth-child(2n)': {
-        backgroundColor: theme.colors.background.primary,
-      },
-
-      [theme.breakpoints.down('sm')]: {
-        gridTemplateColumns: 'auto 1fr',
-        gridTemplateAreas: 'left right',
-        padding: `0 ${theme.spacing(0.5)}`,
-
-        '&:first-child': {
-          display: 'none',
-        },
-
-        '& > *:first-child': {
-          display: hasPrefixCell ? 'none' : undefined,
-        },
-      },
-    }),
-    footerRow: css({
-      display: 'flex',
-      padding: theme.spacing(1),
-    }),
-    cell: (alignColumn?: string) =>
-      css({
-        display: 'flex',
-        alignItems: 'center',
-        padding: theme.spacing(1),
-        justifyContent: alignColumn || 'initial',
-
-        [theme.breakpoints.down('sm')]: {
-          padding: `${theme.spacing(1)} 0`,
-          gridTemplateColumns: '1fr',
-        },
-      }),
-    bodyCell: css({
-      overflow: 'hidden',
-
-      [theme.breakpoints.down('sm')]: {
-        gridColumnEnd: 'right',
-        gridColumnStart: 'right',
-
-        '&::before': {
-          content: 'attr(data-column)',
-          display: 'block',
-          color: theme.colors.text.primary,
-        },
-      },
-    }),
-    expandCell: css({
-      justifyContent: 'center',
-
-      [theme.breakpoints.down('sm')]: {
-        alignItems: 'start',
-        gridArea: 'left',
-      },
-    }),
-    expandedContentRow: css({
-      gridColumnEnd: sizes.length + 1,
-      gridColumnStart: hasPrefixCell ? 3 : 2,
-      gridRow: 2,
-      padding: `0 ${theme.spacing(3)} 0 ${theme.spacing(1)}`,
-      position: 'relative',
-
-      [theme.breakpoints.down('sm')]: {
-        gridColumnStart: 2,
-        borderTop: `1px solid ${theme.colors.border.strong}`,
-        gridRow: 'auto',
-        padding: `${theme.spacing(1)} 0 0 0`,
-      },
-    }),
-  });
+// stylex: pending Pagination migration
+const pendingEmotionStyles = {
+  pagination: css({
+    float: 'none',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    margin: `${spacing['--gf-spacing-x2']} 0`,
+  }),
 };
+
+const styles = stylex.create({
+  container: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  // On small screens DynamicTableWithGuidelines hides its prefix cell (the first child of every row) itself.
+  row: {
+    display: {
+      default: 'grid',
+      ':first-child': {
+        default: null,
+        [bp.smDown]: 'none',
+      },
+    },
+    gridTemplateRows: '1fr auto',
+    gridTemplateAreas: {
+      default: null,
+      [bp.smDown]: 'left right',
+    },
+    backgroundColor: {
+      default: null,
+      ':nth-child(2n + 1)': colors['--gf-colors-background-secondary'],
+      ':nth-child(2n)': colors['--gf-colors-background-primary'],
+    },
+    paddingTop: { default: null, [bp.smDown]: 0 },
+    paddingRight: { default: null, [bp.smDown]: spacing['--gf-spacing-x0-5'] },
+    paddingBottom: { default: null, [bp.smDown]: 0 },
+    paddingLeft: { default: null, [bp.smDown]: spacing['--gf-spacing-x0-5'] },
+  },
+  gridTemplateColumns: (columns: string) => ({
+    gridTemplateColumns: {
+      default: columns,
+      [bp.smDown]: 'auto 1fr',
+    },
+  }),
+  // Keeps `row`'s small-screen padding, which this namespace would otherwise replace.
+  footerRow: {
+    display: 'flex',
+    paddingTop: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    paddingRight: { default: spacing['--gf-spacing-x1'], [bp.smDown]: spacing['--gf-spacing-x0-5'] },
+    paddingBottom: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    paddingLeft: { default: spacing['--gf-spacing-x1'], [bp.smDown]: spacing['--gf-spacing-x0-5'] },
+  },
+  cell: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    gridTemplateColumns: { default: null, [bp.smDown]: '1fr' },
+  },
+  justifyContentInitial: {
+    justifyContent: 'initial',
+  },
+  justifyContent: (justifyContent: string) => ({
+    justifyContent,
+  }),
+  bodyCell: {
+    overflow: 'hidden',
+    gridColumnEnd: { default: null, [bp.smDown]: 'right' },
+    gridColumnStart: { default: null, [bp.smDown]: 'right' },
+    '::before': {
+      content: { default: null, [bp.smDown]: 'attr(data-column)' },
+      display: { default: null, [bp.smDown]: 'block' },
+      color: { default: null, [bp.smDown]: colors['--gf-colors-text-primary'] },
+    },
+  },
+  expandCell: {
+    justifyContent: 'center',
+    alignItems: { default: 'center', [bp.smDown]: 'start' },
+    gridArea: { default: null, [bp.smDown]: 'left' },
+  },
+  expandedContentRow: {
+    gridRow: { default: 2, [bp.smDown]: 'auto' },
+    paddingTop: { default: 0, [bp.smDown]: spacing['--gf-spacing-x1'] },
+    paddingRight: { default: spacing['--gf-spacing-x3'], [bp.smDown]: 0 },
+    paddingBottom: 0,
+    paddingLeft: { default: spacing['--gf-spacing-x1'], [bp.smDown]: 0 },
+    position: 'relative',
+    borderTopWidth: { default: null, [bp.smDown]: '1px' },
+    borderTopStyle: { default: null, [bp.smDown]: 'solid' },
+    borderTopColor: { default: null, [bp.smDown]: colors['--gf-colors-border-strong'] },
+  },
+  expandedContentColumns: (columnStart: string, columnEnd: string) => ({
+    gridColumnStart: { default: columnStart, [bp.smDown]: '2' },
+    gridColumnEnd: columnEnd,
+  }),
+});

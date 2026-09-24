@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type CombinedRule } from 'app/types/unified-alerting';
 import { type PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
@@ -19,31 +18,22 @@ interface Props {
 
 export const RuleListStateSection = ({ rules, state, defaultCollapsed = false }: Props) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const styles = useStyles2(getStyles);
   return (
     <>
-      <h4 className={styles.header}>
-        <CollapseToggle
-          className={styles.collapseToggle}
-          size="xxl"
-          isCollapsed={collapsed}
-          onToggle={() => setCollapsed(!collapsed)}
-        />
+      <h4 {...stylex.props(styles.header)}>
+        <CollapseToggle size="xxl" isCollapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
         {alertStateToReadable(state)} ({rules.length})
       </h4>
-      {!collapsed && <RulesTable className={styles.rulesTable} rules={rules} showGroupColumn={true} />}
+      {!collapsed && <RulesTable xstyle={styles.rulesTable} rules={rules} showGroupColumn={true} />}
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapseToggle: css({
-    verticalAlign: 'middle',
-  }),
-  header: css({
-    marginTop: theme.spacing(2),
-  }),
-  rulesTable: css({
-    marginTop: theme.spacing(3),
-  }),
+const styles = stylex.create({
+  header: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+  rulesTable: {
+    marginTop: spacing['--gf-spacing-x3'],
+  },
 });
