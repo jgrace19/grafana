@@ -20,9 +20,7 @@ import { LabelsFieldInFormV2 } from './rule-editor/labels/LabelsFieldInFormV2';
 export function RuleDefinitionSection() {
   const {
     register,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
     getValues,
   } = useFormContext<RuleFormValues>();
