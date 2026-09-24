@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect } from 'react';
 import { useMeasure } from 'react-use';
 import { lastValueFrom } from 'rxjs';
@@ -16,7 +16,6 @@ import { FlameGraph } from '@grafana/flamegraph';
 import { Trans } from '@grafana/i18n';
 import { type TraceToProfilesOptions } from '@grafana/o11y-ds-frontend';
 import { config, DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { type Query } from 'app/plugins/datasource/grafana-pyroscope-datasource/types';
 
@@ -55,7 +54,6 @@ export default function SpanFlameGraph(props: SpanFlameGraphProps) {
     traceName,
   } = props;
   const [sizeRef, { height: containerHeight }] = useMeasure<HTMLDivElement>();
-  const styles = useStyles2(getStyles);
 
   const profileTag = span.tags.filter((tag) => tag.key === pyroscopeProfileIdTagKey);
   const profileTagValue = profileTag.length > 0 ? profileTag[0].value : undefined;
@@ -175,8 +173,8 @@ export default function SpanFlameGraph(props: SpanFlameGraphProps) {
   }
 
   return (
-    <div className={styles.flameGraph} ref={sizeRef}>
-      <div className={styles.flameGraphTitle}>
+    <div {...stylex.props(styles.flameGraph)} ref={sizeRef}>
+      <div {...stylex.props(styles.flameGraphTitle)}>
         <Trans i18nKey="explore.span-flame-graph.flame-graph">Flame graph</Trans>
       </div>
       <FlameGraph
@@ -189,16 +187,12 @@ export default function SpanFlameGraph(props: SpanFlameGraphProps) {
   );
 }
 
-const getStyles = () => {
-  return {
-    flameGraph: css({
-      label: 'flameGraphInSpan',
-      margin: '5px',
-    }),
-    flameGraphTitle: css({
-      label: 'flameGraphTitleInSpan',
-      marginBottom: '5px',
-      fontWeight: 'bold',
-    }),
-  };
-};
+const styles = stylex.create({
+  flameGraph: {
+    margin: '5px',
+  },
+  flameGraphTitle: {
+    marginBottom: '5px',
+    fontWeight: 'bold',
+  },
+});

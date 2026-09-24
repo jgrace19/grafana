@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { get, maxBy, values } from 'lodash';
 import { memo, type Dispatch, type SetStateAction, useEffect, useCallback } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Button, Icon, type PopoverContent, Tooltip, useTheme2 } from '@grafana/ui';
+import { Button, Icon, type PopoverContent, Tooltip } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type Trace } from '../../types/trace';
 import { getServiceDisplayName } from '../../utils/service-name';
@@ -43,9 +43,7 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
     focusedSpanIndexForSearch,
     setFocusedSpanIndexForSearch,
     datasourceType,
-    showSpanFilters,
   } = props;
-  const styles = getStyles(useTheme2(), showSpanFilters);
 
   useEffect(() => {
     if (spanFilterMatches && focusedSpanIndexForSearch !== -1) {
@@ -115,18 +113,15 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
 
   const buttonEnabled = (spanFilterMatches && spanFilterMatches?.size > 0) ?? false;
 
-  const getTooltip = useCallback(
-    (content: PopoverContent) => {
-      return (
-        <Tooltip content={content} placement="top">
-          <span className={styles.tooltip}>
-            <Icon name="info-circle" size="sm" />
-          </span>
-        </Tooltip>
-      );
-    },
-    [styles.tooltip]
-  );
+  const getTooltip = useCallback((content: PopoverContent) => {
+    return (
+      <Tooltip content={content} placement="top">
+        <span {...stylex.props(styles.tooltip)} data-testid="next-prev-result-tooltip">
+          <Icon name="info-circle" size="sm" />
+        </span>
+      </Tooltip>
+    );
+  }, []);
 
   const getMatchesMetadata = useCallback(
     (depth: number, services: number) => {
@@ -204,8 +199,8 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
   const depth = get(maxBy(trace.spans, 'depth'), 'depth', 0) + 1;
 
   return (
-    <div className={styles.container}>
-      <div className={buttonEnabled ? styles.buttons : cx(styles.buttons, styles.buttonsDisabled)}>
+    <div {...stylex.props(styles.container)}>
+      <div {...stylex.props(styles.buttons, !buttonEnabled && styles.buttonsDisabled)}>
         <Button
           aria-label={t('explore.next-prev-result.aria-label-prev', 'Prev result button')}
           variant="secondary"
@@ -228,48 +223,38 @@ export default memo(function NextPrevResult(props: NextPrevResultProps) {
           tabIndex={buttonEnabled ? 0 : -1}
         />
       </div>
-      <span className={styles.matches}>{getMatchesMetadata(depth, services)}</span>
+      <span {...stylex.props(styles.matches)}>{getMatchesMetadata(depth, services)}</span>
     </div>
   );
 });
 
-export const getStyles = (theme: GrafanaTheme2, showSpanFilters: boolean) => {
-  return {
-    container: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-    buttons: css({
-      display: 'inline-flex',
-      gap: 1,
-    }),
-    buttonsDisabled: css({
-      cursor: 'not-allowed',
-    }),
-    button: {
-      padding: theme.spacing(0, 1),
-    },
-    iconButton: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    matches: css({
-      textWrap: 'nowrap',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-    tooltip: css({
-      color: '#aaa',
-      marginLeft: theme.spacing(0.5),
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  buttons: {
+    display: 'inline-flex',
+    gap: 1,
+  },
+  buttonsDisabled: {
+    cursor: 'not-allowed',
+  },
+  matches: {
+    textWrap: 'nowrap',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: colors['--gf-colors-text-primary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+  },
+  tooltip: {
+    color: '#aaa',
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
