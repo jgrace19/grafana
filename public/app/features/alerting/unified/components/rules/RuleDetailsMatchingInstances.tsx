@@ -1,11 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { countBy, sum } from 'lodash';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { MatcherFilter } from 'app/features/alerting/unified/components/alert-groups/MatcherFilter';
 import {
   AlertInstanceStateFilter,
@@ -45,11 +45,10 @@ interface ShowMoreInstancesProps {
 }
 
 function ShowMoreInstances({ stats, onClick, href, enableFiltering, alertState }: ShowMoreInstancesProps) {
-  const styles = useStyles2(getStyles);
   const { visibleItemsCount, totalItemsCount } = stats;
 
   return (
-    <div className={styles.footerRow}>
+    <div {...stylex.props(styles.footerRow)}>
       <div>
         {enableFiltering && alertState ? (
           <Trans
@@ -93,8 +92,6 @@ export function RuleDetailsMatchingInstances(props: Props) {
   // This key is used to force a rerender on the inputs when the filters are cleared
   const [filterKey] = useState<number>(Math.floor(Math.random() * 100));
   const queryStringKey = `queryString-${filterKey}`;
-
-  const styles = useStyles2(getStyles);
 
   const stateFilterType = isGrafanaRulesSource(namespace.rulesSource) ? GRAFANA_RULES_SOURCE_NAME : 'prometheus';
 
@@ -154,8 +151,8 @@ export function RuleDetailsMatchingInstances(props: Props) {
   return (
     <>
       {enableFiltering && (
-        <div className={cx(styles.flexRow, styles.spaceBetween)}>
-          <div className={styles.flexRow}>
+        <div {...stylex.props(styles.flexRow, styles.spaceBetween)}>
+          <div {...stylex.props(styles.flexRow)}>
             <MatcherFilter
               key={queryStringKey}
               defaultQueryString={queryString}
@@ -170,7 +167,7 @@ export function RuleDetailsMatchingInstances(props: Props) {
           </div>
         </div>
       )}
-      {!enableFiltering && <div className={styles.stats}>{statsComponents}</div>}
+      {!enableFiltering && <div {...stylex.props(styles.stats)}>{statsComponents}</div>}
       <AlertInstancesTable rule={rule} instances={visibleInstances} pagination={pagination} footerRow={footerRow} />
     </>
   );
@@ -195,35 +192,33 @@ function filterAlerts(
   return filteredAlerts;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    flexRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      width: '100%',
-      flexWrap: 'wrap',
-      marginBottom: theme.spacing(1),
-      gap: theme.spacing(1),
-    }),
-    spaceBetween: css({
-      justifyContent: 'space-between',
-    }),
-    footerRow: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-    }),
-    instancesContainer: css({
-      marginBottom: theme.spacing(2),
-    }),
-    stats: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      padding: theme.spacing(1, 0),
-    }),
-  };
-};
+const styles = stylex.create({
+  flexRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    width: '100%',
+    flexWrap: 'wrap',
+    marginBottom: spacing['--gf-spacing-x1'],
+    gap: spacing['--gf-spacing-x1'],
+  },
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  footerRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  stats: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+  },
+});

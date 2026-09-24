@@ -1,24 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { orderBy } from 'lodash';
 import { Fragment, useMemo } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2, type Labels } from '@grafana/data';
+import { type Labels } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, isFetchError } from '@grafana/runtime';
 import { TimeRangePicker, useTimeRange } from '@grafana/scenes-react';
-import {
-  Alert,
-  Box,
-  Drawer,
-  Icon,
-  LoadingBar,
-  LoadingPlaceholder,
-  Stack,
-  Text,
-  TextLink,
-  useStyles2,
-} from '@grafana/ui';
+import { Alert, Box, Drawer, Icon, LoadingBar, LoadingPlaceholder, Stack, Text, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type AlertQuery, GrafanaAlertState, type GrafanaRuleDefinition } from 'app/types/unified-alerting-dto';
 
 import { alertRuleApi } from '../../api/alertRuleApi';
@@ -282,11 +272,10 @@ function InstanceStateTransitions({
   records: LogRecord[];
   maxItems?: number;
 }) {
-  const styles = useStyles2(stateTransitionStyles);
   const sortedRecords = orderBy(records, (r) => r.timestamp, 'desc').slice(0, maxItems);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {sortedRecords.map((record, index) => (
         <Fragment key={`${record.timestamp}-${index}`}>
           <Text color="secondary" variant="bodySmall">
@@ -301,14 +290,18 @@ function InstanceStateTransitions({
   );
 }
 
-const stateTransitionStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'grid',
     gridTemplateColumns: 'max-content max-content max-content max-content',
-    gap: theme.spacing(1, 2),
+    rowGap: spacing['--gf-spacing-x1'],
+    columnGap: spacing['--gf-spacing-x2'],
     alignItems: 'center',
-    padding: theme.spacing(1, 0),
-  }),
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 });
 
 interface ErrorContentProps {

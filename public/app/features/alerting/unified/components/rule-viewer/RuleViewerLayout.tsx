@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { type NavModelItem } from '@grafana/data';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { type PageProps } from 'app/core/components/Page/types';
 
@@ -23,12 +23,10 @@ const defaultPageNav: Partial<NavModelItem> = {
 
 export function RuleViewerLayout(props: Props): JSX.Element | null {
   const { wrapInContent = true, children, title, renderTitle } = props;
-  const styles = useStyles2(getPageStyles);
-
   return (
     <Page pageNav={{ ...defaultPageNav, text: title }} renderTitle={renderTitle} navId={getAlertRulesNavId()}>
       <Page.Contents>
-        <div className={styles.content}>{wrapInContent ? <RuleViewerLayoutContent {...props} /> : children}</div>
+        <div {...stylex.props(styles.content)}>{wrapInContent ? <RuleViewerLayoutContent {...props} /> : children}</div>
       </Page.Contents>
     </Page>
   );
@@ -40,25 +38,28 @@ type ContentProps = {
 };
 
 export function RuleViewerLayoutContent({ children, padding = 2 }: ContentProps): JSX.Element | null {
-  const styles = useStyles2(getContentStyles(padding));
-  return <div className={styles.wrapper}>{children}</div>;
+  return (
+    <div {...stylex.props(styles.wrapper, styles.padding(`calc(${spacing['--gf-spacing-grid-size']} * ${padding})`))}>
+      {children}
+    </div>
+  );
 }
 
-const getPageStyles = (theme: GrafanaTheme2) => {
-  return {
-    content: css({
-      maxWidth: `${theme.breakpoints.values.xxl}px`,
-    }),
-  };
-};
+// theme.breakpoints.values.xxl
+const MAX_CONTENT_WIDTH = '1440px';
 
-const getContentStyles = (padding: number) => (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(padding),
-    }),
-  };
-};
+const styles = stylex.create({
+  content: {
+    maxWidth: MAX_CONTENT_WIDTH,
+  },
+  wrapper: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
+  padding: (padding: string) => ({
+    padding,
+  }),
+});

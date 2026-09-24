@@ -1,7 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ComponentProps, type HTMLAttributes, forwardRef } from 'react';
 
-import { Icon, type IconName, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Icon, type IconName, Stack, Text } from '@grafana/ui';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   icon?: IconName;
@@ -11,7 +11,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 const MetaText = forwardRef<HTMLDivElement, Props>(
   ({ children, icon, color = 'secondary', direction = 'row', ...rest }, ref) => {
-    const styles = useStyles2(getStyles);
     const interactive = typeof rest.onClick === 'function';
 
     const rowDirection = direction === 'row';
@@ -21,9 +20,7 @@ const MetaText = forwardRef<HTMLDivElement, Props>(
     return (
       <div
         ref={ref}
-        className={cx({
-          [styles.interactive]: interactive,
-        })}
+        {...stylex.props(interactive && styles.interactive)}
         // allow passing ARIA and data- attributes
         {...rest}
       >
@@ -40,10 +37,10 @@ const MetaText = forwardRef<HTMLDivElement, Props>(
 
 MetaText.displayName = 'MetaText';
 
-const getStyles = () => ({
-  interactive: css({
+const styles = stylex.create({
+  interactive: {
     cursor: 'pointer',
-  }),
+  },
 });
 
 export { MetaText };

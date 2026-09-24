@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Card xstyle
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Link } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Badge, Card, Grid, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Badge, Card, Grid, Stack, Text } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type Repository } from 'app/api/clients/provisioning/v0alpha1';
 
 import { ConnectionStatusBadge } from '../Connection/ConnectionStatusBadge';
@@ -12,13 +14,12 @@ import { useConnectionStatus } from '../hooks/useConnectionStatus';
 import { formatTimestamp } from '../utils/time';
 
 export function RepositoryHealthCard({ repo }: { repo: Repository }) {
-  const styles = useStyles2(getStyles);
   const status = repo.status;
   const connectionName = repo.spec?.connection?.name;
   const { connection } = useConnectionStatus(connectionName);
 
   return (
-    <Card noMargin className={styles.card}>
+    <Card noMargin className={cardClassName}>
       <Card.Heading>
         <Trans i18nKey="provisioning.repository-overview.health">Health</Trans>
       </Card.Heading>
@@ -29,7 +30,7 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
             <Trans i18nKey="provisioning.repository-overview.status">Status:</Trans>
           </Text>
 
-          <div className={styles.spanTwo}>
+          <div {...stylex.props(styles.spanTwo)}>
             <Badge
               color={status?.health?.healthy ? 'green' : 'red'}
               text={
@@ -45,7 +46,7 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
           <Text color="secondary">
             <Trans i18nKey="provisioning.repository-overview.checked">Checked:</Trans>
           </Text>
-          <div className={styles.spanTwo}>
+          <div {...stylex.props(styles.spanTwo)}>
             <Text variant="body">{formatTimestamp(status?.health?.checked)}</Text>
           </div>
 
@@ -54,7 +55,7 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
               <Text color="secondary">
                 <Trans i18nKey="provisioning.repository-overview.messages">Messages:</Trans>
               </Text>
-              <div className={styles.spanTwo}>
+              <div {...stylex.props(styles.spanTwo)}>
                 <Stack gap={1}>
                   {status.health.message.map((msg, idx) => (
                     <Text key={idx} variant="body">
@@ -72,7 +73,7 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
               <Text color="secondary">
                 <Trans i18nKey="provisioning.repository-overview.connection-status">Connection status:</Trans>
               </Text>
-              <div className={styles.spanTwo}>
+              <div {...stylex.props(styles.spanTwo)}>
                 <Link to={`${CONNECTIONS_URL}/${connectionName}/edit`}>
                   <ConnectionStatusBadge
                     key={connection?.status?.conditions?.find((c) => c.type === 'Ready')?.status || 'pending'}
@@ -88,16 +89,17 @@ export function RepositoryHealthCard({ repo }: { repo: Repository }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spanTwo: css({
-      gridColumn: 'span 2',
-    }),
-    card: css({
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-    }),
-  };
-};
+const styles = stylex.create({
+  spanTwo: {
+    gridColumn: 'span 2',
+  },
+});
+
+// stylex: pending Card xstyle. Card is StyleX but only takes className, and only an (unlayered) Emotion class
+// reliably overrides Card's `display: grid`.
+const cardClassName = css({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing['--gf-spacing-x2'],
+});

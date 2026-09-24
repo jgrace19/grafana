@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { groupBy } from 'lodash';
 import { type FormEvent, useCallback, useState } from 'react';
 import * as React from 'react';
 
-import { type AlertState, type GrafanaTheme2, dateTimeFormat } from '@grafana/data';
+import { type AlertState, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Field, Icon, Input, Label, LoadingPlaceholder, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Field, Icon, Input, Label, LoadingPlaceholder, Stack, Tooltip } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type StateHistoryItem, type StateHistoryItemData } from 'app/types/unified-alerting';
 import { type GrafanaAlertStateWithReason, type PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
@@ -38,8 +39,6 @@ const StateHistory = ({ ruleUID }: Props) => {
   }, []);
 
   const { loading, error, result = [] } = useManagedAlertStateHistory(ruleUID);
-
-  const styles = useStyles2(getStyles);
 
   if (loading && !error) {
     return <LoadingPlaceholder text={t('alerting.state-history.text-loading-history', 'Loading history...')} />;
@@ -87,8 +86,8 @@ const StateHistory = ({ ruleUID }: Props) => {
 
       return (
         <div key={groupKey}>
-          <header className={styles.tableGroupKey}>
-            <code className={styles.goupKeyText} aria-label={groupKey}>
+          <header {...stylex.props(styles.tableGroupKey)}>
+            <code {...stylex.props(styles.goupKeyText)} aria-label={groupKey}>
               {groupKey}
             </code>
           </header>
@@ -194,7 +193,7 @@ function renderValueCell(item: StateHistoryRow) {
       {item.data.text}
       <LabelsWrapper>
         {matches.map((match) => (
-          <AlertLabel key={match.metric} labelKey={match.metric} value={String(match.value)} />
+          <AlertLabel key={match.metric} labelKey={match.metric} value={String(match.value)} xstyle={styles.label} />
         ))}
       </LabelsWrapper>
     </>
@@ -207,37 +206,35 @@ function renderStateCell(item: StateHistoryRow) {
 
 function renderTimestampCell(item: StateHistoryRow) {
   return (
-    <div className={TimestampStyle}>{item.data.timestamp && <span>{dateTimeFormat(item.data.timestamp)}</span>}</div>
+    <div {...stylex.props(styles.timestamp)}>
+      {item.data.timestamp && <span>{dateTimeFormat(item.data.timestamp)}</span>}
+    </div>
   );
 }
 
 const LabelsWrapper = ({ children }: React.PropsWithChildren<{}>) => {
-  const { wrapper } = useStyles2(getStyles);
-  return <div className={wrapper}>{children}</div>;
+  return <div>{children}</div>;
 };
 
-const TimestampStyle = css({
-  display: 'flex',
-  alignItems: 'flex-end',
-  flexDirection: 'column',
-});
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    '& > *': {
-      marginRight: theme.spacing(1),
-    },
-  }),
-  tableGroupKey: css({
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  }),
-  goupKeyText: css({
+const styles = stylex.create({
+  label: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  timestamp: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    flexDirection: 'column',
+  },
+  tableGroupKey: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  goupKeyText: {
     overflowX: 'auto',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     display: 'block',
-  }),
+  },
 });
 
 export default StateHistory;

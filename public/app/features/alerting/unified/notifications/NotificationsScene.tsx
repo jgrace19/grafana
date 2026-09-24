@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, VariableHide } from '@grafana/data';
+import { VariableHide } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   AdHocFiltersVariable,
@@ -35,7 +35,6 @@ import {
   Text,
   Tooltip,
   TooltipDisplayMode,
-  useStyles2,
 } from '@grafana/ui';
 
 import { LogMessages, logInfo } from '../Analytics';
@@ -338,9 +337,8 @@ export function ClearFilterButtonObjectRenderer({ model }: SceneComponentProps<C
 }
 
 const LabelFilter = () => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.filterLabelContainer}>
+    <div {...stylex.props(styles.filterLabelContainer)}>
       <Text variant="body" weight="light" color="secondary">
         <Trans i18nKey="alerting.notifications-scene.filterBy">Filter by:</Trans>
       </Text>
@@ -348,13 +346,11 @@ const LabelFilter = () => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    filterLabelContainer: css({
-      padding: '0',
-      alignSelf: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  filterLabelContainer: {
+    padding: '0',
+    alignSelf: 'center',
+  },
+});
 
 export default NotificationsScene;

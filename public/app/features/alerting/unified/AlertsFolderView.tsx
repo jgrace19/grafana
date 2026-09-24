@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { orderBy } from 'lodash';
 import { useState } from 'react';
 import { useDebounce } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Card, FilterInput, Icon, Pagination, Select, Stack, TagList, useStyles2 } from '@grafana/ui';
+import { Card, FilterInput, Icon, Pagination, Select, Stack, TagList } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { DEFAULT_PER_PAGE_PAGINATION } from 'app/core/constants';
 import { getQueryParamValue } from 'app/core/utils/query';
 import { type FolderDTO } from 'app/types/folders';
@@ -17,6 +18,8 @@ import { combineMatcherStrings, labelsMatchMatchers } from './utils/alertmanager
 import { GRAFANA_RULES_SOURCE_NAME } from './utils/datasource';
 import { parsePromQLStyleMatcherLooseSafe } from './utils/matchers';
 import { rulesNav } from './utils/navigation';
+
+import './AlertsFolderView.css';
 
 interface Props {
   folder: FolderDTO;
@@ -34,8 +37,6 @@ const sortOptions: Array<SelectableValue<SortOrder>> = [
 ];
 
 export const AlertsFolderView = ({ folder, rules }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const onTagClick = (tagName: string) => {
     const matchersString = combineMatcherStrings(labelFilter, tagName);
     setLabelFilter(matchersString);
@@ -50,7 +51,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
   const { page, numberOfPages, onPageChange, pageItems } = usePagination(filteredRules, 1, DEFAULT_PER_PAGE_PAGINATION);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Stack direction="column" gap={3}>
         <FilterInput
           value={nameFilter}
@@ -78,7 +79,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               'alerting.alerts-folder-view.label-filter-placeholder-search-alerts-by-labels',
               'Search alerts by labels'
             )}
-            className={styles.filterLabelsInput}
+            className="gf-alerts-folder-label-filter"
             data-testid="label-filter"
           />
         </Stack>
@@ -89,7 +90,7 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
               key={grafana_alert.uid}
               noMargin
               href={createGrafanaRuleViewLink(grafana_alert)}
-              className={styles.card}
+              className="gf-alerts-folder-card"
               data-testid="alert-card-row"
             >
               <Card.Heading>{grafana_alert.title}</Card.Heading>
@@ -108,11 +109,11 @@ export const AlertsFolderView = ({ folder, rules }: Props) => {
           ))}
         </Stack>
         {hasNoResults && (
-          <div className={styles.noResults}>
+          <div {...stylex.props(styles.noResults)}>
             <Trans i18nKey="alerting.alerts-folder-view.no-alert-rules-found">No alert rules found</Trans>
           </div>
         )}
-        <div className={styles.pagination}>
+        <div {...stylex.props(styles.pagination)}>
           <Pagination
             currentPage={page}
             numberOfPages={numberOfPages}
@@ -195,25 +196,17 @@ function createGrafanaRuleViewLink(ruleDefinition: GrafanaRuleDefinition): strin
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    padding: theme.spacing(1),
-  }),
-  card: css({
-    gridTemplateColumns: 'auto 1fr 2fr',
-  }),
-  pagination: css({
+const styles = stylex.create({
+  container: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  pagination: {
     alignSelf: 'center',
-  }),
-  filterLabelsInput: css({
-    flex: 1,
-    width: 'auto',
-    minWidth: '240px',
-  }),
-  noResults: css({
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.lg,
+  },
+  noResults: {
+    padding: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-lg'],
     fontStyle: 'italic',
-  }),
+  },
 });
