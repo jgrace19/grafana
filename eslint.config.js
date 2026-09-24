@@ -111,6 +111,9 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
   // U7 viz
   'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
+  // U8 chrome/globals
+  'packages/grafana-ui/src/themes/GlobalStyles/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/utils/skeleton.tsx',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
@@ -151,6 +154,11 @@ const stylexMigratedAppFiles = [
   'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
   // P2 core-bundled datasource plugins
   'public/app/plugins/datasource/{alertmanager,cloudwatch,dashboard,grafana,influxdb,mixed,prometheus}/**/*.{ts,tsx}',
+  // A1 alerting components
+  'public/app/features/alerting/unified/components/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/{common,rules,rule-viewer}/**/*.{ts,tsx}',
+  // D2 dashboard-scene settings
+  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
   // L1 logs (LogLineContext and LogRowContextModal keep pending Emotion Modal overrides)
   'public/app/features/logs/*.{ts,tsx}',
   'public/app/features/logs/components/*.{ts,tsx}',

@@ -49,3 +49,7 @@ public/app/features/provisioning/Repository/RepositoryPullStatusCard.tsx # pendi
 public/app/features/provisioning/Shared/CodeBlock.tsx # pending ClipboardButton migration: overrides its position
 public/app/features/provisioning/Shared/RepositoryTypeCards.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card width/pointer-events
 public/app/features/connections/tabs/ConnectData/CardGrid/CardGrid.tsx # pending Card xstyle (Card is StyleX, className-only): overrides Card grid areas, heading, figure, meta
+public/app/features/alerting/unified/components/AlertManagerPicker.tsx # stylex: pending InlineField migration: keeps one Emotion className override that must beat InlineField's own Emotion styles
+public/app/features/alerting/unified/components/EditorColumnHeader.tsx # stylex: pending Label migration: keeps one Emotion className override that must beat Label's own Emotion styles
+public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmDeletePermanantlyModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/rules/deleted-rules/ConfirmRestoreDeletedRuleModal.tsx # stylex: pending Modal migration: keeps one Emotion className override that must beat Modal's own Emotion styles

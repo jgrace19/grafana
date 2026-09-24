@@ -1,0 +1,8 @@
+/*
+ * Override on Card.Description, which takes no xstyle and sets its own margin. Unlayered, and the doubled class
+ * outranks Card's rule (which may be inserted later) like the Emotion className override it replaces.
+ */
+.gf-variable-type-card-description.gf-variable-type-card-description {
+  font-size: var(--gf-typography-body-small-font-size);
+  margin-top: var(--gf-spacing-x0);
+}

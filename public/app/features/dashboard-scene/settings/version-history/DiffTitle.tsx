@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Icon } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DiffValues } from './DiffValues';
 import { type Diff, getDiffText } from './utils';
@@ -21,48 +21,49 @@ const replaceDiff: Diff = {
 };
 
 export const DiffTitle = ({ diff, title }: DiffTitleProps) => {
-  const styles = useStyles2(getDiffTitleStyles);
-
   return diff ? (
     <>
-      <Icon type="mono" name="circle" className={styles[diff.op]} size="xs" />{' '}
-      <span className={styles.embolden}>{title}</span> <span>{getDiffText(diff, diff.path?.length > 1)}</span>{' '}
+      <Icon type="mono" name="circle" xstyle={opStyles[diff.op]} size="xs" />{' '}
+      <span {...stylex.props(styles.embolden)}>{title}</span> <span>{getDiffText(diff, diff.path?.length > 1)}</span>{' '}
       <DiffValues diff={diff} />
     </>
   ) : (
-    <div className={styles.withoutDiff}>
-      <Icon type="mono" name="circle" className={styles.replace} size="xs" />{' '}
-      <span className={styles.embolden}>{title}</span> <span>{getDiffText(replaceDiff, false)}</span>
+    <div {...stylex.props(styles.withoutDiff)}>
+      <Icon type="mono" name="circle" xstyle={opStyles.replace} size="xs" />{' '}
+      <span {...stylex.props(styles.embolden)}>{title}</span> <span>{getDiffText(replaceDiff, false)}</span>
     </div>
   );
 };
 
-const getDiffTitleStyles = (theme: GrafanaTheme2) => ({
-  embolden: css({
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  add: css({
-    color: theme.colors.success.main,
-  }),
-  replace: css({
-    color: theme.colors.warning.main,
-  }),
-  move: css({
-    color: theme.colors.warning.main,
-  }),
-  copy: css({
-    color: theme.colors.success.main,
-  }),
-  _get: css({
-    color: theme.colors.success.main,
-  }),
-  test: css({
-    color: theme.colors.success.main,
-  }),
-  remove: css({
-    color: theme.colors.error.main,
-  }),
-  withoutDiff: css({
-    marginBottom: theme.spacing(1),
-  }),
+const styles = stylex.create({
+  embolden: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  withoutDiff: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});
+
+const opStyles = stylex.create({
+  add: {
+    color: colors['--gf-colors-success-main'],
+  },
+  replace: {
+    color: colors['--gf-colors-warning-main'],
+  },
+  move: {
+    color: colors['--gf-colors-warning-main'],
+  },
+  copy: {
+    color: colors['--gf-colors-success-main'],
+  },
+  _get: {
+    color: colors['--gf-colors-success-main'],
+  },
+  test: {
+    color: colors['--gf-colors-success-main'],
+  },
+  remove: {
+    color: colors['--gf-colors-error-main'],
+  },
 });

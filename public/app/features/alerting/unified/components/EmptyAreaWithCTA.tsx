@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type ButtonHTMLAttributes } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, type ButtonVariant, type IconName, LinkButton, useStyles2 } from '@grafana/ui';
+import { Button, type ButtonVariant, type IconName, LinkButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { EmptyArea } from './EmptyArea';
 
@@ -28,10 +28,8 @@ export const EmptyAreaWithCTA = ({
   href,
   showButton = true,
 }: EmptyAreaWithCTAProps) => {
-  const styles = useStyles2(getStyles);
-
   const commonProps = {
-    className: styles.button,
+    className: stylex.props(styles.button).className,
     icon: buttonIcon,
     size: buttonSize,
     variant: buttonVariant,
@@ -40,7 +38,7 @@ export const EmptyAreaWithCTA = ({
   return (
     <EmptyArea>
       <>
-        <p className={styles.text}>{text}</p>
+        <p {...stylex.props(styles.text)}>{text}</p>
         {showButton &&
           (href ? (
             <LinkButton href={href} type="button" {...commonProps}>
@@ -56,19 +54,14 @@ export const EmptyAreaWithCTA = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      backgroundColor: theme.colors.background.secondary,
-      color: theme.colors.text.secondary,
-      padding: theme.spacing(4),
-      textAlign: 'center',
-    }),
-    text: css({
-      marginBottom: theme.spacing(2),
-    }),
-    button: css({
-      margin: theme.spacing(2, 0, 1),
-    }),
-  };
-};
+const styles = stylex.create({
+  text: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  button: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
+});
