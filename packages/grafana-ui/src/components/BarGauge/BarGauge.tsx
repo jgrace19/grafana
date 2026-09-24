@@ -69,7 +69,6 @@ export const BarGauge = memo(function BarGauge(props: Props) {
   const {
     onClick,
     className,
-    theme,
     value,
     displayMode = BarGaugeDisplayMode.Gradient,
     orientation = VizOrientation.Horizontal,
@@ -218,25 +217,25 @@ export const BarGauge = memo(function BarGauge(props: Props) {
   };
 
   const { title } = value;
-  const styles = getTitleStyles(allProps);
+  const titleStyles = getTitleStyles(allProps);
 
   if (onClick) {
     return (
       <button
         type="button"
-        style={styles.wrapper}
+        style={titleStyles.wrapper}
         onClick={onClick}
         className={mergeStylexProps(stylex.props(styles.clearButton), { className }).className}
       >
-        <div style={styles.title}>{title}</div>
+        <div style={titleStyles.title}>{title}</div>
         {renderBarAndValue()}
       </button>
     );
   }
 
   return (
-    <div style={styles.wrapper} className={className}>
-      {title && <div style={styles.title}>{title}</div>}
+    <div style={titleStyles.wrapper} className={className}>
+      {title && <div style={titleStyles.title}>{title}</div>}
       {renderBarAndValue()}
     </div>
   );
