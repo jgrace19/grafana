@@ -12,25 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
 import { useState } from 'react';
 
 import { t } from '@grafana/i18n';
-import { Button, type IconName, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, type IconName, Tooltip } from '@grafana/ui';
 
-const getStyles = () => ({
-  CopyIcon: css({
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: 'inherit',
-    overflow: 'hidden',
-    '&:focus': {
-      backgroundColor: 'rgba(255, 255, 255, 0.25)',
-      color: 'inherit',
-    },
-  }),
-});
+import './CopyIcon.css';
 
 type PropsType = {
   className?: string;
@@ -40,8 +27,6 @@ type PropsType = {
 };
 
 export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: PropsType) {
-  const styles = useStyles2(getStyles);
-
   const [hasCopied, setHasCopied] = useState(false);
 
   const handleClick = () => {
@@ -53,7 +38,7 @@ export default function CopyIcon({ copyText, icon = 'copy', tooltipTitle }: Prop
     <Tooltip content={hasCopied ? t('explore.trace-view.tooltip-copy-icon', 'Copied') : tooltipTitle}>
       <Button
         aria-label={t('explore.trace-view.aria-label-copy', 'Copy to clipboard')}
-        className={cx(styles.CopyIcon)}
+        className="gf-trace-copy-icon"
         type="button"
         icon={icon}
         onClick={handleClick}

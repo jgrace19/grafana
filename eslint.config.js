@@ -105,12 +105,16 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
 ];
 
-// public/app files migrated to StyleX, appended per slice like stylexMigratedUiFiles.
+// public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
 const stylexMigratedAppFiles = [
+  // E1 explore
+  'public/app/features/explore/TraceView/**/*.{ts,tsx}',
   // A2 alerting: everything except unified/components (A1) and unified/styles (helpers still consumed by A1)
   'public/app/features/alerting/*.{ts,tsx}',
   'public/app/features/alerting/state/**/*.{ts,tsx}',
@@ -738,7 +742,7 @@ module.exports = [
   },
 
   {
-    // Must come after grafana/no-extensions-imports, whose restrictions it repeats.
+    // Must come after grafana/no-extensions-imports, whose restriction it repeats.
     name: 'grafana/stylex-migrated-app',
     files: stylexMigratedAppFiles,
     rules: {
