@@ -145,6 +145,10 @@ const stylexMigratedAppFiles = [
   'public/app/features/alerting/state/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/*.{ts,tsx}',
   'public/app/features/alerting/unified/!(components|styles)/**/*.{ts,tsx}',
+  // M1 plugins, provisioning
+  'public/app/features/plugins/**/*.{ts,tsx}',
+  'public/app/features/provisioning/**/*.{ts,tsx}',
+  'public/app/features/connections/tabs/ConnectData/CardGrid/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

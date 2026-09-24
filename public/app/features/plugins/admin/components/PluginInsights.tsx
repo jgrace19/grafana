@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { capitalize } from 'lodash';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Stack, Text, TextLink, CollapsableSection, Tooltip, Icon, useStyles2, useTheme2 } from '@grafana/ui';
+import { Stack, Text, TextLink, CollapsableSection, Tooltip, Icon, useTheme2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CatalogPluginInsights } from '../types';
 
@@ -15,7 +15,6 @@ const PLUGINS_INSIGHTS_OPENED_EVENT_NAME = 'plugins_insights_opened';
 
 export function PluginInsights(props: Props): React.ReactElement | null {
   const { pluginInsights } = props;
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const [openInsights, setOpenInsights] = useState<Record<string, boolean>>({});
 
@@ -42,7 +41,7 @@ export function PluginInsights(props: Props): React.ReactElement | null {
           <Trans i18nKey="plugins.details.labels.pluginInsightsWarningTooltip">One or more checks need attention</Trans>
         </Text>
       </Stack>
-      <hr className={styles.pluginInsightsTooltipSeparator} />
+      <hr {...stylex.props(styles.pluginInsightsTooltipSeparator)} />
       <Text color="secondary" variant="body">
         <Trans i18nKey="plugins.details.labels.moreDetails">
           Plugin Insights are currently in preview, share your feedback to help us surface the most useful information{' '}
@@ -98,7 +97,7 @@ export function PluginInsights(props: Props): React.ReactElement | null {
                     </Text>
                   </Stack>
                 }
-                contentClassName={styles.pluginInsightsItems}
+                contentClassName={stylex.props(styles.pluginInsightsItems).className}
               >
                 <Stack direction="column" gap={1}>
                   {insightItem.items.map((item, idx) => (
@@ -125,14 +124,19 @@ export function PluginInsights(props: Props): React.ReactElement | null {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    pluginVersionDetails: css({ wordBreak: 'break-word' }),
-    pluginInsightsItems: css({ marginLeft: '26px', paddingTop: '0 !important' }),
-    pluginInsightsTooltipSeparator: css({
-      border: 'none',
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      margin: `${theme.spacing(1)} 0`,
-    }),
-  };
-};
+const styles = stylex.create({
+  // !important: beats CollapsableSection's own content padding
+  pluginInsightsItems: { marginLeft: '26px', paddingTop: '0 !important' },
+  pluginInsightsTooltipSeparator: {
+    borderTopStyle: 'solid',
+    borderRightStyle: 'none',
+    borderBottomStyle: 'none',
+    borderLeftStyle: 'none',
+    borderTopWidth: '1px',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    marginTop: spacing['--gf-spacing-x1'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginLeft: 0,
+  },
+});
