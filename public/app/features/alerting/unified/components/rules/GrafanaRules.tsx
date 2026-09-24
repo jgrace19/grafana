@@ -18,11 +18,11 @@ import { useRulesAccess } from '../../utils/accessControlHooks';
 import { GRAFANA_RULES_SOURCE_NAME } from '../../utils/datasource';
 import { initialAsyncRequestState } from '../../utils/redux';
 import { createRelativeUrl } from '../../utils/url';
+import { alertingPaginationStyles } from '../alertingPagination';
 import { GrafanaRulesExporter } from '../export/GrafanaRulesExporter';
 
 import { RulesGroup } from './RulesGroup';
 import { useCombinedGroupNamespace } from './useCombinedGroupNamespace';
-import '../alertingPagination.css';
 
 interface Props {
   namespaces: CombinedRuleNamespace[];
@@ -68,7 +68,7 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
           </Text>
           {loading ? (
             <LoadingPlaceholder
-              style={{ marginBottom: 0 }}
+              xstyle={styles.loading}
               text={t('alerting.list-view.section.grafanaManaged.loading', 'Loading...')}
             />
           ) : (
@@ -129,7 +129,7 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
       )}
       {!hasResult && loading && <Spinner size="xl" className={stylex.props(styles.spinner).className} />}
       <Pagination
-        className="gf-alerting-pagination"
+        xstyle={alertingPaginationStyles.pagination}
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -141,6 +141,9 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
 };
 
 const styles = stylex.create({
+  loading: {
+    marginBottom: 0,
+  },
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
