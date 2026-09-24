@@ -1,3 +1,4 @@
+import type { StyleXStyles } from '@stylexjs/stylex';
 import type {
   UseColumnOrderInstanceProps,
   UseColumnOrderState,
@@ -98,7 +99,7 @@ declare module 'react-table' {
       UseGroupByColumnOptions<D>,
       UseResizeColumnsColumnOptions<D>,
       UseSortByColumnOptions<D> {
-    widthClass?: string;
+    widthStyle?: StyleXStyles;
   }
 
   export interface ColumnInstance<D extends Record<string, unknown> = Record<string, unknown>>

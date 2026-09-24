@@ -1,0 +1,13 @@
+/*
+ * The cactus paths live inside the SVG markup that react-inlinesvg injects, which StyleX can't target.
+ * Unlayered, at the specificity of the Emotion rule it replaces.
+ */
+.gf-grot-cta-light #grot-cta-cactus-1,
+.gf-grot-cta-light #grot-cta-cactus-2 {
+  fill: #c9c5f4;
+}
+
+.gf-grot-cta-dark #grot-cta-cactus-1,
+.gf-grot-cta-dark #grot-cta-cactus-2 {
+  fill: #58558c;
+}
