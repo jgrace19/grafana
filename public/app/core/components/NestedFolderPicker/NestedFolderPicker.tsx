@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { autoUpdate, flip, useClick, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import * as stylex from '@stylexjs/stylex';
 import debounce from 'debounce-promise';
@@ -7,7 +6,7 @@ import * as React from 'react';
 
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, floatingUtils, Icon, Input, LoadingBar, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, floatingUtils, Icon, Input, LoadingBar, Stack, Text } from '@grafana/ui';
 import { zIndex } from '@grafana/ui/stylex/constants.stylex';
 import { shadows } from '@grafana/ui/stylex/tokens.stylex';
 import { useGetFolderQueryFacade } from 'app/api/clients/folder/v1beta1/hooks';
@@ -20,6 +19,7 @@ import { queryResultToViewItem } from 'app/features/search/service/utils';
 import { type DashboardViewItem } from 'app/features/search/types';
 import { type PermissionLevel } from 'app/types/acl';
 
+import './NestedFolderPicker.css';
 import { FolderRepo } from './FolderRepo';
 import { getDOMId, NestedFolderList } from './NestedFolderList';
 import Trigger from './Trigger';
@@ -86,7 +86,6 @@ export function NestedFolderPicker({
   onChange,
   id,
 }: NestedFolderPickerProps) {
-  const inputStyles = useStyles2(getInputOverrideStyles);
   const getSelectedFolderResult = useGetFolderQueryFacade(value);
 
   // user might not have access to the folder, but they have access to the dashboard
@@ -319,7 +318,7 @@ export function NestedFolderPicker({
         placeholder={label ?? t('browse-dashboards.folder-picker.search-placeholder', 'Search folders')}
         value={search}
         invalid={invalid}
-        className={inputStyles.search}
+        className="gf-nested-folder-picker-search"
         onChange={(e) => setSearch(e.currentTarget.value)}
         aria-autocomplete="list"
         aria-expanded
@@ -505,14 +504,3 @@ const styles = stylex.create({
     overflow: 'hidden', // loading bar overflows its container, so we need to clip it
   },
 });
-
-// stylex: pending Input migration (U2). Overrides the cursor of Input's own Emotion-styled <input>.
-const getInputOverrideStyles = () => {
-  return {
-    search: css({
-      input: {
-        cursor: 'default',
-      },
-    }),
-  };
-};
