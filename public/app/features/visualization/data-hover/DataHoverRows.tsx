@@ -1,11 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
 import { css } from '@emotion/css';
 import { isString } from 'lodash';
 import { type FeatureLike } from 'ol/Feature';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type DataFrame, FieldType, getFieldDisplayName, type GrafanaTheme2 } from '@grafana/data';
-import { Collapse, TabContent, useStyles2 } from '@grafana/ui';
+import { type DataFrame, FieldType, getFieldDisplayName } from '@grafana/data';
+import { Collapse, TabContent } from '@grafana/ui';
 import { type GeomapLayerHover } from 'app/plugins/panel/geomap/event';
 import { renderValue } from 'app/plugins/panel/geomap/utils/uiUtils';
 
@@ -17,7 +18,6 @@ type Props = {
 };
 
 export const DataHoverRows = ({ layers, activeTabIndex }: Props) => {
-  const styles = useStyles2(getStyles);
   const [rowMap, setRowMap] = useState(new Map<string | number, boolean>());
 
   const updateRowMap = (key: string | number, value: boolean) => {
@@ -43,7 +43,7 @@ export const DataHoverRows = ({ layers, activeTabIndex }: Props) => {
                       onToggle={() => {
                         updateRowMap(key, !rowMap.get(key));
                       }}
-                      className={styles.collapsibleRow}
+                      className={collapsibleRowClassName}
                     >
                       <DataHoverRow feature={feature} />
                     </Collapse>
@@ -106,8 +106,7 @@ export const generateLabel = (feature: FeatureLike, idx: number): string | React
   return `Match: ${idx + 1}`;
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  collapsibleRow: css({
-    marginBottom: 0,
-  }),
+// stylex: pending Collapse migration: Collapse's own marginBottom would beat a StyleX className
+const collapsibleRowClassName = css({
+  marginBottom: 0,
 });

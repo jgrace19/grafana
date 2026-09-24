@@ -1,21 +1,19 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CanvasElementItem, type CanvasElementProps } from '../element';
 
 const NotFoundDisplay = memo(({ config }: CanvasElementProps) => {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <Trans
         i18nKey="canvas.not-found-display.not-found"
         components={{ config: <pre>{JSON.stringify(config, null, 2)}</pre> }}
       >
-        <span className={styles.heading}>Not found: </span>
+        <span {...stylex.props(styles.heading)}>Not found: </span>
         {'<config />'}
       </Trans>
     </div>
@@ -41,7 +39,13 @@ export const notFoundItem: CanvasElementItem = {
   }),
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({ background: theme.colors.background.canvas }),
-  heading: css({ ...theme.typography.h3 }),
+const styles = stylex.create({
+  container: { backgroundColor: colors['--gf-colors-background-canvas'] },
+  heading: {
+    fontFamily: typography['--gf-typography-h3-font-family'],
+    fontWeight: typography['--gf-typography-h3-font-weight'],
+    fontSize: typography['--gf-typography-h3-font-size'],
+    lineHeight: typography['--gf-typography-h3-line-height'],
+    letterSpacing: typography['--gf-typography-h3-letter-spacing'],
+  },
 });

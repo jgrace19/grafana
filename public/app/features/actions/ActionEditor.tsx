@@ -1,11 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending child migration, see the override below
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 
 import {
   type Action,
   ActionType,
   type DataSourceInstanceSettings,
-  type GrafanaTheme2,
   httpMethodOptions,
   HttpRequestMethod,
   type VariableSuggestion,
@@ -22,9 +23,9 @@ import {
   JSONFormatter,
   RadioButtonGroup,
   Switch,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { HTMLElementType, SuggestionsInput } from '../transformers/suggestionsInput/SuggestionsInput';
 
@@ -51,7 +52,6 @@ const DEFAULT_HTTP_CONFIG: FetchOptions = {
 };
 
 export const ActionEditor = memo(({ index, value, onChange, suggestions, showOneClick }: ActionEditorProps) => {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   const getActionConfig = (): FetchOptions | InfinityOptions => {
@@ -175,8 +175,11 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
     );
 
   return (
-    <div className={styles.listItem}>
-      <Field label={t('grafana-ui.action-editor.modal.action-title', 'Title')} className={styles.inputField}>
+    <div {...stylex.props(styles.listItem)}>
+      <Field
+        label={t('grafana-ui.action-editor.modal.action-title', 'Title')}
+        className={stylex.props(styles.inputField).className}
+      >
         <SuggestionsInput
           value={value.title}
           onChange={onTitleChange}
@@ -192,7 +195,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
           'grafana-ui.viz-tooltip.actions-confirmation-message',
           'Provide a descriptive prompt to confirm or cancel the action.'
         )}
-        className={styles.inputField}
+        className={stylex.props(styles.inputField).className}
       >
         <SuggestionsInput
           value={value.confirmation}
@@ -251,7 +254,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
 
       <Field
         label={t('grafana-ui.action-editor.modal.action-variables', 'Variables')}
-        className={styles.fieldGap}
+        className={stylex.props(styles.fieldGap).className}
         noMargin
       >
         <ActionVariablesEditor onChange={onVariablesChange} value={value.variables ?? []} />
@@ -259,7 +262,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
 
       <Field
         label={t('grafana-ui.action-editor.modal.action-query-params', 'Query parameters')}
-        className={styles.fieldGap}
+        className={stylex.props(styles.fieldGap).className}
       >
         <ParamsEditor value={actionConfig.queryParams ?? []} onChange={onQueryParamsChange} suggestions={suggestions} />
       </Field>
@@ -274,7 +277,10 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
       </Field>
 
       {actionConfig.method !== HttpRequestMethod.GET && (
-        <Field label={t('grafana-ui.action-editor.modal.action-body', 'Body')} className={styles.inputField}>
+        <Field
+          label={t('grafana-ui.action-editor.modal.action-body', 'Body')}
+          className={stylex.props(styles.inputField).className}
+        >
           <SuggestionsInput
             value={actionConfig.body}
             onChange={onBodyChange}
@@ -295,7 +301,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
         <InlineField
           label={t('actions.action-editor.button.style.background-color', 'Color')}
           labelWidth={LABEL_WIDTH}
-          className={styles.colorPicker}
+          className={colorPickerClassName}
         >
           <ColorPicker
             color={value?.style?.backgroundColor || theme.colors.secondary.main}
@@ -307,25 +313,22 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions, showOne
   );
 });
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  listItem: css({
-    marginBottom: theme.spacing(),
-  }),
-  infoText: css({
-    paddingBottom: theme.spacing(2),
-    marginLeft: '66px',
-    color: theme.colors.text.secondary,
-  }),
-  fieldGap: css({
-    marginTop: theme.spacing(2),
-  }),
-  inputField: css({
+// stylex: pending InlineField migration: InlineField's own alignItems would beat a StyleX className
+const colorPickerClassName = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const styles = stylex.create({
+  listItem: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  fieldGap: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+  inputField: {
     marginRight: 4,
-  }),
-  colorPicker: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
+  },
 });
 
 ActionEditor.displayName = 'ActionEditor';

@@ -64,3 +64,10 @@ public/app/core/components/NestedFolderPicker/Trigger.tsx # C1: composes getInpu
 public/app/core/components/RolePicker/** # C1: own styles share elements with getSelectStyles/getInputStyles/Checkbox Emotion classes; needs a dedicated rewrite after U2
 public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
+
+# Migrated files that keep one Emotion className override for a child that still styles itself with Emotion
+# (conventions §3.9, marked `stylex: pending <Child> migration`). Remove each entry once its child migrates.
+public/app/features/actions/ActionEditor.tsx # stylex: pending InlineField migration (alignItems override)
+public/app/features/dimensions/editors/ValueMappingsEditor/ValueMappingsEditor.tsx # stylex: pending Modal migration (width override)
+public/app/features/geo/editor/locationModeEditor.tsx # stylex: pending Alert migration (margin/padding override)
+public/app/features/visualization/data-hover/DataHoverRows.tsx # stylex: pending Collapse migration (marginBottom override)

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
-import { useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, useState } from 'react';
 
-import { type GrafanaTheme2, PluginState } from '@grafana/data';
+import { PluginState } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { TextDimensionMode } from '@grafana/schema';
-import { Button, Spinner, useStyles2 } from '@grafana/ui';
+import { Button, Spinner } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { ColorDimensionEditor } from 'app/features/dimensions/editors/ColorDimensionEditor';
 import { TextDimensionEditor } from 'app/features/dimensions/editors/TextDimensionEditor';
@@ -20,6 +21,8 @@ import {
   defaultLightTextColor,
 } from '../element';
 import { Align, type TextConfig, type TextData } from '../types';
+
+import './button.css';
 
 interface ButtonData extends Omit<TextData, 'valign'> {
   api?: APIEditorConfig;
@@ -46,8 +49,6 @@ export const defaultStyleConfig: ButtonStyleConfig = {
 };
 
 const ButtonDisplay = ({ data }: CanvasElementProps<ButtonConfig, ButtonData>) => {
-  const styles = useStyles2(getStyles, data);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const updateLoadingStateCallback = (loading: boolean) => {
@@ -62,33 +63,35 @@ const ButtonDisplay = ({ data }: CanvasElementProps<ButtonConfig, ButtonData>) =
   };
 
   return (
-    <Button type="submit" variant={data?.style?.variant} onClick={onClick} className={styles.button}>
+    <Button
+      type="submit"
+      variant={data?.style?.variant}
+      onClick={onClick}
+      className="gf-canvas-button"
+      style={getContentStyle(data)}
+    >
       <span>
-        {isLoading && <Spinner inline={true} className={styles.buttonSpinner} />}
+        {isLoading && <Spinner inline={true} className={stylex.props(styles.buttonSpinner).className} />}
         {data?.text}
       </span>
     </Button>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, data: ButtonData | undefined) => ({
-  button: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-
-    '> span': {
-      display: 'inline-grid',
-      gridAutoFlow: 'column',
-      textAlign: data?.align,
-      fontSize: `${data?.size}px`,
-      color: data?.color,
-    },
-  }),
-  buttonSpinner: css({
-    marginRight: theme.spacing(0.5),
-  }),
-});
+// Button renders the span these values apply to, so button.css reads them from custom properties.
+function getContentStyle(data: ButtonData | undefined): CSSProperties {
+  const vars: Record<string, string> = {};
+  if (data?.align) {
+    vars['--canvas-button-text-align'] = data.align;
+  }
+  if (data?.size != null) {
+    vars['--canvas-button-font-size'] = `${data.size}px`;
+  }
+  if (data?.color) {
+    vars['--canvas-button-color'] = data.color;
+  }
+  return vars;
+}
 
 export const buttonItem: CanvasElementItem<ButtonConfig, ButtonData> = {
   id: 'button',
@@ -225,3 +228,9 @@ export const buttonItem: CanvasElementItem<ButtonConfig, ButtonData> = {
       });
   },
 };
+
+const styles = stylex.create({
+  buttonSpinner: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+});
