@@ -15,7 +15,8 @@ mkdir -p "$(dirname "$out")"
 failed=0
 
 rg_args=(-n "@emotion/css|@emotion/react" -g '*.{ts,tsx}')
-for glob in ${RG_EXCLUDE:-}; do
+read -r -a excludes <<<"${RG_EXCLUDE:-}"
+for glob in "${excludes[@]}"; do
   rg_args+=(-g "!$glob")
 done
 
@@ -25,7 +26,7 @@ done
   echo
   echo "- Date (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "- Base commit: \`$(git -C "$root" rev-parse --short HEAD)\` plus working tree"
-  echo "- Paths: $(printf '`%s` ' "${paths[@]}")"
+  echo "- Paths: $(printf "\`%s\` " "${paths[@]}")"
 } >>"$out"
 
 # step <title> <pass-exit-code> <command...>
