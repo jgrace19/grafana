@@ -1,11 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import React, { type ButtonHTMLAttributes } from 'react';
 
 import { type IconName, isIconName } from '@grafana/data';
 
 import { useTheme2 } from '../../themes/ThemeContext';
 import { durations, easings, motion } from '../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { colors, components, shape, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type ButtonVariant } from '../Button/Button';
 import { Icon } from '../Icon/Icon';
@@ -43,14 +43,14 @@ export const SidebarButton = React.forwardRef<HTMLButtonElement, Props>(
           {...restProps}
         >
           <div
-            className={clsx(
-              variant,
+            {...mergeStylexProps(
               stylex.props(
                 styles.iconWrapper,
                 active && styles.iconActive,
                 isPrimary && styles.primary,
                 isPrimary && styles.primaryColor(theme.colors.getContrastText(theme.colors.primary.main))
-              ).className
+              ),
+              { className: variant }
             )}
           >
             {renderIcon(icon, active)}
