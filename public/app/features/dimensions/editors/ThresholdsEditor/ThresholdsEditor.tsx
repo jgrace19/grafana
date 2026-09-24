@@ -13,8 +13,6 @@ import { Trans, t } from '@grafana/i18n';
 import { Button, ColorPicker, colors, IconButton, Input, Label, RadioButtonGroup } from '@grafana/ui';
 import { colors as themeColors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
-import './ThresholdsEditor.css';
-
 export interface Props {
   thresholds: ThresholdsConfig;
   onChange: (thresholds: ThresholdsConfig) => void;
@@ -199,7 +197,7 @@ export const ThresholdsEditor = memo(function ThresholdsEditor({ thresholds, onC
         }
         suffix={
           <IconButton
-            className="gf-thresholds-editor-trash-icon"
+            xstyle={styles.trashIcon}
             name="trash-alt"
             onClick={() => onRemoveThreshold(threshold)}
             tooltip={t('dimensions.threshold-editor.tooltip-remove-threshold', 'Remove threshold {{thresholdNumber}}', {
@@ -302,6 +300,11 @@ export function thresholdsWithoutKey(thresholds: ThresholdsConfig, steps: Thresh
 }
 
 const styles = stylex.create({
+  trashIcon: {
+    color: { default: themeColors['--gf-colors-text-secondary'], ':hover': themeColors['--gf-colors-text-primary'] },
+    cursor: 'pointer',
+    marginRight: 0,
+  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',

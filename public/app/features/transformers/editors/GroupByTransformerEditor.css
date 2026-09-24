@@ -1,4 +1,0 @@
-/* The label element belongs to InlineField. */
-.gf-group-by-field label {
-  min-width: calc(var(--gf-spacing-grid-size) * 32);
-}

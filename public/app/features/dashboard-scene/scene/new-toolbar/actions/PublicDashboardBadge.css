@@ -1,9 +1,0 @@
-/*
- * Override on Badge, which takes no xstyle. Unlayered on purpose so it beats Badge's own colors and border, like the
- * Emotion className override it replaces.
- */
-.gf-public-dashboard-badge {
-  color: grey;
-  background-color: transparent;
-  border: 1px solid;
-}

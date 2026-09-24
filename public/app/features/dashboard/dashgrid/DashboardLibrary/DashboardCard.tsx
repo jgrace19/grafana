@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import cx from 'classnames';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
@@ -13,7 +12,6 @@ import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { CompatibilityBadge, type CompatibilityState } from './CompatibilityBadge';
-import './DashboardCard.css';
 import { thumbnailMarker } from './markers.stylex';
 import { type GnetDashboard } from './types';
 import { buildAssistantPrompt, buildTemplateContextData, buildTemplateContextTitle } from './utils/assistantHelpers';
@@ -105,8 +103,8 @@ function DashboardCardComponent({
   const hasCompatActions = isCompatibilityAppEnabled && showCompatibilityBadge && onCompatibilityCheck;
 
   return (
-    <Card className="gf-dashboard-card" noMargin>
-      <Card.Heading className="gf-dashboard-card-title">
+    <Card xstyle={cardStyles.card} noMargin>
+      <Card.Heading xstyle={cardStyles.title}>
         <span {...stylex.props(styles.titleWithInfo)} role="group" aria-label={title}>
           <span {...stylex.props(styles.titleText)}>{title}</span>
           {detailsButton}
@@ -183,9 +181,7 @@ function DashboardCardComponent({
         <div title={dashboard.description}>
           <Card.Description
             data-testid="dashboard-card-description"
-            className={cx('gf-dashboard-card-description', {
-              'gf-dashboard-card-description--empty': !dashboard.description,
-            })}
+            xstyle={[cardStyles.description, !dashboard.description && cardStyles.descriptionEmpty]}
           >
             {dashboard.description || t('dashboard-library.dashboard-card.no-description', 'No description available')}
           </Card.Description>
@@ -434,3 +430,51 @@ const skeletonStyles = stylex.create({
 });
 
 export const DashboardCard = attachSkeleton(DashboardCardComponent, DashboardCardSkeleton);
+
+const cardStyles = stylex.create({
+  // Not clickable or a link, so Card has no :hover background to keep.
+  card: {
+    gridTemplateAreas: `
+      'Thumbnail Thumbnail'
+      'Heading Heading'
+      'Bottom Bottom'`,
+    gridTemplateRows: 'auto auto 1fr',
+    gridTemplateColumns: '1fr auto',
+    width: '350px',
+    height: '100%',
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-strong'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    overflow: 'hidden',
+    gap: 0,
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  title: {
+    display: '-webkit-box',
+    WebkitLineClamp: 1,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  description: {
+    display: '-webkit-box',
+    WebkitLineClamp: 1,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  descriptionEmpty: {
+    fontStyle: 'italic',
+  },
+});

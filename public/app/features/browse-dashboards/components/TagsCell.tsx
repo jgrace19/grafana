@@ -1,10 +1,9 @@
+import * as stylex from '@stylexjs/stylex';
 import { type CellProps } from 'react-table';
 
 import { TagList } from '@grafana/ui';
 
 import { type DashboardsTreeItem } from '../types';
-import './TagsCell.css';
-
 interface TagsCellProps extends CellProps<DashboardsTreeItem, unknown> {
   onTagClick?: (tag: string) => void;
 }
@@ -24,5 +23,12 @@ export function TagsCell({ row: { original: data }, onTagClick }: TagsCellProps)
     return null;
   }
 
-  return <TagList className="gf-tags-cell-tag-list" tags={item.tags} onClick={onTagClick} />;
+  return <TagList xstyle={styles.tagList} tags={item.tags} onClick={onTagClick} />;
 }
+
+const styles = stylex.create({
+  tagList: {
+    justifyContent: 'flex-start',
+    flexWrap: 'nowrap',
+  },
+});

@@ -4,7 +4,7 @@ import { Fragment, useMemo, useState } from 'react';
 import { Trans, t } from '@grafana/i18n';
 import { useSceneContext } from '@grafana/scenes-react';
 import { Button, IconButton, Stack } from '@grafana/ui';
-import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { FiringCount, PendingCount } from '../BadgeCounts';
 import { type LabelStats, type LabelValueCount } from '../useLabelsBreakdown';
@@ -71,7 +71,7 @@ export function AllLabelsContent({ allLabels, onFilterAdded, labelFilter = '' }:
             <div {...stylex.props(styles.labelRow)}>
               <Stack alignItems="center" gap={0} minWidth={0} grow={1}>
                 <IconButton
-                  className="gf-labels-content-toggle"
+                  xstyle={styles.toggle}
                   name={isOpen ? 'angle-down' : 'angle-right'}
                   size="sm"
                   aria-label={
@@ -130,7 +130,8 @@ function LabelKeyButton({ labelKey, onClick }: LabelKeyButtonProps) {
         variant="secondary"
         fill="text"
         size="sm"
-        className={isActive ? 'gf-labels-content-key gf-labels-content-active' : 'gf-labels-content-key'}
+        className="gf-labels-content-key"
+        xstyle={[styles.key, isActive && styles.active]}
         onClick={() => onClick(isActive)}
       >
         {labelKey}
@@ -163,9 +164,8 @@ function LabelValuesList({ labelKey, values, onValueClick, valueHits }: LabelVal
             variant="secondary"
             fill="text"
             size="sm"
-            className={
-              activeValue === value ? 'gf-labels-content-value gf-labels-content-active' : 'gf-labels-content-value'
-            }
+            className="gf-labels-content-value"
+            xstyle={[styles.value, activeValue === value && styles.active]}
             onClick={() => onValueClick(value, activeValue === value)}
           >
             {value}
@@ -196,8 +196,34 @@ function LabelValuesList({ labelKey, values, onValueClick, valueHits }: LabelVal
 
 // --- Styles ---
 
-// The Button and IconButton overrides live in LabelsContent.css.
 const styles = stylex.create({
+  toggle: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    flexShrink: 0,
+  },
+  key: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-text-secondary'],
+    minWidth: 0,
+  },
+  value: {
+    flex: '1',
+    minWidth: 0,
+    justifySelf: 'stretch',
+  },
+  // Button's secondary text :hover, :focus and :active backgrounds still win, as on main.
+  active: {
+    backgroundColor: {
+      default: colors['--gf-colors-action-selected'],
+      ':hover': colors['--gf-colors-secondary-transparent'],
+      ':focus': colors['--gf-colors-secondary-transparent'],
+      ':active': 'transparent',
+    },
+    borderRadius: shape['--gf-shape-radius-default'],
+  },
   content: {
     display: 'flex',
     flexDirection: 'column',

@@ -8,8 +8,6 @@ import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.st
 import { getQueryEditorBannerColors } from './PanelEditNext/constants';
 import { startIntercomSurvey, trackBannerDismiss, trackFeedbackClick } from './PanelEditNext/tracking';
 
-import './QueryEditorBanner.css';
-
 interface Props {
   useQueryExperienceNext: boolean;
   onToggle: () => void;
@@ -89,7 +87,7 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
             trackBannerDismiss();
             onDismiss();
           }}
-          className="gf-query-editor-banner-close"
+          xstyle={styles.close}
           aria-label={t('dashboard-scene.query-editor-banner.dismiss', 'Dismiss')}
         />
       </div>
@@ -98,6 +96,9 @@ export function QueryEditorBanner({ useQueryExperienceNext, onToggle, onDismiss,
 }
 
 const styles = stylex.create({
+  close: {
+    color: { default: colors['--gf-colors-text-secondary'], ':hover': colors['--gf-colors-text-primary'] },
+  },
   banner: {
     display: 'flex',
     alignItems: 'center',

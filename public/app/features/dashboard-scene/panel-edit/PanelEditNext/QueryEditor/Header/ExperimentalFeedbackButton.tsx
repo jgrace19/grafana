@@ -4,11 +4,10 @@ import { useRef } from 'react';
 import { t } from '@grafana/i18n';
 import { Button, Dropdown, Menu } from '@grafana/ui';
 import { easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { startIntercomSurvey } from '../../tracking';
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
-
-import './ExperimentalFeedbackButton.css';
 
 export function ExperimentalFeedbackButton() {
   const { showVersionBanner } = useQueryEditorUIContext();
@@ -50,7 +49,7 @@ export function ExperimentalFeedbackButton() {
           fill="text"
           icon="flask"
           variant="secondary"
-          className="gf-experimental-feedback-button"
+          xstyle={styles.button}
           tooltip={t('query-editor-next.experimental-button.tooltip', 'Experimental feature options')}
           aria-label={t('query-editor-next.experimental-button.aria-label', 'Experimental feature options')}
         />
@@ -78,6 +77,9 @@ const slideInAndPulse = stylex.keyframes({
 });
 
 const styles = stylex.create({
+  button: {
+    color: { default: colors['--gf-colors-warning-main'], ':hover': colors['--gf-colors-warning-text'] },
+  },
   wrapper: {
     display: 'flex',
   },

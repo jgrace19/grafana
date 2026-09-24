@@ -1,13 +1,13 @@
+import * as stylex from '@stylexjs/stylex';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode } from 'react';
 
 import { DocsId, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Card, Container, Input, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getDocsLink } from 'app/core/utils/docsLinks';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
-
-import './TransformationPicker.css';
 
 const LOCAL_STORAGE_KEY = 'dashboard.components.TransformationEditor.featureInfoBox.isDismissed';
 
@@ -108,7 +108,7 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
   return (
     <Card
       noMargin
-      className="gf-transformation-picker-card"
+      xstyle={styles.card}
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={onClick}
     >
@@ -122,3 +122,16 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
     </Card>
   );
 }
+
+const styles = stylex.create({
+  card: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+});

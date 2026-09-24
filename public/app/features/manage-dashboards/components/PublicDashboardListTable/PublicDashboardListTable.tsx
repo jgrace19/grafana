@@ -23,8 +23,6 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { type PublicDashboardListResponse } from '../../types';
 
 import { DeletePublicDashboardButton } from './DeletePublicDashboardButton';
-import './PublicDashboardListTable.css';
-
 const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
   const theme = useTheme2();
   const isMobile = useMedia(`(max-width: ${theme.breakpoints.values.sm}px)`);
@@ -50,11 +48,11 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
   const translatedPauseSharingText = t('shared-dashboard-list.toggle.pause-sharing-toggle-text', 'Pause access');
   return (
-    <Card noMargin className="gf-public-dashboard-card" href={`/d/${pd.dashboardUid}`}>
-      <Card.Heading className="gf-public-dashboard-card-heading">
+    <Card noMargin xstyle={styles.card} href={`/d/${pd.dashboardUid}`}>
+      <Card.Heading xstyle={styles.cardHeading}>
         <span>{pd.title}</span>
       </Card.Heading>
-      <CardActions className="gf-public-dashboard-card-actions">
+      <CardActions xstyle={styles.cardActions}>
         <div {...stylex.props(styles.pauseSwitch)}>
           <Switch
             value={!pd.isEnabled}
@@ -160,6 +158,21 @@ export const PublicDashboardListTable = () => {
 };
 
 const styles = stylex.create({
+  card: {
+    display: { default: 'grid', [bp.smUp]: 'flex' },
+  },
+  cardHeading: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    flex: '1',
+  },
+  cardActions: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+    gap: { default: spacing['--gf-spacing-x0-5'], [bp.smUp]: spacing['--gf-spacing-x1'] },
+  },
   list: {
     listStyleType: 'none',
     marginBottom: spacing['--gf-spacing-x2'],

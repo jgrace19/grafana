@@ -1,13 +1,7 @@
 /*
- * Button renders the span (its content wrapper), so these rules stay unlayered to beat Button's StyleX styles,
- * like the Emotion rules they replace. Unset custom properties compute to inherit, as the omitted declarations did.
+ * Button's content span, which no StyleX override prop reaches. Unlayered, like the Emotion rules it replaces.
+ * Unset custom properties compute to inherit, as the omitted declarations did.
  */
-.gf-canvas-button {
-  height: 100%;
-  width: 100%;
-  display: grid;
-}
-
 .gf-canvas-button > span {
   display: inline-grid;
   grid-auto-flow: column;

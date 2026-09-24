@@ -18,10 +18,10 @@ import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelect
 import { getRulesDataSources, getRulesSourceUid } from '../../utils/datasource';
 import { isAsyncRequestStatePending } from '../../utils/redux';
 import { createRelativeUrl } from '../../utils/url';
+import { alertingPaginationStyles } from '../alertingPagination';
 
 import { RulesGroup } from './RulesGroup';
 import { useCombinedGroupNamespace } from './useCombinedGroupNamespace';
-import '../alertingPagination.css';
 
 interface Props {
   namespaces: CombinedRuleNamespace[];
@@ -65,7 +65,7 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
             </Text>
             {dataSourcesLoading.length ? (
               <LoadingPlaceholder
-                style={{ marginBottom: 0 }}
+                xstyle={styles.loading}
                 text={t('alerting.list-view.section.loading-rules', 'Loading rules from {{count}} sources', {
                   count: dataSourcesLoading.length,
                 })}
@@ -108,7 +108,7 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
       )}
 
       <Pagination
-        className="gf-alerting-pagination"
+        xstyle={alertingPaginationStyles.pagination}
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -119,6 +119,9 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
 };
 
 const styles = stylex.create({
+  loading: {
+    marginBottom: 0,
+  },
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',

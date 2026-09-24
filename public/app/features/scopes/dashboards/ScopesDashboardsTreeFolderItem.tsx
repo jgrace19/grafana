@@ -9,8 +9,6 @@ import { useScopesServices } from '../ScopesContextProvider';
 import { ScopesDashboardsTree } from './ScopesDashboardsTree';
 import { type OnFolderUpdate, type SuggestedNavigationsFolder, type SuggestedNavigationsFoldersMap } from './types';
 
-import './ScopesDashboardsTreeFolderItem.css';
-
 export interface ScopesDashboardsTreeFolderItemProps {
   folder: SuggestedNavigationsFolder;
   folderPath: string[];
@@ -50,7 +48,7 @@ export function ScopesDashboardsTreeFolderItem({
 
         {folder.subScopeName && !folder.disableSubScopeSelection && (
           <IconButton
-            className="gf-scopes-exchange-icon"
+            xstyle={styles.exchangeIcon}
             tooltip={t('scopes.dashboards.exchange', 'Change root scope to {{scope}}', {
               scope: folder.subScopeName || '',
             })}
@@ -98,6 +96,11 @@ export function ScopesDashboardsTreeFolderItem({
 }
 
 const styles = stylex.create({
+  exchangeIcon: {
+    opacity: 0.7,
+    flexShrink: 0,
+    marginTop: spacing['--gf-spacing-x0-25'],
+  },
   container: {
     display: 'flex',
     flexDirection: 'column',
