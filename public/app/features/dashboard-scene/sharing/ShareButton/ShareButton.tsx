@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type VizPanel } from '@grafana/scenes';
-import { Button, ButtonGroup, Dropdown, useStyles2 } from '@grafana/ui';
+import { Button, ButtonGroup, Dropdown } from '@grafana/ui';
 
 import { type DashboardScene } from '../../scene/DashboardScene';
 import { DashboardInteractions } from '../../utils/interactions';
@@ -17,7 +16,6 @@ import { buildShareUrl } from './utils';
 const newShareButtonSelector = e2eSelectors.pages.Dashboard.DashNav.newShareButton;
 
 export default function ShareButton({ dashboard, panel }: { dashboard: DashboardScene; panel?: VizPanel }) {
-  const styles = useStyles2(getStyles);
   const [isOpen, setIsOpen] = useState(false);
 
   const [{ loading }, buildUrl] = useAsyncFn(async () => {
@@ -36,7 +34,7 @@ export default function ShareButton({ dashboard, panel }: { dashboard: Dashboard
   const MenuActions = () => <ShareMenu dashboard={dashboard} />;
 
   return (
-    <ButtonGroup data-testid={newShareButtonSelector.container} className={styles.container}>
+    <ButtonGroup data-testid={newShareButtonSelector.container} className={stylex.props(styles.container).className}>
       <Button
         data-testid={newShareButtonSelector.shareLink}
         size="sm"
@@ -59,10 +57,9 @@ export default function ShareButton({ dashboard, panel }: { dashboard: Dashboard
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      gap: 1,
-    }),
-  };
-}
+// ButtonGroup doesn't set a gap itself, so a StyleX class can't conflict with it.
+const styles = stylex.create({
+  container: {
+    gap: 1,
+  },
+});

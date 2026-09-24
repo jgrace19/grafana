@@ -47,7 +47,7 @@ describe('packed @grafana/ui', () => {
     render(withTheme(React.createElement(ui.Button, null, 'Apply')));
     const classes = screen.getByRole('button', { name: 'Apply' }).className.split(/\s+/);
 
-    expect(css).toContain('@layer grafana-legacy, grafana-global, stylex.priority1');
+    expect(css).toContain('@layer rdg, grafana-legacy, grafana-global, stylex.priority1');
     // Plain component CSS (unlayered structural rules) is bundled after the StyleX rules.
     expect(css).toContain('.gf-button-group > button:not(:first-child)');
     expect(css).toContain('--gf-colors-primary-main');

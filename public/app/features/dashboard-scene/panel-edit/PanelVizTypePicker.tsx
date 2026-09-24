@@ -1,25 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { useCallback, useId, useMemo, useState } from 'react';
 import { useMedia, useSessionStorage } from 'react-use';
 
-import { type GrafanaTheme2, type PanelData } from '@grafana/data';
+import { type PanelData } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type VizPanel } from '@grafana/scenes';
-import {
-  Button,
-  Field,
-  FilterInput,
-  ScrollContainer,
-  Stack,
-  Tab,
-  TabContent,
-  TabsBar,
-  useStyles2,
-  useTheme2,
-} from '@grafana/ui';
+import { Button, Field, FilterInput, ScrollContainer, Stack, Tab, TabContent, TabsBar, useTheme2 } from '@grafana/ui';
+import { colors, shadows, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { LS_VISUALIZATION_SELECT_TAB_KEY } from 'app/core/constants';
 import { VisualizationSelectPaneTab } from 'app/features/dashboard/components/PanelEditor/types';
 import { VisualizationSuggestions } from 'app/features/panel/components/VizTypePicker/VisualizationSuggestions';
@@ -63,7 +53,6 @@ export function PanelVizTypePicker({
   isNewPanel,
   hasPickedViz,
 }: Props) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const panelModel = useMemo(() => new PanelModelCompatibilityWrapper(panel), [panel]);
   const filterId = useId();
@@ -124,11 +113,11 @@ export function PanelVizTypePicker({
   }, [listMode, onClose]);
 
   return (
-    <div className={styles.wrapper}>
-      <TabsBar className={styles.tabs} hideBorder={true}>
+    <div {...stylex.props(styles.wrapper)}>
+      <TabsBar className={stylex.props(styles.tabs).className} hideBorder={true}>
         {tabs.map((tab) => (
           <Tab
-            className={styles.tab}
+            className={stylex.props(styles.tab).className}
             key={tab.value}
             label={tab.label}
             active={listMode === tab.value}
@@ -137,9 +126,9 @@ export function PanelVizTypePicker({
           />
         ))}
       </TabsBar>
-      <div className={styles.stickySearchWrapper}>
+      <div {...stylex.props(styles.stickySearchWrapper)}>
         <Field
-          className={styles.searchField}
+          className={stylex.props(styles.searchField).className}
           noMargin
           htmlFor={filterId}
           aria-label={t('dashboard-scene.panel-viz-type-picker.placeholder-search-for', 'Search for...')}
@@ -151,7 +140,7 @@ export function PanelVizTypePicker({
                 fill="text"
                 variant="secondary"
                 icon="arrow-left"
-                className={styles.backButton}
+                className={stylex.props(styles.backButton).className}
                 data-testid={selectors.components.PanelEditor.toggleVizPicker}
                 onClick={handleBackButtonClick}
               >
@@ -161,7 +150,7 @@ export function PanelVizTypePicker({
             <FilterInput
               id={filterId}
               autoFocus={!isMobile}
-              className={styles.filter}
+              className={stylex.props(styles.filter).className}
               value={searchQuery}
               onChange={setSearchQuery}
               placeholder={t('dashboard-scene.panel-viz-type-picker.placeholder-search-for', 'Search for...')}
@@ -170,7 +159,7 @@ export function PanelVizTypePicker({
         </Field>
       </div>
       <ScrollContainer>
-        <TabContent className={styles.tabContent}>
+        <TabContent className={stylex.props(styles.tabContent).className}>
           <Stack gap={1} direction="column">
             {listMode === VisualizationSelectPaneTab.Suggestions && (
               <VisualizationSuggestions
@@ -196,42 +185,48 @@ export function PanelVizTypePicker({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
     height: '100%',
-  }),
-  searchField: css({
-    margin: theme.spacing(2, 1.5, 0, 0),
+  },
+  searchField: {
+    marginTop: spacing['--gf-spacing-x2'],
+    marginRight: spacing['--gf-spacing-x1-5'],
+    marginBottom: spacing['--gf-spacing-x0'],
+    marginLeft: spacing['--gf-spacing-x0'],
     width: '100%',
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    paddingBottom: theme.spacing(0.75),
-  }),
-  stickySearchWrapper: css({
-    boxShadow: theme.shadows.z1,
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+  },
+  stickySearchWrapper: {
+    boxShadow: shadows['--gf-shadows-z1'],
     zIndex: 1,
-  }),
-  tabs: css({
+  },
+  tabs: {
     width: '100%',
-  }),
-  tab: css({
+  },
+  tab: {
     flexGrow: 1,
     justifyContent: 'center',
     textAlign: 'center',
-  }),
-  tabContent: css({
-    paddingTop: theme.spacing(1),
-    paddingInline: theme.spacing(2),
-  }),
-  backButton: css({
-    marginLeft: theme.spacing(1), // shift button to the right
-  }),
-  filter: css({
-    minHeight: theme.spacing(4),
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    marginLeft: theme.spacing(1),
-  }),
+  },
+  tabContent: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+  },
+  backButton: {
+    marginLeft: spacing['--gf-spacing-x1'], // shift button to the right
+  },
+  filter: {
+    minHeight: spacing['--gf-spacing-x4'],
+    marginBottom: spacing['--gf-spacing-x1'],
+    marginRight: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
 });

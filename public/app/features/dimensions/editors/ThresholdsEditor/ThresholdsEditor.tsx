@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isNumber } from 'lodash';
 import { type ChangeEvent, memo, useEffect, useRef, useState } from 'react';
 
 import {
-  type GrafanaTheme2,
   type SelectableValue,
   sortThresholds,
   type Threshold,
@@ -11,7 +10,10 @@ import {
   ThresholdsMode,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ColorPicker, colors, IconButton, Input, Label, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Button, ColorPicker, colors, IconButton, Input, Label, RadioButtonGroup } from '@grafana/ui';
+import { colors as themeColors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './ThresholdsEditor.css';
 
 export interface Props {
   thresholds: ThresholdsConfig;
@@ -27,7 +29,6 @@ export const ThresholdsEditor = memo(function ThresholdsEditor({ thresholds, onC
   const latestThresholdInputRef = useRef<HTMLInputElement>(null);
   const isMounted = useRef(false);
   const userAddedThreshold = useRef(false);
-  const styles = useStyles2(getStyles);
 
   const stepsRef = useRef(steps);
   stepsRef.current = steps;
@@ -162,7 +163,7 @@ export const ThresholdsEditor = memo(function ThresholdsEditor({ thresholds, onC
           aria-label={ariaLabel}
           disabled
           prefix={
-            <div className={styles.colorPicker}>
+            <div {...stylex.props(styles.colorPicker)}>
               <ColorPicker
                 color={threshold.color}
                 onChange={(color) => onChangeThresholdColor(threshold, color)}
@@ -185,20 +186,20 @@ export const ThresholdsEditor = memo(function ThresholdsEditor({ thresholds, onC
         ref={idx === 0 ? latestThresholdInputRef : null}
         onBlur={onBlur}
         prefix={
-          <div className={styles.inputPrefix}>
-            <div className={styles.colorPicker}>
+          <div {...stylex.props(styles.inputPrefix)}>
+            <div {...stylex.props(styles.colorPicker)}>
               <ColorPicker
                 color={threshold.color}
                 onChange={(color) => onChangeThresholdColor(threshold, color)}
                 enableNamedColors={true}
               />
             </div>
-            {isPercent && <div className={styles.percentIcon}>%</div>}
+            {isPercent && <div {...stylex.props(styles.percentIcon)}>%</div>}
           </div>
         }
         suffix={
           <IconButton
-            className={styles.trashIcon}
+            className="gf-thresholds-editor-trash-icon"
             name="trash-alt"
             onClick={() => onRemoveThreshold(threshold)}
             tooltip={t('dimensions.threshold-editor.tooltip-remove-threshold', 'Remove threshold {{thresholdNumber}}', {
@@ -230,16 +231,23 @@ export const ThresholdsEditor = memo(function ThresholdsEditor({ thresholds, onC
   ];
 
   return (
-    <div className={styles.wrapper}>
-      <Button size="sm" icon="plus" onClick={onAddThreshold} variant="secondary" className={styles.addButton} fullWidth>
+    <div {...stylex.props(styles.wrapper)}>
+      <Button
+        size="sm"
+        icon="plus"
+        onClick={onAddThreshold}
+        variant="secondary"
+        className={stylex.props(styles.addButton).className}
+        fullWidth
+      >
         <Trans i18nKey="dimensions.thresholds-editor.add-threshold">Add threshold</Trans>
       </Button>
-      <div className={styles.thresholds}>
+      <div {...stylex.props(styles.thresholds)}>
         {steps
           .slice(0)
           .reverse()
           .map((threshold, idx) => (
-            <div className={styles.item} key={`${threshold.key}`}>
+            <div {...stylex.props(styles.item)} key={`${threshold.key}`}>
               {renderInput(threshold, idx)}
             </div>
           ))}
@@ -293,46 +301,34 @@ export function thresholdsWithoutKey(thresholds: ThresholdsConfig, steps: Thresh
   };
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    thresholds: css({
-      display: 'flex',
-      flexDirection: 'column',
-      marginBottom: theme.spacing(2),
-    }),
-    item: css({
-      marginBottom: theme.spacing(1),
-
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    }),
-    colorPicker: css({
-      padding: theme.spacing(0, 1),
-    }),
-    addButton: css({
-      marginBottom: theme.spacing(1),
-    }),
-    percentIcon: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    inputPrefix: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    trashIcon: css({
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      marginRight: 0,
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  thresholds: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  item: {
+    marginBottom: { default: spacing['--gf-spacing-x1'], ':last-child': 0 },
+  },
+  colorPicker: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  addButton: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  percentIcon: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: themeColors['--gf-colors-text-secondary'],
+  },
+  inputPrefix: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});

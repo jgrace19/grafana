@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type EditableDashboardElement } from '../scene/types/EditableDashboardElement';
 
@@ -16,30 +16,31 @@ export interface Props {
 
 export function ElementEditPane({ element, editPane, isNewElement }: Props) {
   const categories = element.useEditPaneOptions ? element.useEditPaneOptions(isNewElement) : [];
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <EditPaneHeader element={element} editPane={editPane} />
       <ScrollContainer showScrollIndicators={true}>
-        <div className={styles.categories}>{categories.map((cat) => cat.renderElement())}</div>
+        <div {...stylex.props(styles.categories)}>{categories.map((cat) => cat.renderElement())}</div>
       </ScrollContainer>
     </div>
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: '1 1 0',
-      height: '100%',
-    }),
-    categories: css({
-      display: 'flex',
-      flexDirection: 'column',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-}
+const styles = stylex.create({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    height: '100%',
+  },
+  categories: {
+    display: 'flex',
+    flexDirection: 'column',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+});

@@ -1,3 +1,4 @@
+import type * as stylex from '@stylexjs/stylex';
 import { type Property } from 'csstype';
 import { type FC } from 'react';
 import { type CellProps, type Column, type Row, type TableState, type UseExpandedRowProps } from 'react-table';
@@ -16,6 +17,11 @@ import type * as schema from '@grafana/schema';
 
 import { type TableCellInspectorMode } from './TableCellInspector';
 import { type TableStyles } from './TableRT/styles';
+
+/** @internal Anything `stylex.props()` accepts: styles, dynamic styles and markers. */
+export type TableStyleProps = stylex.StyleXArray<
+  null | undefined | boolean | stylex.CompiledStyles | Readonly<[stylex.CompiledStyles, stylex.InlineStyles]>
+>;
 
 export {
   type FieldTextAlignment,

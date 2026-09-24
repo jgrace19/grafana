@@ -1,24 +1,31 @@
-import { css } from '@emotion/css';
-import { type Property } from 'csstype';
-import memoize, { type Key, type RawKey } from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
+import memoize from 'micro-memoize';
+import { type CSSProperties } from 'react';
 
 import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
 
-import { COLUMN, TABLE } from './constants';
-import { type TableCellStyles } from './types';
-import { getJustifyContent, IS_SAFARI_26, type TextAlign } from './utils';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { colors, shadows, shape, spacing, typography } from '../../../themes/stylex/tokens.stylex';
+import { defaultCellMarker, rdgCellMarker, rdgSelectableMarker } from '../markers.stylex';
+import { type TableStyleProps } from '../types';
+
+import { type TableCellStyleOptions } from './types';
+import { IS_SAFARI_26, type TextAlign } from './utils';
+
+import './TableNG.css';
+
+/** @internal */
+export interface TableNGClassNameAndStyle {
+  className?: string;
+  style?: CSSProperties;
+}
 
 /**
  * @internal
- * a method that can be used with micro-memoize as a cache key equality comparator.
+ * Styles for the DataGrid root and the elements TableNG renders around it. The rules that target
+ * react-data-grid's own DOM live in TableNG.css, scoped under `gf-table-ng`.
  */
-export const isTableCellStylesKeyEqual = (cacheKey: Key, key: RawKey): boolean =>
-  cacheKey[0] === key[0] &&
-  cacheKey[1].shouldOverflow === key[1].shouldOverflow &&
-  cacheKey[1].maxHeight === key[1].maxHeight &&
-  cacheKey[1].textAlign === key[1].textAlign &&
-  cacheKey[1].textWrap === key[1].textWrap;
-
 export const getGridStyles = memoize((theme: GrafanaTheme2, enablePagination?: boolean, transparent?: boolean) => {
   const bgColor = transparent ? theme.colors.background.canvas : theme.colors.background.primary;
   // this needs to be pre-calc'd since the theme colors have alpha and the border color becomes
@@ -30,285 +37,340 @@ export const getGridStyles = memoize((theme: GrafanaTheme2, enablePagination?: b
 
   const selectedRowHoverColor = theme.colors.emphasize(selectedRowColor, 0.05);
 
-  return {
-    grid: css({
-      '--rdg-background-color': bgColor,
-      '--rdg-header-background-color': bgColor,
-      '--rdg-border-color': borderColor,
-      '--rdg-color': theme.colors.text.primary,
-      '--rdg-summary-border-color': borderColor,
-      '--rdg-summary-border-width': '1px',
-
-      '--rdg-selection-color': theme.colors.info.transparent,
-
+  const gridStyles = [
+    gridStylesheet.grid,
+    enablePagination ? gridStylesheet.gridPaginated : gridStylesheet.gridFull,
+    gridStylesheet.gridColors(
+      bgColor,
+      borderColor,
       // note: this cannot have any transparency since default cells that
       // overlay/overflow on hover inherit this background and need to occlude cells below
-      '--rdg-row-background-color': bgColor,
-      '--rdg-row-hover-background-color': transparent
-        ? theme.colors.background.primary
-        : theme.colors.background.secondary,
-      '--rdg-row-selected-background-color': selectedRowColor,
-      '--rdg-row-selected-hover-background-color': selectedRowHoverColor,
+      transparent ? theme.colors.background.primary : theme.colors.background.secondary,
+      selectedRowColor,
+      selectedRowHoverColor,
+      theme.isDark ? '#fff5 #fff1' : '#0005 #0001'
+    ),
+  ];
+  const rootClassName = clsx('gf-table-ng', !IS_SAFARI_26 && 'gf-table-ng-hover');
+  const grid = stylex.props(gridStyles);
+  const gridNested = stylex.props(gridStyles, gridStylesheet.gridNested);
 
-      // TODO: magic 32px number is unfortunate. it would be better to have the content
-      // flow using flexbox rather than hard-coding this size via a calc
-      blockSize: enablePagination ? 'calc(100% - 32px)' : '100%',
-      scrollbarWidth: 'thin',
-      scrollbarColor: theme.isDark ? '#fff5 #fff1' : '#0005 #0001',
-
-      border: 'none',
-
-      '.rdg-cell': {
-        padding: TABLE.CELL_PADDING,
-
-        '&:last-child': {
-          borderInlineEnd: 'none',
-        },
-
-        '&[aria-selected="true"][role="columnheader"]': {
-          outline: 'none',
-        },
-      },
-
-      // add a box shadow on hover and selection for all body cells
-      '& > :not(.rdg-summary-row, .rdg-header-row) > .rdg-cell': {
-        [getActiveCellSelector()]: { boxShadow: theme.shadows.z2 },
-        // selected cells should appear below hovered cells.
-        ...(!IS_SAFARI_26 && { '&:hover': { zIndex: theme.zIndex.tooltip - 7 } }),
-        '&[aria-selected=true]': { zIndex: theme.zIndex.tooltip - 6 },
-      },
-
-      '.rdg-cell.rdg-cell-frozen': {
-        backgroundColor: 'var(--rdg-row-background-color)',
-        zIndex: theme.zIndex.tooltip - 4,
-        ...(!IS_SAFARI_26 && { '&:hover': { zIndex: theme.zIndex.tooltip - 2 } }),
-        '&[aria-selected=true]': { zIndex: theme.zIndex.tooltip - 3 },
-      },
-
-      // have to override styles for row selection to workaround safari styles workaround
-      '[role="row"][aria-selected="true"]': {
-        '&:hover': {
-          '.rdg-cell.rdg-cell-frozen': {
-            backgroundColor: 'var(--rdg-row-selected-hover-background-color)',
-          },
-        },
-        '.rdg-cell.rdg-cell-frozen': {
-          backgroundColor: 'var(--rdg-row-selected-background-color)',
-        },
-      },
-
-      '.rdg-header-row, .rdg-summary-row': {
-        '.rdg-cell': {
-          zIndex: theme.zIndex.tooltip - 5,
-          '&.rdg-cell-frozen': {
-            zIndex: theme.zIndex.tooltip - 1,
-          },
-        },
-      },
-      '.rdg-summary-row >': {
-        '.rdg-cell': {
-          // 0.75 padding causes "jumping" on hover.
-          paddingBlock: theme.spacing(0.625),
-        },
-        [getActiveCellSelector()]: {
-          whiteSpace: 'pre-line',
-          height: '100%',
-          minHeight: 'fit-content',
-          overflowY: 'visible',
-          boxShadow: theme.shadows.z2,
-        },
-      },
-    }),
-    gridNested: css({
-      height: '100%',
-      width: `calc(100% - ${COLUMN.EXPANDER_WIDTH - TABLE.CELL_PADDING * 2 - 1}px)`,
-      overflowX: 'scroll',
-      overflowY: 'hidden',
-      marginLeft: COLUMN.EXPANDER_WIDTH - TABLE.CELL_PADDING - 1,
-      marginBlock: TABLE.CELL_PADDING,
-      // usually row height will be set to 0 when not expanded, but auto cell height may lead to some rendering errors.
-      '&[aria-expanded="false"]': {
-        display: 'none',
-      },
-    }),
-    cellNested: css({
-      '&[aria-selected=true]': { outline: 'none' },
-      '&:hover': { backgroundColor: 'transparent' },
-    }),
-    noDataNested: css({
-      height: TABLE.NESTED_NO_DATA_HEIGHT,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.h4.fontSize,
-    }),
-    headerRow: css({
-      paddingBlockStart: 0,
-      fontWeight: 'normal',
-      '& .rdg-cell': { height: '100%', alignItems: 'flex-end' },
-    }),
-    displayNone: css({ display: 'none' }),
-    paginationContainer: css({
-      alignItems: 'center',
-      display: 'flex',
-      justifyContent: 'center',
-      marginTop: '8px',
-      width: '100%',
-    }),
-    paginationSummary: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      padding: theme.spacing(0, 1, 0, 2),
-    }),
-    menuItem: css({ maxWidth: '200px' }),
-    safariWrapper: css({ contain: 'strict', height: '100%' }),
+  return {
+    grid: { className: clsx(grid.className, rootClassName), style: grid.style } satisfies TableNGClassNameAndStyle,
+    gridNested: {
+      className: clsx(gridNested.className, rootClassName),
+      style: gridNested.style,
+    } satisfies TableNGClassNameAndStyle,
+    cellNested: stylex.props(gridStylesheet.cellNested).className,
+    noDataNested: gridStylesheet.noDataNested,
+    headerRow: clsx('gf-table-ng-header-row', stylex.props(gridStylesheet.headerRow).className),
+    headerRowHidden: clsx(
+      'gf-table-ng-header-row',
+      stylex.props(gridStylesheet.headerRow, gridStylesheet.displayNone).className
+    ),
+    paginationContainer: gridStylesheet.paginationContainer,
+    paginationSummary: gridStylesheet.paginationSummary,
+    safariWrapper: gridStylesheet.safariWrapper,
   };
 });
 
-export const getHeaderCellStyles = memoize((theme: GrafanaTheme2, justifyContent: Property.JustifyContent) =>
-  css({
+/** @internal Class name for react-data-grid's `headerCellClass`. */
+export const getHeaderCellStyles = memoize(
+  (_theme: GrafanaTheme2, textAlign: TextAlign) =>
+    stylex.props(headerCellStyles.headerCell, justifyContentStyles[textAlign]).className
+);
+
+/** @internal Classes for the markers that nested cell styles key on; add them to every body cell. */
+export const rdgCellMarkerClassName = stylex.props(rdgCellMarker, rdgSelectableMarker).className;
+/** @internal */
+export const rdgRowMarkerClassName = stylex.props(rdgSelectableMarker).className;
+
+/** @internal */
+export const getDefaultCellStyles = (
+  _theme: GrafanaTheme2,
+  { textAlign, shouldOverflow, maxHeight }: TableCellStyleOptions
+): TableStyleProps => [
+  defaultCellMarker,
+  cellStyles.defaultCell,
+  textAlignStyles[textAlign],
+  Boolean(maxHeight) ? cellStyles.justifyStart : justifyContentStyles[textAlign],
+  Boolean(maxHeight) && cellStyles.overflowYHidden,
+  shouldOverflow && cellStyles.minHeightFull,
+  shouldOverflow && (IS_SAFARI_26 ? cellStyles.overflowSelected : cellStyles.overflowActive),
+];
+
+/** @internal Styles for the wrapper that clamps a cell to the max row height. */
+export const getMaxHeightCellStyles = (
+  _theme: GrafanaTheme2,
+  { textAlign, maxHeight }: TableCellStyleOptions
+): TableStyleProps => [
+  maxHeightStyles.maxHeightCell,
+  textAlignStyles[textAlign],
+  justifyContentStyles[textAlign],
+  IS_SAFARI_26
+    ? maxHeightStyles.maxHeightSelected(maxHeight ?? 'none')
+    : maxHeightStyles.maxHeight(maxHeight ?? 'none'),
+];
+
+/** @internal Class name for the cell actions container. */
+export const getCellActionStyles = memoize(
+  (theme: GrafanaTheme2, textAlign: TextAlign) =>
+    stylex.props(
+      cellActionStyles.actions,
+      theme.isDark ? cellActionStyles.dark : cellActionStyles.light,
+      textAlign === 'right' ? cellActionStyles.alignLeft : cellActionStyles.alignRight,
+      // Safari 26 never showed the actions: its hover selector was empty, so Emotion emitted an invalid rule.
+      !IS_SAFARI_26 && cellActionStyles.showOnCellHover
+    ).className
+);
+
+/** @internal Class name that styles the links inside a cell (TableNG.css). */
+export const getLinkStyles = (_theme: GrafanaTheme2, canBeColorized: boolean) =>
+  canBeColorized ? 'gf-table-ng-links-colorized' : 'gf-table-ng-links';
+
+/** @internal */
+export const getTooltipStyles = memoize((_theme: GrafanaTheme2, textAlign: TextAlign) => ({
+  tooltipContent: tooltipStyles.tooltipContent,
+  tooltipWrapper: stylex.props(tooltipStyles.tooltipWrapper).className,
+  tooltipCaret: stylex.props(
+    tooltipStyles.tooltipCaret,
+    textAlign === 'right' ? tooltipStyles.caretRight : tooltipStyles.caretLeft
+  ).className,
+}));
+
+// COLUMN.EXPANDER_WIDTH and TABLE.CELL_PADDING (constants.ts); stylex.create can't read imported values.
+const EXPANDER_WIDTH = 50;
+const CELL_PADDING = 6;
+const selected = ':is([aria-selected="true"])';
+
+const gridStylesheet = stylex.create({
+  grid: {
+    '--rdg-color': colors['--gf-colors-text-primary'],
+    '--rdg-summary-border-width': '1px',
+    '--rdg-selection-color': colors['--gf-colors-info-transparent'],
+    scrollbarWidth: 'thin',
+    borderStyle: 'none',
+    borderWidth: 'medium',
+    borderColor: 'currentcolor',
+  },
+  gridColors: (
+    background: string,
+    border: string,
+    rowHover: string,
+    rowSelected: string,
+    rowSelectedHover: string,
+    scrollbarColor: string
+  ) => ({
+    '--rdg-background-color': background,
+    '--rdg-header-background-color': background,
+    '--rdg-border-color': border,
+    '--rdg-summary-border-color': border,
+    '--rdg-row-background-color': background,
+    '--rdg-row-hover-background-color': rowHover,
+    '--rdg-row-selected-background-color': rowSelected,
+    '--rdg-row-selected-hover-background-color': rowSelectedHover,
+    scrollbarColor,
+  }),
+  // TODO: magic 32px number is unfortunate. it would be better to have the content
+  // flow using flexbox rather than hard-coding this size via a calc
+  gridPaginated: {
+    blockSize: 'calc(100% - 32px)',
+  },
+  gridFull: {
+    blockSize: '100%',
+  },
+  gridNested: {
+    height: '100%',
+    width: `calc(100% - ${EXPANDER_WIDTH - CELL_PADDING * 2 - 1}px)`,
+    overflowX: 'scroll',
+    overflowY: 'hidden',
+    marginLeft: `${EXPANDER_WIDTH - CELL_PADDING - 1}px`,
+    marginTop: `${CELL_PADDING}px`,
+    marginBottom: `${CELL_PADDING}px`,
+    // usually row height will be set to 0 when not expanded, but auto cell height may lead to some rendering errors.
+    display: { default: null, ':is([aria-expanded="false"])': 'none' },
+  },
+  cellNested: {
+    outlineStyle: { default: null, [selected]: 'none' },
+    backgroundColor: { default: null, ':hover': 'transparent' },
+  },
+  noDataNested: {
+    height: '60px',
     display: 'flex',
-    gap: theme.spacing(0.5),
-    zIndex: theme.zIndex.tooltip - 1,
-    paddingInline: TABLE.CELL_PADDING,
-    paddingBlockEnd: TABLE.CELL_PADDING,
-    justifyContent,
-    '&:last-child': { borderInlineEnd: 'none' },
-  })
-);
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-h4-font-size'],
+  },
+  // The header row's `.rdg-cell` rule is in TableNG.css.
+  headerRow: {
+    paddingTop: 0,
+    fontWeight: 'normal',
+  },
+  displayNone: { display: 'none' },
+  paginationContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '8px',
+    width: '100%',
+  },
+  paginationSummary: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  safariWrapper: {
+    contain: 'strict',
+    height: '100%',
+  },
+});
 
-export const getDefaultCellStyles: TableCellStyles = memoize(
-  (theme, { textAlign, shouldOverflow, maxHeight }) =>
-    css({
-      display: 'flex',
-      alignItems: 'center',
-      textAlign,
-      justifyContent: Boolean(maxHeight) ? 'flex-start' : getJustifyContent(textAlign),
-      ...(maxHeight && { overflowY: 'hidden' }),
-      ...(shouldOverflow && { minHeight: '100%' }),
+const headerCellStyles = stylex.create({
+  headerCell: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+    zIndex: `calc(${zIndex.tooltip} - 1)`,
+    paddingLeft: `${CELL_PADDING}px`,
+    paddingRight: `${CELL_PADDING}px`,
+    paddingBottom: `${CELL_PADDING}px`,
+    borderInlineEndStyle: { default: null, ':last-child': 'none' },
+  },
+});
 
-      [getActiveCellSelector()]: {
-        ...(shouldOverflow && {
-          zIndex: theme.zIndex.tooltip - 2,
-          height: 'fit-content',
-          minWidth: 'fit-content',
-        }),
-      },
+const textAlignStyles = stylex.create({
+  left: { textAlign: 'left' },
+  right: { textAlign: 'right' },
+  center: { textAlign: 'center' },
+});
 
-      [getHoverOnlyCellSelector()]: {
-        '.table-cell-actions': { display: 'flex' },
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+const justifyContentStyles = stylex.create({
+  left: { justifyContent: 'flex-start' },
+  right: { justifyContent: 'flex-end' },
+  center: { justifyContent: 'center' },
+});
 
-export const getMaxHeightCellStyles: TableCellStyles = memoize(
-  (_theme, { textAlign, maxHeight }) =>
-    css({
-      display: 'flex',
-      alignItems: 'center',
-      textAlign,
-      justifyContent: getJustifyContent(textAlign),
-      maxHeight,
-      width: '100%',
-      overflowY: 'hidden',
-      [getActiveCellSelector(true)]: {
-        maxHeight: 'none',
-        minHeight: '100%',
-      },
-    }),
-  { isMatchingKey: isTableCellStylesKeyEqual }
-);
+const cellStyles = stylex.create({
+  defaultCell: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  justifyStart: {
+    justifyContent: 'flex-start',
+  },
+  overflowYHidden: {
+    overflowY: 'hidden',
+  },
+  minHeightFull: {
+    minHeight: '100%',
+  },
+  overflowActive: {
+    zIndex: { default: null, [selected]: `calc(${zIndex.tooltip} - 2)`, ':hover': `calc(${zIndex.tooltip} - 2)` },
+    height: { default: null, [selected]: 'fit-content', ':hover': 'fit-content' },
+    minWidth: { default: null, [selected]: 'fit-content', ':hover': 'fit-content' },
+  },
+  overflowSelected: {
+    zIndex: { default: null, [selected]: `calc(${zIndex.tooltip} - 2)` },
+    height: { default: null, [selected]: 'fit-content' },
+    minWidth: { default: null, [selected]: 'fit-content' },
+  },
+});
 
-export const getCellActionStyles = memoize((theme: GrafanaTheme2, textAlign: TextAlign) =>
-  css({
+const maxHeightStyles = stylex.create({
+  maxHeightCell: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    overflowY: 'hidden',
+  },
+  maxHeight: (maxHeight: number | string) => ({
+    maxHeight: {
+      default: maxHeight,
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: 'none',
+      [stylex.when.ancestor(':hover', rdgCellMarker)]: 'none',
+    },
+    minHeight: {
+      default: null,
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: '100%',
+      [stylex.when.ancestor(':hover', rdgCellMarker)]: '100%',
+    },
+  }),
+  maxHeightSelected: (maxHeight: number | string) => ({
+    maxHeight: {
+      default: maxHeight,
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: 'none',
+    },
+    minHeight: {
+      default: null,
+      [stylex.when.ancestor('[aria-selected="true"]', rdgSelectableMarker)]: '100%',
+    },
+  }),
+});
+
+const cellActionStyles = stylex.create({
+  actions: {
     display: 'none',
     position: 'absolute',
     top: 0,
-    margin: 'auto',
+    marginTop: 'auto',
+    marginRight: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 'auto',
     height: '100%',
-    color: theme.colors.text.primary,
-    background: theme.isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-    padding: theme.spacing.x0_5,
-    paddingInlineStart: theme.spacing.x1,
-    [textAlign === 'right' ? 'left' : 'right']: 0,
-  })
-);
+    color: colors['--gf-colors-text-primary'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingInlineStart: spacing['--gf-spacing-x1'],
+    paddingInlineEnd: spacing['--gf-spacing-x0-5'],
+  },
+  dark: { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+  light: { backgroundColor: 'rgba(255, 255, 255, 0.7)' },
+  alignLeft: { left: 0 },
+  alignRight: { right: 0 },
+  showOnCellHover: {
+    display: { default: 'none', [stylex.when.ancestor(':hover', defaultCellMarker)]: 'flex' },
+  },
+});
 
-export const getLinkStyles = memoize((theme: GrafanaTheme2, canBeColorized: boolean) =>
-  css({
-    a: {
-      cursor: 'pointer',
-      ...(canBeColorized
-        ? {
-            color: 'inherit',
-            textDecoration: 'underline',
-          }
-        : {
-            color: theme.colors.text.link,
-            textDecoration: 'none',
-            '&:hover': { textDecoration: 'underline' },
-          }),
-    },
-  })
-);
-
-const caretTriangle = (direction: 'left' | 'right', bgColor: string) =>
-  `linear-gradient(to top ${direction}, transparent 62.5%, ${bgColor} 50%)`;
-
-export const getTooltipStyles = memoize((theme: GrafanaTheme2, textAlign: TextAlign) => ({
-  tooltipContent: css({
+const tooltipStyles = stylex.create({
+  tooltipContent: {
     height: '100%',
     width: '100%',
     display: 'flex',
     alignItems: 'center',
-  }),
-  tooltipWrapper: css({
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
+  },
+  tooltipWrapper: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
     overflow: 'hidden',
-    padding: theme.spacing(1),
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
     width: 'inherit',
-  }),
-  tooltipCaret: css({
+  },
+  tooltipCaret: {
     cursor: 'pointer',
     position: 'absolute',
-    top: theme.spacing(0.25),
-    [textAlign === 'right' ? 'right' : 'left']: theme.spacing(0.25),
-    width: theme.spacing(1.75),
-    height: theme.spacing(1.75),
-    background: caretTriangle(textAlign === 'right' ? 'right' : 'left', theme.colors.border.strong),
-  }),
-}));
-
-const ACTIVE_CELL_SELECTORS = {
-  hover: {
-    nested: '.rdg-cell:hover &',
-    normal: '&:hover',
+    top: spacing['--gf-spacing-x0-25'],
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 1.75)`,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 1.75)`,
   },
-  selected: {
-    nested: '[aria-selected=true] &',
-    normal: '&[aria-selected=true]',
+  caretLeft: {
+    left: spacing['--gf-spacing-x0-25'],
+    backgroundImage: `linear-gradient(to top left, transparent 62.5%, ${colors['--gf-colors-border-strong']} 50%)`,
   },
-} as const;
-
-export const getActiveCellSelector = memoize((isNested?: boolean) => {
-  const selectors = [];
-  selectors.push(ACTIVE_CELL_SELECTORS.selected[isNested ? 'nested' : 'normal']);
-  if (!IS_SAFARI_26) {
-    selectors.push(ACTIVE_CELL_SELECTORS.hover[isNested ? 'nested' : 'normal']);
-  }
-  return selectors.join(', ');
-});
-
-export const getHoverOnlyCellSelector = memoize((isNested?: boolean) => {
-  if (IS_SAFARI_26) {
-    return '';
-  }
-  return ACTIVE_CELL_SELECTORS.hover[isNested ? 'nested' : 'normal'];
+  caretRight: {
+    right: spacing['--gf-spacing-x0-25'],
+    backgroundImage: `linear-gradient(to top right, transparent 62.5%, ${colors['--gf-colors-border-strong']} 50%)`,
+  },
 });
