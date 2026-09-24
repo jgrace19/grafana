@@ -15,7 +15,7 @@ import { getElementStyles } from './elements';
 import { getExtraStyles } from './extra';
 import { getFilterTableStyles } from './filterTable';
 import { getFontStyles } from './fonts';
-import { getFormElementStyles } from './forms';
+import { getFormElementStyles, getFormFieldStateStyles } from './forms';
 import { globalLayerCache } from './globalLayerCache';
 import { getHacksStyles } from './hacks';
 import { getJsonFormatterStyles } from './jsonFormatter';
@@ -29,8 +29,8 @@ import { getUplotStyles } from './uPlot';
 import { getUtilityClassStyles } from './utilityClasses';
 
 /**
- * Global element styles (in `@layer grafana-global`, below StyleX and unlayered component CSS) plus the
- * theme's `--gf-*` custom properties on `<html>`.
+ * Global element styles (in `@layer grafana-global`, below StyleX and unlayered component CSS; the form field
+ * state rules stay unlayered, see getFormFieldStateStyles) plus the theme's `--gf-*` custom properties on `<html>`.
  *
  * @internal
  */
@@ -39,9 +39,12 @@ export function GlobalStyles() {
   useRootThemeVars(theme);
 
   return (
-    <CacheProvider value={globalLayerCache}>
-      <Global styles={getGlobalStyles(theme)} />
-    </CacheProvider>
+    <>
+      <CacheProvider value={globalLayerCache}>
+        <Global styles={getGlobalStyles(theme)} />
+      </CacheProvider>
+      <Global styles={getFormFieldStateStyles(theme)} />
+    </>
   );
 }
 
