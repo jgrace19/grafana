@@ -97,12 +97,11 @@ const buttonHeight = (height: string) => `calc(${spacing['--gf-spacing-grid-size
 // The label looks like a primary solid Button (keep in sync with Button.tsx); focusing the hidden input shows
 // the focus ring on it.
 const styles = stylex.create({
+  // No width/height: the global `input[type='file']` rules set them, and won over the Emotion ones on main.
   fileUpload: {
-    height: '0.1px',
     opacity: '0',
     overflow: 'hidden',
     position: 'absolute',
-    width: '0.1px',
     zIndex: -1,
   },
   labelWrapper: {

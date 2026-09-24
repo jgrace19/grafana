@@ -124,9 +124,9 @@ const styles = stylex.create({
     borderWidth: 0,
     width: '40px',
   },
+  // No width: the global `input[type='checkbox'] { width: auto }` won over the Emotion `width: 0` on main.
   input: {
     opacity: 0,
-    width: 0,
     height: 0,
   },
   slider: {
