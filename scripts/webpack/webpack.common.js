@@ -115,6 +115,13 @@ module.exports = (env = {}) => ({
         generator: { filename: 'static/img/[name].[hash:8][ext]' },
       },
       {
+        // StyleX compiles the untranspiled source, so it must run before esbuild-loader.
+        test: /\.tsx?$/,
+        enforce: 'pre',
+        exclude: /node_modules/,
+        loader: require.resolve('../stylex/webpack-loader.js'),
+      },
+      {
         // Required for msagl library (used in Nodegraph panel) to work
         test: /\.m?js$/,
         resolve: {

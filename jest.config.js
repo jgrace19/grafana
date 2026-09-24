@@ -43,7 +43,7 @@ module.exports = {
     customExportConditions: ['@grafana-app/source', 'browser'],
   },
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': [require.resolve('ts-jest')],
+    '^.+\\.(ts|tsx|js|jsx)$': [require.resolve('./scripts/stylex/jest-transformer.js'), { transformer: 'ts-jest' }],
   },
   transformIgnorePatterns: [
     `/node_modules/(?!${esModules})`, // exclude es modules to prevent TS complaining
