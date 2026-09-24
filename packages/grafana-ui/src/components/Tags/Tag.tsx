@@ -22,9 +22,11 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   /** Use constant color from TAG_COLORS. Using index instead of color directly so we can match other styling. */
   colorIndex?: number;
   onClick?: OnTagClick;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
-const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, className, colorIndex, ...rest }, ref) => {
+const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, className, colorIndex, xstyle, ...rest }, ref) => {
   const colors = colorIndex === undefined ? getTagColorsFromName(name) : getTagColor(colorIndex);
 
   const onTagClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -36,7 +38,7 @@ const TagComponent = forwardRef<HTMLElement, Props>(({ name, onClick, icon, clas
 
   const { style, ...domProps } = rest;
   const classes = mergeStylexProps(
-    stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover),
+    stylex.props(styles.wrapper, styles.color(colors.color), onClick !== undefined && styles.hover, xstyle),
     { className, style }
   );
 

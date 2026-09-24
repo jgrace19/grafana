@@ -19,6 +19,8 @@ export interface Props {
   /** Small version only shows the current page and the navigation buttons. */
   showSmallVersion?: boolean;
   className?: string;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
   /** If we are using cursor based pagination, disable next page button when we have no cursor */
   hasNextPage?: boolean;
 }
@@ -35,6 +37,7 @@ export const Pagination = ({
   hideWhenSinglePage,
   showSmallVersion,
   className,
+  xstyle,
   hasNextPage,
 }: Props) => {
   const pageLengthToCondense = showSmallVersion ? 1 : 8;
@@ -110,7 +113,7 @@ export const Pagination = ({
   const nextPageLabel = t('grafana-ui.pagination.next-page', 'next page');
 
   return (
-    <div {...mergeStylexProps(stylex.props(styles.container), { className })} role="navigation">
+    <div {...mergeStylexProps(stylex.props(styles.container, xstyle), { className })} role="navigation">
       <ol>
         <li {...stylex.props(styles.item)}>
           <Button
