@@ -134,8 +134,16 @@ const styles = stylex.create({
 });
 
 const sizeStyles = stylex.create({
-  sm: { width: '200px' },
-  md: { width: '320px' },
-  lg: { width: '580px' },
-  auto: { width: 'auto' },
+  sm: {
+    width: '200px',
+  },
+  md: {
+    width: '320px',
+  },
+  lg: {
+    width: '580px',
+  },
+  auto: {
+    width: 'auto',
+  },
 });
