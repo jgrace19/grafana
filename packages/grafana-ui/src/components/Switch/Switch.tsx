@@ -224,8 +224,13 @@ const styles = stylex.create({
     borderStyle: { default: null, '@media (forced-colors: active)': 'solid' },
     borderColor: { default: null, '@media (forced-colors: active)': colors['--gf-colors-primary-contrast-text'] },
   },
+  // A disabled, unchecked switch keeps its disabled border unless its checkbox is hovered.
   invalid: {
-    borderColor: colors['--gf-colors-error-border'],
+    borderColor: {
+      default: colors['--gf-colors-error-border'],
+      [stylex.when.ancestor(':has(> input:disabled:not(:checked):not(:hover))', switchMarker)]:
+        colors['--gf-colors-border-weak'],
+    },
   },
   inlineContainer: {
     paddingTop: 0,
