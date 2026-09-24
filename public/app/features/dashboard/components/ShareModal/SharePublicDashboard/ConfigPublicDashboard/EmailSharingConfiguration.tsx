@@ -1,11 +1,14 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Field migration (see fieldNoMargin)
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useForm, Controller } from 'react-hook-form';
 import { useWindowSize } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type SelectableValue } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { FieldSet, Button, ButtonGroup, Field, Input, RadioButtonGroup, Spinner, useStyles2 } from '@grafana/ui';
+import { FieldSet, Button, ButtonGroup, Field, Input, RadioButtonGroup, Spinner } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import {
   useAddRecipientMutation,
@@ -37,7 +40,6 @@ const EmailList = ({
   dashboardUid: string;
   publicDashboardUid: string;
 }) => {
-  const styles = useStyles2(getStyles);
   const [deleteEmail, { isLoading: isDeleteLoading }] = useDeleteRecipientMutation();
   const [reshareAccess, { isLoading: isReshareLoading }] = useReshareAccessToRecipientMutation();
 
@@ -54,13 +56,13 @@ const EmailList = ({
   };
 
   return (
-    <table className={styles.table} data-testid={selectors.EmailSharingList}>
-      <tbody>
+    <table {...stylex.props(styles.table)} data-testid={selectors.EmailSharingList}>
+      <tbody {...stylex.props(styles.tableBody)}>
         {recipients!.map((recipient, idx) => (
-          <tr key={recipient.uid}>
+          <tr key={recipient.uid} {...stylex.props(styles.tableRow)}>
             <td>{recipient.recipient}</td>
             <td>
-              <ButtonGroup className={styles.tableButtonsContainer}>
+              <ButtonGroup className={stylex.props(styles.tableButtonsContainer).className}>
                 <Button
                   type="button"
                   variant="destructive"
@@ -96,7 +98,6 @@ const EmailList = ({
 
 export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardModel | DashboardScene }) => {
   const { width } = useWindowSize();
-  const styles = useStyles2(getStyles);
 
   const dashboardUid = dashboard instanceof DashboardScene ? dashboard.state.uid : dashboard.uid;
   const { data: publicDashboard } = useGetPublicDashboardQuery(dashboardUid);
@@ -141,10 +142,14 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FieldSet disabled={!hasWritePermissions} data-testid={selectors.Container} className={styles.container}>
+      <FieldSet
+        disabled={!hasWritePermissions}
+        data-testid={selectors.Container}
+        className={stylex.props(styles.container).className}
+      >
         <Field
           label={t('public-dashboard.config.can-view-dashboard-radio-button-label', 'Can view dashboard')}
-          className={styles.field}
+          className={fieldNoMargin}
         >
           <Controller
             name="shareType"
@@ -185,11 +190,11 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
               description={t('public-dashboard.email-sharing.invite-field-desc', 'Invite people by email')}
               error={errors.email?.message}
               invalid={!!errors.email?.message || undefined}
-              className={styles.field}
+              className={fieldNoMargin}
             >
-              <div className={styles.emailContainer}>
+              <div {...stylex.props(styles.emailContainer)}>
                 <Input
-                  className={styles.emailInput}
+                  className={stylex.props(styles.emailInput).className}
                   // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
                   placeholder="me@example.com"
                   autoCapitalize="none"
@@ -227,51 +232,48 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    label: 'emailConfigContainer',
+// stylex: pending Field migration. Field's own Emotion marginBottom would beat a StyleX override.
+const fieldNoMargin = css({
+  marginBottom: 0,
+});
+
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'wrap',
-    gap: theme.spacing(3),
-  }),
-  field: css({
-    label: 'field-noMargin',
-    marginBottom: 0,
-  }),
-  emailContainer: css({
-    label: 'emailContainer',
+    gap: spacing['--gf-spacing-x3'],
+  },
+  emailContainer: {
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
-  emailInput: css({
-    label: 'emailInput',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  emailInput: {
     flexGrow: 1,
-  }),
-  table: css({
-    label: 'table',
+  },
+  table: {
     display: 'flex',
     maxHeight: '220px',
     overflowY: 'scroll',
-    '& tbody': {
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-    },
-    '& tr': {
-      minHeight: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing(0.5, 1),
-
-      ':nth-child(odd)': {
-        background: theme.colors.background.secondary,
-      },
-    },
-  }),
-  tableButtonsContainer: css({
+  },
+  tableBody: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  tableRow: {
+    minHeight: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    backgroundColor: { default: null, ':nth-child(odd)': colors['--gf-colors-background-secondary'] },
+  },
+  tableButtonsContainer: {
     display: 'flex',
     justifyContent: 'end',
-  }),
+  },
 });

@@ -1,10 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration (see card)
 import { css } from '@emotion/css';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode } from 'react';
 
-import { DocsId, type GrafanaTheme2, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
+import { DocsId, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Card, Container, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Card, Container, Input, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getDocsLink } from 'app/core/utils/docsLinks';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
@@ -104,11 +106,10 @@ interface TransformationCardProps {
 }
 
 function TransformationCard({ transform, onClick }: TransformationCardProps) {
-  const styles = useStyles2(getStyles);
   return (
     <Card
       noMargin
-      className={styles.card}
+      className={card}
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={onClick}
     >
@@ -123,11 +124,8 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    card: css({
-      margin: '0',
-      padding: `${theme.spacing(1)}`,
-    }),
-  };
-}
+// stylex: pending Card migration. Card's own Emotion margin and padding would beat a StyleX override.
+const card = css({
+  margin: '0',
+  padding: spacing['--gf-spacing-x1'],
+});

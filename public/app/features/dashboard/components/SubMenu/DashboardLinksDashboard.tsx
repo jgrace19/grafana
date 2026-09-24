@@ -1,14 +1,15 @@
-import { css, cx } from '@emotion/css';
-import { forwardRef } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, forwardRef } from 'react';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2, type ScopedVars } from '@grafana/data';
+import { type ScopedVars } from '@grafana/data';
 import { sanitize, sanitizeUrl } from '@grafana/data/internal';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type DashboardLink } from '@grafana/schema';
-import { Dropdown, Icon, LinkButton, Button, Menu, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { Dropdown, Icon, LinkButton, Button, Menu, ScrollContainer } from '@grafana/ui';
 import { type ButtonLinkProps } from '@grafana/ui/internal';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
 import { type DashboardQueryResult } from 'app/features/search/service/types';
 
@@ -27,7 +28,6 @@ interface DashboardLinksMenuProps {
 }
 
 function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
-  const styles = useStyles2(getStyles);
   const resolvedLinks = useResolvedLinks({ dashboardUID, link });
 
   if (!resolvedLinks || resolvedLinks.length === 0) {
@@ -43,7 +43,7 @@ function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
 
   return (
     <Menu>
-      <div className={styles.dropdown}>
+      <div {...stylex.props(styles.dropdown)}>
         <ScrollContainer maxHeight="inherit">
           {resolvedLinks.map((resolvedLink, index) => {
             return (
@@ -70,11 +70,10 @@ function DashboardLinksMenu({ dashboardUID, link }: DashboardLinksMenuProps) {
 export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props) => {
   const { title } = linkInfo;
   const resolvedLinks = useResolvedLinks({ link, dashboardUID });
-  const styles = useStyles2(getStyles);
 
   if (link.asDropdown) {
     return (
-      <div className={styles.linkContainer}>
+      <div {...stylex.props(styles.linkContainer)}>
         <Dropdown overlay={<DashboardLinksMenu link={link} dashboardUID={dashboardUID} />}>
           <DashboardLinkButton
             data-placement="bottom"
@@ -85,7 +84,7 @@ export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props)
             variant="secondary"
             data-testid={selectors.components.DashboardLinks.dropDown}
           >
-            <Icon aria-hidden name="bars" className={styles.iconMargin} />
+            <Icon aria-hidden name="bars" xstyle={styles.iconMargin} />
             <span>{title}</span>
           </DashboardLinkButton>
         </Dropdown>
@@ -98,7 +97,7 @@ export const DashboardLinksDashboard = ({ link, linkInfo, dashboardUID }: Props)
       {resolvedLinks.length > 0 &&
         resolvedLinks.map((resolvedLink, index) => {
           return (
-            <div key={`dashlinks-list-item-${resolvedLink.uid}-${index}`} className={styles.linkContainer}>
+            <div key={`dashlinks-list-item-${resolvedLink.uid}-${index}`} {...stylex.props(styles.linkContainer)}>
               <DashboardLinkButton
                 icon="apps"
                 variant="secondary"
@@ -160,40 +159,37 @@ export function resolveLinks(
   return hits;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    iconMargin: css({
-      marginRight: theme.spacing(0.5),
-    }),
-    dropdown: css({
-      maxWidth: 'max(30vw, 300px)',
-      maxHeight: '70vh',
-    }),
-    button: css({
-      color: theme.colors.text.primary,
-    }),
-    dashButton: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-    }),
-    linkContainer: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-      verticalAlign: 'middle',
-    }),
-  };
-}
+const styles = stylex.create({
+  iconMargin: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
+  dropdown: {
+    maxWidth: 'max(30vw, 300px)',
+    maxHeight: '70vh',
+  },
+  linkContainer: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+  },
+});
 
-export const DashboardLinkButton = forwardRef<unknown, ButtonLinkProps>(({ className, ...otherProps }, ref) => {
-  const styles = useStyles2(getStyles);
+// Button has no xstyle, and a StyleX class string would race its own font size and padding (conventions §3.9),
+// so the override goes through its merged inline style. A caller's `style` still wins, as its class used to.
+const dashButtonStyle: CSSProperties = {
+  fontSize: typography['--gf-typography-body-small-font-size'],
+  paddingLeft: spacing['--gf-spacing-x1'],
+  paddingRight: spacing['--gf-spacing-x1'],
+};
+
+export const DashboardLinkButton = forwardRef<unknown, ButtonLinkProps>(({ style, ...otherProps }, ref) => {
   const Component = otherProps.href ? LinkButton : Button;
   return (
     <Component
       {...otherProps}
       variant="secondary"
       fill="outline"
-      className={cx(className, styles.dashButton)}
+      style={{ ...dashButtonStyle, ...style }}
       ref={ref as any}
     />
   );

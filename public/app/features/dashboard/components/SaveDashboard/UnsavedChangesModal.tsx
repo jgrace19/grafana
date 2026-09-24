@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
 import { css } from '@emotion/css';
 
 import { Trans, t } from '@grafana/i18n';
@@ -20,9 +21,7 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
       isOpen={true}
       title={t('dashboard.unsaved-changes-modal.title-unsaved-changes', 'Unsaved changes')}
       onDismiss={onDismiss}
-      className={css({
-        width: '500px',
-      })}
+      className={modalStyles}
     >
       <h5>
         <Trans i18nKey="dashboard.unsaved-changes-modal.changes">Do you want to save your changes?</Trans>
@@ -39,3 +38,8 @@ export const UnsavedChangesModal = ({ dashboard, onSaveSuccess, onDiscard, onDis
     </Modal>
   );
 };
+
+// stylex: pending Modal migration. Modal's own Emotion width would beat a StyleX override.
+const modalStyles = css({
+  width: '500px',
+});

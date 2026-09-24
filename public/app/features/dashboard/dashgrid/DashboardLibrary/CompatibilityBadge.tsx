@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Badge, Button, Spinner, Tooltip, useStyles2 } from '@grafana/ui';
+import { Badge, Button, Spinner, Tooltip } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 /**
  * Discriminated union for compatibility check states.
@@ -41,7 +42,6 @@ const NOT_SUPPORTED_CODES = ['datasource_wrong_type', 'unsupported_dashboard_ver
  * - error: Shows error badge with retry option
  */
 export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBadgeProps) => {
-  const styles = useStyles2(getStyles);
   const isLoading = state.status === 'loading';
 
   if (state.status === 'idle' || state.status === 'loading') {
@@ -66,24 +66,24 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
           }}
           aria-label={buttonText}
           data-testid={isLoading ? 'compatibility-badge-loading' : undefined}
-          className={styles.button}
+          className={stylex.props(styles.button).className}
           icon="info-circle"
           size="sm"
         >
           {buttonText}
-          {isLoading && <Spinner size="xs" inline className={styles.spinner} />}
+          {isLoading && <Spinner size="xs" inline className={stylex.props(styles.spinner).className} />}
         </Button>
       </Tooltip>
     );
   }
 
   if (state.status === 'error') {
-    const tooltipContent = getErrorTooltip(state.errorCode, styles.tooltipLink);
+    const tooltipContent = getErrorTooltip(state.errorCode, stylex.props(styles.tooltipLink).className);
 
     return (
       <Tooltip interactive={true} content={tooltipContent}>
         <span
-          className={styles.badgeWrapper}
+          {...stylex.props(styles.badgeWrapper)}
           onClick={(e) => {
             e.stopPropagation();
             onRetry?.();
@@ -102,7 +102,8 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
             text={t('dashboard-library.compatibility-badge.error-text', 'Error')}
             icon="exclamation-circle"
             color="red"
-            className={styles.clickableBadge}
+            className={stylex.props(styles.clickableBadge).className}
+            style={clickableBadgePadding}
           />
         </span>
       </Tooltip>
@@ -118,7 +119,7 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
 
     return (
       <Tooltip interactive={true} content={tooltipContent}>
-        <span className={styles.badgeWrapper} data-testid="compatibility-badge-success">
+        <span {...stylex.props(styles.badgeWrapper)} data-testid="compatibility-badge-success">
           <Badge
             text={t('dashboard-library.compatibility-badge.score-text', '{{score}}% compatible', {
               score: state.score,
@@ -181,7 +182,7 @@ function getScoreIndicator(score: number, metricsFound: number, metricsTotal: nu
   };
 }
 
-function getErrorTooltip(errorCode: string | undefined, linkClassName: string) {
+function getErrorTooltip(errorCode: string | undefined, linkClassName?: string) {
   const category = categorizeError(errorCode);
   if (category === 'not_supported') {
     return (
@@ -217,33 +218,31 @@ function getErrorTooltip(errorCode: string | undefined, linkClassName: string) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    button: css({
-      minWidth: theme.spacing(12),
-      justifyContent: 'center',
-    }),
-    spinner: css({
-      marginLeft: theme.spacing(1),
-    }),
-    badgeWrapper: css({
-      display: 'inline-flex',
-      alignItems: 'center',
-    }),
-    clickableBadge: css({
-      paddingTop: theme.spacing(0.8),
-      paddingBottom: theme.spacing(0.8),
-      cursor: 'pointer',
-      '&:hover': {
-        opacity: 0.8,
-      },
-    }),
-    tooltipLink: css({
-      color: theme.colors.text.link,
-      textDecoration: 'underline',
-      '&:hover': {
-        textDecoration: 'none',
-      },
-    }),
-  };
-}
+// Badge has no xstyle, and a StyleX class string would race its own padding (conventions §3.9), so the padding
+// override goes through its merged inline style.
+const clickableBadgePadding: CSSProperties = {
+  paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
+  paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
+};
+
+const styles = stylex.create({
+  button: {
+    minWidth: `calc(${spacing['--gf-spacing-grid-size']} * 12)`,
+    justifyContent: 'center',
+  },
+  spinner: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  badgeWrapper: {
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+  clickableBadge: {
+    cursor: 'pointer',
+    opacity: { default: null, ':hover': 0.8 },
+  },
+  tooltipLink: {
+    color: colors['--gf-colors-text-link'],
+    textDecoration: { default: 'underline', ':hover': 'none' },
+  },
+});

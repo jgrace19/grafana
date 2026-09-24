@@ -75,3 +75,8 @@ public/app/features/alerting/unified/components/rule-editor/AnnotationsStep.tsx 
 public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
 public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.tsx # stylex: pending InlineLabel migration: keeps Emotion className overrides that must beat InlineLabel's own Emotion styles
+# D3 dashboard: className overrides that must keep Emotion's cascade until the child migrates (conventions §3.9)
+public/app/features/dashboard/components/PublicDashboardNotAvailable/PublicDashboardNotAvailable.tsx # stylex: pending core Branding/LoginLayout migration (LoginBackground :before override, getLoginStyles)
+public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderNotice.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)
+public/app/features/dashboard/dashgrid/PanelHeader/PanelHeaderTitleItems.tsx # stylex: pending PanelChrome.TitleItem migration (color and JS-computed :hover color overrides)
+public/app/features/dashboard/dashgrid/PanelLinks.tsx # stylex: pending ToolbarButton migration (background override must keep losing to its :hover/:active/:disabled rules)

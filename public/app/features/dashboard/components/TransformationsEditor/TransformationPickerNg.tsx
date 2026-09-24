@@ -1,11 +1,14 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration (see searchInput)
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode, useCallback } from 'react';
 
-import { type DataFrame, type GrafanaTheme2, type TransformerRegistryItem, type SelectableValue } from '@grafana/data';
+import { type DataFrame, type TransformerRegistryItem, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Drawer, FilterPill, Grid, Input, Stack, Switch, useStyles2 } from '@grafana/ui';
+import { Drawer, FilterPill, Grid, Input, Stack, Switch } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import config from 'app/core/config';
 import { getCategoriesLabels } from 'app/features/transformers/utils';
 
@@ -32,7 +35,6 @@ interface TransformationPickerNgProps {
 }
 
 export function TransformationPickerNg(props: TransformationPickerNgProps) {
-  const styles = useStyles2(getTransformationPickerStyles);
   const {
     suffix,
     xforms,
@@ -70,10 +72,10 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
     >
       <Stack direction="column" gap={2}>
         {config?.featureToggles?.sqlExpressions && <SqlExpressionsBanner />}
-        <div className={styles.searchWrapper}>
+        <div {...stylex.props(styles.searchWrapper)}>
           <Input
             data-testid={selectors.components.Transforms.searchInput}
-            className={styles.searchInput}
+            className={searchInput}
             value={search ?? ''}
             placeholder={t(
               'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -86,7 +88,7 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
             autoFocus={true}
           />
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <span className={styles.switchLabel}>
+            <span {...stylex.props(styles.switchLabel)}>
               <Trans i18nKey="dashboard.transformation-picker-ng.show-images">Show images</Trans>
             </span>
             <Switch
@@ -127,32 +129,25 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
   );
 }
 
-function getTransformationPickerStyles(theme: GrafanaTheme2) {
-  return {
-    pickerInformationLine: css({
-      fontSize: '16px',
-      marginBottom: theme.spacing(2),
-    }),
-    pickerInformationLineHighlight: css({
-      verticalAlign: 'middle',
-    }),
-    searchWrapper: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      columnGap: theme.spacing(2),
-      rowGap: theme.spacing(1),
-      width: '100%',
-      paddingBottom: theme.spacing(1),
-    }),
-    searchInput: css({
-      flexGrow: '1',
-      width: 'initial',
-    }),
-    switchLabel: css({
-      whiteSpace: 'nowrap',
-    }),
-  };
-}
+// stylex: pending Input migration. Input's own Emotion width would beat a StyleX override.
+const searchInput = css({
+  flexGrow: '1',
+  width: 'initial',
+});
+
+const styles = stylex.create({
+  searchWrapper: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    columnGap: spacing['--gf-spacing-x2'],
+    rowGap: spacing['--gf-spacing-x1'],
+    width: '100%',
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  switchLabel: {
+    whiteSpace: 'nowrap',
+  },
+});
 
 interface TransformationsGridProps {
   transformations: TransformerRegistryItem[];

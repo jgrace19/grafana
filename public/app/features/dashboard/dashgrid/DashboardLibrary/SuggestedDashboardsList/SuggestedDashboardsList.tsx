@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
-import { FilterInput, Grid, Pagination, Stack, useStyles2 } from '@grafana/ui';
+import { FilterInput, Grid, Pagination, Stack } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { DASHBOARD_LIBRARY_ROUTES } from '../../types';
@@ -66,7 +66,6 @@ export const SuggestedDashboardsList = ({
   onShowMapping,
   onDismiss,
 }: SuggestedDashboardsListProps) => {
-  const styles = useStyles2(getStyles);
   const { sourceEntryPoint, eventLocation } = useTrackingContext();
   const isSuggestedDashboardsAssistantButtonEnabled = useBooleanFlagValue('suggestedDashboardsAssistantButton', false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -490,7 +489,7 @@ export const SuggestedDashboardsList = ({
         value={searchQuery}
         onChange={setSearchQuery}
       />
-      <div className={styles.resultsContainer}>
+      <div {...stylex.props(styles.resultsContainer)}>
         {showLoading ? (
           <Grid gap={4} columns={{ xs: 1, sm: 2, lg: 3 }}>
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
@@ -520,29 +519,28 @@ export const SuggestedDashboardsList = ({
           currentPage={currentPage}
           numberOfPages={totalPages}
           onNavigate={(page) => setCurrentPage(page)}
-          className={styles.pagination}
+          className={stylex.props(styles.pagination).className}
         />
       )}
     </Stack>
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    resultsContainer: css({
-      width: '100%',
-      overflow: 'auto',
-      paddingBottom: theme.spacing(2),
-    }),
-    pagination: css({
-      position: 'sticky',
-      bottom: 0,
-      backgroundColor: theme.colors.background.primary,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 2,
-      paddingTop: theme.spacing(2),
-    }),
-  };
-}
+// Pagination's own Emotion only floats its container, so this doesn't race it.
+const styles = stylex.create({
+  resultsContainer: {
+    width: '100%',
+    overflow: 'auto',
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+  pagination: {
+    position: 'sticky',
+    bottom: 0,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+    paddingTop: spacing['--gf-spacing-x2'],
+  },
+});

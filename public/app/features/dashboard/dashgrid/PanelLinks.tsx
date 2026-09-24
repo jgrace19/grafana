@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending ToolbarButton migration (see menuTrigger)
 import { css } from '@emotion/css';
 import type { JSX } from 'react';
 
-import { type DataLink, type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type DataLink, type LinkModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Dropdown, Icon, Menu, ToolbarButton, useStyles2, PanelChrome } from '@grafana/ui';
+import { Dropdown, Icon, Menu, ToolbarButton, PanelChrome } from '@grafana/ui';
+import { shape } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Props {
   panelLinks: DataLink[];
@@ -11,8 +13,6 @@ interface Props {
 }
 
 export function PanelLinks({ panelLinks, onShowPanelLinks }: Props) {
-  const styles = useStyles2(getStyles);
-
   const getLinksContent = (): JSX.Element => {
     const interpolatedLinks = onShowPanelLinks();
     return (
@@ -43,21 +43,19 @@ export function PanelLinks({ panelLinks, onShowPanelLinks }: Props) {
           icon="external-link-alt"
           iconSize="md"
           aria-label={t('dashboard.panel-links.aria-label-panel-links', 'Panel links')}
-          className={styles.menuTrigger}
+          className={menuTrigger}
         />
       </Dropdown>
     );
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    menuTrigger: css({
-      height: '100%',
-      background: 'inherit',
-      border: 'none',
-      borderRadius: `${theme.shape.radius.default}`,
-      cursor: 'context-menu',
-    }),
-  };
-};
+// stylex: pending ToolbarButton migration. ToolbarButton's own Emotion height, background and border would beat
+// a StyleX override.
+const menuTrigger = css({
+  height: '100%',
+  background: 'inherit',
+  border: 'none',
+  borderRadius: shape['--gf-shape-radius-default'],
+  cursor: 'context-menu',
+});
