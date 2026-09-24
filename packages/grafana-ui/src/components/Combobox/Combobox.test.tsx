@@ -291,7 +291,7 @@ describe('Combobox', () => {
       const input = screen.getByRole('combobox');
       await userEvent.click(input);
 
-      const allHeaders = await screen.findAllByRole('presentation');
+      const allHeaders = await screen.findAllByTestId('combobox-option-group');
       const allOptions = await screen.findAllByRole('option');
 
       expect(allHeaders[0].nextElementSibling).toBe(allOptions[0]);
