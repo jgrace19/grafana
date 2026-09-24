@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Dropdown, Icon, IconButton, Menu, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { Dropdown, Icon, IconButton, Menu, Stack, Text, TextLink } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { InlineRenameInput } from './InlineRenameInput';
 import { type SavedSearch } from './savedSearchesSchema';
@@ -48,14 +48,12 @@ export function SavedSearchItem({
   savedSearches,
   menuPortalRoot,
 }: SavedSearchItemProps) {
-  const styles = useStyles2(getStyles);
-
   // Rename mode - inline form matching the save form
   // Stop propagation to prevent parent Dropdown from closing when interacting with form
   if (isRenaming) {
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-      <div className={styles.item} role="listitem" onClick={(e) => e.stopPropagation()}>
+      <div {...stylex.props(styles.item)} role="listitem" onClick={(e) => e.stopPropagation()}>
         <InlineRenameInput
           initialValue={search.name}
           onSave={onRenameComplete}
@@ -72,7 +70,7 @@ export function SavedSearchItem({
   if (isDeleting) {
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-      <div className={styles.item} role="listitem" onClick={(e) => e.stopPropagation()}>
+      <div {...stylex.props(styles.item)} role="listitem" onClick={(e) => e.stopPropagation()}>
         <Stack direction="row" alignItems="center" gap={1} wrap={false}>
           {/* Name remains visible */}
           <Stack direction="row" alignItems="center" gap={0.5} flex={1}>
@@ -97,7 +95,7 @@ export function SavedSearchItem({
             tooltip={t('alerting.saved-searches.delete-button', 'Delete')}
             size="md"
             variant="secondary"
-            className={styles.deleteIcon}
+            style={deleteIconStyle}
           />
         </Stack>
       </div>
@@ -106,7 +104,7 @@ export function SavedSearchItem({
 
   // Default display mode
   return (
-    <div className={styles.item} role="listitem">
+    <div {...stylex.props(styles.item)} role="listitem">
       <Stack direction="row" alignItems="center" gap={1} wrap={false}>
         {/* Name and default indicator */}
         <Stack direction="row" alignItems="center" gap={0.5} flex={1}>
@@ -123,7 +121,7 @@ export function SavedSearchItem({
             <Icon
               name="favorite"
               size="sm"
-              className={styles.defaultIcon}
+              xstyle={styles.defaultIcon}
               title={t('alerting.saved-searches.default-indicator', 'Default search')}
             />
           )}
@@ -131,7 +129,7 @@ export function SavedSearchItem({
 
         {/* Action menu - stop propagation to prevent parent Dropdown from closing */}
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-        <div className={styles.actionMenuWrapper} onClick={(e) => e.stopPropagation()}>
+        <div {...stylex.props(styles.actionMenuWrapper)} onClick={(e) => e.stopPropagation()}>
           <ActionMenu
             isDefault={search.isDefault}
             isDisabled={isDisabled}
@@ -200,25 +198,26 @@ function ActionMenu({ isDefault, isDisabled, onSetDefault, onRename, onDelete, p
 // Styles
 // ============================================================================
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    item: css({
-      padding: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      '&:hover': {
-        backgroundColor: theme.colors.action.hover,
-      },
-    }),
-    defaultIcon: css({
-      color: theme.colors.warning.main,
-      flexShrink: 0,
-    }),
-    deleteIcon: css({
-      color: theme.colors.error.main,
-    }),
-    actionMenuWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-  };
-}
+const styles = stylex.create({
+  item: {
+    padding: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: {
+      default: null,
+      ':hover': colors['--gf-colors-action-hover'],
+    },
+  },
+  defaultIcon: {
+    color: colors['--gf-colors-warning-main'],
+    flexShrink: 0,
+  },
+  actionMenuWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});
+
+// IconButton has no xstyle, and its own colour must lose to this one in every state.
+const deleteIconStyle = {
+  color: colors['--gf-colors-error-main'],
+};

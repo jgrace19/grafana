@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniqueId } from 'lodash';
 import { type FC, Suspense, lazy, useCallback, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -6,14 +6,14 @@ import { useFormContext } from 'react-hook-form';
 import {
   CoreApp,
   type DataFrame,
-  type GrafanaTheme2,
   LoadingState,
   type PanelData,
   dateTimeFormat,
   isTimeSeriesFrames,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, AutoSizeInput, Button, IconButton, Stack, Text, clearButtonStyles, useStyles2 } from '@grafana/ui';
+import { Alert, AutoSizeInput, Button, IconButton, Stack, Text, useTheme2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { ClassicConditions } from 'app/features/expressions/components/ClassicConditions';
 import { Math } from 'app/features/expressions/components/Math';
 import { Reduce } from 'app/features/expressions/components/Reduce';
@@ -68,8 +68,6 @@ export const Expression: FC<ExpressionProps> = ({
   onRemoveExpression,
   onChangeQuery,
 }) => {
-  const styles = useStyles2(getStyles);
-
   const queryType = query?.type;
 
   const { setError, clearErrors, watch } = useFormContext<RuleFormValues>();
@@ -164,14 +162,13 @@ export const Expression: FC<ExpressionProps> = ({
 
   return (
     <div
-      className={cx(
-        styles.expression.wrapper,
-        alertCondition && styles.expression.alertCondition,
-        queryType === ExpressionQueryType.classic && styles.expression.classic,
-        queryType !== ExpressionQueryType.classic && styles.expression.nonClassic
+      {...stylex.props(
+        styles.expressionWrapper,
+        queryType === ExpressionQueryType.classic && styles.expressionClassic,
+        queryType !== ExpressionQueryType.classic && styles.expressionNonClassic
       )}
     >
-      <div className={styles.expression.stack}>
+      <div {...stylex.props(styles.expressionStack)}>
         <Header
           refId={query.refId}
           queryType={queryType}
@@ -181,7 +178,7 @@ export const Expression: FC<ExpressionProps> = ({
           query={query}
           alertCondition={alertCondition}
         />
-        <div className={styles.expression.body}>
+        <div {...stylex.props(styles.expressionBody)}>
           {error && (
             <Alert title={t('alerting.expression.title-expression-failed', 'Expression failed')} severity="error">
               {error.message}
@@ -192,7 +189,7 @@ export const Expression: FC<ExpressionProps> = ({
               {warning.message}
             </Alert>
           )}
-          <div className={styles.expression.description}>{selectedExpressionDescription}</div>
+          <div {...stylex.props(styles.expressionDescription)}>{selectedExpressionDescription}</div>
           {renderExpressionType(query)}
         </div>
         {hasResults && (
@@ -203,7 +200,7 @@ export const Expression: FC<ExpressionProps> = ({
               isRecordingRule={isGrafanaRecordingRule}
             />
             {!isGrafanaRecordingRule && (
-              <div className={styles.footer}>
+              <div {...stylex.props(styles.footer)}>
                 <Stack direction="row" alignItems="center">
                   <Spacer />
 
@@ -231,8 +228,6 @@ interface ExpressionResultProps {
 export const PAGE_SIZE = 20;
 export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCondition, isRecordingRule = false }) => {
   const { pageItems, previousPage, nextPage, numberOfPages, pageStart, pageEnd } = usePagination(series, 1, PAGE_SIZE);
-  const styles = useStyles2(getStyles);
-
   // sometimes we receive results where every value is just "null" when noData occurs
   const emptyResults = isEmptySeries(series);
   const isTimeSeriesResults = !emptyResults && isTimeSeriesFrames(series);
@@ -240,7 +235,7 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
   const shouldShowPagination = numberOfPages > 1;
 
   return (
-    <div className={styles.expression.results}>
+    <div {...stylex.props(styles.expressionResults)}>
       {!emptyResults && isTimeSeriesResults && (
         <div>
           {pageItems.map((frame, index) => (
@@ -266,12 +261,12 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
           />
         ))}
       {emptyResults && (
-        <div className={cx(styles.expression.noData, styles.mutedText)}>
+        <div {...stylex.props(styles.expressionNoData, styles.mutedText)}>
           <Trans i18nKey="alerting.expression-result.no-data">No data</Trans>
         </div>
       )}
       {shouldShowPagination && (
-        <div className={styles.pagination.wrapper} data-testid="paginate-expression">
+        <div {...stylex.props(styles.paginationWrapper)} data-testid="paginate-expression">
           <Stack>
             <Button
               variant="secondary"
@@ -282,7 +277,7 @@ export const ExpressionResult: FC<ExpressionResultProps> = ({ series, isAlertCon
               aria-label={t('alerting.expression-result.aria-label-previouspage', 'previous-page')}
             />
             <Spacer />
-            <span className={styles.mutedText}>
+            <span {...stylex.props(styles.mutedText)}>
               <Trans
                 i18nKey="alerting.expression-result.page-counter"
                 values={{ pageStart, pageEnd, numPages: series.length }}
@@ -312,21 +307,21 @@ export const PreviewSummary: FC<{ firing: number; normal: number; isCondition: b
   isCondition,
   seriesCount,
 }) => {
-  const { mutedText } = useStyles2(getStyles);
-
   if (seriesCount === 0) {
     return (
-      <span className={mutedText}>
+      <span {...stylex.props(styles.mutedText)}>
         <Trans i18nKey="alerting.preview-summary.no-series">No series</Trans>
       </span>
     );
   }
 
   if (isCondition) {
-    return <span className={mutedText}>{`${seriesCount} series: ${firing} firing, ${normal} normal`}</span>;
+    return (
+      <span {...stylex.props(styles.mutedText)}>{`${seriesCount} series: ${firing} firing, ${normal} normal`}</span>
+    );
   }
 
-  return <span className={mutedText}>{`${seriesCount} series`}</span>;
+  return <span {...stylex.props(styles.mutedText)}>{`${seriesCount} series`}</span>;
 };
 
 export function getGroupedByStateAndSeriesCount(series: DataFrame[]) {
@@ -363,8 +358,6 @@ const Header: FC<HeaderProps> = ({
   alertCondition,
   query,
 }) => {
-  const styles = useStyles2(getStyles);
-  const clearButton = useStyles2(clearButtonStyles);
   /**
    * There are 3 edit modes:
    *
@@ -378,12 +371,12 @@ const Header: FC<HeaderProps> = ({
   const editingRefId = editing && editMode === 'refId';
 
   return (
-    <header className={styles.header.wrapper}>
+    <header {...stylex.props(styles.headerWrapper)}>
       <Stack direction="row" gap={0.5} alignItems="center">
         <Stack direction="row" gap={1} alignItems="center">
           {!editingRefId && (
-            <button type="button" className={cx(clearButton, styles.editable)} onClick={() => setEditMode('refId')}>
-              <div className={styles.expression.refId}>{refId}</div>
+            <button type="button" {...stylex.props(styles.editable)} onClick={() => setEditMode('refId')}>
+              <div {...stylex.props(styles.expressionRefId)}>{refId}</div>
             </button>
           )}
           {editingRefId && (
@@ -409,7 +402,7 @@ const Header: FC<HeaderProps> = ({
         <IconButton
           name="trash-alt"
           variant="secondary"
-          className={styles.mutedIcon}
+          style={mutedIconStyle}
           onClick={onRemoveExpression}
           tooltip={t('alerting.header.tooltip-remove', 'Remove expression "{{refId}}"', { refId })}
         />
@@ -430,8 +423,9 @@ const Quote = () => <span>&quot;</span>;
 const Equals = () => <span>{'='}</span>;
 
 function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProps) {
-  const styles = useStyles2(getStyles);
-
+  const theme = useTheme2();
+  const labelKeyStyle = theme.isDark ? styles.expressionLabelKeyDark : styles.expressionLabelKeyLight;
+  const labelValueStyle = theme.isDark ? styles.expressionLabelValueDark : styles.expressionLabelValueLight;
   const name = getSeriesName(frame) || 'Series ' + index;
   const value = getSeriesValue(frame);
   const labelsRecord = getSeriesLabels(frame);
@@ -445,19 +439,19 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
   const shouldRenderSumary = !isRecordingRule;
 
   return (
-    <div className={styles.expression.resultsRow}>
+    <div {...stylex.props(styles.expressionResultsRow)}>
       <Stack direction="row" gap={1} alignItems="center">
-        <div className={styles.expression.resultLabel} title={title}>
+        <div {...stylex.props(styles.expressionResultLabel)} title={title}>
           <Text variant="code">
             {hasLabels ? (
               <>
                 <OpeningBracket />
                 {labels.map(([key, value], index) => (
                   <Text variant="body" key={uniqueId()}>
-                    <span className={styles.expression.labelKey}>{key}</span>
+                    <span {...stylex.props(labelKeyStyle)}>{key}</span>
                     <Equals />
                     <Quote />
-                    <span className={styles.expression.labelValue}>{value}</span>
+                    <span {...stylex.props(labelValueStyle)}>{value}</span>
                     <Quote />
                     {index < labels.length - 1 && <span>, </span>}
                   </Text>
@@ -465,11 +459,11 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
                 <ClosingBracket />
               </>
             ) : (
-              <span className={styles.expression.labelKey}>{title}</span>
+              <span {...stylex.props(labelKeyStyle)}>{title}</span>
             )}
           </Text>
         </div>
-        <div className={styles.expression.resultValue}>{formatSeriesValue(value)}</div>
+        <div {...stylex.props(styles.expressionResultValue)}>{formatSeriesValue(value)}</div>
         {shouldRenderSumary && (
           <>
             {showFiring && <AlertStateTag state={PromAlertingRuleState.Firing} size="sm" />}
@@ -482,8 +476,6 @@ function FrameRow({ frame, index, isAlertCondition, isRecordingRule }: FrameProp
 }
 interface TimeseriesRowProps extends Omit<FrameProps, 'isRecordingRule'> {}
 const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, index }) => {
-  const styles = useStyles2(getStyles);
-
   const valueField = frame.fields[1]; // field 0 is "time", field 1 is "value"
 
   const hasLabels = valueField.labels;
@@ -496,32 +488,36 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
   const getValueFromIndex = (index: number) => frame.fields[1].values[index];
 
   return (
-    <div className={styles.expression.resultsRow}>
+    <div {...stylex.props(styles.expressionResultsRow)}>
       <Stack direction="row" alignItems="center">
-        <span className={cx(styles.mutedText, styles.expression.resultLabel)} title={name}>
+        <span {...stylex.props(styles.mutedText, styles.expressionResultLabel)} title={name}>
           {name}
         </span>
-        <div className={styles.expression.resultValue}>
+        <div {...stylex.props(styles.expressionResultValue)}>
           <PopupCard
             placement="right"
-            wrapperClassName={styles.timeseriesTableWrapper}
+            wrapperClassName={stylex.props(styles.timeseriesTableWrapper).className}
             content={
-              <table className={styles.timeseriesTable}>
+              <table {...stylex.props(styles.timeseriesTable)}>
                 <thead>
-                  <tr>
-                    <th>
+                  <tr {...stylex.props(styles.timeseriesTableRow)}>
+                    <th {...stylex.props(styles.timeseriesTableHeader)}>
                       <Trans i18nKey="alerting.timeseries-row.timestamp">Timestamp</Trans>
                     </th>
-                    <th>
+                    <th {...stylex.props(styles.timeseriesTableHeader)}>
                       <Trans i18nKey="alerting.timeseries-row.value">Value</Trans>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {timestamps.map((_, index) => (
-                    <tr key={index}>
-                      <td className={styles.mutedText}>{dateTimeFormat(getTimestampFromIndex(index))}</td>
-                      <td className={styles.expression.resultValue}>{getValueFromIndex(index)}</td>
+                    <tr key={index} {...stylex.props(styles.timeseriesTableRow)}>
+                      <td {...stylex.props(styles.timeseriesTableCell, styles.mutedText)}>
+                        {dateTimeFormat(getTimestampFromIndex(index))}
+                      </td>
+                      <td {...stylex.props(styles.timeseriesTableCell, styles.expressionResultValue)}>
+                        {getValueFromIndex(index)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -538,162 +534,163 @@ const TimeseriesRow: FC<TimeseriesRowProps & { index: number }> = ({ frame, inde
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  expression: {
-    wrapper: css({
-      display: 'flex',
-      border: `solid 1px ${theme.colors.border.medium}`,
-      flex: 1,
-      flexBasis: '400px',
-      borderRadius: theme.shape.radius.default,
-      overflow: 'hidden',
-    }),
-    stack: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexWrap: 'nowrap',
-      gap: 0,
-      width: '100%',
-      minWidth: '0', // this one is important to prevent text overflow
-    }),
-    classic: css({
-      maxWidth: '100%',
-    }),
-    nonClassic: css({
-      maxWidth: '640px',
-    }),
-    alertCondition: css({}),
-    body: css({
-      padding: theme.spacing(1),
-      flex: 1,
-    }),
-    description: css({
-      marginBottom: theme.spacing(1),
-      fontSize: theme.typography.size.xs,
-      color: theme.colors.text.secondary,
-    }),
-    refId: css({
-      fontWeight: theme.typography.fontWeightBold,
-      color: theme.colors.primary.text,
-    }),
-    results: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexWrap: 'nowrap',
-
-      borderTop: `solid 1px ${theme.colors.border.medium}`,
-    }),
-    noResults: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    resultsRow: css({
-      padding: `${theme.spacing(0.75)} ${theme.spacing(1)}`,
-
-      '&:nth-child(odd)': {
-        backgroundColor: theme.colors.background.secondary,
-      },
-
-      '&:hover': {
-        backgroundColor: theme.colors.background.canvas,
-      },
-    }),
-    labelKey: css({
-      color: theme.isDark ? '#73bf69' : '#56a64b',
-    }),
-    labelValue: css({
-      color: theme.isDark ? '#ce9178' : '#a31515',
-    }),
-    resultValue: css({
-      textAlign: 'right',
-    }),
-    resultLabel: css({
-      flex: 1,
-      overflowX: 'auto',
-
-      display: 'inline-block',
-      whiteSpace: 'nowrap',
-    }),
-    noData: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing(),
-    }),
+const styles = stylex.create({
+  expressionWrapper: {
+    display: 'flex',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '400px',
+    borderRadius: shape['--gf-shape-radius-default'],
+    overflow: 'hidden',
   },
-  mutedText: css({
-    color: theme.colors.text.secondary,
+  expressionStack: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    gap: 0,
+    width: '100%',
+    minWidth: '0', // this one is important to prevent text overflow
+  },
+  expressionClassic: {
+    maxWidth: '100%',
+  },
+  expressionNonClassic: {
+    maxWidth: '640px',
+  },
+  expressionBody: {
+    padding: spacing['--gf-spacing-x1'],
+    flex: '1',
+  },
+  expressionDescription: {
+    marginBottom: spacing['--gf-spacing-x1'],
+    fontSize: typography['--gf-typography-size-xs'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  expressionRefId: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    color: colors['--gf-colors-primary-text'],
+  },
+  expressionResults: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+  },
+  expressionResultsRow: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    backgroundColor: {
+      default: null,
+      ':nth-child(odd)': colors['--gf-colors-background-secondary'],
+      ':hover': colors['--gf-colors-background-canvas'],
+    },
+  },
+  expressionLabelKeyDark: {
+    color: '#73bf69',
+  },
+  expressionLabelKeyLight: {
+    color: '#56a64b',
+  },
+  expressionLabelValueDark: {
+    color: '#ce9178',
+  },
+  expressionLabelValueLight: {
+    color: '#a31515',
+  },
+  expressionResultValue: {
+    textAlign: 'right',
+  },
+  expressionResultLabel: {
+    flex: '1',
+    overflowX: 'auto',
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+  },
+  expressionNoData: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing['--gf-spacing-x1'],
+  },
+  mutedText: {
+    color: colors['--gf-colors-text-secondary'],
     fontSize: '0.9em',
-
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  header: {
-    wrapper: css({
-      background: theme.colors.background.secondary,
-      padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-      borderBottom: `solid 1px ${theme.colors.border.weak}`,
-    }),
   },
-  footer: css({
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(1),
-    borderTop: `solid 1px ${theme.colors.border.weak}`,
-  }),
-  draggableIcon: css({
-    cursor: 'grab',
-  }),
-  mutedIcon: css({
-    color: theme.colors.text.secondary,
-  }),
-  editable: css({
-    padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-
+  headerWrapper: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  footer: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    padding: spacing['--gf-spacing-x1'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+  },
+  editable: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     cursor: 'pointer',
-  }),
-  timeseriesTableWrapper: css({
+  },
+  timeseriesTableWrapper: {
     maxHeight: '500px',
-
     overflowY: 'scroll',
-  }),
-  timeseriesTable: css({
+  },
+  timeseriesTable: {
     tableLayout: 'auto',
-
     width: '100%',
     height: '100%',
-
-    'td, th': {
-      padding: theme.spacing(1),
-    },
-
-    td: {
-      background: theme.colors.background.primary,
-    },
-
-    th: {
-      background: theme.colors.background.secondary,
-    },
-
-    tr: {
-      borderBottom: `1px solid ${theme.colors.border.medium}`,
-
-      '&:last-of-type': {
-        borderBottom: 'none',
-      },
-    },
-  }),
-  pagination: {
-    wrapper: css({
-      borderTop: `1px solid ${theme.colors.border.medium}`,
-      padding: theme.spacing(),
-    }),
+  },
+  timeseriesTableRow: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: { default: 'solid', ':last-of-type': 'none' },
+    borderBottomColor: colors['--gf-colors-border-medium'],
+  },
+  timeseriesTableHeader: {
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  timeseriesTableCell: {
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
+  paginationWrapper: {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    padding: spacing['--gf-spacing-x1'],
   },
 });
+
+// IconButton has no xstyle, and its own colour must lose to this one in every state.
+const mutedIconStyle = {
+  color: colors['--gf-colors-text-secondary'],
+};

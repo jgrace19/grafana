@@ -1,13 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import Draggable, { type DraggableEventHandler } from 'react-draggable';
 import { Resizable, type ResizeCallbackData } from 'react-resizable';
 
-import { type Dimensions2D, type GrafanaTheme2, store } from '@grafana/data';
+import { type Dimensions2D, store } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { IconButton, Portal, useStyles2 } from '@grafana/ui';
+import { IconButton, Portal } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, components, shadows } from '@grafana/ui/stylex/tokens.stylex';
 import { type Scene } from 'app/features/canvas/runtime/scene';
 
+import './InlineEdit.css';
 import { InlineEditBody } from './InlineEditBody';
 
 type Props = {
@@ -24,7 +27,6 @@ export function InlineEdit({ onClose, id, scene }: Props) {
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
   const ref = useRef<HTMLDivElement>(null);
-  const styles = useStyles2(getStyles);
   const inlineEditKey = 'inlineEditPanel' + id.toString();
 
   const defaultMeasurements = { width: 400, height: 400 };
@@ -73,29 +75,30 @@ export function InlineEdit({ onClose, id, scene }: Props) {
 
   return (
     <Portal>
-      <div className={styles.draggableWrapper}>
+      <div {...stylex.props(styles.draggableWrapper)}>
         <Draggable handle="strong" onStop={onDragStop} position={{ x: placement.x, y: placement.y }}>
           <Resizable height={measurements.height} width={measurements.width} onResize={onResizeStop}>
             <div
-              className={styles.inlineEditorContainer}
-              style={{ height: `${measurements.height}px`, width: `${measurements.width}px` }}
+              {...mergeStylexProps(stylex.props(styles.inlineEditorContainer), {
+                style: { height: `${measurements.height}px`, width: `${measurements.width}px` },
+              })}
               ref={ref}
             >
-              <strong className={styles.inlineEditorHeader}>
-                <div className={styles.placeholder} />
+              <strong {...stylex.props(styles.inlineEditorHeader)}>
+                <div {...stylex.props(styles.placeholder)} />
                 <div>
                   <Trans i18nKey="canvas.inline-edit.canvas-inline-editor">Canvas Inline Editor</Trans>
                 </div>
                 <IconButton
                   name="times"
                   size="xl"
-                  className={styles.inlineEditorClose}
+                  className="gf-canvas-inline-editor-close"
                   onClick={onClose}
                   tooltip={t('canvas.inline-edit.tooltip-close-inline-editor', 'Close inline editor')}
                 />
               </strong>
-              <div className={styles.inlineEditorContentWrapper}>
-                <div className={styles.inlineEditorContent}>
+              <div {...stylex.props(styles.inlineEditorContentWrapper)}>
+                <div {...stylex.props(styles.inlineEditorContent)}>
                   <InlineEditBody />
                 </div>
               </div>
@@ -107,44 +110,45 @@ export function InlineEdit({ onClose, id, scene }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  inlineEditorContainer: css({
+const styles = stylex.create({
+  inlineEditorContainer: {
     display: 'flex',
     flexDirection: 'column',
-    background: theme.components.panel.background,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
+    backgroundColor: components['--gf-components-panel-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z3'],
     zIndex: 1000,
     opacity: 1,
     minWidth: '400px',
-  }),
-  draggableWrapper: css({
+  },
+  draggableWrapper: {
     width: 0,
     height: 0,
-  }),
-  inlineEditorHeader: css({
+  },
+  inlineEditorHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: theme.colors.background.canvas,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
     height: '40px',
     cursor: 'move',
-  }),
-  inlineEditorContent: css({
+  },
+  inlineEditorContent: {
     whiteSpace: 'pre-wrap',
     padding: '10px',
-  }),
-  inlineEditorClose: css({
-    marginLeft: 'auto',
-  }),
-  placeholder: css({
+  },
+  placeholder: {
     width: '24px',
     height: '24px',
     visibility: 'hidden',
     marginRight: 'auto',
-  }),
-  inlineEditorContentWrapper: css({
+  },
+  inlineEditorContentWrapper: {
     overflow: 'scroll',
-  }),
+  },
 });

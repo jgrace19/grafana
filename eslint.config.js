@@ -108,6 +108,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/Table/**/*.{ts,tsx}',
   // U3 pickers
   'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
+  // U5 time
+  'packages/grafana-ui/src/components/{DateTimePickers,RefreshPicker}/**/*.{ts,tsx}',
   // U7 viz
   'packages/grafana-ui/src/components/{PanelChrome,RadialGauge,Sparkline,uPlot,VizLayout,VizLegend,VizTooltip}/**/*.{ts,tsx}',
   // U8 chrome/globals
@@ -135,6 +137,7 @@ const stylexMigratedAppFiles = [
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
   'public/app/plugins/panel/{nodeGraph,timeseries}/**/*.{ts,tsx}',
+  'public/app/plugins/panel/{canvas,geomap}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
@@ -184,6 +187,16 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard-scene/edit-pane/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/panel-edit/*.{ts,tsx}',
   'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/{rule-editor,expressions,backtesting,create-folder,export,saved-searches}/**/*.{ts,tsx}',
+  'public/app/features/alerting/unified/components/notification-policies/{formStyles.ts,EditDefaultPolicyForm.tsx,EditNotificationPolicyForm.tsx}',
+  // L1 logs (LogLineContext and LogRowContextModal keep pending Emotion Modal overrides)
+  'public/app/features/logs/*.{ts,tsx}',
+  'public/app/features/logs/components/*.{ts,tsx}',
+  'public/app/features/logs/components/{fieldSelector,mocks,otel}/**/*.{ts,tsx}',
+  'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
+  'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
+  'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
+  'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

@@ -27,6 +27,8 @@ public/app/core/components/AppChrome/TopBar/ProfileButton.tsx # C1: overrides To
 public/app/core/components/AppChrome/TopBar/TopSearchBarCommandPaletteTrigger.tsx # C1: composes getInputStyles Emotion classes; migrate with U2 (Input)
 public/app/core/components/NavLandingPage/NavLandingPageCard.tsx # C1: overrides Card's grid, border and background incl. hover; Card has no public xstyle
 public/app/core/components/Page/EditableTitle.tsx # C1: overrides Field's and Input's own Emotion styles; migrate with U2 (Field, Input)
+public/app/features/logs/components/panel/LogLineContext.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/height/padding
+public/app/features/logs/components/log-context/LogRowContextModal.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/padding
 public/app/features/admin/UserOrgs.tsx # stylex: pending Modal migration (U4); className/contentClassName override of Modal width/overflow
 public/app/features/admin/UserListPublicDashboardPage/DashboardsListModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
 public/app/features/admin/UserListPublicDashboardPage/DeleteUserModalButton.tsx # stylex: pending Modal migration (U4); className override of Modal width
@@ -65,3 +67,11 @@ public/app/core/components/RolePicker/** # C1: own styles share elements with ge
 public/app/core/components/Upgrade/UpgradeBox.tsx # C1: overrides Button background, hover and focus-visible; Button has no xstyle
 public/app/index.ts # creates the app's @emotion/css sheet before @grafana/scenes' bundled Emotion copy, so scenes' className overrides of Emotion @grafana/ui components keep their main-branch order
 
+public/app/features/alerting/unified/components/create-folder/CreateNewFolder.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/notification-policies/EditDefaultPolicyForm.tsx # stylex: pending Collapse migration: keeps Emotion className overrides that must beat Collapse's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/AlertManagerRouting.tsx # stylex: pending CollapsableSection migration: keeps Emotion className overrides that must beat CollapsableSection's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/alert-rule-form/simplifiedRouting/route-settings/RouteSettings.tsx # stylex: pending InlineField and Field migration: keeps Emotion className overrides that must beat InlineField and Field's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/AnnotationsStep.tsx # stylex: pending Field, Input and TextArea migration: keeps Emotion className overrides that must beat Field, Input and TextArea's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/DashboardPicker.tsx # stylex: pending Alert migration: keeps Emotion className overrides that must beat Alert's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/GrafanaEvaluationBehavior.tsx # stylex: pending Modal migration: keeps Emotion className overrides that must beat Modal's own Emotion styles
+public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.tsx # stylex: pending InlineLabel migration: keeps Emotion className overrides that must beat InlineLabel's own Emotion styles

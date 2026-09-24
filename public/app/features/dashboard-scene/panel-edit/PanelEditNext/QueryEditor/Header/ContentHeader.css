@@ -1,0 +1,13 @@
+/*
+ * Strips the DataSourcePicker's input chrome for the inline picker. StyleX can't target the picker's DOM, and this
+ * file is deliberately not in a cascade layer so it keeps the Emotion rules' precedence over the picker's styles.
+ */
+.gf-content-header-datasource-picker input {
+  border: none;
+  background-color: var(--gf-colors-background-secondary);
+}
+
+.gf-content-header-datasource-picker > div,
+.gf-content-header-datasource-picker div {
+  border: none;
+}

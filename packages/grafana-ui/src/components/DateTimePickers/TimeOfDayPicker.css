@@ -1,0 +1,113 @@
+/*
+ * rc-picker renders the input and the popup DOM, so StyleX can't style it. Its own stylesheet
+ * (`@rc-component/picker/assets/index.css`) is not in a cascade layer, so neither is this file: every rule
+ * keeps the specificity of the Emotion rule it replaces, which is what beats rc-picker's defaults. Scoped under
+ * `gf-time-of-day-picker` (input) and `gf-time-of-day-picker-panel` (popup).
+ */
+.gf-time-of-day-picker-panel.rc-picker-dropdown {
+  box-shadow: none;
+  z-index: 1061;
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column {
+  font-size: var(--gf-typography-html-font-size);
+  background-color: var(--gf-components-input-background);
+  color: var(--gf-colors-text-secondary);
+  padding: unset;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  width: calc(var(--gf-spacing-grid-size) * 8);
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column li {
+  padding-right: calc(var(--gf-spacing-grid-size) * 2);
+  width: auto;
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column li.rc-picker-time-panel-cell-selected {
+  background-color: inherit;
+  border: 1px solid var(--gf-colors-action-selected-border);
+  border-radius: var(--gf-shape-radius-default);
+  color: var(--gf-colors-text-primary);
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column li:hover {
+  background: var(--gf-colors-action-hover);
+  color: var(--gf-colors-text-primary);
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column li.rc-picker-time-panel-cell-disabled {
+  color: var(--gf-colors-action-disabled-text);
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column .rc-picker-time-panel-cell-inner {
+  color: inherit;
+}
+
+.gf-time-of-day-picker-panel .rc-picker-time-panel-column:not(:last-of-type) {
+  border-right: 1px solid var(--gf-components-input-border-color);
+}
+
+.gf-time-of-day-picker-panel .rc-picker-panel {
+  box-shadow: var(--gf-shadows-z3);
+  background-color: var(--gf-components-input-background);
+  border-color: var(--gf-components-input-border-color);
+  border-radius: var(--gf-shape-radius-default);
+  overflow: hidden;
+}
+
+.gf-time-of-day-picker.rc-picker-focused {
+  border: none;
+}
+
+.gf-time-of-day-picker.rc-picker-focused .rc-picker-input {
+  outline: 2px dotted transparent;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px var(--gf-colors-background-canvas),
+    0 0 0px 4px var(--gf-colors-primary-main);
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  transition-duration: 0.2s;
+  transition-property: outline, outline-offset, box-shadow;
+}
+
+.gf-time-of-day-picker.rc-picker-disabled .rc-picker-input {
+  background-color: var(--gf-colors-action-disabled-background);
+  color: var(--gf-colors-action-disabled-text);
+  border: 1px solid var(--gf-colors-action-disabled-background);
+}
+
+.gf-time-of-day-picker.rc-picker-disabled .rc-picker-input:focus {
+  box-shadow: none;
+}
+
+.gf-time-of-day-picker .rc-picker-input {
+  background-color: var(--gf-components-input-background);
+  border-radius: var(--gf-shape-radius-default);
+  border-color: var(--gf-components-input-border-color);
+  border-style: solid;
+  border-width: 1px;
+  color: var(--gf-colors-text-primary);
+  height: calc(var(--gf-spacing-grid-size) * 4);
+  padding: 0 calc(var(--gf-spacing-grid-size) * 1);
+}
+
+.gf-time-of-day-picker .rc-picker-input input {
+  color: unset;
+  background-color: unset;
+}
+
+.gf-time-of-day-picker .rc-picker-input input:focus {
+  outline: none;
+}
+
+.gf-time-of-day-picker .rc-picker-input input::placeholder {
+  color: var(--gf-colors-text-disabled);
+}
+
+.gf-time-of-day-picker .rc-picker-clear {
+  align-items: center;
+  display: flex;
+  inset-inline-end: unset;
+  position: relative;
+}

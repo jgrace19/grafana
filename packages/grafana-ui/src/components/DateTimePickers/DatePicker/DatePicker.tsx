@@ -1,13 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { memo } from 'react';
 import Calendar from 'react-calendar';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { colors, shadows, shape } from '../../../themes/stylex/tokens.stylex';
 import { ClickOutsideWrapper } from '../../ClickOutsideWrapper/ClickOutsideWrapper';
 import { Icon } from '../../Icon/Icon';
-import { getBodyStyles } from '../TimeRangePicker/CalendarBody';
+import { calendarClassNames } from '../TimeRangePicker/CalendarBody';
+
+import './DatePicker.global.css';
 
 /** @public */
 export interface DatePickerProps {
@@ -26,7 +28,6 @@ export interface DatePickerProps {
  * @public
  * */
 export const DatePicker = memo<DatePickerProps>((props) => {
-  const styles = useStyles2(getStyles);
   const { isOpen, onClose } = props;
 
   if (!isOpen) {
@@ -35,7 +36,7 @@ export const DatePicker = memo<DatePickerProps>((props) => {
 
   return (
     <ClickOutsideWrapper useCapture={true} includeButtonPress={false} onClick={onClose}>
-      <div className={styles.modal} data-testid="date-picker">
+      <div className={clsx(stylex.props(styles.modal).className, 'gf-date-picker')} data-testid="date-picker">
         <Body {...props} />
       </div>
     </ClickOutsideWrapper>
@@ -45,12 +46,10 @@ export const DatePicker = memo<DatePickerProps>((props) => {
 DatePicker.displayName = 'DatePicker';
 
 const Body = memo<DatePickerProps>(({ value, minDate, maxDate, onChange }) => {
-  const styles = useStyles2(getBodyStyles);
-
   return (
     <Calendar
-      className={styles.body}
-      tileClassName={styles.title}
+      className={calendarClassNames.body}
+      tileClassName={calendarClassNames.tile}
       value={value || new Date()}
       minDate={minDate}
       maxDate={maxDate}
@@ -68,19 +67,15 @@ const Body = memo<DatePickerProps>(({ value, minDate, maxDate, onChange }) => {
 
 Body.displayName = 'Body';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      zIndex: theme.zIndex.modal,
-      boxShadow: theme.shadows.z3,
-      backgroundColor: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderTopLeftRadius: theme.shape.radius.default,
-      borderBottomLeftRadius: theme.shape.radius.default,
-
-      'button:disabled': {
-        color: theme.colors.text.disabled,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  modal: {
+    zIndex: zIndex.modal,
+    boxShadow: shadows['--gf-shadows-z3'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+  },
+});

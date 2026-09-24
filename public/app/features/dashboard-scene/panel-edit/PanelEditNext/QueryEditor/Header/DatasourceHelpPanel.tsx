@@ -1,19 +1,19 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useActionsContext, useQueryEditorUIContext } from '../QueryEditorContext';
+
+import './DatasourceHelpPanel.css';
 
 export function DatasourceHelpPanel() {
   const { selectedQuery, selectedQueryDsData, selectedQueryDsLoading, toggleDatasourceHelp } =
     useQueryEditorUIContext();
   const { updateSelectedQuery } = useActionsContext();
   const datasource = selectedQueryDsData?.datasource;
-
-  const styles = useStyles2(getStyles);
 
   if (selectedQueryDsLoading || !datasource?.components?.QueryEditorHelp || !selectedQuery) {
     return null;
@@ -33,13 +33,13 @@ export function DatasourceHelpPanel() {
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <IconButton
         name="times"
         size="md"
         tooltip={t('query-editor-next.help.close', 'Close help')}
         onClick={toggleDatasourceHelp}
-        className={styles.closeButton}
+        className="gf-datasource-help-panel-close"
         aria-label={t('query-editor-next.help.close-aria', 'Close help panel')}
       />
       <DatasourceCheatsheet query={selectedQuery} datasource={datasource} onClickExample={onClickExample} />
@@ -47,19 +47,18 @@ export function DatasourceHelpPanel() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     position: 'relative',
-    padding: theme.spacing(2),
-    backgroundColor: theme.colors.background.primary,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
     maxHeight: '400px',
     overflowY: 'auto',
-  }),
-  closeButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-  }),
+  },
 });

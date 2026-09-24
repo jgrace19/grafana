@@ -1,0 +1,13 @@
+/*
+ * Thin resize handles: these override the click-target size getDragStyles gives the handle with Emotion. Unlayered,
+ * and the classes are doubled because Emotion's rules load after this lazy chunk's stylesheet.
+ */
+.gf-panel-editor-viz-resizer.gf-panel-editor-viz-resizer {
+  height: 2px;
+  width: 100%;
+}
+
+.gf-panel-editor-sidebar-resizer.gf-panel-editor-sidebar-resizer {
+  height: 100%;
+  width: 2px;
+}

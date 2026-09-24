@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Badge, clearButtonStyles, useStyles2 } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type RuleFormValues } from '../../types/rule-form';
 import { isGrafanaRecordingRuleByType } from '../../utils/rules';
@@ -14,7 +14,6 @@ interface AlertConditionProps {
 }
 
 export const ExpressionStatusIndicator = ({ isCondition, onSetCondition, refId }: AlertConditionProps) => {
-  const styles = useStyles2(getStyles);
   const { watch } = useFormContext<RuleFormValues>();
   const type = watch('type');
   const isGrafanaRecordingRule = type ? isGrafanaRecordingRuleByType(type) : false;
@@ -30,7 +29,7 @@ export const ExpressionStatusIndicator = ({ isCondition, onSetCondition, refId }
       <button
         key="make-condition"
         type="button"
-        className={styles.actionLink}
+        {...stylex.props(styles.actionLink)}
         onClick={() => onSetCondition && onSetCondition()}
       >
         {makeConditionText}
@@ -39,17 +38,13 @@ export const ExpressionStatusIndicator = ({ isCondition, onSetCondition, refId }
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const clearButton = clearButtonStyles(theme);
-
-  return {
-    actionLink: css(clearButton, {
-      color: theme.colors.text.link,
-      cursor: 'pointer',
-
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  actionLink: {
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    padding: 0,
+    color: colors['--gf-colors-text-link'],
+    cursor: 'pointer',
+    textDecorationLine: { default: null, ':hover': 'underline' },
+  },
+});

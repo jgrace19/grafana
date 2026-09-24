@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { type SceneComponentProps } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type PanelEditor } from '../PanelEditor';
 import { QueryEditorBanner } from '../QueryEditorBanner';
@@ -18,21 +17,27 @@ export function VizAndDataPaneNext({ model }: SceneComponentProps<PanelEditor>) 
   const containerRef = useRef<HTMLDivElement>(null);
   const { showBanner, dismissBanner } = useQueryEditorBanner();
   const { scene, layout } = useVizAndDataPaneLayout(model, containerRef, showBanner);
-  const styles = useStyles2(getStyles, layout.sidebarSize);
+  const isMini = layout.sidebarSize === SidebarSize.Mini;
 
   const nextDataPane = scene.dataPane instanceof PanelDataPaneNext ? scene.dataPane : null;
 
   return (
-    <div ref={containerRef} className={styles.pageContainer} style={layout.gridStyles}>
+    <div ref={containerRef} {...stylex.props(styles.pageContainer)} style={layout.gridStyles}>
       {scene.controls && (
-        <div className={styles.controlsWrapper}>
+        <div {...stylex.props(styles.controlsWrapper, isMini && styles.miniSidebarIndent)}>
           <scene.controls.Component model={scene.controls} />
         </div>
       )}
-      <div className={cx(styles.viz, { [styles.fixedSizeViz]: layout.isScrollingLayout })}>
+      <div
+        {...stylex.props(
+          styles.viz,
+          isMini && styles.miniSidebarIndent,
+          layout.isScrollingLayout && styles.fixedSizeViz
+        )}
+      >
         <scene.panelToShow.Component model={scene.panelToShow} />
         {nextDataPane && (
-          <div className={styles.vizResizeHandle}>
+          <div {...stylex.props(styles.vizResizeHandle)}>
             <div
               ref={layout.vizResizeHandle.ref}
               className={layout.vizResizeHandle.className}
@@ -52,22 +57,22 @@ export function VizAndDataPaneNext({ model }: SceneComponentProps<PanelEditor>) 
               useQueryExperienceNext={model.state.useQueryExperienceNext ?? false}
               onToggle={model.onToggleQueryEditorVersion}
               onDismiss={dismissBanner}
-              className={styles.versionToggle}
+              className={stylex.props(styles.versionToggle, isMini && styles.versionToggleMini).className}
             />
           )}
-          <div className={styles.sidebar}>
-            <div className={styles.sidebarContent}>
+          <div {...stylex.props(styles.sidebar)}>
+            <div {...stylex.props(styles.sidebarContent)}>
               <Sidebar sidebarSize={layout.sidebarSize} setSidebarSize={layout.setSidebarSize} />
             </div>
-            <div className={styles.sidebarResizeHandle}>
+            <div {...stylex.props(styles.sidebarResizeHandle)}>
               <div
                 ref={layout.sidebarResizeHandle.ref}
-                className={cx(layout.sidebarResizeHandle.className, styles.resizeHandlePill)}
+                className={layout.sidebarResizeHandle.className}
                 data-testid="sidebar-resizer"
               />
             </div>
           </div>
-          <div className={styles.dataPane}>
+          <div {...stylex.props(styles.dataPane)}>
             <nextDataPane.Component model={nextDataPane} />
           </div>
         </QueryEditorContextWrapper>
@@ -76,73 +81,79 @@ export function VizAndDataPaneNext({ model }: SceneComponentProps<PanelEditor>) 
   );
 }
 
-function getStyles(theme: GrafanaTheme2, sidebarSize: SidebarSize) {
-  return {
-    pageContainer: css({
-      display: 'grid',
-      gap: theme.spacing(2),
-      overflow: 'hidden',
-      paddingBottom: theme.spacing(2),
-    }),
-    versionToggle: css({
-      gridArea: 'version-toggle',
-      minWidth: 0,
-      overflow: 'hidden',
-      ...(sidebarSize === SidebarSize.Mini && {
-        marginLeft: theme.spacing(2),
-      }),
-    }),
-    sidebar: css({
-      gridArea: 'sidebar',
-      position: 'relative',
-      paddingLeft: theme.spacing(2),
-      minWidth: 0,
-      minHeight: 0,
-      overflow: 'hidden',
-    }),
-    sidebarContent: css({
-      height: '100%',
-    }),
-    viz: css({
-      gridArea: 'viz',
-      overflow: 'visible',
-      position: 'relative',
-      minHeight: 0,
-      ...(sidebarSize === SidebarSize.Mini && {
-        paddingLeft: theme.spacing(2),
-      }),
-    }),
-    dataPane: css({
-      gridArea: 'data-pane',
-      overflow: 'hidden',
-      minHeight: 0,
-    }),
-    controlsWrapper: css({
-      gridArea: 'controls',
-      display: 'flex',
-      flexDirection: 'column',
-      ...(sidebarSize === SidebarSize.Mini && {
-        paddingLeft: theme.spacing(2),
-      }),
-    }),
-    fixedSizeViz: css({
-      height: '100vh',
-    }),
-    vizResizeHandle: css({
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-    }),
-    sidebarResizeHandle: css({
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      right: 0,
-    }),
-    resizeHandlePill: css({
-      height: '100%',
-      width: 2,
-    }),
-  };
-}
+const styles = stylex.create({
+  pageContainer: {
+    display: 'grid',
+    gap: spacing['--gf-spacing-x2'],
+    overflow: 'hidden',
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+  versionToggle: {
+    gridColumnEnd: 'version-toggle',
+    gridColumnStart: 'version-toggle',
+    gridRowEnd: 'version-toggle',
+    gridRowStart: 'version-toggle',
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+  versionToggleMini: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  miniSidebarIndent: {
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  sidebar: {
+    gridColumnEnd: 'sidebar',
+    gridColumnStart: 'sidebar',
+    gridRowEnd: 'sidebar',
+    gridRowStart: 'sidebar',
+    position: 'relative',
+    paddingLeft: spacing['--gf-spacing-x2'],
+    minWidth: 0,
+    minHeight: 0,
+    overflow: 'hidden',
+  },
+  sidebarContent: {
+    height: '100%',
+  },
+  viz: {
+    gridColumnEnd: 'viz',
+    gridColumnStart: 'viz',
+    gridRowEnd: 'viz',
+    gridRowStart: 'viz',
+    overflow: 'visible',
+    position: 'relative',
+    minHeight: 0,
+  },
+  dataPane: {
+    gridColumnEnd: 'data-pane',
+    gridColumnStart: 'data-pane',
+    gridRowEnd: 'data-pane',
+    gridRowStart: 'data-pane',
+    overflow: 'hidden',
+    minHeight: 0,
+  },
+  controlsWrapper: {
+    gridColumnEnd: 'controls',
+    gridColumnStart: 'controls',
+    gridRowEnd: 'controls',
+    gridRowStart: 'controls',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  fixedSizeViz: {
+    height: '100vh',
+  },
+  vizResizeHandle: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  sidebarResizeHandle: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+  },
+});

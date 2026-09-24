@@ -1,0 +1,6 @@
+/* The calendar buttons are rendered by react-calendar (see CalendarBody.global.css). */
+@layer grafana-global {
+  .gf-date-picker button:disabled {
+    color: var(--gf-colors-text-disabled);
+  }
+}

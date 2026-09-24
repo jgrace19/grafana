@@ -1,24 +1,17 @@
-import { css, cx } from '@emotion/css';
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Alert migration
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { noop } from 'lodash';
 import { type CSSProperties, useCallback, useMemo, useState } from 'react';
 import { useAsync, useDebounce } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList } from 'react-window';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-import {
-  Alert,
-  Button,
-  FilterInput,
-  Icon,
-  LoadingPlaceholder,
-  Modal,
-  Tooltip,
-  clearButtonStyles,
-  useStyles2,
-} from '@grafana/ui';
+import { Alert, Button, FilterInput, Icon, LoadingPlaceholder, Modal, Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { AnnoKeyFolderTitle } from 'app/features/apiserver/types';
 import { type DashboardWithAccessInfo } from 'app/features/dashboard/api/types';
 import { isDashboardV2Resource } from 'app/features/dashboard/api/utils';
@@ -70,7 +63,6 @@ const useFilteredDashboards = (dashboardFilter: string) => {
 };
 
 export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDismiss }: DashboardPickerProps) => {
-  const styles = useStyles2(getPickerStyles);
   const [selectedDashboardUid, setSelectedDashboardUid] = useState(dashboardUid);
   const [selectedPanelId, setSelectedPanelId] = useState(panelId);
   const [dashboardFilter, setDashboardFilter] = useState('');
@@ -131,12 +123,14 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
       <button
         type="button"
         title={dashboard.name}
-        style={style}
-        className={cx(styles.rowButton, { [styles.rowOdd]: index % 2 === 1, [styles.rowSelected]: isSelected })}
+        {...mergeStylexProps(
+          stylex.props(styles.rowButton, index % 2 === 1 && styles.rowOdd, isSelected && styles.rowSelected),
+          { style }
+        )}
         onClick={() => handleDashboardChange(dashboard.uid)}
       >
-        <div className={cx(styles.dashboardTitle, styles.rowButtonTitle)}>{dashboard.name}</div>
-        <div className={styles.dashboardFolder}>
+        <div {...stylex.props(styles.dashboardTitle, styles.rowButtonTitle)}>{dashboard.name}</div>
+        <div {...stylex.props(styles.dashboardFolder)}>
           <Icon name="folder" /> {folderTitle}
         </div>
       </button>
@@ -153,15 +147,19 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
     return (
       <button
         type="button"
-        style={style}
         disabled={disabled}
-        className={cx(styles.rowButton, styles.panelButton, {
-          [styles.rowOdd]: index % 2 === 1,
-          [styles.rowSelected]: isSelected,
-        })}
+        {...mergeStylexProps(
+          stylex.props(
+            styles.rowButton,
+            styles.panelButton,
+            index % 2 === 1 && styles.rowOdd,
+            isSelected && styles.rowSelected
+          ),
+          { style }
+        )}
         onClick={() => (disabled ? noop : setSelectedPanelId(panel.id))}
       >
-        <div className={styles.rowButtonTitle} title={panelTitle}>
+        <div {...stylex.props(styles.rowButtonTitle)} title={panelTitle}>
           {panelTitle}
         </div>
         {!isAlertingCompatible && !disabled && (
@@ -171,7 +169,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
               'The alert tab and alert annotations are only supported on graph and timeseries panels.'
             )}
           >
-            <Icon name="exclamation-triangle" className={styles.warnIcon} data-testid="warning-icon" />
+            <Icon name="exclamation-triangle" xstyle={styles.warnIcon} data-testid="warning-icon" />
           </Tooltip>
         )}
         {disabled && (
@@ -196,8 +194,8 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
       closeOnEscape
       isOpen={isOpen}
       onDismiss={onDismiss}
-      className={styles.modal}
-      contentClassName={styles.modalContent}
+      className={stylex.props(styles.modal).className}
+      contentClassName={stylex.props(styles.modalContent).className}
     >
       {/* This alert shows if the selected dashboard is not found in the first page of dashboards */}
       {!selectedDashboardIsInPageResult && dashboardUid && dashboard && (
@@ -206,7 +204,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           severity="info"
           topSpacing={0}
           bottomSpacing={1}
-          className={styles.modalAlert}
+          className={pendingEmotionStyles.modalAlert}
         >
           <div>
             <Trans
@@ -232,7 +230,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           )}
         </Alert>
       )}
-      <div className={styles.container}>
+      <div {...stylex.props(styles.container)}>
         <FilterInput
           value={dashboardFilter}
           onChange={setDashboardFilter}
@@ -247,11 +245,11 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           placeholder={t('alerting.dashboard-picker.placeholder-search-panel', 'Search panel')}
         />
 
-        <div className={styles.column}>
+        <div {...stylex.props(styles.column)}>
           {isDashSearchFetching && (
             <LoadingPlaceholder
               text={t('alerting.dashboard-picker.text-loading-dashboards', 'Loading dashboards...')}
-              className={styles.loadingPlaceholder}
+              className={stylex.props(styles.loadingPlaceholder).className}
             />
           )}
 
@@ -272,9 +270,9 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           )}
         </div>
 
-        <div className={styles.column}>
+        <div {...stylex.props(styles.column)}>
           {!selectedDashboardUid && !isDashboardFetching && (
-            <div className={styles.selectDashboardPlaceholder}>
+            <div {...stylex.props(styles.selectDashboardPlaceholder)}>
               <div>
                 <Trans i18nKey="alerting.dashboard-picker.select-dashboard-available-panels">
                   Select a dashboard to get a list of available panels
@@ -285,7 +283,7 @@ export const DashboardPicker = ({ dashboardUid, panelId, isOpen, onChange, onDis
           {isDashboardFetching && (
             <LoadingPlaceholder
               text={t('alerting.dashboard-picker.text-loading-dashboard', 'Loading dashboard...')}
-              className={styles.loadingPlaceholder}
+              className={stylex.props(styles.loadingPlaceholder).className}
             />
           )}
 
@@ -405,92 +403,99 @@ const isValidPanel = (panel: PanelDTO): boolean => {
   return hasValidID && (isValidPanelType || isLibraryPanel);
 };
 
-const getPickerStyles = (theme: GrafanaTheme2) => {
-  const clearButton = clearButtonStyles(theme);
-
-  return {
-    container: css({
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gridTemplateRows: 'min-content auto',
-      gap: theme.spacing(2),
-      flex: 1,
-    }),
-    column: css({
-      flex: '1 1 auto',
-    }),
-    dashboardTitle: css({
-      height: '22px',
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    dashboardFolder: css({
-      height: '20px',
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      columnGap: theme.spacing(1),
-      alignItems: 'center',
-    }),
-    rowButton: css(clearButton, {
-      padding: theme.spacing(0.5),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      textAlign: 'left',
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      border: '2px solid transparent',
-
-      '&:disabled': {
-        cursor: 'not-allowed',
-        color: theme.colors.text.disabled,
-      },
-    }),
-    rowButtonTitle: css({
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-    }),
-    rowSelected: css({
-      borderColor: theme.colors.primary.border,
-    }),
-    rowOdd: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-    panelButton: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    }),
-    loadingPlaceholder: css({
-      height: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }),
-    selectDashboardPlaceholder: css({
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      textAlign: 'center',
-      fontWeight: theme.typography.fontWeightBold,
-    }),
-    modal: css({
-      height: '100%',
-    }),
-    modalContent: css({
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    modalAlert: css({
-      flexGrow: 0,
-    }),
-    warnIcon: css({
-      fill: theme.colors.warning.main,
-    }),
-  };
+// stylex: pending Alert migration
+const pendingEmotionStyles = {
+  modalAlert: css({
+    flexGrow: 0,
+  }),
 };
+
+const styles = stylex.create({
+  container: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: 'min-content auto',
+    gap: spacing['--gf-spacing-x2'],
+    flex: '1',
+  },
+  column: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+  },
+  dashboardTitle: {
+    height: '22px',
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  dashboardFolder: {
+    height: '20px',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    columnGap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+  },
+  rowButton: {
+    backgroundColor: 'transparent',
+    color: {
+      default: colors['--gf-colors-text-primary'],
+      ':disabled': colors['--gf-colors-text-disabled'],
+    },
+    padding: spacing['--gf-spacing-x0-5'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textAlign: 'left',
+    whiteSpace: 'nowrap',
+    cursor: {
+      default: 'pointer',
+      ':disabled': 'not-allowed',
+    },
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+  },
+  rowButtonTitle: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
+  rowSelected: {
+    borderColor: colors['--gf-colors-primary-border'],
+  },
+  rowOdd: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  panelButton: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  loadingPlaceholder: {
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectDashboardPlaceholder: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    textAlign: 'center',
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  modal: {
+    height: '100%',
+  },
+  modalContent: {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  warnIcon: {
+    fill: colors['--gf-colors-warning-main'],
+  },
+});

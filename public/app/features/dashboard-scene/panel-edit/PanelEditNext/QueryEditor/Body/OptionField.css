@@ -1,0 +1,7 @@
+/*
+ * Sizes the Input, which sets its own width. 80px is CONTENT_SIDE_BAR.labelWidth in ../../constants.ts. Unlayered, and the class is doubled because Input's Emotion rules load after this lazy chunk's stylesheet.
+ */
+.gf-query-option-field-input.gf-query-option-field-input {
+  width: 80px;
+  flex-shrink: 0;
+}

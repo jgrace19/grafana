@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { RadioButtonGroup, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
+import { RadioButtonGroup, Stack, Text, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { AlertmanagerChoice } from 'app/plugins/datasource/alertmanager/types';
 
 import { alertmanagerApi } from '../../api/alertmanagerApi';
@@ -42,8 +42,6 @@ function useHasInternalAlertmanagerEnabled() {
 
 export const NotificationsStep = ({ alertUid }: NotificationsStepProps) => {
   const { watch, getValues, setValue } = useFormContext<RuleFormValues>();
-  const styles = useStyles2(getStyles);
-
   const [type, manualRouting] = watch(['type', 'manualRouting']);
   const [showLabelsEditor, setShowLabelsEditor] = useState(false);
 
@@ -127,7 +125,7 @@ export const NotificationsStep = ({ alertUid }: NotificationsStepProps) => {
         </>
       )}
       {shouldAllowSimplifiedRouting && (
-        <div className={styles.configureNotifications}>
+        <div {...stylex.props(styles.configureNotifications)}>
           <Text element="h5">
             <Trans i18nKey="alerting.notifications-step.recipient">Recipient</Trans>
           </Text>
@@ -156,8 +154,6 @@ export const NotificationsStep = ({ alertUid }: NotificationsStepProps) => {
  */
 function ManualAndAutomaticRouting({ alertUid }: { alertUid?: string }) {
   const { watch, setValue } = useFormContext<RuleFormValues>();
-  const styles = useStyles2(getStyles);
-
   const [manualRouting] = watch(['manualRouting']);
 
   const routingOptions = [
@@ -189,7 +185,7 @@ function ManualAndAutomaticRouting({ alertUid }: { alertUid?: string }) {
           options={routingOptions}
           value={manualRouting ? RoutingOptions.ContactPoint : RoutingOptions.NotificationPolicy}
           onChange={onRoutingOptionChange}
-          className={styles.routingOptions}
+          className={stylex.props(styles.routingOptions).className}
         />
       </Stack>
 
@@ -342,13 +338,13 @@ export const RoutingOptionDescription = ({ manualRouting }: NotificationsStepDes
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  routingOptions: css({
+const styles = stylex.create({
+  routingOptions: {
     width: 'fit-content',
-  }),
-  configureNotifications: css({
+  },
+  configureNotifications: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: theme.spacing(2),
-  }),
+    marginTop: spacing['--gf-spacing-x2'],
+  },
 });

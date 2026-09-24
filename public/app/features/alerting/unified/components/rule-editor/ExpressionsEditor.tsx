@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type PanelData } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { type PanelData } from '@grafana/data';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import { type ExpressionQuery } from 'app/features/expressions/types';
 import { type AlertQuery } from 'app/types/unified-alerting-dto';
@@ -39,10 +39,8 @@ export const ExpressionsEditor = ({
       return acc;
     }, []);
   }, [queries]);
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       {expressionQueries.map((query) => {
         const data = panelData[query.refId];
 
@@ -73,11 +71,11 @@ export const ExpressionsEditor = ({
     </div>
   );
 };
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
-    gap: theme.spacing(2),
+    gap: spacing['--gf-spacing-x2'],
     alignContent: 'stretch',
     flexWrap: 'wrap',
-  }),
+  },
 });

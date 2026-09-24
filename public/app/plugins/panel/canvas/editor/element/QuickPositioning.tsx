@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 import { QuickPlacement } from 'app/features/canvas/types';
 
 import { HorizontalConstraint, VerticalConstraint, type Placement } from '../../panelcfg.gen';
 
 import { type CanvasEditorOptions } from './elementEditor';
+import './QuickPositioning.css';
 
 type Props = {
   onPositionChange: (value: number | undefined, placement: keyof Placement) => void;
@@ -17,8 +17,6 @@ type Props = {
 };
 
 export const QuickPositioning = ({ onPositionChange, element, settings }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const onQuickPositioningChange = (position: QuickPlacement) => {
     const defaultConstraint = { vertical: VerticalConstraint.Top, horizontal: HorizontalConstraint.Left };
     const originalConstraint = { ...element.options.constraint };
@@ -65,25 +63,25 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
   };
 
   return (
-    <div className={styles.buttonGroup}>
+    <div {...stylex.props(styles.buttonGroup)}>
       <IconButton
         name="horizontal-align-left"
         onClick={() => onQuickPositioningChange(QuickPlacement.Left)}
-        className={styles.button}
+        className="gf-canvas-quick-positioning-button"
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-left', 'Align left')}
       />
       <IconButton
         name="horizontal-align-center"
         onClick={() => onQuickPositioningChange(QuickPlacement.HorizontalCenter)}
-        className={styles.button}
+        className="gf-canvas-quick-positioning-button"
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-horizontal-centers', 'Align horizontal centers')}
       />
       <IconButton
         name="horizontal-align-right"
         onClick={() => onQuickPositioningChange(QuickPlacement.Right)}
-        className={styles.button}
+        className="gf-canvas-quick-positioning-button"
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-right', 'Align right')}
       />
@@ -96,14 +94,14 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
       <IconButton
         name="vertical-align-center"
         onClick={() => onQuickPositioningChange(QuickPlacement.VerticalCenter)}
-        className={styles.button}
+        className="gf-canvas-quick-positioning-button"
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-vertical-centers', 'Align vertical centers')}
       />
       <IconButton
         name="vertical-align-bottom"
         onClick={() => onQuickPositioningChange(QuickPlacement.Bottom)}
-        className={styles.button}
+        className="gf-canvas-quick-positioning-button"
         size="lg"
         tooltip={t('canvas.quick-positioning.tooltip-align-bottom', 'Align bottom')}
       />
@@ -111,14 +109,13 @@ export const QuickPositioning = ({ onPositionChange, element, settings }: Props)
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  buttonGroup: css({
+const styles = stylex.create({
+  buttonGroup: {
     display: 'flex',
     flexWrap: 'wrap',
-    padding: '12px 0 12px 0',
-  }),
-  button: css({
-    marginLeft: '5px',
-    marginRight: '5px',
-  }),
+    paddingTop: '12px',
+    paddingRight: 0,
+    paddingBottom: '12px',
+    paddingLeft: 0,
+  },
 });

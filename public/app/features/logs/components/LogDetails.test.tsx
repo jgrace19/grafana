@@ -6,7 +6,6 @@ import {
   LogLevel,
   type LogRowModel,
   MutableDataFrame,
-  createTheme,
   FieldType,
   createDataFrame,
   DataFrameType,
@@ -20,7 +19,6 @@ import { DATAPLANE_LABEL_TYPES_NAME, DATAPLANE_LABELS_NAME } from '../logsFrame'
 
 import { LogDetails, type Props } from './LogDetails';
 import { LOG_LINE_BODY_FIELD_NAME } from './fieldSelector/logFields';
-import { getLogRowStyles } from './getLogRowStyles';
 import { createLogRow } from './mocks/logRow';
 
 jest.mock('@grafana/runtime', () => {
@@ -31,8 +29,6 @@ jest.mock('@grafana/runtime', () => {
 });
 
 const setup = (propOverrides?: Partial<Props>, rowOverrides?: Partial<LogRowModel>) => {
-  const theme = createTheme();
-  const styles = getLogRowStyles(theme);
   const props: Props = {
     displayedFields: [],
     showDuplicates: false,
@@ -43,7 +39,6 @@ const setup = (propOverrides?: Partial<Props>, rowOverrides?: Partial<LogRowMode
     onClickFilterOutLabel: () => {},
     onClickShowField: () => {},
     onClickHideField: () => {},
-    styles,
     app: CoreApp.Explore,
     timeRange: {
       from: dateTime(1757937009041),
