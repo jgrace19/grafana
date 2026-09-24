@@ -186,6 +186,13 @@ const stylexMigratedAppFiles = [
   'public/app/features/dashboard-scene/panel-edit/{PanelDataPane,splitter,testfiles}/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/{rule-editor,expressions,backtesting,create-folder,export,saved-searches}/**/*.{ts,tsx}',
   'public/app/features/alerting/unified/components/notification-policies/{formStyles.ts,EditDefaultPolicyForm.tsx,EditNotificationPolicyForm.tsx}',
+  // L1 logs (LogLineContext and LogRowContextModal keep pending Emotion Modal overrides)
+  'public/app/features/logs/*.{ts,tsx}',
+  'public/app/features/logs/components/*.{ts,tsx}',
+  'public/app/features/logs/components/{fieldSelector,mocks,otel}/**/*.{ts,tsx}',
+  'public/app/features/logs/components/log-context/!(LogRowContextModal).{ts,tsx}',
+  'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
+  'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

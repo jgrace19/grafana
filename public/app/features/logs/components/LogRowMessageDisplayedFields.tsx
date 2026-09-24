@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type ReactNode, useMemo } from 'react';
 
 import { type LogRowModel } from '@grafana/data';
+import { mergeStylexProps } from '@grafana/ui/internal';
 import { type GetFieldLinksFn } from 'app/plugins/panel/logs/types';
 
 import { LogRowMenuCell } from './LogRowMenuCell';
 import { LOG_LINE_BODY_FIELD_NAME } from './fieldSelector/logFields';
-import { type LogRowStyles } from './getLogRowStyles';
+import { logRowStyles } from './getLogRowStyles';
 import { getAllFields } from './logParser';
 
 export interface Props {
@@ -14,7 +15,6 @@ export interface Props {
   detectedFields: string[];
   wrapLogMessage: boolean;
   getFieldLinks?: GetFieldLinksFn;
-  styles: LogRowStyles;
   showContextToggle?: (row: LogRowModel) => boolean;
   onOpenContext: (row: LogRowModel) => void;
   onPermalinkClick?: (row: LogRowModel) => Promise<void>;
@@ -34,7 +34,6 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
     detectedFields,
     getFieldLinks,
     wrapLogMessage,
-    styles,
     mouseIsOver,
     pinned,
     logRowMenuIconsBefore,
@@ -42,7 +41,6 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
     preview,
     ...rest
   } = props;
-  const wrapClassName = wrapLogMessage ? '' : displayedFieldsStyles.noWrap;
   const fields = useMemo(() => getAllFields(row, getFieldLinks), [getFieldLinks, row]);
   // only single key/value rows are filterable, so we only need the first field key for filtering
   const line = useMemo(() => {
@@ -84,15 +82,14 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
 
   return (
     <>
-      <td className={styles.logsRowMessage}>
-        <div className={wrapClassName}>{line}</div>
+      <td {...stylex.props(logRowStyles.logsRowMessage)}>
+        <div {...stylex.props(!wrapLogMessage && styles.noWrap)}>{line}</div>
       </td>
-      <td className={`log-row-menu-cell ${styles.logRowMenuCell}`}>
+      <td {...mergeStylexProps(stylex.props(logRowStyles.logRowMenuCell), { className: 'log-row-menu-cell' })}>
         {shouldShowMenu && (
           <LogRowMenuCell
             logText={line}
             row={row}
-            styles={styles}
             pinned={pinned}
             mouseIsOver={mouseIsOver}
             addonBefore={logRowMenuIconsBefore}
@@ -105,10 +102,10 @@ export const LogRowMessageDisplayedFields = memo((props: Props) => {
   );
 });
 
-const displayedFieldsStyles = {
-  noWrap: css({
-    whiteSpace: 'nowrap',
-  }),
-};
-
 LogRowMessageDisplayedFields.displayName = 'LogRowMessageDisplayedFields';
+
+const styles = stylex.create({
+  noWrap: {
+    whiteSpace: 'nowrap',
+  },
+});

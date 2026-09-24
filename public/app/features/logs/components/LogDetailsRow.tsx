@@ -1,6 +1,5 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
-import memoizeOne from 'memoize-one';
 import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 
@@ -8,7 +7,6 @@ import {
   CoreApp,
   type DataFrame,
   type Field,
-  type GrafanaTheme2,
   type IconName,
   type LinkModel,
   type LogLabelStatsModel,
@@ -16,27 +14,22 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import {
-  ClipboardButton,
-  DataLinkButton,
-  IconButton,
-  type PopoverContent,
-  type Themeable2,
-  Tooltip,
-  withTheme2,
-} from '@grafana/ui';
+import { ClipboardButton, DataLinkButton, IconButton, type PopoverContent, Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { logRowToSingleRowDataFrame } from '../logsModel';
 import { getLabelTypeFromRow } from '../utils';
 
 import { LogLabelStats } from './LogLabelStats';
-import { getLogRowStyles } from './getLogRowStyles';
+import { LOGS_DETAILS_COPY_CLASS, logRowStyles } from './getLogRowStyles';
+import { logDetailsValueMarker } from './markers.stylex';
 
 interface LinkModelWithIcon extends LinkModel<Field> {
   icon?: IconName;
 }
 
-export interface Props extends Themeable2 {
+export interface Props {
   parsedValues: string[];
   parsedKeys: string[];
   disableActions: boolean;
@@ -62,80 +55,7 @@ interface State {
   fieldStats: LogLabelStatsModel[] | null;
 }
 
-const getStyles = memoizeOne((theme: GrafanaTheme2) => {
-  return {
-    labelType: css({
-      border: `solid 1px ${theme.colors.text.secondary}`,
-      color: theme.colors.text.secondary,
-      borderRadius: theme.shape.radius.circle,
-      fontSize: theme.spacing(1),
-      lineHeight: theme.spacing(1.25),
-      height: theme.spacing(1.5),
-      width: theme.spacing(1.5),
-      display: 'flex',
-      justifyContent: 'center',
-      verticalAlign: 'middle',
-      marginLeft: theme.spacing(1),
-    }),
-    wordBreakAll: css({
-      label: 'wordBreakAll',
-      wordBreak: 'break-all',
-    }),
-    copyButton: css({
-      '& > button': {
-        gap: 0,
-        color: theme.colors.text.secondary,
-        padding: 0,
-        justifyContent: 'center',
-        borderRadius: theme.shape.radius.circle,
-        height: theme.spacing(theme.components.height.sm),
-        width: theme.spacing(theme.components.height.sm),
-        svg: {
-          margin: 0,
-        },
-
-        'span > div': {
-          top: '-5px',
-          '& button': {
-            color: theme.colors.success.main,
-          },
-        },
-      },
-    }),
-    adjoiningLinkButton: css({
-      marginLeft: theme.spacing(1),
-    }),
-    wrapLine: css({
-      label: 'wrapLine',
-      whiteSpace: 'pre-wrap',
-    }),
-    logDetailsStats: css({
-      padding: `0 ${theme.spacing(1)}`,
-    }),
-    logDetailsValue: css({
-      display: 'flex',
-      alignItems: 'center',
-      lineHeight: '22px',
-
-      '.log-details-value-copy': {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        '.log-details-value-copy': {
-          visibility: 'visible',
-        },
-      },
-    }),
-    buttonRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-});
-
-class UnThemedLogDetailsRow extends PureComponent<Props, State> {
+export class LogDetailsRow extends PureComponent<Props, State> {
   state: State = {
     showFieldsStats: false,
     fieldCount: 0,
@@ -243,11 +163,8 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
   }
 
   generateClipboardButton(val: string) {
-    const { theme } = this.props;
-    const styles = getStyles(theme);
-
     return (
-      <div className={`log-details-value-copy ${styles.copyButton}`}>
+      <div {...mergeStylexProps(stylex.props(styles.copyButton), { className: LOGS_DETAILS_COPY_CLASS })}>
         <ClipboardButton
           getText={() => val}
           aria-label={t('logs.un-themed-log-details-row.title-copy-value-to-clipboard', 'Copy value to clipboard')}
@@ -281,7 +198,6 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
 
   render() {
     const {
-      theme,
       parsedKeys,
       parsedValues,
       isLabel,
@@ -297,8 +213,6 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
       pinLineButtonTooltipTitle,
     } = this.props;
     const { showFieldsStats, fieldStats, fieldCount } = this.state;
-    const styles = getStyles(theme);
-    const rowStyles = getLogRowStyles(theme);
     const singleKey = parsedKeys == null ? false : parsedKeys.length === 1;
     const singleVal = parsedValues == null ? false : parsedValues.length === 1;
     const hasFilteringFunctionality = !disableActions && onClickFilterLabel && onClickFilterOutLabel;
@@ -329,9 +243,9 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
 
     return (
       <>
-        <tr className={rowStyles.logDetailsValue}>
-          <td className={rowStyles.logsDetailsIcon}>
-            <div className={styles.buttonRow}>
+        <tr {...stylex.props(logRowStyles.logDetailsValue)}>
+          <td {...stylex.props(logRowStyles.logsDetailsIcon)}>
+            <div {...stylex.props(styles.buttonRow)}>
               {hasFilteringFunctionality && (
                 <>
                   <AsyncIconButton
@@ -368,14 +282,16 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
             </div>
           </td>
 
-          <td>{labelType && <LabelTypeBadge type={labelType} styles={styles} />}</td>
+          <td>{labelType && <LabelTypeBadge type={labelType} />}</td>
           {/* Key - value columns */}
-          <td className={rowStyles.logDetailsLabel}>{singleKey ? parsedKeys[0] : this.generateMultiVal(parsedKeys)}</td>
-          <td className={cx(styles.wordBreakAll, wrapLogMessage && styles.wrapLine)}>
-            <div className={styles.logDetailsValue}>
+          <td {...stylex.props(logRowStyles.logDetailsLabel)}>
+            {singleKey ? parsedKeys[0] : this.generateMultiVal(parsedKeys)}
+          </td>
+          <td {...stylex.props(styles.wordBreakAll, wrapLogMessage && styles.wrapLine)}>
+            <div {...stylex.props(styles.logDetailsValue, logDetailsValueMarker)}>
               {singleVal ? parsedValues[0] : this.generateMultiVal(parsedValues, true)}
               {singleVal && this.generateClipboardButton(parsedValues[0])}
-              <div className={cx((singleVal || isMultiParsedValueWithNoContent) && styles.adjoiningLinkButton)}>
+              <div {...stylex.props((singleVal || isMultiParsedValueWithNoContent) && styles.adjoiningLinkButton)}>
                 {links?.map((link, i) => {
                   if (link.onClick && onPinLine) {
                     const originalOnClick = link.onClick;
@@ -420,7 +336,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
               />
             </td>
             <td colSpan={2}>
-              <div className={styles.logDetailsStats}>
+              <div {...stylex.props(styles.logDetailsStats)}>
                 <LogLabelStats
                   stats={fieldStats!}
                   label={parsedKeys[0]}
@@ -437,10 +353,10 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
   }
 }
 
-function LabelTypeBadge({ type, styles }: { type: string; styles: ReturnType<typeof getStyles> }) {
+function LabelTypeBadge({ type }: { type: string }) {
   return (
     <Tooltip content={type}>
-      <div className={styles.labelType}>
+      <div {...stylex.props(styles.labelType)}>
         <span>{type.substring(0, 1)}</span>
       </div>
     </Tooltip>
@@ -464,5 +380,49 @@ const AsyncIconButton = ({ isActive, tooltipSuffix, ...rest }: AsyncIconButtonPr
   return <IconButton {...rest} variant={active ? 'primary' : undefined} tooltip={tooltip + tooltipSuffix} />;
 };
 
-export const LogDetailsRow = withTheme2(UnThemedLogDetailsRow);
-LogDetailsRow.displayName = 'LogDetailsRow';
+const styles = stylex.create({
+  labelType: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-text-secondary'],
+    color: colors['--gf-colors-text-secondary'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    fontSize: spacing['--gf-spacing-x1'],
+    lineHeight: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+    display: 'flex',
+    justifyContent: 'center',
+    verticalAlign: 'middle',
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  wordBreakAll: {
+    wordBreak: 'break-all',
+  },
+  copyButton: {
+    visibility: { default: 'hidden', [stylex.when.ancestor(':hover', logDetailsValueMarker)]: 'visible' },
+  },
+  adjoiningLinkButton: {
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  wrapLine: {
+    whiteSpace: 'pre-wrap',
+  },
+  logDetailsStats: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  logDetailsValue: {
+    display: 'flex',
+    alignItems: 'center',
+    lineHeight: '22px',
+  },
+  buttonRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

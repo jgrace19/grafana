@@ -1,20 +1,21 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { parse, stringify } from 'lossless-json';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   CoreApp,
   type Field,
   fuzzySearch,
-  type GrafanaTheme2,
   type IconName,
   type LinkModel,
   type LogLabelStatsModel,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { ClipboardButton, DataLinkButton, IconButton, type IconSize, useStyles2 } from '@grafana/ui';
+import { ClipboardButton, DataLinkButton, IconButton, type IconSize } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { logRowToSingleRowDataFrame } from '../../logsModel';
 import { calculateLogsLabelStats, calculateStats } from '../../utils';
@@ -23,9 +24,9 @@ import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from '../fieldSelector/logFields'
 import { type FieldDef } from '../logParser';
 
 import { useLogDetailsContext } from './LogDetailsContext';
-import { type LogListFontSize } from './LogList';
 import { useLogListContext } from './LogListContext';
 import { type LogListModel, getNormalizedFieldName } from './processing';
+import './LogLineDetailsFields.css';
 
 interface LogLineDetailsFieldsProps {
   disableActions?: boolean;
@@ -37,7 +38,6 @@ interface LogLineDetailsFieldsProps {
 
 export const LogLineDetailsFields = memo(({ disableActions, fields, log, logs, search }: LogLineDetailsFieldsProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
   const getLogs = useCallback(() => logs, [logs]);
   const filteredFields = useMemo(() => (search ? filterFields(fields, search) : fields), [fields, search]);
 
@@ -48,7 +48,17 @@ export const LogLineDetailsFields = memo(({ disableActions, fields, log, logs, s
   }
 
   return (
-    <div className={disableActions ? styles.fieldsTableNoActions : styles.fieldsTable}>
+    <div
+      {...stylex.props(
+        tableStyles.table,
+        fontSize === 'small' ? tableStyles.gapSmall : tableStyles.gap,
+        disableActions
+          ? tableStyles.columnsNoActions
+          : fontSize === 'small'
+            ? tableStyles.columnsSmall
+            : tableStyles.columns
+      )}
+    >
       {filteredFields.map((field, i) => (
         <LogLineDetailsField
           key={`${field.keys[0]}=${field.values[0]}-${i}`}
@@ -85,7 +95,6 @@ interface LogLineDetailsLabelFieldsProps {
 
 export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLineDetailsLabelFieldsProps) => {
   const { fontSize } = useLogListContext();
-  const styles = useStyles2(getFieldsStyles, fontSize);
   const getLogs = useCallback(() => logs, [logs]);
   const filteredFields = useMemo(() => (search ? filterLabels(fields, search) : fields), [fields, search]);
 
@@ -96,7 +105,13 @@ export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLine
   }
 
   return (
-    <div className={styles.fieldsTable}>
+    <div
+      {...stylex.props(
+        tableStyles.table,
+        fontSize === 'small' ? tableStyles.gapSmall : tableStyles.gap,
+        fontSize === 'small' ? tableStyles.columnsSmall : tableStyles.columns
+      )}
+    >
       {filteredFields.map((field, i) => (
         <LogLineDetailsField
           key={`${field.key}=${field.value}-${i}`}
@@ -111,19 +126,6 @@ export const LogLineDetailsLabelFields = ({ fields, log, logs, search }: LogLine
     </div>
   );
 };
-
-const getFieldsStyles = (theme: GrafanaTheme2, fontSize: LogListFontSize) => ({
-  fieldsTable: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `${fontSize === 'small' ? theme.spacing(10) : theme.spacing(11.5)} fit-content(30%) 1fr`,
-  }),
-  fieldsTableNoActions: css({
-    display: 'grid',
-    gap: fontSize === 'small' ? theme.spacing(0.25, 0.5) : theme.spacing(0.5, 1),
-    gridTemplateColumns: `auto 1fr`,
-  }),
-});
 
 interface LogLineDetailsFieldProps {
   keys: string[];
@@ -164,8 +166,6 @@ export const LogLineDetailsField = ({
     prettifyJSON,
   } = useLogListContext();
   const { closeDetails } = useLogDetailsContext();
-
-  const styles = useStyles2(getFieldStyles);
 
   const getStats = useCallback(() => {
     if (isLabel) {
@@ -276,10 +276,10 @@ export const LogLineDetailsField = ({
 
   return (
     <>
-      <div className={styles.row}>
+      <div {...stylex.props(styles.row)}>
         {!disableActions && (
-          <div className={styles.actions}>
-            <div className={styles.actionIcons}>
+          <div {...stylex.props(styles.actions)}>
+            <div {...stylex.props(styles.actionIcons)}>
               {onClickFilterLabel && fieldSupportsFilters && (
                 <AsyncIconButton
                   name="search-plus"
@@ -329,18 +329,19 @@ export const LogLineDetailsField = ({
                 name="signal"
                 size={fontSize === 'small' ? 'sm' : undefined}
                 tooltip={t('logs.log-line-details.fields.adhoc-statistics', 'Ad-hoc statistics')}
-                className={styles.statsIcon}
+                className={stylex.props(styles.statsIcon).className}
+                style={statsIconStyle}
                 disabled={!singleKey}
                 onClick={showStats}
               />
             </div>
           </div>
         )}
-        <div className={styles.label}>
+        <div {...stylex.props(styles.label)}>
           {singleKey ? getNormalizedFieldName(keys[0]) : <MultipleValue values={keys} />}
         </div>
-        <div className={styles.value}>
-          <div className={styles.valueContainer}>
+        <div {...mergeStylexProps(stylex.props(styles.value), { className: 'gf-log-line-details-value' })}>
+          <div {...stylex.props(styles.valueContainer)}>
             {singleValue ? (
               <SingleValue value={values[0]} prettifyJSON={prettifyJSON} />
             ) : (
@@ -363,8 +364,8 @@ export const LogLineDetailsField = ({
           };
         }
         return (
-          <div className={styles.row} key={`${link.title}-${i}`}>
-            <div className={disableActions ? styles.linkNoActions : styles.link}>
+          <div {...stylex.props(styles.row)} key={`${link.title}-${i}`}>
+            <div {...stylex.props(disableActions ? styles.linkNoActions : styles.link)}>
               <DataLinkButton
                 buttonProps={{
                   // Show tooltip message if max number of pinned lines has been reached
@@ -383,10 +384,10 @@ export const LogLineDetailsField = ({
         );
       })}
       {showFieldsStats && fieldStats && (
-        <div className={styles.row}>
-          <div className={disableActions ? undefined : styles.statsColumn}>
+        <div {...stylex.props(styles.row)}>
+          <div {...stylex.props(!disableActions && styles.statsColumn)}>
             <LogLabelStats
-              className={styles.stats}
+              xstyle={styles.stats}
               stats={fieldStats}
               label={keys[0]}
               value={values[0]}
@@ -400,69 +401,9 @@ export const LogLineDetailsField = ({
   );
 };
 
-const getFieldStyles = (theme: GrafanaTheme2) => ({
-  row: css({
-    display: 'contents',
-  }),
-  actions: css({
-    whiteSpace: 'nowrap',
-  }),
-  actionIcons: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingRight: 2,
-  }),
-  statsIcon: css({
-    margin: 0,
-    paddingRight: 4,
-  }),
-  label: css({
-    paddingRight: theme.spacing(1),
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-  }),
-  value: css({
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-    button: {
-      visibility: 'hidden',
-    },
-    '&:hover': {
-      button: {
-        visibility: 'visible',
-      },
-    },
-  }),
-  link: css({
-    gridColumn: '2 / 4',
-  }),
-  linkNoActions: css({
-    gridColumn: 'span 2',
-    paddingBottom: theme.spacing(0.5),
-  }),
-  stats: css({
-    paddingRight: theme.spacing(1),
-    wordBreak: 'break-all',
-    width: '100%',
-    maxWidth: '50vh',
-  }),
-  statsColumn: css({
-    gridColumn: '2 / 4',
-  }),
-  valueContainer: css({
-    display: 'flex',
-    lineHeight: theme.typography.body.lineHeight,
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    maxHeight: '50vh',
-    overflow: 'auto',
-  }),
-});
-
 const ClipboardButtonWrapper = ({ value }: { value: string }) => {
-  const styles = useStyles2(getClipboardButtonStyles);
   return (
-    <div className={styles.button}>
+    <div className="gf-log-line-details-copy">
       <ClipboardButton
         getText={() => value}
         aria-label={t('logs.log-line-details.fields.copy-value-to-clipboard', 'Copy value to clipboard')}
@@ -474,30 +415,6 @@ const ClipboardButtonWrapper = ({ value }: { value: string }) => {
     </div>
   );
 };
-
-const getClipboardButtonStyles = (theme: GrafanaTheme2) => ({
-  button: css({
-    '& > button': {
-      color: theme.colors.text.secondary,
-      gap: 0,
-      padding: 0,
-      justifyContent: 'center',
-      borderRadius: theme.shape.radius.circle,
-      height: theme.spacing(theme.components.height.sm),
-      width: theme.spacing(theme.components.height.sm),
-      svg: {
-        margin: 0,
-      },
-
-      'span > div': {
-        top: '-5px',
-        '& button': {
-          color: theme.colors.success.main,
-        },
-      },
-    },
-  }),
-});
 
 export const MultipleValue = ({ showCopy, values = [] }: { showCopy?: boolean; values: string[] }) => {
   if (values.every((val) => val === '')) {
@@ -590,3 +507,82 @@ function filterLabels(labels: LabelWithLinks[], search: string) {
 
   return results;
 }
+
+// IconButton has no xstyle and sets its own right margin, which a class from another stylex.props() call can't
+// reliably override.
+const statsIconStyle: CSSProperties = { margin: 0 };
+
+const tableStyles = stylex.create({
+  table: {
+    display: 'grid',
+  },
+  gap: {
+    rowGap: spacing['--gf-spacing-x0-5'],
+    columnGap: spacing['--gf-spacing-x1'],
+  },
+  gapSmall: {
+    rowGap: spacing['--gf-spacing-x0-25'],
+    columnGap: spacing['--gf-spacing-x0-5'],
+  },
+  columns: {
+    gridTemplateColumns: `calc(${spacing['--gf-spacing-grid-size']} * 11.5) fit-content(30%) 1fr`,
+  },
+  columnsSmall: {
+    gridTemplateColumns: `calc(${spacing['--gf-spacing-grid-size']} * 10) fit-content(30%) 1fr`,
+  },
+  columnsNoActions: {
+    gridTemplateColumns: 'auto 1fr',
+  },
+});
+
+const styles = stylex.create({
+  row: {
+    display: 'contents',
+  },
+  actions: {
+    whiteSpace: 'nowrap',
+  },
+  actionIcons: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingRight: 2,
+  },
+  statsIcon: {
+    paddingRight: 4,
+  },
+  label: {
+    paddingRight: spacing['--gf-spacing-x1'],
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
+  },
+  value: {
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
+  },
+  link: {
+    gridColumnEnd: '4',
+    gridColumnStart: '2',
+  },
+  linkNoActions: {
+    gridColumn: 'span 2',
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+  },
+  stats: {
+    paddingRight: spacing['--gf-spacing-x1'],
+    wordBreak: 'break-all',
+    width: '100%',
+    maxWidth: '50vh',
+  },
+  statsColumn: {
+    gridColumnEnd: '4',
+    gridColumnStart: '2',
+  },
+  valueContainer: {
+    display: 'flex',
+    lineHeight: typography['--gf-typography-body-line-height'],
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    maxHeight: '50vh',
+    overflow: 'auto',
+  },
+});
