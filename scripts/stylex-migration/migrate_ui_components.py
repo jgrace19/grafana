@@ -11,6 +11,10 @@ COMPONENTS = ROOT / "packages/grafana-ui/src/components"
 
 SKIP_FILES = {
     "ThemeDemos/EmotionPerfTest.tsx",
+    "Forms/Label.tsx",
+    "transitions/FadeTransition.tsx",
+    "transitions/SlideOutTransition.tsx",
+    "Icon/Icon.tsx",
 }
 
 SKIP_SUFFIX = (".story.tsx", ".mdx", ".test.tsx", ".stylex.ts")

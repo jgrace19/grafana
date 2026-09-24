@@ -1,6 +1,4 @@
 
-import { css } from '@emotion/css';
-
 import { dataLinksContextMenuStyleProps } from './DataLinksContextMenu.stylex';
 
 import { type CSSProperties, type JSX } from 'react';
@@ -56,9 +54,7 @@ export const DataLinksContextMenu = ({ children, links, style }: DataLinksContex
   };
 
   // Use this class name (exposed via render prop) to add context menu indicator to the click target of the visualization
-  const targetClassName = css({
-    cursor: 'context-menu',
-  });
+  const targetClassName = dataLinksContextMenuStyleProps('target').className;
 
   if (linksCounter > 1) {
     return (

@@ -1,6 +1,3 @@
-import { css } from '@emotion/css';
-import clsx from 'clsx';
-
 import { tagsInputStyleProps } from './TagsInput.stylex';
 
 import { useCallback, useState, forwardRef } from 'react';
@@ -8,6 +5,7 @@ import * as React from 'react';
 
 import { t, Trans } from '@grafana/i18n';
 
+import { mergeStylexClassName } from '../../themes/stylex/mergeClassNames';
 import { useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
@@ -90,7 +88,10 @@ export const TagsInput = forwardRef<HTMLInputElement, Props>(
     };
 
     return (
-      <div className={clsx(tagsInputStyleProps('wrapper'), className, width ? css({ width: theme.spacing(width) }) : '')}>
+      <div
+        {...mergeStylexClassName(tagsInputStyleProps('wrapper'), className)}
+        style={width ? { width: theme.spacing(width) } : undefined}
+      >
         <Input
           ref={ref}
           id={id}

@@ -1,11 +1,28 @@
-import { css } from '@emotion/css';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import * as React from 'react';
+import * as stylex from '@stylexjs/stylex';
 import { CSSTransition } from 'react-transition-group';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+const fadeStyles = stylex.create({
+  enter: { opacity: 0 },
+  enterActive: {
+    opacity: 1,
+    '@media (prefers-reduced-motion: no-preference)': {
+      transitionProperty: 'opacity',
+      transitionDuration: 'var(--fade-transition-ms, 250ms)',
+      transitionTimingFunction: 'ease-out',
+    },
+  },
+  exit: { opacity: 1 },
+  exitActive: {
+    opacity: 0,
+    '@media (prefers-reduced-motion: no-preference)': {
+      transitionProperty: 'opacity',
+      transitionDuration: 'var(--fade-transition-ms, 250ms)',
+      transitionTimingFunction: 'ease-out',
+    },
+  },
+});
 
 type Props = {
   children: React.ReactElement<Record<string, unknown>>;
@@ -15,44 +32,35 @@ type Props = {
 
 export function FadeTransition(props: Props) {
   const { visible, children, duration = 250 } = props;
-  const styles = useStyles2(getStyles, duration);
   const transitionRef = useRef(null);
+  const classNames = useMemo(
+    () => ({
+      enter: stylex.props(fadeStyles.enter).className ?? '',
+      enterActive: stylex.props(fadeStyles.enterActive).className ?? '',
+      exit: stylex.props(fadeStyles.exit).className ?? '',
+      exitActive: stylex.props(fadeStyles.exitActive).className ?? '',
+    }),
+    []
+  );
+
+  const child = React.cloneElement(children, {
+    ref: transitionRef,
+    style: {
+      ...(children.props.style as object),
+      ['--fade-transition-ms' as string]: `${duration}ms`,
+    },
+  });
 
   return (
     <CSSTransition
       in={visible}
-      mountOnEnter={true}
-      unmountOnExit={true}
+      mountOnEnter
+      unmountOnExit
       timeout={duration}
-      classNames={styles}
+      classNames={classNames}
       nodeRef={transitionRef}
     >
-      {React.cloneElement(children, { ref: transitionRef })}
+      {child}
     </CSSTransition>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2, duration: number) => ({
-  enter: css({
-    label: 'enter',
-    opacity: 0,
-  }),
-  enterActive: css({
-    label: 'enterActive',
-    opacity: 1,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: `opacity ${duration}ms ease-out`,
-    },
-  }),
-  exit: css({
-    label: 'exit',
-    opacity: 1,
-  }),
-  exitActive: css({
-    label: 'exitActive',
-    opacity: 0,
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: `opacity ${duration}ms ease-out`,
-    },
-  }),
-});
