@@ -14,7 +14,6 @@ const readSheet = (file: string) =>
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/'[^']*'|"[^"]*"/g, "''");
 const layered = readSheet('GlobalStyles.global.css');
-const unlayered = readSheet('formFieldState.css');
 
 /** Preludes of the top-level blocks (`@layer x`, `.selector`) of a comment- and string-free sheet. */
 function topLevelPreludes(css: string) {
@@ -49,18 +48,16 @@ describe('GlobalStyles.global.css', () => {
     expect(new Set(preludes)).toEqual(new Set(['@layer grafana-global']));
   });
 
-  it('leaves the disabled/read-only form field rules unlayered', () => {
-    const preludes = topLevelPreludes(unlayered);
-
-    expect(preludes.some((prelude) => prelude.startsWith('@layer'))).toBe(false);
-    expect(preludes.join(',')).toContain('input[readonly]');
+  it('layers the disabled/read-only form field rules like every other global rule', () => {
+    // Every top-level block of this sheet is a grafana-global layer (see the test above).
+    expect(layered).toMatch(/input\[disabled\],\s*select\[disabled\],\s*textarea\[disabled\],\s*input\[readonly\]/);
   });
 
   it.each(['dark', 'light', 'debug', 'matrix'])('only references custom properties the %s theme defines', (id) => {
     const theme = getThemeById(id);
     const defined = new Set([...Object.keys(themeToCssVars(theme)), ...Object.keys(getGlobalThemeVars(theme))]);
 
-    for (const name of [...usedVars(layered), ...usedVars(unlayered)]) {
+    for (const name of usedVars(layered)) {
       expect(defined).toContain(name);
     }
   });

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLProps, useEffect } from 'react';
 import * as React from 'react';
 import { useForm, type Mode, type DefaultValues, type SubmitHandler, type FieldValues } from 'react-hook-form';
 
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { type FormAPI } from '../../types/forms';
 
 interface FormProps<T extends FieldValues> extends Omit<HTMLProps<HTMLFormElement>, 'onSubmit' | 'children'> {
@@ -29,6 +30,7 @@ export function Form<T extends FieldValues>({
   children,
   validateOn = 'onSubmit',
   maxWidth = 600,
+  style,
   ...htmlProps
 }: FormProps<T>) {
   const { handleSubmit, trigger, formState, ...rest } = useForm<T>({
@@ -45,10 +47,12 @@ export function Form<T extends FieldValues>({
 
   return (
     <form
-      className={css({
-        maxWidth: maxWidth !== 'none' ? maxWidth + 'px' : maxWidth,
-        width: '100%',
-      })}
+      {...mergeStylexProps(
+        stylex.props(styles.form, styles.maxWidth(maxWidth !== 'none' ? maxWidth + 'px' : maxWidth)),
+        {
+          style,
+        }
+      )}
       onSubmit={handleSubmit(onSubmit)}
       {...htmlProps}
     >
@@ -56,3 +60,10 @@ export function Form<T extends FieldValues>({
     </form>
   );
 }
+
+const styles = stylex.create({
+  form: {
+    width: '100%',
+  },
+  maxWidth: (maxWidth: string) => ({ maxWidth }),
+});

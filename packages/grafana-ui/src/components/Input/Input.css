@@ -1,0 +1,18 @@
+/*
+ * Input styles the elements passed as addons, which StyleX can't target. This file is deliberately not in a
+ * cascade layer: like the Emotion rules it replaces, it must win over the addons' own (StyleX or Emotion) styles.
+ */
+.gf-input-addon:first-child > :last-child {
+  border-top-right-radius: unset;
+  border-bottom-right-radius: unset;
+}
+
+.gf-input-addon:last-child > :first-child {
+  border-top-left-radius: unset;
+  border-bottom-left-radius: unset;
+}
+
+/* Anything focused in an addon sits above the input. */
+.gf-input-addon > *:focus {
+  z-index: 2;
+}

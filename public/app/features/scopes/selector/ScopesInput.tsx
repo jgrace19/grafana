@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { getInputStyles, Icon, LinkButton, Spinner, Tooltip, useStyles2, Text, Stack } from '@grafana/ui';
-import { getFocusStyles } from '@grafana/ui/internal';
+import { Icon, LinkButton, Spinner, Tooltip, Text, Stack, useTheme2 } from '@grafana/ui';
+import { inputBorderStyles, inputStyles } from '@grafana/ui/internal';
+import { colors, components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getPathOfNode } from './scopesTreeUtils';
 import { type NodesMap, type ScopesMap, type SelectedScope } from './types';
@@ -33,7 +33,7 @@ export function ScopesInput({
 }: ScopesInputProps) {
   const firstScope = appliedScopes[0];
   const scope = scopes[firstScope?.scopeId];
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   // Prefer scopeNodeId from defaultPath if available (most reliable source)
   let scopeNodeId: string | undefined;
@@ -93,7 +93,7 @@ export function ScopesInput({
     <Tooltip content={tooltipContent} interactive>
       <button
         type="button"
-        className={styles.fakeInput}
+        {...stylex.props(inputStyles.input, inputBorderStyles[theme.isDark ? 'dark' : 'light'], styles.fakeInput)}
         disabled={disabled}
         onClick={onClick}
         aria-label={placeholderText}
@@ -101,17 +101,17 @@ export function ScopesInput({
         data-value={scopesTitles}
       >
         {loading && (
-          <div className={styles.prefix}>
+          <div {...stylex.props(inputStyles.prefixSuffix, inputStyles.prefix)}>
             <Spinner />
           </div>
         )}
-        <span className={styles.text}>
+        <span {...stylex.props(styles.text)}>
           {!scopesTitles && !loading && <Text color="secondary">{placeholderText}</Text>}
-          {!isLoadingTitle && displayTitle && <span className={styles.parentNode}>{displayTitle}</span>}
+          {!isLoadingTitle && displayTitle && <span {...stylex.props(styles.parentNode)}>{displayTitle}</span>}
           {scopesTitles && <span>{scopesTitles}</span>}
         </span>
 
-        <div className={styles.suffix}>
+        <div {...stylex.props(inputStyles.prefixSuffix, inputStyles.suffix)}>
           <Icon name="angle-down" />
         </div>
       </button>
@@ -195,54 +195,42 @@ function ScopesTooltip({ nodes, scopes, appliedScopes, onRemoveAllClick, disable
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const baseStyles = getInputStyles({ theme });
-
-  return {
-    prefix: baseStyles.prefix,
-    suffix: baseStyles.suffix,
-    fakeInput: css([
-      baseStyles.input,
-      {
-        width: 'auto',
-        minWidth: 60,
-        height: theme.spacing(theme.components.height.md),
-        maxWidth: '40%',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        textAlign: 'left',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        paddingRight: 28,
-        flexGrow: 0,
-
-        '&:disabled': cx(
-          baseStyles.inputDisabled,
-          css({
-            cursor: 'not-allowed',
-          })
-        ),
-
-        // We want the focus styles to appear only when tabbing through, not when clicking the button
-        // (and when focus is restored after command palette closes)
-        '&:focus': {
-          outline: 'unset',
-          boxShadow: 'unset',
-        },
-
-        '&:focus-visible': getFocusStyles(theme),
+// Input's look on a button. The focus ring only shows when tabbing through, not when clicking the button (and not
+// when focus is restored after the command palette closes).
+const styles = stylex.create({
+  fakeInput: {
+    width: 'auto',
+    minWidth: 60,
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    maxWidth: '40%',
+    display: 'flex',
+    alignItems: 'center',
+    textAlign: 'left',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    paddingRight: 28,
+    flexGrow: 0,
+    boxShadow: {
+      default: null,
+      ':focus': {
+        default: 'unset',
+        ':focus-visible': `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`,
       },
-    ]),
-    text: css({
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-    }),
-    parentNode: css({
-      marginRight: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      color: theme.colors.text.secondary,
-    }),
-  };
-};
+    },
+    outlineStyle: { default: null, ':focus': { default: 'none', ':focus-visible': 'dotted' } },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineColor: { default: null, ':focus-visible': 'transparent' },
+  },
+  text: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
+  parentNode: {
+    marginRight: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

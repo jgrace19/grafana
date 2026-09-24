@@ -1,9 +1,8 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { cloneElement, type ReactNode, useId } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { getChildId } from '../../utils/reactUtils';
 import { type PopoverContent } from '../Tooltip/types';
 
@@ -54,8 +53,6 @@ export const InlineField = ({
   validationMessageHorizontalOverflow,
   ...htmlProps
 }: Props) => {
-  const theme = useTheme2();
-  const styles = getStyles(theme, grow, shrink);
   const inputId = htmlFor ?? getChildId(children);
   const useFieldset = children.type === RadioButtonGroup;
   const labelId = useId();
@@ -80,15 +77,19 @@ export const InlineField = ({
   const Wrapper = useFieldset ? 'fieldset' : 'div';
 
   return (
-    <Wrapper className={cx(styles.container, className)} {...htmlProps}>
+    <Wrapper
+      {...mergeStylexProps(stylex.props(styles.container, grow && styles.grow, shrink && styles.shrink), { className })}
+      {...htmlProps}
+    >
       {labelElement}
-      <div className={styles.childContainer}>
+      <div {...stylex.props(styles.childContainer, grow && styles.grow, shrink && styles.shrink)}>
         {cloneElement(children, { invalid, disabled, loading, 'aria-labelledby': useFieldset ? labelId : undefined })}
         {invalid && error && (
           <div
-            className={cx(styles.fieldValidationWrapper, {
-              [styles.validationMessageHorizontalOverflow]: !!validationMessageHorizontalOverflow,
-            })}
+            {...stylex.props(
+              styles.fieldValidationWrapper,
+              validationMessageHorizontalOverflow && styles.validationMessageHorizontalOverflow
+            )}
           >
             <FieldValidationMessage>{error}</FieldValidationMessage>
           </div>
@@ -100,30 +101,39 @@ export const InlineField = ({
 
 InlineField.displayName = 'InlineField';
 
-const getStyles = (theme: GrafanaTheme2, grow?: boolean, shrink?: boolean) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      position: 'relative',
-      flex: `${grow ? 1 : 0} ${shrink ? 1 : 0} auto`,
-      margin: `0 ${theme.spacing(0.5)} ${theme.spacing(0.5)} 0`,
-    }),
-    childContainer: css({
-      flex: `${grow ? 1 : 0} ${shrink ? 1 : 0} auto`,
-    }),
-    fieldValidationWrapper: css({
-      marginTop: theme.spacing(0.5),
-    }),
-    validationMessageHorizontalOverflow: css({
-      width: 0,
-      overflowX: 'visible',
-
-      '& > *': {
-        whiteSpace: 'nowrap',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    position: 'relative',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: 0,
+  },
+  childContainer: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  shrink: {
+    flexShrink: 1,
+  },
+  fieldValidationWrapper: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+  validationMessageHorizontalOverflow: {
+    width: 0,
+    overflowX: 'visible',
+    // white-space inherits, so this reaches the validation message the Emotion `& > *` rule targeted.
+    whiteSpace: 'nowrap',
+  },
+});

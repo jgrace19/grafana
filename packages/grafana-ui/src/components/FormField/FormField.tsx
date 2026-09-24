@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type InputHTMLAttributes, useId } from 'react';
 import * as React from 'react';
 
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { InlineFormLabel } from '../FormLabel/FormLabel';
 import { Field } from '../Forms/Field';
 import { InlineField } from '../Forms/InlineField';
@@ -37,10 +38,9 @@ export const FormField = ({
   interactive,
   ...inputProps
 }: Props) => {
-  const styles = getStyles();
   const id = useId();
   return (
-    <div className={cx(styles.formField, className)}>
+    <div {...mergeStylexProps(stylex.props(styles.formField), { className })}>
       <InlineFormLabel htmlFor={id} width={labelWidth} tooltip={tooltip} interactive={interactive}>
         {label}
       </InlineFormLabel>
@@ -59,14 +59,12 @@ export const FormField = ({
 
 FormField.displayName = 'FormField';
 
-const getStyles = () => {
-  return {
-    formField: css({
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      textAlign: 'left',
-      position: 'relative',
-    }),
-  };
-};
+const styles = stylex.create({
+  formField: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    position: 'relative',
+  },
+});

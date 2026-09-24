@@ -4,14 +4,12 @@ import { useTheme2 } from '../ThemeContext';
 import { useRootCssVars, useRootThemeVars } from '../stylex/ThemeVars';
 
 import './GlobalStyles.global.css';
-import './formFieldState.css';
 import { registerFonts } from './fonts';
 import { getGlobalThemeVars } from './globalThemeVars';
 
 /**
- * Global element styles (static CSS in `@layer grafana-global`, below StyleX and unlayered component CSS; the
- * form field state rules in formFieldState.css stay unlayered) plus the theme's `--gf-*` custom properties on
- * `<html>` and Grafana's web fonts.
+ * Global element styles (static CSS in `@layer grafana-global`, below StyleX and unlayered component CSS) plus
+ * the theme's `--gf-*` custom properties on `<html>` and Grafana's web fonts.
  *
  * @internal
  */

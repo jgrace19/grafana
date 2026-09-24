@@ -235,7 +235,7 @@ export { RangeSlider } from './components/Slider/RangeSlider';
 
 // Next-gen forms
 export { Form } from './components/Forms/Form';
-export { sharedInputStyle } from './components/Forms/commonStyles';
+export { sharedInputStyle } from './compat/emotion/commonStyles';
 export { InputControl } from './components/InputControl';
 export { Button, LinkButton, type ButtonVariant, type ButtonProps } from './components/Button/Button';
 export { clearButtonStyles } from './compat/emotion/buttonStyles';
@@ -287,7 +287,8 @@ export { RadioButtonGroup } from './components/Forms/RadioButtonGroup/RadioButto
 export { RadioButtonDot } from './components/Forms/RadioButtonList/RadioButtonDot';
 export { RadioButtonList } from './components/Forms/RadioButtonList/RadioButtonList';
 
-export { Input, getInputStyles } from './components/Input/Input';
+export { Input } from './components/Input/Input';
+export { getInputStyles } from './compat/emotion/inputStyles';
 export { AutoSizeInput } from './components/Input/AutoSizeInput';
 export { FilterInput } from './components/FilterInput/FilterInput';
 export type { FormInputSize } from './components/Forms/types';

@@ -914,6 +914,22 @@
   input[type='checkbox'] {
     width: auto;
   }
+  input[disabled],
+  select[disabled],
+  textarea[disabled],
+  input[readonly],
+  select[readonly],
+  textarea[readonly] {
+    cursor: not-allowed;
+    background-color: var(--gf-colors-action-disabled-background);
+  }
+  input[type='radio'][disabled],
+  input[type='checkbox'][disabled],
+  input[type='radio'][readonly],
+  input[type='checkbox'][readonly] {
+    cursor: not-allowed;
+    background-color: transparent;
+  }
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,

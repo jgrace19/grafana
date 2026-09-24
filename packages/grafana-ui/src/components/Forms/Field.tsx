@@ -1,14 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { getChildId } from '../../utils/reactUtils';
 
 import { FieldValidationMessage } from './FieldValidationMessage';
-import { Label, getLabelStyles } from './Label';
+import { Label, labelStyles } from './Label';
 import { RadioButtonGroup } from './RadioButtonGroup/RadioButtonGroup';
 
 export interface FieldProps extends HTMLAttributes<HTMLElement> {
@@ -69,8 +68,6 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     }: FieldProps,
     ref
   ) => {
-    const styles = useStyles2(getFieldStyles, noMargin);
-    const labelStyles = useStyles2(getLabelStyles);
     const useFieldset = children.type === RadioButtonGroup;
     const label = typeof labelProp === 'string' ? `${labelProp}${required ? ' *' : ''}` : labelProp;
     const inputId = htmlFor ?? getChildId(children);
@@ -80,9 +77,9 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     if (typeof label === 'string') {
       if (useFieldset) {
         labelElement = (
-          <legend className={labelStyles.label}>
-            <div className={labelStyles.labelContent}>{label}</div>
-            {description && <span className={labelStyles.description}>{description}</span>}
+          <legend {...stylex.props(labelStyles.label)}>
+            <div {...stylex.props(labelStyles.labelContent)}>{label}</div>
+            {description && <span {...stylex.props(labelStyles.description)}>{description}</span>}
           </legend>
         );
       } else {
@@ -97,15 +94,24 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     const childProps = deleteUndefinedProps({ invalid, disabled, loading });
     const Wrapper = useFieldset ? 'fieldset' : 'div';
     return (
-      <Wrapper className={cx(styles.field, horizontal && styles.fieldHorizontal, className)} {...otherProps}>
+      <Wrapper
+        {...mergeStylexProps(
+          stylex.props(styles.field, noMargin && styles.noMargin, horizontal && styles.fieldHorizontal),
+          {
+            className,
+          }
+        )}
+        {...otherProps}
+      >
         {labelElement}
         <div>
           <div ref={ref}>{React.cloneElement(children, children.type !== React.Fragment ? childProps : undefined)}</div>
           {invalid && error && !horizontal && (
             <div
-              className={cx(styles.fieldValidationWrapper, {
-                [styles.validationMessageHorizontalOverflow]: !!validationMessageHorizontalOverflow,
-              })}
+              {...stylex.props(
+                styles.fieldValidationWrapper,
+                validationMessageHorizontalOverflow && styles.validationMessageHorizontalOverflow
+              )}
             >
               <FieldValidationMessage>{error}</FieldValidationMessage>
             </div>
@@ -114,9 +120,11 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
 
         {invalid && error && horizontal && (
           <div
-            className={cx(styles.fieldValidationWrapper, styles.fieldValidationWrapperHorizontal, {
-              [styles.validationMessageHorizontalOverflow]: !!validationMessageHorizontalOverflow,
-            })}
+            {...stylex.props(
+              styles.fieldValidationWrapper,
+              styles.fieldValidationWrapperHorizontal,
+              validationMessageHorizontalOverflow && styles.validationMessageHorizontalOverflow
+            )}
           >
             <FieldValidationMessage>{error}</FieldValidationMessage>
           </div>
@@ -138,29 +146,32 @@ function deleteUndefinedProps<T extends Object>(obj: T): Partial<T> {
   return obj;
 }
 
-export const getFieldStyles = (theme: GrafanaTheme2, noMargin?: boolean) => ({
-  field: css({
+const styles = stylex.create({
+  field: {
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: theme.spacing(noMargin ? 0 : 2),
-  }),
-  fieldHorizontal: css({
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  noMargin: {
+    marginBottom: 0,
+  },
+  fieldHorizontal: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-  }),
-  fieldValidationWrapper: css({
-    marginTop: theme.spacing(0.5),
-  }),
-  fieldValidationWrapperHorizontal: css({
-    flex: '1 1 100%',
-  }),
-  validationMessageHorizontalOverflow: css({
+  },
+  fieldValidationWrapper: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+  fieldValidationWrapperHorizontal: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+  },
+  validationMessageHorizontalOverflow: {
     width: 0,
     overflowX: 'visible',
-
-    '& > *': {
-      whiteSpace: 'nowrap',
-    },
-  }),
+    // white-space inherits, so this reaches the validation message the Emotion `& > *` rule targeted.
+    whiteSpace: 'nowrap',
+  },
 });

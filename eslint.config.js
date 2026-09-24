@@ -123,6 +123,8 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Actions,AutoSaveField,BrowserLabel,ButtonCascader,Carousel,ClipboardButton,Collapse,ConfirmButton,DataSourceSettings,EmptySearchResult,ErrorBoundary,FileDropzone,FilterPill,InfoBox,LoadingBar,PanelContainer,Portal,TableInputCSV,ToolbarButton,UsersIndicator,transitions}/**/*.{ts,tsx}',
   'packages/grafana-ui/src/components/ThemeDemos/{BorderRadius,ThemeDemo}.tsx',
   'packages/grafana-ui/src/utils/storybook/**/*.{ts,tsx}',
+  // U2 inputs
+  'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
@@ -212,8 +214,6 @@ const stylexMigratedAppFiles = [
 
 // Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
 const stylexNotMigratedAppFiles = [
-  // Composes Input's Emotion getInputStyles; migrate once Input (U2) is StyleX.
-  'public/app/features/scopes/selector/ScopesInput.tsx',
   // C1 core: notifications, options UI, query rows, splash screen, tags and the rest of core/components
   'public/app/core/components/{BouncingLoader,CloseButton,ColorScale,EmptyListCTA,help,Layers,PageActionBar,PanelTypeFilter,QueryOperationRow,SplitPaneWrapper,ValidationLabels}/*.{ts,tsx}',
   'public/app/core/components/CardButton.tsx',

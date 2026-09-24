@@ -16,7 +16,7 @@ import { useTheme2 } from '../../themes/ThemeContext';
 import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { SCHEMA, makeValue } from '../../utils/slate';
-import { getInputStyles } from '../Input/Input';
+import { inputBorderStyles, inputStyles } from '../Input/Input';
 import { Portal } from '../Portal/Portal';
 import { ScrollContainer } from '../ScrollContainer/ScrollContainer';
 
@@ -61,9 +61,11 @@ export const DataLinkInput = memo(
   }: DataLinkInputProps) => {
     const editorRef = useRef<Editor>(null);
     const theme = useTheme2();
-    // stylex: pending Input migration. The editor reuses Input's (Emotion) input styles; DataLinkInput.css
-    // overrides their padding.
-    const inputClassName = getInputStyles({ theme, invalid: false }).input;
+    // The editor reuses Input's input styles; DataLinkInput.css overrides their padding.
+    const inputClassName = stylex.props(
+      inputStyles.input,
+      inputBorderStyles[theme.isDark ? 'dark' : 'light']
+    ).className;
     const [showingSuggestions, setShowingSuggestions] = useState(false);
     const [suggestionsIndex, setSuggestionsIndex] = useState(0);
     const [linkUrl, setLinkUrl] = useState<Value>(makeValue(value));
