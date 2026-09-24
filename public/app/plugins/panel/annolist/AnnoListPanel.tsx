@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { createRef, PureComponent, type JSX } from 'react';
 import { Subscription } from 'rxjs';
 
@@ -8,18 +8,19 @@ import {
   AppEvents,
   dateTime,
   dateMath,
-  type GrafanaTheme2,
   locationUtil,
   type PanelProps,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, getBackendSrv, locationService } from '@grafana/runtime';
-import { Button, ScrollContainer, stylesFactory, TagList } from '@grafana/ui';
+import { getBackendSrv, locationService } from '@grafana/runtime';
+import { Button, ScrollContainer, TagList } from '@grafana/ui';
 import { AbstractList } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { appEvents } from 'app/core/app_events';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 
 import { AnnotationListItem } from './AnnotationListItem';
+import './AnnoListPanel.css';
 import { type Options } from './panelcfg.gen';
 
 interface UserInfo {
@@ -38,7 +39,6 @@ interface State {
   requestId: string;
 }
 export class AnnoListPanel extends PureComponent<Props, State> {
-  style = getStyles(config.theme2);
   subs = new Subscription();
   tagListRef = createRef<HTMLUListElement>();
 
@@ -273,7 +273,7 @@ export class AnnoListPanel extends PureComponent<Props, State> {
     return (
       <ScrollContainer minHeight="100%">
         {hasFilter && (
-          <div className={this.style.filter}>
+          <div {...stylex.props(styles.filter)}>
             <b>
               <Trans i18nKey="annolist.anno-list-panel.filter">Filter:</Trans>
             </b>
@@ -298,7 +298,7 @@ export class AnnoListPanel extends PureComponent<Props, State> {
                 tags={queryTags}
                 onClick={(tag) => this.onTagClick(tag, true)}
                 getAriaLabel={(name) => `Remove ${name} tag`}
-                className={this.style.tagList}
+                className="gf-annolist-tag-list"
                 ref={this.tagListRef}
               />
             )}
@@ -306,7 +306,7 @@ export class AnnoListPanel extends PureComponent<Props, State> {
         )}
 
         {annotations.length < 1 && (
-          <div className={this.style.noneFound}>
+          <div {...stylex.props(styles.noneFound)}>
             <Trans i18nKey="annolist.anno-list-panel.no-annotations-found">No annotations found</Trans>
           </div>
         )}
@@ -317,25 +317,19 @@ export class AnnoListPanel extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  noneFound: css({
+const styles = stylex.create({
+  noneFound: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     height: 'calc(100% - 30px)',
-  }),
-  filter: css({
+  },
+  filter: {
     alignItems: 'center',
     display: 'flex',
     flexWrap: 'wrap',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.5),
-  }),
-  tagList: css({
-    justifyContent: 'flex-start',
-    'li > button': {
-      paddingLeft: '3px',
-    },
-  }),
-}));
+    gap: spacing['--gf-spacing-x0-5'],
+    padding: spacing['--gf-spacing-x0-5'],
+  },
+});

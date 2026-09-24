@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { sortBy } from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
 import { useEffectOnce, useToggle } from 'react-use';
 
-import { type GrafanaTheme2, type PanelProps } from '@grafana/data';
+import { type PanelProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, TimeRangeUpdatedEvent } from '@grafana/runtime';
 import {
@@ -16,8 +16,8 @@ import {
   Link,
   LoadingPlaceholder,
   ScrollContainer,
-  useStyles2,
 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import alertDef from 'app/features/alerting/state/alertDef';
 import { alertRuleApi } from 'app/features/alerting/unified/api/alertRuleApi';
 import { INSTANCES_DISPLAY_LIMIT } from 'app/features/alerting/unified/components/rules/RuleDetails';
@@ -225,8 +225,6 @@ function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
   const dispatched = somePromRulesDispatched || someRulerRulesDispatched;
   const loading = isAsyncRequestMapSlicePending(promRulesRequests);
 
-  const styles = useStyles2(getStyles);
-
   const flattenedCombinedRules = flattenCombinedRules(combinedRules);
   const order = props.options.sortOrder;
 
@@ -243,7 +241,7 @@ function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
 
   return (
     <ScrollContainer minHeight="100%">
-      {havePreviousResults && noAlertsMessage && <div className={styles.noAlertsMessage}>{noAlertsMessage}</div>}
+      {havePreviousResults && noAlertsMessage && <div {...stylex.props(styles.noAlertsMessage)}>{noAlertsMessage}</div>}
       {havePreviousResults && (
         <section>
           {props.options.viewMode === ViewMode.Stat && (
@@ -253,7 +251,6 @@ function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
               height={props.height}
               options={parsedOptions}
               dashboardUid={options.dashboardAlerts ? dashboardRef.current?.uid : undefined}
-              styles={styles}
             />
           )}
           {props.options.viewMode === ViewMode.List && props.options.groupMode === GroupMode.Custom && (
@@ -282,14 +279,12 @@ function StatView({
   height,
   options,
   dashboardUid,
-  styles,
 }: {
   rules: CombinedRuleWithLocation[];
   width: number;
   height: number;
   options: UnifiedAlertListOptions;
   dashboardUid?: string;
-  styles: ReturnType<typeof getStyles>;
 }) {
   const enhancementsEnabled = Boolean(config.featureToggles.alertingAlertListPanelEnhancements);
 
@@ -321,7 +316,7 @@ function StatView({
   if (enhancementsEnabled) {
     const href = buildAlertingListUrl(options, dashboardUid);
     return (
-      <Link href={href} className={styles.statLink}>
+      <Link href={href} className={stylex.props(styles.statLink).className}>
         {bigValue}
       </Link>
     );
@@ -430,108 +425,76 @@ function filterRules(props: PanelProps<UnifiedAlertListOptions>, rules: Combined
   return filteredRules;
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  cardContainer: css({
-    padding: theme.spacing(0.5, 0, 0.25, 0),
-    lineHeight: theme.typography.body.lineHeight,
-    marginBottom: 0,
-  }),
-  alertRuleList: css({
+export const styles = stylex.create({
+  alertRuleList: {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     listStyleType: 'none',
-  }),
-  alertRuleItem: css({
+  },
+  alertRuleItem: {
     display: 'flex',
     alignItems: 'center',
     width: '100%',
     height: '100%',
-    background: theme.colors.background.secondary,
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    marginBottom: theme.spacing(0.5),
-
-    gap: theme.spacing(2),
-  }),
-  alertName: css({
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    gap: spacing['--gf-spacing-x2'],
+  },
+  alertName: {
+    fontSize: typography['--gf-typography-h6-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  alertNameWrapper: css({
+  },
+  alertNameWrapper: {
     display: 'flex',
-    flex: 1,
+    flex: '1',
     flexWrap: 'nowrap',
     flexDirection: 'column',
-
     minWidth: '100px',
-  }),
-  alertLabels: css({
-    '> *': {
-      marginRight: theme.spacing(0.5),
-    },
-  }),
-  alertDuration: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  alertRuleItemText: css({
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.bodySmall.fontSize,
-    margin: 0,
-  }),
-  alertRuleItemTime: css({
-    color: theme.colors.text.secondary,
-    fontWeight: 'normal',
-    whiteSpace: 'nowrap',
-  }),
-  alertRuleItemInfo: css({
-    fontWeight: 'normal',
-    flexGrow: 2,
-    display: 'flex',
-    alignItems: 'flex-end',
-  }),
-  noAlertsMessage: css({
+  },
+  alertDuration: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  noAlertsMessage: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     height: '100%',
-  }),
-  alertIcon: css({
-    marginRight: theme.spacing(0.5),
-  }),
-  instanceDetails: css({
+  },
+  instanceDetails: {
     minWidth: '1px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  customGroupDetails: css({
-    marginBottom: theme.spacing(0.5),
-  }),
-  link: css({
+  },
+  customGroupDetails: {
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+  link: {
     wordBreak: 'break-all',
-    color: theme.colors.primary.text,
+    color: colors['--gf-colors-primary-text'],
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  hidden: css({
+    gap: spacing['--gf-spacing-x1'],
+  },
+  hidden: {
     display: 'none',
-  }),
-  statLink: css({
+  },
+  statLink: {
     display: 'block',
     width: '100%',
     height: '100%',
     textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'none',
-    },
-  }),
+  },
 });
 
 export function UnifiedAlertListPanel(props: PanelProps<UnifiedAlertListOptions>) {

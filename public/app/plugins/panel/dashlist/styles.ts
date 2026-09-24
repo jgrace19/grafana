@@ -1,86 +1,76 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties } from 'react';
 
 import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-export const getStyles = (theme: GrafanaTheme2) => {
+import { dashlistCardMarker } from './markers.stylex';
+
+/** Sets the card hover gradient that `DashListItem.css` applies; it's colour math on the theme. */
+export function getCardHoverGradientStyle(theme: GrafanaTheme2): CSSProperties {
   const gradient = `linear-gradient(
     90deg,
     ${colorManipulator.alpha(theme.colors.primary.text, 0.1)} 0%,
     ${colorManipulator.alpha(theme.colors.secondary.main, 0.1)} 100%
   )`;
-
-  return {
-    dashlistLink: css({
-      display: 'flex',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      margin: theme.spacing(1),
-      padding: theme.spacing(1),
-      alignItems: 'center',
-
-      a: {
-        flex: 1,
-
-        '&:hover': {
-          '> p': {
-            '&:first-child': {
-              color: theme.colors.text.link,
-              textDecoration: 'underline',
-            },
-          },
-        },
-      },
-    }),
-    dashlistCardContainer: css({
-      display: 'block',
-      height: '100%',
-      paddingTop: theme.spacing(1.25),
-      paddingBottom: theme.spacing(1.25),
-
-      '&:has(a:hover)': {
-        backgroundImage: gradient,
-        color: theme.colors.text.primary,
-      },
-    }),
-    dashlistCard: css({
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      gap: theme.spacing(0.75),
-      height: '100%',
-      width: '100%',
-
-      '&:hover': {
-        '> div': {
-          '&:first-child': {
-            color: theme.colors.text.link,
-            textDecoration: 'underline',
-          },
-        },
-      },
-    }),
-    dashlistCardIcon: css({
-      marginRight: theme.spacing(0.25),
-      marginTop: theme.spacing(0.25),
-    }),
-    dashlistCardLink: css({
-      paddingTop: theme.spacing(0.5),
-      whiteSpace: 'normal',
-      overflowWrap: 'break-word',
-      wordBreak: 'break-word',
-      display: '-webkit-box',
-      WebkitBoxOrient: 'vertical',
-      WebkitLineClamp: 2,
-      overflow: 'hidden',
-      [theme.breakpoints.down('lg')]: {
-        WebkitLineClamp: 1,
-      },
-    }),
-    dashlistCardFolder: css({
-      display: '-webkit-box',
-      WebkitBoxOrient: 'vertical',
-      WebkitLineClamp: 1,
-      overflow: 'hidden',
-      whiteSpace: 'normal',
-    }),
+  const style: CSSProperties & Record<'--dashlist-card-hover-gradient', string> = {
+    '--dashlist-card-hover-gradient': gradient,
   };
-};
+  return style;
+}
+
+export const styles = stylex.create({
+  dashlistLink: {
+    display: 'flex',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    margin: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+  },
+  dashlistLinkAnchor: {
+    flex: '1',
+  },
+  dashlistCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    height: '100%',
+    width: '100%',
+  },
+  dashlistCardIcon: {
+    marginRight: spacing['--gf-spacing-x0-25'],
+    marginTop: spacing['--gf-spacing-x0-25'],
+  },
+  dashlistCardLink: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    whiteSpace: 'normal',
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: {
+      default: 2,
+      [bp.lgDown]: 1,
+    },
+    overflow: 'hidden',
+    color: {
+      default: null,
+      [stylex.when.ancestor(':hover', dashlistCardMarker)]: colors['--gf-colors-text-link'],
+    },
+    textDecoration: {
+      default: null,
+      [stylex.when.ancestor(':hover', dashlistCardMarker)]: 'underline',
+    },
+  },
+  dashlistCardFolder: {
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: 1,
+    overflow: 'hidden',
+    whiteSpace: 'normal',
+  },
+});

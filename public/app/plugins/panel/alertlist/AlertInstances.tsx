@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { noop } from 'lodash';
 import pluralize from 'pluralize';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type PanelProps } from '@grafana/data';
-import { Button, clearButtonStyles, Icon, useStyles2 } from '@grafana/ui';
+import { type PanelProps } from '@grafana/data';
+import { Button, Icon } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { AlertInstancesTable } from 'app/features/alerting/unified/components/rules/AlertInstancesTable';
 import { INSTANCES_DISPLAY_LIMIT } from 'app/features/alerting/unified/components/rules/RuleDetails';
 import { sortAlerts } from 'app/features/alerting/unified/utils/misc';
@@ -37,8 +38,6 @@ export const AlertInstances = ({
   // when custom grouping is enabled, we will always uncollapse the list of alert instances
   const defaultShowInstances = options.groupMode === GroupMode.Custom ? true : options.showInstances;
   const [displayInstances, setDisplayInstances] = useState<boolean>(defaultShowInstances);
-  const styles = useStyles2(getStyles);
-  const clearButton = useStyles2(clearButtonStyles);
 
   const toggleDisplayInstances = useCallback(() => {
     setDisplayInstances((display) => !display);
@@ -103,7 +102,7 @@ export const AlertInstances = ({
 
   const footerRow =
     instancesLimitedAndOverflowed || instancesNotLimitedAndoverflowed ? (
-      <div className={styles.footerRow}>
+      <div {...stylex.props(styles.footerRow)}>
         <div>{limitStatus}</div>
         {
           <Button size="sm" variant="secondary" onClick={limitInstances ? onShowAllClick : onShowLimitedClick}>
@@ -117,7 +116,7 @@ export const AlertInstances = ({
     <div>
       {options.groupMode === GroupMode.Default && (
         <button
-          className={cx(clearButton, uncollapsible ? styles.clickable : '')}
+          {...stylex.props(styles.clearButton, uncollapsible && styles.clickable)}
           onClick={() => toggleShowInstances()}
         >
           {uncollapsible && <Icon name={displayInstances ? 'angle-down' : 'angle-right'} size={'md'} />}
@@ -137,16 +136,23 @@ export const AlertInstances = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  clickable: css({
+const styles = stylex.create({
+  clearButton: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+  },
+  clickable: {
     cursor: 'pointer',
-  }),
-  footerRow: css({
+  },
+  footerRow: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
+    gap: spacing['--gf-spacing-x1'],
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-  }),
+  },
 });

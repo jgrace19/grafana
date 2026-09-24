@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -6,12 +6,12 @@ import {
   type LiveChannelAddress,
   type SelectableValue,
   type StandardEditorProps,
-  type GrafanaTheme2,
   parseLiveChannelAddress,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Select, Alert, Label, stylesFactory, Combobox } from '@grafana/ui';
+import { Select, Alert, Label, Combobox } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import {
   discoveryResources,
   getAPIGroupDiscoveryList,
@@ -111,7 +111,6 @@ export function LiveChannelEditor(props: Props) {
   };
 
   const { scope, stream, path } = props.value;
-  const style = getStyles(config.theme2);
 
   return (
     <>
@@ -123,7 +122,7 @@ export function LiveChannelEditor(props: Props) {
       </Alert>
 
       <div>
-        <div className={style.dropWrap}>
+        <div {...stylex.props(styles.dropWrap)}>
           <Label>
             <Trans i18nKey="live.live-channel-editor.scope">Scope</Trans>
           </Label>
@@ -131,7 +130,7 @@ export function LiveChannelEditor(props: Props) {
         </div>
 
         {scope === LiveChannelScope.Watch && (
-          <div className={style.dropWrap}>
+          <div {...stylex.props(styles.dropWrap)}>
             <Combobox
               options={getWatchableResources}
               placeholder={t(
@@ -153,7 +152,7 @@ export function LiveChannelEditor(props: Props) {
         )}
 
         {scope && (
-          <div className={style.dropWrap}>
+          <div {...stylex.props(styles.dropWrap)}>
             <Label>
               <Trans i18nKey="live.live-channel-editor.namespace">Namespace</Trans>
             </Label>
@@ -169,7 +168,7 @@ export function LiveChannelEditor(props: Props) {
         )}
 
         {scope && stream && (
-          <div className={style.dropWrap}>
+          <div {...stylex.props(styles.dropWrap)}>
             <Label>
               <Trans i18nKey="live.live-channel-editor.path">Path</Trans>
             </Label>
@@ -199,8 +198,8 @@ function findPathOption(paths: Array<SelectableValue<string>>, path?: string): S
   return undefined;
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  dropWrap: css({
-    marginBottom: theme.spacing(1),
-  }),
-}));
+const styles = stylex.create({
+  dropWrap: {
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});
