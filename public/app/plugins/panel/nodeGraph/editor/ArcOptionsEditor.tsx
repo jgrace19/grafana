@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type Field, type GrafanaTheme2, type StandardEditorProps } from '@grafana/data';
+import { type Field, type StandardEditorProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ColorPicker, useStyles2 } from '@grafana/ui';
+import { Button, ColorPicker } from '@grafana/ui';
 import { FieldNamePicker } from '@grafana/ui/internal';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type ArcOption, type Options as NodeGraphOptions } from '../panelcfg.gen';
 
@@ -11,8 +12,6 @@ type Settings = { filter: (field: Field) => boolean };
 type ArcOptionsEditorProps = StandardEditorProps<ArcOption[], Settings, NodeGraphOptions, undefined>;
 
 export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorProps) => {
-  const styles = useStyles2(getStyles);
-
   const addArc = () => {
     const newArc = { field: '', color: '' };
     onChange(value ? [...value, newArc] : [newArc]);
@@ -34,7 +33,7 @@ export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorP
     <>
       {value?.map((arc, i) => {
         return (
-          <div className={styles.section} key={i}>
+          <div {...stylex.props(styles.section)} key={i}>
             <FieldNamePicker
               context={context}
               value={arc.field ?? ''}
@@ -72,14 +71,13 @@ export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorP
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    section: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: `0 ${theme.spacing(1)}`,
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+const styles = stylex.create({
+  section: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    rowGap: 0,
+    columnGap: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+});

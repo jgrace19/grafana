@@ -1,0 +1,7 @@
+/*
+ * VizLegendListItem sets its own flex-grow and takes no StyleX override. Not in a cascade layer, so this wins
+ * over its (layered) StyleX styles like the Emotion className merge did.
+ */
+.gf-nodegraph-legend-item {
+  flex-grow: 0;
+}
