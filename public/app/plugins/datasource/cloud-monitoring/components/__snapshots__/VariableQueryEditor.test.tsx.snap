@@ -3,14 +3,14 @@
 exports[`VariableQueryEditor renders correctly 1`] = `
 <div>
   <div
-    class="css-1rplq84"
+    class="Field__styles.field"
   >
     <div
-      class="css-l4ykjo-Label"
+      class="Label__labelStyles.label"
     >
       <label>
         <div
-          class="css-70qvj9"
+          class="Label__labelStyles.labelContent"
         >
           Query Type
         </div>
