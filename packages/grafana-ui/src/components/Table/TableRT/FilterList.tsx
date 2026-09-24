@@ -1,12 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 import { FixedSizeList as List, type ListChildComponentProps } from 'react-window';
 
-import { type GrafanaTheme2, formattedValueToString, getValueFormat, type SelectableValue } from '@grafana/data';
+import { formattedValueToString, getValueFormat, type SelectableValue } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { colors, spacing } from '../../../themes/stylex/tokens.stylex';
 import { ButtonSelect } from '../../Dropdown/ButtonSelect';
 import { FilterInput } from '../../FilterInput/FilterInput';
 import { Checkbox } from '../../Forms/Checkbox';
@@ -150,7 +151,6 @@ export const FilterList = ({
     [items, selectedItems]
   );
 
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
   const gutter = theme.spacing.gridSize;
   const height = useMemo(() => Math.min(items.length * ITEM_HEIGHT, MIN_HEIGHT) + gutter, [gutter, items.length]);
@@ -208,15 +208,19 @@ export const FilterList = ({
             height={height}
             itemCount={items.length}
             itemSize={ITEM_HEIGHT}
-            itemData={{ items, values: selectedItems, onCheckedChanged, className: styles.filterListRow }}
+            itemData={{
+              items,
+              values: selectedItems,
+              onCheckedChanged,
+              className: stylex.props(styles.filterListRow).className ?? '',
+            }}
             width="100%"
-            className={styles.filterList}
           >
             {ItemRenderer}
           </List>
           <Stack direction="column" gap={0.25}>
-            <div className={cx(styles.selectDivider)} />
-            <div className={cx(styles.filterListRow)}>
+            <div {...stylex.props(styles.selectDivider)} />
+            <div {...stylex.props(styles.filterListRow)}>
               <Checkbox
                 value={selectCheckValue}
                 indeterminate={selectCheckIndeterminate}
@@ -228,7 +232,7 @@ export const FilterList = ({
           </Stack>
         </>
       ) : (
-        <Label className={styles.noValuesLabel}>
+        <Label className={stylex.props(styles.noValuesLabel).className}>
           <Trans i18nKey="grafana-ui.table.no-values-label">No values</Trans>
         </Label>
       )}
@@ -257,29 +261,29 @@ function ItemRenderer({ index, style, data: { onCheckedChanged, items, values, c
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  filterList: css({
-    label: 'filterList',
-  }),
-  filterListRow: css({
-    label: 'filterListRow',
+const styles = stylex.create({
+  filterListRow: {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    padding: theme.spacing(0.5),
-
-    ':hover': {
-      backgroundColor: theme.colors.action.hover,
-    },
-  }),
-  selectDivider: css({
-    label: 'selectDivider',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    backgroundColor: { default: null, ':hover': colors['--gf-colors-action-hover'] },
+  },
+  selectDivider: {
     width: '100%',
-    borderTop: `1px solid ${theme.colors.border.medium}`,
-    padding: theme.spacing(0.5, 2),
-  }),
-  noValuesLabel: css({
-    paddingTop: theme.spacing(1),
-  }),
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  noValuesLabel: {
+    paddingTop: spacing['--gf-spacing-x1'],
+  },
 });
