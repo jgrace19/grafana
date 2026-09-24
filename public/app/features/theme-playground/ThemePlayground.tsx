@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { createTheme, type GrafanaTheme2, type NewThemeOptions } from '@grafana/data';
+import { createTheme, type NewThemeOptions } from '@grafana/data';
 import { NewThemeOptionsSchema } from '@grafana/data/internal';
 import aubergine from '@grafana/data/themes/definitions/aubergine.json';
 import debug from '@grafana/data/themes/definitions/debug.json';
@@ -22,8 +22,10 @@ import zen from '@grafana/data/themes/definitions/zen.json';
 import themeJsonSchema from '@grafana/data/themes/schema.generated.json';
 import { t } from '@grafana/i18n';
 import { useChromeHeaderHeight } from '@grafana/runtime';
-import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
+import { CodeEditor, Combobox, Field, Stack } from '@grafana/ui';
 import { ScopedThemeVars, ThemeDemo } from '@grafana/ui/internal';
+import { bp, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 
 import { createErrorNotification } from '../../core/copy/appNotification';
@@ -93,7 +95,7 @@ export default function ThemePlayground() {
   };
   const baseId = useId();
   const chromeHeaderHeight = useChromeHeaderHeight();
-  const styles = useStyles2(getStyles, chromeHeaderHeight);
+  const headerHeight = chromeHeaderHeight ?? 0;
   const dispatch = useDispatch();
 
   const [baseThemeId, setBaseThemeId] = useState(Object.keys(themeMap)[0]);
@@ -137,7 +139,12 @@ export default function ThemePlayground() {
         rowGap={1}
         height="100%"
       >
-        <div className={styles.left}>
+        <div
+          {...stylex.props(
+            styles.left,
+            styles.headerOffset(headerHeight, `calc(90vh - ${headerHeight}px - var(--gf-spacing-x2))`)
+          )}
+        >
           <Field noMargin label={t('theme-playground.label-base-theme', 'Base theme')}>
             <Combobox
               value={baseThemeId}
@@ -155,7 +162,7 @@ export default function ThemePlayground() {
             language="json"
             showLineNumbers={true}
             showMiniMap={true}
-            containerStyles={styles.codeEditor}
+            containerStyles={stylex.props(styles.codeEditor).className}
             onBlur={onEditorBlur}
             onBeforeEditorMount={(monaco) => {
               monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -187,25 +194,26 @@ export default function ThemePlayground() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, chromeHeaderHeight: number | undefined) => ({
-  left: css({
-    background: theme.colors.background.primary,
+const styles = stylex.create({
+  left: {
+    backgroundColor: colors['--gf-colors-background-primary'],
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-    height: '40vh',
+    gap: spacing['--gf-spacing-x1'],
     minWidth: '300px',
-    padding: theme.spacing(2, 0),
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: 0,
     position: 'sticky',
-    top: chromeHeaderHeight ?? 0,
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      height: `calc(90vh - ${chromeHeaderHeight ?? 0}px - ${theme.spacing(2)})`,
-      width: '70%',
-    },
-    zIndex: theme.zIndex.activePanel,
+    width: { default: '100%', [bp.mdUp]: '70%' },
+    zIndex: zIndex.activePanel,
+  },
+  headerOffset: (top: number, mdHeight: string) => ({
+    top,
+    height: { default: '40vh', [bp.mdUp]: mdHeight },
   }),
-  codeEditor: css({
-    flex: 1,
-  }),
+  codeEditor: {
+    flex: '1',
+  },
 });
