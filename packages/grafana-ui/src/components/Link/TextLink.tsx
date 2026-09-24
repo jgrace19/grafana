@@ -28,6 +28,8 @@ interface TextLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 't
   /** Set the icon to be shown. An external link will show the 'external-link-alt' icon as default.*/
   icon?: IconName;
   children: React.ReactNode;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 const svgSizes: {
@@ -50,7 +52,19 @@ const svgSizes: {
  */
 export const TextLink = forwardRef<HTMLAnchorElement, TextLinkProps>(
   (
-    { href, color = 'link', external = false, inline = true, variant = 'body', weight, icon, children, style, ...rest },
+    {
+      href,
+      color = 'link',
+      external = false,
+      inline = true,
+      variant = 'body',
+      weight,
+      icon,
+      children,
+      style,
+      xstyle,
+      ...rest
+    },
     ref
   ) => {
     const validUrl = textUtil.sanitizeUrl(href ?? '');
@@ -61,7 +75,8 @@ export const TextLink = forwardRef<HTMLAnchorElement, TextLinkProps>(
       styles.wrapper,
       // Hover always switches to the link colour, so the colour and its hover state are one property.
       styles.color(color ? `var(--gf-colors-text-${color.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)})` : null),
-      inline && styles.inline
+      inline && styles.inline,
+      xstyle
     );
     // Consumer className is ignored, as it always was; a consumer style still applies.
     const wrapperProps = { className: stylexProps.className, style: { ...stylexProps.style, ...style } };

@@ -4,7 +4,10 @@ import { type DetailedHTMLProps, type HTMLAttributes } from 'react';
 import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
 import { components, shape } from '../../themes/stylex/tokens.stylex';
 
-type Props = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+type Props = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
+};
 
 // TODO: Reimplement this with Box
 /**
@@ -12,9 +15,9 @@ type Props = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/layout-deprecated-panelcontainer--docs
  */
-export const PanelContainer = ({ children, className, style, ...props }: Props) => {
+export const PanelContainer = ({ children, className, style, xstyle, ...props }: Props) => {
   return (
-    <div {...mergeStylexProps(stylex.props(styles.container), { className, style })} {...props}>
+    <div {...mergeStylexProps(stylex.props(styles.container, xstyle), { className, style })} {...props}>
       {children}
     </div>
   );

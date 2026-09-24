@@ -19,6 +19,8 @@ export interface VizTooltipContainerProps extends HTMLAttributes<HTMLDivElement>
   offset: { x: number; y: number };
   children?: React.ReactNode;
   allowPointerEvents?: boolean;
+  /** @internal first-party StyleX overrides (static styles only), applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -30,6 +32,7 @@ export const VizTooltipContainer = ({
   children,
   allowPointerEvents = false,
   className,
+  xstyle,
   ...otherProps
 }: VizTooltipContainerProps) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -103,7 +106,7 @@ export const VizTooltipContainer = ({
       aria-live="polite"
       aria-atomic="true"
       {...otherProps}
-      className={mergeStylexProps(stylex.props(styles.wrapper), { className }).className}
+      className={mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className }).className}
     >
       {children}
     </div>

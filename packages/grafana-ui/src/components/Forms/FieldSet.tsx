@@ -11,6 +11,8 @@ export interface Props extends Omit<HTMLProps<HTMLFieldSetElement>, 'label'> {
   children: React.ReactNode[] | React.ReactNode;
   /** Label for the fieldset's legend */
   label?: React.ReactNode;
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -18,9 +20,9 @@ export interface Props extends Omit<HTMLProps<HTMLFieldSetElement>, 'label'> {
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-fieldset--docs
  */
-export const FieldSet = ({ label, children, className, ...rest }: Props) => {
+export const FieldSet = ({ label, children, className, xstyle, ...rest }: Props) => {
   return (
-    <fieldset {...mergeStylexProps(stylex.props(styles.wrapper), { className })} {...rest}>
+    <fieldset {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })} {...rest}>
       {label && <Legend>{label}</Legend>}
       {children}
     </fieldset>

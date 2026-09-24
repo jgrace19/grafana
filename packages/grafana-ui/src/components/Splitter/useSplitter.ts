@@ -26,6 +26,8 @@ export interface UseSplitterOptions {
   // Size of the region left of the handle indicator that is responsive to dragging. At the same time acts as a margin
   // pushing the left pane content left.
   handleSize?: ComponentSize;
+  /** @internal first-party StyleX overrides (static styles only) for the container, applied last */
+  containerXstyle?: stylex.StyleXStyles;
 }
 
 const PIXELS_PER_MS = 0.3 as const;
@@ -314,7 +316,11 @@ export function useSplitter(options: UseSplitterOptions) {
   return {
     containerProps: {
       ref: containerRef,
-      className: stylex.props(styles.container, direction === 'row' ? styles.row : styles.column).className,
+      className: stylex.props(
+        styles.container,
+        direction === 'row' ? styles.row : styles.column,
+        options.containerXstyle
+      ).className,
     },
     primaryProps: {
       ref: firstPaneRef,

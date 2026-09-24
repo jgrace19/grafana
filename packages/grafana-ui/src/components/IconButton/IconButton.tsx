@@ -26,6 +26,8 @@ interface BaseProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 
   iconType?: IconType;
   /** Variant to change the color of the Icon */
   variant?: IconButtonVariant;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 export interface BasePropsWithTooltip extends BaseProps {
@@ -55,7 +57,7 @@ export type Props = BasePropsWithTooltip | BasePropsWithAriaLabel | BasePropsWit
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-iconbutton--docs
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref) => {
-  const { size = 'md', variant = 'secondary' } = props;
+  const { size = 'md', variant = 'secondary', xstyle } = props;
   let limitedIconSize: LimitedIconSize;
 
   // very large icons (xl to xxxl) are unified to size xl
@@ -73,6 +75,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
     variantStyles[variant],
     styles.hoverSize(hoverSize),
     props.disabled && styles.disabled,
+    xstyle,
   ];
 
   let ariaLabel: string | undefined;
@@ -89,7 +92,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
 
   // When using tooltip, ref is forwarded to Tooltip component instead for https://github.com/grafana/grafana/issues/65632
   if ('tooltip' in props) {
-    const { name, iconType, className, style, tooltip, tooltipPlacement, ...restProps } = props;
+    const { name, iconType, className, style, tooltip, tooltipPlacement, xstyle: _xstyle, ...restProps } = props;
     return (
       <Tooltip ref={ref} content={tooltip} placement={tooltipPlacement}>
         <button
@@ -104,7 +107,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, Props>((props, ref
       </Tooltip>
     );
   } else {
-    const { name, iconType, className, style, ...restProps } = props;
+    const { name, iconType, className, style, xstyle: _xstyle, ...restProps } = props;
     return (
       <button
         {...restProps}

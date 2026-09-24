@@ -17,6 +17,8 @@ interface BaseProps {
   /** @internal first-party StyleX overrides for the modal container */
   xstyle?: stylex.StyleXStyles;
   contentClassName?: string;
+  /** @internal first-party StyleX overrides for the content wrapper, applied last */
+  contentXstyle?: stylex.StyleXStyles;
   closeOnEscape?: boolean;
   closeOnBackdropClick?: boolean;
   trapFocus?: boolean;
@@ -57,6 +59,7 @@ export function Modal(props: PropsWithChildren<Props>) {
     className,
     xstyle,
     contentClassName,
+    contentXstyle,
     onDismiss,
     onClickBackdrop,
     trapFocus = true,
@@ -92,7 +95,9 @@ export function Modal(props: PropsWithChildren<Props>) {
           />
         </div>
       </div>
-      <div {...mergeStylexProps(stylex.props(styles.modalContent), { className: contentClassName })}>{children}</div>
+      <div {...mergeStylexProps(stylex.props(styles.modalContent, contentXstyle), { className: contentClassName })}>
+        {children}
+      </div>
     </ModalBase>
   );
 }
