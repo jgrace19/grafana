@@ -45,6 +45,7 @@ export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBasePro
   );
 }
 
+// stylex: pending Select migration (U3). These override Select's own Emotion border/background/color.
 const getStyles = (theme: GrafanaTheme2) => ({
   select: css({
     border: 'none',
