@@ -114,6 +114,17 @@ const stylexMigratedUiFiles = [
 const stylexMigratedAppFiles = [
   // E1 explore
   'public/app/features/explore/TraceView/**/*.{ts,tsx}',
+  // C1 core: app chrome and page frame
+  'public/app/core/components/AppChrome/{AppChrome,AppChromeMenu}.tsx',
+  'public/app/core/components/AppChrome/ExtensionSidebar/ExtensionSidebar.tsx',
+  'public/app/core/components/AppChrome/MegaMenu/*.{ts,tsx}',
+  'public/app/core/components/AppChrome/OrganizationSwitcher/OrganizationSelect.tsx',
+  'public/app/core/components/AppChrome/{NavToolbar,News,ReturnToPrevious}/*.{ts,tsx}',
+  'public/app/core/components/AppChrome/TopBar/{SignInLink,SingleTopBar,SingleTopBarActions,TopNavBarMenu}.tsx',
+  'public/app/core/components/{Breadcrumbs,Footer,Indent,PageInfo,PageNotFound}/*.{ts,tsx}',
+  'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
+  'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
+  'public/app/core/navigation/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

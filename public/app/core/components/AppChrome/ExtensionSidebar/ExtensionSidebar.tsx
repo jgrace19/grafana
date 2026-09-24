@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
-import { css as cssReact, Global } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
+import { useEffect } from 'react';
 
-import { type GrafanaTheme2, PluginExtensionPoints } from '@grafana/data';
+import { PluginExtensionPoints } from '@grafana/data';
 import { usePluginComponents } from '@grafana/runtime';
-import { useTheme2 } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getComponentMetaFromComponentId, useExtensionSidebarContext } from './ExtensionSidebarProvider';
+
+import './ExtensionSidebar.css';
 
 export const DEFAULT_EXTENSION_SIDEBAR_WIDTH = 300;
 export const MIN_EXTENSION_SIDEBAR_WIDTH = 100;
@@ -16,7 +18,6 @@ type ExtensionSidebarComponentProps = {
 };
 
 export function ExtensionSidebar() {
-  const styles = getStyles(useTheme2());
   const { dockedComponentId, props = {} } = useExtensionSidebarContext();
   const { components, isLoading } = usePluginComponents<ExtensionSidebarComponentProps>({
     extensionPointId: PluginExtensionPoints.ExtensionSidebar,
@@ -40,38 +41,39 @@ export function ExtensionSidebar() {
   }
 
   return (
-    <div className={styles.sidebarWrapper}>
-      <div className={styles.content}>
+    <div className={`gf-extension-sidebar ${stylex.props(styles.sidebarWrapper).className}`}>
+      <div {...stylex.props(styles.content)}>
         {/* When the sidebar is open, we don't want the body to scroll */}
-        {/* Need type assertion here due to the use of !important */}
-        {/* see https://github.com/frenic/csstype/issues/114#issuecomment-697201978 */}
-        {/* eslint-disable-next-line @typescript-eslint/consistent-type-assertions */}
-        <Global styles={[cssReact({ body: { overflowY: 'unset !important' as 'unset' } })]} />
+        <BodyOverflowUnset />
         <ExtensionComponent {...props} />
       </div>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    sidebarWrapper: css({
-      backgroundColor: theme.colors.background.primary,
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      width: '100%',
-      height: '100%',
-      overflow: 'auto',
-      // Temp fix for AI assistant, remove in a 1-2 months
-      ' > div > div': {
-        margin: 0,
-      },
-    }),
-    content: css({
-      flex: 1,
-      minHeight: 0,
-    }),
-  };
-};
+function BodyOverflowUnset() {
+  useEffect(() => {
+    document.body.classList.add('gf-extension-sidebar-open');
+    return () => document.body.classList.remove('gf-extension-sidebar-open');
+  }, []);
+  return null;
+}
+
+const styles = stylex.create({
+  sidebarWrapper: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x1'],
+    width: '100%',
+    height: '100%',
+    overflow: 'auto',
+  },
+  content: {
+    flex: '1',
+    minHeight: 0,
+  },
+});
