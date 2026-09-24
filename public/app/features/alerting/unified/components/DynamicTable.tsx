@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { clsx } from 'clsx';
 import { type ReactNode, useState } from 'react';
 import * as React from 'react';
 
