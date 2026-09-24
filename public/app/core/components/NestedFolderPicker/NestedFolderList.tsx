@@ -1,13 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo, useRef } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { FixedSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Avatar, IconButton, Text, useStyles2 } from '@grafana/ui';
+import { Avatar, IconButton, Text } from '@grafana/ui';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Indent } from 'app/core/components/Indent/Indent';
 import { childrenByParentUIDSelector, rootItemsSelector } from 'app/features/browse-dashboards/state/hooks';
 import { type DashboardsTreeItem } from 'app/features/browse-dashboards/types';
@@ -50,7 +50,6 @@ export function NestedFolderList({
   teamFolderOwnersByUid,
 }: NestedFolderListProps) {
   const infiniteLoaderRef = useRef<InfiniteLoader>(null);
-  const styles = useStyles2(getStyles);
 
   const virtualData = useMemo(
     (): VirtualData => ({
@@ -93,7 +92,7 @@ export function NestedFolderList({
   );
 
   return (
-    <div className={styles.table} role="tree">
+    <div {...stylex.props(styles.table)} role="tree">
       {items.length > 0 ? (
         <InfiniteLoader
           ref={infiniteLoaderRef}
@@ -116,7 +115,7 @@ export function NestedFolderList({
           )}
         </InfiniteLoader>
       ) : (
-        <div className={styles.emptyMessage}>
+        <div {...stylex.props(styles.emptyMessage)}>
           <Trans i18nKey="browse-dashboards.folder-picker.empty-message">No folders found</Trans>
         </div>
       )}
@@ -158,7 +157,6 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
     siblings = (parentUID ? childrenCollections[parentUID] : rootCollection)?.items ?? [];
   }
 
-  const styles = useStyles2(getStyles);
 
   const handleExpand = useCallback(
     (ev: React.MouseEvent<HTMLButtonElement>) => {
@@ -179,7 +177,7 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
 
   if (item.kind === 'ui' && item.uiKind === 'pagination-placeholder') {
     return (
-      <span style={virtualStyles} className={styles.row}>
+      <span {...stylex.props(styles.row)} style={virtualStyles}>
         <Indent level={level} spacing={2} />
         <Skeleton width={SKELETON_WIDTHS[index % SKELETON_WIDTHS.length]} />
       </span>
@@ -190,7 +188,7 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
     const itemKind = item.kind;
     const itemUID = item.uid;
     return process.env.NODE_ENV !== 'production' ? (
-      <span style={virtualStyles} className={styles.row}>
+      <span {...stylex.props(styles.row)} style={virtualStyles}>
         <Trans i18nKey="browse-dashboards.folder-picker.non-folder-item">
           Non-folder {{ itemKind }} {{ itemUID }}
         </Trans>
@@ -209,11 +207,12 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       ref={rowRef}
+      {...stylex.props(
+        styles.row,
+        index === focusedItemIndex && styles.rowFocused,
+        item.uid === selectedFolder && styles.rowSelected
+      )}
       style={virtualStyles}
-      className={cx(styles.row, {
-        [styles.rowFocused]: index === focusedItemIndex,
-        [styles.rowSelected]: item.uid === selectedFolder,
-      })}
       tabIndex={-1}
       onClick={handleSelect}
       aria-expanded={isOpen}
@@ -227,7 +226,7 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
       aria-posinset={siblings.findIndex((i) => i.uid === item.uid) + 1}
       id={getDOMId(idPrefix, item.uid)}
     >
-      <div className={styles.rowBody}>
+      <div {...stylex.props(styles.rowBody)}>
         <Indent level={level} spacing={2} />
 
         {foldersAreOpenable && !emptyFolders.has(item.uid) ? (
@@ -247,15 +246,15 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
             name={isOpen ? 'angle-down' : 'angle-right'}
           />
         ) : (
-          <span className={styles.folderButtonSpacer} />
+          <span {...stylex.props(styles.folderButtonSpacer)} />
         )}
 
-        <label className={styles.label} id={labelId}>
+        <label {...stylex.props(styles.label)} id={labelId}>
           <Text truncate>{item.title}</Text>
           <FolderRepo folder={item} />
         </label>
         {teamOwner && (
-          <div className={styles.teamOwner}>
+          <div {...stylex.props(styles.teamOwner)}>
             {teamOwner.avatarUrl && <Avatar src={teamOwner.avatarUrl} alt={teamOwner.name} />}
             <Text truncate color="secondary" variant="bodySmall">
               {teamOwner.name}
@@ -268,89 +267,81 @@ function Row({ index, style: virtualStyles, data }: RowProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const rowBody = css({
-    label: 'rowBody',
+const styles = stylex.create({
+  table: {
+    backgroundColor: components['--gf-components-input-background'],
+  },
+  emptyMessage: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    textAlign: 'center',
+    width: '100%',
+  },
+  folderButtonSpacer: {
+    paddingLeft: spacing['--gf-spacing-x2-5'],
+  },
+  row: {
+    display: 'flex',
+    position: 'relative',
+    alignItems: 'center',
+    borderTopStyle: { default: null, ':not(:first-child)': 'solid' },
+    borderTopWidth: { default: null, ':not(:first-child)': '1px' },
+    borderTopColor: { default: null, ':not(:first-child)': colors['--gf-colors-border-weak'] },
+  },
+  rowFocused: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  rowSelected: {
+    '::before': {
+      display: 'block',
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      bottom: 0,
+      top: 0,
+      width: 4,
+      borderRadius: shape['--gf-shape-radius-default'],
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+    },
+  },
+  rowBody: {
     height: ROW_HEIGHT,
     display: 'flex',
     position: 'relative',
     alignItems: 'center',
     flexGrow: 1,
-    gap: theme.spacing(0.5),
+    gap: spacing['--gf-spacing-x0-5'],
     overflow: 'hidden',
-    padding: theme.spacing(0, 1),
-  });
-
-  return {
-    table: css({
-      background: theme.components.input.background,
-    }),
-
-    emptyMessage: css({
-      padding: theme.spacing(1),
-      textAlign: 'center',
-      width: '100%',
-    }),
-
-    folderButtonSpacer: css({
-      paddingLeft: theme.spacing(2.5),
-    }),
-
-    row: css({
-      display: 'flex',
-      position: 'relative',
-      alignItems: 'center',
-      [':not(:first-child)']: {
-        borderTop: `solid 1px ${theme.colors.border.weak}`,
-      },
-    }),
-
-    rowFocused: css({
-      backgroundColor: theme.colors.background.secondary,
-    }),
-
-    rowSelected: css({
-      '&::before': {
-        display: 'block',
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        top: 0,
-        width: 4,
-        borderRadius: theme.shape.radius.default,
-        backgroundImage: theme.colors.gradients.brandVertical,
-      },
-    }),
-
-    rowBody,
-
-    label: css({
-      label: 'label',
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      lineHeight: ROW_HEIGHT + 'px',
-      minWidth: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      '&:hover': {
-        textDecoration: 'underline',
-        cursor: 'pointer',
-      },
-    }),
-    teamOwner: css({
-      label: 'teamOwner',
-      display: 'flex',
-      marginLeft: theme.spacing(1),
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      minWidth: 0,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      flex: '0 1 auto',
-      pointerEvents: 'none', // avoid interfering with folder selection
-    }),
-  };
-};
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    lineHeight: `${ROW_HEIGHT}px`,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textDecoration: { default: null, ':hover': 'underline' },
+    cursor: { default: null, ':hover': 'pointer' },
+  },
+  teamOwner: {
+    display: 'flex',
+    marginLeft: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    flexGrow: 0,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    pointerEvents: 'none', // avoid interfering with folder selection
+  },
+});

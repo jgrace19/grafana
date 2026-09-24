@@ -1,11 +1,12 @@
 // Libraries
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 // Components
-import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
+import { PageLayoutType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, LinkButton, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, LinkButton, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Branding } from 'app/core/components/Branding/Branding';
 
 import { ChangePassword } from '../ForgottenPassword/ChangePassword';
@@ -18,7 +19,6 @@ import { LoginServiceButtons } from './LoginServiceButtons';
 import { UserSignup } from './UserSignup';
 
 const LoginPage = () => {
-  const styles = useStyles2(getStyles);
 
   document.title = Branding.AppTitle;
 
@@ -42,7 +42,7 @@ const LoginPage = () => {
             {!isChangingPassword && (
               <InnerBox>
                 {loginErrorMessage && (
-                  <Alert className={styles.alert} severity="error" title={t('login.error.title', 'Login failed')}>
+                  <Alert className={stylex.props(styles.alert).className} severity="error" title={t('login.error.title', 'Login failed')}>
                     {loginErrorMessage}
                   </Alert>
                 )}
@@ -57,7 +57,9 @@ const LoginPage = () => {
                     <Stack justifyContent="flex-end">
                       {!config.auth.disableLogin && (
                         <LinkButton
-                          className={styles.forgottenPassword}
+                          className={stylex.props(styles.forgottenPassword).className}
+                          // Button has no `xstyle`; its own horizontal padding beats a StyleX class passed as `className`.
+                          style={{ padding: 0 }}
                           fill="text"
                           href={`${config.appSubUrl}/user/password/send-reset-email`}
                         >
@@ -90,15 +92,11 @@ const LoginPage = () => {
 
 export default LoginPage;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    forgottenPassword: css({
-      padding: 0,
-      marginTop: theme.spacing(0.5),
-    }),
-
-    alert: css({
-      width: '100%',
-    }),
-  };
-};
+const styles = stylex.create({
+  forgottenPassword: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+  alert: {
+    width: '100%',
+  },
+});

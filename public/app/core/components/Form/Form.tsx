@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type HTMLProps, useEffect } from 'react';
 import * as React from 'react';
 import {
@@ -11,6 +11,8 @@ import {
   type FieldErrors,
   type FieldPath,
 } from 'react-hook-form';
+
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 export type FormAPI<T extends FieldValues> = Omit<UseFormReturn<T>, 'handleSubmit'> & {
   errors: FieldErrors<T>;
@@ -35,6 +37,7 @@ export function Form<T extends FieldValues>({
   children,
   validateOn = 'onSubmit',
   maxWidth = 600,
+  style,
   ...htmlProps
 }: FormProps<T>) {
   const { handleSubmit, trigger, formState, ...rest } = useForm<T>({
@@ -50,9 +53,8 @@ export function Form<T extends FieldValues>({
 
   return (
     <form
-      className={css({
-        maxWidth: maxWidth !== 'none' ? maxWidth + 'px' : maxWidth,
-        width: '100%',
+      {...mergeStylexProps(stylex.props(styles.form, styles.maxWidth(maxWidth !== 'none' ? maxWidth + 'px' : maxWidth)), {
+        style,
       })}
       onSubmit={handleSubmit(onSubmit)}
       {...htmlProps}
@@ -61,3 +63,10 @@ export function Form<T extends FieldValues>({
     </form>
   );
 }
+
+const styles = stylex.create({
+  form: {
+    width: '100%',
+  },
+  maxWidth: (maxWidth: string) => ({ maxWidth }),
+});
