@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tempoQueryBuilderOptionsStyles } from './TempoQueryBuilderOptions.stylex';
+
 import * as React from 'react';
 import { useToggle } from 'react-use';
 
 import { CoreApp, type GrafanaTheme2 } from '@grafana/data';
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
-import { AutoSizeInput, RadioButtonGroup, TextLink, useStyles2 } from '@grafana/ui';
+import { AutoSizeInput, RadioButtonGroup, TextLink } from '@grafana/ui';
 
 import { QueryOptionGroup } from '../_importedDependencies/datasources/prometheus/QueryOptionGroup';
 import { SearchTableType, MetricsQueryType } from '../dataquery.gen';
@@ -34,7 +36,6 @@ const parseIntWithFallback = (val: string, fallback: number) => {
 
 export const TempoQueryBuilderOptions = React.memo<Props>(
   ({ onChange, query, searchStreaming, metricsStreaming, app }) => {
-    const styles = useStyles2(getStyles);
     const [isOpen, toggleOpen] = useToggle(false);
     const isAlerting = app === CoreApp.UnifiedAlerting;
     const isMetricsStreamingEnabled = metricsStreaming && !isAlerting;
@@ -100,7 +101,7 @@ export const TempoQueryBuilderOptions = React.memo<Props>(
 
     return (
       <EditorRow>
-        <div className={styles.options}>
+        <div {...stylex.props(tempoQueryBuilderOptionsStyles.options)}>
           {!isAlerting && (
             <QueryOptionGroup
               title="Search Options"
@@ -223,16 +224,4 @@ const StreamingTooltip = () => {
 
 TempoQueryBuilderOptions.displayName = 'TempoQueryBuilderOptions';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    options: css({
-      display: 'flex',
-      width: '-webkit-fill-available',
-      gap: theme.spacing(1),
-
-      '> div': {
-        width: 'auto',
-      },
-    }),
-  };
-};
+;

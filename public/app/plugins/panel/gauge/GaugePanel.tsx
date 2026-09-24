@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { gaugePanelStyles } from './GaugePanel.stylex';
+
 import { useMemo, type JSX } from 'react';
 
 import {
@@ -11,7 +13,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, PanelDataErrorView } from '@grafana/runtime';
-import { DataLinksContextMenu, Stack, useStyles2, VizRepeater, type VizRepeaterRenderValueProps } from '@grafana/ui';
+import { DataLinksContextMenu, Stack, VizRepeater, type VizRepeaterRenderValueProps } from '@grafana/ui';
 import { type DataLinksContextMenuApi, RadialGauge } from '@grafana/ui/internal';
 
 import { type Options } from './panelcfg.gen';
@@ -149,10 +151,10 @@ function DataLinkMenuWrapper({
   children: React.ReactNode;
   openMenu: DataLinksContextMenuApi['openMenu'];
 }) {
-  const styles = useStyles2(getDataLinkMenuWrapperStyles);
+  const styles = stylex.props(gaugePanelStyles.root);
   return (
     <button
-      className={styles}
+      {...stylex.props(gaugePanelStyles.root)}
       onClick={openMenu}
       aria-label={t('gauge.data-links-actions-menu', 'Open data links and actions menu')}
     >
@@ -161,9 +163,3 @@ function DataLinkMenuWrapper({
   );
 }
 
-const getDataLinkMenuWrapperStyles = () =>
-  css({
-    cursor: 'context-menu',
-    background: 'none',
-    border: 'none',
-  });

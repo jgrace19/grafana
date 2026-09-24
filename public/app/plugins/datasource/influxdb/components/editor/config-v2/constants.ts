@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { AuthMethod } from '@grafana/plugin-ui';
 import { type ComboboxOption } from '@grafana/ui';
+
+export { inlineLabelStyleProps } from './constants.stylex';
 
 export const RADIO_BUTTON_OPTIONS = [
   { label: 'Enabled', value: true },
@@ -33,28 +32,6 @@ export const HTTP_MODES: ComboboxOption[] = [
   { label: 'POST', value: 'POST' },
   { label: 'GET', value: 'GET' },
 ];
-
-export const getInlineLabelStyles = (theme: GrafanaTheme2, transparent = false) => {
-  return {
-    label: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexShrink: 0,
-      padding: theme.spacing(0, 1),
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.size.md,
-      backgroundColor: transparent ? 'transparent' : theme.colors.background.secondary,
-      height: theme.spacing(theme.components.height.md),
-      lineHeight: theme.spacing(theme.components.height.md),
-      marginRight: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      border: 'none',
-      width: '220px',
-      color: theme.colors.text.primary,
-    }),
-  };
-};
 
 export const CONTAINER_MIN_WIDTH = '450px';
 export const DB_SETTINGS_LABEL_WIDTH = 22;

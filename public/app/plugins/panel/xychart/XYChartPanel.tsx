@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { xYChartPanelStyles } from './XYChartPanel.stylex';
+
 import { useMemo } from 'react';
 
 import { colorManipulator, FALLBACK_COLOR, type PanelProps } from '@grafana/data';
@@ -11,7 +13,6 @@ import {
   VizLayout,
   VizLegend,
   type VizLegendItem,
-  useStyles2,
   useTheme2,
   usePanelContext,
 } from '@grafana/ui';
@@ -27,7 +28,6 @@ import { prepSeries } from './utils';
 type Props2 = PanelProps<Options>;
 
 export const XYChartPanel2 = (props: Props2) => {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   const { canExecuteActions } = usePanelContext();
@@ -84,7 +84,7 @@ export const XYChartPanel2 = (props: Props2) => {
     return (
       <VizLayout.Legend placement={placement} width={width}>
         <VizLegend
-          className={styles.legend}
+          {...stylex.props(xYChartPanelStyles.legend)}
           placement={placement}
           items={items}
           displayMode={displayMode}
@@ -143,10 +143,3 @@ export const XYChartPanel2 = (props: Props2) => {
   );
 };
 
-const getStyles = () => ({
-  legend: css({
-    div: {
-      justifyContent: 'flex-start',
-    },
-  }),
-});

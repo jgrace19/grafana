@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryOptionsStyles } from './QueryOptions.stylex';
+
 import * as React from 'react';
 
 import { CoreApp, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { useStyles2, RadioButtonGroup, MultiSelect, Input, InlineSwitch } from '@grafana/ui';
+import { RadioButtonGroup, MultiSelect, Input, InlineSwitch } from '@grafana/ui';
 
 import { type Query } from '../types';
 
@@ -35,7 +37,6 @@ function getTypeOptions(app?: CoreApp) {
  * Base on QueryOptionGroup component from grafana/ui but that is not available yet.
  */
 export function QueryOptions({ query, onQueryChange, app, labels }: Props) {
-  const styles = useStyles2(getStyles);
   const typeOptions = getTypeOptions(app);
   const groupByOptions = labels
     ? labels.map((l) => ({
@@ -64,7 +65,7 @@ export function QueryOptions({ query, onQueryChange, app, labels }: Props) {
   return (
     <Stack gap={0} direction="column">
       <QueryOptionGroup title="Options" collapsedInfo={collapsedInfo}>
-        <div className={styles.body}>
+        <div {...stylex.props(queryOptionsStyles.body)}>
           <EditorField label={'Query Type'}>
             <RadioButtonGroup
               options={typeOptions}
@@ -162,21 +163,4 @@ export function QueryOptions({ query, onQueryChange, app, labels }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    switchLabel: css({
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      fontSize: theme.typography.bodySmall.fontSize,
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-    body: css({
-      display: 'flex',
-      paddingTop: theme.spacing(2),
-      gap: theme.spacing(2),
-      flexWrap: 'wrap',
-    }),
-  };
-};
+;

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { measureOverlayStyles } from './MeasureOverlay.stylex';
+
 import type Map from 'ol/Map';
 import { useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -119,33 +120,3 @@ export const MeasureOverlay = ({ map, menuActiveState }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  button: css({
-    marginLeft: 'auto',
-  }),
-  icon: css({
-    backgroundColor: theme.colors.secondary.main,
-    display: 'inline-block',
-    height: '19.25px',
-    margin: '1px',
-    width: '19.25px',
-  }),
-  infoWrap: css({
-    color: `${theme.colors.text}`,
-    backgroundColor: theme.colors.background.secondary,
-    // eslint-disable-next-line @grafana/no-border-radius-literal
-    borderRadius: '4px',
-    padding: '2px',
-  }),
-  infoWrapClosed: css({
-    height: '25.25px',
-    width: '25.25px',
-  }),
-  rowGroup: css({
-    display: 'flex',
-    justifyContent: 'flex-end',
-  }),
-  unitSelect: css({
-    minWidth: '200px',
-  }),
-});

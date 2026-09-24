@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { textPanelEditorStyles } from './TextPanelEditor.stylex';
+
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type StandardEditorProps } from '@grafana/data';
 import {
   CodeEditor,
-  useStyles2,
   type CodeEditorSuggestionItem,
   variableSuggestionToCodeEditorSuggestion,
 } from '@grafana/ui';
@@ -13,7 +13,6 @@ import { type Options, TextMode } from './panelcfg.gen';
 
 export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProps<string, {}, Options>) => {
   const language = useMemo(() => context.options?.mode ?? TextMode.Markdown, [context]);
-  const styles = useStyles2(getStyles);
 
   const getSuggestions = (): CodeEditorSuggestionItem[] => {
     if (!context.getSuggestions) {
@@ -23,7 +22,7 @@ export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProp
   };
 
   return (
-    <div className={cx(styles.editorBox)}>
+    <div className={clsx(styles.editorBox)}>
       <CodeEditor
         value={value}
         onBlur={onChange}
@@ -39,10 +38,3 @@ export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorBox: css({
-    label: 'editorBox',
-    margin: theme.spacing(0.5, 0),
-    width: '100%',
-  }),
-});

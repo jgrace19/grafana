@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { type ChangeEvent, useMemo } from 'react';
 
 import { type AzureAuthType, type AzureCredentials } from '@grafana/azure-sdk';
@@ -153,7 +153,7 @@ export const AzureCredentialsForm = (props: Props) => {
               <InlineFormLabel className="width-12">Directory (tenant) ID</InlineFormLabel>
               <div className="width-15">
                 <Input
-                  className={cx('width-20')}
+                  className={clsx('width-20')}
                   placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                   value={credentials.tenantId || ''}
                   onChange={onTenantIdChange}
@@ -167,7 +167,7 @@ export const AzureCredentialsForm = (props: Props) => {
               <InlineFormLabel className="width-12">Application (client) ID</InlineFormLabel>
               <div className="width-15">
                 <Input
-                  className={cx('width-20')}
+                  className={clsx('width-20')}
                   placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                   value={credentials.clientId || ''}
                   onChange={onClientIdChange}
@@ -182,11 +182,11 @@ export const AzureCredentialsForm = (props: Props) => {
                 <InlineFormLabel htmlFor="azure-client-secret" className="width-12">
                   Client Secret
                 </InlineFormLabel>
-                <Input id="azure-client-secret" className={cx('width-20')} placeholder="configured" disabled />
+                <Input id="azure-client-secret" className={clsx('width-20')} placeholder="configured" disabled />
               </div>
               {!disabled && (
                 <div className="gf-form">
-                  <div className={cx('max-width-20 gf-form-inline')}>
+                  <div className={clsx('max-width-20 gf-form-inline')}>
                     <Button variant="secondary" type="button" onClick={onClientSecretReset}>
                       reset
                     </Button>
@@ -200,7 +200,7 @@ export const AzureCredentialsForm = (props: Props) => {
                 <InlineFormLabel className="width-12">Client Secret</InlineFormLabel>
                 <div className="width-15">
                   <Input
-                    className={cx('width-20')}
+                    className={clsx('width-20')}
                     placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                     value={credentials.clientSecret || ''}
                     onChange={onClientSecretChange}

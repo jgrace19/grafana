@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { cloudMonitoringCheatSheetStyles } from './CloudMonitoringCheatSheet.stylex';
+
 import { memo } from 'react';
 
 import { type QueryEditorHelpProps } from '@grafana/data';
@@ -24,9 +26,7 @@ const CloudMonitoringCheatSheet = memo(
           <span>Patterns:</span>
           <br />
           <ul
-            className={css({
-              listStyle: 'none',
-            })}
+            {...stylex.props(cloudMonitoringCheatSheetStyles.inline0)}
           >
             <li>
               <code>{`${'{{metric.type}}'}`}</code> = metric type e.g. compute.googleapis.com/instance/cpu/usage_time

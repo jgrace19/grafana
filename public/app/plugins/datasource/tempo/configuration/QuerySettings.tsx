@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { querySettingsStyles } from './QuerySettings.stylex';
 
 import {
   type DataSourcePluginOptionsEditorProps,
@@ -6,14 +7,13 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { IntervalInput, invalidTimeShiftError } from '@grafana/o11y-ds-frontend';
-import { InlineField, InlineSwitch, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineSwitch } from '@grafana/ui';
 
 import { type TempoJsonData } from '../types';
 
 interface Props extends DataSourcePluginOptionsEditorProps<TempoJsonData> {}
 
 export function QuerySettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
 
   const getLabel = (type: 'start' | 'end') => {
     return `Time shift for ${type} of search`;
@@ -24,7 +24,7 @@ export function QuerySettings({ options, onOptionsChange }: Props) {
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(querySettingsStyles.container)}>
       <InlineField
         label="Use time range in query"
         tooltip="The time range can be used when there are performance issues or timeouts since it will narrow down the search to the defined range. Default: disabled"
@@ -73,15 +73,4 @@ export function QuerySettings({ options, onOptionsChange }: Props) {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  container: css({
-    width: '100%',
-  }),
-  row: css({
-    alignItems: 'baseline',
-  }),
-});
+export 

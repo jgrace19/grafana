@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { logsTableRowActionButtonsStyles } from './LogsTableRowActionButtons.stylex';
+
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ClipboardButton,
@@ -38,11 +39,11 @@ export function LogsTableRowActionButtons(props: Props) {
 
   return (
     <>
-      <div className={styles.container}>
+      <div {...stylex.props(logsTableRowActionButtonsStyles.container)}>
         {showInspectLogLine && (
-          <div className={styles.buttonWrapper}>
+          <div {...stylex.props(logsTableRowActionButtonsStyles.buttonWrapper)}>
             <IconButton
-              className={styles.inspectButton}
+              {...stylex.props(logsTableRowActionButtonsStyles.inspectButton)}
               tooltip={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
               variant="secondary"
               aria-label={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
@@ -55,9 +56,9 @@ export function LogsTableRowActionButtons(props: Props) {
           </div>
         )}
         {buildLinkToLog && (
-          <div className={styles.buttonWrapper}>
+          <div {...stylex.props(logsTableRowActionButtonsStyles.buttonWrapper)}>
             <ClipboardButton
-              className={styles.clipboardButton}
+              {...stylex.props(logsTableRowActionButtonsStyles.clipboardButton)}
               icon="share-alt"
               variant="secondary"
               fill="text"
@@ -97,42 +98,4 @@ const getLineValue = (logsFrame: LogsFrame, rowIndex: number) => {
   return bodyField?.values[rowIndex];
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    background: theme.colors.background.secondary,
-    boxShadow: theme.shadows.z2,
-    display: 'flex',
-    flexDirection: 'row',
-    height: '100%',
-    left: 0,
-    top: 0,
-    position: 'absolute',
-    zIndex: 1,
-  }),
-  buttonWrapper: css({
-    height: '100%',
-    '&:hover': {
-      color: theme.colors.text.link,
-    },
-    padding: theme.spacing(0, 0.5),
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  inspectButton: css({
-    borderRadius: theme.shape.radius.default,
-    display: 'inline-flex',
-    margin: 0,
-    overflow: 'hidden',
-    verticalAlign: 'middle',
-    cursor: 'pointer',
-    height: '24px',
-    width: '20px',
-  }),
-  clipboardButton: css({
-    lineHeight: '1',
-    padding: 0,
-    width: '20px',
-    cursor: 'pointer',
-    height: '24px',
-  }),
-});
+export 

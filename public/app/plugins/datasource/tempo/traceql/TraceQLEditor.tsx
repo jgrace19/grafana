@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type TimeRange } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { reportInteraction } from '@grafana/runtime';
 import { CodeEditor, type Monaco, type monacoTypes, useTheme2 } from '@grafana/ui';
@@ -10,6 +10,7 @@ import { DEFAULT_TIME_RANGE_FOR_TAGS } from '../configuration/TagsTimeRangeSetti
 import { type TempoDatasource } from '../datasource';
 import { type TempoQuery } from '../types';
 
+import { traceQLEditorStyles } from './TraceQLEditor.stylex';
 import { CompletionProvider, type CompletionItemType } from './autocomplete';
 import { getErrorNodes, setMarkers } from './highlighting';
 import { languageDefinition } from './traceql';
@@ -34,8 +35,10 @@ export function TraceQLEditor(props: Props) {
     props.datasource.timeRangeForTags ?? DEFAULT_TIME_RANGE_FOR_TAGS,
     props.range
   );
-  const theme = useTheme2();
-  const styles = getStyles(theme, placeholder);
+  const editorStyles: EditorStyles = {
+    queryField: stylex.props(traceQLEditorStyles.queryField).className ?? '',
+    placeholder: stylex.props(traceQLEditorStyles.placeholder).className ?? '',
+  };
 
   // The Monaco Editor uses the first version of props.onChange in handleOnMount i.e. always has the initial
   // value of query because underlying Monaco editor is passed `query` below in the onEditorChange callback.
@@ -61,7 +64,7 @@ export function TraceQLEditor(props: Props) {
         language={langId}
         onBlur={onEditorChange}
         onChange={onEditorChange}
-        containerStyles={styles.queryField}
+        containerStyles={editorStyles.queryField}
         readOnly={props.readOnly}
         monacoOptions={{
           folding: false,
@@ -83,7 +86,8 @@ export function TraceQLEditor(props: Props) {
           if (!props.readOnly) {
             setupAutocompleteFn(editor, monaco, setupRegisterInteractionCommand(editor));
             setupActions(editor, monaco, () => onRunQueryRef.current());
-            setupPlaceholder(editor, monaco, styles);
+            editor.getContainerDomNode().style.setProperty('--traceql-editor-placeholder', `'${placeholder}'`);
+            setupPlaceholder(editor, monaco, editorStyles);
           }
           setupAutoSize(editor);
 
@@ -305,19 +309,3 @@ interface EditorStyles {
   queryField: string;
 }
 
-const getStyles = (theme: GrafanaTheme2, placeholder: string): EditorStyles => {
-  return {
-    queryField: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      flex: 1,
-    }),
-    placeholder: css({
-      '::after': {
-        content: `'${placeholder}'`,
-        fontFamily: theme.typography.fontFamilyMonospace,
-        opacity: 0.3,
-      },
-    }),
-  };
-};

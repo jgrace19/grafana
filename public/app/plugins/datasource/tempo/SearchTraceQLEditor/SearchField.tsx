@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { searchFieldStyles } from './SearchField.stylex';
+
 import { uniq } from 'lodash';
 import { useMemo, useState } from 'react';
 import useAsync from 'react-use/lib/useAsync';
@@ -6,7 +8,7 @@ import useAsync from 'react-use/lib/useAsync';
 import { type SelectableValue, type TimeRange } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { type FetchError, getTemplateSrv, isFetchError } from '@grafana/runtime';
-import { Select, Stack, useStyles2, type InputActionMeta } from '@grafana/ui';
+import { Select, Stack, type InputActionMeta } from '@grafana/ui';
 
 import { type TraceqlFilter, TraceqlSearchScope } from '../dataquery.gen';
 import { type TempoDatasource } from '../datasource';
@@ -50,7 +52,6 @@ const SearchField = ({
   range,
   timeRangeForTags,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const [alertText, setAlertText] = useState<string>();
   const scopedTag = useMemo(
     () => filterScopedTag(filter, datasource.languageProvider),
@@ -176,7 +177,7 @@ const SearchField = ({
         {!hideScope && (
           <Select
             width="auto"
-            className={styles.dropdown}
+            {...stylex.props(searchFieldStyles.dropdown)}
             inputId={`${filter.id}-scope`}
             options={addVariablesToOptions ? withTemplateVariableOptions(scopeOptions) : scopeOptions}
             value={filter.scope}
@@ -188,7 +189,7 @@ const SearchField = ({
         {!hideTag && (
           <Select
             width="auto"
-            className={styles.dropdown}
+            {...stylex.props(searchFieldStyles.dropdown)}
             inputId={`${filter.id}-tag`}
             isLoading={isTagsLoading}
             // Add the current tag to the list if it doesn't exist in the tags prop, otherwise the field will be empty even though the state has a value
@@ -210,7 +211,7 @@ const SearchField = ({
           />
         )}
         <Select
-          className={styles.dropdown}
+          {...stylex.props(searchFieldStyles.dropdown)}
           inputId={`${filter.id}-operator`}
           options={addVariablesToOptions ? withTemplateVariableOptions(operatorOptions) : operatorOptions}
           value={filter.operator}
@@ -229,7 +230,7 @@ const SearchField = ({
              */
             width="auto"
             virtualized
-            className={styles.dropdown}
+            {...stylex.props(searchFieldStyles.dropdown)}
             inputId={`${filter.id}-value`}
             isLoading={isLoadingValues}
             options={addVariablesToOptions ? withTemplateVariableOptions(tagValueOptions) : tagValueOptions}
@@ -292,8 +293,3 @@ export const withTemplateVariableOptions = (options: SelectableValue[] | undefin
   return [...(options || []), ...templateVariables.map((v) => ({ label: `$${v.name}`, value: `$${v.name}` }))];
 };
 
-const getStyles = () => ({
-  dropdown: css({
-    boxShadow: 'none',
-  }),
-});

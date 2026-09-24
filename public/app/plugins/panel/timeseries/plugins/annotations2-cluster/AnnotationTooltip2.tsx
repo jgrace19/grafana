@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationTooltip2Styles } from './AnnotationTooltip2.stylex';
 
 import { type ActionModel, type GrafanaTheme2, type LinkModel } from '@grafana/data';
-import { usePanelContext, useStyles2 } from '@grafana/ui';
+import { usePanelContext } from '@grafana/ui';
 import { VizTooltipFooter } from '@grafana/ui/internal';
 
 import { AnnotationTooltipBody } from './AnnotationTooltipBody';
@@ -32,7 +33,6 @@ export const AnnotationTooltip2 = ({
   links = [],
   actions = [],
 }: AnnotationTooltipProps) => {
-  const styles = useStyles2(getStyles);
   const { canEditAnnotations = retFalse, canDeleteAnnotations = retFalse, onAnnotationDelete } = usePanelContext();
   const { onDelete, canEdit, canDelete, time, text, alertText, alertState, avatarImgSrc, title } = getAnnotationTooltip(
     annoVals,
@@ -45,7 +45,7 @@ export const AnnotationTooltip2 = ({
   );
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(annotationTooltip2Styles.wrapper)}>
       <AnnotationTooltipHeader
         avatarImg={avatarImgSrc}
         alertState={alertState}
@@ -69,14 +69,3 @@ export const AnnotationTooltip2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    zIndex: theme.zIndex.tooltip,
-    whiteSpace: 'initial',
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
-    userSelect: 'text',
-  }),
-});

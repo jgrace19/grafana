@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationListItemStyles } from './AnnotationListItem.stylex';
+
 import { type MouseEvent } from 'react';
 
 import { type AnnotationEvent, type DateTimeInput, type GrafanaTheme2, type PanelProps } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Card, RenderUserContentAsHTML, TagList, Tooltip, useStyles2 } from '@grafana/ui';
+import { Card, RenderUserContentAsHTML, TagList, Tooltip } from '@grafana/ui';
 
 import { type Options } from './panelcfg.gen';
 
@@ -16,7 +18,6 @@ interface Props extends Pick<PanelProps<Options>, 'options'> {
 }
 
 export const AnnotationListItem = ({ options, annotation, formatDate, onClick, onAvatarClick, onTagClick }: Props) => {
-  const styles = useStyles2(getStyles);
   const { showUser, showTags, showTime } = options;
   const { text = '', login, email, avatarUrl, tags, time, timeEnd } = annotation;
   const onItemClick = () => {
@@ -30,10 +31,10 @@ export const AnnotationListItem = ({ options, annotation, formatDate, onClick, o
   const showTimeStampEnd = timeEnd && timeEnd !== time && showTime;
 
   return (
-    <Card noMargin className={styles.card} onClick={onItemClick}>
+    <Card noMargin {...stylex.props(annotationListItemStyles.card)} onClick={onItemClick}>
       <Card.Heading>
         <RenderUserContentAsHTML
-          className={styles.heading}
+          {...stylex.props(annotationListItemStyles.heading)}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -41,18 +42,18 @@ export const AnnotationListItem = ({ options, annotation, formatDate, onClick, o
         />
       </Card.Heading>
       {showTimeStamp && (
-        <Card.Description className={styles.timestamp}>
+        <Card.Description {...stylex.props(annotationListItemStyles.timestamp)}>
           <TimeStamp formatDate={formatDate} time={time!} />
           {showTimeStampEnd && (
             <>
-              <span className={styles.time}>-</span>
+              <span {...stylex.props(annotationListItemStyles.time)}>-</span>
               <TimeStamp formatDate={formatDate} time={timeEnd!} />{' '}
             </>
           )}
         </Card.Description>
       )}
       {showAvatar && (
-        <Card.Meta className={styles.meta}>
+        <Card.Meta {...stylex.props(annotationListItemStyles.meta)}>
           <Avatar email={email} login={login!} avatarUrl={avatarUrl} onClick={onLoginClick} />
         </Card.Meta>
       )}
@@ -73,7 +74,6 @@ interface AvatarProps {
 }
 
 const Avatar = ({ onClick, avatarUrl, login, email }: AvatarProps) => {
-  const styles = useStyles2(getStyles);
   const onAvatarClick = (e: MouseEvent) => {
     e.stopPropagation();
     onClick();
@@ -89,7 +89,7 @@ const Avatar = ({ onClick, avatarUrl, login, email }: AvatarProps) => {
 
   return (
     <Tooltip content={tooltipContent} theme="info" placement="top">
-      <button onClick={onAvatarClick} className={styles.avatar}>
+      <button onClick={onAvatarClick} {...stylex.props(annotationListItemStyles.avatar)}>
         <img src={avatarUrl} alt="avatar icon" />
       </button>
     </Tooltip>
@@ -102,59 +102,11 @@ interface TimeStampProps {
 }
 
 const TimeStamp = ({ time, formatDate }: TimeStampProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <span className={styles.time}>
+    <span {...stylex.props(annotationListItemStyles.time)}>
       <span>{formatDate(time)}</span>
     </span>
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    card: css({
-      gridTemplateAreas: `"Heading Description Meta Tags"`,
-      gridTemplateColumns: 'auto 1fr auto auto',
-      padding: theme.spacing(1),
-      margin: theme.spacing(0.5),
-      width: 'inherit',
-    }),
-    heading: css({
-      a: {
-        zIndex: 1,
-        position: 'relative',
-        color: theme.colors.text.link,
-        '&:hover': {
-          textDecoration: 'underline',
-        },
-      },
-    }),
-    meta: css({
-      margin: 0,
-      position: 'relative',
-      justifyContent: 'end',
-    }),
-    timestamp: css({
-      margin: 0,
-      alignSelf: 'center',
-    }),
-    time: css({
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    avatar: css({
-      border: 'none',
-      background: 'inherit',
-      margin: 0,
-      padding: theme.spacing(0.5),
-      img: {
-        borderRadius: theme.shape.radius.circle,
-        width: theme.spacing(2),
-        height: theme.spacing(2),
-      },
-    }),
-  };
-}

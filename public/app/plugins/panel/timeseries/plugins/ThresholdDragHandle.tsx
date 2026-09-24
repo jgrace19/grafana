@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { thresholdDragHandleStyles } from './ThresholdDragHandle.stylex';
+
 import { noop } from 'lodash';
 import { useMemo, useState } from 'react';
 import Draggable, { type DraggableBounds } from 'react-draggable';
 
 import { type Threshold, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 type OutOfBounds = 'top' | 'bottom' | 'none';
 
@@ -48,7 +50,6 @@ export const ThresholdDragHandle = ({
   }
 
   const disabled = typeof onChange !== 'function';
-  const styles = useStyles2(getStyles, step, outOfBounds, disabled);
   const [currentValue, setCurrentValue] = useState(step.value);
 
   const textColor = useMemo(() => {
@@ -74,7 +75,7 @@ export const ThresholdDragHandle = ({
       bounds={dragBounds}
     >
       <div className={styles.handle} style={{ color: textColor }}>
-        <span className={styles.handleText}>{formatValue(currentValue)}</span>
+        <span {...stylex.props(thresholdDragHandleStyles.handleText)}>{formatValue(currentValue)}</span>
       </div>
     </Draggable>
   );
@@ -82,44 +83,6 @@ export const ThresholdDragHandle = ({
 
 ThresholdDragHandle.displayName = 'ThresholdDragHandle';
 
-const getStyles = (theme: GrafanaTheme2, step: Threshold, outOfBounds: OutOfBounds, disabled?: boolean) => {
-  const mainColor = theme.visualization.getColorByName(step.color);
-  const arrowStyles = getArrowStyles(outOfBounds);
-  const isOutOfBounds = outOfBounds !== 'none';
-
-  return {
-    handle: css(
-      {
-        display: 'flex',
-        alignItems: 'center',
-        position: 'absolute',
-        left: 0,
-        width: 'calc(100% - 9px)',
-        height: '18px',
-        marginTop: '-9px',
-        borderColor: mainColor,
-        cursor: disabled ? 'initial' : 'grab',
-        borderTopRightRadius: theme.shape.radius.default,
-        borderBottomRightRadius: theme.shape.radius.default,
-        background: mainColor,
-        fontSize: theme.typography.bodySmall.fontSize,
-        '&:before': arrowStyles,
-      },
-      isOutOfBounds && {
-        marginTop: 0,
-        borderRadius: theme.shape.radius.default,
-      }
-    ),
-    handleText: css({
-      textAlign: 'center',
-      width: '100%',
-      display: 'block',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-    }),
-  };
-};
 
 function getArrowStyles(outOfBounds: OutOfBounds) {
   const inBounds = outOfBounds === 'none';

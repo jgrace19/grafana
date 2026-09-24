@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryEditorStyles } from './QueryEditor.stylex';
+
 import { defaults } from 'lodash';
 import { useState } from 'react';
 
 import { CoreApp, type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
-import { Alert, Button, InlineLabel, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, Button, InlineLabel, TextLink } from '@grafana/ui';
 
 import { type TempoDatasource } from '../datasource';
 import { defaultQuery, type MyDataSourceOptions, type TempoQuery } from '../types';
@@ -19,7 +21,6 @@ type EditorProps = {
 type Props = EditorProps & QueryEditorProps<TempoDatasource, TempoQuery, MyDataSourceOptions>;
 
 export function QueryEditor(props: Props) {
-  const styles = useStyles2(getStyles);
   const query = defaults(props.query, defaultQuery);
   const [showCopyFromSearchButton, setShowCopyFromSearchButton] = useState(() => {
     const genQuery = props.datasource.languageProvider.generateQueryFromFilters({
@@ -50,7 +51,7 @@ export function QueryEditor(props: Props) {
         </TextLink>
       </InlineLabel>
       {!showCopyFromSearchButton && (
-        <div className={styles.copyContainer}>
+        <div {...stylex.props(queryEditorStyles.copyContainer)}>
           <span>Continue editing the query from the Search tab?</span>
           <Button
             variant="secondary"
@@ -85,7 +86,7 @@ export function QueryEditor(props: Props) {
         onRunQuery={props.onRunQuery}
         range={props.range}
       />
-      <div className={styles.optionsContainer}>
+      <div {...stylex.props(queryEditorStyles.optionsContainer)}>
         <TempoQueryBuilderOptions
           query={query}
           onChange={props.onChange}
@@ -98,13 +99,3 @@ export function QueryEditor(props: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  optionsContainer: css({
-    marginTop: '10px',
-  }),
-  copyContainer: css({
-    backgroundColor: theme.colors.background.secondary,
-    padding: theme.spacing(0.5, 1),
-    fontSize: theme.typography.body.fontSize,
-  }),
-});

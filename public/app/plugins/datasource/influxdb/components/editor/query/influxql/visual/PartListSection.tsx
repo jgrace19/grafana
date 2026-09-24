@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { partListSectionStyles } from './PartListSection.stylex';
+
 import { Fragment, useMemo, type JSX } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
 import { useTheme2 } from '@grafana/ui';
 
@@ -27,10 +28,6 @@ type Props = {
   onAddNewPart: (type: string) => void;
 };
 
-const noRightMarginPaddingClass = css({
-  paddingRight: '0',
-  marginRight: '0',
-});
 
 type PartProps = {
   name: string;
@@ -39,15 +36,9 @@ type PartProps = {
   onChange: (paramValues: string[]) => void;
 };
 
-const noHorizMarginPaddingClass = css({
-  paddingLeft: '0',
-  paddingRight: '0',
-  marginLeft: '0',
-  marginRight: '0',
-});
 
 const getPartClass = (theme: GrafanaTheme2) => {
-  return cx(
+  return clsx(
     'gf-form-label',
     css({
       paddingLeft: '0',
@@ -70,7 +61,7 @@ const Part = ({ name, params, onChange }: PartProps): JSX.Element => {
   };
   return (
     <div className={partClass}>
-      <button className={cx('gf-form-label', noRightMarginPaddingClass)}>{name}</button>(
+      <button {...stylex.props(partListSectionStyles.noRightMarginPaddingClass)}>{name}</button>(
       {params.map((p, i) => {
         const { value, options } = p;
         const isLast = i === params.length - 1;

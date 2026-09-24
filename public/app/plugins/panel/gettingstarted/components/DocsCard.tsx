@@ -1,40 +1,49 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink, useTheme2 } from '@grafana/ui';
 
+import { getCardAccentStyle, getCardStyleProps } from '../sharedCardStyles';
 import { type Card } from '../types';
 
-import { cardContent, cardStyle } from './sharedStyles';
+import { sharedStyles } from './sharedStyles.stylex';
+import { docsCardStyles } from './DocsCard.stylex';
 
 interface Props {
   card: Card;
 }
 
 export const DocsCard = ({ card }: Props) => {
-  const styles = useStyles2(getStyles, card.done);
+  const theme = useTheme2();
 
   return (
-    <div className={styles.card}>
-      <div className={cx(cardContent, styles.content)}>
+    <div {...stylex.props(docsCardStyles.card)} style={getCardStyleProps(theme, card.done)}>
+      <span style={getCardAccentStyle(theme, card.done)} aria-hidden />
+      <div {...stylex.props(docsCardStyles.content, sharedStyles.cardContent)}>
         <a
           href={`${card.href}?utm_source=grafana_gettingstarted`}
-          className={styles.url}
+          {...stylex.props(docsCardStyles.url)}
           onClick={() => reportInteraction('grafana_getting_started_docs', { title: card.title, link: card.href })}
         >
-          <div className={styles.heading}>
+          <div
+            style={{
+              textTransform: 'uppercase',
+              color: card.done ? theme.visualization.getColorByName('blue') : '#FFB357',
+              marginBottom: theme.spacing(2),
+            }}
+          >
             {card.done ? t('gettingstarted.docs-card.complete', 'complete') : card.heading}
           </div>
-          <h4 className={styles.title}>{card.title}</h4>
+          <h4 {...stylex.props(docsCardStyles.title)}>{card.title}</h4>
         </a>
       </div>
-      <div className={styles.learnUrl}>
+      <div>
         <TextLink
           href={`${card.learnHref}?utm_source=grafana_gettingstarted`}
           external
           inline={false}
+          className={stylex.props(docsCardStyles.learnUrlLink).className}
           onClick={() => reportInteraction('grafana_getting_started_docs', { title: card.title, link: card.learnHref })}
         >
           <Trans i18nKey="gettingstarted.docs-card.learn-how">Learn how in the docs</Trans>
@@ -42,47 +51,4 @@ export const DocsCard = ({ card }: Props) => {
       </div>
     </div>
   );
-};
-
-const getStyles = (theme: GrafanaTheme2, complete: boolean) => {
-  return {
-    card: css({
-      ...cardStyle(theme, complete),
-
-      display: 'flex',
-      flexDirection: 'column',
-      minWidth: '230px',
-
-      [theme.breakpoints.down('md')]: {
-        minWidth: '192px',
-      },
-    }),
-    content: css({
-      flexGrow: 1,
-
-      '&:has(> a:hover)': {
-        backgroundColor: theme.colors.emphasize(theme.colors.background.secondary, 0.03),
-      },
-    }),
-    heading: css({
-      textTransform: 'uppercase',
-      color: complete ? theme.v1.palette.blue95 : '#FFB357',
-      marginBottom: theme.spacing(2),
-    }),
-    title: css({
-      marginBottom: theme.spacing(2),
-    }),
-    url: css({
-      display: 'inline-block',
-      height: '100%',
-    }),
-    learnUrl: css({
-      a: {
-        borderTop: `1px solid ${theme.colors.border.weak}`,
-        display: 'inline-block',
-        padding: theme.spacing(1, 2),
-        width: '100%',
-      },
-    }),
-  };
 };

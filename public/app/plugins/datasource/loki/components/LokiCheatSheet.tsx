@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { lokiCheatSheetStyles } from './LokiCheatSheet.stylex';
+
 import { shuffle } from 'lodash';
 import { PureComponent } from 'react';
 
-import { type GrafanaTheme2, type QueryEditorHelpProps } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
 import { TextLink, type Themeable2, withTheme2 } from '@grafana/ui';
 
@@ -90,7 +91,7 @@ class UnthemedLokiCheatSheet extends PureComponent<
     return (
       <button
         type="button"
-        className={styles.cheatSheetExample}
+        {...stylex.props(lokiCheatSheetStyles.cheatSheetExample)}
         key={expr}
         onClick={() => onClick({ refId: 'A', expr })}
       >
@@ -108,8 +109,8 @@ class UnthemedLokiCheatSheet extends PureComponent<
     return (
       <div>
         <h2>Loki Cheat Sheet</h2>
-        <div className={styles.cheatSheetItem}>
-          <div className={styles.cheatSheetItemTitle}>See your logs</div>
+        <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItem)}>
+          <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItemTitle)}>See your logs</div>
           Start by selecting a log stream from the Label browser, or alternatively you can write a stream selector into
           the query field.
           {hasUserExamples ? (
@@ -124,14 +125,14 @@ class UnthemedLokiCheatSheet extends PureComponent<
             </div>
           )}
         </div>
-        <div className={styles.cheatSheetItem}>
-          <div className={styles.cheatSheetItemTitle}>Combine stream selectors</div>
+        <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItem)}>
+          <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItemTitle)}>Combine stream selectors</div>
           {this.renderExpression('{app="cassandra",namespace="prod"}')}
           Returns all log lines from streams that have both labels.
         </div>
 
-        <div className={styles.cheatSheetItem}>
-          <div className={styles.cheatSheetItemTitle}>Filtering for search terms.</div>
+        <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItem)}>
+          <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItemTitle)}>Filtering for search terms.</div>
           {this.renderExpression('{app="cassandra"} |~ "(duration|latency)s*(=|is|of)s*[d.]+"')}
           {this.renderExpression('{app="cassandra"} |= "exact match"')}
           {this.renderExpression('{app="cassandra"} != "do not match"')}
@@ -141,8 +142,8 @@ class UnthemedLokiCheatSheet extends PureComponent<
           supports exact and regular expression filters.
         </div>
         {LOGQL_EXAMPLES.map((item) => (
-          <div className={styles.cheatSheetItem} key={item.expression}>
-            <div className={styles.cheatSheetItemTitle}>{item.title}</div>
+          <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItem)} key={item.expression}>
+            <div {...stylex.props(lokiCheatSheetStyles.cheatSheetItemTitle)}>{item.title}</div>
             {this.renderExpression(item.expression)}
             {item.label}
           </div>
@@ -154,19 +155,3 @@ class UnthemedLokiCheatSheet extends PureComponent<
 
 export default withTheme2(UnthemedLokiCheatSheet);
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  cheatSheetItem: css({
-    margin: theme.spacing(3, 0),
-  }),
-  cheatSheetItemTitle: css({
-    fontSize: theme.typography.h3.fontSize,
-  }),
-  cheatSheetExample: css({
-    margin: theme.spacing(0.5, 0),
-    // element is interactive, clear button styles
-    textAlign: 'left',
-    border: 'none',
-    background: 'transparent',
-    display: 'block',
-  }),
-});

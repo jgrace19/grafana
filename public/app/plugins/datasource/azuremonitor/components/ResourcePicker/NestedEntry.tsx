@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 import * as React from 'react';
 
@@ -92,7 +92,7 @@ export const NestedEntry = ({
       <EntryIcon entry={entry} isOpen={isOpen} />
       <Space layout="inline" h={1} />
 
-      <label htmlFor={checkboxId} className={cx(styles.entryContentItem, styles.truncated)}>
+      <label htmlFor={checkboxId} className={clsx(styles.entryContentItem, styles.truncated)}>
         {entry.name}
       </label>
     </div>

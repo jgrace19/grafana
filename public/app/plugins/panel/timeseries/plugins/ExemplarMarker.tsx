@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { exemplarMarkerStyles } from './ExemplarMarker.stylex';
+
 import { autoUpdate, safePolygon, useDismiss, useFloating, useHover, useInteractions } from '@floating-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
@@ -6,7 +8,7 @@ import * as React from 'react';
 import { type DataFrame, type Field, formattedValueToString, type GrafanaTheme2, type LinkModel } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { type TimeZone } from '@grafana/schema';
-import { floatingUtils, Portal, type UPlotConfigBuilder, useStyles2 } from '@grafana/ui';
+import { floatingUtils, Portal, type UPlotConfigBuilder } from '@grafana/ui';
 import { type VizTooltipItem } from '@grafana/ui/internal';
 import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
 import { ExemplarTooltip } from 'app/features/visualization/data-hover/ExemplarTooltip';
@@ -38,7 +40,6 @@ export const ExemplarMarker = ({
   maxHeight,
   maxWidth,
 }: ExemplarMarkerProps) => {
-  const styles = useStyles2(getExemplarMarkerStyles, maxWidth);
   const [isOpen, setIsOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const placement = 'bottom';
@@ -141,7 +142,7 @@ export const ExemplarMarker = ({
 
     return (
       <div
-        className={cx(styles.tooltipWrapper, isLocked && styles.pinned)}
+        className={mergeStylexClassName(stylex.props(exemplarMarkerStyles.tooltipWrapper), clsx( isLocked && styles.pinned)}
         ref={refs.setFloating}
         style={floatingStyles}
         {...getFloatingProps()}
@@ -174,7 +175,7 @@ export const ExemplarMarker = ({
     <>
       <div
         ref={refs.setReference}
-        className={styles.markerWrapper}
+        {...stylex.props(exemplarMarkerStyles.markerWrapper)}
         data-testid={selectors.components.DataSource.Prometheus.exemplarMarker}
         role="button"
         tabIndex={0}
@@ -191,7 +192,7 @@ export const ExemplarMarker = ({
           width="7"
           height="7"
           style={{ fill: seriesColor }}
-          className={cx(styles.marble, (isOpen || isLocked) && styles.activeMarble)}
+          className={mergeStylexClassName(stylex.props(exemplarMarkerStyles.marble), clsx( (isOpen || isLocked) && styles.activeMarble)}
         >
           {getSymbol()}
         </svg>
@@ -201,54 +202,4 @@ export const ExemplarMarker = ({
   );
 };
 
-const getExemplarMarkerStyles = (theme: GrafanaTheme2, maxWidth: number | undefined) => {
-  return {
-    markerWrapper: css({
-      padding: '0 4px 4px 4px',
-      width: '8px',
-      height: '8px',
-      boxSizing: 'content-box',
-      transform: 'translate3d(-50%, 0, 0)',
-      '&:hover': {
-        '> svg': {
-          transform: 'scale(1.3)',
-          opacity: 1,
-          filter: 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.5))',
-        },
-      },
-    }),
-    marker: css({
-      width: 0,
-      height: 0,
-      borderLeft: '4px solid transparent',
-      borderRight: '4px solid transparent',
-      borderBottom: `4px solid ${theme.v1.palette.red}`,
-      pointerEvents: 'none',
-    }),
-    marble: css({
-      display: 'block',
-      opacity: 0.5,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: 'transform 0.15s ease-out',
-      },
-    }),
-    activeMarble: css({
-      transform: 'scale(1.3)',
-      opacity: 1,
-      filter: 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.5))',
-    }),
-    tooltipWrapper: css({
-      background: theme.colors.background.elevated,
-      maxWidth: maxWidth ?? 'none',
-      whiteSpace: 'pre',
-      borderRadius: theme.shape.radius.default,
-      position: 'fixed',
-      border: `1px solid ${theme.colors.border.weak}`,
-      boxShadow: theme.shadows.z2,
-      userSelect: 'text',
-    }),
-    pinned: css({
-      boxShadow: theme.shadows.z3,
-    }),
-  };
-};
+;

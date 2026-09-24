@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryOptionGroupStyles } from './QueryOptionGroup.stylex';
+
 import * as React from 'react';
 import { useToggle } from 'react-use';
 
 import { getValueFormat, type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { Collapse, Icon, Tooltip, useStyles2, Stack } from '@grafana/ui';
+import { Collapse, Icon, Tooltip, Stack } from '@grafana/ui';
 
 import { type QueryStats } from '../loki/types';
 
@@ -19,19 +21,18 @@ export interface Props {
 
 export function QueryOptionGroup({ title, children, collapsedInfo, queryStats, onToggle, isOpen: propsIsOpen }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(queryOptionGroupStyles.wrapper)}>
       <Collapse
-        className={styles.collapse}
+        {...stylex.props(queryOptionGroupStyles.collapse)}
         isOpen={propsIsOpen ?? isOpen}
         onToggle={onToggle ?? toggleOpen}
         label={
           <Stack gap={0}>
-            <h6 className={styles.title}>{title}</h6>
+            <h6 {...stylex.props(queryOptionGroupStyles.title)}>{title}</h6>
             {!isOpen && (
-              <div className={styles.description}>
+              <div {...stylex.props(queryOptionGroupStyles.description)}>
                 {collapsedInfo.map((x, i) => (
                   <span key={i}>{x}</span>
                 ))}
@@ -40,67 +41,21 @@ export function QueryOptionGroup({ title, children, collapsedInfo, queryStats, o
           </Stack>
         }
       >
-        <div className={styles.body}>{children}</div>
+        <div {...stylex.props(queryOptionGroupStyles.body)}>{children}</div>
       </Collapse>
 
       {queryStats && config.featureToggles.lokiQuerySplitting && (
         <Tooltip content="Note: the query will be split into multiple parts and executed in sequence. Query limits will only apply each individual part.">
-          <Icon tabIndex={0} name="info-circle" className={styles.tooltip} size="sm" />
+          <Icon tabIndex={0} name="info-circle" {...stylex.props(queryOptionGroupStyles.tooltip)} size="sm" />
         </Tooltip>
       )}
 
-      {queryStats && <p className={styles.stats}>{generateQueryStats(queryStats)}</p>}
+      {queryStats && <p {...stylex.props(queryOptionGroupStyles.stats)}>{generateQueryStats(queryStats)}</p>}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    collapse: css({
-      backgroundColor: 'unset',
-      border: 'unset',
-      marginBottom: 0,
-
-      ['> button']: {
-        padding: theme.spacing(0, 1),
-      },
-    }),
-    wrapper: css({
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'baseline',
-    }),
-    title: css({
-      flexGrow: 1,
-      overflow: 'hidden',
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      margin: 0,
-    }),
-    description: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.bodySmall.fontWeight,
-      paddingLeft: theme.spacing(2),
-      gap: theme.spacing(2),
-      display: 'flex',
-    }),
-    body: css({
-      display: 'flex',
-      gap: theme.spacing(2),
-      flexWrap: 'wrap',
-    }),
-    stats: css({
-      margin: '0px',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    tooltip: css({
-      marginRight: theme.spacing(0.25),
-    }),
-  };
-};
+;
 
 const generateQueryStats = (queryStats: QueryStats) => {
   if (queryStats.message) {

@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tagsInputStyles } from './TagsInput.stylex';
+
 import { useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
 import { type FetchError } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 import { type TraceqlFilter, TraceqlSearchScope } from '../dataquery.gen';
 import { type TempoDatasource } from '../datasource';
@@ -13,21 +13,6 @@ import { type TempoDatasource } from '../datasource';
 import SearchField from './SearchField';
 import { getFilteredTags } from './utils';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  vertical: css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.25),
-  }),
-  horizontal: css({
-    display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(1),
-  }),
-  addTag: css({
-    marginLeft: theme.spacing(1),
-  }),
-});
 
 interface Props {
   updateFilter: (f: TraceqlFilter) => void;
@@ -59,7 +44,6 @@ const TagsInput = ({
   range,
   timeRangeForTags,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const handleOnAdd = useCallback(
     () => updateFilter({ id: generateId(), operator: '=', scope: TraceqlSearchScope.Span }),
     [updateFilter]
@@ -82,9 +66,9 @@ const TagsInput = ({
   };
 
   return (
-    <div className={styles.vertical}>
+    <div {...stylex.props(tagsInputStyles.vertical)}>
       {filters?.map((f, i) => (
-        <div className={styles.horizontal} key={f.id}>
+        <div {...stylex.props(tagsInputStyles.horizontal)} key={f.id}>
           <SearchField
             filter={f}
             datasource={datasource}
@@ -108,7 +92,7 @@ const TagsInput = ({
             />
           )}
           {validInput(f) && i === filters.length - 1 && (
-            <span className={styles.addTag}>
+            <span {...stylex.props(tagsInputStyles.addTag)}>
               <AccessoryButton
                 aria-label="Add tag"
                 variant={'secondary'}

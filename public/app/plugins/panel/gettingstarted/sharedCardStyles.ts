@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
-
 import { type GrafanaTheme2 } from '@grafana/data';
+import type { CSSProperties } from 'react';
 
-export const cardStyle = (theme: GrafanaTheme2, complete: boolean) => {
+export function getCardBorderGradient(theme: GrafanaTheme2, complete: boolean): string {
   const completeGradient = 'linear-gradient(to right, #5182CC 0%, #245BAF 100%)';
   const darkThemeGradients = complete ? completeGradient : 'linear-gradient(to right, #f05a28 0%, #fbca0a 100%)';
   const lightThemeGradients = complete ? completeGradient : 'linear-gradient(to right, #FBCA0A 0%, #F05A28 100%)';
+  return theme.isDark ? darkThemeGradients : lightThemeGradients;
+}
 
-  const borderGradient = theme.isDark ? darkThemeGradients : lightThemeGradients;
-
+export function getCardStyleProps(theme: GrafanaTheme2, complete: boolean): CSSProperties {
   return {
     backgroundColor: theme.colors.background.secondary,
     marginRight: theme.spacing(4),
@@ -17,23 +17,17 @@ export const cardStyle = (theme: GrafanaTheme2, complete: boolean) => {
     borderBottomRightRadius: theme.shape.borderRadius(2),
     position: 'relative',
     maxHeight: '230px',
+  };
+}
 
-    [theme.breakpoints.down('xxl')]: {
-      marginRight: theme.spacing(2),
-    },
-    '&::before': {
-      display: 'block',
-      content: "' '",
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      height: '2px',
-      top: 0,
-      backgroundImage: borderGradient,
-    },
-  } as const;
-};
-
-export const cardContent = css({
-  padding: '16px',
-});
+export function getCardAccentStyle(theme: GrafanaTheme2, complete: boolean): CSSProperties {
+  return {
+    display: 'block',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: '2px',
+    top: 0,
+    backgroundImage: getCardBorderGradient(theme, complete),
+  };
+}

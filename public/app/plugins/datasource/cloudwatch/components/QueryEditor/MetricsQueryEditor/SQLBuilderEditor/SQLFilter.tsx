@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { sQLFilterStyles } from './SQLFilter.stylex';
+
 import { useMemo, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 
 import { type SelectableValue, toOption } from '@grafana/data';
 import { AccessoryButton, EditorList, InputGroup } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
-import { Alert, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Select } from '@grafana/ui';
 import {
   type CloudWatchMetricsQuery,
   QueryEditorExpressionType,
@@ -103,7 +105,6 @@ interface FilterItemProps {
 
 const FilterItem = (props: FilterItemProps) => {
   const { datasource, query, filter, onChange, onDelete } = props;
-  const styles = useStyles2(getStyles);
   const sql = query.sql ?? {};
 
   const namespace = getNamespaceFromExpression(sql.from);
@@ -148,7 +149,7 @@ const FilterItem = (props: FilterItemProps) => {
   );
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(sQLFilterStyles.container)}>
       <InputGroup>
         <Select
           width="auto"
@@ -183,16 +184,12 @@ const FilterItem = (props: FilterItemProps) => {
       </InputGroup>
 
       {propertyNameError && (
-        <Alert className={styles.alert} title={propertyNameError} severity="error" topSpacing={1} />
+        <Alert {...stylex.props(sQLFilterStyles.alert)} title={propertyNameError} severity="error" topSpacing={1} />
       )}
       {operatorValueError && (
-        <Alert className={styles.alert} title={operatorValueError} severity="error" topSpacing={1} />
+        <Alert {...stylex.props(sQLFilterStyles.alert)} title={operatorValueError} severity="error" topSpacing={1} />
       )}
     </div>
   );
 };
 
-const getStyles = () => ({
-  container: css({ display: 'inline-block' }),
-  alert: css({ minWidth: '100%', width: 'min-content' }),
-});

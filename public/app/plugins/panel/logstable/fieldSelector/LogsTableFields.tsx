@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { logsTableFieldsStyles } from './LogsTableFields.stylex';
+
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type DataFrame, type GrafanaTheme2, store } from '@grafana/data';
-import { getDragStyles, useStyles2 } from '@grafana/ui';
+import { getDragStyles } from '@grafana/ui';
 import { type FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 import { SETTING_KEY_ROOT } from 'app/features/explore/Logs/utils/logs';
 import {
@@ -45,7 +47,6 @@ export function LogsTableFields({
   logsFrame,
   onFieldSelectorWidthChange,
 }: Props) {
-  const styles = useStyles2(getStyles, fieldSelectorWidth, height);
   const dragStyles = useStyles2(getDragStyles);
   const [containerElement, setContainerRefState] = useState<HTMLDivElement | null>(null);
   const containerRef = useCallback((node: HTMLDivElement) => {
@@ -119,7 +120,7 @@ export function LogsTableFields({
   }
 
   return (
-    <div ref={containerRef} className={styles.fieldSelectorWrapper}>
+    <div ref={containerRef} {...stylex.props(logsTableFieldsStyles.fieldSelectorWrapper)}>
       {containerElement && (
         <Resizable
           enable={{
@@ -149,13 +150,4 @@ export function LogsTableFields({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, fieldSelectorWidth: number, height: number) => {
-  return {
-    fieldSelectorWrapper: css({
-      position: 'absolute',
-      height: height,
-      width: fieldSelectorWidth,
-      zIndex: 1,
-    }),
-  };
-};
+;

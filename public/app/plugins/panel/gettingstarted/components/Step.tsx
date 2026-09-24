@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
+import { stepStyles } from './Step.stylex';
 
 import { type SetupStep } from '../types';
 
@@ -13,15 +11,14 @@ interface Props {
 }
 
 export const Step = ({ step }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.setup}>
-      <div className={styles.info}>
-        <h2 className={styles.title}>{step.title}</h2>
+    <div {...stylex.props(stepStyles.setup)}>
+      <div {...stylex.props(stepStyles.info)}>
+        <h2 {...stylex.props(stepStyles.title)}>{step.title}</h2>
         <p>{step.info}</p>
       </div>
-      <div className={styles.cards}>
+      <div {...stylex.props(stepStyles.cards)}>
         {step.cards.map((card, index) => {
           const key = `${card.title}-${index}`;
           if (card.type === 'tutorial') {
@@ -34,32 +31,4 @@ export const Step = ({ step }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    setup: css({
-      display: 'flex',
-      width: '95%',
-    }),
-    info: css({
-      width: '172px',
-      marginRight: '5%',
-
-      [theme.breakpoints.down('xxl')]: {
-        marginRight: theme.spacing(4),
-      },
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
-      },
-    }),
-    title: css({
-      color: theme.v1.palette.blue95,
-    }),
-    cards: css({
-      overflowX: 'auto',
-      overflowY: 'hidden',
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'flex-start',
-    }),
-  };
-};
+;

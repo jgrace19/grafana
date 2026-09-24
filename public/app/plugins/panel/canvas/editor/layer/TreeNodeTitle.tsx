@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { treeNodeTitleStyles } from './TreeNodeTitle.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
 import { LayerName } from 'app/core/components/Layers/LayerName';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 
@@ -20,8 +20,6 @@ interface Props {
 export const TreeNodeTitle = ({ settings, nodeData, setAllowSelection }: Props) => {
   const element = nodeData.dataRef;
   const name = nodeData.dataRef.getName();
-
-  const styles = useStyles2(getStyles);
 
   const layer = settings.layer;
 
@@ -67,21 +65,21 @@ export const TreeNodeTitle = ({ settings, nodeData, setAllowSelection }: Props) 
         verifyLayerNameUniqueness={verifyLayerNameUniqueness ?? undefined}
       />
 
-      <div className={styles.textWrapper}>&nbsp; {getLayerInfo(element)}</div>
+      <div {...stylex.props(treeNodeTitleStyles.textWrapper)}>&nbsp; {getLayerInfo(element)}</div>
 
       {!nodeData.children && (
-        <div className={styles.actionButtonsWrapper}>
+        <div {...stylex.props(treeNodeTitleStyles.actionButtonsWrapper)}>
           <IconButton
             name="copy"
             title={t('canvas.tree-node-title.title-duplicate', 'Duplicate')}
-            className={styles.actionIcon}
+            {...stylex.props(treeNodeTitleStyles.actionIcon)}
             onClick={() => onDuplicate(element)}
             tooltip={t('canvas.tree-node-title.tooltip-duplicate', 'Duplicate')}
           />
           <IconButton
             name="trash-alt"
             title={t('canvas.tree-node-title.title-remove', 'Remove')}
-            className={styles.actionIcon}
+            {...stylex.props(treeNodeTitleStyles.actionIcon)}
             onClick={() => onDelete(element)}
             tooltip={t('canvas.tree-node-title.tooltip-remove', 'Remove')}
           />
@@ -91,30 +89,3 @@ export const TreeNodeTitle = ({ settings, nodeData, setAllowSelection }: Props) 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  actionButtonsWrapper: css({
-    display: 'flex',
-    alignItems: 'flex-end',
-  }),
-  actionIcon: css({
-    color: theme.colors.text.secondary,
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-  textWrapper: css({
-    display: 'flex',
-    alignItems: 'center',
-    flexGrow: 1,
-    overflow: 'hidden',
-    marginRight: theme.spacing(1),
-  }),
-  layerName: css({
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.primary.text,
-    cursor: 'pointer',
-    overflow: 'hidden',
-    marginLeft: theme.spacing(0.5),
-  }),
-});

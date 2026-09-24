@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { graphiteFunctionEditorStyles } from './GraphiteFunctionEditor.stylex';
+
 import { Fragment, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Stack, InlineLabel, useStyles2 } from '@grafana/ui';
+import { Stack, InlineLabel } from '@grafana/ui';
 
 import { type FuncInstance } from '../gfunc';
 import { actions } from '../state/actions';
@@ -21,7 +22,6 @@ export type FunctionEditorProps = {
  */
 export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
 
   // keep track of mouse over and isExpanded state to display buttons for adding optional/multiple params
   // only when the user mouse over over the function editor OR any param editor is expanded.
@@ -36,7 +36,7 @@ export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
 
   return (
     <div
-      className={cx(styles.container, { [styles.error]: func.def.unknown })}
+      className={mergeStylexClassName(stylex.props(graphiteFunctionEditorStyles.container), clsx( {...stylex.props(graphiteFunctionEditorStyles.error), [ func.def.unknown })}
       onBlur={() => setIsMouseOver(false)}
       onFocus={() => setIsMouseOver(true)}
       onMouseOver={() => setIsMouseOver(true)}
@@ -57,7 +57,7 @@ export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
             dispatch(actions.removeFunction({ func }));
           }}
         />
-        <InlineLabel className={styles.label} width={'auto'}>
+        <InlineLabel {...stylex.props(graphiteFunctionEditorStyles.label)} width={'auto'}>
           (
         </InlineLabel>
         {params.map((editableParam: EditableParam, index: number) => {
@@ -79,7 +79,7 @@ export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
             </Fragment>
           );
         })}
-        <InlineLabel className={styles.label} width={'auto'}>
+        <InlineLabel {...stylex.props(graphiteFunctionEditorStyles.label)} width={'auto'}>
           )
         </InlineLabel>
       </Stack>
@@ -87,22 +87,3 @@ export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    marginRight: theme.spacing(0.5),
-    padding: `0 ${theme.spacing(1)}`,
-    height: `${theme.v1.spacing.formInputHeight}px`,
-  }),
-  error: css({
-    border: `1px solid ${theme.colors.error.main}`,
-  }),
-  label: css({
-    padding: 0,
-    margin: 0,
-  }),
-  button: css({
-    padding: theme.spacing(0.5),
-  }),
-});

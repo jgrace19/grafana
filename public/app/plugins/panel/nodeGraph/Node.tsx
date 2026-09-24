@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { nodeStyles } from './Node.stylex';
+
 import cx from 'classnames';
 import { type MouseEvent, memo } from 'react';
 import tinycolor from 'tinycolor2';
@@ -14,65 +16,6 @@ import { statToString } from './utils';
 export const nodeR = 40;
 export const highlightedNodeColor = '#a00';
 
-const getStyles = (theme: GrafanaTheme2, hovering: HoverState) => ({
-  mainGroup: css({
-    cursor: 'pointer',
-    fontSize: '10px',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: 'opacity 300ms',
-    },
-    opacity: hovering === 'inactive' ? 0.5 : 1,
-  }),
-
-  mainCircle: css({
-    fill: theme.components.panel.background,
-  }),
-
-  filledCircle: css({
-    fill: highlightedNodeColor,
-  }),
-
-  hoverCircle: css({
-    opacity: 0.5,
-    fill: 'transparent',
-    stroke: theme.colors.primary.text,
-  }),
-
-  text: css({
-    fill: theme.colors.text.primary,
-    pointerEvents: 'none',
-  }),
-
-  titleText: css({
-    textAlign: 'center',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    backgroundColor: tinycolor(theme.colors.background.primary).setAlpha(0.6).toHex8String(),
-    width: '140px',
-  }),
-
-  statsText: css({
-    textAlign: 'center',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    width: '70px',
-  }),
-
-  textHovering: css({
-    width: '200px',
-    '& span': {
-      backgroundColor: tinycolor(theme.colors.background.primary).setAlpha(0.8).toHex8String(),
-    },
-  }),
-
-  clickTarget: css({
-    fill: 'none',
-    stroke: 'none',
-    pointerEvents: 'fill',
-  }),
-});
 
 export const computeNodeCircumferenceStrokeWidth = (nodeRadius: number) => Math.ceil(nodeRadius * 0.075);
 
@@ -97,21 +40,21 @@ export const Node = memo(function Node(props: {
   return (
     <g
       data-node-id={node.id}
-      className={styles.mainGroup}
+      {...stylex.props(nodeStyles.mainGroup)}
       aria-label={t('nodeGraph.node.aria-label-node-title', 'Node: {{nodeName}}', { nodeName: node.title })}
     >
       <circle
         data-testid={`node-circle-${node.id}`}
-        className={node.highlighted ? styles.filledCircle : styles.mainCircle}
+        className={node.highlighted ? (nodeStyles.filledCircle) : styles.mainCircle}
         r={nodeRadius}
         cx={node.x}
         cy={node.y}
       />
       {isHovered && (
-        <circle className={styles.hoverCircle} r={nodeRadius - 3} cx={node.x} cy={node.y} strokeWidth={strokeWidth} />
+        <circle {...stylex.props(nodeStyles.hoverCircle)} r={nodeRadius - 3} cx={node.x} cy={node.y} strokeWidth={strokeWidth} />
       )}
       <ColorCircle node={node} />
-      <g className={styles.text} style={{ pointerEvents: 'none' }}>
+      <g {...stylex.props(nodeStyles.text)} style={{ pointerEvents: 'none' }}>
         <NodeContents node={node} hovering={hovering} />
         <foreignObject
           x={node.x - (isHovered ? 100 : 70)}
@@ -119,7 +62,7 @@ export const Node = memo(function Node(props: {
           width={isHovered ? '200' : '140'}
           height="40"
         >
-          <div className={cx(styles.titleText, isHovered && styles.textHovering)}>
+          <div className={mergeStylexClassName(stylex.props(nodeStyles.titleText), clsx( isHovered && styles.textHovering)}>
             <span>{node.title}</span>
             <br />
             <span>{node.subTitle}</span>
@@ -137,7 +80,7 @@ export const Node = memo(function Node(props: {
         onClick={(event) => {
           onClick(event, node);
         }}
-        className={styles.clickTarget}
+        {...stylex.props(nodeStyles.clickTarget)}
         x={node.x - nodeRadius - 5}
         y={node.y - nodeRadius - 5}
         width={nodeRadius * 2 + 10}
@@ -167,7 +110,7 @@ function NodeContents({ node, hovering }: { node: NodeDatum; hovering: HoverStat
     </foreignObject>
   ) : (
     <foreignObject x={node.x - (isHovered ? 100 : 35)} y={node.y - 15} width={isHovered ? '200' : '70'} height="40">
-      <div className={cx(styles.statsText, isHovered && styles.textHovering)}>
+      <div className={mergeStylexClassName(stylex.props(nodeStyles.statsText), clsx( isHovered && styles.textHovering)}>
         <span>{node.mainStat && statToString(node.mainStat.config, node.mainStat.values[node.dataFrameRowIndex])}</span>
         <br />
         <span>

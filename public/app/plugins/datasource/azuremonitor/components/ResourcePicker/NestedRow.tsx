@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
 import { t } from '@grafana/i18n';
@@ -63,7 +63,7 @@ const NestedRow = ({
 
   return (
     <>
-      <tr className={cx(styles.row, isDisabled && styles.disabledRow)} key={row.id}>
+      <tr className={clsx(styles.row, isDisabled && styles.disabledRow)} key={row.id}>
         <td className={styles.cell} title={row.name}>
           <NestedEntry
             level={level}
@@ -116,7 +116,7 @@ const NestedRow = ({
 
       <FadeTransition visible={rowStatus === 'loading'}>
         <tr>
-          <td className={cx(styles.cell, styles.loadingCell)} colSpan={3}>
+          <td className={clsx(styles.cell, styles.loadingCell)} colSpan={3}>
             <LoadingPlaceholder
               text={t('components.nested-row.text-loading', 'Loading...')}
               className={styles.spinner}

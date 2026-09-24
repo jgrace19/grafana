@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { rawQueryStyles } from './RawQuery.stylex';
+
 import Prism, { type Grammar } from 'prismjs';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
 export interface Props {
@@ -19,18 +20,11 @@ export function RawQuery({ query, lang, className }: Props) {
 
   return (
     <div
-      className={cx(styles.editorField, 'prism-syntax-highlight', className)}
+      className={mergeStylexClassName(stylex.props(rawQueryStyles.editorField), clsx( 'prism-syntax-highlight', className)}
       aria-label="selector"
       dangerouslySetInnerHTML={{ __html: highlighted }}
     />
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    editorField: css({
-      fontFamily: theme.typography.fontFamilyMonospace,
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-  };
-};
+;

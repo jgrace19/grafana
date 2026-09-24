@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryPatternsModalStyles } from './QueryPatternsModal.stylex';
+
 import { capitalize } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { type CoreApp, type GrafanaTheme2, getNextRefId } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { Button, Collapse, Modal, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Collapse, Modal, Stack } from '@grafana/ui';
 
 import { type LokiQuery } from '../../types';
 import { lokiQueryModeller } from '../LokiQueryModeller';
@@ -49,8 +51,6 @@ export const QueryPatternsModal = (props: Props) => {
   const { isOpen, onClose, onChange, onAddQuery, query, queries, app } = props;
   const [openTabs, setOpenTabs] = useState<string[]>([]);
   const [selectedPatternName, setSelectedPatternName] = useState<string | null>(null);
-
-  const styles = useStyles2(getStyles);
   const hasNewQueryOption = !!onAddQuery;
   const hasPreviousQuery = useMemo(
     () => buildVisualQueryFromString(query.expr).query.operations.length > 0,
@@ -94,8 +94,8 @@ export const QueryPatternsModal = (props: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} title="Kick start your query" onDismiss={onClose} className={styles.modal}>
-      <div className={styles.spacing}>
+    <Modal isOpen={isOpen} title="Kick start your query" onDismiss={onClose} {...stylex.props(queryPatternsModalStyles.modal)}>
+      <div {...stylex.props(queryPatternsModalStyles.spacing)}>
         Kick start your query by selecting one of these queries. You can then continue to complete your query.
       </div>
       {Object.values(LokiQueryPatternType).map((patternType) => {
@@ -137,16 +137,4 @@ export const QueryPatternsModal = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spacing: css({
-      marginBottom: theme.spacing(1),
-    }),
-    modal: css({
-      width: '85vw',
-      [theme.breakpoints.down('md')]: {
-        width: '100%',
-      },
-    }),
-  };
-};
+;

@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { ungroupedViewStyles } from './UngroupedView.stylex';
+
 import { useLocation } from 'react-use';
 
-import { type GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Icon, Stack } from '@grafana/ui';
 import alertDef from 'app/features/alerting/state/alertDef';
 import { Spacer } from 'app/features/alerting/unified/components/Spacer';
 import { fromCombinedRule, stringifyIdentifier } from 'app/features/alerting/unified/utils/rule-id';
@@ -37,7 +38,6 @@ function getGrafanaInstancesTotal(totals: Partial<Record<AlertInstanceTotalState
 }
 
 const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstances, hideViewRuleLinkText }: Props) => {
-  const styles = useStyles2(getStyles);
   const stateStyle = useStyles2(getStateTagStyles);
   const { href: returnTo } = useLocation();
 
@@ -96,7 +96,7 @@ const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstance
                           rel="noopener"
                           aria-label={t('alertlist.ungrouped-mode-view.aria-label-view-alert-rule', 'View alert rule')}
                         >
-                          <span className={cx({ [styles.hidden]: hideViewRuleLinkText })}>
+                          <span className={clsx({ [styles.hidden]: hideViewRuleLinkText })}>
                             <Trans i18nKey="alertlist.ungrouped-mode-view.view-alert-rule">View alert rule</Trans>
                           </span>
                           <Icon name={'external-link-alt'} size="sm" />
@@ -140,26 +140,5 @@ const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstance
   );
 };
 
-const getStateTagStyles = (theme: GrafanaTheme2) => ({
-  icon: css({
-    marginTop: theme.spacing(2.5),
-    alignSelf: 'flex-start',
-  }),
-  good: css({
-    color: theme.colors.success.main,
-  }),
-  bad: css({
-    color: theme.colors.error.main,
-  }),
-  warning: css({
-    color: theme.colors.warning.main,
-  }),
-  neutral: css({
-    color: theme.colors.secondary.main,
-  }),
-  info: css({
-    color: theme.colors.primary.main,
-  }),
-});
 
 export default UngroupedModeView;

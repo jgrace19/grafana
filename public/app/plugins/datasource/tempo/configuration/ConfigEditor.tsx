@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configEditorStyles } from './ConfigEditor.stylex';
 
 import { type DataSourcePluginOptionsEditorProps, type GrafanaTheme2 } from '@grafana/data';
 import {
@@ -19,7 +20,7 @@ import {
   DataSourceDescription,
 } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
-import { SecureSocksProxySettings, useStyles2, Divider, Stack } from '@grafana/ui';
+import { SecureSocksProxySettings, Divider, Stack } from '@grafana/ui';
 
 import { QuerySettings } from './QuerySettings';
 import { ServiceGraphSettings } from './ServiceGraphSettings';
@@ -31,10 +32,9 @@ import { TraceQLSearchSettings } from './TraceQLSearchSettings';
 export type ConfigEditorProps = DataSourcePluginOptionsEditorProps;
 
 const ConfigEditor = ({ options, onOptionsChange }: ConfigEditorProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(configEditorStyles.container)}>
       <DataSourceDescription
         dataSourceName="Tempo"
         docsLink="https://grafana.com/docs/grafana/latest/datasources/tempo"
@@ -140,11 +140,5 @@ const ConfigEditor = ({ options, onOptionsChange }: ConfigEditorProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: theme.spacing(2),
-    maxWidth: '900px',
-  }),
-});
 
 export default ConfigEditor;

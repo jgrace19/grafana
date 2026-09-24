@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { connectionSVGStyles } from './ConnectionSVG.stylex';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type DirectionDimensionConfig, DirectionDimensionMode, ConnectionDirection } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
 import { type Scene } from 'app/features/canvas/runtime/scene';
 
 import { type ConnectionCoordinates } from '../../panelcfg.gen';
@@ -40,7 +40,6 @@ export const ConnectionSVG = ({
   setVertexRef,
   scene,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const headId = Date.now() + '_' + idCounter++;
   const CONNECTION_LINE_ID = useMemo(() => `connectionLineId-${headId}`, [headId]);
@@ -382,7 +381,7 @@ export const ConnectionSVG = ({
           };
 
           return (
-            <svg className={styles.connection} key={idx}>
+            <svg {...stylex.props(connectionSVGStyles.connection)} key={idx}>
               <g onClick={() => selectConnection(v)}>
                 <defs>
                   <marker
@@ -453,7 +452,7 @@ export const ConnectionSVG = ({
                               cy={value.y * yDist + yStart}
                               r={5}
                               stroke={strokeColor}
-                              className={styles.vertex}
+                              {...stylex.props(connectionSVGStyles.vertex)}
                               cursor={'crosshair'}
                               pointerEvents="auto"
                             />
@@ -470,7 +469,7 @@ export const ConnectionSVG = ({
                                 cy={value.y * yDist + yStart}
                                 r={4}
                                 stroke={strokeColor}
-                                className={styles.addVertex}
+                                {...stylex.props(connectionSVGStyles.addVertex)}
                                 cursor={'crosshair'}
                                 pointerEvents="auto"
                               />
@@ -527,7 +526,7 @@ export const ConnectionSVG = ({
                         cy={midpoint.y}
                         r={4}
                         stroke={strokeColor}
-                        className={styles.addVertex}
+                        {...stylex.props(connectionSVGStyles.addVertex)}
                         cursor={'crosshair'}
                         pointerEvents="auto"
                       />
@@ -543,7 +542,7 @@ export const ConnectionSVG = ({
 
   return (
     <>
-      <svg ref={setSVGRef} className={styles.editorSVG}>
+      <svg ref={setSVGRef} {...stylex.props(connectionSVGStyles.editorSVG)}>
         <defs>
           <marker
             id={EDITOR_HEAD_ID}
@@ -559,7 +558,7 @@ export const ConnectionSVG = ({
         </defs>
         <line ref={setLineRef} stroke={defaultArrowColor} strokeWidth={2} markerEnd={`url(#${EDITOR_HEAD_ID})`} />
       </svg>
-      <svg ref={setSVGVertexRef} className={styles.editorSVG}>
+      <svg ref={setSVGVertexRef} {...stylex.props(connectionSVGStyles.editorSVG)}>
         <path
           ref={setVertexPathRef}
           stroke={defaultArrowColor}
@@ -567,36 +566,10 @@ export const ConnectionSVG = ({
           strokeDasharray={'5, 5'}
           fill={'none'}
         />
-        <circle ref={setVertexRef} stroke={defaultArrowColor} r={4} className={styles.vertex} />
+        <circle ref={setVertexRef} stroke={defaultArrowColor} r={4} {...stylex.props(connectionSVGStyles.vertex)} />
       </svg>
       {renderConnections()}
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorSVG: css({
-    position: 'absolute',
-    pointerEvents: 'none',
-    width: '100%',
-    height: '100%',
-    zIndex: 1000,
-    display: 'none',
-  }),
-  connection: css({
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 1000,
-    pointerEvents: 'none',
-  }),
-  vertex: css({
-    fill: '#44aaff',
-    strokeWidth: 2,
-  }),
-  addVertex: css({
-    fill: '#44aaff',
-    opacity: 0.5,
-    strokeWidth: 1,
-  }),
-});

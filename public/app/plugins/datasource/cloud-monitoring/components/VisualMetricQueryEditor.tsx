@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { visualMetricQueryEditorStyles } from './VisualMetricQueryEditor.stylex';
+
 import debounce from 'debounce-promise';
 import { startCase, uniqBy } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type SelectableValue, type TimeRange } from '@grafana/data';
 import { EditorField, EditorFieldGroup, EditorRow } from '@grafana/plugin-ui';
 import { reportInteraction } from '@grafana/runtime';
-import { getSelectStyles, Select, AsyncSelect, useStyles2, useTheme2 } from '@grafana/ui';
+import { getSelectStyles, Select, AsyncSelect, useTheme2 } from '@grafana/ui';
 
 import { PreprocessorType, type TimeSeriesList, MetricKind, ValueTypes } from '../dataquery.gen';
 import type CloudMonitoringDatasource from '../datasource';
@@ -317,12 +318,5 @@ export function Editor({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) =>
-  css({
-    label: 'grafana-select-option-description',
-    fontWeight: 'normal',
-    fontStyle: 'italic',
-    color: theme.colors.text.secondary,
-  });
 
 export const VisualMetricQueryEditor = React.memo(Editor);

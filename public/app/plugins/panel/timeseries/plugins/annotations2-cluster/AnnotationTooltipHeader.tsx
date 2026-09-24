@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationTooltipHeaderStyles } from './AnnotationTooltipHeader.stylex';
+
 import memoize from 'micro-memoize';
 import { useEffect, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack } from '@grafana/ui';
 
 import { AnnotationAlertState } from './AnnotationAlertState';
 import { AnnotationAvatar } from './AnnotationAvatar';
@@ -48,21 +49,21 @@ export function AnnotationTooltipHeader({
   }, [isPinned]);
 
   return (
-    <div className={isCluster ? styles.clusterWrapper : styles.wrapper}>
-      <div className={styles.header}>
+    <div className={isCluster ? (annotationTooltipHeaderStyles.clusterWrapper) : styles.wrapper}>
+      <div {...stylex.props(annotationTooltipHeaderStyles.header)}>
         <Stack gap={2} basis="100%" justifyContent="space-between" alignItems="center">
-          <div className={styles.meta}>
-            {clusterIndex && <span className={styles.clusterIndex}>{clusterIndex}</span>}
+          <div {...stylex.props(annotationTooltipHeaderStyles.meta)}>
+            {clusterIndex && <span {...stylex.props(annotationTooltipHeaderStyles.clusterIndex)}>{clusterIndex}</span>}
             <span>
               <AnnotationAvatar src={avatarImg} />
               <AnnotationAlertState alertState={alertState} />
             </span>
             <Stack width="100%" basis="100%" justifyContent="space-between" alignItems="center">
-              <span className={styles.timeRange}>{timeRange}</span>
-              {clusterLength && <span className={styles.clusterCount}>{clusterLength}</span>}
+              <span {...stylex.props(annotationTooltipHeaderStyles.timeRange)}>{timeRange}</span>
+              {clusterLength && <span {...stylex.props(annotationTooltipHeaderStyles.clusterCount)}>{clusterLength}</span>}
             </Stack>
           </div>
-          <div className={styles.controls}>
+          <div {...stylex.props(annotationTooltipHeaderStyles.controls)}>
             {(canEdit || canDelete || isPinned) && (
               <>
                 {canEdit && (
@@ -96,62 +97,10 @@ export function AnnotationTooltipHeader({
       </div>
       {text && (
         <Stack gap={2} basis="100%" alignItems="center">
-          <span className={styles.subHeader}>{text}</span>
+          <span {...stylex.props(annotationTooltipHeaderStyles.subHeader)}>{text}</span>
         </Stack>
       )}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  subHeader: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0, 1),
-  }),
-  clusterIndex: css({
-    fontWeight: theme.typography.fontWeightBold,
-    marginRight: theme.spacing(1),
-  }),
-  clusterCount: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  timeRange: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  clusterWrapper: css({
-    background: theme.colors.background.elevated,
-    position: 'sticky',
-    top: 0,
-    left: 0,
-    zIndex: 1,
-    boxShadow: theme.shadows.z1,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  header: css({
-    label: 'annotation-header',
-    padding: theme.spacing(0.5, 1),
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.fontSize,
-    color: theme.colors.text.primary,
-    display: 'flex',
-  }),
-  meta: css({
-    width: '100%',
-    display: 'flex',
-    whiteSpace: 'nowrap',
-    color: theme.colors.text.primary,
-    fontWeight: 400,
-  }),
-  controls: css({
-    // space for all three icons
-    minWidth: '54px',
-    justifyContent: 'flex-end',
-    display: 'flex',
-    '> :last-child': {
-      marginLeft: 0,
-    },
-  }),
-});

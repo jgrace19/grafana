@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { azureCheatSheetStyles } from './AzureCheatSheet.stylex';
+
 import { useEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import {
@@ -14,7 +15,6 @@ import {
   ScrollContainer,
   Select,
   Stack,
-  useStyles2,
 } from '@grafana/ui';
 
 import type AzureLogAnalyticsDatasource from '../../azure_log_analytics/azure_log_analytics_datasource';
@@ -42,7 +42,6 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
   const [visibleQueries, setVisibleQueries] = useState<CheatsheetQueries | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState('');
-  const styles = useStyles2(getStyles);
 
   const lang = { grammar: tokenizer, name: 'kql' };
   const dropdownMenu = useMemo(() => {
@@ -139,7 +138,7 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
     <div>
       {!isLoading && visibleQueries ? (
         <div>
-          <div className={styles.filterAlignment}>
+          <div {...stylex.props(azureCheatSheetStyles.filterAlignment)}>
             <Input
               value={searchInputValue}
               onChange={(e) => {
@@ -152,7 +151,7 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
             />
             <Field
               label={t('components.azure-cheat-sheet.label-categories', 'Categories')}
-              className={styles.categoryDropdown}
+              {...stylex.props(azureCheatSheetStyles.categoryDropdown)}
             >
               <Select
                 options={dropdownMenu}
@@ -173,7 +172,7 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
               />
             </Field>
           </div>
-          <div className={styles.spacing}>
+          <div {...stylex.props(azureCheatSheetStyles.spacing)}>
             <Trans
               i18nKey="components.azure-cheat-sheet.label-query-results"
               values={{
@@ -199,7 +198,7 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
                     <Stack direction="column">
                       {visibleQueries[category]!.map((query) => {
                         return (
-                          <Card noMargin className={styles.card} key={query.id}>
+                          <Card noMargin {...stylex.props(azureCheatSheetStyles.card)} key={query.id}>
                             <Card.Heading>{query.displayName}</Card.Heading>
                             <ScrollContainer showScrollIndicators maxHeight="100px">
                               <RawQuery
@@ -210,7 +209,7 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
                                 )}
                                 query={query.body}
                                 lang={lang}
-                                className={styles.rawQuery}
+                                {...stylex.props(azureCheatSheetStyles.rawQuery)}
                               />
                             </ScrollContainer>
                             <Card.Actions>
@@ -258,29 +257,4 @@ const AzureCheatSheet = (props: AzureCheatSheetProps) => {
 
 export default AzureCheatSheet;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      width: '90%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    rawQuery: css({
-      backgroundColor: `${theme.colors.background.primary}`,
-      padding: `${theme.spacing(1)}`,
-      marginTop: `${theme.spacing(1)}`,
-    }),
-    spacing: css({
-      marginBottom: `${theme.spacing(1)}`,
-    }),
-    filterAlignment: css({
-      display: 'flex',
-    }),
-    categoryDropdown: css({
-      margin: '0 0 10px 10px',
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-    }),
-  };
-};
+;

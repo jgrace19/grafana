@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annoListPanelStyles } from './AnnoListPanel.stylex';
+
 import { createRef, PureComponent, type JSX } from 'react';
 import { Subscription } from 'rxjs';
 

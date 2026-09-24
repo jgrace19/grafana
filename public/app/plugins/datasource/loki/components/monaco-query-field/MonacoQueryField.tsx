@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { monacoQueryFieldStyles } from './MonacoQueryField.stylex';
+
 import { debounce } from 'lodash';
 import { useRef, useEffect } from 'react';
 import { useLatest } from 'react-use';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { parser } from '@grafana/lezer-logql';
 import { languageConfiguration, monarchlanguage } from '@grafana/monaco-logql';
@@ -80,26 +81,7 @@ function ensureLogQL(monaco: Monaco) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2, placeholder: string) => {
-  return {
-    container: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      width: '100%',
-      '.monaco-editor .suggest-widget': {
-        minWidth: '50%',
-      },
-      overflow: 'hidden',
-    }),
-    placeholder: css({
-      '::after': {
-        content: `'${placeholder}'`,
-        fontFamily: theme.typography.fontFamilyMonospace,
-        opacity: 0.3,
-      },
-    }),
-  };
-};
+;
 
 const MonacoQueryField = ({
   history,
@@ -175,7 +157,7 @@ const MonacoQueryField = ({
   return (
     <div
       data-testid={selectors.components.QueryField.container}
-      className={styles.container}
+      {...stylex.props(monacoQueryFieldStyles.container)}
       // NOTE: we will be setting inline-style-width/height on this element
       ref={containerRef}
     >

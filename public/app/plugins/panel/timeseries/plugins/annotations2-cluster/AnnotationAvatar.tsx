@@ -1,24 +1,12 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
+import { annotationAvatarStyles } from './AnnotationAvatar.stylex';
 
 interface Props {
   src: string | undefined;
 }
 
 export function AnnotationAvatar({ src }: Props) {
-  const styles = useStyles2(getStyles);
-  return src && <img className={styles.avatar} alt="Annotation avatar" src={textUtil.sanitizeUrl(src)} />;
+  return src && <img {...stylex.props(annotationAvatarStyles.avatar)} alt="Annotation avatar" src={textUtil.sanitizeUrl(src)} />;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    avatar: css({
-      borderRadius: theme.shape.radius.circle,
-      width: theme.spacing(4),
-      height: theme.spacing(4),
-      marginRight: theme.spacing(1),
-    }),
-  };
-};
+;

@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { functionParamEditorStyles } from './FunctionParamEditor.stylex';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Segment, SegmentInput, useStyles2 } from '@grafana/ui';
+import { Segment, SegmentInput } from '@grafana/ui';
 
 export type EditableParam = {
   name: string;
@@ -22,7 +22,6 @@ type FieldEditorProps = {
  * Render a function parameter with a segment dropdown for multiple options or simple input.
  */
 export function FunctionParamEditor({ editableParam, onChange, onExpandedChange, autofocus }: FieldEditorProps) {
-  const styles = useStyles2(getStyles);
 
   if (editableParam.options?.length > 0) {
     return (
@@ -30,7 +29,7 @@ export function FunctionParamEditor({ editableParam, onChange, onExpandedChange,
         autofocus={autofocus}
         value={editableParam.value}
         inputPlaceholder={editableParam.name}
-        className={styles.segment}
+        {...stylex.props(functionParamEditorStyles.segment)}
         options={editableParam.options}
         placeholder={' +' + editableParam.name}
         onChange={(value) => {
@@ -46,7 +45,7 @@ export function FunctionParamEditor({ editableParam, onChange, onExpandedChange,
     return (
       <SegmentInput
         autofocus={autofocus}
-        className={styles.input}
+        {...stylex.props(functionParamEditorStyles.input)}
         value={editableParam.value || ''}
         placeholder={' +' + editableParam.name}
         inputPlaceholder={editableParam.name}
@@ -67,20 +66,3 @@ export function FunctionParamEditor({ editableParam, onChange, onExpandedChange,
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  segment: css({
-    margin: 0,
-    padding: 0,
-    overflowWrap: 'anywhere',
-    height: '100%',
-  }),
-  input: css({
-    margin: 0,
-    padding: 0,
-    input: {
-      height: '25px',
-    },
-    overflowWrap: 'anywhere',
-    height: '100%',
-  }),
-});

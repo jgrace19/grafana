@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tracesPanelStyles } from './TracesPanel.stylex';
+
 import { useMemo, useRef } from 'react';
 import { useAsync } from 'react-use';
 
@@ -11,12 +13,6 @@ import { transformDataFrames } from 'app/features/explore/TraceView/utils/transf
 
 import { replaceSearchVariables } from '../../../features/explore/TraceView/useSearch';
 
-const styles = {
-  wrapper: css({
-    height: '100%',
-    overflow: 'scroll',
-  }),
-};
 
 export interface TracesPanelOptions {
   createSpanLink?: SpanLinkFunc;
@@ -44,11 +40,11 @@ export const TracesPanel = ({ data, options, replaceVariables }: PanelProps<Trac
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={stylex.props(tracesPanelStyles.wrapper)}>
       <div ref={topOfViewRef}></div>
       <TraceView
         dataFrames={data.series}
-        scrollElementClass={styles.wrapper}
+        scrollElementClass={stylex.props(tracesPanelStyles.wrapper)}
         traceProp={traceProp}
         datasource={dataSource.value}
         topOfViewRef={topOfViewRef}

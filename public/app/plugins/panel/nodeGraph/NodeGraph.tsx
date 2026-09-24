@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { nodeGraphStyles } from './NodeGraph.stylex';
+
 import cx from 'classnames';
 import { memo, type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useMeasure from 'react-use/lib/useMeasure';
 
 import { type DataFrame, type GrafanaTheme2, type LinkModel } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, RadioButtonGroup, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, RadioButtonGroup, Spinner } from '@grafana/ui';
 
 import { Edge } from './Edge';
 import { EdgeLabel } from './EdgeLabel';
@@ -24,92 +26,6 @@ import { usePanning } from './usePanning';
 import { useZoom } from './useZoom';
 import { processNodes, type Bounds, findConnectedNodesForEdge, findConnectedNodesForNode } from './utils';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    label: 'wrapper',
-    height: '100%',
-    width: '100%',
-    overflow: 'hidden',
-    position: 'relative',
-  }),
-
-  svg: css({
-    label: 'svg',
-    height: '100%',
-    width: '100%',
-    overflow: 'visible',
-    fontSize: '10px',
-    cursor: 'move',
-  }),
-
-  svgPanning: css({
-    label: 'svgPanning',
-    userSelect: 'none',
-  }),
-
-  noDataMsg: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-    placeItems: 'center',
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-
-  mainGroup: css({
-    label: 'mainGroup',
-    willChange: 'transform',
-  }),
-
-  viewControls: css({
-    label: 'viewControls',
-    position: 'absolute',
-    left: '2px',
-    bottom: '3px',
-    right: 0,
-    display: 'flex',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    pointerEvents: 'none',
-  }),
-  layoutAlgorithm: css({
-    label: 'layoutAlgorithm',
-    pointerEvents: 'all',
-    position: 'absolute',
-    top: '8px',
-    right: '8px',
-    zIndex: 1,
-  }),
-  legend: css({
-    label: 'legend',
-    background: theme.colors.background.secondary,
-    boxShadow: theme.shadows.z1,
-    paddingBottom: '5px',
-    marginRight: '10px',
-  }),
-  viewControlsWrapper: css({
-    marginLeft: 'auto',
-  }),
-  alert: css({
-    label: 'alert',
-    padding: '5px 8px',
-    fontSize: '10px',
-    textShadow: '0 1px 0 rgba(0, 0, 0, 0.2)',
-    borderRadius: theme.shape.radius.default,
-    alignItems: 'center',
-    position: 'absolute',
-    right: 0,
-    background: theme.colors.warning.main,
-    color: theme.colors.warning.contrastText,
-  }),
-  loadingWrapper: css({
-    label: 'loadingWrapper',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-});
 
 // Limits the number of visible nodes, mainly for performance reasons. Nodes above the limit are accessible by expanding
 // parts of the graph. The specific number is arbitrary but should be a number of nodes where panning, zooming and other
@@ -215,7 +131,6 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
     setConfig,
     setFocusedNodeId
   );
-  const styles = useStyles2(getStyles);
 
   // This cannot be inline func, or it will create infinite render cycle.
   const topLevelRef = useCallback(
@@ -241,16 +156,16 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
   }, [firstNodesDataFrame, firstEdgesDataFrame]);
 
   return (
-    <div ref={topLevelRef} className={styles.wrapper}>
+    <div ref={topLevelRef} {...stylex.props(nodeGraphStyles.wrapper)}>
       {loading ? (
-        <div className={styles.loadingWrapper}>
+        <div {...stylex.props(nodeGraphStyles.loadingWrapper)}>
           <Trans i18nKey="nodeGraph.node-graph.computing-layout">Computing layout</Trans>&nbsp;
           <Spinner />
         </div>
       ) : null}
 
       {!panelId && (
-        <div className={styles.layoutAlgorithm}>
+        <div {...stylex.props(nodeGraphStyles.layoutAlgorithm)}>
           <RadioButtonGroup
             size="sm"
             options={[
@@ -274,10 +189,10 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
         <svg
           ref={panRef}
           viewBox={`${-(width / 2)} ${-(height / 2)} ${width} ${height}`}
-          className={cx(styles.svg, isPanning && styles.svgPanning)}
+          className={mergeStylexClassName(stylex.props(nodeGraphStyles.svg), clsx( isPanning && styles.svgPanning)}
         >
           <g
-            className={styles.mainGroup}
+            {...stylex.props(nodeGraphStyles.mainGroup)}
             style={{ transform: `scale(${scale}) translate(${Math.floor(position.x)}px, ${Math.floor(position.y)}px)` }}
           >
             {!config.gridLayout && (
@@ -307,14 +222,14 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
           </g>
         </svg>
       ) : (
-        <div className={styles.noDataMsg}>
+        <div {...stylex.props(nodeGraphStyles.noDataMsg)}>
           <Trans i18nKey="nodeGraph.node-graph.no-data">No data</Trans>
         </div>
       )}
 
-      <div className={styles.viewControls}>
+      <div {...stylex.props(nodeGraphStyles.viewControls)}>
         {nodes.length ? (
-          <div className={styles.legend}>
+          <div {...stylex.props(nodeGraphStyles.legend)}>
             <Legend
               sortable={config.gridLayout}
               nodes={nodes}
@@ -329,7 +244,7 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
           </div>
         ) : null}
 
-        <div className={styles.viewControlsWrapper}>
+        <div {...stylex.props(nodeGraphStyles.viewControlsWrapper)}>
           <ViewControls<Config>
             config={config}
             onConfigChange={handleLayoutChange}
@@ -344,7 +259,7 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
 
       {hiddenNodesCount > 0 && (
         <div
-          className={styles.alert}
+          {...stylex.props(nodeGraphStyles.alert)}
           style={{ top: panelId ? '0px' : '40px' }} // panelId is undefined in Explore
           aria-label={t('nodeGraph.node-graph.aria-label-nodes-hidden-warning', 'Nodes hidden warning')}
         >
@@ -356,7 +271,7 @@ export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId, zoomMode, 
 
       {config.layoutAlgorithm === LayoutAlgorithm.Layered && processed.nodes.length > layeredLayoutThreshold && (
         <div
-          className={styles.alert}
+          {...stylex.props(nodeGraphStyles.alert)}
           style={{ top: panelId ? '30px' : '70px' }}
           aria-label={t(
             'nodeGraph.node-graph.aria-label-layered-layout-performance-warning',

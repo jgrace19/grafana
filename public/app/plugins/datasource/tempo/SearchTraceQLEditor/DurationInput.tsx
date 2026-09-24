@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { durationInputStyles } from './DurationInput.stylex';
 
-import { Select, Stack, Input, useStyles2 } from '@grafana/ui';
+import { Select, Stack, Input } from '@grafana/ui';
 
 import { type TraceqlFilter } from '../dataquery.gen';
 
@@ -16,17 +17,8 @@ interface Props {
 // Support template variables (e.g., `$dur`, `$v_1`) and durations (e.g., `300µs`, `1.2ms`)
 const validationRegex = /^(\$\w+)|(\d+(?:\.\d)?\d*(?:us|µs|ns|ms|s|m|h))$/;
 
-const getStyles = () => ({
-  noBoxShadow: css({
-    boxShadow: 'none',
-    '*:focus': {
-      boxShadow: 'none',
-    },
-  }),
-});
 
 const DurationInput = ({ filter, operators, updateFilter }: Props) => {
-  const styles = useStyles2(getStyles);
 
   let invalid = false;
   if (typeof filter.value === 'string') {
@@ -36,7 +28,7 @@ const DurationInput = ({ filter, operators, updateFilter }: Props) => {
   return (
     <Stack gap={0}>
       <Select
-        className={styles.noBoxShadow}
+        {...stylex.props(durationInputStyles.noBoxShadow)}
         inputId={`${filter.id}-operator`}
         options={operators.map(operatorSelectableValue)}
         value={filter.operator}
@@ -49,7 +41,7 @@ const DurationInput = ({ filter, operators, updateFilter }: Props) => {
         width={8}
       />
       <Input
-        className={styles.noBoxShadow}
+        {...stylex.props(durationInputStyles.noBoxShadow)}
         value={filter.value}
         onChange={(v) => {
           updateFilter({ ...filter, value: v.currentTarget.value });

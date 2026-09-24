@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { seriesEditorStyles } from './SeriesEditor.stylex';
+
 import { Fragment, useId, useState } from 'react';
 import { usePrevious } from 'react-use';
 
@@ -13,7 +15,7 @@ import {
   type GrafanaTheme2,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, IconButton, Select, useStyles2 } from '@grafana/ui';
+import { Button, Field, IconButton, Select } from '@grafana/ui';
 import { FieldNamePicker } from '@grafana/ui/internal';
 import { LayerName } from 'app/core/components/Layers/LayerName';
 
@@ -120,7 +122,7 @@ export const SeriesEditor = ({
                   />
                   <IconButton
                     name="trash-alt"
-                    className={cx(style.actionIcon)}
+                    className={clsx(style.actionIcon)}
                     onClick={() => deleteSeries(index)}
                     tooltip={t('xychart.series-editor.tooltip-delete-series', 'Delete series')}
                   />
@@ -318,36 +320,3 @@ export const SeriesEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  marginBot: css({
-    marginBottom: '20px',
-  }),
-  row: css({
-    padding: `${theme.spacing(0.5, 1)}`,
-    borderRadius: `${theme.shape.radius.default}`,
-    background: `${theme.colors.background.secondary}`,
-    minHeight: `${theme.spacing(4)}`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '3px',
-    cursor: 'pointer',
-
-    border: `1px solid ${theme.components.input.borderColor}`,
-    '&:hover': {
-      border: `1px solid ${theme.components.input.borderHover}`,
-    },
-  }),
-  sel: css({
-    border: `1px solid ${theme.colors.primary.border}`,
-    '&:hover': {
-      border: `1px solid ${theme.colors.primary.border}`,
-    },
-  }),
-  actionIcon: css({
-    color: `${theme.colors.text.secondary}`,
-    '&:hover': {
-      color: `${theme.colors.text}`,
-    },
-  }),
-});

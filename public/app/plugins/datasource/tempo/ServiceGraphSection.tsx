@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { serviceGraphSectionStyles } from './ServiceGraphSection.stylex';
+
 import { useEffect, useState } from 'react';
 import useAsync from 'react-use/lib/useAsync';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Alert, InlineField, InlineFieldRow, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, InlineField, InlineFieldRow, TextLink } from '@grafana/ui';
 
 import { AdHocFilter } from './_importedDependencies/components/AdHocFilter/AdHocFilter';
 import { type AdHocVariableFilter } from './_importedDependencies/components/AdHocFilter/types';
@@ -20,7 +21,6 @@ export function ServiceGraphSection({
   query: TempoQuery;
   onChange: (value: TempoQuery) => void;
 }) {
-  const styles = useStyles2(getStyles);
   const dsState = useAsync(() => getDS(graphDatasourceUid), [graphDatasourceUid]);
 
   // Check if service graph metrics are being collected. If not, displays a warning
@@ -118,7 +118,7 @@ export function ServiceGraphSection({
 
 function getWarning(title: string, description: string, styles: { alert: string }) {
   return (
-    <Alert title={title} severity="info" className={styles.alert}>
+    <Alert title={title} severity="info" {...stylex.props(serviceGraphSectionStyles.alert)}>
       {description} according to the{' '}
       <TextLink external href="https://grafana.com/docs/grafana/latest/datasources/tempo/service-graph/">
         Tempo documentation
@@ -147,9 +147,3 @@ function filtersToQuery(filters: AdHocVariableFilter[]): string {
   return `{${filters.map((f) => `${f.key}${f.operator}"${f.value}"`).join(',')}}`;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alert: css({
-    maxWidth: '75ch',
-    marginTop: theme.spacing(2),
-  }),
-});

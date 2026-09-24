@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { timeRegionEditorStyles } from './TimeRegionEditor.stylex';
+
 import moment, { type Moment } from 'moment/moment';
 import { type ChangeEvent, useState } from 'react';
 
@@ -14,7 +16,6 @@ import {
   Switch,
   TimeOfDayPicker,
   TimeZonePicker,
-  useStyles2,
 } from '@grafana/ui';
 import { TimeZoneOffset, TimeZoneTitle } from '@grafana/ui/internal';
 import { type TimeRegionConfig, type TimeRegionMode } from 'app/core/utils/timeRegions';
@@ -33,7 +34,6 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 });
 
 export const TimeRegionEditor = ({ value, onChange }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const timestamp = Date.now();
   const timezoneInfo = getTimeZoneInfo(value.timezone ?? 'utc', timestamp);
@@ -136,8 +136,8 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
     }
 
     return (
-      <div className={styles.timezoneContainer}>
-        <div className={styles.timezone}>{renderTimezonePicker()}</div>
+      <div {...stylex.props(timeRegionEditorStyles.timezoneContainer)}>
+        <div {...stylex.props(timeRegionEditorStyles.timezone)}>{renderTimezonePicker()}</div>
         <Button variant="secondary" onClick={onToggleChangeTimezone} size="sm">
           Change timezone
         </Button>
@@ -149,7 +149,7 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   const to = getTime(value.to);
 
   return (
-    <FieldSet className={styles.wrapper}>
+    <FieldSet {...stylex.props(timeRegionEditorStyles.wrapper)}>
       <Field
         label={t('dashboard-settings.time-regions.advanced-label', 'Advanced')}
         description={
@@ -241,22 +241,4 @@ export const TimeRegionEditor = ({ value, onChange }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      maxWidth: theme.spacing(60),
-      marginBottom: theme.spacing(2),
-    }),
-    timezoneContainer: css({
-      padding: '5px',
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontSize: '12px',
-    }),
-    timezone: css({
-      marginRight: '5px',
-    }),
-  };
-};
+;

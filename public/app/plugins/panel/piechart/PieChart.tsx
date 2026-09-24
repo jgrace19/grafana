@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { pieChartStyles } from './PieChart.stylex';
+
 import { localPoint } from '@visx/event';
 import { RadialGradient } from '@visx/gradient';
 import { Group } from '@visx/group';
@@ -21,7 +23,6 @@ import { selectors } from '@grafana/e2e-selectors';
 import { type SortOrder, type VizTooltipOptions } from '@grafana/schema';
 import {
   useTheme2,
-  useStyles2,
   type SeriesTableRowProps,
   DataLinksContextMenu,
   SeriesTable,
@@ -67,7 +68,6 @@ export const PieChart = ({
 }: PieChartProps) => {
   const theme = useTheme2();
   const componentInstanceId = useComponentInstanceId('PieChart');
-  const styles = useStyles2(getStyles);
   const tooltip = useTooltip<SeriesTableRowProps[]>();
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     detectBounds: true,
@@ -96,7 +96,7 @@ export const PieChart = ({
   // to guarantee consistent colors between slices and legend items.
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(pieChartStyles.container)}>
       <svg width={layout.size} height={layout.size} ref={containerRef} style={{ overflow: 'visible' }}>
         <Group top={layout.position} left={layout.position}>
           {colors.map((color) => {
@@ -229,7 +229,6 @@ interface SliceProps {
 
 function PieSlice({ arc, pie, highlightState, openMenu, fill, tooltip, tooltipOptions, gradientFills }: SliceProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const { eventBus } = usePanelContext();
 
   const onMouseOut = useCallback(
@@ -301,7 +300,6 @@ interface LabelProps {
 }
 
 function PieLabel({ arc, outerRadius, innerRadius, displayLabels, total, color, highlightState }: LabelProps) {
-  const styles = useStyles2(getStyles);
   const labelRadius = innerRadius === 0 ? outerRadius / 6 : innerRadius;
   const [labelX, labelY] = getLabelPos(arc, outerRadius, labelRadius);
   const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.3;
@@ -500,34 +498,4 @@ function getSvgStyle(
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    svgArg: {
-      normal: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-      }),
-      highlighted: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-        transform: 'scale3d(1.03, 1.03, 1)',
-      }),
-      deemphasized: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-        fillOpacity: 0.5,
-      }),
-    },
-    tooltipPortal: css(getTooltipContainerStyles(theme)),
-  };
-};
+;

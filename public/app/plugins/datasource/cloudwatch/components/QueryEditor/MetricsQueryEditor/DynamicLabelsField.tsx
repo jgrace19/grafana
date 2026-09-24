@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { useCallback, useRef } from 'react';
 
@@ -36,7 +36,7 @@ export function DynamicLabelsField({ label, width, onChange }: Props) {
   );
 
   return (
-    <div ref={containerRef} className={cx(styles.wrapper)}>
+    <div ref={containerRef} className={clsx(styles.wrapper)}>
       <CodeEditor
         containerStyles={css({
           border: `1px solid ${theme.colors.action.disabledBackground}`,

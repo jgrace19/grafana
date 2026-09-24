@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationTooltipBodyStyles } from './AnnotationTooltipBody.stylex';
 
-import { type GrafanaTheme2, textUtil } from '@grafana/data';
-import { Stack, Tag, useStyles2 } from '@grafana/ui';
+import { Stack, Tag } from '@grafana/ui';
 
 export function AnnotationTooltipBody({
   text,
@@ -14,11 +14,10 @@ export function AnnotationTooltipBody({
   alertText: string;
   tags: string[];
 }) {
-  const styles = useStyles2(getStyles);
   return (
-    <div className={styles.body}>
+    <div {...stylex.props(annotationTooltipBodyStyles.body)}>
       {title && <div dangerouslySetInnerHTML={{ __html: textUtil.sanitize(title) }}></div>}
-      {text && <div className={styles.text} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
+      {text && <div {...stylex.props(annotationTooltipBodyStyles.text)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
       {alertText}
       <div>
         <Stack gap={0.5} wrap={true}>
@@ -31,21 +30,3 @@ export function AnnotationTooltipBody({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  body: css({
-    label: 'annotation-body',
-    padding: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    fontWeight: 400,
-    a: {
-      color: theme.colors.text.link,
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }),
-  text: css({
-    paddingBottom: theme.spacing(1),
-  }),
-});

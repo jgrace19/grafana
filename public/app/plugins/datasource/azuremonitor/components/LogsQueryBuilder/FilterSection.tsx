@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React, { useEffect, useRef, useState } from 'react';
 import { lastValueFrom } from 'rxjs';
 
 import { CoreApp, getDefaultTimeRange, type SelectableValue, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { EditorField, EditorFieldGroup, EditorRow, InputGroup } from '@grafana/plugin-ui';
-import { Button, type ComboboxOption, Label, useStyles2 } from '@grafana/ui';
+import { Button, type ComboboxOption, Label } from '@grafana/ui';
+
+import { filterSectionStyles } from './FilterSection.stylex';
 
 import {
   AzureQueryType,
@@ -44,7 +46,6 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   datasource,
   timeRange,
 }) => {
-  const styles = useStyles2(() => ({ filters: css({ marginBottom: '8px' }) }));
   const builderQuery = query.azureLogAnalytics?.builderQuery;
 
   const prevTable = useRef<string | null>(builderQuery?.from?.property.name || null);
@@ -216,7 +217,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             'Narrow results by applying conditions to specific columns.'
           )}
         >
-          <div className={styles.filters}>
+          <div {...stylex.props(filterSectionStyles.filters)}>
             {filters.length === 0 || filters.every((g) => g.expressions.length === 0) ? (
               <InputGroup>
                 <Button

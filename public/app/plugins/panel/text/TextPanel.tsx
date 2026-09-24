@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { textPanelStyles } from './TextPanel.stylex';
+
 import DangerouslySetHtmlContent from 'dangerously-set-html-content';
 import { useState } from 'react';
 import { useDebounce } from 'react-use';
@@ -10,7 +12,7 @@ import {
   textUtil,
   type InterpolateFunction,
 } from '@grafana/data';
-import { CodeEditor, ScrollContainer, useStyles2 } from '@grafana/ui';
+import { CodeEditor, ScrollContainer } from '@grafana/ui';
 import config from 'app/core/config';
 
 import { defaultCodeOptions, type Options, TextMode } from './panelcfg.gen';
@@ -18,7 +20,6 @@ import { defaultCodeOptions, type Options, TextMode } from './panelcfg.gen';
 export interface Props extends PanelProps<Options> {}
 
 export function TextPanel(props: Props) {
-  const styles = useStyles2(getStyles);
   const [processed, setProcessed] = useState<Options>({
     mode: props.options.mode,
     content: processContent(props.options, props.replaceVariables, config.disableSanitizeHtml),
@@ -48,7 +49,7 @@ export function TextPanel(props: Props) {
         language={code.language ?? defaultCodeOptions.language!}
         width={props.width}
         height={props.height}
-        containerStyles={styles.codeEditorContainer}
+        containerClassName={stylex.props(textPanelStyles.codeEditorContainer).className ?? undefined}
         showMiniMap={code.showMiniMap}
         showLineNumbers={code.showLineNumbers}
         readOnly={true} // future
@@ -57,12 +58,12 @@ export function TextPanel(props: Props) {
   }
 
   return (
-    <div className={styles.containStrict}>
+    <div {...stylex.props(textPanelStyles.containStrict)}>
       <ScrollContainer minHeight="100%">
         <DangerouslySetHtmlContent
           allowRerender
           html={processed.content}
-          className={cx('markdown-html', styles.markdownHtml)}
+          className={mergeStylexClassName(stylex.props(textPanelStyles.markdownHtml), clsx('markdown-html'))}
           data-testid="TextPanel-converted-content"
         />
       </ScrollContainer>
@@ -100,18 +101,3 @@ function processContent(options: Options, interpolate: InterpolateFunction, disa
   return content;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  codeEditorContainer: css({
-    '.monaco-editor .margin, .monaco-editor-background': {
-      backgroundColor: theme.colors.background.primary,
-    },
-  }),
-  containStrict: css({
-    contain: 'strict',
-    height: '100%',
-    display: 'flex',
-  }),
-  markdownHtml: css({
-    height: '100%',
-  }),
-});

@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { type RefCallback, type SyntheticEvent, useState, type JSX } from 'react';
 import * as React from 'react';
 import { lastValueFrom } from 'rxjs';
@@ -152,7 +152,7 @@ const Option = (props: React.PropsWithChildren<OptionProps>) => {
   return (
     <div
       ref={innerRef}
-      className={cx(
+      className={clsx(
         styles.option,
         isFocused && styles.optionFocused,
         isSelected && styles.optionSelected,

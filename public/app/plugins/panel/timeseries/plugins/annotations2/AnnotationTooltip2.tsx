@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationTooltip2Styles } from './AnnotationTooltip2.stylex';
+
 import * as React from 'react';
 
 import {
@@ -10,7 +12,7 @@ import {
   type ActionModel,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Stack, IconButton, Tag, usePanelContext, useStyles2 } from '@grafana/ui';
+import { Stack, IconButton, Tag, usePanelContext } from '@grafana/ui';
 import { VizTooltipFooter } from '@grafana/ui/internal';
 import alertDef from 'app/features/alerting/state/alertDef';
 
@@ -40,8 +42,6 @@ export const AnnotationTooltip2 = ({
   actions = [],
 }: Props) => {
   const annoId = annoVals.id?.[annoIdx];
-
-  const styles = useStyles2(getStyles);
   const focusRef = React.useRef<HTMLButtonElement | null>(null);
   const { canEditAnnotations = retFalse, canDeleteAnnotations = retFalse, onAnnotationDelete } = usePanelContext();
   const dashboardUID = annoVals.dashboardUID?.[annoIdx];
@@ -71,7 +71,7 @@ export const AnnotationTooltip2 = ({
 
   let avatar;
   if (annoVals.login?.[annoIdx] && annoVals.avatarUrl?.[annoIdx]) {
-    avatar = <img className={styles.avatar} alt="Annotation avatar" src={annoVals.avatarUrl[annoIdx]} />;
+    avatar = <img {...stylex.props(annotationTooltip2Styles.avatar)} alt="Annotation avatar" src={annoVals.avatarUrl[annoIdx]} />;
   }
 
   let state: React.ReactNode | null = null;
@@ -80,7 +80,7 @@ export const AnnotationTooltip2 = ({
   if (annoVals.alertId?.[annoIdx] !== undefined && annoVals.newState?.[annoIdx]) {
     const stateModel = alertDef.getStateDisplayModel(annoVals.newState[annoIdx]);
     state = (
-      <div className={styles.alertState}>
+      <div {...stylex.props(annotationTooltip2Styles.alertState)}>
         <i className={stateModel.stateClass}>{stateModel.text}</i>
       </div>
     );
@@ -91,10 +91,10 @@ export const AnnotationTooltip2 = ({
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.header}>
+    <div {...stylex.props(annotationTooltip2Styles.wrapper)}>
+      <div {...stylex.props(annotationTooltip2Styles.header)}>
         <Stack gap={2} basis="100%" justifyContent="space-between" alignItems="center">
-          <div className={styles.meta}>
+          <div {...stylex.props(annotationTooltip2Styles.meta)}>
             <span>
               {avatar}
               {state}
@@ -102,7 +102,7 @@ export const AnnotationTooltip2 = ({
             {time}
           </div>
           {(canEdit || canDelete || isPinned) && (
-            <div className={styles.controls}>
+            <div {...stylex.props(annotationTooltip2Styles.controls)}>
               {canEdit && (
                 <IconButton
                   ref={focusRef}
@@ -136,8 +136,8 @@ export const AnnotationTooltip2 = ({
         </Stack>
       </div>
 
-      <div className={styles.body}>
-        {text && <div className={styles.text} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
+      <div {...stylex.props(annotationTooltip2Styles.body)}>
+        {text && <div {...stylex.props(annotationTooltip2Styles.text)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(text) }} />}
         {alertText}
         <div>
           <Stack gap={0.5} wrap={true}>
@@ -153,58 +153,3 @@ export const AnnotationTooltip2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    zIndex: theme.zIndex.tooltip,
-    whiteSpace: 'initial',
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
-    userSelect: 'text',
-  }),
-  header: css({
-    padding: theme.spacing(0.5, 1),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.fontSize,
-    color: theme.colors.text.primary,
-    display: 'flex',
-  }),
-  meta: css({
-    display: 'flex',
-    color: theme.colors.text.primary,
-    fontWeight: 400,
-  }),
-  controls: css({
-    display: 'flex',
-    '> :last-child': {
-      marginLeft: 0,
-    },
-  }),
-  body: css({
-    padding: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    fontWeight: 400,
-    a: {
-      color: theme.colors.text.link,
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }),
-  text: css({
-    paddingBottom: theme.spacing(1),
-  }),
-  avatar: css({
-    borderRadius: theme.shape.radius.circle,
-    width: 16,
-    height: 16,
-    marginRight: theme.spacing(1),
-  }),
-  alertState: css({
-    paddingRight: theme.spacing(1),
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-});

@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configEditorStyles } from './ConfigEditor.stylex';
 
 import { type DataSourcePluginOptionsEditorProps, type GrafanaTheme2 } from '@grafana/data';
 import {
@@ -10,7 +11,7 @@ import {
   convertLegacyAuthProps,
 } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
-import { Divider, SecureSocksProxySettings, Stack, useStyles2 } from '@grafana/ui';
+import { Divider, SecureSocksProxySettings, Stack } from '@grafana/ui';
 
 import { type ParcaDataSourceOptions } from './types';
 
@@ -18,10 +19,9 @@ interface Props extends DataSourcePluginOptionsEditorProps<ParcaDataSourceOption
 
 export const ConfigEditor = (props: Props) => {
   const { options, onOptionsChange } = props;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(configEditorStyles.container)}>
       <DataSourceDescription
         dataSourceName="Parca"
         docsLink="https://grafana.com/docs/grafana/latest/datasources/parca"
@@ -59,9 +59,3 @@ export const ConfigEditor = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: theme.spacing(2),
-    maxWidth: '900px',
-  }),
-});

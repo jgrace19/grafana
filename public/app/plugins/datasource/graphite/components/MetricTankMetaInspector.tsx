@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { PureComponent } from 'react';
 
 import { type MetadataInspectorProps, rangeUtil } from '@grafana/data';
-import { config } from '@grafana/runtime';
-import { stylesFactory } from '@grafana/ui';
+
+import { metricTankMetaInspectorStyles } from './MetricTankMetaInspector.stylex';
 
 import { type GraphiteDatasource } from '../datasource';
 import { getRollupNotice, getRuntimeConsolidationNotice, parseSchemaRetentions } from '../meta';
@@ -17,7 +18,7 @@ export interface State {
 
 export class MetricTankMetaInspector extends PureComponent<Props, State> {
   renderMeta(meta: MetricTankSeriesMeta, key: string) {
-    const styles = getStyles();
+    const styles = metricTankMetaInspectorStyles;
     const buckets = parseSchemaRetentions(meta['schema-retentions']);
     const rollupNotice = getRollupNotice([meta]);
     const runtimeNotice = getRuntimeConsolidationNotice([meta]);
@@ -29,15 +30,15 @@ export class MetricTankMetaInspector extends PureComponent<Props, State> {
     );
 
     return (
-      <div className={styles.metaItem} key={key}>
-        <div className={styles.metaItemHeader}>
+      <div {...stylex.props(styles.metaItem)} key={key}>
+        <div {...stylex.props(styles.metaItemHeader)}>
           Schema: {meta['schema-name']}
           <div className="small muted">Series count: {meta.count}</div>
         </div>
-        <div className={styles.metaItemBody}>
-          <div className={styles.step}>
-            <div className={styles.stepHeading}>Step 1: Fetch</div>
-            <div className={styles.stepDescription}>
+        <div {...stylex.props(styles.metaItemBody)}>
+          <div {...stylex.props(styles.step)}>
+            <div {...stylex.props(styles.stepHeading)}>Step 1: Fetch</div>
+            <div {...stylex.props(styles.stepDescription)}>
               First data is fetched, either from raw data archive or a rollup archive
             </div>
 
@@ -51,10 +52,10 @@ export class MetricTankMetaInspector extends PureComponent<Props, State> {
                 const isActive = index === meta['archive-read'];
 
                 return (
-                  <div key={bucket.retention} className={styles.bucket}>
-                    <div className={styles.bucketInterval}>{bucket.interval}</div>
+                  <div key={bucket.retention} {...stylex.props(styles.bucket)}>
+                    <div {...stylex.props(styles.bucketInterval)}>{bucket.interval}</div>
                     <div
-                      className={cx(styles.bucketRetention, { [styles.bucketRetentionActive]: isActive })}
+                      {...stylex.props(styles.bucketRetention, isActive && styles.bucketRetentionActive)}
                       style={{ flexGrow: lengthPercent }}
                     />
                     <div style={{ flexGrow: 100 - lengthPercent }}>{bucket.retention}</div>
@@ -64,9 +65,9 @@ export class MetricTankMetaInspector extends PureComponent<Props, State> {
             </div>
           </div>
 
-          <div className={styles.step}>
-            <div className={styles.stepHeading}>Step 2: Normalization</div>
-            <div className={styles.stepDescription}>
+          <div {...stylex.props(styles.step)}>
+            <div {...stylex.props(styles.stepHeading)}>Step 2: Normalization</div>
+            <div {...stylex.props(styles.stepDescription)}>
               Normalization happens when series with different intervals between points are combined.
             </div>
 
@@ -74,9 +75,9 @@ export class MetricTankMetaInspector extends PureComponent<Props, State> {
             {meta['aggnum-norm'] === 1 && <p>No normalization was needed</p>}
           </div>
 
-          <div className={styles.step}>
-            <div className={styles.stepHeading}>Step 3: Runtime consolidation</div>
-            <div className={styles.stepDescription}>
+          <div {...stylex.props(styles.step)}>
+            <div {...stylex.props(styles.stepHeading)}>Step 3: Runtime consolidation</div>
+            <div {...stylex.props(styles.stepDescription)}>
               If there are too many data points at this point Metrictank will consolidate them down to below max data
               points (set in queries tab).
             </div>
@@ -124,61 +125,3 @@ export class MetricTankMetaInspector extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory(() => {
-  const { theme } = config;
-  const borderColor = theme.isDark ? theme.palette.gray25 : theme.palette.gray85;
-  const background = theme.isDark ? theme.palette.dark1 : theme.palette.white;
-  const headerBg = theme.isDark ? theme.palette.gray15 : theme.palette.gray85;
-
-  return {
-    metaItem: css({
-      background: background,
-      border: `1px solid ${borderColor}`,
-      marginBottom: theme.spacing.md,
-    }),
-    metaItemHeader: css({
-      background: headerBg,
-      padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-      fontSize: theme.typography.size.md,
-      display: 'flex',
-      justifyContent: 'space-between',
-    }),
-    metaItemBody: css({
-      padding: theme.spacing.md,
-    }),
-    stepHeading: css({
-      fontSize: theme.typography.size.md,
-    }),
-    stepDescription: css({
-      fontSize: theme.typography.size.sm,
-      color: theme.colors.textWeak,
-      marginBottom: theme.spacing.sm,
-    }),
-    step: css({
-      marginBottom: theme.spacing.lg,
-
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    }),
-    bucket: css({
-      display: 'flex',
-      marginBottom: theme.spacing.sm,
-      borderRadius: theme.border.radius.sm,
-    }),
-    bucketInterval: css({
-      flexGrow: 0,
-      width: '60px',
-    }),
-    bucketRetention: css({
-      background: `linear-gradient(0deg, ${theme.palette.blue85}, ${theme.palette.blue95})`,
-      textAlign: 'center',
-      color: theme.palette.white,
-      marginRight: theme.spacing.md,
-      borderRadius: theme.border.radius.sm,
-    }),
-    bucketRetentionActive: css({
-      background: `linear-gradient(0deg, ${theme.palette.greenBase}, ${theme.palette.greenShade})`,
-    }),
-  };
-});

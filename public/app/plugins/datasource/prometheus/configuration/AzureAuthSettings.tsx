@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { type FormEvent, useMemo, useState } from 'react';
 import { useEffectOnce } from 'react-use';
 
@@ -74,7 +74,7 @@ export const AzureAuthSettings = (props: HttpSettingsBaseProps) => {
               <InlineFieldRow>
                 <InlineField labelWidth={24} label="Resource ID" disabled={dataSourceConfig.readOnly}>
                   <Input
-                    className={cx('width-20')}
+                    className={clsx('width-20')}
                     value={dataSourceConfig.jsonData.azureEndpointResourceId || ''}
                     onChange={onResourceIdChange}
                   />

@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { stackStyles } from './Stack.stylex';
+
 import { type CSSProperties } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 interface StackProps {
   direction?: CSSProperties['flexDirection'];
@@ -15,17 +15,6 @@ interface StackProps {
 }
 
 export function Stack(props: StackProps) {
-  const styles = useStyles2(getStyles, props);
-  return <div className={styles.root}>{props.children}</div>;
+  return <div {...stylex.props(stackStyles.root)}>{props.children}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2, props: StackProps) => ({
-  root: css({
-    display: 'flex',
-    flexDirection: props.direction ?? 'row',
-    flexWrap: (props.wrap ?? true) ? 'wrap' : undefined,
-    alignItems: props.alignItems,
-    gap: theme.spacing(props.gap ?? 2),
-    flexGrow: props.flexGrow,
-  }),
-});

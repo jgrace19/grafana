@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { fluxQueryEditorStyles } from './FluxQueryEditor.stylex';
+
 import { PureComponent } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import {
   CodeEditor,
@@ -177,7 +178,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
       <>
         <CodeEditor
           height={'100%'}
-          containerStyles={styles.editorContainerStyles}
+          containerClassName={stylex.props(fluxQueryEditorStyles.editorContainerStyles).className ?? undefined}
           language="sql"
           value={query.query || ''}
           onBlur={this.onFluxQueryChange}
@@ -187,7 +188,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
           getSuggestions={this.getSuggestions}
           onEditorDidMount={this.editorDidMountCallbackHack}
         />
-        <div className={cx('gf-form-inline', styles.editorActions)}>
+        <div className={mergeStylexClassName(stylex.props(fluxQueryEditorStyles.editorActions), clsx('gf-form-inline'))}>
           <LinkButton
             icon="external-link-alt"
             variant="secondary"
@@ -217,18 +218,5 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorContainerStyles: css({
-    height: '200px',
-    maxWidth: '100%',
-    resize: 'vertical',
-    overflow: 'auto',
-    backgroundColor: theme.isDark ? theme.colors.background.canvas : theme.colors.background.primary,
-    paddingBottom: theme.spacing(1),
-  }),
-  editorActions: css({
-    marginTop: '6px',
-  }),
-});
 
 export const FluxQueryEditor = withTheme2(UnthemedFluxQueryEditor);

@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { nestedQueryStyles } from './NestedQuery.stylex';
+
 import { memo } from 'react';
 
-import { type GrafanaTheme2, toOption } from '@grafana/data';
 import { EditorRows, FlexItem } from '@grafana/plugin-ui';
-import { AutoSizeInput, IconButton, Select, useStyles2 } from '@grafana/ui';
+import { AutoSizeInput, IconButton, Select } from '@grafana/ui';
 
 import { type LokiDatasource } from '../../datasource';
 import { binaryScalarDefs } from '../binaryScalarOperations';
@@ -23,12 +24,11 @@ export interface Props {
 
 export const NestedQuery = memo<Props>(
   ({ nestedQuery, index, datasource, onChange, onRemove, onRunQuery, showExplain }) => {
-    const styles = useStyles2(getStyles);
 
     return (
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <div className={styles.name}>Operator</div>
+      <div {...stylex.props(nestedQueryStyles.card)}>
+        <div {...stylex.props(nestedQueryStyles.header)}>
+          <div {...stylex.props(nestedQueryStyles.name)}>Operator</div>
           <Select
             aria-label="Select operator"
             width="auto"
@@ -41,8 +41,8 @@ export const NestedQuery = memo<Props>(
               });
             }}
           />
-          <div className={styles.name}>Vector matches</div>
-          <div className={styles.vectorMatchWrapper}>
+          <div {...stylex.props(nestedQueryStyles.name)}>Vector matches</div>
+          <div {...stylex.props(nestedQueryStyles.vectorMatchWrapper)}>
             <Select<LokiVisualQueryBinary['vectorMatchesType']>
               width="auto"
               value={nestedQuery.vectorMatchesType || 'on'}
@@ -59,7 +59,7 @@ export const NestedQuery = memo<Props>(
               }}
             />
             <AutoSizeInput
-              className={styles.vectorMatchInput}
+              {...stylex.props(nestedQueryStyles.vectorMatchInput)}
               minWidth={20}
               defaultValue={nestedQuery.vectorMatches}
               onCommitChange={(evt) => {
@@ -74,7 +74,7 @@ export const NestedQuery = memo<Props>(
           <FlexItem grow={1} />
           <IconButton name="times" size="sm" onClick={() => onRemove(index)} tooltip="Remove nested query" />
         </div>
-        <div className={styles.body}>
+        <div {...stylex.props(nestedQueryStyles.body)}>
           <EditorRows>
             <LokiQueryBuilder
               showExplain={showExplain}
@@ -96,36 +96,4 @@ const operators = binaryScalarDefs.map((def) => ({ label: def.sign, value: def.s
 
 NestedQuery.displayName = 'NestedQuery';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      label: 'card',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    header: css({
-      label: 'header',
-      padding: theme.spacing(0.5, 0.5, 0.5, 1),
-      gap: theme.spacing(1),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    name: css({
-      label: 'name',
-      whiteSpace: 'nowrap',
-    }),
-    body: css({
-      label: 'body',
-      paddingLeft: theme.spacing(2),
-    }),
-    vectorMatchInput: css({
-      label: 'vectorMatchInput',
-      marginLeft: -1,
-    }),
-    vectorMatchWrapper: css({
-      label: 'vectorMatchWrapper',
-      display: 'flex',
-    }),
-  };
-};
+;

@@ -1,22 +1,19 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { advancedResourcePickerStyles } from './AdvancedResourcePicker.stylex';
+
 import { useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { AccessoryButton } from '@grafana/plugin-ui';
-import { Icon, Input, Tooltip, Label, Button, useStyles2, TextLink } from '@grafana/ui';
+import { Icon, Input, Tooltip, Label, Button, TextLink } from '@grafana/ui';
 
 export interface ResourcePickerProps<T> {
   resources: T[];
   onChange: (resources: T[]) => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  resourceList: css({ width: '100%', display: 'flex', marginBlock: theme.spacing(1) }),
-});
 
 const AdvancedResourcePicker = ({ resources, onChange }: ResourcePickerProps<string>) => {
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     // Ensure there is at least one resource
@@ -68,7 +65,7 @@ const AdvancedResourcePicker = ({ resources, onChange }: ResourcePickerProps<str
       </Label>
       {resources.map((resource, index) => (
         <div key={`resource-${index + 1}`}>
-          <div className={styles.resourceList}>
+          <div {...stylex.props(advancedResourcePickerStyles.resourceList)}>
             <Input
               id={`input-advanced-resource-picker-${index + 1}`}
               value={resource}

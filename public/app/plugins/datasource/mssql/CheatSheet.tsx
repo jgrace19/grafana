@@ -1,11 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { cheatSheetStyles } from './CheatSheet.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 export function CheatSheet() {
-  const styles = useStyles2(getStyles);
 
   return (
     <div>
@@ -13,7 +11,7 @@ export function CheatSheet() {
         <Trans i18nKey="cheat-sheet.title">MSSQL cheat sheet</Trans>
       </h2>
       <Trans i18nKey="cheat-sheet.time-series">Time series:</Trans>
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           <Trans i18nKey="cheat-sheet.time-series-tip">
             return column named time (in UTC), as a unix time stamp or any sql native date data type. You can use the
@@ -27,7 +25,7 @@ export function CheatSheet() {
         </li>
       </ul>
       <Trans i18nKey="cheat-sheet.optional">Optional:</Trans>
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           <Trans i18nKey="cheat-sheet.optional-tip" values={{ columnName: 'metric' }}>
             return column named <i>{'{{columnName}}'}</i> to represent the series name.
@@ -50,14 +48,14 @@ export function CheatSheet() {
         </Trans>
       </p>
       <Trans i18nKey="cheat-sheet.table">Table:</Trans>
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           <Trans i18nKey="cheat-sheet.table-tip">return any set of columns</Trans>
         </li>
       </ul>
       <Trans i18nKey="cheat-sheet.macros">Macros:</Trans>
       {/* eslint-disable @grafana/i18n/no-untranslated-strings */}
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__time(column) -&gt; column AS time</li>
         <li>$__timeEpoch(column) -&gt; DATEDIFF(second, &apos;1970-01-01&apos;, column) AS time</li>
         <li>
@@ -107,7 +105,7 @@ export function CheatSheet() {
         Or build your own conditionals using these macros which just return the values:
       </Trans>
       {/* eslint-disable @grafana/i18n/no-untranslated-strings */}
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__timeFrom() -&gt; &apos;2017-04-21T05:01:17Z&apos;</li>
         <li>$__timeTo() -&gt; &apos;2017-04-21T05:01:17Z&apos;</li>
         <li>$__unixEpochFrom() -&gt; 1492750877</li>
@@ -120,11 +118,3 @@ export function CheatSheet() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    ulPadding: css({
-      margin: theme.spacing(1, 0),
-      paddingLeft: theme.spacing(5),
-    }),
-  };
-}

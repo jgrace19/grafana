@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { lokiContextUiStyles } from './LokiContextUi.stylex';
+
 import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
 
@@ -18,7 +20,6 @@ import {
   RenderUserContentAsHTML,
   Spinner,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
 
 import {
@@ -40,81 +41,11 @@ export interface LokiContextUiProps {
   runContextQuery?: () => void;
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    labels: css({
-      display: 'flex',
-      gap: theme.spacing(0.5),
-    }),
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flex: 1,
-      gap: theme.spacing(0.5),
-      position: 'relative',
-    }),
-    textWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    hidden: css({
-      visibility: 'hidden',
-    }),
-    label: css({
-      maxWidth: '100%',
-      '&:first-of-type': {
-        marginBottom: theme.spacing(2),
-      },
-      '&:not(:first-of-type)': {
-        margin: theme.spacing(2, 0),
-      },
-    }),
-    rawQueryContainer: css({
-      textAlign: 'start',
-      lineBreak: 'anywhere',
-      marginTop: theme.spacing(-0.25),
-      marginRight: theme.spacing(6),
-      minHeight: theme.spacing(4),
-    }),
-    ui: css({
-      backgroundColor: theme.colors.background.secondary,
-      padding: theme.spacing(2),
-    }),
-    notification: css({
-      position: 'absolute',
-      zIndex: theme.zIndex.portal,
-      top: 0,
-      right: 0,
-    }),
-    rawQuery: css({
-      display: 'inline',
-    }),
-    queryDescription: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-    iconButton: css({
-      position: 'absolute',
-      top: theme.spacing(1),
-      right: theme.spacing(1),
-      zIndex: theme.zIndex.navbarFixed,
-    }),
-    operationsToggle: css({
-      margin: theme.spacing(1, 0, -1, 0),
-      '& > div': {
-        margin: 0,
-        '& > label': {
-          padding: 0,
-        },
-      },
-    }),
-  };
-}
 
 export const IS_LOKI_LOG_CONTEXT_UI_OPEN = 'isLogContextQueryUiOpen';
 
 export function LokiContextUi(props: LokiContextUiProps) {
   const { row, logContextProvider, updateFilter, onClose, origQuery, runContextQuery } = props;
-  const styles = useStyles2(getStyles);
 
   const [contextFilters, setContextFilters] = useState<ContextFilter[]>([]);
   const [showPreservedFiltersAppliedNotification, setShowPreservedFiltersAppliedNotification] = useState(false);
@@ -264,16 +195,16 @@ export function LokiContextUi(props: LokiContextUiProps) {
     origQuery
   );
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(lokiContextUiStyles.wrapper)}>
       {showPreservedFiltersAppliedNotification && (
         <Alert
-          className={styles.notification}
+          {...stylex.props(lokiContextUiStyles.notification)}
           title="Previously used filters have been applied."
           severity="info"
           elevated={true}
         ></Alert>
       )}
-      <div className={styles.iconButton}>
+      <div {...stylex.props(lokiContextUiStyles.iconButton)}>
         <Button
           tooltip="Revert to initial log context query"
           data-testid="revert-button"
@@ -310,16 +241,16 @@ export function LokiContextUi(props: LokiContextUiProps) {
           });
         }}
         label={
-          <div className={styles.rawQueryContainer}>
+          <div {...stylex.props(lokiContextUiStyles.rawQueryContainer)}>
             {initialized ? (
               <>
                 <RawQuery
                   language={{ grammar: lokiGrammar, name: 'loki' }}
                   query={queryExpr}
-                  className={styles.rawQuery}
+                  {...stylex.props(lokiContextUiStyles.rawQuery)}
                 />
                 <Tooltip content="The initial log context query is created from all labels defining the stream for the selected log line. Use the editor below to customize the log context query.">
-                  <Icon name="info-circle" size="sm" className={styles.queryDescription} />
+                  <Icon name="info-circle" size="sm" {...stylex.props(lokiContextUiStyles.queryDescription)} />
                 </Tooltip>
               </>
             ) : (
@@ -328,9 +259,9 @@ export function LokiContextUi(props: LokiContextUiProps) {
           </div>
         }
       >
-        <div className={styles.ui}>
+        <div {...stylex.props(lokiContextUiStyles.ui)}>
           <Label
-            className={styles.label}
+            {...stylex.props(lokiContextUiStyles.label)}
             description="The initial log context query is created from all labels defining the stream for the selected log line. You can broaden your search by removing one or more of the label filters."
           >
             Widen the search
@@ -371,7 +302,7 @@ export function LokiContextUi(props: LokiContextUiProps) {
           {showNonIndexedLabels && (
             <>
               <Label
-                className={styles.label}
+                {...stylex.props(lokiContextUiStyles.label)}
                 description={`By using a parser in your original query, you can use filters for extracted labels. Refine your search by applying extracted labels created from the selected log line.`}
               >
                 Refine the search
@@ -413,7 +344,7 @@ export function LokiContextUi(props: LokiContextUiProps) {
             </>
           )}
           {logContextProvider.queryContainsValidPipelineStages(origQuery) && (
-            <InlineFieldRow className={styles.operationsToggle}>
+            <InlineFieldRow {...stylex.props(lokiContextUiStyles.operationsToggle)}>
               <InlineField
                 label="Include LogQL pipeline operations"
                 tooltip={

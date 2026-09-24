@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { logsPanelStyles } from './LogsPanel.stylex';
+
 import { groupBy } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
@@ -33,7 +35,7 @@ import {
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
-import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
+import { ScrollContainer, usePanelContext } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
 import { ControlledLogRows } from 'app/features/logs/components/ControlledLogRows';
@@ -504,7 +506,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
   );
 
   const renderCommonLabels = () => (
-    <div className={cx(style.labelContainer, isAscending && style.labelContainerAscending)}>
+    <div className={clsx(style.labelContainer, isAscending && style.labelContainerAscending)}>
       <span className={style.label}>
         <Trans i18nKey="logs.logs-panel.render-common-labels.common-labels">Common labels:</Trans>
       </span>
@@ -768,35 +770,6 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: theme.spacing(1.5),
-  }),
-  logListContainer: css({
-    minHeight: '100%',
-    maxHeight: '100%',
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'column',
-    overflow: 'hidden',
-  }),
-  controlledLogsContainer: css({
-    height: '100%',
-  }),
-  labelContainer: css({
-    margin: theme.spacing(0, 0, 0.5, 0.5),
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  labelContainerAscending: css({
-    margin: theme.spacing(0.5, 0, 0.5, 0),
-  }),
-  label: css({
-    marginRight: theme.spacing(0.5),
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-});
 
 async function copyDashboardUrl(row: LogRowModel, rows: LogRowModel[], timeRange: TimeRange) {
   // this is an extra check, to be sure that we are not

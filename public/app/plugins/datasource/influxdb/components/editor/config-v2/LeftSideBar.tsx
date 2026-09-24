@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { leftSideBarStyles } from './LeftSideBar.stylex';
 
-import { Box, Icon, LinkButton, Space, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Icon, LinkButton, Space, Stack, Text } from '@grafana/ui';
 
 import { CONFIG_SECTION_HEADERS, CONFIG_SECTION_HEADERS_WITH_PDC } from './constants';
 
@@ -10,7 +11,6 @@ interface LeftSideBarProps {
 
 export const LeftSideBar = ({ pdcInjected }: LeftSideBarProps) => {
   const headers = pdcInjected ? CONFIG_SECTION_HEADERS_WITH_PDC : CONFIG_SECTION_HEADERS;
-  const styles = useStyles2(getStyles);
 
   return (
     <Stack>
@@ -33,10 +33,10 @@ export const LeftSideBar = ({ pdcInjected }: LeftSideBarProps) => {
                   }
                 }}
               >
-                <div className={styles.sidebarText}>
-                  <div className={styles.sidebarLabel}>{header.label}</div>
+                <div {...stylex.props(leftSideBarStyles.sidebarText)}>
+                  <div {...stylex.props(leftSideBarStyles.sidebarLabel)}>{header.label}</div>
                   {header.isOptional && (
-                    <div className={styles.sidebarOptional}>
+                    <div {...stylex.props(leftSideBarStyles.sidebarOptional)}>
                       <Text color="secondary" variant="bodySmall">
                         optional
                       </Text>
@@ -53,26 +53,3 @@ export const LeftSideBar = ({ pdcInjected }: LeftSideBarProps) => {
   );
 };
 
-const getStyles = () => ({
-  inlineField: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-  sidebarText: css({
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  sidebarLabel: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 0,
-    lineHeight: 1,
-  }),
-  sidebarOptional: css({
-    marginTop: 0,
-    marginBottom: 0,
-    lineHeight: 1,
-  }),
-});

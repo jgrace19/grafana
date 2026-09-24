@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { filterItemStyles } from './FilterItem.stylex';
+
 import { useMemo } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { type GrafanaTheme2, type SelectableValue, toOption } from '@grafana/data';
 import { AccessoryButton, InputGroup } from '@grafana/plugin-ui';
-import { Alert, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Select } from '@grafana/ui';
 
 import { type Dimensions, type MetricStat } from '../../../dataquery.gen';
 import { type CloudWatchDatasource } from '../../../datasource';
@@ -74,10 +75,9 @@ export const FilterItem = ({ filter, metricStat, datasource, disableExpressions,
     metricName,
     accountId,
   ]);
-  const styles = useStyles2(getOperatorStyles);
 
   return (
-    <div className={styles.container} data-testid="cloudwatch-dimensions-filter-item">
+    <div {...stylex.props(filterItemStyles.container)} data-testid="cloudwatch-dimensions-filter-item">
       <InputGroup>
         <Select
           aria-label="Dimensions filter key"
@@ -93,7 +93,7 @@ export const FilterItem = ({ filter, metricStat, datasource, disableExpressions,
           }}
         />
 
-        <span className={cx(styles.root)}>=</span>
+        <span className={clsx(styles.root)}>=</span>
 
         <Select
           aria-label="Dimensions filter value"
@@ -112,16 +112,8 @@ export const FilterItem = ({ filter, metricStat, datasource, disableExpressions,
         />
         <AccessoryButton aria-label="remove" icon="times" variant="secondary" onClick={onDelete} type="button" />
       </InputGroup>
-      {error && <Alert className={styles.alert} title={error} severity="error" topSpacing={1} />}
+      {error && <Alert {...stylex.props(filterItemStyles.alert)} title={error} severity="error" topSpacing={1} />}
     </div>
   );
 };
 
-const getOperatorStyles = (theme: GrafanaTheme2) => ({
-  root: css({
-    padding: theme.spacing(0, 1),
-    alignSelf: 'center',
-  }),
-  container: css({ display: 'inline-block' }),
-  alert: css({ minWidth: '100%', width: 'min-content' }),
-});

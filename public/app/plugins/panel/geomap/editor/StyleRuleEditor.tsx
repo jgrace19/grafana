@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { styleRuleEditorStyles } from './StyleRuleEditor.stylex';
+
 import { type FeatureLike } from 'ol/Feature';
 import { useCallback, useMemo } from 'react';
 import { useObservable } from 'react-use';
@@ -12,7 +14,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ComparisonOperation } from '@grafana/schema';
-import { Button, InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { comparisonOperationOptions } from '@grafana/ui/internal';
 import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
@@ -63,8 +65,6 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
     }
     return [];
   }, [feats, value]);
-
-  const styles = useStyles2(getStyles);
 
   const LABEL_WIDTH = 10;
 
@@ -136,8 +136,8 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
   const valuev = getSelectionInfo(check.value, uniqueSelectables);
 
   return (
-    <div className={styles.rule}>
-      <InlineFieldRow className={styles.row}>
+    <div {...stylex.props(styleRuleEditorStyles.rule)}>
+      <InlineFieldRow {...stylex.props(styleRuleEditorStyles.row)}>
         <InlineField label={t('geomap.style-rule-editor.label-rule', 'Rule')} labelWidth={LABEL_WIDTH} grow={true}>
           <Select
             placeholder={t('geomap.style-rule-editor.placeholder-feature-property', 'Feature property')}
@@ -149,7 +149,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             allowCustomValue
           />
         </InlineField>
-        <InlineField className={styles.inline}>
+        <InlineField {...stylex.props(styleRuleEditorStyles.inline)}>
           <Select
             value={comparisonOperationOptions.find((v) => v.value === check.operation)}
             options={comparisonOperationOptions}
@@ -158,8 +158,8 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
             width={8}
           />
         </InlineField>
-        <InlineField className={styles.inline} grow={true}>
-          <div className={styles.flexRow}>
+        <InlineField {...stylex.props(styleRuleEditorStyles.inline)} grow={true}>
+          <div {...stylex.props(styleRuleEditorStyles.flexRow)}>
             {(check.operation === ComparisonOperation.EQ || check.operation === ComparisonOperation.NEQ) && (
               <Select
                 placeholder={t('geomap.style-rule-editor.placeholder-value', 'value')}
@@ -187,7 +187,7 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
           onClick={() => onDelete()}
           variant="secondary"
           aria-label={t('geomap.style-rule-editor.aria-label-delete-style-rule', 'Delete style rule')}
-          className={styles.button}
+          {...stylex.props(styleRuleEditorStyles.button)}
         ></Button>
       </InlineFieldRow>
       <div>
@@ -209,24 +209,3 @@ export const StyleRuleEditor = ({ value, onChange, item, context }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  rule: css({
-    marginBottom: theme.spacing(1),
-  }),
-  row: css({
-    display: 'flex',
-    marginBottom: '4px',
-  }),
-  inline: css({
-    marginBottom: 0,
-    marginLeft: '4px',
-  }),
-  button: css({
-    marginLeft: '4px',
-  }),
-  flexRow: css({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  }),
-});

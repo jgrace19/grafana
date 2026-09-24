@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { advancedResourcePickerStyles } from './AdvancedResourcePicker.stylex';
+
 import { useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { AccessoryButton } from '@grafana/plugin-ui';
-import { Input, Label, InlineField, Button, useStyles2 } from '@grafana/ui';
+import { Input, Label, InlineField, Button } from '@grafana/ui';
 
 import { type AzureMonitorResource } from '../../dataquery.gen';
 import { selectors } from '../../e2e/selectors';
@@ -14,15 +15,8 @@ export interface ResourcePickerProps<T> {
   onChange: (resources: T[]) => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  resourceList: css({ display: 'flex', columnGap: theme.spacing(1), flexWrap: 'wrap', marginBottom: theme.spacing(1) }),
-  resource: css({ flex: '0 0 auto' }),
-  resourceLabel: css({ padding: theme.spacing(1) }),
-  resourceGroupAndName: css({ display: 'flex', columnGap: theme.spacing(0.5) }),
-});
 
 const AdvancedResourcePicker = ({ resources, onChange }: ResourcePickerProps<AzureMonitorResource>) => {
-  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     // Ensure there is at least one resource
@@ -114,11 +108,11 @@ const AdvancedResourcePicker = ({ resources, onChange }: ResourcePickerProps<Azu
           placeholder="northeurope"
         />
       </InlineField>
-      <div className={styles.resourceList}>
+      <div {...stylex.props(advancedResourcePickerStyles.resourceList)}>
         {resources.map((resource, index) => (
-          <div key={`resource-${index + 1}`} className={styles.resource}>
+          <div key={`resource-${index + 1}`} {...stylex.props(advancedResourcePickerStyles.resource)}>
             {resources.length !== 1 && (
-              <Label className={styles.resourceLabel}>
+              <Label {...stylex.props(advancedResourcePickerStyles.resourceLabel)}>
                 <Trans
                   i18nKey="components.advanced-resource-picker.label-resource-number"
                   values={{ resourceNum: index + 1 }}
@@ -134,7 +128,7 @@ const AdvancedResourcePicker = ({ resources, onChange }: ResourcePickerProps<Azu
               labelWidth={15}
               data-testid={selectors.components.queryEditor.resourcePicker.advanced.resourceGroup.input}
             >
-              <div className={styles.resourceGroupAndName}>
+              <div {...stylex.props(advancedResourcePickerStyles.resourceGroupAndName)}>
                 <Input
                   id={`input-advanced-resource-picker-resourceGroup-${index + 1}`}
                   value={resource?.resourceGroup ?? ''}

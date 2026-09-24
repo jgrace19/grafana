@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { editorFieldStyles } from './EditorField.stylex';
+
 import { type ComponentProps } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Field, Icon, type PopoverContent, ReactUtils, Tooltip, useStyles2 } from '@grafana/ui';
+import { Field, Icon, type PopoverContent, ReactUtils, Tooltip } from '@grafana/ui';
 
 interface EditorFieldProps extends ComponentProps<typeof Field> {
   label: string;
@@ -16,59 +17,30 @@ interface EditorFieldProps extends ComponentProps<typeof Field> {
 export const EditorField = (props: EditorFieldProps) => {
   const { label, optional, tooltip, children, width, ...fieldProps } = props;
 
-  const styles = useStyles2(getStyles, width);
-
   // Null check for backward compatibility
   const childInputId = fieldProps?.htmlFor || ReactUtils?.getChildId(children);
 
   const labelEl = (
     <>
-      <label className={styles.label} htmlFor={childInputId}>
+      <label {...stylex.props(editorFieldStyles.label)} htmlFor={childInputId}>
         {label}
-        {optional && <span className={styles.optional}> - optional</span>}
+        {optional && <span {...stylex.props(editorFieldStyles.optional)}> - optional</span>}
         {tooltip && (
           <Tooltip placement="top" content={tooltip} theme="info">
-            <Icon name="info-circle" size="sm" className={styles.icon} />
+            <Icon name="info-circle" size="sm" {...stylex.props(editorFieldStyles.icon)} />
           </Tooltip>
         )}
       </label>
-      <span className={styles.space} />
+      <span {...stylex.props(editorFieldStyles.space)} />
     </>
   );
 
   return (
-    <div className={styles.root}>
-      <Field className={styles.field} label={labelEl} {...fieldProps}>
+    <div {...stylex.props(editorFieldStyles.root)}>
+      <Field {...stylex.props(editorFieldStyles.field)} label={labelEl} {...fieldProps}>
         {children}
       </Field>
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2, width?: number | string) => ({
-  space: css({
-    paddingRight: theme.spacing(0),
-    paddingBottom: theme.spacing(0.5),
-  }),
-  root: css({
-    minWidth: theme.spacing(width ?? 0),
-  }),
-  label: css({
-    fontSize: 12,
-    fontWeight: theme.typography.fontWeightMedium,
-  }),
-  optional: css({
-    fontStyle: 'italic',
-    color: theme.colors.text.secondary,
-  }),
-  field: css({
-    marginBottom: 0, // GrafanaUI/Field has a bottom margin which we must remove
-  }),
-  icon: css({
-    color: theme.colors.text.secondary,
-    marginLeft: theme.spacing(1),
-    ':hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-});

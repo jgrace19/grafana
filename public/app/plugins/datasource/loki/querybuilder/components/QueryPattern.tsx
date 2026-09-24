@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryPatternStyles } from './QueryPattern.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { RawQuery } from '@grafana/plugin-ui';
-import { Button, Card, useStyles2 } from '@grafana/ui';
+import { Button, Card } from '@grafana/ui';
 
 import logqlGrammar from '../../syntax';
 import { lokiQueryModeller } from '../LokiQueryModeller';
@@ -20,18 +20,16 @@ type Props = {
 export const QueryPattern = (props: Props) => {
   const { pattern, onPatternSelect, hasNewQueryOption, hasPreviousQuery, selectedPatternName, setSelectedPatternName } =
     props;
-
-  const styles = useStyles2(getStyles);
   const lang = { grammar: logqlGrammar, name: 'logql' };
 
   return (
-    <Card noMargin className={styles.card}>
+    <Card noMargin {...stylex.props(queryPatternStyles.card)}>
       <Card.Heading>{pattern.name}</Card.Heading>
-      <div className={styles.rawQueryContainer}>
+      <div {...stylex.props(queryPatternStyles.rawQueryContainer)}>
         <RawQuery
           query={lokiQueryModeller.renderQuery({ labels: [], operations: pattern.operations })}
           language={lang}
-          className={styles.rawQuery}
+          {...stylex.props(queryPatternStyles.rawQuery)}
         />
       </div>
       <Card.Actions>
@@ -51,7 +49,7 @@ export const QueryPattern = (props: Props) => {
           </Button>
         ) : (
           <>
-            <div className={styles.spacing}>
+            <div {...stylex.props(queryPatternStyles.spacing)}>
               {`If you would like to use this query, ${
                 hasNewQueryOption
                   ? 'you can either replace your current query or create a new query'
@@ -86,23 +84,4 @@ export const QueryPattern = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      width: '49.5%',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    rawQueryContainer: css({
-      flexGrow: 1,
-    }),
-    rawQuery: css({
-      backgroundColor: theme.colors.background.primary,
-      padding: theme.spacing(1),
-      marginTop: theme.spacing(1),
-    }),
-    spacing: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+;

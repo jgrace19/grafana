@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
 import {
@@ -7,6 +7,8 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { InlineField, InlineFieldRow, InlineSwitch } from '@grafana/ui';
+
+import { traceIdTimeParamsStyles } from './TraceIdTimeParams.stylex';
 
 export interface TraceIdTimeParamsOptions {
   enabled?: boolean;
@@ -20,9 +22,9 @@ interface Props extends DataSourcePluginOptionsEditorProps<TraceIdTimeParamsData
 
 export function TraceIdTimeParams({ options, onOptionsChange }: Props) {
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(traceIdTimeParamsStyles.container)}>
       <h3 className="page-heading">Query Trace by ID with Time Params</h3>
-      <InlineFieldRow className={styles.row}>
+      <InlineFieldRow {...stylex.props(traceIdTimeParamsStyles.row)}>
         <InlineField
           tooltip="pass time parameters when querying trace by ID"
           label="Enable Time Parameters"
@@ -43,14 +45,3 @@ export function TraceIdTimeParams({ options, onOptionsChange }: Props) {
     </div>
   );
 }
-
-const styles = {
-  container: css({
-    label: 'container',
-    width: '100%',
-  }),
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-};

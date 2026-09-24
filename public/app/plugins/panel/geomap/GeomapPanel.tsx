@@ -1,5 +1,4 @@
-import { css } from '@emotion/css';
-import { Global } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
 import type OpenLayersMap from 'ol/Map';
 import type MapBrowserEvent from 'ol/MapBrowserEvent';
 import View, { type ViewOptions } from 'ol/View';
@@ -29,7 +28,9 @@ import { DebugOverlay } from './components/DebugOverlay';
 import { MeasureOverlay } from './components/MeasureOverlay';
 import { MeasureVectorLayer } from './components/MeasureVectorLayer';
 import { type GeomapHoverPayload } from './event';
-import { getGlobalStyles } from './globalStyles';
+import { InjectGlobalCss } from '../stylex/InjectGlobalCss';
+import { geomapPanelStyles } from './GeomapPanel.stylex';
+import { getGlobalStylesCss } from './globalStyles';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { DEFAULT_BASEMAP_CONFIG } from './layers/registry';
 import { type Options, type MapViewConfig, TooltipMode } from './panelcfg.gen';
@@ -64,7 +65,7 @@ export class GeomapPanel extends Component<Props, State> {
   panelContext: PanelContext | undefined = undefined;
   private subs = new Subscription();
 
-  globalCSS = getGlobalStyles(config.theme2);
+  globalCSS = getGlobalStylesCss(config.theme2);
 
   mouseWheelZoom?: MouseWheelZoom;
   hoverPayload: GeomapHoverPayload = { point: {}, pageX: -1, pageY: -1 };
@@ -527,11 +528,11 @@ export class GeomapPanel extends Component<Props, State> {
 
     return (
       <>
-        <Global styles={this.globalCSS} />
-        <div className={styles.wrap} onMouseLeave={this.clearTooltip}>
+        <InjectGlobalCss cssText={this.globalCSS} />
+        <div {...stylex.props(geomapPanelStyles.wrap)} onMouseLeave={this.clearTooltip}>
           <div
             role="application"
-            className={styles.map}
+            {...stylex.props(geomapPanelStyles.map)}
             // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0} // Interactivity is added through the ref
             aria-label={t('geomap.geomap-panel.aria-label-map', 'Navigable map')}
@@ -550,16 +551,3 @@ export class GeomapPanel extends Component<Props, State> {
   }
 }
 
-const styles = {
-  wrap: css({
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-  }),
-  map: css({
-    position: 'absolute',
-    zIndex: 0,
-    width: '100%',
-    height: '100%',
-  }),
-};

@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { segStyles } from './Seg.stylex';
+
 import debouncePromise from 'debounce-promise';
 import { useEffect, useState, type JSX } from 'react';
 import { useAsyncFn } from 'react-use';
@@ -41,9 +43,6 @@ type Props = {
   allowCustomValue?: boolean;
 };
 
-const selectClass = css({
-  minWidth: '160px',
-});
 
 type SelProps = {
   loadOptions: LoadOptions;
@@ -76,7 +75,7 @@ const SelReload = ({ loadOptions, allowCustomValue, onChange, onClose }: SelRelo
   // and probably have an useEffect
   const debouncedLoadOptions = debouncePromise(loadOptions, 1000, { leading: true });
   return (
-    <div className={selectClass}>
+    <div {...stylex.props(segStyles.selectClass)}>
       <AsyncSelect
         formatCreateLabel={formatCreateLabel}
         defaultOptions
@@ -107,7 +106,7 @@ const SelSingleLoad = ({ loadOptions, allowCustomValue, onChange, onClose }: Sel
   }, [doLoad, loadOptions]);
 
   return (
-    <div className={selectClass}>
+    <div {...stylex.props(segStyles.selectClass)}>
       <Select
         isLoading={loadState.loading}
         formatCreateLabel={formatCreateLabel}
@@ -166,10 +165,6 @@ const Inp = ({ initialValue, onChange, onClose }: InpProps): JSX.Element => {
   );
 };
 
-const defaultButtonClass = css({
-  width: 'auto',
-  cursor: 'pointer',
-});
 
 export const Seg = ({
   value,
@@ -181,7 +176,7 @@ export const Seg = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false);
   if (!isOpen) {
-    const className = cx(defaultButtonClass, buttonClassName);
+    const className = clsx(defaultButtonClass, buttonClassName);
     return (
       <InlineLabel
         as="button"

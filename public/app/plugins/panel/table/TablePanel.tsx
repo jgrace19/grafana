@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tablePanelStyles } from './TablePanel.stylex';
+
 import { useCallback, useMemo } from 'react';
 
 import {
@@ -122,9 +124,9 @@ export function TablePanel(props: Props) {
   });
 
   return (
-    <div className={tableStyles.wrapper}>
+    <div className={stylex.props(tablePanelStyles.wrapper)}>
       {tableElement}
-      <div className={tableStyles.selectWrapper}>
+      <div className={stylex.props(tablePanelStyles.selectWrapper)}>
         <Select
           tabIndex={options.disableKeyboardEvents ? -1 : 0}
           options={names}
@@ -229,14 +231,3 @@ const getCellActions = (
   return [];
 };
 
-const tableStyles = {
-  wrapper: css({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    height: '100%',
-  }),
-  selectWrapper: css({
-    padding: '8px 8px 0px 8px',
-  }),
-};

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryFieldStyles } from './QueryField.stylex';
+
 import { fromPairs } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAsyncFn, useMount, useMountedState } from 'react-use';
 import { type AsyncState } from 'react-use/lib/useAsyncFn';
 
-import { type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import {
   ButtonCascader,
@@ -15,7 +16,6 @@ import {
   RadioButtonGroup,
   useTheme2,
   QueryField,
-  useStyles2,
   Modal,
   Stack,
   Button,
@@ -26,21 +26,13 @@ import { type ZipkinQuery, type ZipkinQueryType, type ZipkinSpan } from './types
 
 type Props = QueryEditorProps<ZipkinDatasource, ZipkinQuery>;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    tracesCascader: css({
-      label: 'tracesCascader',
-      marginRight: theme.spacing(1),
-    }),
-  };
-};
+;
 
 export const ZipkinQueryField = ({ query, onChange, onRunQuery, datasource }: Props) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [alertText, setAlertText] = useState('');
   const serviceOptions = useServices(datasource, setAlertText);
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const { onLoadOptions, allOptions } = useLoadOptions(datasource, setAlertText);
 
   const onSelectTrace = useCallback(

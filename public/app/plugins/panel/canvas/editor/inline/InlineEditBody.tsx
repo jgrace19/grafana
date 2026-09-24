@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { inlineEditBodyStyles } from './InlineEditBody.stylex';
+
 import { get as lodashGet } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useObservable } from 'react-use';
@@ -11,7 +13,6 @@ import {
 } from '@grafana/data';
 import { type NestedValueAccess, type PanelOptionsSupplier } from '@grafana/data/internal';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 import { AddLayerButton } from 'app/core/components/Layers/AddLayerButton';
 import { FrameState } from 'app/features/canvas/runtime/frame';
 import { OptionsPaneCategory } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategory';
@@ -33,7 +34,6 @@ import { TabsEditor } from './TabsEditor';
 export function InlineEditBody() {
   const activePanel = useObservable(activePanelSubject);
   const instanceState = activePanel?.panel.context?.instanceState;
-  const styles = useStyles2(getStyles);
 
   const [activeTab, setActiveTab] = useState<string>(InlineEditTabs.SelectedElement);
 
@@ -123,7 +123,7 @@ export function InlineEditBody() {
         <TabsEditor onTabChange={onTabChange} />
         {pane.categories.map((p) => renderOptionsPaneCategoryDescriptor(p))}
         {noElementSelected && (
-          <div className={styles.selectElement}>
+          <div {...stylex.props(inlineEditBodyStyles.selectElement)}>
             <Trans i18nKey="canvas.inline-edit-body.please-select-an-element">Please select an element</Trans>
           </div>
         )}
@@ -183,9 +183,3 @@ function getOptionsPaneCategoryDescriptor<T extends object>(
   return root;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  selectElement: css({
-    color: theme.colors.text.secondary,
-    padding: theme.spacing(2),
-  }),
-});

@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { newsStyles } from './News.stylex';
+
 import { useId } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import { type DataFrameView, type GrafanaTheme2, textUtil, dateTimeFormat } from '@grafana/data';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink } from '@grafana/ui';
 import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
 
 import { type NewsItem } from '../types';
@@ -17,35 +19,34 @@ interface NewsItemProps {
 
 function NewsComponent({ width, showImage, data, index }: NewsItemProps) {
   const titleId = useId();
-  const styles = useStyles2(getStyles);
   const useWideLayout = width > 600;
   const newsItem = data.get(index);
 
   return (
-    <article aria-labelledby={titleId} className={cx(styles.item, useWideLayout && styles.itemWide)}>
+    <article aria-labelledby={titleId} className={mergeStylexClassName(stylex.props(newsStyles.item), clsx( useWideLayout && styles.itemWide)}>
       {showImage && newsItem.ogImage && (
         <a
           tabIndex={-1}
           href={textUtil.sanitizeUrl(newsItem.link)}
           target="_blank"
           rel="noopener noreferrer"
-          className={cx(styles.socialImage, useWideLayout && styles.socialImageWide)}
+          className={mergeStylexClassName(stylex.props(newsStyles.socialImage), clsx( useWideLayout && styles.socialImageWide)}
           aria-hidden
         >
           <img src={newsItem.ogImage} alt={newsItem.title} />
         </a>
       )}
-      <div className={styles.body}>
-        <time className={styles.date} dateTime={dateTimeFormat(newsItem.date, { format: 'MMM DD' })}>
+      <div {...stylex.props(newsStyles.body)}>
+        <time {...stylex.props(newsStyles.date)} dateTime={dateTimeFormat(newsItem.date, { format: 'MMM DD' })}>
           {dateTimeFormat(newsItem.date, { format: 'MMM DD' })}{' '}
         </time>
 
-        <h1 className={styles.title} id={titleId}>
+        <h1 {...stylex.props(newsStyles.title)} id={titleId}>
           <TextLink href={textUtil.sanitizeUrl(newsItem.link)} external inline={false}>
             {newsItem.title}
           </TextLink>
         </h1>
-        <div className={styles.content} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(newsItem.content) }} />
+        <div {...stylex.props(newsStyles.content)} dangerouslySetInnerHTML={{ __html: textUtil.sanitize(newsItem.content) }} />
       </div>
     </article>
   );
@@ -56,22 +57,21 @@ const NewsSkeleton: SkeletonComponent<Pick<NewsItemProps, 'width' | 'showImage'>
   showImage,
   rootProps,
 }) => {
-  const styles = useStyles2(getStyles);
   const useWideLayout = width > 600;
 
   return (
-    <div className={cx(styles.item, useWideLayout && styles.itemWide)} {...rootProps}>
+    <div className={mergeStylexClassName(stylex.props(newsStyles.item), clsx( useWideLayout && styles.itemWide)} {...rootProps}>
       {showImage && (
         <Skeleton
-          containerClassName={cx(styles.socialImage, useWideLayout && styles.socialImageWide)}
+          containerClassName={mergeStylexClassName(stylex.props(newsStyles.socialImage), clsx( useWideLayout && styles.socialImageWide)}
           width={useWideLayout ? '250px' : '100%'}
           height={useWideLayout ? '150px' : width * 0.5}
         />
       )}
-      <div className={styles.body}>
-        <Skeleton containerClassName={styles.date} width={60} />
-        <Skeleton containerClassName={styles.title} width={250} />
-        <Skeleton containerClassName={styles.content} width="100%" count={6} />
+      <div {...stylex.props(newsStyles.body)}>
+        <Skeleton containerClassName={stylex.props(newsStyles.date).className ?? undefined} width={60} />
+        <Skeleton containerClassName={stylex.props(newsStyles.title).className ?? undefined} width={250} />
+        <Skeleton containerClassName={stylex.props(newsStyles.content).className ?? undefined} width="100%" count={6} />
       </div>
     </div>
   );
@@ -79,61 +79,3 @@ const NewsSkeleton: SkeletonComponent<Pick<NewsItemProps, 'width' | 'showImage'>
 
 export const News = attachSkeleton(NewsComponent, NewsSkeleton);
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    height: '100%',
-  }),
-  item: css({
-    display: 'flex',
-    padding: theme.spacing(1),
-    position: 'relative',
-    marginBottom: theme.spacing(0.5),
-    marginRight: theme.spacing(1),
-    borderBottom: `2px solid ${theme.colors.border.weak}`,
-    background: theme.colors.background.primary,
-    flexDirection: 'column',
-    flexShrink: 0,
-  }),
-  itemWide: css({
-    flexDirection: 'row',
-  }),
-  body: css({
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-  }),
-  socialImage: css({
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: theme.spacing(1),
-    '> img': {
-      width: '100%',
-      borderRadius: `${theme.shape.radius.default} ${theme.shape.radius.default} 0 0`,
-    },
-  }),
-  socialImageWide: css({
-    marginRight: theme.spacing(2),
-    marginBottom: 0,
-    '> img': {
-      width: '250px',
-      borderRadius: theme.shape.radius.default,
-    },
-  }),
-  title: css({
-    ...theme.typography.h3,
-    fontSize: '16px',
-    marginBottom: theme.spacing(0.5),
-  }),
-  content: css({
-    p: {
-      marginBottom: theme.spacing(0.5),
-      color: theme.colors.text.primary,
-    },
-  }),
-  date: css({
-    marginBottom: theme.spacing(0.5),
-    fontWeight: 500,
-    borderRadius: `0 0 0 ${theme.shape.radius.default}`,
-    color: theme.colors.text.secondary,
-  }),
-});

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { functionEditorStyles } from './FunctionEditor.stylex';
+
 import { memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, TextLink, Tooltip, useStyles2, type PopoverContent } from '@grafana/ui';
+import { Icon, TextLink, Tooltip, type PopoverContent } from '@grafana/ui';
 
 import { type FuncInstance } from '../gfunc';
 
@@ -12,24 +13,9 @@ interface FunctionEditorProps extends FunctionEditorControlsProps {
   func: FuncInstance;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      marginRight: theme.spacing(0.5),
-    }),
-    label: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.typography.bodySmall.fontSize,
-      cursor: 'pointer',
-      display: 'inline-block',
-      overflowWrap: 'anywhere',
-      height: '100%',
-    }),
-  };
-};
+;
 
 const FunctionEditor = ({ onMoveLeft, onMoveRight, func, ...props }: FunctionEditorProps) => {
-  const styles = useStyles2(getStyles);
 
   const renderContent: PopoverContent = ({ updatePopperPosition }) => (
     <FunctionEditorControls
@@ -50,11 +36,11 @@ const FunctionEditor = ({ onMoveLeft, onMoveRight, func, ...props }: FunctionEdi
     <>
       {func.def.unknown && (
         <Tooltip content={<TooltipContent />} placement="bottom" interactive>
-          <Icon data-testid="warning-icon" name="exclamation-triangle" size="xs" className={styles.icon} />
+          <Icon data-testid="warning-icon" name="exclamation-triangle" size="xs" {...stylex.props(functionEditorStyles.icon)} />
         </Tooltip>
       )}
       <Tooltip content={renderContent} placement="top" interactive>
-        <span className={styles.label}>{func.def.name}</span>
+        <span {...stylex.props(functionEditorStyles.label)}>{func.def.name}</span>
       </Tooltip>
     </>
   );

@@ -1,23 +1,20 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
+import { cheatSheetStyles } from './CheatSheet.stylex';
 
 export function CheatSheet() {
-  const styles = useStyles2(getStyles);
 
   return (
     <div>
       <h2>PostgreSQL cheat sheet</h2>
       Time series:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           return column named <i>time</i> (UTC in seconds or timestamp)
         </li>
         <li>return column(s) with numeric datatype as values</li>
       </ul>
       Optional:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           return column named <i>metric</i> to represent the series name.
         </li>
@@ -26,11 +23,11 @@ export function CheatSheet() {
       </ul>
       <p>Resultsets of time series queries need to be sorted by time.</p>
       Table:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>return any set of columns</li>
       </ul>
       Macros:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__time(column) -&gt; column as &quot;time&quot;</li>
         <li>$__timeEpoch -&gt; extract(epoch from column) as &quot;time&quot;</li>
         <li>
@@ -66,7 +63,7 @@ export function CheatSheet() {
         </code>
       </pre>
       Or build your own conditionals using these macros which just return the values:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__timeFrom() -&gt; &apos;2017-04-21T05:01:17Z&apos;</li>
         <li>$__timeTo() -&gt; &apos;2017-04-21T05:01:17Z&apos;</li>
         <li>$__unixEpochFrom() -&gt; 1492750877</li>
@@ -78,11 +75,3 @@ export function CheatSheet() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    ulPadding: css({
-      margin: theme.spacing(1, 0),
-      paddingLeft: theme.spacing(5),
-    }),
-  };
-}

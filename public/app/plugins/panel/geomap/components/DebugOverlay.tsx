@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { debugOverlayStyles } from './DebugOverlay.stylex';
+
 import type Map from 'ol/Map';
 import { type Coordinate } from 'ol/coordinate';
 import { transform } from 'ol/proj';
 import { PureComponent } from 'react';
 import tinycolor from 'tinycolor2';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -68,11 +69,3 @@ export class DebugOverlay extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoWrap: css({
-    color: theme.colors.text.primary,
-    background: tinycolor(theme.components.panel.background).setAlpha(0.7).toString(),
-    borderRadius: theme.shape.radius.default,
-    padding: theme.spacing(1),
-  }),
-});

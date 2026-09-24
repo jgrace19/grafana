@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { searchFormStyles } from './SearchForm.stylex';
+
 import { useCallback, useEffect, useState } from 'react';
 
 import { type SelectableValue, toOption } from '@grafana/data';
@@ -94,7 +96,7 @@ export function SearchForm({ datasource, query, onChange }: Props) {
 
   return (
     <>
-      <div className={css({ maxWidth: '500px' })}>
+      <div {...stylex.props(searchFormStyles.inline0)}>
         <InlineFieldRow>
           <InlineField label="Service Name" labelWidth={14} grow>
             <Select

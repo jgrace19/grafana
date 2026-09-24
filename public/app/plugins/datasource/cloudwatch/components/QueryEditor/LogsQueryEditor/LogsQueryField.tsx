@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { logsQueryFieldStyles } from './LogsQueryField.stylex';
+
 import { type ReactNode, useCallback } from 'react';
 
-import { type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import {
   type CloudWatchLogsQuery,
@@ -25,8 +25,6 @@ export interface CloudWatchLogsQueryFieldProps
 }
 export const CloudWatchLogsQueryField = (props: CloudWatchLogsQueryFieldProps) => {
   const { query, datasource, onChange, ExtraFieldElement } = props;
-
-  const styles = useStyles2(getStyles);
 
   const onChangeLogs = useCallback(
     async (query: CloudWatchLogsQuery) => {
@@ -69,17 +67,12 @@ export const CloudWatchLogsQueryField = (props: CloudWatchLogsQueryFieldProps) =
       />
       <div>
         {getCodeEditor(query, datasource, onChange)}
-        <div className={styles.editor}>{ExtraFieldElement}</div>
+        <div {...stylex.props(logsQueryFieldStyles.editor)}>{ExtraFieldElement}</div>
       </div>
     </>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editor: css({
-    marginTop: theme.spacing(1),
-  }),
-});
 
 const getCodeEditor = (
   query: CloudWatchLogsQuery,

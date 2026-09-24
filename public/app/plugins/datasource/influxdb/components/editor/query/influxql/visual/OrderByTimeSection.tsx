@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import type { JSX } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
@@ -15,7 +15,7 @@ const OPTIONS: Array<SelectableValue<Mode>> = [
   { label: 'descending', value: 'DESC' },
 ];
 
-const className = cx('width-9', paddingRightClass);
+const className = clsx('width-9', paddingRightClass);
 
 type Props = {
   value: Mode;

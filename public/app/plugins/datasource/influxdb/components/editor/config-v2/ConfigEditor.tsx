@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configEditorStyles } from './ConfigEditor.stylex';
+
 import React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Box, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Box, Stack, Text } from '@grafana/ui';
 
 import { DatabaseConnectionSection } from './DatabaseConnectionSection';
 import { LeftSideBar } from './LeftSideBar';
@@ -11,7 +12,6 @@ import { CONTAINER_MIN_WIDTH } from './constants';
 import { type Props } from './types';
 
 export const ConfigEditor: React.FC<Props> = ({ onOptionsChange, options }: Props) => {
-  const styles = useStyles2(getStyles);
   return (
     <Stack justifyContent="space-between">
       <div className={`${styles.hideOnSmallScreen} ${styles.leftSticky}`}>
@@ -35,24 +35,4 @@ export const ConfigEditor: React.FC<Props> = ({ onOptionsChange, options }: Prop
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    hideOnSmallScreen: css({
-      width: '250px',
-      flex: '0 0 250px',
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
-      },
-    }),
-    leftSticky: css({
-      position: 'sticky',
-      top: '100px',
-      alignSelf: 'flex-start',
-      maxHeight: 'calc(100vh - 100px)',
-      overflow: 'hidden',
-    }),
-    alertHeight: css({
-      height: '100px',
-    }),
-  };
-};
+;

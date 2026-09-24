@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { derivedFieldsStyles } from './DerivedFields.stylex';
+
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2, VariableOrigin, DataLinkBuiltInVars } from '@grafana/data';
 import { ConfigDescriptionLink, ConfigSubSection } from '@grafana/plugin-ui';
 import { Button, useTheme2 } from '@grafana/ui';
 
@@ -10,20 +11,6 @@ import { type DerivedFieldConfig } from '../types';
 import { DebugSection } from './DebugSection';
 import { DerivedField } from './DerivedField';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  addButton: css({
-    marginRight: '10px',
-  }),
-  derivedField: css({
-    marginBottom: theme.spacing(1),
-  }),
-  container: css({
-    marginBottom: theme.spacing(4),
-  }),
-  debugSection: css({
-    marginTop: theme.spacing(4),
-  }),
-});
 
 type Props = {
   fields?: DerivedFieldConfig[];
@@ -54,11 +41,11 @@ export const DerivedFields = ({ fields = [], onChange }: Props) => {
         />
       }
     >
-      <div className={styles.container}>
+      <div {...stylex.props(derivedFieldsStyles.container)}>
         {fields.map((field, index) => {
           return (
             <DerivedField
-              className={styles.derivedField}
+              {...stylex.props(derivedFieldsStyles.derivedField)}
               key={index}
               value={field}
               onChange={(newField) => {
@@ -86,7 +73,7 @@ export const DerivedFields = ({ fields = [], onChange }: Props) => {
         <div>
           <Button
             variant="secondary"
-            className={styles.addButton}
+            {...stylex.props(derivedFieldsStyles.addButton)}
             icon="plus"
             onClick={(event) => {
               event.preventDefault();
@@ -112,7 +99,7 @@ export const DerivedFields = ({ fields = [], onChange }: Props) => {
         </div>
 
         {showDebug && (
-          <div className={styles.debugSection}>
+          <div {...stylex.props(derivedFieldsStyles.debugSection)}>
             <DebugSection
               className={css({
                 marginBottom: '10px',

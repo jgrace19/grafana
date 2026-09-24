@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { labelsEditorStyles } from './LabelsEditor.stylex';
+
 import { useEffect, useRef } from 'react';
 import { useLatest } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { CodeEditor, type Monaco, useStyles2, type monacoTypes } from '@grafana/ui';
+import { CodeEditor, type Monaco, type monacoTypes } from '@grafana/ui';
 
 import { type ParcaDataSource } from '../datasource';
 import { languageDefinition } from '../lang';
@@ -19,14 +20,13 @@ interface Props {
 
 export function LabelsEditor(props: Props) {
   const setupAutocompleteFn = useAutocomplete(props.datasource);
-  const styles = useStyles2(getStyles);
 
   const onRunQueryRef = useLatest(props.onRunQuery);
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      className={styles.wrapper}
+      {...stylex.props(labelsEditorStyles.wrapper)}
       // NOTE: we will be setting inline-style-width/height on this element
       ref={containerRef}
     >
@@ -34,7 +34,7 @@ export function LabelsEditor(props: Props) {
         value={props.value}
         language={langId}
         onBlur={props.onChange}
-        containerStyles={styles.queryField}
+        containerClassName={stylex.props(labelsEditorStyles.queryField).className ?? undefined}
         monacoOptions={{
           folding: false,
           fontSize: 14,
@@ -126,20 +126,4 @@ function ensureParcaQL(monaco: Monaco) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    queryField: css({
-      flex: 1,
-      // Not exactly sure but without this the editor doe not shrink after resizing (so you can make it bigger but not
-      // smaller). At the same time this does not actually make the editor 100px because it has flex 1 so I assume
-      // this should sort of act as a flex-basis (but flex-basis does not work for this). So yeah CSS magic.
-      width: '100px',
-    }),
-    wrapper: css({
-      display: 'flex',
-      flex: 1,
-      border: '1px solid rgba(36, 41, 46, 0.3)',
-      borderRadius: theme.shape.radius.default,
-    }),
-  };
-};
+;

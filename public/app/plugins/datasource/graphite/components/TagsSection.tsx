@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tagsSectionStyles } from './TagsSection.stylex';
+
 import { debounce } from 'lodash';
 import { useCallback, useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, SegmentAsync, useStyles2 } from '@grafana/ui';
+import { Button, SegmentAsync } from '@grafana/ui';
 
 import { type GraphiteTag } from '../graphite_query';
 import { actions } from '../state/actions';
@@ -28,7 +29,6 @@ type Props = {
  */
 export function TagsSection({ tags, state }: Props) {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
 
   // Options are reloaded while user is typing with backend taking care of auto-complete (auto-complete cannot be
   // implemented in front-end because backend returns only limited number of entries)
@@ -56,7 +56,7 @@ export function TagsSection({ tags, state }: Props) {
           }}
           loadOptions={debouncedGetTagsAsSegments}
           reloadOptionsOnChange={true}
-          Component={<Button icon="plus" variant="secondary" className={styles.button} aria-label="Add new tag" />}
+          Component={<Button icon="plus" variant="secondary" {...stylex.props(tagsSectionStyles.button)} aria-label="Add new tag" />}
         />
       )}
       {state.paused && <PlayButton />}
@@ -64,10 +64,3 @@ export function TagsSection({ tags, state }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    button: css({
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-}

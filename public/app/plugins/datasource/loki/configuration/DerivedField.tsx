@@ -1,48 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { derivedFieldStyles } from './DerivedField.stylex';
+
 import { type ChangeEvent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { usePrevious } from 'react-use';
 
-import { type GrafanaTheme2, type DataSourceInstanceSettings, type VariableSuggestion } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
-import { Button, DataLinkInput, Field, Icon, Input, Label, Tooltip, useStyles2, Select, Switch } from '@grafana/ui';
+import { Button, DataLinkInput, Field, Icon, Input, Label, Tooltip, Select, Switch } from '@grafana/ui';
 
 import { type DerivedFieldConfig } from '../types';
 
 type MatcherType = 'label' | 'regex';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  row: css({
-    display: 'flex',
-    alignItems: 'baseline',
-  }),
-  nameField: css({
-    flex: 2,
-    marginRight: theme.spacing(0.5),
-  }),
-  regexField: css({
-    flex: 3,
-    marginRight: theme.spacing(0.5),
-  }),
-  urlField: css({
-    flex: 1,
-    marginRight: theme.spacing(0.5),
-  }),
-  urlDisplayLabelField: css({
-    flex: 1,
-  }),
-  internalLink: css({
-    marginRight: theme.spacing(1),
-  }),
-  openNewTab: css({
-    marginRight: theme.spacing(1),
-  }),
-  dataSource: css({}),
-  nameMatcherField: css({
-    width: theme.spacing(20),
-    marginRight: theme.spacing(0.5),
-  }),
-});
 
 type Props = {
   value: DerivedFieldConfig;
@@ -54,7 +23,6 @@ type Props = {
 };
 export const DerivedField = (props: Props) => {
   const { value, onChange, onDelete, suggestions, className, validateName } = props;
-  const styles = useStyles2(getStyles);
   const [showInternalLink, setShowInternalLink] = useState(!!value.datasourceUid);
   const [openInNewTab, setOpenInNewTab] = useState(!!value.targetBlank);
   const previousUid = usePrevious(value.datasourceUid);
@@ -82,11 +50,11 @@ export const DerivedField = (props: Props) => {
   return (
     <div className={className} data-testid="derived-field">
       <div className="gf-form">
-        <Field className={styles.nameField} label="Name" invalid={invalidName} error="The name is already in use">
+        <Field {...stylex.props(derivedFieldStyles.nameField)} label="Name" invalid={invalidName} error="The name is already in use">
           <Input value={value.name} onChange={handleChange('name')} placeholder="Field name" invalid={invalidName} />
         </Field>
         <Field
-          className={styles.nameMatcherField}
+          {...stylex.props(derivedFieldStyles.nameMatcherField)}
           label={
             <TooltipLabel
               label="Type"
@@ -113,7 +81,7 @@ export const DerivedField = (props: Props) => {
           />
         </Field>
         <Field
-          className={styles.regexField}
+          {...stylex.props(derivedFieldStyles.regexField)}
           label={
             <>
               {fieldType === 'regex' && (
@@ -143,7 +111,7 @@ export const DerivedField = (props: Props) => {
       </div>
 
       <div className="gf-form">
-        <Field label={showInternalLink ? 'Query' : 'URL'} className={styles.urlField}>
+        <Field label={showInternalLink ? 'Query' : 'URL'} {...stylex.props(derivedFieldStyles.urlField)}>
           <DataLinkInput
             placeholder={showInternalLink ? '${__value.raw}' : 'http://example.com/${__value.raw}'}
             value={value.url || ''}
@@ -157,7 +125,7 @@ export const DerivedField = (props: Props) => {
           />
         </Field>
         <Field
-          className={styles.urlDisplayLabelField}
+          {...stylex.props(derivedFieldStyles.urlDisplayLabelField)}
           label={
             <TooltipLabel
               label="URL Label"
@@ -170,7 +138,7 @@ export const DerivedField = (props: Props) => {
       </div>
 
       <div className="gf-form">
-        <Field label="Internal link" className={styles.internalLink}>
+        <Field label="Internal link" {...stylex.props(derivedFieldStyles.internalLink)}>
           <Switch
             value={showInternalLink}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -187,7 +155,7 @@ export const DerivedField = (props: Props) => {
         </Field>
 
         {showInternalLink && (
-          <Field label="" className={styles.dataSource}>
+          <Field label="" {...stylex.props(derivedFieldStyles.dataSource)}>
             <DataSourcePicker
               tracing={true}
               onChange={(ds: DataSourceInstanceSettings) =>
@@ -204,7 +172,7 @@ export const DerivedField = (props: Props) => {
       </div>
 
       <div className="gf-form">
-        <Field label="Open in new tab" className={styles.openNewTab}>
+        <Field label="Open in new tab" {...stylex.props(derivedFieldStyles.openNewTab)}>
           <Switch
             value={openInNewTab}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {

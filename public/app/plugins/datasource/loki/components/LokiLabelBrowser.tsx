@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { lokiLabelBrowserStyles } from './LokiLabelBrowser.stylex';
+
 import { sortBy } from 'lodash';
 import { type ChangeEvent } from 'react';
 import * as React from 'react';
@@ -117,86 +119,6 @@ export function facetLabels(
   });
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    backgroundColor: theme.colors.background.secondary,
-    width: '100%',
-  }),
-  wrapperPadding: css({
-    padding: theme.spacing(2),
-  }),
-  list: css({
-    marginTop: theme.spacing(1),
-    display: 'flex',
-    flexWrap: 'wrap',
-    maxHeight: '200px',
-    overflow: 'auto',
-  }),
-  section: css({
-    '& + &': {
-      margin: theme.spacing(2, 0),
-    },
-
-    position: 'relative',
-  }),
-  footerSectionStyles: css({
-    padding: theme.spacing(1),
-    backgroundColor: theme.colors.background.primary,
-    position: 'sticky',
-    bottom: theme.spacing(-3) /* offset the padding on modal */,
-    left: 0,
-  }),
-  selector: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    marginBottom: theme.spacing(1),
-    width: '100%',
-  }),
-  status: css({
-    marginBottom: theme.spacing(1),
-    color: theme.colors.text.secondary,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition: 'opacity 100ms linear',
-    },
-    opacity: 0,
-    fontSize: theme.typography.bodySmall.fontSize,
-    height: `calc(${theme.typography.bodySmall.fontSize} + 10px)`,
-  }),
-  statusShowing: css({
-    opacity: 1,
-  }),
-  error: css({
-    color: theme.colors.error.main,
-  }),
-  valueList: css({
-    marginRight: theme.spacing(1),
-    resize: 'horizontal',
-  }),
-  valueListWrapper: css({
-    borderLeft: `1px solid ${theme.colors.border.medium}`,
-    margin: theme.spacing(1, 0),
-    padding: theme.spacing(1, 0, 1, 1),
-  }),
-  valueListArea: css({
-    display: 'flex',
-    flexWrap: 'wrap',
-    marginTop: theme.spacing(1),
-  }),
-  valueTitle: css({
-    marginLeft: theme.spacing(-0.5),
-    marginBottom: theme.spacing(1),
-  }),
-  validationStatus: css({
-    padding: theme.spacing(0.5),
-    marginBottom: theme.spacing(1),
-    color: theme.colors.text.maxContrast,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  }),
-});
 
 export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, BrowserState> {
   state: BrowserState = {
@@ -460,12 +382,12 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
 
     return (
       <>
-        <div className={styles.wrapper}>
-          <div className={cx(styles.section, styles.wrapperPadding)}>
+        <div {...stylex.props(lokiLabelBrowserStyles.wrapper)}>
+          <div className={mergeStylexClassName(stylex.props(lokiLabelBrowserStyles.wrapperPadding), clsx(styles.section))}>
             <Label description="Which labels would you like to consider for your search?">
               1. Select labels to search in
             </Label>
-            <div className={styles.list}>
+            <div {...stylex.props(lokiLabelBrowserStyles.list)}>
               {labels.map((label) => (
                 <LokiLabel
                   key={label.name}
@@ -479,7 +401,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
               ))}
             </div>
           </div>
-          <div className={cx(styles.section, styles.wrapperPadding)}>
+          <div className={mergeStylexClassName(stylex.props(lokiLabelBrowserStyles.wrapperPadding), clsx(styles.section))}>
             <Label description="Choose the label values that you would like to use for the query. Use the search field to find values across selected labels.">
               2. Find values for the selected labels
             </Label>
@@ -491,10 +413,10 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
                 placeholder={'Enter a label value'}
               />
             </div>
-            <div className={styles.valueListArea}>
+            <div {...stylex.props(lokiLabelBrowserStyles.valueListArea)}>
               {selectedLabels.map((label) => (
-                <div role="list" key={label.name} className={styles.valueListWrapper}>
-                  <div className={styles.valueTitle} aria-label={`Values for ${label.name}`}>
+                <div role="list" key={label.name} {...stylex.props(lokiLabelBrowserStyles.valueListWrapper)}>
+                  <div {...stylex.props(lokiLabelBrowserStyles.valueTitle)} aria-label={`Values for ${label.name}`}>
                     <LokiLabel
                       name={label.name}
                       loading={label.loading}
@@ -511,7 +433,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
                     itemSize={28}
                     itemKey={(i) => label.values?.[i].name ?? i}
                     width={200}
-                    className={styles.valueList}
+                    {...stylex.props(lokiLabelBrowserStyles.valueList)}
                   >
                     {({ index, style }) => {
                       const value = label.values?.[index];
@@ -537,14 +459,14 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
             </div>
           </div>
         </div>
-        <div className={styles.footerSectionStyles}>
+        <div {...stylex.props(lokiLabelBrowserStyles.footerSectionStyles)}>
           <Label>3. Resulting selector</Label>
-          <pre aria-label="selector" className={styles.selector}>
+          <pre aria-label="selector" {...stylex.props(lokiLabelBrowserStyles.selector)}>
             {selector}
           </pre>
-          {validationStatus && <div className={styles.validationStatus}>{validationStatus}</div>}
-          <div className={cx(styles.status, (status || error) && styles.statusShowing)}>
-            <span className={error ? styles.error : ''}>{error || status}</span>
+          {validationStatus && <div {...stylex.props(lokiLabelBrowserStyles.validationStatus)}>{validationStatus}</div>}
+          <div className={mergeStylexClassName(stylex.props(lokiLabelBrowserStyles.status), clsx( (status || error) && styles.statusShowing)}>
+            <span className={error ? (lokiLabelBrowserStyles.error) : ''}>{error || status}</span>
           </div>
           <Stack gap={1}>
             <Button aria-label="Use selector as logs button" disabled={empty} onClick={this.onClickRunLogsQuery}>

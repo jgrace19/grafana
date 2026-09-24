@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configEditorStyles } from './ConfigEditor.stylex';
 
 import { type DataSourcePluginOptionsEditorProps, type GrafanaTheme2 } from '@grafana/data';
 import { NodeGraphSection, SpanBarSection, TraceToLogsSection, TraceToMetricsSection } from '@grafana/o11y-ds-frontend';
@@ -11,17 +12,16 @@ import {
   convertLegacyAuthProps,
 } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
-import { useStyles2, Divider, Stack, SecureSocksProxySettings } from '@grafana/ui';
+import { Divider, Stack, SecureSocksProxySettings } from '@grafana/ui';
 
 import { TraceIdTimeParams } from './TraceIdTimeParams';
 
 export type Props = DataSourcePluginOptionsEditorProps;
 
 export const ConfigEditor = ({ options, onOptionsChange }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(configEditorStyles.container)}>
       <DataSourceDescription
         dataSourceName="Jaeger"
         docsLink="https://grafana.com/docs/grafana/latest/datasources/jaeger"
@@ -69,9 +69,3 @@ export const ConfigEditor = ({ options, onOptionsChange }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    marginBottom: theme.spacing(2),
-    maxWidth: '900px',
-  }),
-});

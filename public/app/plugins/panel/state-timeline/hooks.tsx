@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import { useMeasure } from 'react-use';
 
@@ -6,16 +6,7 @@ import { type DataFrame } from '@grafana/data';
 import { Pagination } from '@grafana/ui';
 import { makeFramePerSeries } from 'app/core/components/TimelineChart/utils';
 
-const paginationStyles = {
-  paginationContainer: css({
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-  }),
-  paginationElement: css({
-    marginTop: '8px',
-  }),
-};
+import { paginationStyles } from './hooks.stylex';
 
 /**
  * a React hook used to encapsulate the rendering and state for pagination in StateTimeline.
@@ -56,9 +47,9 @@ export function usePagination(frames?: DataFrame[], perPage?: number) {
 
   const showSmallVersion = paginationWidth < 550;
   const paginationElement = (
-    <div className={paginationStyles.paginationContainer} ref={paginationWrapperRef}>
+    <div {...stylex.props(paginationStyles.paginationContainer)} ref={paginationWrapperRef}>
       <Pagination
-        className={paginationStyles.paginationElement}
+        className={stylex.props(paginationStyles.paginationElement).className}
         currentPage={currentPageCapped}
         numberOfPages={numberOfPages}
         showSmallVersion={showSmallVersion}

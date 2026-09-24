@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { addGraphiteFunctionStyles } from './AddGraphiteFunction.stylex';
+
 import { useEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
-import { Button, Segment, useStyles2 } from '@grafana/ui';
+import { Button, Segment } from '@grafana/ui';
 
 import { type FuncDefs } from '../gfunc';
 import { actions } from '../state/actions';
@@ -17,7 +18,6 @@ type Props = {
 export function AddGraphiteFunction({ funcDefs }: Props) {
   const dispatch = useDispatch();
   const [value, setValue] = useState<SelectableValue<string> | undefined>(undefined);
-  const styles = useStyles2(getStyles);
 
   const options = useMemo(() => mapFuncDefsToSelectables(funcDefs), [funcDefs]);
 
@@ -38,7 +38,7 @@ export function AddGraphiteFunction({ funcDefs }: Props) {
     <div>
       <Segment
         Component={
-          <Button icon="plus" variant="secondary" className={cx(styles.button)} aria-label="Add new function" />
+          <Button icon="plus" variant="secondary" className={clsx(styles.button)} aria-label="Add new function" />
         }
         options={options}
         onChange={setValue}
@@ -48,10 +48,3 @@ export function AddGraphiteFunction({ funcDefs }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    button: css({
-      marginRight: theme.spacing(0.5),
-    }),
-  };
-}

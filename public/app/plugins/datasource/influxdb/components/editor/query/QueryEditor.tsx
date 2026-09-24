@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryEditorStyles } from './QueryEditor.stylex';
 
 import { type QueryEditorProps } from '@grafana/data';
 
@@ -27,8 +28,8 @@ export const QueryEditor = ({ query, onChange, onRunQuery, datasource }: Props) 
     case InfluxVersion.InfluxQL:
     default:
       return (
-        <div className={css({ display: 'flex' })}>
-          <div className={css({ flexGrow: 1 })}>
+        <div {...stylex.props(queryEditorStyles.inline0)}>
+          <div {...stylex.props(queryEditorStyles.inline1)}>
             {query.rawQuery ? (
               <RawInfluxQLEditor query={query} onChange={onChange} onRunQuery={onRunQuery} />
             ) : (

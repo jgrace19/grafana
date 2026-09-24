@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { tagLimitSettingsStyles } from './TagLimitSettings.stylex';
 
 import {
   type DataSourceJsonData,
@@ -7,7 +8,7 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { ConfigDescriptionLink, ConfigSubSection } from '@grafana/plugin-ui';
-import { InlineField, InlineFieldRow, Input, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Input } from '@grafana/ui';
 
 export interface TagLimitOptions extends DataSourceJsonData {
   tagLimit?: number;
@@ -16,11 +17,10 @@ export interface TagLimitOptions extends DataSourceJsonData {
 interface Props extends DataSourcePluginOptionsEditorProps<TagLimitOptions> {}
 
 export default function TagLimitSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
 
   return (
     <div className={css({ width: '100%' })}>
-      <InlineFieldRow className={styles.row}>
+      <InlineFieldRow {...stylex.props(tagLimitSettingsStyles.row)}>
         <InlineField
           label="Max tags and tag values"
           labelWidth={26}
@@ -58,14 +58,3 @@ export const TagLimitSection = ({ options, onOptionsChange }: DataSourcePluginOp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  infoText: css({
-    label: 'infoText',
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-  row: css({
-    label: 'row',
-    alignItems: 'baseline',
-  }),
-});

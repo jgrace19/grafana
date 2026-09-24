@@ -1,33 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { markerStyles } from './Marker.stylex';
+
 import { type MouseEvent, memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
 
 import { type NodesMarker } from './types';
 
 const nodeR = 40;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainGroup: css({
-    cursor: 'pointer',
-    fontSize: '10px',
-  }),
-
-  mainCircle: css({
-    fill: theme.components.panel.background,
-    stroke: theme.colors.border.strong,
-  }),
-  text: css({
-    width: '50px',
-    height: '50px',
-    textAlign: 'center',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-});
 
 export const Marker = memo(function Marker(props: {
   marker: NodesMarker;
@@ -35,7 +16,6 @@ export const Marker = memo(function Marker(props: {
 }) {
   const { marker, onClick } = props;
   const { node } = marker;
-  const styles = useStyles2(getStyles);
 
   if (!(node.x !== undefined && node.y !== undefined)) {
     return null;
@@ -44,7 +24,7 @@ export const Marker = memo(function Marker(props: {
   return (
     <g
       data-node-id={node.id}
-      className={styles.mainGroup}
+      {...stylex.props(markerStyles.mainGroup)}
       onClick={(event) => {
         onClick?.(event, marker);
       }}
@@ -52,10 +32,10 @@ export const Marker = memo(function Marker(props: {
         marker: node.id,
       })}
     >
-      <circle className={styles.mainCircle} r={nodeR} cx={node.x} cy={node.y} />
+      <circle {...stylex.props(markerStyles.mainCircle)} r={nodeR} cx={node.x} cy={node.y} />
       <g>
         <foreignObject x={node.x - 25} y={node.y - 25} width="50" height="50">
-          <div className={styles.text}>
+          <div {...stylex.props(markerStyles.text)}>
             {/* we limit the count to 101 so if we have more than 100 nodes we don't have exact count */}
             <span>
               {marker.count > 100

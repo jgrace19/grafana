@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { canvasContextMenuStyles } from './CanvasContextMenu.stylex';
+
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
 import { first } from 'rxjs/operators';
@@ -109,7 +111,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
           }
           closeContextMenu();
         }}
-        className={styles.menuItem}
+        {...stylex.props(canvasContextMenuStyles.menuItem)}
       />
     );
 
@@ -127,7 +129,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
             <MenuItem
               label={t('canvas.canvas-context-menu.render-menu-items.edit-element-menu-item.label-edit', 'Edit')}
               onClick={onClickEditElementMenuItem}
-              className={styles.menuItem}
+              {...stylex.props(canvasContextMenuStyles.menuItem)}
             />
           )
         );
@@ -175,7 +177,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
     const addItemMenuItem = (
       <MenuItem
         label={t('canvas.canvas-context-menu.render-menu-items.add-item-menu-item.label-add-item', 'Add item')}
-        className={styles.menuItem}
+        {...stylex.props(canvasContextMenuStyles.menuItem)}
         childItems={getTypeOptionsSubmenu()}
         customSubMenuContainerStyles={{ maxHeight: '150px', overflowY: 'auto' }}
       />
@@ -193,7 +195,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
           }
           closeContextMenu();
         }}
-        className={styles.menuItem}
+        {...stylex.props(canvasContextMenuStyles.menuItem)}
       />
     );
 
@@ -207,7 +209,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
               contextMenuAction(LayerActionID.Delete);
               closeContextMenu();
             }}
-            className={styles.menuItem}
+            {...stylex.props(canvasContextMenuStyles.menuItem)}
           />
           <MenuItem
             label={t('canvas.canvas-context-menu.render-menu-items.label-duplicate', 'Duplicate')}
@@ -215,7 +217,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
               contextMenuAction(LayerActionID.Duplicate);
               closeContextMenu();
             }}
-            className={styles.menuItem}
+            {...stylex.props(canvasContextMenuStyles.menuItem)}
           />
           <MenuItem
             label={t('canvas.canvas-context-menu.render-menu-items.label-bring-to-front', 'Bring to front')}
@@ -223,7 +225,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
               contextMenuAction(LayerActionID.MoveTop);
               closeContextMenu();
             }}
-            className={styles.menuItem}
+            {...stylex.props(canvasContextMenuStyles.menuItem)}
           />
           <MenuItem
             label={t('canvas.canvas-context-menu.render-menu-items.label-send-to-back', 'Send to back')}
@@ -231,7 +233,7 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
               contextMenuAction(LayerActionID.MoveBottom);
               closeContextMenu();
             }}
-            className={styles.menuItem}
+            {...stylex.props(canvasContextMenuStyles.menuItem)}
           />
           {openCloseEditorMenuItem}
         </>
@@ -283,8 +285,3 @@ export const CanvasContextMenu = ({ scene, panel, onVisibilityChange }: Props) =
   return <></>;
 };
 
-const getStyles = () => ({
-  menuItem: css({
-    maxWidth: '200px',
-  }),
-});

@@ -1,4 +1,6 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { livePanelStyles } from './LivePanel.stylex';
+
 import { isEqual } from 'lodash';
 import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
@@ -205,7 +207,7 @@ export class LivePanel extends PureComponent<Props, State> {
     if (status) {
       statusClass = this.styles.status[status.state];
     }
-    return <div className={cx(statusClass, this.styles.statusWrap)}>{status?.state}</div>;
+    return <div {...stylex.props(livePanelStyles.statusWrap)}>{status?.state}</div>;
   }
 
   renderBody() {

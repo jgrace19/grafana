@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { sparklineCellOptionsEditorStyles } from './SparklineCellOptionsEditor.stylex';
+
 import { useId, useMemo } from 'react';
 
 import { createFieldConfigRegistry, type SetFieldConfigOptionsArgs } from '@grafana/data';
 import { type GraphFieldConfig, type TableSparklineCellOptions } from '@grafana/schema';
-import { Field, useStyles2 } from '@grafana/ui';
+import { Field } from '@grafana/ui';
 import { defaultSparklineCellConfig } from '@grafana/ui/internal';
 
 import { getGraphFieldConfig } from '../../timeseries/config';
@@ -83,15 +85,3 @@ function isOptionKey(key: string, options: TableSparklineCellOptions): key is Op
   return key in options;
 }
 
-const getStyles = () => ({
-  field: css({
-    width: '100%',
-
-    // @TODO don't show "scheme" option for custom gradient mode.
-    // it needs thresholds to work, which are not supported
-    // for area chart cell right now
-    "[title='Use color scheme to define gradient']": {
-      display: 'none',
-    },
-  }),
-});

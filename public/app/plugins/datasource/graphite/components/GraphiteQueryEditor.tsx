@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { graphiteQueryEditorStyles } from './GraphiteQueryEditor.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 
 import { actions } from '../state/actions';
 import {
@@ -40,11 +40,10 @@ export function GraphiteQueryEditor({
 function GraphiteQueryEditorContent() {
   const dispatch = useDispatch();
   const state = useGraphiteState();
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.visualEditor}>
+    <div {...stylex.props(graphiteQueryEditorStyles.container)}>
+      <div {...stylex.props(graphiteQueryEditorStyles.visualEditor)}>
         {state.target?.textEditor && <GraphiteTextEditor rawQuery={state.target.target} />}
         {!state.target?.textEditor && (
           <>
@@ -54,7 +53,7 @@ function GraphiteQueryEditorContent() {
         )}
       </div>
       <Button
-        className={styles.toggleButton}
+        {...stylex.props(graphiteQueryEditorStyles.toggleButton)}
         icon="pen"
         variant="secondary"
         aria-label="Toggle editor mode"
@@ -67,16 +66,3 @@ function GraphiteQueryEditorContent() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-    }),
-    visualEditor: css({
-      flexGrow: 1,
-    }),
-    toggleButton: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-}

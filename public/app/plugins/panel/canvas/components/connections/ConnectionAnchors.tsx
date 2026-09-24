@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { connectionAnchorsStyles } from './ConnectionAnchors.stylex';
+
 import { useRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { type ConnectionCoordinates } from 'app/features/canvas/element';
 
 type Props = {
@@ -43,7 +43,6 @@ export const HALF_SIZE = 2.5;
 
 export const ConnectionAnchors = ({ setRef, setAnchorsRef, handleMouseLeave }: Props) => {
   const highlightEllipseRef = useRef<HTMLDivElement>(null);
-  const styles = useStyles2(getStyles);
   const halfSizeHighlightEllipse = 5.5;
   const anchorImage =
     'data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSI1cHgiIGhlaWdodD0iNXB4IiB2ZXJzaW9uPSIxLjEiPjxwYXRoIGQ9Im0gMCAwIEwgNSA1IE0gMCA1IEwgNSAwIiBzdHJva2Utd2lkdGg9IjIiIHN0eWxlPSJzdHJva2Utb3BhY2l0eTowLjQiIHN0cm9rZT0iI2ZmZmZmZiIvPjxwYXRoIGQ9Im0gMCAwIEwgNSA1IE0gMCA1IEwgNSAwIiBzdHJva2U9IiMyOWI2ZjIiLz48L3N2Zz4=';
@@ -97,7 +96,7 @@ export const ConnectionAnchors = ({ setRef, setAnchorsRef, handleMouseLeave }: P
           }}
           key={id}
           alt={CONNECTION_ANCHOR_ALT}
-          className={styles.anchor}
+          {...stylex.props(connectionAnchorsStyles.anchor)}
           style={style}
           src={anchorImage}
           onMouseEnter={onMouseEnterAnchor}
@@ -107,12 +106,12 @@ export const ConnectionAnchors = ({ setRef, setAnchorsRef, handleMouseLeave }: P
   };
 
   return (
-    <div className={styles.root} ref={setRef}>
-      <div className={styles.mouseoutDiv} onMouseOut={handleMouseLeaveAnchors} onBlur={handleMouseLeaveAnchors} />
+    <div {...stylex.props(connectionAnchorsStyles.root)} ref={setRef}>
+      <div {...stylex.props(connectionAnchorsStyles.mouseoutDiv)} onMouseOut={handleMouseLeaveAnchors} onBlur={handleMouseLeaveAnchors} />
       <div
         id={CONNECTION_ANCHOR_DIV_ID}
         ref={highlightEllipseRef}
-        className={styles.highlightElement}
+        {...stylex.props(connectionAnchorsStyles.highlightElement)}
         onMouseLeave={onMouseLeaveHighlightElement}
       />
       <div ref={setAnchorsRef}>{generateAnchors()}</div>
@@ -120,35 +119,3 @@ export const ConnectionAnchors = ({ setRef, setAnchorsRef, handleMouseLeave }: P
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  root: css({
-    position: 'absolute',
-    display: 'none',
-  }),
-  mouseoutDiv: css({
-    position: 'absolute',
-    margin: '-30px',
-    width: 'calc(100% + 60px)',
-    height: 'calc(100% + 60px)',
-  }),
-  anchor: css({
-    padding: `${ANCHOR_PADDING}px`,
-    position: 'absolute',
-    cursor: 'cursor',
-    width: `calc(5px + 2 * ${ANCHOR_PADDING}px)`,
-    height: `calc(5px + 2 * ${ANCHOR_PADDING}px)`,
-    zIndex: 100,
-  }),
-  highlightElement: css({
-    backgroundColor: '#00ff00',
-    opacity: 0.3,
-    position: 'absolute',
-    cursor: 'cursor',
-    pointerEvents: 'auto',
-    width: '16px',
-    height: '16px',
-    borderRadius: theme.shape.radius.circle,
-    display: 'none',
-    zIndex: 110,
-  }),
-});

@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationMarker2Styles } from './AnnotationMarker2.stylex';
+
 import { autoUpdate } from '@floating-ui/dom';
 import { useFloating } from '@floating-ui/react';
 import * as React from 'react';
@@ -15,7 +17,7 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type TimeZone } from '@grafana/schema';
-import { ClickOutsideWrapper, floatingUtils, useStyles2 } from '@grafana/ui';
+import { ClickOutsideWrapper, floatingUtils } from '@grafana/ui';
 import { getDataLinks, getFieldActions } from 'app/plugins/panel/status-history/utils';
 
 import { AnnotationEditor2 } from './AnnotationEditor2';
@@ -61,7 +63,6 @@ export const AnnotationMarker2 = ({
   showTooltipOnHover,
   isPinned,
 }: AnnotationMarkerProps) => {
-  const styles = useStyles2(getStyles);
   const placement = 'bottom';
   const isRegion = annoVals?.isRegion?.[annoIdx] === true;
 
@@ -159,7 +160,7 @@ export const AnnotationMarker2 = ({
           : t('timeseries.annotation-marker.annotation-label', 'Annotation')
       }
       ref={refs.setReference}
-      className={isRegion ? styles.annoRegion : styles.annoMarker}
+      className={isRegion ? (annotationMarker2Styles.annoRegion) : styles.annoMarker}
       style={style!}
       onFocus={() => setIsHovering(true)}
       onBlur={() => setIsHovering(false)}
@@ -170,7 +171,7 @@ export const AnnotationMarker2 = ({
     >
       {contents &&
         createPortal(
-          <div ref={refs.setFloating} className={styles.annoBox} style={floatingStyles} data-testid="annotation-marker">
+          <div ref={refs.setFloating} {...stylex.props(annotationMarker2Styles.annoBox)} style={floatingStyles} data-testid="annotation-marker">
             <ClickOutsideWrapper includeButtonPress={false} useCapture={true} onClick={() => setPinned(false)}>
               {contents}
             </ClickOutsideWrapper>
@@ -181,42 +182,3 @@ export const AnnotationMarker2 = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  annoMarker: css({
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    border: 'none',
-    borderLeft: '5px solid transparent',
-    borderRight: '5px solid transparent',
-    borderBottomWidth: '5px',
-    borderBottomStyle: 'solid',
-    transform: 'translateX(-50%)',
-    cursor: 'pointer',
-    zIndex: 1,
-    padding: 0,
-    background: 'none',
-  }),
-  annoRegion: css({
-    border: 'none',
-    position: 'absolute',
-    height: '5px',
-    cursor: 'pointer',
-    zIndex: 1,
-    padding: 0,
-    background: 'none',
-  }),
-  // NOTE: shares much with TooltipPlugin2
-  annoBox: css({
-    top: 0,
-    left: 0,
-    zIndex: theme.zIndex.tooltip,
-    borderRadius: theme.shape.radius.default,
-    position: 'absolute',
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z2,
-    userSelect: 'text',
-    minWidth: '300px',
-  }),
-});

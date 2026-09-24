@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { setBackgroundStyles } from './SetBackground.stylex';
+
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { ResourceDimensionMode } from '@grafana/schema';
 import { Portal, useTheme2 } from '@grafana/ui';
 import { type Scene } from 'app/features/canvas/runtime/scene';
@@ -47,7 +48,7 @@ export function SetBackground({ onClose, scene, anchorPoint }: Props) {
   };
 
   return (
-    <Portal className={styles.portalWrapper}>
+    <Portal {...stylex.props(setBackgroundStyles.portalWrapper)}>
       <ResourcePickerPopover
         onChange={onChange}
         value={bgImage}
@@ -58,10 +59,3 @@ export function SetBackground({ onClose, scene, anchorPoint }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, anchorPoint: AnchorPoint) => ({
-  portalWrapper: css({
-    width: '315px',
-    height: '445px',
-    transform: `translate(${anchorPoint.x}px, ${anchorPoint.y - 200}px)`,
-  }),
-});

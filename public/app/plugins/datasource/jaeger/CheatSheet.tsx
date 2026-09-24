@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { cheatSheetStyles } from './CheatSheet.stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink } from '@grafana/ui';
 
 export default function CheatSheet() {
-  const styles = useStyles2(getStyles);
   return (
     <>
       <h2 id="jaeger-cheat-sheet">Jaeger Cheat Sheet</h2>
@@ -18,7 +17,7 @@ export default function CheatSheet() {
       </p>
 
       <hr />
-      <ul className={styles.unorderedList}>
+      <ul {...stylex.props(cheatSheetStyles.unorderedList)}>
         <li>
           Search - filter traces by service name. Addtionally, you can filter by tags or min/max duration, as well as
           limit the number of traces that are returned.
@@ -37,8 +36,3 @@ export default function CheatSheet() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  unorderedList: css({
-    listStyleType: 'none',
-  }),
-});

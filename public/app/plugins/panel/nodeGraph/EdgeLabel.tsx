@@ -1,29 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { edgeLabelStyles } from './EdgeLabel.stylex';
+
 import { memo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { nodeR } from './Node';
 import { type EdgeDatumLayout } from './types';
 import { shortenLine } from './utils';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    mainGroup: css({
-      pointerEvents: 'none',
-      fontSize: '8px',
-    }),
-
-    background: css({
-      fill: theme.components.tooltip.background,
-    }),
-
-    text: css({
-      fill: theme.components.tooltip.text,
-    }),
-  };
-};
+;
 
 interface Props {
   edge: EdgeDatumLayout;
@@ -49,7 +34,6 @@ export const EdgeLabel = memo(function EdgeLabel(props: Props) {
     x: line.x1 + (line.x2 - line.x1) / 2,
     y: line.y1 + (line.y2 - line.y1) / 2,
   };
-  const styles = useStyles2(getStyles);
 
   const stats = [edge.mainStat, edge.secondaryStat].filter((x) => x);
   const height = stats.length > 1 ? '30' : '15';
@@ -59,7 +43,7 @@ export const EdgeLabel = memo(function EdgeLabel(props: Props) {
   const contents: JSX.Element[] = [];
   stats.forEach((stat, index) => {
     contents.push(
-      <text key={index} className={styles.text} x={middle.x} y={middle.y + offset} textAnchor={'middle'}>
+      <text key={index} {...stylex.props(edgeLabelStyles.text)} x={middle.x} y={middle.y + offset} textAnchor={'middle'}>
         {stat}
       </text>
     );
@@ -67,9 +51,9 @@ export const EdgeLabel = memo(function EdgeLabel(props: Props) {
   });
 
   return (
-    <g className={styles.mainGroup}>
+    <g {...stylex.props(edgeLabelStyles.mainGroup)}>
       <rect
-        className={styles.background}
+        {...stylex.props(edgeLabelStyles.background)}
         x={middle.x - 40}
         y={middle.y - middleOffset}
         width="80"

@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { useContextMenuStyles } from './useContextMenu.stylex';
+
 import { type MouseEvent, useCallback, useState, type JSX } from 'react';
 import * as React from 'react';
 
 import { type DataFrame, type Field, type GrafanaTheme2, type LinkModel, type LinkTarget } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ContextMenu, MenuGroup, MenuItem, useStyles2 } from '@grafana/ui';
+import { ContextMenu, MenuGroup, MenuItem } from '@grafana/ui';
 
 import { type Config } from './layout';
 import { type EdgeDatumLayout, type NodeDatum } from './types';
@@ -187,11 +189,10 @@ function FieldRow({ field, index }: { field: Field; index: number }) {
 }
 
 function HeaderRow({ label, value }: { label: string; value: string }) {
-  const styles = useStyles2(getLabelStyles);
   return (
     <tr>
-      <td className={styles.label}>{label}: </td>
-      <td className={styles.value}>{value}</td>
+      <td {...stylex.props(useContextMenuStyles.label)}>{label}: </td>
+      <td {...stylex.props(useContextMenuStyles.value)}>{value}</td>
     </tr>
   );
 }
@@ -260,21 +261,4 @@ function EdgeHeader(props: { edge: EdgeDatumLayout; edges: DataFrame }) {
   );
 }
 
-export const getLabelStyles = (theme: GrafanaTheme2) => {
-  return {
-    label: css({
-      label: 'Label',
-      lineHeight: 1.25,
-      color: theme.colors.text.disabled,
-      fontSize: theme.typography.size.sm,
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingRight: theme.spacing(1),
-    }),
-    value: css({
-      label: 'Value',
-      fontSize: theme.typography.size.sm,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-    }),
-  };
-};
+export ;

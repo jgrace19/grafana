@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { traceQLSearchStyles } from './TraceQLSearch.stylex';
+
 import { useCallback, useEffect, useState } from 'react';
 
 import { type CoreApp, type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { config, type FetchError, getTemplateSrv, reportInteraction } from '@grafana/runtime';
-import { Alert, Button, Stack, Select, useStyles2, TextLink } from '@grafana/ui';
+import { Alert, Button, Stack, Select, TextLink } from '@grafana/ui';
 
 import { RawQuery } from '../_importedDependencies/datasources/prometheus/RawQuery';
 import { type TraceqlFilter, TraceqlSearchScope } from '../dataquery.gen';
@@ -42,7 +44,6 @@ const TraceQLSearch = ({
   addVariablesToOptions = true,
   range,
 }: Props) => {
-  const styles = useStyles2(getStyles);
   const [alertText, setAlertText] = useState<string>();
   const [error, setError] = useState<Error | FetchError | null>(null);
 
@@ -141,7 +142,7 @@ const TraceQLSearch = ({
 
   return (
     <>
-      <div className={styles.container}>
+      <div {...stylex.props(traceQLSearchStyles.container)}>
         <div>
           {datasource.search?.filters?.map(
             (f) =>
@@ -267,7 +268,7 @@ const TraceQLSearch = ({
             }}
           />
         </div>
-        <div className={styles.rawQueryContainer}>
+        <div {...stylex.props(traceQLSearchStyles.rawQueryContainer)}>
           <RawQuery query={templateSrv.replace(traceQlQuery)} lang={{ grammar: traceqlGrammar, name: 'traceql' }} />
           <Button
             variant="secondary"
@@ -302,7 +303,7 @@ const TraceQLSearch = ({
         />
       </div>
       {error ? (
-        <Alert title="Unable to connect to Tempo search" severity="info" className={styles.alert}>
+        <Alert title="Unable to connect to Tempo search" severity="info" {...stylex.props(traceQLSearchStyles.alert)}>
           Please ensure that Tempo is configured with search enabled. If you would like to hide this tab, you can
           configure it in the <TextLink href={`/datasources/edit/${datasource.uid}`}>datasource settings</TextLink>.
         </Alert>
@@ -314,22 +315,3 @@ const TraceQLSearch = ({
 
 export default TraceQLSearch;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  alert: css({
-    maxWidth: '75ch',
-    marginTop: theme.spacing(2),
-  }),
-  container: css({
-    display: 'flex',
-    gap: '4px',
-    flexWrap: 'wrap',
-    flexDirection: 'column',
-  }),
-  rawQueryContainer: css({
-    alignItems: 'center',
-    backgroundColor: theme.colors.background.secondary,
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: theme.spacing(1),
-  }),
-});

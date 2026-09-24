@@ -1,6 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { stylesStyles } from './styles.stylex';
 
-export const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-});
+
+
+export const containerStyles = stylex.props(stylesStyles.containerStyles).className ?? '';

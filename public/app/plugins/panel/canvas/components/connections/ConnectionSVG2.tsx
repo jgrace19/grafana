@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { connectionSVG2Styles } from './ConnectionSVG2.stylex';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type DirectionDimensionConfig, DirectionDimensionMode, ConnectionDirection } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
 import { type Scene } from 'app/features/canvas/runtime/scene';
 
 import { type ConnectionCoordinates } from '../../panelcfg.gen';
@@ -31,7 +31,6 @@ let idCounter = 0;
 const htmlElementTypes = ['input', 'textarea'];
 
 export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setConnectionsSVGRef, scene }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const headId = Date.now() + '_' + idCounter++;
   const CONNECTION_LINE_ID = useMemo(() => `connectionLineId-${headId}`, [headId]);
@@ -445,7 +444,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
                             cy={value.y * yDist + yStart}
                             r={5}
                             stroke={strokeColor}
-                            className={styles.vertex}
+                            {...stylex.props(connectionSVG2Styles.vertex)}
                             cursor={'crosshair'}
                             pointerEvents="auto"
                           />
@@ -463,7 +462,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
                               cy={value.y * yDist + yStart}
                               r={4}
                               stroke={strokeColor}
-                              className={styles.addVertex}
+                              {...stylex.props(connectionSVG2Styles.addVertex)}
                               cursor={'crosshair'}
                               pointerEvents="auto"
                             />
@@ -524,7 +523,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
                       cy={midpoint.y}
                       r={4}
                       stroke={strokeColor}
-                      className={styles.addVertex}
+                      {...stylex.props(connectionSVG2Styles.addVertex)}
                       cursor={'crosshair'}
                       pointerEvents="auto"
                     />
@@ -539,7 +538,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
 
   return (
     <>
-      <svg ref={setConnectionsSVGRef} className={styles.connection}>
+      <svg ref={setConnectionsSVGRef} {...stylex.props(connectionSVG2Styles.connection)}>
         <defs>
           <marker
             id={EDITOR_HEAD_ID}
@@ -576,7 +575,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
           ref={setVertexRef}
           stroke={defaultArrowColor}
           r={4}
-          className={styles.vertex}
+          {...stylex.props(connectionSVG2Styles.vertex)}
           style={{ display: 'none' }}
         />
 
@@ -586,19 +585,3 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  connection: css({
-    position: 'absolute',
-    zIndex: 1000,
-    pointerEvents: 'none',
-  }),
-  vertex: css({
-    fill: '#44aaff',
-    strokeWidth: 2,
-  }),
-  addVertex: css({
-    fill: '#44aaff',
-    opacity: 0.5,
-    strokeWidth: 1,
-  }),
-});

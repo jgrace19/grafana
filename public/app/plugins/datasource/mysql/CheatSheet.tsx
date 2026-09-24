@@ -1,16 +1,13 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
+import { cheatSheetStyles } from './CheatSheet.stylex';
 
 export function CheatSheet() {
-  const styles = useStyles2(getStyles);
 
   return (
     <div>
       <h2>MySQL cheat sheet</h2>
       Time series:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           return column named time or time_sec (in UTC), as a unix time stamp or any sql native date data type. You can
           use the macros below.
@@ -18,7 +15,7 @@ export function CheatSheet() {
         <li>return column(s) with numeric datatype as values</li>
       </ul>
       Optional:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>
           return column named <i>metric</i> to represent the series name.
         </li>
@@ -27,11 +24,11 @@ export function CheatSheet() {
       </ul>
       <p>Resultsets of time series queries need to be sorted by time.</p>
       Table:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>return any set of columns</li>
       </ul>
       Macros:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__time(column) -&gt; UNIX_TIMESTAMP(column) as time_sec</li>
         <li>$__timeEpoch(column) -&gt; UNIX_TIMESTAMP(column) as time_sec</li>
         <li>$__timeFilter(column) -&gt; column BETWEEN FROM_UNIXTIME(1492750877) AND FROM_UNIXTIME(1492750877)</li>
@@ -76,7 +73,7 @@ export function CheatSheet() {
         </code>
       </pre>
       Or build your own conditionals using these macros which just return the values:
-      <ul className={styles.ulPadding}>
+      <ul {...stylex.props(cheatSheetStyles.ulPadding)}>
         <li>$__timeFrom() -&gt; FROM_UNIXTIME(1492750877)</li>
         <li>$__timeTo() -&gt; FROM_UNIXTIME(1492750877)</li>
         <li>$__unixEpochFrom() -&gt; 1492750877</li>
@@ -88,11 +85,3 @@ export function CheatSheet() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    ulPadding: css({
-      margin: theme.spacing(1, 0),
-      paddingLeft: theme.spacing(5),
-    }),
-  };
-}

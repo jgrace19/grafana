@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryEditorStyles } from './QueryEditor.stylex';
+
 import { useState } from 'react';
 
 import { type QueryEditorProps } from '@grafana/data';
@@ -11,7 +13,6 @@ import {
   Modal,
   QueryField,
   RadioButtonGroup,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
 
@@ -25,7 +26,6 @@ type Props = QueryEditorProps<JaegerDatasource, JaegerQuery>;
 export function QueryEditor({ datasource, query, onChange, onRunQuery }: Props) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   const onChangeQuery = (value: string) => {
     const nextQuery: JaegerQuery = { ...query, query: value };
@@ -73,7 +73,7 @@ export function QueryEditor({ datasource, query, onChange, onRunQuery }: Props) 
           />
         </div>
       </Modal>
-      <div className={styles.container}>
+      <div {...stylex.props(queryEditorStyles.container)}>
         <InlineFieldRow>
           <InlineField label="Query type" grow={true}>
             <Stack gap={1} alignItems="center" justifyContent="space-between">
@@ -110,8 +110,3 @@ export function QueryEditor({ datasource, query, onChange, onRunQuery }: Props) 
   );
 }
 
-const getStyles = () => ({
-  container: css({
-    width: '100%',
-  }),
-});

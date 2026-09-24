@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { openTsdbQueryEditorStyles } from './OpenTsdbQueryEditor.stylex';
+
 import { useEffect, useState } from 'react';
 
-import { type GrafanaTheme2, type QueryEditorProps, textUtil } from '@grafana/data';
-import { useStyles2, Stack } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
 
 import type OpenTsDatasource from '../datasource';
 import { type OpenTsdbOptions, type OpenTsdbQuery } from '../types';
@@ -23,7 +24,6 @@ export function OpenTsdbQueryEditor({
   range,
   queries,
 }: OpenTsdbQueryEditorProps) {
-  const styles = useStyles2(getStyles);
 
   const [aggregators, setAggregators] = useState<string[]>([
     'avg',
@@ -111,7 +111,7 @@ export function OpenTsdbQueryEditor({
   }
 
   return (
-    <div className={styles.container} data-testid={testIds.editor}>
+    <div {...stylex.props(openTsdbQueryEditorStyles.container)} data-testid={testIds.editor}>
       <Stack gap={0.5} direction="column" grow={1}>
         <MetricSection
           query={query}
@@ -152,16 +152,6 @@ export function OpenTsdbQueryEditor({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      display: 'flex',
-    }),
-    toggleButton: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-}
 
 export const testIds = {
   editor: 'opentsdb-editor',

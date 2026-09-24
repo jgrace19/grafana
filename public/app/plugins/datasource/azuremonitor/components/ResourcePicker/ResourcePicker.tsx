@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { uniqBy } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
@@ -309,7 +309,7 @@ const ResourcePicker = ({
       <>
         <table className={styles.table}>
           <thead>
-            <tr className={cx(styles.row, styles.header)}>
+            <tr className={clsx(styles.row, styles.header)}>
               <td className={styles.cell}>
                 <Trans i18nKey="components.resource-picker.header-scope">Scope</Trans>
               </td>
@@ -326,18 +326,18 @@ const ResourcePicker = ({
           </thead>
         </table>
 
-        <div className={cx(styles.scrollableTable, styles.tableScroller)}>
+        <div className={clsx(styles.scrollableTable, styles.tableScroller)}>
           <table className={styles.table}>
             <tbody>
               {isLoading && (
-                <tr className={cx(styles.row)}>
+                <tr className={clsx(styles.row)}>
                   <td className={styles.cell}>
                     <LoadingPlaceholder text={t('components.resource-picker.text-loading', 'Loading...')} />
                   </td>
                 </tr>
               )}
               {!isLoading && resourceRows?.length === 0 && (
-                <tr className={cx(styles.row)}>
+                <tr className={clsx(styles.row)}>
                   <td className={styles.cell} aria-live="polite">
                     {view === 'picker' ? (
                       <Trans i18nKey="components.resource-picker.text-no-resources">No resources found</Trans>
@@ -374,7 +374,7 @@ const ResourcePicker = ({
                 <Trans i18nKey="components.resource-picker.heading-selection">Selection</Trans>
               </h5>
 
-              <div className={cx(styles.scrollableTable, styles.selectedTableScroller)}>
+              <div className={clsx(styles.scrollableTable, styles.selectedTableScroller)}>
                 <table className={styles.table}>
                   <tbody>
                     {selectedRows.map((row) => (

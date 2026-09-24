@@ -1,8 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { simulationSchemaFormStyles } from './SimulationSchemaForm.stylex';
+
 import { type FormEvent, useState, type ChangeEvent } from 'react';
 
 import { type DataFrameSchema, type FieldSchema, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, TextArea, InlineField, Input, FieldSet, InlineSwitch } from '@grafana/ui';
+import { TextArea, InlineField, Input, FieldSet, InlineSwitch } from '@grafana/ui';
 
 export type Config = Record<string, any>;
 
@@ -48,18 +50,10 @@ const renderInput = (field: FieldSchema, onChange: SchemaFormProps['onChange'], 
   }
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    jsonView: css({
-      marginBottom: theme.spacing(1),
-    }),
-  };
-};
+;
 
 export const SimulationSchemaForm = ({ config, schema, onChange }: SchemaFormProps) => {
   const [jsonView, setJsonView] = useState<boolean>(false);
-
-  const styles = useStyles2(getStyles);
 
   const onUpdateTextArea = (event: FormEvent<HTMLTextAreaElement>) => {
     const element = event.currentTarget;
@@ -69,7 +63,7 @@ export const SimulationSchemaForm = ({ config, schema, onChange }: SchemaFormPro
   return (
     <FieldSet label="Config">
       <InlineSwitch
-        className={styles.jsonView}
+        {...stylex.props(simulationSchemaFormStyles.jsonView)}
         label="JSON View"
         showLabel
         value={jsonView}

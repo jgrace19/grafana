@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationTooltip2ClusterStyles } from './AnnotationTooltip2Cluster.stylex';
+
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
+import { ScrollContainer, usePanelContext } from '@grafana/ui';
 import { VizTooltipFooter } from '@grafana/ui/internal';
 import alertDef from 'app/features/alerting/state/alertDef';
 
@@ -30,7 +31,6 @@ export const AnnotationTooltip2Cluster = ({
   links,
   actions,
 }: AnnotationClusterTooltipProps) => {
-  const styles = useStyles2(getStyles);
   const { canEditAnnotations = retFalse, canDeleteAnnotations = retFalse, onAnnotationDelete } = usePanelContext();
 
   const annotationTooltipComponents: React.ReactNode[] = [];
@@ -56,7 +56,7 @@ export const AnnotationTooltip2Cluster = ({
       const annotationId = annoVals.id?.[i];
 
       annotationTooltipComponents.push(
-        <div className={annotationCount % 2 !== 0 ? styles.zebra : styles.annotationWrapper}>
+        <div className={annotationCount % 2 !== 0 ? (annotationTooltip2ClusterStyles.zebra) : styles.annotationWrapper}>
           <AnnotationTooltipHeader
             clusterIndex={annotationCount}
             avatarImg={avatarImgSrc}
@@ -96,7 +96,7 @@ export const AnnotationTooltip2Cluster = ({
     t('timeseries.annotation-tooltip2.cluster-header', 'annotations');
 
   return (
-    <div data-testid={selectors.pages.Dashboard.Annotations.clusterTooltip} className={styles.wrapper}>
+    <div data-testid={selectors.pages.Dashboard.Annotations.clusterTooltip} {...stylex.props(annotationTooltip2ClusterStyles.wrapper)}>
       <ScrollContainer maxHeight="260px">
         <AnnotationTooltipHeader
           clusterLength={count}
@@ -114,7 +114,7 @@ export const AnnotationTooltip2Cluster = ({
         {annotationTooltipComponents.map((item, clusterIndex) => (
           <div key={clusterIndex}>
             {item}
-            <div className={styles.hr}></div>
+            <div {...stylex.props(annotationTooltip2ClusterStyles.hr)}></div>
           </div>
         ))}
 
@@ -125,26 +125,3 @@ export const AnnotationTooltip2Cluster = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  zebra: css({
-    backgroundColor: theme.colors.background.primary,
-    paddingBottom: theme.spacing(1.5),
-  }),
-  annotationWrapper: css({
-    paddingBottom: theme.spacing(1.5),
-  }),
-  wrapper: css({
-    zIndex: theme.zIndex.tooltip,
-    whiteSpace: 'initial',
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z3,
-    userSelect: 'text',
-    overflow: 'hidden',
-  }),
-  hr: css({
-    borderTop: `1px solid ${theme.colors.border.medium}`,
-    width: '100%',
-  }),
-});

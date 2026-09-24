@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { dashboardQueryEditorStyles } from './DashboardQueryEditor.stylex';
+
 import { useId } from '@react-aria/utils';
 import pluralize from 'pluralize';
 import { useCallback, useMemo } from 'react';
@@ -14,7 +16,7 @@ import {
 import { t } from '@grafana/i18n';
 import { OperationsEditorRow } from '@grafana/plugin-ui';
 import { usePanelPluginMetasMap } from '@grafana/runtime/internal';
-import { Alert, Field, Select, useStyles2, Spinner, RadioButtonGroup, Stack, InlineSwitch } from '@grafana/ui';
+import { Alert, Field, Select, Spinner, RadioButtonGroup, Stack, InlineSwitch } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
@@ -169,8 +171,6 @@ export function DashboardQueryEditor({ data, query, onChange, onRunQuery }: Prop
         }) ?? [],
     [dashboard, getPanelDescription, panelPluginMetas]
   );
-
-  const styles = useStyles2(getStyles);
   const selectId = useId();
 
   if (panelPluginMetasError) {
@@ -187,7 +187,7 @@ export function DashboardQueryEditor({ data, query, onChange, onRunQuery }: Prop
 
   if (panels.length < 1) {
     return (
-      <p className={styles.noQueriesText}>
+      <p {...stylex.props(dashboardQueryEditorStyles.noQueriesText)}>
         This dashboard does not have any other panels. Add queries to other panels and try again.
       </p>
     );
@@ -257,10 +257,3 @@ export function DashboardQueryEditor({ data, query, onChange, onRunQuery }: Prop
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    noQueriesText: css({
-      padding: theme.spacing(1.25),
-    }),
-  };
-}

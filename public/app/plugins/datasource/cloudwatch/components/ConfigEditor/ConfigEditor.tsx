@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configEditorStyles } from './ConfigEditor.stylex';
+
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
 
@@ -14,7 +16,7 @@ import {
 } from '@grafana/data';
 import { ConfigSection, DataSourceDescription } from '@grafana/plugin-ui';
 import { getAppEvents, usePluginInteractionReporter, getDataSourceSrv, config } from '@grafana/runtime';
-import { Alert, Input, type FieldProps, Field, Divider, useStyles2 } from '@grafana/ui';
+import { Alert, Input, type FieldProps, Field, Divider } from '@grafana/ui';
 
 import { CloudWatchDatasource } from '../../datasource';
 import { type SelectableResourceValue } from '../../resources/types';
@@ -85,10 +87,8 @@ export const ConfigEditor = (props: Props) => {
     }
   }, [options.jsonData.authType, options.jsonData.database, options.jsonData.profile]);
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.formStyles}>
+    <div {...stylex.props(configEditorStyles.formStyles)}>
       {warning && (
         <Alert title="CloudWatch Authentication" severity="warning" onRemove={dismissWarning}>
           {warning}
@@ -267,8 +267,3 @@ function useDataSourceSavedState(props: Props) {
   return saved;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  formStyles: css({
-    maxWidth: theme.spacing(50),
-  }),
-});

@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import type { JSX } from 'react';
 
 import { Select } from '@grafana/ui';
@@ -15,7 +15,7 @@ type Props = {
   onChange: (newFormat: ResultFormat) => void;
 };
 
-const className = cx('width-8', paddingRightClass);
+const className = clsx('width-8', paddingRightClass);
 
 export const FormatAsSection = ({ format, inputId, onChange }: Props): JSX.Element => {
   return (

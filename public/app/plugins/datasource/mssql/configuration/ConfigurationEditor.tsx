@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { configurationEditorStyles } from './ConfigurationEditor.stylex';
+
 import { type SyntheticEvent } from 'react';
 
 import {
@@ -21,7 +23,6 @@ import {
   TextLink,
   SecretInput,
   Select,
-  useStyles2,
   SecureSocksProxySettings,
   Divider,
   Field,
@@ -45,8 +46,6 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
   useMigrateDatabaseFields(props);
 
   const { options: dsSettings, onOptionsChange } = props;
-
-  const styles = useStyles2(getStyles);
   const jsonData = dsSettings.jsonData;
 
   const azureAuthSettings: AzureAuthConfigType = {
@@ -182,7 +181,7 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
               <Trans i18nKey="configuration.configuration-editor.description-encrypt">
                 Determines whether or to which extent a secure SSL TCP/IP connection will be negotiated with the server.
               </Trans>
-              <ul className={styles.ulPadding}>
+              <ul {...stylex.props(configurationEditorStyles.ulPadding)}>
                 <li>
                   <Trans
                     i18nKey="configuration.configuration-editor.description-encrypt-disable"
@@ -281,7 +280,7 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
           label={t('configuration.configuration-editor.label-auth-type', 'Authentication Type')}
           htmlFor="authenticationType"
           description={
-            <ul className={styles.ulPadding}>
+            <ul {...stylex.props(configurationEditorStyles.ulPadding)}>
               <li>
                 <Trans i18nKey="configuration.configuration-editor.description-auth-type-sql-server">
                   <i>SQL Server Authentication</i> This is the default mechanism to connect to MS SQL Server. Enter the
@@ -460,11 +459,3 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    ulPadding: css({
-      margin: theme.spacing(1, 0),
-      paddingLeft: theme.spacing(5),
-    }),
-  };
-}

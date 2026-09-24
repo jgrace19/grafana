@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { variableQueryEditorStyles } from './VariableQueryEditor.stylex';
 
-import { type GrafanaTheme2, type QueryEditorProps, type SelectableValue, toOption } from '@grafana/data';
 import { EditorField } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink } from '@grafana/ui';
 
 import { type CloudWatchDatasource } from '../../datasource';
 import {
@@ -156,10 +156,8 @@ export const VariableQueryEditor = ({ query, datasource, onChange }: Props) => {
     VariableQueryType.DimensionValues,
   ].includes(parsedQuery.queryType);
 
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.formStyles}>
+    <div {...stylex.props(variableQueryEditorStyles.formStyles)}>
       <VariableQueryField
         value={parsedQuery.queryType}
         options={queryTypes}
@@ -222,7 +220,7 @@ export const VariableQueryEditor = ({ query, datasource, onChange }: Props) => {
           />
           <EditorField
             label="Dimensions"
-            className={styles.dimensionsWidth}
+            {...stylex.props(variableQueryEditorStyles.dimensionsWidth)}
             tooltip="Dimensions to filter the returned values on"
           >
             <Dimensions
@@ -322,11 +320,3 @@ export const VariableQueryEditor = ({ query, datasource, onChange }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  formStyles: css({
-    maxWidth: theme.spacing(30),
-  }),
-  dimensionsWidth: css({
-    width: theme.spacing(50),
-  }),
-});

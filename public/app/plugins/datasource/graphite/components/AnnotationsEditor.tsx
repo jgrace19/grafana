@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { annotationsEditorStyles } from './AnnotationsEditor.stylex';
+
 import { useState } from 'react';
 
-import { type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
-import { Box, InlineField, Input, TagsInput, useStyles2 } from '@grafana/ui';
+import { Box, InlineField, Input, TagsInput } from '@grafana/ui';
 
 import { type GraphiteDatasource } from '../datasource';
 import { type GraphiteQuery, type GraphiteOptions } from '../types';
@@ -33,7 +34,6 @@ export const AnnotationEditor = (props: QueryEditorProps<GraphiteDatasource, Gra
     setTags(tagsInput);
     updateValue('tags', tagsInput);
   };
-  const styles = useStyles2(getStyles);
 
   return (
     <Box marginBottom={5}>
@@ -46,7 +46,7 @@ export const AnnotationEditor = (props: QueryEditorProps<GraphiteDatasource, Gra
         />
       </InlineField>
 
-      <h5 className={styles.heading}>Or</h5>
+      <h5 {...stylex.props(annotationsEditorStyles.heading)}>Or</h5>
 
       <InlineField label="Graphite events tags" labelWidth={24}>
         <TagsInput id="tags-input" width={50} tags={tags} onChange={onTagsChange} placeholder="Example: event_tag" />
@@ -55,9 +55,3 @@ export const AnnotationEditor = (props: QueryEditorProps<GraphiteDatasource, Gra
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  heading: css({
-    fontSize: theme.typography.body.fontSize,
-    marginBottom: theme.spacing(1),
-  }),
-});

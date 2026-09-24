@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { legacyLogGroupNamesSelectionStyles } from './LegacyLogGroupNamesSelection.stylex';
 
 import { type CloudWatchDatasource } from '../../../datasource';
 
@@ -11,9 +12,6 @@ type Props = {
   legacyLogGroupNames: string[];
 };
 
-const rowGap = css({
-  gap: '3px',
-});
 
 export const LegacyLogGroupSelection = ({ datasource, region, legacyLogGroupNames, onChange }: Props) => {
   return (

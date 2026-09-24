@@ -1,17 +1,18 @@
-import { css } from '@emotion/css';
-import { Global } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
+import { treeNavigationEditorStyles } from './TreeNavigationEditor.stylex';
+
 import Tree, { type TreeNodeProps } from '@rc-component/tree';
 import { type Key, useEffect, useMemo, useState } from 'react';
 
-import { type GrafanaTheme2, type StandardEditorProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, Icon, Stack, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, Icon, Stack, useTheme2 } from '@grafana/ui';
 import { AddLayerButton } from 'app/core/components/Layers/AddLayerButton';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 import { frameSelection, reorderElements } from 'app/features/canvas/runtime/sceneElementManagement';
 
-import { getGlobalStyles } from '../../globalStyles';
+import { InjectGlobalCss } from '../../../stylex/InjectGlobalCss';
+import { getGlobalStylesCss } from '../../globalStyles';
 import { type Options } from '../../panelcfg.gen';
 import { type DragNode, type DropNode } from '../../types';
 import { doSelect, getElementTypes, onAddItem } from '../../utils';
@@ -29,8 +30,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
   const [selectedKeys, setSelectedKeys] = useState<Key[]>([]);
 
   const theme = useTheme2();
-  const globalCSS = getGlobalStyles(theme);
-  const styles = useStyles2(getStyles);
+  const globalCSS = getGlobalStylesCss(theme);
 
   const selectedBgColor = theme.colors.primary.border;
   const { settings } = item;
@@ -138,7 +138,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
 
   return (
     <>
-      <Global styles={globalCSS} />
+      <InjectGlobalCss cssText={globalCSS} />
       <Tree
         selectable={true}
         onSelect={onSelect}
@@ -158,7 +158,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
       />
 
       <Stack justifyContent="space-between" direction="row">
-        <div className={styles.addLayerButton}>
+        <div {...stylex.props(treeNavigationEditorStyles.addLayerButton)}>
           <AddLayerButton
             onChange={(sel) => onAddItem(sel, layer)}
             options={typeOptions}
@@ -180,9 +180,3 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  addLayerButton: css({
-    marginLeft: '18px',
-    minWidth: '150px',
-  }),
-});

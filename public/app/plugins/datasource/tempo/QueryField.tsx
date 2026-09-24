@@ -1,4 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { queryFieldStyles } from './QueryField.stylex';
+
 import { PureComponent } from 'react';
 
 import { QueryWithAssistantButton } from '@grafana/assistant';
@@ -141,7 +143,7 @@ class TempoQueryFieldComponent extends PureComponent<Props, State> {
           isOpen={this.state.uploadModalOpen}
           onDismiss={() => this.setState({ uploadModalOpen: false })}
         >
-          <div className={css({ padding: this.props.theme.spacing(2) })}>
+          <div {...stylex.props(queryFieldStyles.inline0)}>
             <FileDropzone
               options={{ multiple: false }}
               onLoad={(result) => {
@@ -160,7 +162,7 @@ class TempoQueryFieldComponent extends PureComponent<Props, State> {
           </div>
         </Modal>
         {!isAlerting && showAssistant && (
-          <InlineFieldRow className={css({ marginBottom: this.props.theme.spacing(1) })}>
+          <InlineFieldRow {...stylex.props(queryFieldStyles.inline1)}>
             <QueryWithAssistantButton
               currentQuery={query}
               queries={[query]}

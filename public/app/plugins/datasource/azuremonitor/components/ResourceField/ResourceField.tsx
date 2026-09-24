@@ -1,4 +1,4 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
 
@@ -143,7 +143,7 @@ const FormattedResource = ({ resources }: FormattedResourceProps) => {
     }
   });
   return (
-    <span className={cx(styles.truncated, styles.resourceField)}>
+    <span className={clsx(styles.truncated, styles.resourceField)}>
       <Icon name={icon} />
       {items.join(', ')}
     </span>
