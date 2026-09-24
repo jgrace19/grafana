@@ -38,7 +38,7 @@ test.describe(
         selectors.pages.Dashboard.Settings.Variables.Edit.General.generalTypeSelectV2
       );
       await expect(typeSelect).toBeVisible();
-      const singleValue = typeSelect.locator('div[class*="-singleValue"]');
+      const singleValue = typeSelect.locator(selectors.components.Select.singleValue());
       await expect(singleValue).toHaveText('Query');
 
       const labelInput = dashboardPage.getByGrafanaSelector(
@@ -92,7 +92,7 @@ test.describe(
         selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsSortSelectV2
       );
       await expect(sortSelect).toBeVisible();
-      const sortSingleValue = sortSelect.locator('div[class*="-singleValue"]');
+      const sortSingleValue = sortSelect.locator(selectors.components.Select.singleValue());
       await expect(sortSingleValue).toHaveText('Disabled');
 
       // Check Multi-value checkbox
