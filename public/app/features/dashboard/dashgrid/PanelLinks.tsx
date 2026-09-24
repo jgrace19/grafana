@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on ToolbarButton (see menuTrigger)
+// eslint-disable-next-line no-restricted-imports -- stylex: pending ToolbarButton migration (see menuTrigger)
 import { css } from '@emotion/css';
 import type { JSX } from 'react';
 
@@ -50,14 +50,12 @@ export function PanelLinks({ panelLinks, onShowPanelLinks }: Props) {
   }
 }
 
-// stylex: pending an xstyle on ToolbarButton. This unlayered class beats its StyleX in every state, so the background
-// is limited to the resting state to keep losing to ToolbarButton's :hover/:active/:disabled backgrounds.
+// stylex: pending ToolbarButton migration. ToolbarButton's own Emotion height, background and border would beat
+// a StyleX override.
 const menuTrigger = css({
   height: '100%',
+  background: 'inherit',
   border: 'none',
   borderRadius: shape['--gf-shape-radius-default'],
   cursor: 'context-menu',
-  '&:not(:hover, :active, :disabled)': {
-    background: 'inherit',
-  },
 });

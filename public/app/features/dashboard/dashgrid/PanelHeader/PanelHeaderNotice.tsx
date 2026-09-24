@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending an xstyle on ToolbarButton (see toolbarButtonNotice)
+// eslint-disable-next-line no-restricted-imports -- stylex: pending ToolbarButton migration (see toolbarButtonNotice)
 import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
@@ -47,14 +47,11 @@ export const PanelHeaderNotice = ({ notice, onClick }: Props) => {
   );
 };
 
-// stylex: pending an xstyle on ToolbarButton. This unlayered class beats its StyleX in every state, so the background
-// is limited to the resting state to keep losing to ToolbarButton's :hover/:active/:disabled backgrounds.
+// stylex: pending ToolbarButton migration. ToolbarButton's own Emotion background and border would beat StyleX.
 const toolbarButtonNotice = css({
+  background: 'inherit',
   border: 'none',
   borderRadius: shape['--gf-shape-radius-default'],
-  '&:not(:hover, :active, :disabled)': {
-    background: 'inherit',
-  },
 });
 
 const focusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
