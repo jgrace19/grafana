@@ -167,13 +167,14 @@ const styles = stylex.create({
       height: size,
     },
   }),
-  // A native :disabled button wins over hover/active, so this replaces the hover background.
+  // A native :disabled button wins over hover/active, so this replaces the hover background. The values sit under
+  // `:disabled`, like main's `&:disabled` rule, so they also beat a consumer's className (scripts/stylex/stateRules.js).
   disabled: {
-    cursor: 'not-allowed',
-    color: colors['--gf-colors-action-disabled-text'],
-    opacity: 0.65,
+    cursor: { default: null, ':disabled': 'not-allowed' },
+    color: { default: null, ':disabled': colors['--gf-colors-action-disabled-text'] },
+    opacity: { default: null, ':disabled': 0.65 },
     '::before': {
-      backgroundColor: 'transparent',
+      backgroundColor: { default: null, ':disabled': 'transparent' },
     },
   },
   icon: {
