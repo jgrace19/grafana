@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Collapse migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -7,7 +5,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { ContactPointSelector as GrafanaManagedContactPointSelector } from '@grafana/alerting/unstable';
 import { Trans, t } from '@grafana/i18n';
 import { Collapse, Field, InlineLabel, Input, MultiSelect, Stack, TextLink } from '@grafana/ui';
-import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { ExternalAlertmanagerContactPointSelector } from 'app/features/alerting/unified/components/notification-policies/ContactPointSelector';
 import { handleContactPointSelect } from 'app/features/alerting/unified/components/notification-policies/utils';
 import { type RouteWithID } from 'app/plugins/datasource/alertmanager/types';
@@ -29,6 +26,7 @@ import { makeAMLink } from '../../utils/misc';
 import { PromDurationInput } from './PromDurationInput';
 import { formStyles } from './formStyles';
 import { TIMING_OPTIONS_DEFAULTS } from './timingOptions';
+import './EditDefaultPolicyForm.css';
 
 export interface AmRootRouteFormProps {
   alertManagerSourceName: string;
@@ -179,7 +177,7 @@ export const AmRootRouteForm = ({
           />
         </Field>
         <Collapse
-          className={pendingEmotionStyles.collapse}
+          className="gf-alerting-default-policy-timing-options"
           isOpen={isTimingOptionsExpanded}
           label={t('alerting.am-root-route-form.label-timing-options', 'Timing options')}
           onToggle={setIsTimingOptionsExpanded}
@@ -252,13 +250,4 @@ export const AmRootRouteForm = ({
       </Stack>
     </form>
   );
-};
-
-// stylex: pending Collapse migration
-const pendingEmotionStyles = {
-  collapse: css({
-    border: 'none',
-    background: 'none',
-    color: colors['--gf-colors-text-primary'],
-  }),
 };

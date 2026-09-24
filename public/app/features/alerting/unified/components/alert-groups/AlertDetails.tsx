@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AlertState, type AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -19,8 +19,6 @@ interface AmNotificationsAlertDetailsProps {
 }
 
 export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsAlertDetailsProps) => {
-  const styles = useStyles2(getStyles);
-
   // For Grafana Managed alerts the Generator URL redirects to the alert rule edit page, so update permission is required
   // For external alert manager the Generator URL redirects to an external service which we don't control
   const isGrafanaSource = isGrafanaRulesSource(alertManagerSourceName);
@@ -30,7 +28,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
 
   return (
     <>
-      <div className={styles.actionsRow}>
+      <div {...stylex.props(styles.actionsRow)}>
         {alert.status.state === AlertState.Suppressed && (
           <Authorize actions={[AlertmanagerAction.CreateSilence, AlertmanagerAction.UpdateSilence]}>
             <LinkButton
@@ -38,7 +36,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
                 '/alerting/silences',
                 alertManagerSourceName
               )}&silenceIds=${alert.status.silencedBy.join(',')}`}
-              className={styles.button}
+              className={stylex.props(styles.button).className}
               icon={'bell'}
               size={'sm'}
             >
@@ -50,7 +48,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
           <Authorize actions={[AlertmanagerAction.CreateSilence]}>
             <LinkButton
               href={makeLabelBasedSilenceLink(alertManagerSourceName, alert.labels)}
-              className={styles.button}
+              className={stylex.props(styles.button).className}
               icon={'bell-slash'}
               size={'sm'}
             >
@@ -59,7 +57,12 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
           </Authorize>
         )}
         {isSeeSourceButtonEnabled && alert.generatorURL && (
-          <LinkButton className={styles.button} href={alert.generatorURL} icon={'chart-line'} size={'sm'}>
+          <LinkButton
+            className={stylex.props(styles.button).className}
+            href={alert.generatorURL}
+            icon={'chart-line'}
+            size={'sm'}
+          >
             {isGrafanaSource
               ? t('alerting.alert-details.button-see-rule', 'See alert rule')
               : t('alerting.alert-details.button-see-source', 'See source')}
@@ -69,7 +72,7 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
       {Object.entries(alert.annotations).map(([annotationKey, annotationValue]) => (
         <AnnotationDetailsField key={annotationKey} annotationKey={annotationKey} value={annotationValue} />
       ))}
-      <div className={styles.receivers}>
+      <div {...stylex.props(styles.receivers)}>
         <Trans
           i18nKey="alerting.alert-details.receivers-list"
           values={{
@@ -86,17 +89,23 @@ export const AlertDetails = ({ alert, alertManagerSourceName }: AmNotificationsA
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  button: css({
-    '& + &': {
-      marginLeft: theme.spacing(1),
-    },
-  }),
-  actionsRow: css({
-    padding: `${theme.spacing(2, 0)} !important`,
-    borderBottom: `1px solid ${theme.colors.border.medium}`,
-  }),
-  receivers: css({
-    padding: theme.spacing(1, 0),
-  }),
+const styles = stylex.create({
+  button: {
+    marginLeft: { default: null, ':not(:first-child)': spacing['--gf-spacing-x1'] },
+  },
+  actionsRow: {
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: 0,
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+  },
+  receivers: {
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: 0,
+  },
 });

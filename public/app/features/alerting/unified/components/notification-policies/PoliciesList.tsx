@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Button, EmptyState, LoadingPlaceholder, Pagination, Stack, TextLink, useStyles2 } from '@grafana/ui';
+import { Alert, Button, EmptyState, LoadingPlaceholder, Pagination, Stack, TextLink } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { MetadataRow } from 'app/features/alerting/unified/components/notification-policies/Policy';
 import { AlertmanagerAction, useAlertmanagerAbility } from 'app/features/alerting/unified/hooks/useAbilities';
 import {
@@ -142,7 +142,6 @@ interface RoutingTreeProps {
 }
 
 export const RoutingTree = ({ route, receivers }: RoutingTreeProps) => {
-  const styles = useStyles2(getStyles);
   const { selectedAlertmanager } = useAlertmanager();
 
   const [alertInstancesModal, showAlertGroupsModal] = useAlertGroupsModal(selectedAlertmanager ?? '');
@@ -154,11 +153,11 @@ export const RoutingTree = ({ route, receivers }: RoutingTreeProps) => {
 
   const numberOfPolicies = countPolicies(route);
   return (
-    <div className={styles.routingTreeWrapper} data-testid={`routing-tree_${route.name ?? 'default'}`}>
+    <div {...stylex.props(styles.routingTreeWrapper)} data-testid={`routing-tree_${route.name ?? 'default'}`}>
       <Stack direction="column" gap={0}>
         <RoutingTreeHeader route={route} />
 
-        <div className={styles.routingTreeMetadataWrapper}>
+        <div {...stylex.props(styles.routingTreeMetadataWrapper)}>
           <Stack direction="column" gap={0.5}>
             <MetadataRow
               matchingInstancesPreview={matchingInstancesPreview}
@@ -194,12 +193,10 @@ interface RoutingTreeHeaderProps {
 
 export const RoutingTreeHeader = ({ route }: RoutingTreeHeaderProps) => {
   const provisioned = isRouteProvisioned(route);
-  const styles = useStyles2(getStyles);
-
   const routeName = route.name === ROOT_ROUTE_NAME || !route.name ? 'Default Policy' : route.name;
 
   return (
-    <div className={styles.headerWrapper}>
+    <div {...stylex.props(styles.headerWrapper)}>
       <Stack direction="row" alignItems="center" gap={1}>
         <Stack alignItems="center" gap={1} minWidth={0}>
           <TextLink
@@ -239,26 +236,40 @@ export function countPolicies(route: HasRoutes): number {
   return count;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  routingTreeWrapper: css({
-    borderRadius: theme.shape.radius.default,
-    border: `solid 1px ${theme.colors.border.weak}`,
-    borderBottom: 'none',
-  }),
-  headerWrapper: css({
-    background: `${theme.colors.background.secondary}`,
-    padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
-
-    borderBottom: `solid 1px ${theme.colors.border.weak}`,
-    borderTopLeftRadius: `${theme.shape.radius.default}`,
-    borderTopRightRadius: `${theme.shape.radius.default}`,
-  }),
-  routingTreeMetadataWrapper: css({
+const styles = stylex.create({
+  routingTreeWrapper: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-weak'],
+  },
+  headerWrapper: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+  },
+  routingTreeMetadataWrapper: {
     position: 'relative',
-
-    background: `${theme.colors.background.primary}`,
-    padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
-
-    borderBottom: `solid 1px ${theme.colors.border.weak}`,
-  }),
+    backgroundColor: colors['--gf-colors-background-primary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
 });

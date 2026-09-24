@@ -1,0 +1,13 @@
+/* Field, Input and TextArea have no xstyle. Deliberately not in a cascade layer, so these owned classes win over their StyleX. */
+.gf-alerting-annotation-field {
+  margin-top: var(--gf-spacing-x1);
+  margin-bottom: var(--gf-spacing-x0-5);
+}
+
+.gf-alerting-annotation-value-input {
+  width: 394px;
+}
+
+.gf-alerting-annotation-value-textarea {
+  height: 76px;
+}

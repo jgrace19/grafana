@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { uniq } from 'lodash';
 
 import { type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Label, MultiSelect, Tooltip, useStyles2 } from '@grafana/ui';
+import { Icon, Label, MultiSelect, Tooltip } from '@grafana/ui';
 import { type AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
 
 import { isPrivateLabelKey } from '../../utils/labels';
@@ -15,7 +15,6 @@ interface Props {
 }
 
 export const GroupBy = ({ groups, groupBy, onGroupingChange }: Props) => {
-  const styles = useStyles2(getStyles);
   const labelKeyOptions = uniq(groups.flatMap((group) => group.alerts).flatMap(({ labels }) => Object.keys(labels)))
     .filter((label) => !isPrivateLabelKey(label)) // Filter out private labels
     .map<SelectableValue>((key) => ({
@@ -24,7 +23,7 @@ export const GroupBy = ({ groups, groupBy, onGroupingChange }: Props) => {
     }));
 
   return (
-    <div data-testid={'group-by-container'} className={styles.wrapper}>
+    <div data-testid={'group-by-container'} {...stylex.props(styles.wrapper)}>
       <Label>
         <span>
           <Trans i18nKey="alerting.group-by.custom-group-by">Custom group by</Trans>&nbsp;
@@ -57,9 +56,11 @@ export const GroupBy = ({ groups, groupBy, onGroupingChange }: Props) => {
   );
 };
 
-const getStyles = () => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     minWidth: 0,
-    flex: '1 1 0',
-  }),
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0',
+  },
 });
