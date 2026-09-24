@@ -1,6 +1,5 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration (see cardOverrides)
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
+import cx from 'classnames';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
@@ -14,6 +13,7 @@ import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { CompatibilityBadge, type CompatibilityState } from './CompatibilityBadge';
+import './DashboardCard.css';
 import { thumbnailMarker } from './markers.stylex';
 import { type GnetDashboard } from './types';
 import { buildAssistantPrompt, buildTemplateContextData, buildTemplateContextTitle } from './utils/assistantHelpers';
@@ -105,8 +105,8 @@ function DashboardCardComponent({
   const hasCompatActions = isCompatibilityAppEnabled && showCompatibilityBadge && onCompatibilityCheck;
 
   return (
-    <Card className={cardOverrides.card} noMargin>
-      <Card.Heading className={cardOverrides.title}>
+    <Card className="gf-dashboard-card" noMargin>
+      <Card.Heading className="gf-dashboard-card-title">
         <span {...stylex.props(styles.titleWithInfo)} role="group" aria-label={title}>
           <span {...stylex.props(styles.titleText)}>{title}</span>
           {detailsButton}
@@ -183,7 +183,9 @@ function DashboardCardComponent({
         <div title={dashboard.description}>
           <Card.Description
             data-testid="dashboard-card-description"
-            className={cx(cardOverrides.description, { [cardOverrides.noDescription]: !dashboard.description })}
+            className={cx('gf-dashboard-card-description', {
+              'gf-dashboard-card-description--empty': !dashboard.description,
+            })}
           >
             {dashboard.description || t('dashboard-library.dashboard-card.no-description', 'No description available')}
           </Card.Description>
@@ -247,46 +249,6 @@ function DetailsTooltipContent({ details }: { details: Details }) {
     </Box>
   );
 }
-
-// stylex: pending Card migration. Card, Card.Heading and Card.Description set their own Emotion grid, display,
-// padding and margins, which would beat a StyleX override.
-const cardOverrides = {
-  card: css({
-    gridTemplateAreas: `
-          "Thumbnail Thumbnail"
-          "Heading Heading"
-          "Bottom Bottom"`,
-    gridTemplateRows: 'auto auto 1fr',
-    gridTemplateColumns: '1fr auto',
-    width: '350px',
-    height: '100%',
-    background: 'transparent',
-    border: `1px solid ${colors['--gf-colors-border-strong']}`,
-    borderRadius: shape['--gf-shape-radius-default'],
-    overflow: 'hidden',
-    gridGap: 0,
-    padding: spacing['--gf-spacing-x1'],
-  }),
-  title: css({
-    display: '-webkit-box',
-    WebkitLineClamp: 1,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  }),
-  description: css({
-    display: '-webkit-box',
-    WebkitLineClamp: 1,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    margin: 0,
-    fontSize: typography['--gf-typography-body-small-font-size'],
-  }),
-  noDescription: css({
-    fontStyle: 'italic',
-  }),
-};
 
 const styles = stylex.create({
   thumbnailContainer: {

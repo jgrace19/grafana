@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalOverrides)
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
@@ -12,6 +10,7 @@ import { Box, Grid, Modal, Text } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardCard } from './DashboardCard';
+import './TemplateDashboardModal.css';
 import { NewTemplateDashboardInteractions } from './analytics/main';
 import {
   CONTENT_KINDS,
@@ -130,9 +129,9 @@ export const TemplateDashboardModal = () => {
     <Modal
       isOpen={isOpen}
       onDismiss={onClose}
-      className={modalOverrides.modal}
+      className="gf-template-dashboard-modal"
       title={t('dashboard-library.template-dashboard-modal.title', 'Start a dashboard from a template')}
-      contentClassName={modalOverrides.modalContent}
+      contentClassName="gf-template-dashboard-modal-content"
     >
       <div {...stylex.props(styles.stickyHeader)}>
         <Text element="p">
@@ -177,17 +176,6 @@ export const TemplateDashboardModal = () => {
       </Box>
     </Modal>
   );
-};
-
-// stylex: pending Modal migration. Modal's own Emotion width and content padding would beat StyleX.
-const modalOverrides = {
-  modal: css({
-    width: '1200px',
-  }),
-  modalContent: css({
-    paddingTop: 0,
-    height: '100%',
-  }),
 };
 
 const styles = stylex.create({

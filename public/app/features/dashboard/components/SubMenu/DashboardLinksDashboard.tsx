@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties, forwardRef } from 'react';
+import cx from 'classnames';
+import { forwardRef } from 'react';
 import { useAsync } from 'react-use';
 
 import { type ScopedVars } from '@grafana/data';
@@ -9,11 +10,13 @@ import { t } from '@grafana/i18n';
 import { type DashboardLink } from '@grafana/schema';
 import { Dropdown, Icon, LinkButton, Button, Menu, ScrollContainer } from '@grafana/ui';
 import { type ButtonLinkProps } from '@grafana/ui/internal';
-import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
 import { type DashboardQueryResult } from 'app/features/search/service/types';
 
 import { getLinkSrv } from '../../../panel/panellinks/link_srv';
+
+import './DashboardLinksDashboard.css';
 
 interface Props {
   link: DashboardLink;
@@ -174,22 +177,14 @@ const styles = stylex.create({
   },
 });
 
-// Button has no xstyle, and a StyleX class string would race its own font size and padding (conventions §3.9),
-// so the override goes through its merged inline style. A caller's `style` still wins, as its class used to.
-const dashButtonStyle: CSSProperties = {
-  fontSize: typography['--gf-typography-body-small-font-size'],
-  paddingLeft: spacing['--gf-spacing-x1'],
-  paddingRight: spacing['--gf-spacing-x1'],
-};
-
-export const DashboardLinkButton = forwardRef<unknown, ButtonLinkProps>(({ style, ...otherProps }, ref) => {
+export const DashboardLinkButton = forwardRef<unknown, ButtonLinkProps>(({ className, ...otherProps }, ref) => {
   const Component = otherProps.href ? LinkButton : Button;
   return (
     <Component
       {...otherProps}
       variant="secondary"
       fill="outline"
-      style={{ ...dashButtonStyle, ...style }}
+      className={cx(className, 'gf-dashboard-link-button')}
       ref={ref as any}
     />
   );

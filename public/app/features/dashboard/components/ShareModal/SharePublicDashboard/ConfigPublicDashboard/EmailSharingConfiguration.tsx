@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Field migration (see fieldNoMargin)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useForm, Controller } from 'react-hook-form';
 import { useWindowSize } from 'react-use';
@@ -21,6 +19,8 @@ import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { AccessControlAction } from 'app/types/accessControl';
+
+import './EmailSharingConfiguration.css';
 
 import { type PublicDashboard, PublicDashboardShareType, validEmailRegex } from '../SharePublicDashboardUtils';
 
@@ -149,7 +149,7 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
       >
         <Field
           label={t('public-dashboard.config.can-view-dashboard-radio-button-label', 'Can view dashboard')}
-          className={fieldNoMargin}
+          className="gf-email-sharing-field"
         >
           <Controller
             name="shareType"
@@ -190,7 +190,7 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
               description={t('public-dashboard.email-sharing.invite-field-desc', 'Invite people by email')}
               error={errors.email?.message}
               invalid={!!errors.email?.message || undefined}
-              className={fieldNoMargin}
+              className="gf-email-sharing-field"
             >
               <div {...stylex.props(styles.emailContainer)}>
                 <Input
@@ -231,11 +231,6 @@ export const EmailSharingConfiguration = ({ dashboard }: { dashboard: DashboardM
     </form>
   );
 };
-
-// stylex: pending Field migration. Field's own Emotion marginBottom would beat a StyleX override.
-const fieldNoMargin = css({
-  marginBottom: 0,
-});
 
 const styles = stylex.create({
   container: {

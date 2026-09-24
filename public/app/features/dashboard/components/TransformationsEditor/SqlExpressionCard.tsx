@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 
 import { Card, Text } from '@grafana/ui';
 
-import { cardOverrides, cardStyles } from './cardStyles';
+import { cardClassNames, cardStyles } from './cardStyles';
 
 export interface SqlExpressionCardProps {
   name: string;
@@ -16,7 +16,7 @@ export interface SqlExpressionCardProps {
 export function SqlExpressionCard({ name, description, imageUrl, onClick, testId, fullWidth }: SqlExpressionCardProps) {
   return (
     <Card
-      className={fullWidth ? cardOverrides.baseCardFullWidth : cardOverrides.baseCard}
+      className={fullWidth ? cardClassNames.baseCardFullWidth : cardClassNames.baseCard}
       data-testid={testId}
       onClick={onClick}
       noMargin

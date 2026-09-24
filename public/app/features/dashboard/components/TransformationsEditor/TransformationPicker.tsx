@@ -1,14 +1,13 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration (see card)
-import { css } from '@emotion/css';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode } from 'react';
 
 import { DocsId, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Card, Container, Input, Stack } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getDocsLink } from 'app/core/utils/docsLinks';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
+
+import './TransformationPicker.css';
 
 const LOCAL_STORAGE_KEY = 'dashboard.components.TransformationEditor.featureInfoBox.isDismissed';
 
@@ -109,7 +108,7 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
   return (
     <Card
       noMargin
-      className={card}
+      className="gf-transformation-picker-card"
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={onClick}
     >
@@ -123,9 +122,3 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
     </Card>
   );
 }
-
-// stylex: pending Card migration. Card's own Emotion margin and padding would beat a StyleX override.
-const card = css({
-  margin: '0',
-  padding: spacing['--gf-spacing-x1'],
-});

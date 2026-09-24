@@ -1,12 +1,13 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { type CSSProperties } from 'react';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
 import { IconButton, ReactUtils } from '@grafana/ui';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
+
+import './SettingsBarHeader.css';
 
 export interface Props {
   onRowToggle: () => void;
@@ -29,7 +30,7 @@ export function SettingsBarHeader({ headerElement, isContentVisible = false, onR
               ? t('public-dashboard.settings-bar-header.collapse-settings-tooltip', 'Collapse settings')
               : t('public-dashboard.settings-bar-header.expand-settings-tooltip', 'Expand settings')
           }
-          style={collapseIconStyle}
+          className="gf-settings-bar-header-collapse-icon"
           onClick={onRowToggle}
           aria-expanded={isContentVisible}
           {...rest}
@@ -49,13 +50,6 @@ export function SettingsBarHeader({ headerElement, isContentVisible = false, onR
 }
 
 SettingsBarHeader.displayName = 'SettingsBarHeader';
-
-// IconButton has no xstyle, and a StyleX class string would race its own color and margin (conventions §3.9),
-// so the override goes through its merged inline style.
-const collapseIconStyle: CSSProperties = {
-  marginLeft: spacing['--gf-spacing-x0-5'],
-  color: colors['--gf-colors-text-disabled'],
-};
 
 const styles = stylex.create({
   wrapper: {

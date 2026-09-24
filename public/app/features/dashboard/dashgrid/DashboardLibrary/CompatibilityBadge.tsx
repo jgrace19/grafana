@@ -1,9 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
-import { type CSSProperties } from 'react';
+import cx from 'classnames';
 
 import { t, Trans } from '@grafana/i18n';
 import { Badge, Button, Spinner, Tooltip } from '@grafana/ui';
 import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
+
+import './CompatibilityBadge.css';
 
 /**
  * Discriminated union for compatibility check states.
@@ -102,8 +104,7 @@ export const CompatibilityBadge = ({ state, onCheck, onRetry }: CompatibilityBad
             text={t('dashboard-library.compatibility-badge.error-text', 'Error')}
             icon="exclamation-circle"
             color="red"
-            className={stylex.props(styles.clickableBadge).className}
-            style={clickableBadgePadding}
+            className={cx('gf-compatibility-badge-clickable', stylex.props(styles.clickableBadge).className)}
           />
         </span>
       </Tooltip>
@@ -217,13 +218,6 @@ function getErrorTooltip(errorCode: string | undefined, linkClassName?: string) 
     </Trans>
   );
 }
-
-// Badge has no xstyle, and a StyleX class string would race its own padding (conventions §3.9), so the padding
-// override goes through its merged inline style.
-const clickableBadgePadding: CSSProperties = {
-  paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
-  paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.8)`,
-};
 
 const styles = stylex.create({
   button: {

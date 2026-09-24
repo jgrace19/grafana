@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration (see searchInput)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode, useCallback } from 'react';
 
@@ -15,6 +13,7 @@ import { getCategoriesLabels } from 'app/features/transformers/utils';
 import { SqlExpressionsBanner } from './SqlExpressions/SqlExpressionsBanner';
 import { TransformationCard } from './TransformationCard';
 import { type FilterCategory } from './TransformationsEditor';
+import './TransformationPickerNg.css';
 
 const VIEW_ALL_VALUE = 'viewAll';
 
@@ -75,7 +74,7 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
         <div {...stylex.props(styles.searchWrapper)}>
           <Input
             data-testid={selectors.components.Transforms.searchInput}
-            className={searchInput}
+            className="gf-transformation-picker-search"
             value={search ?? ''}
             placeholder={t(
               'dashboard.transformation-picker-ng.placeholder-search-for-transformation',
@@ -128,12 +127,6 @@ export function TransformationPickerNg(props: TransformationPickerNgProps) {
     </Drawer>
   );
 }
-
-// stylex: pending Input migration. Input's own Emotion width would beat a StyleX override.
-const searchInput = css({
-  flexGrow: '1',
-  width: 'initial',
-});
 
 const styles = stylex.create({
   searchWrapper: {

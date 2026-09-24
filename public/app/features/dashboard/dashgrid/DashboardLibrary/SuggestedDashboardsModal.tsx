@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalOverrides)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -12,6 +10,7 @@ import { type PluginDashboard } from 'app/types/plugins';
 
 import { CommunityDashboardMappingForm } from './CommunityDashboardMappingForm';
 import { SuggestedDashboardsList } from './SuggestedDashboardsList/SuggestedDashboardsList';
+import './SuggestedDashboardsModal.css';
 import { type ContentKind } from './constants';
 import { type GnetDashboard } from './types';
 import { type InputMapping } from './utils/autoMapDatasources';
@@ -111,8 +110,8 @@ export const SuggestedDashboardsModal = ({
       }
       isOpen={isOpen}
       onDismiss={onDismiss}
-      className={modalOverrides.modal}
-      contentClassName={modalOverrides.modalContent}
+      className="gf-suggested-dashboards-modal"
+      contentClassName="gf-suggested-dashboards-modal-content"
     >
       {activeView === 'list' && (
         <div {...stylex.props(styles.listContent)}>
@@ -149,25 +148,6 @@ export const SuggestedDashboardsModal = ({
       )}
     </Modal>
   );
-};
-
-// stylex: pending Modal migration. Modal's own Emotion size, layout and content padding would beat StyleX.
-const modalOverrides = {
-  modal: css({
-    width: '90%',
-    maxWidth: '1200px',
-    maxHeight: '80vh',
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  modalContent: css({
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    padding: spacing['--gf-spacing-x2'],
-    marginBottom: 0,
-    height: '100%',
-  }),
 };
 
 const styles = stylex.create({

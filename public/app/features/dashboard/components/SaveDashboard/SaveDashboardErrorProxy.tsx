@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration (see modalStyles)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
@@ -12,6 +10,7 @@ import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardModel } from '../../state/DashboardModel';
 
 import { SaveDashboardAsButton } from './SaveDashboardButton';
+import './SaveDashboardErrorProxy.css';
 import { type SaveDashboardModalProps } from './types';
 import { useDashboardSave } from './useDashboardSave';
 
@@ -123,7 +122,7 @@ const ConfirmPluginDashboardSaveModal = ({ onDismiss, dashboard }: SaveDashboard
 
   return (
     <Modal
-      className={modalStyles}
+      className="gf-plugin-dashboard-save-modal"
       title={t('dashboard.confirm-plugin-dashboard-save-modal.title-plugin-dashboard', 'Plugin dashboard')}
       isOpen={true}
       onDismiss={onDismiss}
@@ -167,11 +166,6 @@ export const proxyHandlesError = (errorStatus: string) => {
       return false;
   }
 };
-
-// stylex: pending Modal migration. Modal's own Emotion width would beat a StyleX override.
-const modalStyles = css({
-  width: '500px',
-});
 
 const styles = stylex.create({
   modalText: {

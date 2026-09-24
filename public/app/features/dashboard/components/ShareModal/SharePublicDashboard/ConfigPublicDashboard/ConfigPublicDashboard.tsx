@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Field and Label migration (see fieldSpace, pauseLabel)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useForm } from 'react-hook-form';
 
@@ -40,6 +38,7 @@ import { Configuration } from './Configuration';
 import { EmailSharingConfiguration } from './EmailSharingConfiguration';
 import { SettingsBar } from './SettingsBar';
 import { SettingsSummary } from './SettingsSummary';
+import './ConfigPublicDashboard.css';
 
 const selectors = e2eSelectors.pages.ShareDashboardModal.PublicDashboard;
 
@@ -135,7 +134,10 @@ export function ConfigPublicDashboardBase({
 
       {isEmailSharingEnabled() && <EmailSharingConfiguration dashboard={dashboard} />}
 
-      <Field label={t('public-dashboard.config.dashboard-url-field-label', 'Dashboard URL')} className={fieldSpace}>
+      <Field
+        label={t('public-dashboard.config.dashboard-url-field-label', 'Dashboard URL')}
+        className="gf-config-public-dashboard-field"
+      >
         <Input
           value={generatePublicDashboardUrl(publicDashboard!.accessToken!)}
           readOnly
@@ -155,7 +157,7 @@ export function ConfigPublicDashboardBase({
         />
       </Field>
 
-      <Field className={fieldSpace}>
+      <Field className="gf-config-public-dashboard-field">
         <Stack>
           <Switch
             {...register('isPaused')}
@@ -168,13 +170,13 @@ export function ConfigPublicDashboardBase({
             }}
             data-testid={selectors.PauseSwitch}
           />
-          <Label className={pauseLabel}>
+          <Label className="gf-config-public-dashboard-pause-label">
             <Trans i18nKey="public-dashboard.config.pause-sharing-dashboard-label">Pause sharing dashboard</Trans>
           </Label>
         </Stack>
       </Field>
 
-      <Field className={fieldSpace}>
+      <Field className="gf-config-public-dashboard-field">
         <SettingsBar
           title={t('public-dashboard.config.settings-title', 'Settings')}
           headerElement={({ className, xstyle }) => (
@@ -265,17 +267,6 @@ export function ConfigPublicDashboard({ publicDashboard, unsupportedDatasources 
     </ModalsController>
   );
 }
-
-// stylex: pending Field migration. Field's own Emotion marginBottom would beat a StyleX override.
-const fieldSpace = css({
-  width: '100%',
-  marginBottom: 0,
-});
-
-// stylex: pending Label migration. Label's own Emotion marginBottom would beat a StyleX override.
-const pauseLabel = css({
-  marginBottom: 0,
-});
 
 const styles = stylex.create({
   configContainer: {

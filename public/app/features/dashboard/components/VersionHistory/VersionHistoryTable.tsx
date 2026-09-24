@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Checkbox migration (see checkboxInline)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
@@ -9,6 +7,7 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type DecoratedRevisionModel } from 'app/features/dashboard/types/revisionModels';
 
 import { RevertDashboardModal } from './RevertDashboardModal';
+import './VersionHistoryTable.css';
 
 type VersionsTableProps = {
   versions: DecoratedRevisionModel[];
@@ -48,7 +47,7 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
                     'Toggle selection of version {{version}}',
                     { version: version.version }
                   )}
-                  className={checkboxInline}
+                  className="gf-version-history-checkbox"
                   checked={version.checked}
                   onChange={(ev) => onCheck(ev, version.id)}
                   disabled={!version.checked && canCompare}
@@ -89,11 +88,6 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
     </div>
   );
 };
-
-// stylex: pending Checkbox migration. Checkbox's own Emotion display would beat a StyleX override.
-const checkboxInline = css({
-  display: 'inline',
-});
 
 const styles = stylex.create({
   margin: {

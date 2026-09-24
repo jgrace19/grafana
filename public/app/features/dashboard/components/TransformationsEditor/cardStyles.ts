@@ -1,24 +1,14 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Card migration (see cardOverrides)
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 
-import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
-// stylex: pending Card migration. Card's own Emotion width, margin and background would beat a StyleX override.
-export const cardOverrides = {
-  baseCard: css({
-    maxWidth: '200px',
-    width: 'auto',
-    marginBottom: 0,
-  }),
-  baseCardFullWidth: css({
-    maxWidth: 'none',
-    width: '100%',
-    marginBottom: 0,
-  }),
-  cardDisabled: css({
-    backgroundColor: colors['--gf-colors-action-disabled-background'],
-  }),
+import './TransformationCard.css';
+
+/** Classes for the Card itself, whose own Emotion styles a StyleX override can't beat (see TransformationCard.css). */
+export const cardClassNames = {
+  baseCard: 'gf-transformation-card',
+  baseCardFullWidth: 'gf-transformation-card gf-transformation-card--full-width',
+  cardDisabled: 'gf-transformation-card--disabled',
 };
 
 export const cardStyles = stylex.create({

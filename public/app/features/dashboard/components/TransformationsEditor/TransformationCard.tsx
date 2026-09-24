@@ -1,6 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
 import cx from 'classnames';
-import { type CSSProperties } from 'react';
 
 import {
   type DataFrame,
@@ -10,10 +9,9 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Badge, Card, IconButton, Stack, Text, useTheme2 } from '@grafana/ui';
-import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
-import { cardOverrides, cardStyles } from './cardStyles';
+import { cardClassNames, cardStyles } from './cardStyles';
 
 export interface TransformationCardProps {
   data?: DataFrame[];
@@ -53,8 +51,8 @@ export function TransformationCard({
   }
 
   const cardClasses = cx(
-    fullWidth ? cardOverrides.baseCardFullWidth : cardOverrides.baseCard,
-    !isApplicable && cardOverrides.cardDisabled
+    fullWidth ? cardClassNames.baseCardFullWidth : cardClassNames.baseCard,
+    !isApplicable && cardClassNames.cardDisabled
   );
   const imageUrl = theme.isDark ? transform.imageDark : transform.imageLight;
   const description = standardTransformersRegistry.getIfExists(transform.id)?.description;
@@ -89,17 +87,13 @@ export function TransformationCard({
           />
         )}
         {!isApplicable && applicabilityDescription !== null && (
-          <IconButton style={applicableInfoButtonStyle} name="info-circle" tooltip={applicabilityDescription} />
+          <IconButton
+            className="gf-transformation-card-info-button"
+            name="info-circle"
+            tooltip={applicabilityDescription}
+          />
         )}
       </Card.Description>
     </Card>
   );
 }
-
-// IconButton has no xstyle, and a StyleX class string would race its own position (conventions §3.9), so the
-// override goes through its merged inline style.
-const applicableInfoButtonStyle: CSSProperties = {
-  position: 'absolute',
-  bottom: spacing['--gf-spacing-x1'],
-  right: spacing['--gf-spacing-x1'],
-};
