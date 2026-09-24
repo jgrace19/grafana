@@ -1,33 +1,43 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+
+import './HorizontalGroup.css';
 
 interface HorizontalGroupProps {
   children: React.ReactNode;
   wrap?: boolean;
   className?: string;
+  xstyle?: StyleXStyles;
 }
 
-export const HorizontalGroup = ({ children, wrap, className }: HorizontalGroupProps) => {
-  const theme = useTheme2();
-  const styles = getStyles(theme, wrap);
-
-  return <div className={cx(styles.container, className)}>{children}</div>;
+export const HorizontalGroup = ({ children, wrap, className, xstyle }: HorizontalGroupProps) => {
+  return (
+    <div
+      {...mergeStylexProps(stylex.props(styles.container, wrap && styles.wrap, xstyle), {
+        className: [
+          'gf-plugins-horizontal-group',
+          (className || xstyle) && 'gf-plugins-horizontal-group-override',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      })}
+    >
+      {children}
+    </div>
+  );
 };
 
-const getStyles = (theme: GrafanaTheme2, wrap?: boolean) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'row',
-    flexWrap: wrap ? 'wrap' : 'nowrap',
-    '& > *': {
-      marginBottom: theme.spacing(),
-      marginRight: theme.spacing(),
-    },
-    '& > *:last-child': {
-      marginRight: 0,
-    },
-  }),
+    flexWrap: 'nowrap',
+  },
+  wrap: {
+    flexWrap: 'wrap',
+  },
 });

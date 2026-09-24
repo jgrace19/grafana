@@ -1,0 +1,7 @@
+/* react-highlight-words renders the search hit <mark>; StyleX can't target it. */
+@layer grafana-global {
+  .gf-options-pane-options .search-fragment-highlight {
+    color: var(--gf-colors-warning-text);
+    background: transparent;
+  }
+}

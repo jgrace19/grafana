@@ -1,15 +1,16 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal, ModalsController, useStyles2 } from '@grafana/ui';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type SessionUser } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 
 import { useRevokeAllAccessMutation } from '../../dashboard/api/publicDashboardApi';
 
 const DeleteUserModal = ({ user, hideModal }: { user: SessionUser; hideModal: () => void }) => {
   const [revokeAllAccess] = useRevokeAllAccessMutation();
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
 
   const onRevokeAccessClick = () => {
     revokeAllAccess({ email: user.email });
@@ -18,17 +19,17 @@ const DeleteUserModal = ({ user, hideModal }: { user: SessionUser; hideModal: ()
 
   return (
     <Modal
-      className={styles.modal}
+      className={pendingStyles.modal}
       isOpen
       title={t('public-dashboard-users-access-list.delete-user-modal.revoke-access-title', 'Revoke access')}
       onDismiss={hideModal}
     >
-      <p className={styles.description}>
+      <p {...stylex.props(styles.description)}>
         <Trans i18nKey="public-dashboard-users-access-list.delete-user-modal.revoke-user-access-modal-desc-line1">
           Are you sure you want to revoke access for {{ email: user.email }}?
         </Trans>
       </p>
-      <p className={styles.description}>
+      <p {...stylex.props(styles.description)}>
         <Trans
           i18nKey="public-dashboard-users-access-list.delete-user-shared-dashboards-modal.revoke-user-access-modal-desc-line2"
           shouldUnescape
@@ -71,12 +72,16 @@ export const DeleteUserModalButton = ({ user }: { user: SessionUser }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration
+const getPendingStyles = () => ({
   modal: css({
     width: '500px',
   }),
-  description: css({
-    fontSize: theme.typography.body.fontSize,
+});
+
+const styles = stylex.create({
+  description: {
+    fontSize: typography['--gf-typography-body-font-size'],
     margin: 0,
-  }),
+  },
 });

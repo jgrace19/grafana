@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 
 import { VizTooltipRow } from './VizTooltipRow';
 import { type VizTooltipItem } from './types';
@@ -23,8 +21,6 @@ export const VizTooltipContent = ({
   scrollable = false,
   maxHeight,
 }: VizTooltipContentProps) => {
-  const styles = useStyles2(getStyles);
-
   const scrollableStyle: CSSProperties = scrollable
     ? {
         maxHeight: maxHeight,
@@ -33,7 +29,7 @@ export const VizTooltipContent = ({
     : {};
 
   return (
-    <div className={styles.wrapper} style={scrollableStyle}>
+    <div className={stylex.props(styles.wrapper).className} style={scrollableStyle}>
       {items.map(({ label, value, color, colorIndicator, colorPlacement, isActive, lineStyle, isHiddenFromViz }, i) => (
         <VizTooltipRow
           key={i}
@@ -54,13 +50,15 @@ export const VizTooltipContent = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
+    flex: '1',
     gap: 2,
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(1),
-  }),
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
 });

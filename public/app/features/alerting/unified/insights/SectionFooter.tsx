@@ -1,17 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export function SectionFooter({ children }: React.PropsWithChildren<{}>) {
-  const styles = useStyles2(getStyles);
-
-  return <div className={styles.sectionFooter}>{children && <div>{children}</div>}</div>;
+  return <div {...stylex.props(styles.sectionFooter)}>{children && <div>{children}</div>}</div>;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  sectionFooter: css({
-    marginBottom: theme.spacing(2),
-  }),
+const styles = stylex.create({
+  sectionFooter: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
 });

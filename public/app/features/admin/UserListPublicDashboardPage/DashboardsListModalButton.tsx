@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { Button, LoadingPlaceholder, Modal, ModalsController, useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import {
   generatePublicDashboardConfigUrl,
   generatePublicDashboardUrl,
@@ -13,40 +16,47 @@ import { useGetActiveUserDashboardsQuery } from '../../dashboard/api/publicDashb
 
 const selectors = e2eSelectors.pages.UserListPage.UsersListPublicDashboardsPage.DashboardsListModal;
 export const DashboardsListModal = ({ email, onDismiss }: { email: string; onDismiss: () => void }) => {
-  const styles = useStyles2(getStyles);
-
+  const pendingStyles = useStyles2(getPendingStyles);
   const { data: dashboards, isLoading } = useGetActiveUserDashboardsQuery(email);
 
   return (
     <Modal
-      className={styles.modal}
+      className={pendingStyles.modal}
       isOpen
       title={t('public-dashboard-users-access-list.modal.shared-dashboard-modal-title', 'Shared dashboards')}
       onDismiss={onDismiss}
     >
       {isLoading ? (
-        <div className={styles.loading}>
+        <div {...stylex.props(styles.loading)}>
           <LoadingPlaceholder
             text={t('public-dashboard-users-access-list.dashboard-modal.loading-text', 'Loading...')}
           />
         </div>
       ) : (
         dashboards?.map((dash) => (
-          <div key={dash.dashboardUid} className={styles.listItem} data-testid={selectors.listItem(dash.dashboardUid)}>
-            <p className={styles.dashboardTitle}>{dash.dashboardTitle}</p>
-            <div className={styles.urlsContainer}>
+          <div
+            key={dash.dashboardUid}
+            {...stylex.props(styles.listItem)}
+            data-testid={selectors.listItem(dash.dashboardUid)}
+          >
+            <p {...stylex.props(styles.dashboardTitle)}>{dash.dashboardTitle}</p>
+            <div {...stylex.props(styles.urlsContainer)}>
               <a
                 rel="noreferrer"
                 target="_blank"
-                className={cx('external-link', styles.url)}
+                {...mergeStylexProps(stylex.props(styles.url), {
+                  className: 'external-link',
+                })}
                 href={generatePublicDashboardUrl(dash.publicDashboardAccessToken)}
                 onClick={onDismiss}
               >
                 <Trans i18nKey="public-dashboard-users-access-list.dashboard-modal.external-link">External link</Trans>
               </a>
-              <span className={styles.urlsDivider}>{'•'}</span>
+              <span {...stylex.props(styles.urlsDivider)}>{'•'}</span>
               <a
-                className={cx('external-link', styles.url)}
+                {...mergeStylexProps(stylex.props(styles.url), {
+                  className: 'external-link',
+                })}
                 href={generatePublicDashboardConfigUrl(dash.dashboardUid, dash.slug)}
                 onClick={onDismiss}
               >
@@ -55,7 +65,7 @@ export const DashboardsListModal = ({ email, onDismiss }: { email: string; onDis
                 </Trans>
               </a>
             </div>
-            <hr className={styles.divider} />
+            <hr {...stylex.props(styles.divider)} />
           </div>
         ))
       )}
@@ -84,43 +94,59 @@ export const DashboardsListModalButton = ({ email }: { email: string }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+// stylex: pending Modal migration
+const getPendingStyles = () => ({
   modal: css({
     width: '590px',
   }),
-  loading: css({
+});
+
+const styles = stylex.create({
+  loading: {
     display: 'flex',
     justifyContent: 'center',
-  }),
-  listItem: css({
+  },
+
+  listItem: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(0.5),
-  }),
-  divider: css({
-    margin: theme.spacing(1.5, 0),
-    color: theme.colors.text.secondary,
-  }),
-  urlsContainer: css({
-    display: 'flex',
-    gap: theme.spacing(0.5),
+    gap: spacing['--gf-spacing-x0-5'],
+  },
 
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
+  divider: {
+    marginTop: spacing['--gf-spacing-x1-5'],
+    marginRight: 0,
+    marginBottom: spacing['--gf-spacing-x1-5'],
+    marginLeft: 0,
+    color: colors['--gf-colors-text-secondary'],
+  },
+
+  urlsContainer: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x0-5'],
+
+    flexDirection: {
+      default: null,
+      [bp.smDown]: 'column',
     },
-  }),
-  urlsDivider: css({
-    color: theme.colors.text.secondary,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
+  },
+
+  urlsDivider: {
+    color: colors['--gf-colors-text-secondary'],
+
+    display: {
+      default: null,
+      [bp.smDown]: 'none',
     },
-  }),
-  dashboardTitle: css({
-    fontSize: theme.typography.body.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
+  },
+
+  dashboardTitle: {
+    fontSize: typography['--gf-typography-body-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
     marginBottom: 0,
-  }),
-  url: css({
-    fontSize: theme.typography.body.fontSize,
-  }),
+  },
+
+  url: {
+    fontSize: typography['--gf-typography-body-font-size'],
+  },
 });
