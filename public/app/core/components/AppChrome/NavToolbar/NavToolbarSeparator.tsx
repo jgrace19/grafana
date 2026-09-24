@@ -1,7 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   className?: string;
@@ -9,30 +10,41 @@ export interface Props {
 }
 
 export function NavToolbarSeparator({ className, leftActionsSeparator }: Props) {
-  const styles = useStyles2(getStyles);
-
   if (leftActionsSeparator) {
-    return <div className={cx(className, styles.leftActionsSeparator)} />;
+    return (
+      <div
+        {...mergeStylexProps(stylex.props(styles.leftActionsSeparator), {
+          className,
+        })}
+      />
+    );
   }
 
-  return <div className={cx(className, styles.line)} />;
+  return (
+    <div
+      {...mergeStylexProps(stylex.props(styles.line), {
+        className,
+      })}
+    />
+  );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    leftActionsSeparator: css({
-      display: 'flex',
-      flexGrow: 1,
-    }),
-    line: css({
-      width: 1,
-      backgroundColor: theme.colors.border.medium,
-      height: 24,
-      flexShrink: 0,
-      flexGrow: 0,
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  leftActionsSeparator: {
+    display: 'flex',
+    flexGrow: 1,
+  },
+
+  line: {
+    width: 1,
+    backgroundColor: colors['--gf-colors-border-medium'],
+    height: 24,
+    flexShrink: 0,
+    flexGrow: 0,
+
+    display: {
+      default: null,
+      [bp.smDown]: 'none',
+    },
+  },
+});

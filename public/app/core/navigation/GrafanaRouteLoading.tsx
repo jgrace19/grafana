@@ -1,27 +1,23 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 import { BouncingLoader } from '../components/BouncingLoader/BouncingLoader';
 
 export function GrafanaRouteLoading() {
-  const styles = useStyles2(getStyles);
-
   return (
-    <div className={styles.loadingPage}>
+    <div {...stylex.props(styles.loadingPage)}>
       <BouncingLoader />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadingPage: css({
-    backgroundColor: theme.colors.background.primary,
-    flex: 1,
-    flexDrection: 'column',
+const styles = stylex.create({
+  loadingPage: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    flex: '1',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  }),
+  },
 });

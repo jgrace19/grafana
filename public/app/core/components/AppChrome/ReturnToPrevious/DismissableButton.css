@@ -1,0 +1,11 @@
+/*
+ * Truncates the label span that Button renders. Deliberately not in a cascade layer: like the Emotion rule it
+ * replaces, it must win over Button's own content styles.
+ */
+.gf-dismissable-button > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 270px;
+  display: inline-block;
+}

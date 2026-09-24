@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type RefObject, useMemo, useState } from 'react';
 import { useToggle } from 'react-use';
 
@@ -9,7 +9,6 @@ import {
   type DataSourceApi,
   type DataSourceJsonData,
   type Field,
-  type GrafanaTheme2,
   type LinkModel,
   mapInternalLinkToExplore,
   type SplitOpen,
@@ -21,7 +20,8 @@ import { Trans, t } from '@grafana/i18n';
 import { getTraceToLogsOptions, type TraceToMetricsData, type TraceToProfilesData } from '@grafana/o11y-ds-frontend';
 import { getTemplateSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type TempoQuery } from '@grafana-plugins/tempo/types';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getTimeZone } from 'app/features/profile/state/selectors';
@@ -34,6 +34,7 @@ import { TracePageHeader } from './components/TracePageHeader/TracePageHeader';
 import TraceTimelineViewer from './components/TraceTimelineViewer';
 import { type TraceFlameGraphs } from './components/TraceTimelineViewer/SpanDetail';
 import { type SpanBarOptionsData } from './components/settings/SpanBarSettings';
+import { useTraceColorVars } from './components/traceColorVars';
 import type TTraceTimeline from './components/types/TTraceTimeline';
 import { type SpanLinkFunc } from './components/types/links';
 import { type Trace } from './components/types/trace';
@@ -43,17 +44,6 @@ import { useDetailState } from './useDetailState';
 import { useHoverIndentGuide } from './useHoverIndentGuide';
 import { useSearch } from './useSearch';
 import { useViewRange } from './useViewRange';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  noDataMsg: css({
-    height: '100%',
-    width: '100%',
-    display: 'grid',
-    placeItems: 'center',
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-});
 
 type Props = {
   dataFrames: DataFrame[];
@@ -111,7 +101,7 @@ export function TraceView(props: Props) {
   const [traceFlameGraphs, setTraceFlameGraphs] = useState<TraceFlameGraphs>({});
   const [redrawListView, setRedrawListView] = useState({});
 
-  const styles = useStyles2(getStyles);
+  const traceColorVars = useTraceColorVars();
 
   /**
    * Keeps state of resizable name column width
@@ -183,7 +173,7 @@ export function TraceView(props: Props) {
     : document.getElementsByClassName(props.scrollElementClass ?? '')[0];
 
   return (
-    <>
+    <div {...mergeStylexProps(stylex.props(styles.colorScope), { style: traceColorVars })}>
       {props.dataFrames?.length && traceProp ? (
         <>
           <TracePageHeader
@@ -254,11 +244,11 @@ export function TraceView(props: Props) {
           />
         </>
       ) : (
-        <div className={styles.noDataMsg}>
+        <div {...stylex.props(styles.noDataMsg)}>
           <Trans i18nKey="explore.trace-view.no-data">No data</Trans>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -348,3 +338,18 @@ function useFocusSpanLink(options: {
 
   return [focusedSpanId, createFocusSpanLink];
 }
+
+const styles = stylex.create({
+  // Carries the trace colour vars without adding a box.
+  colorScope: {
+    display: 'contents',
+  },
+  noDataMsg: {
+    height: '100%',
+    width: '100%',
+    display: 'grid',
+    placeItems: 'center',
+    fontSize: typography['--gf-typography-h4-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

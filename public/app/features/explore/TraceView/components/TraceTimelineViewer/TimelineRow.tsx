@@ -12,28 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { useStyles2 } from '@grafana/ui';
-
-const getStyles = () => {
-  return {
-    row: css({
-      display: 'flex',
-      flex: '0 1 auto',
-      flexDirection: 'row',
-    }),
-    rowCell: css({
-      position: 'relative',
-    }),
-  };
-};
+import { mergeStylexProps } from '@grafana/ui/internal';
 
 type TTimelineRowProps = {
   children: React.ReactNode;
   className?: string;
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 };
 
 interface TimelineRowCellProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -41,26 +29,50 @@ interface TimelineRowCellProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   width: number;
   style?: {};
+  /** @internal first-party StyleX overrides */
+  xstyle?: stylex.StyleXStyles;
 }
 
-export default function TimelineRow({ children, className = '', ...rest }: TTimelineRowProps) {
-  const styles = useStyles2(getStyles);
+export default function TimelineRow({ children, className = '', xstyle, ...rest }: TTimelineRowProps) {
   return (
-    <div className={cx(styles.row, className)} {...rest}>
+    <div {...mergeStylexProps(stylex.props(styles.row, xstyle), { className })} {...rest}>
       {children}
     </div>
   );
 }
 
-export function TimelineRowCell({ children, className = '', width, style = {}, ...rest }: TimelineRowCellProps) {
+export function TimelineRowCell({
+  children,
+  className = '',
+  width,
+  style = {},
+  xstyle,
+  ...rest
+}: TimelineRowCellProps) {
   const widthPercent = `${width * 100}%`;
   const mergedStyle = { ...style, flexBasis: widthPercent, maxWidth: widthPercent };
-  const styles = useStyles2(getStyles);
   return (
-    <div className={cx(styles.rowCell, className)} style={mergedStyle} data-testid="TimelineRowCell" {...rest}>
+    <div
+      {...mergeStylexProps(stylex.props(styles.rowCell, xstyle), { className, style: mergedStyle })}
+      data-testid="TimelineRowCell"
+      {...rest}
+    >
       {children}
     </div>
   );
 }
 
 TimelineRow.Cell = TimelineRowCell;
+
+const styles = stylex.create({
+  row: {
+    display: 'flex',
+    flexGrow: 0,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    flexDirection: 'row',
+  },
+  rowCell: {
+    position: 'relative',
+  },
+});

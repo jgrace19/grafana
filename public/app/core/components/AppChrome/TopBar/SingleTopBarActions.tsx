@@ -1,9 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Components } from '@grafana/e2e-selectors';
 import { type ScopesContextValue } from '@grafana/runtime';
-import { Stack, useStyles2 } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { ScopesSelector } from 'app/features/scopes/selector/ScopesSelector';
 
 import { useExtensionSidebarContext } from '../ExtensionSidebar/ExtensionSidebarProvider';
@@ -19,12 +19,15 @@ export interface Props {
 
 export function SingleTopBarActions({ actions, breadcrumbActions, scopes }: Props) {
   const { isOpen: isExtensionSidebarOpen, extensionSidebarWidth } = useExtensionSidebarContext();
-  const styles = useStyles2(getStyles, extensionSidebarWidth);
 
   return (
     <div
       data-testid={Components.NavToolbar.container}
-      className={cx(styles.actionsBar, isExtensionSidebarOpen && styles.constrained)}
+      {...stylex.props(
+        styles.actionsBar,
+        styles.height(getChromeHeaderLevelHeight()),
+        isExtensionSidebarOpen && styles.constrained(`calc(100% - ${extensionSidebarWidth}px)`)
+      )}
     >
       <Stack alignItems="center" justifyContent="flex-start" flex={1} wrap="nowrap" minWidth={0}>
         {scopes?.state.enabled ? <ScopesSelector /> : undefined}
@@ -38,18 +41,19 @@ export function SingleTopBarActions({ actions, breadcrumbActions, scopes }: Prop
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, extensionSidebarWidth = 0) => {
-  return {
-    actionsBar: css({
-      alignItems: 'center',
-      backgroundColor: theme.colors.background.primary,
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      height: getChromeHeaderLevelHeight(),
-      padding: theme.spacing(0, 1, 0, 2),
-    }),
-    constrained: css({
-      maxWidth: `calc(100% - ${extensionSidebarWidth}px)`,
-    }),
-  };
-};
+const styles = stylex.create({
+  actionsBar: {
+    alignItems: 'center',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  height: (height: number) => ({ height }),
+  constrained: (maxWidth: string) => ({ maxWidth }),
+});

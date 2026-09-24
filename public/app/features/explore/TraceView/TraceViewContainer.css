@@ -1,0 +1,8 @@
+/*
+ * PanelChrome sets overflow on its section, which creates a scrolling ancestor and stops the trace header from
+ * sticking. PanelChrome is another component, so this stays a plain unlayered rule at the Emotion rule's
+ * specificity (0,1,1), which beats PanelChrome's own class.
+ */
+.gf-trace-view-container > section {
+  overflow: initial;
+}

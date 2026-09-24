@@ -1,11 +1,13 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useState } from 'react';
 import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { isFetchError } from '@grafana/runtime';
-import { Field, IconButton, Input, useStyles2, Text } from '@grafana/ui';
+import { Field, IconButton, Input, Text, useStyles2 } from '@grafana/ui';
+import { components, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   value: string;
@@ -13,11 +15,11 @@ export interface Props {
 }
 
 export const EditableTitle = ({ value, onEdit }: Props) => {
-  const styles = useStyles2(getStyles);
   const [localValue, setLocalValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
+  const fieldStyles = useStyles2(getFieldStyles);
 
   // sync local value with prop value
   useEffect(() => {
@@ -55,8 +57,8 @@ export const EditableTitle = ({ value, onEdit }: Props) => {
   );
 
   return !isEditing ? (
-    <div className={styles.textContainer}>
-      <div className={styles.textWrapper}>
+    <div {...stylex.props(styles.textContainer)}>
+      <div {...stylex.props(styles.textWrapper)}>
         {/*
           use localValue instead of value
           this is to prevent the title from flickering back to the old value after the user has edited
@@ -74,10 +76,10 @@ export const EditableTitle = ({ value, onEdit }: Props) => {
       </div>
     </div>
   ) : (
-    <div className={styles.inputContainer}>
-      <Field className={styles.field} loading={isLoading} invalid={!!errorMessage} error={errorMessage}>
+    <div {...stylex.props(styles.inputContainer)}>
+      <Field className={fieldStyles.field} loading={isLoading} invalid={!!errorMessage} error={errorMessage}>
         <Input
-          className={styles.input}
+          className={fieldStyles.input}
           defaultValue={localValue}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -98,13 +100,27 @@ export const EditableTitle = ({ value, onEdit }: Props) => {
 
 EditableTitle.displayName = 'EditableTitle';
 
-const getStyles = (theme: GrafanaTheme2) => {
+const styles = stylex.create({
+  textContainer: {
+    minWidth: 0,
+  },
+  inputContainer: {
+    display: 'flex',
+    flex: '1',
+  },
+  textWrapper: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    height: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+  },
+});
+
+// stylex: pending Field and Input migration (U2). These override Field's and Input's own Emotion styles.
+const getFieldStyles = (theme: GrafanaTheme2) => {
   return {
-    textContainer: css({
-      minWidth: 0,
-    }),
     field: css({
-      flex: 1,
+      flex: '1',
       // magic number here to ensure the input text lines up exactly with the h1 text
       // input has a 1px border + theme.spacing(1) padding so we need to offset that
       left: `calc(-${theme.spacing(1)} - 1px)`,
@@ -115,16 +131,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       input: {
         ...theme.typography.h1,
       },
-    }),
-    inputContainer: css({
-      display: 'flex',
-      flex: 1,
-    }),
-    textWrapper: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(1),
-      height: theme.spacing(theme.components.height.md),
     }),
   };
 };
