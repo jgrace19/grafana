@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 
-import { type DataSourceApi, FeatureState, type GrafanaTheme2, type QueryEditorProps } from '@grafana/data';
+import { type DataSourceApi, FeatureState, type QueryEditorProps } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, FeatureBadge, IconButton, InlineField, type PopoverContent, useStyles2 } from '@grafana/ui';
+import { Button, FeatureBadge, IconButton, InlineField, type PopoverContent } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ClassicConditions } from './components/ClassicConditions';
 import { ExpressionTypeDropdown } from './components/ExpressionTypeDropdown';
@@ -98,8 +99,6 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
   const { query, queries, onRunQuery, onChange, app } = props;
   const { getCachedExpression, setCachedExpression } = useExpressionsCache();
 
-  const styles = useStyles2(getStyles);
-
   useEffect(() => {
     setCachedExpression(query.type, query.expression);
   }, [query.expression, query.type, setCachedExpression]);
@@ -153,7 +152,7 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
 
   return (
     <div>
-      <div className={styles.operationRow}>
+      <div {...stylex.props(styles.operationRow)}>
         <InlineField
           label={t('expressions.expression-query-editor.label-operation', 'Operation')}
           labelWidth={labelWidth}
@@ -164,7 +163,7 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
             </Button>
           </ExpressionTypeDropdown>
         </InlineField>
-        <div className={styles.fieldContainer}>
+        <div {...stylex.props(styles.fieldContainer)}>
           {featureState && <FeatureBadge featureState={featureState} />}
           {helperText && <IconButton name="info-circle" tooltip={helperText} />}
         </div>
@@ -174,16 +173,17 @@ export function ExpressionQueryEditor(props: ExpressionQueryEditorProps) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  operationRow: css({
+const styles = stylex.create({
+  operationRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-  }),
-  fieldContainer: css({
+    gap: spacing['--gf-spacing-x1'],
+  },
+
+  fieldContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(0.5), // Align with the select field
-  }),
+    gap: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
 });

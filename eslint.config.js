@@ -200,6 +200,13 @@ const stylexMigratedAppFiles = [
   // D3 dashboard (part 2)
   'public/app/features/dashboard/components/{PublicDashboard,PublicDashboardNotAvailable,SaveDashboard,ShareModal,SubMenu,TransformationsEditor,VersionHistory}/**/*.{ts,tsx}',
   'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
+  'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
+];
+
+// Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
+const stylexNotMigratedAppFiles = [
+  // Composes Input's Emotion getInputStyles; migrate once Input (U2) is StyleX.
+  'public/app/features/scopes/selector/ScopesInput.tsx',
 ];
 
 const stylexRestrictedImports = {
@@ -825,6 +832,7 @@ module.exports = [
     // Must come after grafana/no-extensions-imports, whose restriction it repeats.
     name: 'grafana/stylex-migrated-app',
     files: stylexMigratedAppFiles,
+    ignores: stylexNotMigratedAppFiles,
     rules: {
       'no-restricted-imports': [
         'error',

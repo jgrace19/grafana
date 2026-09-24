@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { type DataFrame, type EnumFieldConfig, type GrafanaTheme2 } from '@grafana/data';
+import { type DataFrame, type EnumFieldConfig } from '@grafana/data';
 import { type ConvertFieldTypeTransformerOptions } from '@grafana/data/internal';
 import { Trans } from '@grafana/i18n';
-import { Button, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import EnumMappingRow from './EnumMappingRow';
 
@@ -18,8 +19,6 @@ type EnumMappingEditorProps = {
 };
 
 export const EnumMappingEditor = ({ input, options, transformIndex, onChange }: EnumMappingEditorProps) => {
-  const styles = useStyles2(getStyles);
-
   const [enumRows, updateEnumRows] = useState<string[]>(options.conversions[transformIndex].enumConfig?.text ?? []);
 
   // Generate enum values from scratch when none exist in save model
@@ -121,17 +120,22 @@ export const EnumMappingEditor = ({ input, options, transformIndex, onChange }: 
   return (
     <Stack direction="column" rowGap={0.5}>
       <Stack>
-        <Button size="sm" icon="plus" onClick={() => generateEnumValues()} className={styles.button}>
+        <Button
+          size="sm"
+          icon="plus"
+          onClick={() => generateEnumValues()}
+          className={stylex.props(styles.button).className}
+        >
           <Trans i18nKey="transformers.enum-mapping-editor.generate-enum-values-from-data">
             Generate enum values from data
           </Trans>
         </Button>
-        <Button size="sm" icon="plus" onClick={() => onAddEnumRow()} className={styles.button}>
+        <Button size="sm" icon="plus" onClick={() => onAddEnumRow()} className={stylex.props(styles.button).className}>
           <Trans i18nKey="transformers.enum-mapping-editor.add-enum-value">Add enum value</Trans>
         </Button>
       </Stack>
       <Stack>
-        <table className={styles.compactTable}>
+        <table {...stylex.props(styles.compactTable)}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="sortable-enum-config-mappings" direction="vertical">
               {(provided) => (
@@ -163,15 +167,12 @@ export const EnumMappingEditor = ({ input, options, transformIndex, onChange }: 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  compactTable: css({
-    'tbody td': {
-      padding: theme.spacing(0.5),
-    },
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-  }),
-  button: css({
-    marginTop: theme.spacing(1),
-  }),
+const styles = stylex.create({
+  compactTable: {
+    marginTop: spacing['--gf-spacing-x1'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  button: {
+    marginTop: spacing['--gf-spacing-x1'],
+  },
 });
