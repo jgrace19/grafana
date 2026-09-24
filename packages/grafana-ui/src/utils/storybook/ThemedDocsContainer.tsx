@@ -6,6 +6,7 @@ import { getThemeById, ThemeContext } from '@grafana/data';
 
 import { createStorybookTheme } from '../../../.storybook/storybookTheme';
 import { GlobalStyles } from '../../themes/GlobalStyles/GlobalStyles';
+import { useThemeCssVariables } from '../../themes/stylex/useThemeCssVariables';
 
 type Props = {
   context: DocsContextProps;
@@ -22,6 +23,7 @@ export const ThemedDocsContainer = ({ children, context }: Props) => {
     themeId = globals.theme;
   }
   const theme = getThemeById(themeId);
+  useThemeCssVariables(theme);
 
   return (
     <DocsContainer theme={createStorybookTheme(theme)} context={context}>
