@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import classNames from 'classnames';
 import { type ReactElement } from 'react';
 
@@ -7,7 +7,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type SceneVariable, type SceneVariableState } from '@grafana/scenes';
-import { useStyles2, Stack, Button, EmptyState, TextLink } from '@grafana/ui';
+import { Stack, Button, EmptyState, TextLink } from '@grafana/ui';
 
 import { DashboardInteractions } from '../../utils/interactions';
 import { VariablesDependenciesButton } from '../../variables/VariablesDependenciesButton';
@@ -37,8 +37,6 @@ export function VariableEditorList({
   onAdd,
   onEdit,
 }: Props): ReactElement {
-  const styles = useStyles2(getStyles);
-
   const editableVariables = variables.filter(isVariableEditable);
   const editableToOriginalIndex = editableVariables.map((v) => variables.indexOf(v));
 
@@ -61,7 +59,7 @@ export function VariableEditorList({
   ) : (
     <Stack direction="column" gap={3}>
       <table
-        className={classNames('filter-table', 'filter-table--hover', styles.tableContainer)}
+        className={classNames('filter-table', 'filter-table--hover', stylex.props(styles.tableContainer).className)}
         data-testid={selectors.pages.Dashboard.Settings.Variables.List.table}
         role="grid"
       >
@@ -152,8 +150,8 @@ function EmptyVariablesList({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-const getStyles = () => ({
-  tableContainer: css({
+const styles = stylex.create({
+  tableContainer: {
     overflow: 'auto',
-  }),
+  },
 });

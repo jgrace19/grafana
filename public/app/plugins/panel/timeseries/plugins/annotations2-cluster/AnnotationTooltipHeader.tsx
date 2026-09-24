@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { IconButton, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, shadows, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { AnnotationAlertState } from './AnnotationAlertState';
 import { AnnotationAvatar } from './AnnotationAvatar';
+import './AnnotationTooltipHeader.css';
 import { AnnotationTooltipHeaderCloseIcon } from './AnnotationTooltipHeaderCloseIcon';
 
 export function AnnotationTooltipHeader({
@@ -39,7 +40,6 @@ export function AnnotationTooltipHeader({
   onRemove?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   isCluster?: boolean;
 }) {
-  const styles = useStyles2(memoize(getStyles));
   const focusRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (isPinned) {
@@ -48,21 +48,21 @@ export function AnnotationTooltipHeader({
   }, [isPinned]);
 
   return (
-    <div className={isCluster ? styles.clusterWrapper : styles.wrapper}>
-      <div className={styles.header}>
+    <div {...stylex.props(isCluster ? styles.clusterWrapper : styles.wrapper)}>
+      <div {...stylex.props(styles.header)}>
         <Stack gap={2} basis="100%" justifyContent="space-between" alignItems="center">
-          <div className={styles.meta}>
-            {clusterIndex && <span className={styles.clusterIndex}>{clusterIndex}</span>}
+          <div {...stylex.props(styles.meta)}>
+            {clusterIndex && <span {...stylex.props(styles.clusterIndex)}>{clusterIndex}</span>}
             <span>
               <AnnotationAvatar src={avatarImg} />
               <AnnotationAlertState alertState={alertState} />
             </span>
             <Stack width="100%" basis="100%" justifyContent="space-between" alignItems="center">
-              <span className={styles.timeRange}>{timeRange}</span>
-              {clusterLength && <span className={styles.clusterCount}>{clusterLength}</span>}
+              <span {...stylex.props(styles.timeRange)}>{timeRange}</span>
+              {clusterLength && <span {...stylex.props(styles.clusterCount)}>{clusterLength}</span>}
             </Stack>
           </div>
-          <div className={styles.controls}>
+          <div {...mergeStylexProps(stylex.props(styles.controls), { className: 'gf-annotation-tooltip-controls' })}>
             {(canEdit || canDelete || isPinned) && (
               <>
                 {canEdit && (
@@ -96,62 +96,68 @@ export function AnnotationTooltipHeader({
       </div>
       {text && (
         <Stack gap={2} basis="100%" alignItems="center">
-          <span className={styles.subHeader}>{text}</span>
+          <span {...stylex.props(styles.subHeader)}>{text}</span>
         </Stack>
       )}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  subHeader: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0, 1),
-  }),
-  clusterIndex: css({
-    fontWeight: theme.typography.fontWeightBold,
-    marginRight: theme.spacing(1),
-  }),
-  clusterCount: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  timeRange: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-  }),
-  clusterWrapper: css({
-    background: theme.colors.background.elevated,
+const styles = stylex.create({
+  wrapper: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  subHeader: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    paddingTop: spacing['--gf-spacing-x0'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  clusterIndex: {
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  clusterCount: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  timeRange: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+  },
+  clusterWrapper: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
     position: 'sticky',
     top: 0,
     left: 0,
     zIndex: 1,
-    boxShadow: theme.shadows.z1,
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  header: css({
-    label: 'annotation-header',
-    padding: theme.spacing(0.5, 1),
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: theme.typography.fontSize,
-    color: theme.colors.text.primary,
+    boxShadow: shadows['--gf-shadows-z1'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  header: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+    fontSize: typography['--gf-typography-font-size'],
+    color: colors['--gf-colors-text-primary'],
     display: 'flex',
-  }),
-  meta: css({
+  },
+  meta: {
     width: '100%',
     display: 'flex',
     whiteSpace: 'nowrap',
-    color: theme.colors.text.primary,
+    color: colors['--gf-colors-text-primary'],
     fontWeight: 400,
-  }),
-  controls: css({
+  },
+  controls: {
     // space for all three icons
     minWidth: '54px',
     justifyContent: 'flex-end',
     display: 'flex',
-    '> :last-child': {
-      marginLeft: 0,
-    },
-  }),
+  },
 });

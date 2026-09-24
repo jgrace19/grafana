@@ -1,12 +1,14 @@
-import { css } from '@emotion/css';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useMemo } from 'react';
 
-import { type GrafanaTheme2, VariableHide } from '@grafana/data';
+import { VariableHide } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { type SceneObject, type SceneVariable, type SceneVariableSet } from '@grafana/scenes';
-import { Box, Button, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
+import { Box, Button, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
@@ -23,6 +25,7 @@ import { getDashboardSceneFor } from '../../utils/utils';
 import { filterSectionRepeatLocalVariables } from '../../variables/utils';
 
 import { openAddVariablePane } from './VariableTypeSelectionPane';
+import { variableItemMarker } from './markers.stylex';
 import { isEditableVariableType } from './utils';
 
 function useEditPaneOptions(this: VariableSetEditableElement, set: SceneVariableSet): OptionsPaneCategoryDescriptor[] {
@@ -79,7 +82,6 @@ export class VariableSetEditableElement implements EditableDashboardElement {
 }
 
 export function VariableList({ set }: { set: SceneVariableSet }) {
-  const styles = useStyles2(getStyles);
   const { variables } = set.useState();
 
   const canAdd = set.parent instanceof DashboardScene;
@@ -182,28 +184,33 @@ export function VariableList({ set }: { set: SceneVariableSet }) {
                 // TODO fix keyboard a11y here
                 // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
                 <div
-                  className={styles.variableItem}
+                  {...stylex.props(styles.variableItem, variableItemMarker)}
                   key={variable.state.name}
                   onClick={() => onEditVariable(variable)}
                   ref={draggableProvided.innerRef}
                   {...draggableProvided.draggableProps}
                 >
-                  <div className={styles.variableContent}>
+                  <div {...stylex.props(styles.variableContent)}>
                     <div {...draggableProvided.dragHandleProps} onPointerDown={onPointerDown}>
                       <Tooltip content={t('dashboard.edit-pane.variables.reorder', 'Drag to reorder')} placement="top">
-                        <Icon name="draggabledots" size="md" className={styles.dragHandle} />
+                        <Icon name="draggabledots" size="md" xstyle={styles.dragHandle} />
                       </Tooltip>
                     </div>
                     <Text>${variable.state.name}</Text>
                     {variable.state.hide === VariableHide.hideVariable && (
-                      <Icon name="eye-slash" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="eye-slash" size="sm" xstyle={styles.hiddenIcon} />
                     )}
                     {variable.state.hide === VariableHide.inControlsMenu && (
-                      <Icon name="sliders-v-alt" size="sm" className={styles.hiddenIcon} />
+                      <Icon name="sliders-v-alt" size="sm" xstyle={styles.hiddenIcon} />
                     )}
                   </div>
                   <Stack direction="row" gap={1} alignItems="center">
-                    <Button variant="primary" size="sm" fill="outline">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      fill="outline"
+                      className={stylex.props(styles.selectButton).className}
+                    >
                       <Trans i18nKey="dashboard.edit-pane.variables.select-variable">Select</Trans>
                     </Button>
                   </Stack>
@@ -246,48 +253,38 @@ export function VariableList({ set }: { set: SceneVariableSet }) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    variableItem: css({
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.5),
-      borderRadius: theme.shape.radius.default,
-      cursor: 'pointer',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: theme.transitions.create(['color'], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-      button: {
-        visibility: 'hidden',
-      },
-      '&:hover': {
-        color: theme.colors.text.link,
-        button: {
-          visibility: 'visible',
-        },
-      },
-    }),
-    variableContent: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-    }),
-    dragHandle: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'grab',
-      color: theme.colors.text.secondary,
-      '&:active': {
-        cursor: 'grabbing',
-      },
-    }),
-    hiddenIcon: css({
-      color: theme.colors.text.secondary,
-      marginLeft: theme.spacing(1),
-    }),
-  };
-}
+const styles = stylex.create({
+  variableItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x1'],
+    padding: spacing['--gf-spacing-x0-5'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    cursor: 'pointer',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'color' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '250ms' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easings.easeInOut },
+    transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+  },
+  // Button doesn't set visibility itself, so a StyleX class can't conflict with it.
+  selectButton: {
+    visibility: { default: 'hidden', [stylex.when.ancestor(':hover', variableItemMarker)]: 'visible' },
+  },
+  variableContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  dragHandle: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: { default: 'grab', ':active': 'grabbing' },
+    color: colors['--gf-colors-text-secondary'],
+  },
+  hiddenIcon: {
+    color: colors['--gf-colors-text-secondary'],
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+});

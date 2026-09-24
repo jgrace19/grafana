@@ -133,6 +133,7 @@ const stylexMigratedAppFiles = [
   'public/app/core/navigation/*.{ts,tsx}',
   // P1 core-bundled panels
   'public/app/plugins/panel/{alertlist,annolist,dashlist,gauge,gettingstarted,heatmap,live,logs,logstable,news,piechart,state-timeline,status-history,table,text,traces,welcome,xychart}/**/*.{ts,tsx}',
+  'public/app/plugins/panel/{nodeGraph,timeseries}/**/*.{ts,tsx}',
   // D3 dashboard
   'public/app/features/dashboard/components/{AddLibraryPanelWidget,AnnotationSettings,DashboardLoading,DashboardRow,DashboardSettings,DashNav,DeleteDashboard,GenAI,HelpWizard,PanelEditor,RowOptions}/**/*.{ts,tsx}',
   // D2 dashboard-scene (panel-edit/ and edit-pane/ belong to D1)
@@ -166,6 +167,14 @@ const stylexMigratedAppFiles = [
   'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
   'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
   'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable,columns}.tsx',
+  // D2 dashboard-scene settings
+  'public/app/features/dashboard-scene/settings/**/*.{ts,tsx}',
+  // C1 core: forms, login, folder picker, preferences, theme selector
+  'public/app/core/components/{AccessControl,ForgottenPassword,Form,RolePickerDrawer,SharedPreferences,Theme,ThemeSelector}/*.{ts,tsx}',
+  'public/app/core/components/Branding/{Branding,OrangeBadge}.tsx',
+  'public/app/core/components/Login/{LoginForm,LoginPage,UserSignup}.tsx',
+  'public/app/core/components/NestedFolderPicker/NestedFolderList.tsx',
+  'public/app/core/components/Upgrade/ProBadge.tsx',
 ];
 
 const stylexRestrictedImports = {

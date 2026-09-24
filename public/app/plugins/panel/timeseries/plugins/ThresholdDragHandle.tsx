@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { noop } from 'lodash';
 import { useMemo, useState } from 'react';
 import Draggable, { type DraggableBounds } from 'react-draggable';
 
-import { type Threshold, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { type Threshold } from '@grafana/data';
+import { useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { shape, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 type OutOfBounds = 'top' | 'bottom' | 'none';
 
@@ -48,7 +50,7 @@ export const ThresholdDragHandle = ({
   }
 
   const disabled = typeof onChange !== 'function';
-  const styles = useStyles2(getStyles, step, outOfBounds, disabled);
+  const mainColor = theme.visualization.getColorByName(step.color);
   const [currentValue, setCurrentValue] = useState(step.value);
 
   const textColor = useMemo(() => {
@@ -73,8 +75,19 @@ export const ThresholdDragHandle = ({
       position={{ x: 0, y: yPos }}
       bounds={dragBounds}
     >
-      <div className={styles.handle} style={{ color: textColor }}>
-        <span className={styles.handleText}>{formatValue(currentValue)}</span>
+      <div
+        {...mergeStylexProps(
+          stylex.props(
+            styles.handle,
+            styles.color(mainColor),
+            !disabled && styles.draggable,
+            arrowStyles[outOfBounds],
+            outOfBounds !== 'none' && styles.outOfBounds
+          ),
+          { style: { color: textColor } }
+        )}
+      >
+        <span {...stylex.props(styles.handleText)}>{formatValue(currentValue)}</span>
       </div>
     </Draggable>
   );
@@ -82,90 +95,106 @@ export const ThresholdDragHandle = ({
 
 ThresholdDragHandle.displayName = 'ThresholdDragHandle';
 
-const getStyles = (theme: GrafanaTheme2, step: Threshold, outOfBounds: OutOfBounds, disabled?: boolean) => {
-  const mainColor = theme.visualization.getColorByName(step.color);
-  const arrowStyles = getArrowStyles(outOfBounds);
-  const isOutOfBounds = outOfBounds !== 'none';
+const styles = stylex.create({
+  handle: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    width: 'calc(100% - 9px)',
+    height: '18px',
+    marginTop: '-9px',
+    cursor: 'initial',
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  color: (mainColor: string) => ({
+    borderColor: mainColor,
+    backgroundColor: mainColor,
+  }),
+  draggable: {
+    cursor: 'grab',
+  },
+  outOfBounds: {
+    marginTop: 0,
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+  },
+  handleText: {
+    textAlign: 'center',
+    width: '100%',
+    display: 'block',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+  },
+});
 
-  return {
-    handle: css(
-      {
-        display: 'flex',
-        alignItems: 'center',
-        position: 'absolute',
-        left: 0,
-        width: 'calc(100% - 9px)',
-        height: '18px',
-        marginTop: '-9px',
-        borderColor: mainColor,
-        cursor: disabled ? 'initial' : 'grab',
-        borderTopRightRadius: theme.shape.radius.default,
-        borderBottomRightRadius: theme.shape.radius.default,
-        background: mainColor,
-        fontSize: theme.typography.bodySmall.fontSize,
-        '&:before': arrowStyles,
-      },
-      isOutOfBounds && {
-        marginTop: 0,
-        borderRadius: theme.shape.radius.default,
-      }
-    ),
-    handleText: css({
-      textAlign: 'center',
-      width: '100%',
-      display: 'block',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-    }),
-  };
-};
-
-function getArrowStyles(outOfBounds: OutOfBounds) {
-  const inBounds = outOfBounds === 'none';
-
-  const triangle = (size: number) =>
-    ({
+// The handle's arrow: a CSS triangle, pointing left when in bounds and up or down when the threshold is off-chart.
+const arrowStyles = stylex.create({
+  none: {
+    '::before': {
       content: "''",
       position: 'absolute',
-
       bottom: 0,
       top: 0,
       width: 0,
       height: 0,
-      left: 0,
-
-      borderRightStyle: 'solid',
-      borderRightWidth: `${size}px`,
-      borderRightColor: 'inherit',
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-    }) as const;
-
-  if (inBounds) {
-    return css({
-      ...triangle(9),
       left: '-9px',
-    });
-  }
-
-  if (outOfBounds === 'top') {
-    return css({
-      ...triangle(5),
-      left: 'calc(50% - 2.5px)',
+      borderRightStyle: 'solid',
+      borderRightWidth: '9px',
+      borderRightColor: 'inherit',
+      borderTopWidth: '9px',
+      borderTopStyle: 'solid',
+      borderTopColor: 'transparent',
+      borderBottomWidth: '9px',
+      borderBottomStyle: 'solid',
+      borderBottomColor: 'transparent',
+    },
+  },
+  top: {
+    '::before': {
+      content: "''",
+      position: 'absolute',
+      bottom: 0,
       top: '-7px',
-      transform: 'rotate(90deg)',
-    });
-  }
-
-  if (outOfBounds === 'bottom') {
-    return css({
-      ...triangle(5),
+      width: 0,
+      height: 0,
       left: 'calc(50% - 2.5px)',
+      borderRightStyle: 'solid',
+      borderRightWidth: '5px',
+      borderRightColor: 'inherit',
+      borderTopWidth: '5px',
+      borderTopStyle: 'solid',
+      borderTopColor: 'transparent',
+      borderBottomWidth: '5px',
+      borderBottomStyle: 'solid',
+      borderBottomColor: 'transparent',
+      transform: 'rotate(90deg)',
+    },
+  },
+  bottom: {
+    '::before': {
+      content: "''",
+      position: 'absolute',
+      bottom: 0,
       top: 'calc(100% - 2.5px)',
+      width: 0,
+      height: 0,
+      left: 'calc(50% - 2.5px)',
+      borderRightStyle: 'solid',
+      borderRightWidth: '5px',
+      borderRightColor: 'inherit',
+      borderTopWidth: '5px',
+      borderTopStyle: 'solid',
+      borderTopColor: 'transparent',
+      borderBottomWidth: '5px',
+      borderBottomStyle: 'solid',
+      borderBottomColor: 'transparent',
       transform: 'rotate(-90deg)',
-    });
-  }
-
-  return '';
-}
+    },
+  },
+});
