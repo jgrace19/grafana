@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
 import { type FormEventHandler, type KeyboardEventHandler, type ReactNode } from 'react';
 
-import { DocsId, type GrafanaTheme2, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
+import { DocsId, LocalStorageValueProvider, type TransformerRegistryItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Alert, Card, Container, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Card, Container, Input, Stack } from '@grafana/ui';
 import { getDocsLink } from 'app/core/utils/docsLinks';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
+
+import './TransformationPicker.css';
 
 const LOCAL_STORAGE_KEY = 'dashboard.components.TransformationEditor.featureInfoBox.isDismissed';
 
@@ -104,11 +105,10 @@ interface TransformationCardProps {
 }
 
 function TransformationCard({ transform, onClick }: TransformationCardProps) {
-  const styles = useStyles2(getStyles);
   return (
     <Card
       noMargin
-      className={styles.card}
+      className="gf-transformation-picker-card"
       data-testid={selectors.components.TransformTab.newTransform(transform.name)}
       onClick={onClick}
     >
@@ -121,13 +121,4 @@ function TransformationCard({ transform, onClick }: TransformationCardProps) {
       )}
     </Card>
   );
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    card: css({
-      margin: '0',
-      padding: `${theme.spacing(1)}`,
-    }),
-  };
 }

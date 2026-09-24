@@ -1,11 +1,13 @@
-import { css } from '@emotion/css';
-import { useEffect, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import { useBeforeUnload, useUnmount } from 'react-use';
 
 import { type GrafanaTheme2, colorManipulator } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Button, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Stack, Tooltip, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Prompt } from 'app/core/components/FormPrompt/Prompt';
 import { CORRELATION_EDITOR_POST_CONFIRM_ACTION, type ExploreItemState } from 'app/types/explore';
 import { useDispatch, useSelector } from 'app/types/store';
@@ -19,9 +21,12 @@ import { changeCorrelationEditorDetails, splitClose } from './state/main';
 import { runQueries } from './state/query';
 import { selectCorrelationDetails, selectIsHelperShowing } from './state/selectors';
 
+import './CorrelationEditorModeBar.css';
+
 export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, ExploreItemState]> }) => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const barColors = useMemo(() => getBarColors(theme), [theme]);
   const correlationDetails = useSelector(selectCorrelationDetails);
   const isHelperShowing = useSelector(selectIsHelperShowing);
   const [saveMessage, setSaveMessage] = useState<string | undefined>(undefined); // undefined means do not show
@@ -230,7 +235,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
           message={saveMessage}
         />
       )}
-      <div className={styles.correlationEditorTop}>
+      <div {...mergeStylexProps(stylex.props(styles.correlationEditorTop), { style: barColors.vars })}>
         <Stack gap={2} justifyContent="flex-end" alignItems="center">
           <Tooltip
             content={t(
@@ -238,13 +243,15 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
               'Correlations editor in Explore is an experimental feature.'
             )}
           >
-            <Icon className={styles.iconColor} name="info-circle" size="xl" />
+            <Icon xstyle={styles.iconColor(barColors.contrastColor)} name="info-circle" size="xl" />
           </Tooltip>
           <Button
             variant="secondary"
             disabled={!correlationDetails?.canSave}
             fill="outline"
-            className={correlationDetails?.canSave ? styles.buttonColor : styles.disabledButtonColor}
+            className={
+              correlationDetails?.canSave ? 'gf-explore-correlation-button' : 'gf-explore-correlation-button-disabled'
+            }
             onClick={() => {
               saveCorrelationPostAction(true);
             }}
@@ -254,7 +261,7 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
           <Button
             variant="secondary"
             fill="outline"
-            className={styles.buttonColor}
+            className="gf-explore-correlation-button"
             icon="times"
             onClick={() => {
               dispatch(changeCorrelationEditorDetails({ isExiting: true }));
@@ -269,35 +276,25 @@ export const CorrelationEditorModeBar = ({ panes }: { panes: Array<[string, Expl
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+// Colour math on the theme's primary colour; the Button overrides in CorrelationEditorModeBar.css read the vars.
+function getBarColors(theme: GrafanaTheme2) {
   const contrastColor = theme.colors.getContrastText(theme.colors.primary.main);
-  const lighterBackgroundColor = colorManipulator.lighten(theme.colors.primary.main, 0.1);
-  const darkerBackgroundColor = colorManipulator.darken(theme.colors.primary.main, 0.2);
-
-  const disabledColor = colorManipulator.darken(contrastColor, 0.2);
-
-  return {
-    correlationEditorTop: css({
-      backgroundColor: theme.colors.primary.main,
-      marginTop: '3px',
-      padding: theme.spacing(1),
-    }),
-    iconColor: css({
-      color: contrastColor,
-    }),
-    buttonColor: css({
-      color: contrastColor,
-      borderColor: contrastColor,
-      '&:hover': {
-        color: contrastColor,
-        borderColor: contrastColor,
-        backgroundColor: lighterBackgroundColor,
-      },
-    }),
-    // important needed to override disabled state styling
-    disabledButtonColor: css({
-      color: `${disabledColor} !important`,
-      backgroundColor: `${darkerBackgroundColor} !important`,
-    }),
+  const vars: CSSProperties & Record<string, string> = {
+    '--gf-explore-correlation-contrast': contrastColor,
+    '--gf-explore-correlation-hover-background': colorManipulator.lighten(theme.colors.primary.main, 0.1),
+    '--gf-explore-correlation-disabled-background': colorManipulator.darken(theme.colors.primary.main, 0.2),
+    '--gf-explore-correlation-disabled-text': colorManipulator.darken(contrastColor, 0.2),
   };
-};
+  return { contrastColor, vars };
+}
+
+const styles = stylex.create({
+  correlationEditorTop: {
+    backgroundColor: colors['--gf-colors-primary-main'],
+    marginTop: '3px',
+    padding: spacing['--gf-spacing-x1'],
+  },
+  iconColor: (color: string) => ({
+    color,
+  }),
+});

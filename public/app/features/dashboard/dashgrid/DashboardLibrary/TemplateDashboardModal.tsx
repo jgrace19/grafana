@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
-import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
+import { Box, Grid, Modal, Text } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { DashboardCard } from './DashboardCard';
+import './TemplateDashboardModal.css';
 import { NewTemplateDashboardInteractions } from './analytics/main';
 import {
   CONTENT_KINDS,
@@ -40,8 +41,6 @@ export const TemplateDashboardModal = () => {
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
 
   const testDataSource = getDataSourceSrv().getList({ type: 'grafana-testdata-datasource' })[0];
-
-  const styles = useStyles2(getStyles);
 
   const onClose = () => {
     searchParams.delete('templateDashboards');
@@ -130,11 +129,11 @@ export const TemplateDashboardModal = () => {
     <Modal
       isOpen={isOpen}
       onDismiss={onClose}
-      className={styles.modal}
+      className="gf-template-dashboard-modal"
       title={t('dashboard-library.template-dashboard-modal.title', 'Start a dashboard from a template')}
-      contentClassName={styles.modalContent}
+      contentClassName="gf-template-dashboard-modal-content"
     >
-      <div className={styles.stickyHeader}>
+      <div {...stylex.props(styles.stickyHeader)}>
         <Text element="p">
           <Trans i18nKey="dashboard-library.template-dashboard-modal.description">
             Get started with Grafana templates using sample data. Connect your data to power them with real metrics.
@@ -179,22 +178,13 @@ export const TemplateDashboardModal = () => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    modal: css({
-      width: '1200px',
-    }),
-    stickyHeader: css({
-      position: 'sticky',
-      top: 0,
-      zIndex: 2,
-      backgroundColor: theme.colors.background.primary,
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(2),
-    }),
-    modalContent: css({
-      paddingTop: 0,
-      height: '100%',
-    }),
-  };
-}
+const styles = stylex.create({
+  stickyHeader: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 2,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+  },
+});

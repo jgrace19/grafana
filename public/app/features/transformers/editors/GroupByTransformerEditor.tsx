@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 
 import {
@@ -8,15 +8,17 @@ import {
   type TransformerRegistryItem,
   type TransformerUIProps,
   TransformerCategory,
-  type GrafanaTheme2,
 } from '@grafana/data';
 import { type GroupByFieldOptions, GroupByOperationID, type GroupByTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { useTheme2, StatsPicker, InlineField, Stack, Alert, Combobox, type ComboboxOption } from '@grafana/ui';
+import { StatsPicker, InlineField, Stack, Alert, Combobox, type ComboboxOption } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import darkImage from '../images/dark/groupBy.svg';
 import lightImage from '../images/light/groupBy.svg';
 import { DataFieldsErrorWrapper } from '../utils';
+
+import './GroupByTransformerEditor.css';
 
 interface FieldProps {
   fieldName: string;
@@ -89,10 +91,6 @@ const GroupByTransformerEditor = DataFieldsErrorWrapper(GroupByTransformerEditor
 });
 
 const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldProps) => {
-  const theme = useTheme2();
-
-  const styles = getStyles(theme);
-
   const onChange = useCallback(
     (option: ComboboxOption<GroupByOperationID> | null) => {
       onConfigChange({
@@ -115,9 +113,9 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
   ];
 
   return (
-    <InlineField className={styles.label} label={fieldName} grow shrink>
+    <InlineField className="gf-group-by-field" label={fieldName} grow shrink>
       <Stack gap={0.5} direction="row">
-        <div className={styles.operation}>
+        <div {...stylex.props(styles.operation)}>
           <Combobox
             options={options}
             value={config?.operation}
@@ -145,20 +143,13 @@ const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldP
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    label: css({
-      label: {
-        minWidth: theme.spacing(32),
-      },
-    }),
-    operation: css({
-      flexShrink: 0,
-      height: '100%',
-      width: theme.spacing(24),
-    }),
-  };
-};
+const styles = stylex.create({
+  operation: {
+    flexShrink: 0,
+    height: '100%',
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 24)`,
+  },
+});
 
 export const getGroupByTransformRegistryItem: () => TransformerRegistryItem<GroupByTransformerOptions> = () => ({
   id: DataTransformerID.groupBy,

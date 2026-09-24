@@ -1,0 +1,11 @@
+/*
+ * Recolours the StyleX Button, which has no xstyle prop. This file is deliberately not in a cascade layer: like the
+ * Emotion class it replaces, it must win over Button's own colour.
+ */
+.gf-experimental-feedback-button {
+  color: var(--gf-colors-warning-main);
+}
+
+.gf-experimental-feedback-button:hover {
+  color: var(--gf-colors-warning-text);
+}

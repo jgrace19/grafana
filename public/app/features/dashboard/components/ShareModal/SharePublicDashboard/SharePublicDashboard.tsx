@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Spinner, useStyles2 } from '@grafana/ui';
+import { Spinner } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useGetPublicDashboardQuery } from 'app/features/dashboard/api/publicDashboardApi';
 import { publicDashboardPersisted } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 import { type ShareModalTabProps } from 'app/features/dashboard/components/ShareModal/types';
@@ -17,13 +17,11 @@ import { useGetUnsupportedDataSources } from './useGetUnsupportedDataSources';
 interface Props extends ShareModalTabProps {}
 
 export const Loader = () => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <HorizontalGroup className={styles.loadingContainer}>
+    <HorizontalGroup className={stylex.props(styles.loadingContainer).className}>
       <>
         <Trans i18nKey="dashboard.share-public-dashboard-loader.loading-configuration">Loading configuration</Trans>
-        <Spinner size="lg" className={styles.spinner} />
+        <Spinner size="lg" className={stylex.props(styles.spinner).className} />
       </>
     </HorizontalGroup>
   );
@@ -48,14 +46,16 @@ export const SharePublicDashboard = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadingContainer: css({
+const styles = stylex.create({
+  // HorizontalGroup (plugins/admin, still Emotion) sets display/direction/wrap only, so these don't race it.
+  loadingContainer: {
     height: '280px',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing(1),
-  }),
-  spinner: css({
-    marginBottom: theme.spacing(0),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+  },
+  // HorizontalGroup's unlayered `> *` margin wins over this, as it did when its Emotion rule was inserted later.
+  spinner: {
+    marginBottom: spacing['--gf-spacing-x0'],
+  },
 });

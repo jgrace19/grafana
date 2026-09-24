@@ -1,28 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 import { type RawListValue } from './RawListItem';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  // Borrowed from the monaco styles
-  const reddish = theme.isDark ? '#ce9178' : '#a31515';
-  const greenish = theme.isDark ? '#73bf69' : '#56a64b';
-
-  return {
-    metricName: css({
-      color: greenish,
-    }),
-    metricValue: css({
-      color: reddish,
-    }),
-    expanded: css({
-      display: 'block',
-      textIndent: '1em',
-    }),
-  };
-};
 
 const RawListItemAttributes = ({
   value,
@@ -35,7 +15,7 @@ const RawListItemAttributes = ({
   length: number;
   isExpandedView: boolean;
 }) => {
-  const styles = useStyles2(getStyles);
+  const { isDark } = useTheme2();
 
   // From the beginning of the string to the start of the `=`
   const attributeName = value.key;
@@ -44,11 +24,11 @@ const RawListItemAttributes = ({
   const attributeValue = value.value;
 
   return (
-    <span className={isExpandedView ? styles.expanded : ''} key={index}>
-      <span className={styles.metricName}>{attributeName}</span>
+    <span {...stylex.props(isExpandedView && styles.expanded)} key={index}>
+      <span {...stylex.props(isDark ? styles.metricNameDark : styles.metricNameLight)}>{attributeName}</span>
       <span>=</span>
       <span>&quot;</span>
-      <span className={styles.metricValue}>{attributeValue}</span>
+      <span {...stylex.props(isDark ? styles.metricValueDark : styles.metricValueLight)}>{attributeValue}</span>
       <span>&quot;</span>
       {index < length - 1 && <span>, </span>}
     </span>
@@ -56,3 +36,23 @@ const RawListItemAttributes = ({
 };
 
 export default RawListItemAttributes;
+
+// Borrowed from the monaco styles.
+const styles = stylex.create({
+  metricNameDark: {
+    color: '#73bf69',
+  },
+  metricNameLight: {
+    color: '#56a64b',
+  },
+  metricValueDark: {
+    color: '#ce9178',
+  },
+  metricValueLight: {
+    color: '#a31515',
+  },
+  expanded: {
+    display: 'block',
+    textIndent: '1em',
+  },
+});

@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo } from 'react';
 
-import { type DataTransformerConfig, type GrafanaTheme2 } from '@grafana/data';
+import { type DataTransformerConfig } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { DataTopic } from '@grafana/schema';
-import { Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
+import { Combobox, Field, Stack } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { FrameMultiSelectionEditor } from 'app/plugins/panel/geomap/editor/FrameSelectionEditor';
 
 import {
@@ -27,8 +28,6 @@ export function TransformationFilterDisplay() {
   const { data } = useQueryRunnerContext();
   const { transformations } = usePanelContext();
   const { updateTransformation } = useActionsContext();
-
-  const styles = useStyles2(getStyles);
 
   const prevOutput = usePreviousTransformationOutput({
     selectedTransformation,
@@ -81,9 +80,9 @@ export function TransformationFilterDisplay() {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(styles.wrapper)}>
       <Field
-        className={styles.field}
+        className={stylex.props(styles.field).className}
         noMargin
         label={t('query-editor-next.transformation-filter.label', 'Apply transformation to')}
       >
@@ -115,16 +114,21 @@ export function TransformationFilterDisplay() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    padding: theme.spacing(2),
-    border: `2px solid ${theme.colors.background.secondary}`,
-    borderRadius: theme.shape.radius.default,
-    marginBottom: theme.spacing(2),
-  }),
-  field: css({
+const styles = stylex.create({
+  wrapper: {
+    paddingTop: spacing['--gf-spacing-x2'],
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: spacing['--gf-spacing-x2'],
+    paddingLeft: spacing['--gf-spacing-x2'],
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  field: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-  }),
+    gap: spacing['--gf-spacing-x1'],
+  },
 });

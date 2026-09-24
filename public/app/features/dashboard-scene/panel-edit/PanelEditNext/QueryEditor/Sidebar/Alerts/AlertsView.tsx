@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ScenesNewRuleFromPanelButton } from '../../../../PanelDataPane/NewAlertRuleButton';
 import { useAlertingContext, usePanelContext } from '../../QueryEditorContext';
@@ -17,12 +16,10 @@ export function AlertsView({ alertRules }: AlertsViewProps) {
   const { panel } = usePanelContext();
   const { isDashboardSaved } = useAlertingContext();
 
-  const styles = useStyles2(getStyles);
-
   if (alertRules.length === 0) {
     return (
-      <div className={styles.container}>
-        <div className={styles.buttonWrapper}>
+      <div {...stylex.props(styles.container)}>
+        <div {...stylex.props(styles.buttonWrapper)}>
           <ScenesNewRuleFromPanelButton panel={panel} variant="primary" size="sm" disabled={!isDashboardSaved} />
         </div>
       </div>
@@ -30,27 +27,27 @@ export function AlertsView({ alertRules }: AlertsViewProps) {
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {alertRules.map((alert) => (
         <AlertCard key={alert.alertId} alert={alert} />
       ))}
-      <div className={styles.buttonWrapper}>
+      <div {...stylex.props(styles.buttonWrapper)}>
         <ScenesNewRuleFromPanelButton panel={panel} variant="primary" size="sm" />
       </div>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(3),
-  }),
-  buttonWrapper: css({
+    gap: spacing['--gf-spacing-x1'],
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  buttonWrapper: {
     position: 'relative',
-    marginInlineStart: theme.spacing(2),
+    marginInlineStart: spacing['--gf-spacing-x2'],
     minHeight: '30px',
-  }),
+  },
 });

@@ -1,13 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAsync } from 'react-use';
 
-import {
-  type DataLinkTransformationConfig,
-  type ExploreCorrelationHelperData,
-  type GrafanaTheme2,
-} from '@grafana/data';
+import { type DataLinkTransformationConfig, type ExploreCorrelationHelperData } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
   Alert,
@@ -21,12 +17,14 @@ import {
   Input,
   Stack,
   Tooltip,
-  useStyles2,
 } from '@grafana/ui';
+import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useDispatch, useSelector } from 'app/types/store';
 
 import { getTransformationVars } from '../correlations/transformations';
 import { generateDefaultLabel } from '../correlations/utils';
+
+import './CorrelationHelper.css';
 
 import { CorrelationTransformationAddModal } from './CorrelationTransformationAddModal';
 import { changeCorrelationHelperData } from './state/explorePane';
@@ -45,7 +43,6 @@ interface FormValues {
 
 export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
   const panes = useSelector(selectPanes);
   const panesVals = Object.values(panes);
   const { value: defaultLabel, loading: loadingLabel } = useAsync(
@@ -183,7 +180,9 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
             <Stack gap={1} direction="row" wrap="wrap" alignItems="center">
               <Trans i18nKey="explore.correlation-helper.label-description-header">Label / Description</Trans>
               {!isLabelDescOpen && !loadingLabel && (
-                <span className={styles.labelCollapseDetails}>{`Label: ${getValues('label') || defaultLabel}`}</span>
+                <span
+                  {...stylex.props(styles.labelCollapseDetails)}
+                >{`Label: ${getValues('label') || defaultLabel}`}</span>
               )}
             </Stack>
           }
@@ -228,7 +227,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
             onClick={() => {
               setShowTransformationAddModal(true);
             }}
-            className={styles.transformationAction}
+            className={stylex.props(styles.transformationAction).className}
           >
             <Trans i18nKey="explore.correlation-helper.add-transformation">Add transformation</Trans>
           </Button>
@@ -248,7 +247,7 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
                   {field}: {type}
                 </Card.Heading>
                 {detailsString.length > 0 && (
-                  <Card.Meta className={styles.transformationMeta}>{detailsString}</Card.Meta>
+                  <Card.Meta className="gf-explore-correlation-transformation-meta">{detailsString}</Card.Meta>
                 )}
                 <Card.SecondaryActions>
                   <IconButton
@@ -278,18 +277,17 @@ export const CorrelationHelper = ({ exploreId, correlations }: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    labelCollapseDetails: css({
-      marginLeft: theme.spacing(2),
-      ...theme.typography['bodySmall'],
-      fontStyle: 'italic',
-    }),
-    transformationAction: css({
-      marginBottom: theme.spacing(2),
-    }),
-    transformationMeta: css({
-      alignItems: 'baseline',
-    }),
-  };
-};
+const styles = stylex.create({
+  labelCollapseDetails: {
+    marginLeft: spacing['--gf-spacing-x2'],
+    fontFamily: typography['--gf-typography-body-small-font-family'],
+    fontWeight: typography['--gf-typography-body-small-font-weight'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-small-line-height'],
+    letterSpacing: typography['--gf-typography-body-small-letter-spacing'],
+    fontStyle: 'italic',
+  },
+  transformationAction: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+});

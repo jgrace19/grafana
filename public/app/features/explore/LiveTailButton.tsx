@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
 import { useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { ButtonGroup, ToolbarButton } from '@grafana/ui';
+
+import './LiveTailButton.global.css';
 
 type LiveTailButtonProps = {
   splitted: boolean;
@@ -48,10 +49,10 @@ export function LiveTailButton(props: LiveTailButtonProps) {
         timeout={100}
         in={isLive}
         classNames={{
-          enter: styles.stopButtonEnter,
-          enterActive: styles.stopButtonEnterActive,
-          exit: styles.stopButtonExit,
-          exitActive: styles.stopButtonExitActive,
+          enter: 'gf-explore-live-stop-enter',
+          enterActive: 'gf-explore-live-stop-enter-active',
+          exit: 'gf-explore-live-stop-exit',
+          exitActive: 'gf-explore-live-stop-exit-active',
         }}
         nodeRef={transitionRef}
       >
@@ -66,28 +67,3 @@ export function LiveTailButton(props: LiveTailButtonProps) {
     </ButtonGroup>
   );
 }
-
-const styles = {
-  stopButtonEnter: css({
-    label: 'stopButtonEnter',
-    width: 0,
-    opacity: 0,
-    overflow: 'hidden',
-  }),
-  stopButtonEnterActive: css({
-    label: 'stopButtonEnterActive',
-    opacity: 1,
-    width: '32px',
-  }),
-  stopButtonExit: css({
-    label: 'stopButtonExit',
-    width: '32px',
-    opacity: 1,
-    overflow: 'hidden',
-  }),
-  stopButtonExitActive: css({
-    label: 'stopButtonExitActive',
-    opacity: 0,
-    width: 0,
-  }),
-};

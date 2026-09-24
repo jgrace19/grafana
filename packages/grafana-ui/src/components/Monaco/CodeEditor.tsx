@@ -1,11 +1,13 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
-import { PureComponent } from 'react';
+import { type FunctionComponent, PureComponent } from 'react';
 
-import { type GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
+import { monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { withTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { components, shape } from '../../themes/stylex/tokens.stylex';
 import { type Themeable2 } from '../../types/theme';
 
 import { ReactMonacoEditorLazy } from './ReactMonacoEditorLazy';
@@ -136,7 +138,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
     const value = this.props.value ?? '';
     const longText = value.length > 100;
 
-    const containerStyles = cx(getStyles(theme).container, this.props.containerStyles);
+    const containerStyles = clsx(stylex.props(styles.container).className, this.props.containerStyles);
 
     const options: MonacoOptions = {
       wordWrap: wordWrap ? 'on' : 'off',
@@ -201,14 +203,18 @@ class UnthemedCodeEditor extends PureComponent<Props> {
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/inputs-codeeditor--docs
  */
-export const CodeEditor = withTheme2(UnthemedCodeEditor);
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      borderRadius: theme.shape.radius.default,
-      border: `1px solid ${theme.components.input.borderColor}`,
-      overflow: 'hidden',
-    }),
-  };
+export const CodeEditor: FunctionComponent<CodeEditorProps> = (props) => {
+  const theme = useTheme2();
+  return <UnthemedCodeEditor {...props} theme={theme} />;
 };
+CodeEditor.displayName = 'CodeEditor';
+
+const styles = stylex.create({
+  container: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-input-border-color'],
+    overflow: 'hidden',
+  },
+});

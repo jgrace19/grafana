@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom-v5-compat';
 
-import { type GrafanaTheme2, type IconName, locationUtil, type UrlQueryMap, urlUtil } from '@grafana/data';
+import { type IconName, locationUtil, type UrlQueryMap, urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -19,7 +20,6 @@ export interface ScopesNavigationTreeLinkProps {
 }
 
 export function ScopesNavigationTreeLink({ subScope, to, title, id, subScopePath }: ScopesNavigationTreeLinkProps) {
-  const styles = useStyles2(getStyles);
   const linkIcon = useMemo(() => getLinkIcon(to), [to]);
   const locPathname = useLocation().pathname;
   const services = useScopesServices();
@@ -77,7 +77,7 @@ export function ScopesNavigationTreeLink({ subScope, to, title, id, subScopePath
     <Link
       to={to}
       aria-current={isCurrent ? 'page' : undefined}
-      className={cx(styles.container, isCurrent && styles.current)}
+      {...stylex.props(styles.container, isCurrent && styles.current)}
       data-testid={`scopes-dashboards-${id}`}
       onClick={handleClick}
       role="treeitem"
@@ -115,37 +115,38 @@ const linkMap = new Map<string, IconName>([
   ['/a/grafana-pyroscope-app', 'drilldown'],
 ]);
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      padding: theme.spacing(0.75, 0),
-      textAlign: 'left',
-      paddingLeft: theme.spacing(1),
+const styles = stylex.create({
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+    textAlign: 'left',
+    paddingLeft: spacing['--gf-spacing-x1'],
 
-      wordBreak: 'break-word',
+    wordBreak: 'break-word',
 
-      '&:hover, &:focus': css({
-        textDecoration: 'underline',
-      }),
-    }),
-    current: css({
-      position: 'relative',
-      background: theme.colors.action.selected,
-      borderRadius: `0 ${theme.shape.radius.default} ${theme.shape.radius.default} 0`,
-      '&::before': {
-        backgroundImage: theme.colors.gradients.brandVertical,
-        borderRadius: theme.shape.radius.default,
-        content: '" "',
-        display: 'block',
-        height: '100%',
-        position: 'absolute',
-        width: theme.spacing(0.5),
-        top: 0,
-        left: 0,
-      },
-    }),
-  };
-};
+    textDecoration: { default: null, ':hover': 'underline', ':focus': 'underline' },
+  },
+  current: {
+    position: 'relative',
+    backgroundColor: colors['--gf-colors-action-selected'],
+    borderTopLeftRadius: 'unset',
+    borderTopRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomRightRadius: shape['--gf-shape-radius-default'],
+    borderBottomLeftRadius: 'unset',
+    '::before': {
+      backgroundImage: colors['--gf-colors-gradients-brand-vertical'],
+      borderRadius: shape['--gf-shape-radius-default'],
+      content: '" "',
+      display: 'block',
+      height: '100%',
+      position: 'absolute',
+      width: spacing['--gf-spacing-x0-5'],
+      top: 0,
+      left: 0,
+    },
+  },
+});

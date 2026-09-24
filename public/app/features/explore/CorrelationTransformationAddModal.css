@@ -1,0 +1,7 @@
+/*
+ * Modal is still Emotion and sets its own width; the element-qualified selector (0,1,1) outranks its single
+ * class, as the merged Emotion override did.
+ */
+div.gf-explore-correlation-transformation-modal {
+  width: 700px;
+}

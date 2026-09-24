@@ -1,22 +1,24 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState, memo } from 'react';
 
 import {
   type AbsoluteTimeRange,
   type ExploreLogsPanelState,
-  type GrafanaTheme2,
   type LogRowModel,
   serializeStateToUrlParam,
   urlUtil,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ClipboardButton, type CustomCellRendererProps, IconButton, Modal, useTheme2 } from '@grafana/ui';
+import { ClipboardButton, type CustomCellRendererProps, IconButton, Modal } from '@grafana/ui';
+import { colors, shadows } from '@grafana/ui/stylex/tokens.stylex';
 import { getLogsPermalinkRange } from 'app/core/utils/shortLinks';
 import { getUrlStateFromPaneState } from 'app/features/explore/hooks/useStateSync/external.utils';
 import { type LogsFrame, DATAPLANE_ID_NAME } from 'app/features/logs/logsFrame';
 import { getState } from 'app/store/store';
 
 import { getExploreBaseUrl } from './utils/url';
+
+import './LogsTableActionButtons.css';
 interface Props extends CustomCellRendererProps {
   logId?: string;
   logsFrame?: LogsFrame;
@@ -30,7 +32,6 @@ interface Props extends CustomCellRendererProps {
 
 export const LogsTableActionButtons = memo((props: Props) => {
   const { exploreId, absoluteRange, logRows, rowIndex, panelState, displayedFields, logsFrame, frame } = props;
-  const theme = useTheme2();
   const [isInspecting, setIsInspecting] = useState(false);
   // Get logId from the table frame (frame), not the original logsFrame, because
   // the table frame is sorted/transformed and rowIndex refers to the table frame
@@ -42,8 +43,6 @@ export const LogsTableActionButtons = memo((props: Props) => {
     const logRowById = logRows?.find((row) => row.rowId === logId);
     return logRowById?.raw ?? '';
   };
-
-  const styles = getStyles(theme);
 
   // Generate link to the log line
   const getText = useCallback(() => {
@@ -99,9 +98,9 @@ export const LogsTableActionButtons = memo((props: Props) => {
 
   return (
     <>
-      <div className={styles.iconWrapper}>
+      <div {...stylex.props(styles.iconWrapper)}>
         <IconButton
-          className={styles.icon}
+          className="gf-explore-logs-table-action"
           tooltip={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
           variant="secondary"
           aria-label={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
@@ -112,7 +111,7 @@ export const LogsTableActionButtons = memo((props: Props) => {
           tabIndex={0}
         />
         <ClipboardButton
-          className={styles.icon}
+          className="gf-explore-logs-table-action"
           icon="share-alt"
           variant="secondary"
           fill="text"
@@ -144,10 +143,10 @@ export const LogsTableActionButtons = memo((props: Props) => {
 
 LogsTableActionButtons.displayName = 'LogsTableActionButtons';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  iconWrapper: css({
-    background: theme.colors.background.secondary,
-    boxShadow: theme.shadows.z2,
+const styles = stylex.create({
+  iconWrapper: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    boxShadow: shadows['--gf-shadows-z2'],
     display: 'flex',
     flexDirection: 'row',
     height: '35px',
@@ -159,44 +158,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     alignItems: 'center',
     // Fix switching icon direction when cell is numeric (rtl)
     direction: 'ltr',
-  }),
-  icon: css({
-    gap: 0,
-    margin: 0,
-    padding: 0,
-    borderRadius: theme.shape.radius.default,
-    width: '28px',
-    height: '32px',
-    display: 'inline-flex',
-    justifyContent: 'center',
-
-    '&:before': {
-      content: '""',
-      position: 'absolute',
-      width: 24,
-      height: 24,
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      margin: 'auto',
-      borderRadius: theme.shape.radius.default,
-      backgroundColor: theme.colors.background.primary,
-      zIndex: -1,
-      opacity: 0,
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transitionDuration: '0.2s',
-        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        transitionProperty: 'opacity',
-      },
-    },
-    '&:hover': {
-      color: theme.colors.text.link,
-      cursor: 'pointer',
-      background: 'none',
-      '&:before': {
-        opacity: 1,
-      },
-    },
-  }),
+  },
 });

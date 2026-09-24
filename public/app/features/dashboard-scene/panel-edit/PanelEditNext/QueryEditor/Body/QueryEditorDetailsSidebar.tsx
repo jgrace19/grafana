@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FocusEvent, useCallback, useRef } from 'react';
 
-import { type GrafanaTheme2, rangeUtil } from '@grafana/data';
+import { rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { ClickOutsideWrapper, Stack, Switch, useStyles2 } from '@grafana/ui';
+import { ClickOutsideWrapper, Stack, Switch } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import {
   useActionsContext,
@@ -24,8 +25,6 @@ function emptyToNull(value: string) {
 }
 
 export function QueryEditorDetailsSidebar() {
-  const styles = useStyles2(getStyles);
-
   const { datasource, dsSettings } = useDatasourceContext();
   const { data } = useQueryRunnerContext();
   const { queryOptions } = useQueryEditorUIContext();
@@ -112,8 +111,8 @@ export function QueryEditorDetailsSidebar() {
 
   return (
     <ClickOutsideWrapper onClick={handleCloseSidebar}>
-      <div ref={sidebarRef} className={styles.container}>
-        <div className={styles.content}>
+      <div ref={sidebarRef} {...stylex.props(styles.container)}>
+        <div {...stylex.props(styles.content)}>
           <Stack direction="column" gap={0.5}>
             <OptionField
               field={QueryOptionField.maxDataPoints}
@@ -186,23 +185,28 @@ export function QueryEditorDetailsSidebar() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: theme.colors.background.primary,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-    }),
-    content: css({
-      flex: 1,
-      padding: theme.spacing(1.5),
-      overflow: 'auto',
-    }),
-  };
-}
+const styles = stylex.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+  },
+  content: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '0%',
+    paddingTop: spacing['--gf-spacing-x1-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x1-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    overflow: 'auto',
+  },
+});

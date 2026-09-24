@@ -1,0 +1,13 @@
+/*
+ * The error message is arbitrary content and the buttons are Buttons, neither of which StyleX can target from
+ * here. Unlayered at the Emotion rules' specificity (0,1,1).
+ */
+.gf-explore-supplementary-message ul {
+  padding-left: var(--gf-spacing-x2);
+}
+
+.gf-explore-supplementary-message button {
+  position: absolute;
+  bottom: var(--gf-spacing-x2);
+  right: var(--gf-spacing-x2);
+}

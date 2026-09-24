@@ -1,28 +1,26 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 // Text component doesn't let us use strikethrough so we use a span with the correct style instead
 export const CardTitle = ({ title, isHidden }: { title: string; isHidden: boolean }) => {
-  const styles = useStyles2(getStyles);
-  return <span className={cx(styles.title, { [styles.hidden]: isHidden })}>{title}</span>;
+  return <span {...stylex.props(styles.title, isHidden && styles.hidden)}>{title}</span>;
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    title: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      textDecoration: 'none',
-      color: theme.colors.text.primary,
-      ...theme.typography.code,
-      fontWeight: theme.typography.fontWeightLight,
-    }),
-
-    hidden: css({
-      textDecoration: 'line-through',
-    }),
-  };
-}
+const styles = stylex.create({
+  title: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textDecoration: 'none',
+    color: colors['--gf-colors-text-primary'],
+    fontFamily: typography['--gf-typography-code-font-family'],
+    fontSize: typography['--gf-typography-code-font-size'],
+    lineHeight: typography['--gf-typography-code-line-height'],
+    letterSpacing: typography['--gf-typography-code-letter-spacing'],
+    fontWeight: typography['--gf-typography-font-weight-light'],
+  },
+  hidden: {
+    textDecoration: 'line-through',
+  },
+});

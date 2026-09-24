@@ -1,10 +1,9 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import {
-  type GrafanaTheme2,
   LoadingState,
   type SelectableValue,
   type VariableHide,
@@ -14,7 +13,8 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Button, Stack, Icon, type Themeable2, withTheme2 } from '@grafana/ui';
+import { Button, Stack, Icon } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
 import { type StoreState, type ThunkDispatch } from 'app/types/store';
 
 import { VariableHideSelect } from '../../dashboard-scene/settings/variables/components/VariableHideSelect';
@@ -73,7 +73,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch) => {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
-export interface OwnProps extends Themeable2 {
+export interface OwnProps {
   identifier: KeyedVariableIdentifier;
 }
 
@@ -165,14 +165,13 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props, State>
   };
 
   render() {
-    const { theme, variable } = this.props;
+    const { variable } = this.props;
     const EditorToRender = variableAdapters.get(this.props.variable.type).editor;
     if (!EditorToRender) {
       return null;
     }
     const loading = variable.state === LoadingState.Loading;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const styles = getStyles(theme);
 
     return (
       <>
@@ -249,7 +248,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props, State>
                 <Trans i18nKey="variables.variable-editor-editor-un-connected.run-query">Run query</Trans>
                 {loading && (
                   <Icon
-                    className={styles.spin}
+                    xstyle={styles.spin}
                     name={prefersReducedMotion ? 'hourglass' : 'sync'}
                     size="sm"
                     style={{ marginLeft: '2px' }}
@@ -277,9 +276,9 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props, State>
   }
 }
 
-export const VariableEditorEditor = withTheme2(connector(VariableEditorEditorUnConnected));
+export const VariableEditorEditor = connector(VariableEditorEditorUnConnected);
 
-const spin = keyframes({
+const spin = stylex.keyframes({
   '0%': {
     transform: 'rotate(0deg) scaleX(-1)', // scaleX flips the `sync` icon so arrows point the correct way
   },
@@ -288,12 +287,11 @@ const spin = keyframes({
   },
 });
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    spin: css({
-      [theme.transitions.handleMotion('no-preference')]: {
-        animation: `${spin} 3s linear infinite`,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  spin: {
+    animationName: { default: null, [motion.noPreference]: spin },
+    animationDuration: { default: null, [motion.noPreference]: '3s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'linear' },
+    animationIterationCount: { default: null, [motion.noPreference]: 'infinite' },
+  },
+});

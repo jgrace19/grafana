@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import { type Meta, type StoryFn } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { Button } from '../Button/Button';
@@ -31,24 +31,6 @@ const meta: Meta<StoryProps> = {
 export const Example: StoryFn<StoryProps> = (args) => {
   const [openPane, setOpenPane] = useState('');
 
-  const containerStyle = css({
-    flexGrow: 1,
-    height: '600px',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    overflow: 'hidden',
-  });
-
-  const gridStyle = css({
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gridAutoRows: '300px',
-    gap: '8px',
-    flexGrow: 1,
-    overflow: 'auto',
-  });
-
   const togglePane = (pane: string) => {
     if (openPane === pane) {
       setOpenPane('');
@@ -67,8 +49,8 @@ export const Example: StoryFn<StoryProps> = (args) => {
 
   return (
     <Box padding={2} backgroundColor={'canvas'} maxWidth={100} borderStyle={'solid'} borderColor={'weak'}>
-      <div className={containerStyle} {...contextValue.outerWrapperProps}>
-        <div className={gridStyle}>
+      <div {...stylex.props(styles.container)} {...contextValue.outerWrapperProps}>
+        <div {...stylex.props(styles.grid)}>
           {renderBox('A')}
           {renderBox('B')}
           {renderBox('C')}
@@ -135,21 +117,6 @@ export const VerticalTabs: StoryFn = (args) => {
     setOpenPane(pane);
   };
 
-  const containerStyle = css({
-    flexGrow: 1,
-    height: '600px',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    overflow: 'hidden',
-    gap: '16px',
-  });
-
-  const vizWrapper = css({
-    height: '30%',
-    display: 'flex',
-  });
-
   const contextValue = useSidebar({
     position: args.position,
     tabsMode: true,
@@ -158,8 +125,8 @@ export const VerticalTabs: StoryFn = (args) => {
 
   return (
     <Box padding={2} backgroundColor={'canvas'} maxWidth={100} borderStyle={'solid'} borderColor={'weak'}>
-      <div className={containerStyle}>
-        <div className={vizWrapper}>{renderBox('Visualization')}</div>
+      <div {...stylex.props(styles.container, styles.verticalTabsContainer)}>
+        <div {...stylex.props(styles.vizWrapper)}>{renderBox('Visualization')}</div>
         <Sidebar contextValue={contextValue}>
           {openPane === 'queries' && (
             <Sidebar.OpenPane>
@@ -208,5 +175,31 @@ function renderBox(label: string) {
     </Box>
   );
 }
+
+const styles = stylex.create({
+  container: {
+    flexGrow: 1,
+    height: '600px',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  verticalTabsContainer: {
+    gap: '16px',
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gridAutoRows: '300px',
+    gap: '8px',
+    flexGrow: 1,
+    overflow: 'auto',
+  },
+  vizWrapper: {
+    height: '30%',
+    display: 'flex',
+  },
+});
 
 export default meta;

@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type KeyboardEvent, useLayoutEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
-import { Icon, useStyles2 } from '@grafana/ui';
+import { type IconName } from '@grafana/data';
+import { Icon } from '@grafana/ui';
+import { durations, easings, motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 const ARROW_DIRECTION: Partial<Record<string, 1 | -1>> = {
   ArrowRight: 1,
@@ -32,7 +34,6 @@ export function SegmentedToggle<T>({
   showBackground = true,
   'aria-label': ariaLabel,
 }: SegmentedToggleProps<T>) {
-  const styles = useStyles2(getStyles);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [sliderStyle, setSliderStyle] = useState<{ left: number; width: number } | null>(null);
 
@@ -62,9 +63,9 @@ export function SegmentedToggle<T>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className={cx(styles.toggle, { [styles.noBackground]: !showBackground })}
+      {...stylex.props(styles.toggle, !showBackground && styles.noBackground)}
     >
-      <div className={styles.slider} style={sliderInlineStyle} aria-hidden="true" />
+      <div {...stylex.props(styles.slider)} style={sliderInlineStyle} aria-hidden="true" />
 
       {options.map((option, index) => {
         const isActive = index === activeIndex;
@@ -75,7 +76,7 @@ export function SegmentedToggle<T>({
             role="radio"
             aria-checked={isActive}
             tabIndex={isActive ? 0 : -1}
-            className={cx(styles.tab, { [styles.tabActive]: isActive })}
+            {...stylex.props(styles.tab, isActive && styles.tabActive)}
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleKeyDown(e, index)}
           >
@@ -88,63 +89,66 @@ export function SegmentedToggle<T>({
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    toggle: css({
-      position: 'relative',
-      display: 'inline-flex',
-      background: theme.colors.background.secondary,
-      borderRadius: theme.shape.radius.default,
-      padding: '2px',
-    }),
-    noBackground: css({
-      background: 'none',
-    }),
-    slider: css({
-      position: 'absolute',
-      top: '2px',
-      bottom: '2px',
-      background: theme.colors.background.canvas,
-      borderRadius: theme.shape.radius.default,
-      pointerEvents: 'none',
-
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create(['left', 'width'], {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-    }),
-    tab: css({
-      position: 'relative',
-      zIndex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      background: 'transparent',
-      border: 'none',
-      borderRadius: theme.shape.radius.default,
-      padding: theme.spacing(0.5, 1.25),
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.disabled,
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: theme.transitions.create('color', {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-
-      '&:focus-visible': {
-        outline: `2px solid ${theme.colors.primary.main}`,
-        outlineOffset: '2px',
-      },
-    }),
-    tabActive: css({
-      color: theme.colors.primary.text,
-    }),
-  };
-}
+const styles = stylex.create({
+  toggle: {
+    position: 'relative',
+    display: 'inline-flex',
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: '2px',
+    paddingRight: '2px',
+    paddingBottom: '2px',
+    paddingLeft: '2px',
+  },
+  noBackground: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+  },
+  slider: {
+    position: 'absolute',
+    top: '2px',
+    bottom: '2px',
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    pointerEvents: 'none',
+    transitionProperty: { default: null, [motion.noPreference]: 'left, width' },
+    transitionDuration: { default: null, [motion.noPreference]: durations.shorter },
+    transitionTimingFunction: { default: null, [motion.noPreference]: easings.easeInOut },
+  },
+  tab: {
+    position: 'relative',
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    borderRadius: shape['--gf-shape-radius-default'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.25)`,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-disabled'],
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    // On :focus-visible the global `button:focus-visible` transition applies instead, as it did with Emotion.
+    transitionProperty: { default: null, [motion.noPreference]: { default: null, ':not(:focus-visible)': 'color' } },
+    transitionDuration: {
+      default: null,
+      [motion.noPreference]: { default: null, ':not(:focus-visible)': durations.shorter },
+    },
+    transitionTimingFunction: {
+      default: null,
+      [motion.noPreference]: { default: null, ':not(:focus-visible)': easings.easeInOut },
+    },
+    outlineWidth: { default: null, ':focus-visible': '2px' },
+    outlineStyle: { default: null, ':focus-visible': 'solid' },
+    outlineColor: { default: null, ':focus-visible': colors['--gf-colors-primary-main'] },
+    outlineOffset: { default: null, ':focus-visible': '2px' },
+  },
+  tabActive: {
+    color: colors['--gf-colors-primary-text'],
+  },
+});

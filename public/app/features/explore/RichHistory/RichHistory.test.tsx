@@ -76,7 +76,7 @@ describe('RichHistory', () => {
   it('should render defined default', () => {
     setup();
     const tabs = screen.getAllByRole('tab');
-    expect(tabs[0].className).toMatch(/-*activeTabStyle/);
-    expect(tabs[1].className).not.toMatch(/-*activeTabStyle/);
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
   });
 });

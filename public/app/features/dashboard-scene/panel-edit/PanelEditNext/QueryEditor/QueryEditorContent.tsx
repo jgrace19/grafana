@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors, shape } from '@grafana/ui/stylex/tokens.stylex';
 
 import { QueryEditorType } from '../constants';
 
@@ -12,8 +11,6 @@ import { DatasourceHelpPanel } from './Header/DatasourceHelpPanel';
 import { useAlertingContext, useQueryEditorUIContext } from './QueryEditorContext';
 
 export function QueryEditorContent() {
-  const styles = useStyles2(getStyles);
-
   const { cardType, showingDatasourceHelp, pendingExpression, pendingTransformation } = useQueryEditorUIContext();
   const { alertRules } = useAlertingContext();
   const hasPendingPicker = !!pendingExpression || !!pendingTransformation;
@@ -25,7 +22,7 @@ export function QueryEditorContent() {
   const shouldShowDatasourceHelp = !hasPendingPicker && showingDatasourceHelp;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {shouldShowHeader && <ContentHeaderSceneWrapper />}
       {shouldShowDatasourceHelp && <DatasourceHelpPanel />}
       <QueryEditorBody />
@@ -34,15 +31,17 @@ export function QueryEditorContent() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  container: {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: shape['--gf-shape-radius-default'],
     height: '100%',
     width: '100%',
     overflow: 'hidden',
-  }),
+  },
 });

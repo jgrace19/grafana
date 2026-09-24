@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useState } from 'react';
 
-import { type AlertState, type GrafanaTheme2, type IconName } from '@grafana/data';
+import { type AlertState, type IconName } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, ConfirmModal, Icon, Stack, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, ConfirmModal, Icon, Stack, Tooltip, useTheme2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getQueryEditorColors, QUERY_EDITOR_TYPE_CONFIG, QueryEditorType } from './constants';
 import { trackCardAction, type CardActionSource } from './tracking';
@@ -59,7 +60,6 @@ export function Actions({
 }: ActionsProps) {
   const theme = useTheme2();
   const queryEditorColors = getQueryEditorColors(theme);
-  const styles = useStyles2(getStyles);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const config = QUERY_EDITOR_TYPE_CONFIG[item.type];
   const typeLabel = config.getLabel();
@@ -165,7 +165,7 @@ export function Actions({
               size="sm"
               name="exclamation-triangle"
               aria-label={t('query-editor-next.action.error', 'Error')}
-              className={styles.errorIcon}
+              xstyle={styles.errorIcon}
               color={queryEditorColors.error}
             />
           </Tooltip>
@@ -191,8 +191,11 @@ export function Actions({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  errorIcon: css({
-    margin: theme.spacing(0, 0.5, 0, 0.5),
-  }),
+const styles = stylex.create({
+  errorIcon: {
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
 });

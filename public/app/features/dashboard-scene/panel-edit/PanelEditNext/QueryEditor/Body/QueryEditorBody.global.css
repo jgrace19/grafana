@@ -1,0 +1,28 @@
+/*
+ * CSSTransition phase classes for the query options sidebar. The element carries both phase classes at once, so they
+ * can't be StyleX. 150ms is CONTENT_SIDE_BAR.sidebarTransitionMs in ../../constants.ts.
+ */
+@layer grafana-global {
+  .gf-query-editor-details-sidebar-enter {
+    transform: translateX(-100%);
+  }
+
+  .gf-query-editor-details-sidebar-enter-active {
+    transform: translateX(0);
+  }
+
+  .gf-query-editor-details-sidebar-exit {
+    transform: translateX(0);
+  }
+
+  .gf-query-editor-details-sidebar-exit-active {
+    transform: translateX(-100%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .gf-query-editor-details-sidebar-enter-active,
+    .gf-query-editor-details-sidebar-exit-active {
+      transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+  }
+}

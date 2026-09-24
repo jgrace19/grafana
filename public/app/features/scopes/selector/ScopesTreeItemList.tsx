@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer } from '@grafana/ui';
 
 import { ScopesTreeItem } from './ScopesTreeItem';
 import { isNodeSelectable } from './scopesTreeUtils';
@@ -30,14 +29,12 @@ export function ScopesTreeItemList({
   highlightedId,
   id,
 }: Props) {
-  const styles = useStyles2(getStyles);
-
   if (items.length === 0) {
     return null;
   }
 
   const children = (
-    <div role="tree" id={id} className={anyChildExpanded ? styles.expandedContainer : undefined}>
+    <div role="tree" id={id} {...stylex.props(anyChildExpanded && styles.expandedContainer)}>
       {items.map((childNode) => {
         const node = scopeNodes[childNode.scopeNodeId];
         // Skip rendering if node data isn't available
@@ -82,12 +79,10 @@ export function ScopesTreeItemList({
   return children;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    expandedContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      maxHeight: '100%',
-    }),
-  };
-};
+const styles = stylex.create({
+  expandedContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '100%',
+  },
+});

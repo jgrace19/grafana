@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, type FetchError } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
-import { Button, ConfirmModal, Modal, useStyles2 } from '@grafana/ui';
+import { Button, ConfirmModal, Modal } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type DashboardModel } from '../../state/DashboardModel';
 
 import { SaveDashboardAsButton } from './SaveDashboardButton';
+import './SaveDashboardErrorProxy.css';
 import { type SaveDashboardModalProps } from './types';
 import { useDashboardSave } from './useDashboardSave';
 
@@ -119,16 +120,14 @@ export const SaveDashboardErrorProxy = ({
 const ConfirmPluginDashboardSaveModal = ({ onDismiss, dashboard }: SaveDashboardModalProps) => {
   const { onDashboardSave } = useDashboardSave();
 
-  const styles = useStyles2(getConfirmPluginDashboardSaveModalStyles);
-
   return (
     <Modal
-      className={styles.modal}
+      className="gf-plugin-dashboard-save-modal"
       title={t('dashboard.confirm-plugin-dashboard-save-modal.title-plugin-dashboard', 'Plugin dashboard')}
       isOpen={true}
       onDismiss={onDismiss}
     >
-      <div className={styles.modalText}>
+      <div {...stylex.props(styles.modalText)}>
         <Trans i18nKey="dashboard.confirm-plugin-dashboard-save-modal.body-plugin-dashboard">
           Your changes will be lost when you update the plugin.
           <br />
@@ -168,20 +167,11 @@ export const proxyHandlesError = (errorStatus: string) => {
   }
 };
 
-const getConfirmPluginDashboardSaveModalStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '500px',
-  }),
-  modalText: css({
-    fontSize: theme.typography.h4.fontSize,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-  }),
-  modalButtonRow: css({
-    marginBottom: '14px',
-    'a, button': {
-      marginRight: theme.spacing(2),
-    },
-  }),
+const styles = stylex.create({
+  modalText: {
+    fontSize: typography['--gf-typography-h4-font-size'],
+    color: colors['--gf-colors-text-primary'],
+    marginBottom: spacing['--gf-spacing-x4'],
+    paddingTop: spacing['--gf-spacing-x2'],
+  },
 });
