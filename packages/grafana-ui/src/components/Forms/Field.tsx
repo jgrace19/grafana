@@ -41,6 +41,8 @@ export interface FieldProps extends HTMLAttributes<HTMLElement> {
   htmlFor?: string;
   /** Remove the bottom margin */
   noMargin?: boolean;
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -64,6 +66,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
       validationMessageHorizontalOverflow,
       htmlFor,
       noMargin,
+      xstyle,
       ...otherProps
     }: FieldProps,
     ref
@@ -96,10 +99,8 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     return (
       <Wrapper
         {...mergeStylexProps(
-          stylex.props(styles.field, noMargin && styles.noMargin, horizontal && styles.fieldHorizontal),
-          {
-            className,
-          }
+          stylex.props(styles.field, noMargin && styles.noMargin, horizontal && styles.fieldHorizontal, xstyle),
+          { className }
         )}
         {...otherProps}
       >

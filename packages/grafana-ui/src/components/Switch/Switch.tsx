@@ -64,10 +64,12 @@ export interface InlineSwitchProps extends Props {
   showLabel?: boolean;
   /** Make inline switch's background and border transparent */
   transparent?: boolean;
+  /** @internal first-party StyleX overrides for the container, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 export const InlineSwitch = forwardRef<HTMLInputElement, InlineSwitchProps>(
-  ({ transparent, className, showLabel, label, value, id, invalid, ...props }, ref) => {
+  ({ transparent, className, showLabel, label, value, id, invalid, xstyle, ...props }, ref) => {
     const variant = transparent ? 'transparent' : props.disabled ? 'disabled' : 'default';
 
     return (
@@ -77,7 +79,8 @@ export const InlineSwitch = forwardRef<HTMLInputElement, InlineSwitchProps>(
             styles.inlineContainer,
             inlineSwitchMarker,
             inlineContainerStyles[variant],
-            props.disabled && styles.disabled
+            props.disabled && styles.disabled,
+            xstyle
           ),
           { className }
         )}

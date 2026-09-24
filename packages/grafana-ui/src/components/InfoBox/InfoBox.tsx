@@ -21,6 +21,8 @@ export interface InfoBoxProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
   severity?: AlertVariant;
   /** Call back to be performed when box is dismissed */
   onDismiss?: () => void;
+  /** @internal first-party StyleX overrides for the Alert, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**

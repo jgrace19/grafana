@@ -54,7 +54,12 @@ export { getSelectStyles } from '../compat/emotion/getSelectStyles';
 export type { Props as InputProps } from '../components/Input/Input';
 export { inputStyles, inputBorderStyles } from '../components/Input/Input';
 export type { ModalsContextState } from '../components/Modal/ModalsContext';
-export { ModalBase, type ModalBaseProps } from '../components/Modal/ModalBase';
+export {
+  ModalBase,
+  type ModalBaseProps,
+  modalContainerStyles,
+  modalStyles as modalBackdropStyles,
+} from '../components/Modal/ModalBase';
 export { getModalStyles } from '../compat/emotion/getModalStyles';
 export { MultiValueRemove, type MultiValueRemoveProps } from '../components/Select/MultiValue';
 export { getSvgSize } from '../components/Icon/utils';

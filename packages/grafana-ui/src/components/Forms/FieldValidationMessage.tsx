@@ -12,6 +12,8 @@ export interface FieldValidationMessageProps {
   /** Override component style */
   className?: string;
   horizontal?: boolean;
+  /** @internal first-party StyleX overrides, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -23,11 +25,12 @@ export const FieldValidationMessage = ({
   children,
   horizontal,
   className,
+  xstyle,
 }: React.PropsWithChildren<FieldValidationMessageProps>) => {
   return (
     <div
       role="alert"
-      {...mergeStylexProps(stylex.props(styles.base, horizontal ? styles.horizontal : styles.vertical), {
+      {...mergeStylexProps(stylex.props(styles.base, horizontal ? styles.horizontal : styles.vertical, xstyle), {
         className: clsx('gf-field-validation-message', className),
       })}
     >

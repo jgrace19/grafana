@@ -124,3 +124,10 @@ export const modalStyles = stylex.create({
     backgroundColor: components['--gf-components-overlay-background'],
   },
 });
+
+/**
+ * The modal container look, for first-party code that renders its own dialog (TokenRevokedModal).
+ *
+ * @internal
+ */
+export { styles as modalContainerStyles };

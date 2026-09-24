@@ -25,6 +25,12 @@ export interface Props {
   headerDataTestId?: string;
   contentDataTestId?: string;
   unmountContentWhenClosed?: boolean;
+  /** @internal first-party StyleX overrides for the header, applied last */
+  xstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX overrides for the content, applied last */
+  contentXstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX overrides for the expand icon, applied last */
+  iconXstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -44,6 +50,9 @@ export const CollapsableSection = ({
   headerDataTestId,
   contentDataTestId,
   unmountContentWhenClosed = true,
+  xstyle,
+  contentXstyle,
+  iconXstyle,
 }: Props) => {
   const [internalOpenState, toggleInternalOpenState] = useState<boolean>(isOpen);
 
@@ -71,10 +80,13 @@ export const CollapsableSection = ({
   const content = (
     <div
       id={`collapse-content-${id}`}
-      className={clsx(
-        stylex.props(styles.content).className,
-        contentClassName,
-        !unmountContentWhenClosed && !isSectionOpen && stylex.props(styles.contentHidden).className
+      {...mergeStylexProps(
+        stylex.props(
+          styles.content,
+          contentXstyle,
+          !unmountContentWhenClosed && !isSectionOpen && styles.contentHidden
+        ),
+        { className: contentClassName }
       )}
       data-testid={contentDataTestId}
     >
@@ -87,7 +99,7 @@ export const CollapsableSection = ({
       {/* disabling the a11y rules here as the button handles keyboard interactions */}
       {/* this is just to provide a better experience for mouse users */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div onClick={onClick} {...mergeStylexProps(stylex.props(styles.header), { className })}>
+      <div onClick={onClick} {...mergeStylexProps(stylex.props(styles.header, xstyle), { className })}>
         <button
           type="button"
           id={`collapse-button-${id}`}
@@ -100,7 +112,7 @@ export const CollapsableSection = ({
           {loading ? (
             <Spinner className={stylex.props(styles.spinner).className} />
           ) : (
-            <Icon name={isSectionOpen ? 'angle-down' : 'angle-right'} xstyle={styles.icon} />
+            <Icon name={isSectionOpen ? 'angle-down' : 'angle-right'} xstyle={[styles.icon, iconXstyle]} />
           )}
         </button>
         <div {...stylex.props(styles.label)} id={`collapse-label-${id}`} data-testid={headerDataTestId}>

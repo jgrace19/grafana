@@ -1,3 +1,4 @@
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { clsx } from 'clsx';
 import { type ReactElement, useCallback } from 'react';
 
@@ -11,6 +12,8 @@ import { type TooltipPlacement } from '../Tooltip/types';
 interface PanelMenuProps {
   menu: ReactElement | (() => ReactElement);
   menuButtonClass?: string;
+  /** @internal first-party StyleX overrides for the menu button */
+  menuButtonXstyle?: StyleXStyles;
   dragClassCancel?: string;
   title?: string;
   placement?: TooltipPlacement;
@@ -25,6 +28,7 @@ export function PanelMenu({
   offset,
   dragClassCancel,
   menuButtonClass,
+  menuButtonXstyle,
   onOpenMenu,
 }: PanelMenuProps) {
   const testId = title ? selectors.components.Panels.Panel.menu(title) : `panel-menu-button`;
@@ -53,6 +57,7 @@ export function PanelMenu({
         size="sm"
         data-testid={testId}
         className={clsx(menuButtonClass, dragClassCancel)}
+        xstyle={menuButtonXstyle}
       />
     </Dropdown>
   );

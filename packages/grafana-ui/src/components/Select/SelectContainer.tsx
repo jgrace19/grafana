@@ -18,7 +18,7 @@ export const SelectContainer = <Option, isMulti extends boolean, Group extends G
     isDisabled,
     isFocused,
     children,
-    selectProps: { invalid = false },
+    selectProps: { invalid = false, xstyle },
   } = props;
 
   const { className } = mergeStylexProps(
@@ -26,7 +26,8 @@ export const SelectContainer = <Option, isMulti extends boolean, Group extends G
       styles.wrapper,
       invalid && styles.invalid,
       isFocused && styles.focused,
-      isDisabled && (invalid ? styles.inputDisabledInvalid : styles.inputDisabled)
+      isDisabled && (invalid ? styles.inputDisabledInvalid : styles.inputDisabled),
+      xstyle
     ),
     { className: props.className }
   );

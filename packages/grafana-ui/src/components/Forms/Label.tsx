@@ -9,6 +9,8 @@ export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> 
   children: React.ReactNode;
   description?: React.ReactNode;
   category?: React.ReactNode[];
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -16,7 +18,7 @@ export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> 
  *
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/forms-label--docs
  */
-export const Label = ({ children, description, className, category, ...labelProps }: LabelProps) => {
+export const Label = ({ children, description, className, category, xstyle, ...labelProps }: LabelProps) => {
   const categories = category?.map((c, i) => {
     return (
       <span {...stylex.props(labelStyles.categories)} key={`${c}/${i}`}>
@@ -27,7 +29,7 @@ export const Label = ({ children, description, className, category, ...labelProp
   });
 
   return (
-    <div {...mergeStylexProps(stylex.props(labelStyles.label), { className })}>
+    <div {...mergeStylexProps(stylex.props(labelStyles.label, xstyle), { className })}>
       <label {...labelProps}>
         <div {...stylex.props(labelStyles.labelContent)}>
           {categories}

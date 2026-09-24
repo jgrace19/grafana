@@ -28,6 +28,8 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   topSpacing?: number;
   /** Custom action element rendered in the alert's button area, independently from the dismiss button. */
   action?: ReactNode;
+  /** @internal first-party StyleX overrides for the root element, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -49,6 +51,7 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
       style,
       severity = 'error',
       action,
+      xstyle,
       ...restProps
     },
     ref
@@ -72,7 +75,8 @@ export const Alert = React.forwardRef<HTMLDivElement, Props>(
           stylex.props(
             styles.wrapper,
             bottomSpacing !== undefined && styles.marginBottom(spacingValue(bottomSpacing)),
-            topSpacing !== undefined && styles.marginTop(spacingValue(topSpacing))
+            topSpacing !== undefined && styles.marginTop(spacingValue(topSpacing)),
+            xstyle
           ),
           { className, style }
         )}

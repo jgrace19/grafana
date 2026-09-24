@@ -1,3 +1,4 @@
+import type { StyleXStyles } from '@stylexjs/stylex';
 import type * as React from 'react';
 import type { JSX } from 'react';
 import {
@@ -23,6 +24,8 @@ export enum ToggleAllState {
 }
 
 export interface SelectCommonProps<T> {
+  /** @internal first-party StyleX overrides for the container, applied last */
+  xstyle?: StyleXStyles;
   /** Aria label applied to the input field */
   ['aria-label']?: string;
   ['data-testid']?: string;

@@ -22,6 +22,8 @@ export interface CheckboxProps extends Omit<HTMLProps<HTMLInputElement>, 'value'
   indeterminate?: boolean;
   /** Show an invalid state around the input */
   invalid?: boolean;
+  /** @internal first-party StyleX overrides for the root label, applied last */
+  xstyle?: stylex.StyleXStyles;
 }
 
 /**
@@ -29,7 +31,19 @@ export interface CheckboxProps extends Omit<HTMLProps<HTMLInputElement>, 'value'
  */
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   (
-    { label, description, value, htmlValue, onChange, disabled, className, indeterminate, invalid, ...inputProps },
+    {
+      label,
+      description,
+      value,
+      htmlValue,
+      onChange,
+      disabled,
+      className,
+      indeterminate,
+      invalid,
+      xstyle,
+      ...inputProps
+    },
     ref
   ) => {
     const handleOnChange = useCallback(
@@ -42,7 +56,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     );
 
     return (
-      <label {...mergeStylexProps(stylex.props(styles.wrapper), { className })}>
+      <label {...mergeStylexProps(stylex.props(styles.wrapper, xstyle), { className })}>
         <div {...stylex.props(styles.checkboxWrapper)}>
           <input
             type="checkbox"
