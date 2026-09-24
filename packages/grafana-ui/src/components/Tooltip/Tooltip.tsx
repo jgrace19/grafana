@@ -10,14 +10,14 @@ import {
   useInteractions,
   safePolygon,
 } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, cloneElement, isValidElement, useCallback, useId, useRef, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, components, spacing } from '../../themes/stylex/tokens.stylex';
 import { getPositioningMiddleware } from '../../utils/floating';
-import { buildTooltipTheme, getPlacement } from '../../utils/tooltipUtils';
+import { getPlacement, tooltipStyles } from '../../utils/tooltipUtils';
 import { Portal } from '../Portal/Portal';
 
 import { type PopoverContent, type TooltipPlacement } from './types';
@@ -75,8 +75,7 @@ export const Tooltip = forwardRef<HTMLElement, TooltipProps>(
 
     const contentIsFunction = typeof content === 'function';
 
-    const styles = useStyles2(getStyles);
-    const style = styles[theme ?? 'info'];
+    const variant = theme === 'error' ? 'error' : 'info';
 
     const handleRef = useCallback(
       (ref: HTMLElement | null) => {
@@ -106,12 +105,16 @@ export const Tooltip = forwardRef<HTMLElement, TooltipProps>(
         {isOpen && (
           <Portal>
             <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
-              <FloatingArrow className={style.arrow} ref={arrowRef} context={context} />
+              <FloatingArrow
+                className={stylex.props(arrowStyles[variant]).className}
+                ref={arrowRef}
+                context={context}
+              />
               <div
                 data-testid={selectors.components.Tooltip.container}
                 id={tooltipId}
                 role="tooltip"
-                className={style.container}
+                {...stylex.props(tooltipStyles.container, containerStyles[variant])}
               >
                 {typeof content === 'string' && content}
                 {isValidElement(content) && cloneElement(content)}
@@ -127,25 +130,28 @@ export const Tooltip = forwardRef<HTMLElement, TooltipProps>(
 
 Tooltip.displayName = 'Tooltip';
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  const info = buildTooltipTheme(
-    theme,
-    theme.components.tooltip.background,
-    theme.components.tooltip.background,
-    theme.components.tooltip.text,
-    { topBottom: 0.5, rightLeft: 1 }
-  );
-  const error = buildTooltipTheme(
-    theme,
-    theme.colors.error.main,
-    theme.colors.error.main,
-    theme.colors.error.contrastText,
-    { topBottom: 0.5, rightLeft: 1 }
-  );
+const containerStyles = stylex.create({
+  info: {
+    backgroundColor: components['--gf-components-tooltip-background'],
+    borderColor: components['--gf-components-tooltip-background'],
+    color: components['--gf-components-tooltip-text'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+  error: {
+    backgroundColor: colors['--gf-colors-error-main'],
+    borderColor: colors['--gf-colors-error-main'],
+    color: colors['--gf-colors-error-contrast-text'],
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+});
 
-  return {
-    info,
-    ['info-alt']: info,
-    error,
-  };
-};
+const arrowStyles = stylex.create({
+  info: { fill: components['--gf-components-tooltip-background'] },
+  error: { fill: colors['--gf-colors-error-main'] },
+});

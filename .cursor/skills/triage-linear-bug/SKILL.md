@@ -42,6 +42,7 @@ CallMcpTool(server="plugin-linear-linear", toolName="list_comments", arguments={
 ```
 
 Extract and record:
+
 - **Error signature**: error type, message, code, stack trace
 - **Affected component**: which feature, page, or service
 - **Repro steps**: any steps to reproduce provided
@@ -65,11 +66,11 @@ Run a second search with different keywords if the first is too narrow (e.g., co
 
 **Evaluate results:**
 
-| Confidence | Signal | Action |
-|---|---|---|
-| High duplicate (>90%) | Same error + same component + recent | Flag as duplicate, link via `save_issue` with `duplicateOf`, post comment, stop |
-| Likely related (50-90%) | Similar symptoms or same component | Note as related, continue triage |
-| No match (<50%) | Nothing similar found | Continue triage |
+| Confidence              | Signal                               | Action                                                                          |
+| ----------------------- | ------------------------------------ | ------------------------------------------------------------------------------- |
+| High duplicate (>90%)   | Same error + same component + recent | Flag as duplicate, link via `save_issue` with `duplicateOf`, post comment, stop |
+| Likely related (50-90%) | Similar symptoms or same component   | Note as related, continue triage                                                |
+| No match (<50%)         | Nothing similar found                | Continue triage                                                                 |
 
 If flagging as duplicate, use `save_issue` to set `duplicateOf` and post a comment explaining the link, then stop.
 
@@ -83,6 +84,7 @@ Search the codebase for the reported error or affected component:
 4. **Related tests** — Find existing test files covering the affected code
 
 Record:
+
 - Relevant source files and line numbers
 - Recent commits that touched the area (potential regression sources)
 - Whether test coverage exists for the reported behavior
@@ -92,20 +94,24 @@ Record:
 Skip this step if reproduction was not requested.
 
 **For UI bugs:**
+
 1. Start the dev server if not already running (use the `grafana-dev-start` skill)
 2. Use the browser MCP to navigate to the affected page
 3. Follow the repro steps from the ticket
 4. Take a screenshot to document the result
 
 **For backend bugs:**
+
 1. Run targeted tests: `go test -run <TestPattern> ./<affected package>/`
 2. If no matching test exists, try to write a minimal reproduction test
 
 **For frontend logic bugs:**
+
 1. Run targeted tests: `yarn jest --no-watch <affected file>`
 2. Check if existing tests already fail
 
 Record:
+
 - **Reproduced**: yes / no / partial
 - **What was tried**: specific commands, URLs visited, steps followed
 - **Evidence**: test output, screenshot, error log
@@ -116,14 +122,15 @@ If reproduction fails after reasonable effort, record what was attempted and mov
 
 Apply this rubric based on everything gathered so far. See [priority-rubric.md](priority-rubric.md) for the full decision matrix.
 
-| Priority | Linear Value | Criteria |
-|---|---|---|
-| P1 Critical | 1 (Urgent) | Complete outage, data loss, security vulnerability, all users affected |
-| P2 High | 2 (High) | Major feature broken for broad user base, no workaround |
-| P3 Medium | 3 (Normal) | Feature degraded, workaround exists, or subset of users affected |
-| P4 Low | 4 (Low) | Cosmetic, minor UX issue, edge case, non-blocking |
+| Priority    | Linear Value | Criteria                                                               |
+| ----------- | ------------ | ---------------------------------------------------------------------- |
+| P1 Critical | 1 (Urgent)   | Complete outage, data loss, security vulnerability, all users affected |
+| P2 High     | 2 (High)     | Major feature broken for broad user base, no workaround                |
+| P3 Medium   | 3 (Normal)   | Feature degraded, workaround exists, or subset of users affected       |
+| P4 Low      | 4 (Low)      | Cosmetic, minor UX issue, edge case, non-blocking                      |
 
 Consider:
+
 - **Blast radius**: one user, a segment, or everyone?
 - **Workaround**: can users accomplish the task another way?
 - **Trend**: is this a regression (recently broke) or long-standing?
@@ -134,6 +141,7 @@ Consider:
 **Only do this if** codebase investigation (Step 3) and/or reproduction (Step 4) provide enough signal to be confident.
 
 State your confidence level explicitly:
+
 - **High confidence** — root cause identified in code, propose specific fix
 - **Medium confidence** — likely area identified, propose investigation direction
 - **Low confidence** — multiple possible causes, list areas to explore
@@ -162,6 +170,7 @@ CallMcpTool(server="plugin-linear-linear", toolName="save_issue", arguments={
 ```
 
 Add additional labels as appropriate:
+
 - `"regression"` — if git log suggests a recent change caused it
 - `"needs-repro-steps"` — if the ticket was too vague to investigate (Step 7 insufficient info path)
 - `"duplicate"` — if flagged as duplicate in Step 2

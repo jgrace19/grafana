@@ -7,17 +7,18 @@ Post this as a comment on the Linear issue via `save_comment`. Fill in each sect
 ```markdown
 ## Triage Summary
 
-| Field | Value |
-|---|---|
-| **Reproduced locally** | Yes / No / Partial / Skipped |
-| **Recommended priority** | P<N> (<Urgent/High/Normal/Low>) |
-| **Affected area** | `<file path or component>` |
-| **Regression** | Yes (introduced by `<commit>`) / No / Unknown |
-| **Related issues** | <ISSUE-IDs> or None |
+| Field                    | Value                                         |
+| ------------------------ | --------------------------------------------- |
+| **Reproduced locally**   | Yes / No / Partial / Skipped                  |
+| **Recommended priority** | P<N> (<Urgent/High/Normal/Low>)               |
+| **Affected area**        | `<file path or component>`                    |
+| **Regression**           | Yes (introduced by `<commit>`) / No / Unknown |
+| **Related issues**       | <ISSUE-IDs> or None                           |
 
 ## Investigation
 
 <What was found in the codebase. Include:
+
 - Relevant source files and line numbers
 - Recent commits that touched the affected area
 - Whether test coverage exists>
@@ -25,6 +26,7 @@ Post this as a comment on the Linear issue via `save_comment`. Fill in each sect
 ## Reproduction Attempt
 
 <What was tried and the result. Include:
+
 - Commands run or pages visited
 - Whether the bug manifested
 - If partial, what did and didn't work>
@@ -49,7 +51,8 @@ If low confidence, replace with:
 - <Area 2 and why>
 
 ---
-*Triaged by Cursor agent*
+
+_Triaged by Cursor agent_
 ```
 
 ## Insufficient Info Template
@@ -69,5 +72,6 @@ This ticket doesn't have enough detail for a full triage. To investigate further
 Setting priority to Normal (P3) as a placeholder until more info is available.
 
 ---
-*Triaged by Cursor agent*
+
+_Triaged by Cursor agent_
 ```

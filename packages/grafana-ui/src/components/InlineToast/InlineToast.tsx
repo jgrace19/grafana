@@ -1,15 +1,18 @@
-import { css, cx } from '@emotion/css';
 import { autoUpdate, offset, type Side, useFloating, useTransitionStyles } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { useLayoutEffect } from 'react';
 import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { components, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { Icon } from '../Icon/Icon';
 import { Portal } from '../Portal/Portal';
+import { textVariantStyles } from '../Text/Text';
 
 export interface InlineToastProps {
   children: React.ReactNode;
@@ -30,7 +33,6 @@ export interface InlineToastProps {
  * https://developers.grafana.com/ui/latest/index.html?path=/docs/information-inlinetoast--docs
  */
 export function InlineToast({ referenceElement, children, suffixIcon, placement }: InlineToastProps) {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   // the order of middleware is important!
@@ -63,7 +65,7 @@ export function InlineToast({ referenceElement, children, suffixIcon, placement 
   return (
     <Portal>
       <div style={{ display: 'inline-block', ...floatingStyles }} ref={refs.setFloating} aria-live="polite">
-        <span className={cx(styles.root)} style={placementStyles}>
+        <span {...mergeStylexProps(stylex.props(textVariantStyles.bodySmall, styles.root), { style: placementStyles })}>
           {children && <span>{children}</span>}
           {suffixIcon && <Icon name={suffixIcon} />}
         </span>
@@ -71,22 +73,6 @@ export function InlineToast({ referenceElement, children, suffixIcon, placement 
     </Portal>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    root: css({
-      ...theme.typography.bodySmall,
-      willChange: 'transform',
-      background: theme.components.tooltip.background,
-      color: theme.components.tooltip.text,
-      padding: theme.spacing(0.5, 1.5), // get's an extra .5 of vertical padding to account for the rounded corners
-      borderRadius: theme.shape.radius.pill,
-      display: 'inline-flex',
-      gap: theme.spacing(0.5),
-      alignItems: 'center',
-    }),
-  };
-};
 
 const getInitialTransform = (placement: InlineToastProps['placement'], theme: GrafanaTheme2) => {
   const gap = 1;
@@ -102,3 +88,20 @@ const getInitialTransform = (placement: InlineToastProps['placement'], theme: Gr
       return `translateX(-${theme.spacing(gap)})`;
   }
 };
+
+const styles = stylex.create({
+  root: {
+    willChange: 'transform',
+    backgroundColor: components['--gf-components-tooltip-background'],
+    color: components['--gf-components-tooltip-text'],
+    // gets an extra .5 of vertical padding to account for the rounded corners
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    borderRadius: shape['--gf-shape-radius-pill'],
+    display: 'inline-flex',
+    gap: spacing['--gf-spacing-x0-5'],
+    alignItems: 'center',
+  },
+});

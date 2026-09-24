@@ -1,6 +1,6 @@
-import { css, cx } from '@emotion/css';
 import { useArgs } from '@storybook/preview-api';
 import { type StoryFn, type Meta } from '@storybook/react';
+import * as stylex from '@stylexjs/stylex';
 import { oneLineTrim } from 'common-tags';
 import { useCallback, useState } from 'react';
 
@@ -120,16 +120,15 @@ export const UsingContentClassName: StoryFn = ({ title, body, ...args }) => {
 
   const setIsOpen = useCallback((isOpen: boolean) => updateArgs({ isOpen }), [updateArgs]);
 
-  const override = {
-    modalContent: css({
-      backgroundColor: 'red',
-      color: 'black',
-    }),
-  };
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open modal</Button>
-      <Modal title={title} {...args} contentClassName={cx(override.modalContent)} onDismiss={() => setIsOpen(false)}>
+      <Modal
+        title={title}
+        {...args}
+        contentClassName={stylex.props(override.modalContent).className}
+        onDismiss={() => setIsOpen(false)}
+      >
         {body}
       </Modal>
     </>
@@ -142,3 +141,10 @@ UsingContentClassName.args = {
 };
 
 export default meta;
+
+const override = stylex.create({
+  modalContent: {
+    backgroundColor: 'red',
+    color: 'black',
+  },
+});

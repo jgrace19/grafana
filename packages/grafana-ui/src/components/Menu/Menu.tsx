@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useImperativeHandle, useRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { colors, spacing } from '../../themes/stylex/tokens.stylex';
 import { Box } from '../Layout/Box/Box';
 
 import { MenuDivider } from './MenuDivider';
@@ -27,8 +26,7 @@ export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 const MenuComp = React.forwardRef<HTMLDivElement, MenuProps>(
   ({ header, children, ariaLabel, onOpen, onClose, onKeyDown, ...otherProps }, forwardedRef) => {
-    const styles = useStyles2(getStyles);
-    const componentTokens = useComponentTokens();
+    const componentTokens = useTheme2().components.menu;
 
     const localRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(forwardedRef, () => localRef.current!);
@@ -51,7 +49,7 @@ const MenuComp = React.forwardRef<HTMLDivElement, MenuProps>(
       >
         {header && (
           <div
-            className={cx(
+            {...stylex.props(
               styles.header,
               Boolean(children) && React.Children.toArray(children).length > 0 && styles.headerBorder
             )}
@@ -73,26 +71,17 @@ export const Menu = Object.assign(MenuComp, {
   Group: MenuGroup,
 });
 
-const useComponentTokens = () =>
-  useStyles2((theme: GrafanaTheme2) => {
-    const {
-      components: { menu },
-    } = theme;
-
-    return {
-      padding: menu.padding,
-      borderRadius: menu.borderRadius,
-    };
-  });
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      padding: theme.spacing(0.5, 0.5, 1, 0.5),
-    }),
-    headerBorder: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      marginBottom: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  header: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  headerBorder: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
+});

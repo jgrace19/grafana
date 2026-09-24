@@ -20,6 +20,7 @@ components, hooks, RTK slices, Emotion `useStyles2`.
 component equivalent for `componentDidCatch` / `getDerivedStateFromError`.
 
 Skip any file that implements either of these methods. Known file:
+
 - `public/app/features/plugins/components/PluginErrorBoundary.tsx`
 
 Verify before converting: `rg 'componentDidCatch|getDerivedStateFromError' <file>`
@@ -41,20 +42,20 @@ rg 'componentWillReceiveProps' public/app/ --files-with-matches
 
 ### Step 1: Class → Function Component
 
-| Class pattern | Hook replacement |
-|---|---|
-| `class Foo extends Component<P, S>` | `const Foo = (props: P) => { ... }` |
-| `class Foo extends PureComponent<P>` | `const Foo = React.memo((props: P) => { ... })` |
-| `this.state` / `this.setState` | `useState` |
-| `this.props` | Destructured params |
-| `componentDidMount` | `useEffect(() => { ... }, [])` |
-| `componentDidUpdate(prev)` | `useEffect` with deps array |
-| `componentWillUnmount` | Return cleanup fn from `useEffect` |
-| `componentWillReceiveProps` | Remove — derive with `useMemo` or key the component |
-| `getDerivedStateFromProps` | Compute during render or `useMemo` |
-| `createRef()` | `useRef()` |
-| Class methods | `const fn = useCallback(...)` or plain `const fn = () => ...` |
-| `stylesFactory` / inline styles | `useStyles2(getStyles)` |
+| Class pattern                        | Hook replacement                                              |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `class Foo extends Component<P, S>`  | `const Foo = (props: P) => { ... }`                           |
+| `class Foo extends PureComponent<P>` | `const Foo = React.memo((props: P) => { ... })`               |
+| `this.state` / `this.setState`       | `useState`                                                    |
+| `this.props`                         | Destructured params                                           |
+| `componentDidMount`                  | `useEffect(() => { ... }, [])`                                |
+| `componentDidUpdate(prev)`           | `useEffect` with deps array                                   |
+| `componentWillUnmount`               | Return cleanup fn from `useEffect`                            |
+| `componentWillReceiveProps`          | Remove — derive with `useMemo` or key the component           |
+| `getDerivedStateFromProps`           | Compute during render or `useMemo`                            |
+| `createRef()`                        | `useRef()`                                                    |
+| Class methods                        | `const fn = useCallback(...)` or plain `const fn = () => ...` |
+| `stylesFactory` / inline styles      | `useStyles2(getStyles)`                                       |
 
 **When converting `PureComponent`**: only wrap with `React.memo()` if the
 component is known to receive unchanged props frequently. Otherwise, a plain

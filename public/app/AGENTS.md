@@ -17,13 +17,13 @@ yarn i18n-extract             # After adding user-facing strings
 
 ## Architecture
 
-| Directory              | Purpose                                                |
-| ---------------------- | ------------------------------------------------------ |
-| `public/app/core/`     | Shared services, components, utilities                 |
-| `public/app/features/` | Feature code by domain (dashboard, alerting, explore)  |
-| `public/app/plugins/`  | Built-in plugins (many are Yarn workspaces)            |
-| `public/app/types/`    | TypeScript type definitions                            |
-| `public/app/store/`    | Redux store configuration                              |
+| Directory              | Purpose                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `public/app/core/`     | Shared services, components, utilities                |
+| `public/app/features/` | Feature code by domain (dashboard, alerting, explore) |
+| `public/app/plugins/`  | Built-in plugins (many are Yarn workspaces)           |
+| `public/app/types/`    | TypeScript type definitions                           |
+| `public/app/store/`    | Redux store configuration                             |
 
 ## Patterns
 

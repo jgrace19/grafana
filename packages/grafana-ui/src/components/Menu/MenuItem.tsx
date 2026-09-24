@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import {
   type ReactElement,
   useCallback,
@@ -10,15 +11,18 @@ import {
 } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2, type LinkTarget } from '@grafana/data';
+import { type LinkTarget } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
-import { getFocusStyles, getInternalRadius } from '../../themes/mixins';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { mixins } from '../../themes/stylex/mixins';
+import { colors, components, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { Icon } from '../Icon/Icon';
 import { Stack } from '../Layout/Stack/Stack';
+import { textVariantStyles } from '../Text/Text';
 
+import './MenuItem.css';
 import { SubMenu } from './SubMenu';
 
 /** @internal */
@@ -46,6 +50,8 @@ export interface MenuItemProps<T = unknown> {
   onClick?: (event: React.MouseEvent<HTMLElement>, payload?: T) => void;
   /** Custom MenuItem styles*/
   className?: string;
+  /** @internal first-party StyleX overrides, applied after the item's own styles */
+  xstyle?: stylex.StyleXStyles;
   /** Active */
   active?: boolean;
   /** Disabled */
@@ -80,6 +86,7 @@ export const MenuItem = React.memo(
       target,
       onClick,
       className,
+      xstyle,
       active,
       disabled,
       destructive,
@@ -91,7 +98,6 @@ export const MenuItem = React.memo(
       testId,
       iconColor,
     } = props;
-    const styles = useStyles2(getStyles);
     // Ignore iconColor when destructive or disabled — those states own the colors.
     const resolvedIconColor = iconColor && !destructive && !disabled ? iconColor : undefined;
     const [isActive, setIsActive] = useState(active);
@@ -115,14 +121,16 @@ export const MenuItem = React.memo(
 
     const hasSubMenu = childItems && childItems.length > 0;
     const ItemElement = hasSubMenu ? 'div' : url === undefined ? 'button' : 'a';
-    const itemStyle = cx(
-      {
-        [styles.item]: true,
-        [styles.active]: isActive,
-        [styles.disabled]: disabled,
-        [styles.destructive]: destructive && !disabled,
-      },
-      className
+    const tone = disabled ? 'disabled' : destructive ? 'destructive' : 'normal';
+    const itemProps = mergeStylexProps(
+      stylex.props(
+        mixins.focusRing,
+        styles.item,
+        toneStyles[tone],
+        isActive ? activeBackgroundStyles[tone] : backgroundStyles[tone],
+        xstyle
+      ),
+      { className: clsx(tone === 'destructive' && 'gf-menu-item-destructive', className) }
     );
 
     const disabledProps = {
@@ -185,7 +193,7 @@ export const MenuItem = React.memo(
     return (
       <ItemElement
         target={target}
-        className={itemStyle}
+        {...itemProps}
         rel={target === '_blank' ? 'noopener noreferrer' : undefined}
         href={url}
         onClick={(event) => {
@@ -214,14 +222,14 @@ export const MenuItem = React.memo(
           {icon && (
             <Icon
               name={icon}
-              className={cx(styles.icon, resolvedIconColor && css({ color: resolvedIconColor }))}
+              xstyle={[styles.icon, resolvedIconColor !== undefined && styles.iconColor(resolvedIconColor)]}
               aria-hidden
             />
           )}
-          <span className={cx(styles.ellipsis, styles.label)}>{label}</span>
-          <div className={cx(styles.rightWrapper, { [styles.withShortcut]: hasShortcut })}>
+          <span {...stylex.props(styles.ellipsis, styles.label)}>{label}</span>
+          <div {...stylex.props(styles.rightWrapper, hasShortcut && styles.withShortcut)}>
             {hasShortcut && (
-              <div className={styles.shortcut}>
+              <div {...stylex.props(styles.shortcut)}>
                 <Icon name="keyboard" title={t('grafana-ui.menu-item.keyboard-shortcut-label', 'Keyboard shortcut')} />
                 {shortcut}
               </div>
@@ -239,9 +247,12 @@ export const MenuItem = React.memo(
         </Stack>
         {description && (
           <div
-            className={cx(styles.description, styles.ellipsis, {
-              [styles.descriptionWithIcon]: icon !== undefined,
-            })}
+            {...stylex.props(
+              textVariantStyles.bodySmall,
+              styles.description,
+              styles.ellipsis,
+              icon !== undefined && styles.descriptionWithIcon
+            )}
           >
             {description}
           </div>
@@ -254,94 +265,126 @@ export const MenuItem = React.memo(
 
 MenuItem.displayName = 'MenuItem';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const menuPadding = theme.components.menu.padding * theme.spacing.gridSize;
+const styles = stylex.create({
+  item: {
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1-5'],
+    minHeight: spacing['--gf-spacing-x4'],
+    // getInternalRadius(theme, menu padding, { parentBorderWidth: 0 })
+    borderRadius: `calc(max(0px, ${shape['--gf-shape-radius-default']} - ${components['--gf-components-menu-padding']} * ${spacing['--gf-spacing-grid-size']}))`,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    borderStyle: 'none',
+    width: '100%',
+    position: 'relative',
+    textDecoration: { default: null, ':hover': 'none', ':focus-visible': 'none' },
+  },
+  label: {
+    color: colors['--gf-colors-text-primary'],
+  },
+  icon: {
+    opacity: 0.7,
+  },
+  iconColor: (color: string) => ({ color }),
+  rightWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: 'auto',
+  },
+  withShortcut: {
+    minWidth: `calc(${spacing['--gf-spacing-grid-size']} * 10.5)`,
+  },
+  shortcut: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  description: {
+    textAlign: 'start',
+  },
+  descriptionWithIcon: {
+    marginLeft: spacing['--gf-spacing-x3'],
+  },
+  ellipsis: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});
 
-  return {
-    item: css({
-      background: 'none',
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      justifyContent: 'center',
-      padding: theme.spacing(0.5, 1.5),
-      minHeight: theme.spacing(4),
-      borderRadius: getInternalRadius(theme, menuPadding, { parentBorderWidth: 0 }),
-      margin: 0,
-      border: 'none',
-      width: '100%',
-      position: 'relative',
+// Disabled and destructive states win over hover/focus, and destructive also restyles on mouse focus.
+const toneStyles = stylex.create({
+  normal: {
+    color: {
+      default: colors['--gf-colors-text-secondary'],
+      ':hover': colors['--gf-colors-text-primary'],
+      ':focus-visible': colors['--gf-colors-text-primary'],
+    },
+  },
+  disabled: {
+    color: colors['--gf-colors-action-disabled-text'],
+    cursor: { default: 'pointer', ':hover': 'not-allowed', ':focus': 'not-allowed', ':focus-visible': 'not-allowed' },
+  },
+  destructive: {
+    color: {
+      default: colors['--gf-colors-error-text'],
+      ':hover': colors['--gf-colors-error-contrast-text'],
+      ':focus': colors['--gf-colors-error-contrast-text'],
+      ':focus-visible': colors['--gf-colors-error-contrast-text'],
+    },
+  },
+});
 
-      '&:hover, &:focus-visible': {
-        background: theme.colors.action.hover,
-        color: theme.colors.text.primary,
-        textDecoration: 'none',
-      },
+const backgroundStyles = stylex.create({
+  normal: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-action-hover'],
+      ':focus-visible': colors['--gf-colors-action-hover'],
+    },
+  },
+  disabled: {
+    backgroundColor: 'transparent',
+  },
+  destructive: {
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': colors['--gf-colors-error-main'],
+      ':focus': colors['--gf-colors-error-main'],
+      ':focus-visible': colors['--gf-colors-error-main'],
+    },
+  },
+});
 
-      '&:focus-visible': getFocusStyles(theme),
-    }),
-    label: css({
-      color: theme.colors.text.primary,
-    }),
-    active: css({
-      background: theme.colors.action.hover,
-    }),
-    destructive: css({
-      color: theme.colors.error.text,
-
-      svg: {
-        color: theme.colors.error.text,
-      },
-
-      '&:hover, &:focus, &:focus-visible': {
-        background: theme.colors.error.main,
-        color: theme.colors.error.contrastText,
-
-        svg: {
-          color: theme.colors.error.contrastText,
-        },
-      },
-    }),
-    disabled: css({
-      color: theme.colors.action.disabledText,
-      label: 'menu-item-disabled',
-      '&:hover, &:focus, &:focus-visible': {
-        cursor: 'not-allowed',
-        background: 'none',
-        color: theme.colors.action.disabledText,
-      },
-    }),
-    icon: css({
-      opacity: 0.7,
-    }),
-    rightWrapper: css({
-      display: 'flex',
-      alignItems: 'center',
-      marginLeft: 'auto',
-    }),
-    withShortcut: css({
-      minWidth: theme.spacing(10.5),
-    }),
-    shortcut: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      marginLeft: theme.spacing(2),
-    }),
-    description: css({
-      ...theme.typography.bodySmall,
-      textAlign: 'start',
-    }),
-    descriptionWithIcon: css({
-      marginLeft: theme.spacing(3),
-    }),
-    ellipsis: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-  };
-};
+const activeBackgroundStyles = stylex.create({
+  normal: {
+    backgroundColor: colors['--gf-colors-action-hover'],
+  },
+  disabled: {
+    backgroundColor: {
+      default: colors['--gf-colors-action-hover'],
+      ':hover': 'transparent',
+      ':focus': 'transparent',
+      ':focus-visible': 'transparent',
+    },
+  },
+  destructive: {
+    backgroundColor: {
+      default: colors['--gf-colors-action-hover'],
+      ':hover': colors['--gf-colors-error-main'],
+      ':focus': colors['--gf-colors-error-main'],
+      ':focus-visible': colors['--gf-colors-error-main'],
+    },
+  },
+});

@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import {
   FloatingFocusManager,
   autoUpdate,
@@ -12,14 +11,13 @@ import { useCallback, useRef, useState } from 'react';
 import * as React from 'react';
 import { CSSTransition } from 'react-transition-group';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { renderOrCallToRender } from '../../utils/reactUtils';
 import { getPlacement } from '../../utils/tooltipUtils';
 import { Portal } from '../Portal/Portal';
 import { type TooltipPlacement } from '../Tooltip/types';
+
+import './Dropdown.global.css';
 
 export interface Props {
   overlay: React.ReactElement | (() => React.ReactElement);
@@ -70,8 +68,8 @@ export const Dropdown = React.memo(({ children, overlay, placement, offset, root
   const dismiss = useDismiss(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, click]);
 
+  // Keep in sync with the transition duration in Dropdown.global.css.
   const animationDuration = 150;
-  const animationStyles = useStyles2(getStyles, animationDuration);
 
   const onOverlayClicked = () => {
     handleOpenChange(false);
@@ -110,7 +108,7 @@ export const Dropdown = React.memo(({ children, overlay, placement, offset, root
                 appear={true}
                 in={true}
                 timeout={{ appear: animationDuration, exit: 0, enter: 0 }}
-                classNames={animationStyles}
+                classNames={animationClassNames}
               >
                 <div ref={transitionRef}>{renderOrCallToRender(overlay, {})}</div>
               </CSSTransition>
@@ -124,22 +122,7 @@ export const Dropdown = React.memo(({ children, overlay, placement, offset, root
 
 Dropdown.displayName = 'Dropdown';
 
-const getStyles = (theme: GrafanaTheme2, duration: number) => {
-  return {
-    appear: css({
-      opacity: '0',
-      position: 'relative',
-      transformOrigin: 'top',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transform: 'scaleY(0.5)',
-      },
-    }),
-    appearActive: css({
-      opacity: '1',
-      [theme.transitions.handleMotion('no-preference')]: {
-        transform: 'scaleY(1)',
-        transition: `transform ${duration}ms cubic-bezier(0.2, 0, 0.2, 1), opacity ${duration}ms cubic-bezier(0.2, 0, 0.2, 1)`,
-      },
-    }),
-  };
+const animationClassNames = {
+  appear: 'gf-dropdown-appear',
+  appearActive: 'gf-dropdown-appear-active',
 };
