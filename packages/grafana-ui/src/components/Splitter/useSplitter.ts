@@ -2,16 +2,10 @@ import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId, useRef } from 'react';
 import type * as React from 'react';
 
-import { useTheme2 } from '../../themes/ThemeContext';
 import { type ComponentSize } from '../../types/size';
 import { clamp } from '../../utils/clamp';
 import { type DragHandlePosition } from '../DragHandle/DragHandle';
-import {
-  dragHandleStyles,
-  getDragHandleGripColor,
-  horizontalOffsetStyles,
-  verticalOffsetStyles,
-} from '../DragHandle/dragHandleStyles';
+import { getDragHandleClassNames } from '../DragHandle/dragHandleStyles';
 
 export interface UseSplitterOptions {
   /**
@@ -296,12 +290,7 @@ export function useSplitter(options: UseSplitterOptions) {
     }
   }, [onSizeChanged, handleSize]);
 
-  const theme = useTheme2();
-  const dragHandle = stylex.props(
-    dragHandleStyles.base,
-    direction === 'column' ? dragHandleStyles.horizontal : dragHandleStyles.vertical,
-    direction === 'column' ? horizontalOffsetStyles[dragPosition] : verticalOffsetStyles[dragPosition]
-  );
+  const dragHandles = getDragHandleClassNames(dragPosition);
   const id = useId();
 
   const primaryStyles: React.CSSProperties = {
@@ -347,12 +336,7 @@ export function useSplitter(options: UseSplitterOptions) {
       onDoubleClick,
       onBlur,
       ref: splitterRef,
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      style: {
-        ...dragHandle.style,
-        [measurementProp]: `${handleSize}px`,
-        '--gf-drag-handle-grip-color': getDragHandleGripColor(theme),
-      } as React.CSSProperties,
+      style: { [measurementProp]: `${handleSize}px` },
       role: 'separator',
       'aria-valuemin': 0,
       'aria-valuemax': 100,
@@ -360,7 +344,7 @@ export function useSplitter(options: UseSplitterOptions) {
       'aria-controls': primaryId,
       'aria-label': 'Pane resize widget',
       tabIndex: 0,
-      className: dragHandle.className,
+      className: direction === 'column' ? dragHandles.dragHandleHorizontal : dragHandles.dragHandleVertical,
     },
   };
 }

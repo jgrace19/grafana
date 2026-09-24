@@ -17,7 +17,8 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, InlineField, Select, useStyles2 } from '@grafana/ui';
+import { InlineField, Select, useStyles2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { FIELD_SELECTOR_MIN_WIDTH } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { LogsTableFieldSelector } from 'app/features/logs/components/fieldSelector/LogsTableFieldSelector';
 import { getFieldSelectorWidth } from 'app/features/logs/components/fieldSelector/fieldSelectorUtils';
@@ -71,7 +72,7 @@ export function LogsTableWrap(props: Props) {
   const propsColumns = panelState?.columns;
   // Save the normalized cardinality of each label
   const [columnsWithMeta, setColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);
-  const dragStyles = useStyles2(getDragStyles);
+  const dragStyles = getDragHandleClassNames();
 
   // Filtered copy of columnsWithMeta that only includes matching results
   const [filteredColumnsWithMeta, setFilteredColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);

@@ -6,7 +6,8 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { type DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, IconButton, useTheme2 } from '@grafana/ui';
+import { IconButton, useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 
 import { useLogListContext } from '../panel/LogListContext';
 import { reportInteractionOnce } from '../panel/analytics';
@@ -41,8 +42,7 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(logOptionsStorageKey));
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
   const theme = useTheme2();
-  // getDragStyles is a @grafana/ui Emotion helper; the resize handle it styles belongs to that package.
-  const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
+  const dragStyles = getDragHandleClassNames();
 
   useLayoutEffect(() => {
     const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {

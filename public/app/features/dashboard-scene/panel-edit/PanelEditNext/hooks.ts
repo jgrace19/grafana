@@ -3,7 +3,8 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 import { MIN_SUGGESTIONS_PANE_WIDTH } from 'app/features/panel/suggestions/constants';
 
 import { useEditPaneCollapsed } from '../../edit-pane/shared';
@@ -47,7 +48,7 @@ export function useRatioResize({
   className,
 }: UseRatioResizeOptions) {
   const [ratio, setRatio] = useState(initialRatio);
-  const styles = useStyles2(getDragStyles, 'middle');
+  const styles = getDragHandleClassNames('middle');
 
   const ratioRef = useRef(ratio);
   const minRatioRef = useRef(minRatio);

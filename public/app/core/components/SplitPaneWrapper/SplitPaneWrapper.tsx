@@ -4,7 +4,7 @@ import SplitPane, { type Split } from 'react-split-pane';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { getDragStyles } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 
 interface Props {
   splitOrientation?: Split;
@@ -74,7 +74,7 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
 
   // Limit options pane width to 90% of screen.
   const styles = getStyles(config.theme2, splitVisible);
-  const dragStyles = getDragStyles(config.theme2);
+  const dragStyles = getDragHandleClassNames();
 
   // Need to handle when width is relative. ie a percentage of the viewport
   const paneSizePx =

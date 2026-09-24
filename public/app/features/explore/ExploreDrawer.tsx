@@ -5,7 +5,8 @@ import * as React from 'react';
 
 // Services & Utils
 import { type GrafanaTheme2 } from '@grafana/data';
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames } from '@grafana/ui/internal';
 
 export interface Props {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export function ExploreDrawer(props: Props) {
   const { children, onResize, initialHeight } = props;
   const theme = useTheme2();
   const styles = useStyles2(getStyles);
-  const dragStyles = getDragStyles(theme);
+  const dragStyles = getDragHandleClassNames();
 
   const height = initialHeight || `${theme.components.horizontalDrawer.defaultHeight}px`;
 

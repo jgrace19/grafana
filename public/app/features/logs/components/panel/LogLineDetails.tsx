@@ -6,8 +6,8 @@ import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useStat
 import { type TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { getDragStyles, Icon, ScrollContainer, Tab, TabsBar, useTheme2 } from '@grafana/ui';
-import { mergeStylexProps } from '@grafana/ui/internal';
+import { Icon, ScrollContainer, Tab, TabsBar, useTheme2 } from '@grafana/ui';
+import { getDragHandleClassNames, mergeStylexProps } from '@grafana/ui/internal';
 import { colors, shadows, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { getFieldSelectorWidth } from '../fieldSelector/fieldSelectorUtils';
@@ -36,8 +36,7 @@ export const LogLineDetails = memo(
     const { noInteractions, fontSize, logOptionsStorageKey } = useLogListContext();
     const { detailsWidth, setDetailsWidth } = useLogDetailsContext();
     const theme = useTheme2();
-    // getDragStyles is a @grafana/ui Emotion helper; the resize handle it styles belongs to that package.
-    const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
+    const dragStyles = getDragHandleClassNames();
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const handleResize = useCallback(() => {
