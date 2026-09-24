@@ -142,6 +142,7 @@ Group file-level results into their parent feature or service directory:
   `pkg/plugins/`
 
 For each bucket count:
+
 - Number of debt signals (sum across categories)
 - Number of distinct files with at least one signal
 
@@ -178,17 +179,19 @@ code).
 
 ### <date> (current scan)
 
-| Metric | Previous | Current | Delta |
-|--------|----------|---------|-------|
-| Class components | 61 | 58 | -3 |
-| connect() HOC | 41 | 41 | 0 |
-| ... | ... | ... | ... |
+| Metric           | Previous | Current | Delta |
+| ---------------- | -------- | ------- | ----- |
+| Class components | 61       | 58      | -3    |
+| connect() HOC    | 41       | 41      | 0     |
+| ...              | ...      | ...     | ...   |
 
 **Resolved since last scan:**
+
 - Converted `DashboardPage.tsx` from class to function component
 - ...
 
 **New since last scan:**
+
 - New `any` usage in `features/foo/bar.ts`
 - ...
 ```
@@ -243,6 +246,7 @@ section on the first run.
 ### Linking Remediation Skills
 
 If a remediation skill exists, reference it:
+
 - Class components / connect() → `migrate-class-components` skill
 - Feature toggle migration → link to `pkg/services/featuremgmt/` docs
 
@@ -314,6 +318,7 @@ matching Linear ticket, create one.
 **Title convention**: `[Tech Debt] <short action title>`
 
 Examples:
+
 - `[Tech Debt] Migrate dashboard/ class components to function components`
 - `[Tech Debt] Modernize Explore TraceView (stylesFactory + unsafe lifecycle)`
 - `[Tech Debt] Split oversized Go files (setting.go, dashboard_service.go)`
@@ -327,16 +332,17 @@ Every ticket must include an `estimate` value (Fibonacci point scale used by the
 grafana team). Pick the bucket whose description best matches the scope of work
 implied by the recommended action:
 
-| Points | Effort | Typical scope |
-|--------|--------|---------------|
-| 1 | < ½ day | Mechanical fix in 1–3 files (e.g., remove a single deprecated toggle, drop a few `nolint` directives). |
-| 2 | ½–1 day | Localized cleanup in 4–10 files with no behavior change (e.g., replace `stylesFactory` in one feature folder). |
-| 3 | 1–2 days | Single-feature refactor touching 10–25 files (e.g., migrate one feature's class components, split one oversized Go file). |
-| 5 | 3–5 days | Cross-cutting change across one subsystem (e.g., migrate `IsEnabled` call sites in a single package tree, reduce `any` in top 10 files). |
-| 8 | 1–2 weeks | Multi-feature migration, 50+ files, or coordination across teams (e.g., migrate all remaining `connect()` HOCs in `features/dashboard/`). |
-| 13 | 2+ weeks | Repo-wide effort or one requiring design (e.g., complete OpenFeature migration, eliminate all class components). Prefer to split into smaller tickets when possible. |
+| Points | Effort    | Typical scope                                                                                                                                                        |
+| ------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1      | < ½ day   | Mechanical fix in 1–3 files (e.g., remove a single deprecated toggle, drop a few `nolint` directives).                                                               |
+| 2      | ½–1 day   | Localized cleanup in 4–10 files with no behavior change (e.g., replace `stylesFactory` in one feature folder).                                                       |
+| 3      | 1–2 days  | Single-feature refactor touching 10–25 files (e.g., migrate one feature's class components, split one oversized Go file).                                            |
+| 5      | 3–5 days  | Cross-cutting change across one subsystem (e.g., migrate `IsEnabled` call sites in a single package tree, reduce `any` in top 10 files).                             |
+| 8      | 1–2 weeks | Multi-feature migration, 50+ files, or coordination across teams (e.g., migrate all remaining `connect()` HOCs in `features/dashboard/`).                            |
+| 13     | 2+ weeks  | Repo-wide effort or one requiring design (e.g., complete OpenFeature migration, eliminate all class components). Prefer to split into smaller tickets when possible. |
 
 Rules of thumb when sizing:
+
 - Use the **file count** from the scan as the primary input, then adjust up if
   the area has high churn (Step 4 priority score) or touches multiple teams.
 - If a recommended action would naturally be 13+, split it into multiple
