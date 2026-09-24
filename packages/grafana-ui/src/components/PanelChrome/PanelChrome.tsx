@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type CSSProperties, type ReactElement, type ReactNode, useId, useState } from 'react';
 import * as React from 'react';
 import { useMeasure, useToggle } from 'react-use';
@@ -7,8 +8,10 @@ import { type GrafanaTheme2, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
-import { getFocusStyles } from '../../themes/mixins';
+import { useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { mixins } from '../../themes/stylex/mixins';
+import { colors, components, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { DelayRender } from '../../utils/DelayRender';
 import { getFeatureToggle } from '../../utils/featureToggle';
 import { usePointerDistance } from '../../utils/usePointerDistance';
@@ -23,6 +26,8 @@ import { PanelDescription } from './PanelDescription';
 import { PanelMenu } from './PanelMenu';
 import { PanelStatus } from './PanelStatus';
 import { TitleItem } from './TitleItem';
+
+import './PanelChrome.css';
 
 /**
  * @internal
@@ -160,7 +165,7 @@ export function PanelChrome({
   subHeaderContent,
 }: PanelChromeProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
+  const newPanelPadding = getFeatureToggle('newPanelPadding');
   const panelContentId = useId();
   const panelTitleId = useId().replace(/:/g, '_');
   const { isSelected, onSelect, isSelectable } = useElementSelection(selectionId);
@@ -175,6 +180,7 @@ export function PanelChrome({
   const [selectableHighlight, setSelectableHighlight] = useState(false);
   const onHeaderEnter = React.useCallback(() => setSelectableHighlight(true), []);
   const onHeaderLeave = React.useCallback(() => setSelectableHighlight(false), []);
+  const isSelectableHighlighted = !isSelected && isSelectable && selectableHighlight;
 
   // if collapsed is not defined, then component is uncontrolled and state is managed internally
   if (collapsed === undefined) {
@@ -267,7 +273,7 @@ export function PanelChrome({
     <>
       {/* Non collapsible title */}
       {!collapsible && title && (
-        <div className={styles.title}>
+        <div {...mergeStylexProps(stylex.props(styles.title), { className: 'gf-panel-chrome-title' })}>
           <Text
             element="h2"
             variant="h6"
@@ -282,11 +288,11 @@ export function PanelChrome({
 
       {/* Collapsible title */}
       {collapsible && (
-        <div className={styles.title}>
+        <div {...mergeStylexProps(stylex.props(styles.title), { className: 'gf-panel-chrome-title' })}>
           <Text element="h2" variant="h6">
             <button
               type="button"
-              className={styles.clearButtonStyles}
+              {...stylex.props(styles.clearButtonStyles)}
               onClick={() => {
                 toggleOpen();
                 if (onToggleCollapse) {
@@ -312,7 +318,10 @@ export function PanelChrome({
       )}
 
       {(titleItems || description) && (
-        <div className={cx(styles.titleItems, dragClassCancel)} data-testid="title-items-container">
+        <div
+          {...mergeStylexProps(stylex.props(styles.titleItems), { className: dragClassCancel })}
+          data-testid="title-items-container"
+        >
           <PanelDescription description={description} className={dragClassCancel} />
           {titleItems}
         </div>
@@ -327,24 +336,20 @@ export function PanelChrome({
           }
         >
           <TitleItem className={dragClassCancel} data-testid="panel-streaming" onClick={onCancelQuery}>
-            <Icon name="circle-mono" size="md" className={styles.streaming} />
+            <Icon name="circle-mono" size="md" xstyle={styles.streaming} />
           </TitleItem>
         </Tooltip>
       )}
       {loadingState === LoadingState.Loading && onCancelQuery && (
         <DelayRender delay={2000}>
           <Tooltip content={t('grafana-ui.panel-chrome.tooltip-cancel', 'Cancel query')}>
-            <TitleItem
-              className={cx(dragClassCancel, styles.pointer)}
-              data-testid="panel-cancel-query"
-              onClick={onCancelQuery}
-            >
+            <TitleItem className={dragClassCancel} data-testid="panel-cancel-query" onClick={onCancelQuery}>
               <Icon name="sync-slash" size="md" />
             </TitleItem>
           </Tooltip>
         </DelayRender>
       )}
-      {!hoverHeader && <div className={styles.flexGrow} />}
+      {!hoverHeader && <div {...stylex.props(styles.flexGrow)} />}
       {actions && itemsRenderer(actions, (item) => item)}
     </>
   );
@@ -354,16 +359,30 @@ export function PanelChrome({
   const hasHeaderContent = title || description || titleItems || menu || dragClass || actions;
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       {/* tabIndex={0} is needed for keyboard accessibility in the plot area */}
       <section
-        className={cx(
-          styles.panel,
-          isPanelTransparent && styles.panelTransparent,
-          isSelected && 'dashboard-selected-element',
-          !isSelected && isSelectable && selectableHighlight && 'dashboard-selectable-element'
+        {...mergeStylexProps(
+          stylex.props(
+            mixins.focusRing,
+            styles.panel,
+            isPanelTransparent && styles.panelTransparent,
+            isSelectableHighlighted &&
+              styles.selectableHighlight(
+                isPanelTransparent ? 'transparent' : components['--gf-components-panel-background'],
+                theme.colors.emphasize(theme.colors.background.canvas, 0.08)
+              )
+          ),
+          {
+            className: clsx(
+              // dashboard-scene finds panels with `section[class*="panel-container"]`
+              'gf-panel-container',
+              isSelected && 'dashboard-selected-element',
+              isSelectableHighlighted && 'dashboard-selectable-element'
+            ),
+            style: containerStyles,
+          }
         )}
-        style={containerStyles}
         aria-labelledby={!!title ? panelTitleId : undefined}
         data-testid={testid}
         tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
@@ -372,7 +391,7 @@ export function PanelChrome({
         onMouseEnter={onMouseEnter}
         ref={ref}
       >
-        <div className={styles.loadingBarContainer}>
+        <div {...stylex.props(styles.loadingBarContainer)}>
           {loadingState === LoadingState.Loading ? (
             <LoadingBar
               width={loadingBarWidth}
@@ -397,7 +416,7 @@ export function PanelChrome({
             )}
 
             {statusMessage && (
-              <div className={styles.errorContainerFloating}>
+              <div {...stylex.props(styles.errorContainerFloating)}>
                 <PanelStatus
                   message={statusMessage}
                   onClick={statusMessageOnClick}
@@ -411,8 +430,13 @@ export function PanelChrome({
         {hasHeader && (
           <>
             <div
-              className={cx(styles.headerContainer, dragClass)}
-              style={headerStyles}
+              {...mergeStylexProps(
+                stylex.props(
+                  styles.headerContainer,
+                  newPanelPadding ? styles.headerPaddingNew : styles.headerPaddingLegacy
+                ),
+                { className: dragClass, style: headerStyles }
+              )}
               data-testid={selectors.components.Panels.Panel.headerContainer}
               onPointerDown={onPointerDown}
               onMouseEnter={isSelectable ? onHeaderEnter : undefined}
@@ -436,14 +460,20 @@ export function PanelChrome({
                   menu={menu}
                   title={typeof title === 'string' ? title : undefined}
                   placement="bottom-end"
-                  menuButtonClass={cx(styles.menuItem, dragClassCancel, showOnHoverClass)}
+                  menuButtonClass={clsx('gf-panel-chrome-menu', dragClassCancel, showOnHoverClass)}
                   onOpenMenu={onOpenMenu}
                   dragClassCancel={dragClassCancel}
                 />
               )}
             </div>
             {!collapsed && subHeaderContent && (
-              <div className={styles.subHeader} ref={subHeaderRef}>
+              <div
+                {...stylex.props(
+                  styles.subHeader,
+                  newPanelPadding ? styles.subHeaderPaddingNew : styles.subHeaderPaddingLegacy
+                )}
+                ref={subHeaderRef}
+              >
                 {subHeaderContent}
               </div>
             )}
@@ -454,8 +484,9 @@ export function PanelChrome({
           <div
             id={panelContentId}
             data-testid={selectors.components.Panels.Panel.content}
-            className={cx(styles.content, height === undefined && styles.containNone)}
-            style={contentStyle}
+            {...mergeStylexProps(stylex.props(styles.content, height === undefined && styles.containNone), {
+              style: contentStyle,
+            })}
             onPointerDown={onContentPointerDown}
           >
             {typeof children === 'function' ? children(innerWidth, innerHeight) : children}
@@ -518,163 +549,128 @@ const getContentStyle = (
   return { contentStyle, innerWidth, innerHeight };
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const { background, borderColor } = theme.components.panel;
-  const newPanelPadding = getFeatureToggle('newPanelPadding');
+const panelFocusRing = `0 0 0 2px ${colors['--gf-colors-background-canvas']}, 0 0 0px 4px ${colors['--gf-colors-primary-main']}`;
 
-  return {
-    container: css({
-      height: '100%',
-      position: 'relative',
-    }),
-    panel: css({
-      label: 'panel-container',
-      backgroundColor: background,
-      border: `1px solid ${borderColor}`,
-      position: 'unset',
-      borderRadius: theme.shape.radius.default,
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-
-      '.always-show': {
-        background: 'none',
-        '&:focus-visible, &:hover': {
-          background: theme.colors.secondary.shade,
-        },
-      },
-
-      '.show-on-hover': {
-        opacity: '0',
-        visibility: 'hidden',
-      },
-
-      '&:focus-visible, &:hover': {
-        // only show menu icon on hover or focused panel
-        '.show-on-hover': {
-          opacity: '1',
-          visibility: 'visible',
-        },
-      },
-
-      '&:focus-visible': getFocusStyles(theme),
-
-      // The not:(:focus) clause is so that this rule is only applied when decendants are focused (important otherwise the hover header is visible when panel is clicked).
-      '&:focus-within:not(:focus)': {
-        '.show-on-hover': {
-          visibility: 'visible',
-          opacity: '1',
-        },
-      },
-    }),
-    panelTransparent: css({
-      label: 'panel-transparent-container',
-      backgroundColor: 'transparent',
-      border: '1px solid transparent',
-      boxSizing: 'border-box',
-      '&:hover': {
-        border: `1px solid ${borderColor}`,
-      },
-    }),
-    loadingBarContainer: css({
-      label: 'panel-loading-bar-container',
-      position: 'absolute',
-      top: 0,
-      width: '100%',
-      // this is to force the loading bar container to create a new stacking context
-      // otherwise, in webkit browsers on windows/linux, the aliasing of panel text changes when the loading bar is shown
-      // see https://github.com/grafana/grafana/issues/88104
-      zIndex: 1,
-    }),
-    containNone: css({
-      contain: 'none',
-    }),
-    content: css({
-      label: 'panel-content',
-      flexGrow: 1,
-      contain: 'size layout',
-    }),
-    headerContainer: css({
-      label: 'panel-header',
-      display: 'flex',
-      alignItems: 'center',
-      // remove logic after newPanelPadding feature toggle is removed
-      padding: newPanelPadding ? theme.spacing(0, 1, 0, 1) : theme.spacing(0, 0.5, 0, 1),
-      gap: theme.spacing(1),
-    }),
-    subHeader: css({
-      label: 'panel-sub-header',
-      display: 'flex',
-      alignItems: 'center',
-      maxHeight: theme.spacing.gridSize * theme.components.panel.headerHeight,
-      padding: newPanelPadding ? theme.spacing(0, 1, 0, 1.5) : theme.spacing(0, 0.5, 0, 1),
-      overflow: 'hidden',
-      gap: theme.spacing(1),
-    }),
-    pointer: css({
-      cursor: 'pointer',
-    }),
-    streaming: css({
-      label: 'panel-streaming',
-      marginRight: 0,
-      color: theme.colors.success.text,
-
-      '&:hover': {
-        color: theme.colors.success.text,
-      },
-    }),
-    title: css({
-      label: 'panel-title',
-      display: 'flex',
-      minWidth: 0,
-      paddingLeft: theme.spacing.x0_5,
-      '& > h2': {
-        minWidth: 0,
-      },
-    }),
-    items: css({
-      display: 'flex',
-    }),
-    item: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }),
-    hiddenMenu: css({
-      visibility: 'hidden',
-    }),
-    menuItem: css({
-      label: 'panel-menu',
-      border: 'none',
-      background: theme.colors.secondary.main,
-      '&:hover': {
-        background: theme.colors.secondary.shade,
-      },
-    }),
-    errorContainerFloating: css({
-      label: 'error-container',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      zIndex: 1,
-    }),
-    titleItems: css({
-      display: 'flex',
-      height: '100%',
-      alignItems: 'center',
-    }),
-    clearButtonStyles: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      background: 'transparent',
-      border: 'none',
-      padding: 0,
-      maxWidth: '100%',
-    }),
-    flexGrow: css({
-      flexGrow: 1,
-    }),
-  };
-};
+const styles = stylex.create({
+  container: {
+    height: '100%',
+    position: 'relative',
+  },
+  panel: {
+    backgroundColor: components['--gf-components-panel-background'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: components['--gf-components-panel-border-color'],
+    position: 'unset',
+    borderRadius: shape['--gf-shape-radius-default'],
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  panelTransparent: {
+    backgroundColor: 'transparent',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: { default: 'transparent', ':hover': components['--gf-components-panel-border-color'] },
+    boxSizing: 'border-box',
+  },
+  /**
+   * The global `.dashboard-selectable-element:not(.dashboard-selected-element):hover` rule (0,3,0) used to beat
+   * the Emotion panel class; it is layered now and can't, so the panel applies its values itself.
+   * The `:focus-visible` branches repeat `mixins.focusRing`, which this namespace replaces.
+   */
+  selectableHighlight: (background: string, hoverBackground: string) => ({
+    outlineStyle: { default: null, ':focus-visible': 'dotted', ':hover': 'dashed' },
+    outlineWidth: { default: null, ':focus-visible': '2px', ':hover': '1px' },
+    outlineColor: { default: null, ':focus-visible': 'transparent', ':hover': colors['--gf-colors-border-strong'] },
+    outlineOffset: { default: null, ':focus-visible': '2px', ':hover': '0px' },
+    boxShadow: { default: null, ':focus-visible': panelFocusRing },
+    backgroundColor: { default: background, ':hover': hoverBackground },
+  }),
+  loadingBarContainer: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    // this is to force the loading bar container to create a new stacking context
+    // otherwise, in webkit browsers on windows/linux, the aliasing of panel text changes when the loading bar is shown
+    // see https://github.com/grafana/grafana/issues/88104
+    zIndex: 1,
+  },
+  containNone: {
+    contain: 'none',
+  },
+  content: {
+    flexGrow: 1,
+    contain: 'size layout',
+  },
+  headerContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  // remove logic after newPanelPadding feature toggle is removed
+  headerPaddingNew: {
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  headerPaddingLegacy: {
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  subHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    maxHeight: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-panel-header-height']})`,
+    overflow: 'hidden',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  subHeaderPaddingNew: {
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1.5)`,
+  },
+  subHeaderPaddingLegacy: {
+    paddingTop: 0,
+    paddingRight: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    paddingBottom: 0,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  streaming: {
+    marginRight: 0,
+    color: colors['--gf-colors-success-text'],
+  },
+  title: {
+    display: 'flex',
+    minWidth: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+  },
+  errorContainerFloating: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    zIndex: 1,
+  },
+  titleItems: {
+    display: 'flex',
+    height: '100%',
+    alignItems: 'center',
+  },
+  clearButtonStyles: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.5)`,
+    backgroundColor: 'transparent',
+    borderStyle: 'none',
+    padding: 0,
+    maxWidth: '100%',
+  },
+  flexGrow: {
+    flexGrow: 1,
+  },
+});

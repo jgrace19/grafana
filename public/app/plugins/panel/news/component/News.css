@@ -1,0 +1,8 @@
+/*
+ * Styles the paragraphs of the sanitized news HTML, which StyleX can't target. Not in a cascade layer, like
+ * the Emotion descendant rule it replaces.
+ */
+.gf-news-content p {
+  margin-bottom: var(--gf-spacing-x0-5);
+  color: var(--gf-colors-text-primary);
+}

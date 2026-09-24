@@ -1,15 +1,17 @@
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { useStyles2 } from '@grafana/ui';
 import { AlertLabel } from 'app/features/alerting/unified/components/AlertLabel';
 import { getAlertingRule } from 'app/features/alerting/unified/utils/rules';
 import { type Alert } from 'app/types/unified-alerting';
 
 import { type CombinedRuleWithLocation } from '../../../../types/unified-alerting';
 import { AlertInstances } from '../AlertInstances';
-import { getStyles } from '../UnifiedAlertList';
+import { styles } from '../UnifiedAlertList';
 import { type UnifiedAlertListOptions } from '../types';
 import { filterAlerts } from '../util';
+
+import './GroupedView.css';
 
 type Props = {
   rules: CombinedRuleWithLocation[];
@@ -24,7 +26,6 @@ type RuleWithAlerts = {
 export const UNGROUPED_KEY = '__ungrouped__';
 
 const GroupedModeView = ({ rules, options }: Props) => {
-  const styles = useStyles2(getStyles);
   const groupBy = options.groupBy;
 
   const groupedRules = useMemo<Map<string, RuleWithAlerts>>(() => {
@@ -70,10 +71,10 @@ const GroupedModeView = ({ rules, options }: Props) => {
   return (
     <>
       {Array.from(groupedRules).map(([key, { rule, alerts }]) => (
-        <li className={styles.alertRuleItem} key={key} data-testid={key}>
+        <li {...stylex.props(styles.alertRuleItem)} key={key} data-testid={key}>
           <div>
-            <div className={styles.customGroupDetails}>
-              <div className={styles.alertLabels}>
+            <div {...stylex.props(styles.customGroupDetails)}>
+              <div className="gf-alertlist-labels">
                 {key !== UNGROUPED_KEY &&
                   parseMapKey(key).map(([key, value]) => <AlertLabel key={key} labelKey={key} value={value} />)}
                 {key === UNGROUPED_KEY && 'No grouping'}

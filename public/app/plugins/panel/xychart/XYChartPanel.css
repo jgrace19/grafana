@@ -1,0 +1,7 @@
+/*
+ * Aligns the legend's own rows, which VizLegend renders. Not in a cascade layer, like the Emotion descendant
+ * rule it replaces.
+ */
+.gf-xychart-legend div {
+  justify-content: flex-start;
+}

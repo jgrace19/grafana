@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { localPoint } from '@visx/event';
 import { RadialGradient } from '@visx/gradient';
 import { Group } from '@visx/group';
@@ -19,15 +19,10 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { type SortOrder, type VizTooltipOptions } from '@grafana/schema';
-import {
-  useTheme2,
-  useStyles2,
-  type SeriesTableRowProps,
-  DataLinksContextMenu,
-  SeriesTable,
-  usePanelContext,
-} from '@grafana/ui';
-import { getTooltipContainerStyles, useComponentInstanceId } from '@grafana/ui/internal';
+import { useTheme2, type SeriesTableRowProps, DataLinksContextMenu, SeriesTable, usePanelContext } from '@grafana/ui';
+import { useComponentInstanceId } from '@grafana/ui/internal';
+import { motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { PieChartType, PieChartLabels } from './panelcfg.gen';
 import { filterDisplayItems, sumDisplayItemsReducer } from './utils';
@@ -67,7 +62,6 @@ export const PieChart = ({
 }: PieChartProps) => {
   const theme = useTheme2();
   const componentInstanceId = useComponentInstanceId('PieChart');
-  const styles = useStyles2(getStyles);
   const tooltip = useTooltip<SeriesTableRowProps[]>();
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     detectBounds: true,
@@ -96,7 +90,7 @@ export const PieChart = ({
   // to guarantee consistent colors between slices and legend items.
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(styles.container)}>
       <svg width={layout.size} height={layout.size} ref={containerRef} style={{ overflow: 'visible' }}>
         <Group top={layout.position} left={layout.position}>
           {colors.map((color) => {
@@ -204,7 +198,7 @@ export const PieChart = ({
         <TooltipInPortal
           key={Math.random()}
           top={tooltip.tooltipTop}
-          className={styles.tooltipPortal}
+          className={stylex.props(styles.tooltipPortal).className}
           left={tooltip.tooltipLeft}
           unstyled={true}
           applyPositionStyle={true}
@@ -229,7 +223,6 @@ interface SliceProps {
 
 function PieSlice({ arc, pie, highlightState, openMenu, fill, tooltip, tooltipOptions, gradientFills }: SliceProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const { eventBus } = usePanelContext();
 
   const onMouseOut = useCallback(
@@ -274,12 +267,10 @@ function PieSlice({ arc, pie, highlightState, openMenu, fill, tooltip, tooltipOp
     [eventBus, arc, tooltip, pie, tooltipOptions, gradientFills]
   );
 
-  const pieStyle = getSvgStyle(highlightState, styles);
-
   return (
     <g
       key={arc.data.display.title}
-      className={pieStyle}
+      {...stylex.props(styles.svgArg, getSvgStyle(highlightState))}
       onMouseMove={tooltipOptions.mode !== 'none' ? onMouseMoveOverArc : undefined}
       onMouseOut={onMouseOut}
       onClick={openMenu}
@@ -301,7 +292,6 @@ interface LabelProps {
 }
 
 function PieLabel({ arc, outerRadius, innerRadius, displayLabels, total, color, highlightState }: LabelProps) {
-  const styles = useStyles2(getStyles);
   const labelRadius = innerRadius === 0 ? outerRadius / 6 : innerRadius;
   const [labelX, labelY] = getLabelPos(arc, outerRadius, labelRadius);
   const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.3;
@@ -315,7 +305,7 @@ function PieLabel({ arc, outerRadius, innerRadius, displayLabels, total, color, 
     : Math.min(Math.max((outerRadius / 100) * 14, 12), 36);
 
   return (
-    <g className={getSvgStyle(highlightState, styles)}>
+    <g {...stylex.props(styles.svgArg, getSvgStyle(highlightState))}>
       <text
         fill={color}
         x={labelX}
@@ -483,51 +473,47 @@ function getHighlightState(highlightedTitle: string | undefined, arc: PieArcDatu
   return HighLightState.Normal;
 }
 
-function getSvgStyle(
-  highlightState: HighLightState,
-  styles: {
-    svgArg: { normal: string; highlighted: string; deemphasized: string };
-  }
-) {
+function getSvgStyle(highlightState: HighLightState) {
   switch (highlightState) {
     case HighLightState.Highlighted:
-      return styles.svgArg.highlighted;
+      return svgArgStyles.highlighted;
     case HighLightState.Deemphasized:
-      return styles.svgArg.deemphasized;
+      return svgArgStyles.deemphasized;
     case HighLightState.Normal:
     default:
-      return styles.svgArg.normal;
+      return null;
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    svgArg: {
-      normal: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-      }),
-      highlighted: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-        transform: 'scale3d(1.03, 1.03, 1)',
-      }),
-      deemphasized: css({
-        [theme.transitions.handleMotion('no-preference')]: {
-          transition: 'all 200ms ease-in-out',
-        },
-        fillOpacity: 0.5,
-      }),
-    },
-    tooltipPortal: css(getTooltipContainerStyles(theme)),
-  };
-};
+const styles = stylex.create({
+  container: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  svgArg: {
+    transitionProperty: { default: null, [motion.noPreference]: 'all' },
+    transitionDuration: { default: null, [motion.noPreference]: '200ms' },
+    transitionTimingFunction: { default: null, [motion.noPreference]: 'ease-in-out' },
+  },
+  tooltipPortal: {
+    overflow: 'hidden',
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    boxShadow: shadows['--gf-shadows-z2'],
+    maxWidth: '800px',
+    padding: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    zIndex: zIndex.tooltip,
+  },
+});
+
+const svgArgStyles = stylex.create({
+  highlighted: {
+    transform: 'scale3d(1.03, 1.03, 1)',
+  },
+  deemphasized: {
+    fillOpacity: 0.5,
+  },
+});

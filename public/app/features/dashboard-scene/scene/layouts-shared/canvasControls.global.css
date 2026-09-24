@@ -1,0 +1,64 @@
+/*
+ * Visibility of the canvas controls (the add/paste/ungroup actions, marked with the global `dashboard-canvas-controls`
+ * class) while editing a dashboard. They are hidden by the GlobalStyles `.dashboard-canvas-controls` rule and shown
+ * while an owning layout is hovered or focused.
+ *
+ * These rules cascade against that GlobalStyles rule by specificity, so they share its `grafana-global` layer: that
+ * keeps every comparison the same as when all of them were unlayered Emotion. The selectors keep the specificity of the
+ * Emotion rules they replace; each `gf-*` class is added by the component named in the comment.
+ */
+@layer grafana-global {
+  /* CanvasGridAddActions */
+  .gf-canvas-add-actions {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference), (prefers-reduced-motion: reduce) {
+    .gf-canvas-add-actions {
+      transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+  }
+
+  .gf-canvas-add-actions--menu-open.dashboard-canvas-controls {
+    opacity: 1;
+  }
+
+  /* DashboardControls */
+  .gf-dashboard-controls:hover .dashboard-canvas-controls {
+    opacity: 1;
+  }
+
+  /* DefaultGridLayoutManager (editing), AutoGridLayoutRenderer, TabsLayoutManagerRenderer */
+  .gf-default-grid-layout-editing:hover .dashboard-canvas-controls,
+  .gf-default-grid-layout-editing :focus-within .dashboard-canvas-controls,
+  .gf-auto-grid-layout:hover .dashboard-canvas-controls,
+  .gf-auto-grid-layout :focus-within .dashboard-canvas-controls,
+  .gf-tabs-bar:hover .dashboard-canvas-controls,
+  .gf-tabs-bar :focus-within .dashboard-canvas-controls {
+    opacity: 1;
+  }
+
+  /* RowsLayoutManagerRenderer: only its own controls, not the grid controls inside its rows */
+  .gf-rows-layout:hover > .dashboard-canvas-controls {
+    opacity: 1;
+  }
+
+  /*
+   * RowItemRenderer and TabItemRenderer (tab content): show the controls anywhere in the row or tab, but hide the ones
+   * inside nested rows until that row is hovered.
+   */
+  .gf-row-item:hover .dashboard-canvas-controls,
+  .gf-tab-content:hover .dashboard-canvas-controls {
+    opacity: 1;
+  }
+
+  .gf-row-item:hover .dashboard-row-wrapper .dashboard-canvas-controls,
+  .gf-tab-content:hover .dashboard-row-wrapper .dashboard-canvas-controls {
+    opacity: 0;
+  }
+
+  .gf-row-item:hover .dashboard-row-wrapper:hover .dashboard-canvas-controls,
+  .gf-tab-content:hover .dashboard-row-wrapper:hover .dashboard-canvas-controls {
+    opacity: 1;
+  }
+}

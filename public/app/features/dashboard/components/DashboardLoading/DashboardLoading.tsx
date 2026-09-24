@@ -1,9 +1,10 @@
-import { css, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { Button, Spinner, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Spinner, Stack } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { typography } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardInitPhase } from 'app/types/dashboard';
 
 export interface Props {
@@ -11,14 +12,13 @@ export interface Props {
 }
 
 export const DashboardLoading = ({ initPhase }: Props) => {
-  const styles = useStyles2(getStyles);
   const cancelVariables = () => {
     locationService.push('/');
   };
 
   return (
-    <div className={styles.dashboardLoading}>
-      <div className={styles.dashboardLoadingText}>
+    <div {...stylex.props(styles.dashboardLoading)}>
+      <div {...stylex.props(styles.dashboardLoadingText)}>
         <Stack direction="column" gap={2}>
           <Stack alignItems="center" justifyContent="center" gap={0.5}>
             <Spinner inline={true} /> {initPhase}
@@ -34,28 +34,28 @@ export const DashboardLoading = ({ initPhase }: Props) => {
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  // Amount of time we want to pass before we start showing loading spinner
-  const slowStartThreshold = '0.5s';
+const invisibleToVisible = stylex.keyframes({
+  '0%': { opacity: '0%' },
+  '100%': { opacity: '100%' },
+});
 
-  const invisibleToVisible = keyframes`
-    0% { opacity: 0%; }
-    100% { opacity: 100%; }
-  `;
-
-  return {
-    dashboardLoading: css({
-      height: '60vh',
-      display: 'flex',
-      opacity: '0%',
-      alignItems: 'center',
-      justifyContent: 'center',
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        animation: `${invisibleToVisible} 0s step-end ${slowStartThreshold} 1 normal forwards`,
-      },
-    }),
-    dashboardLoadingText: css({
-      fontSize: theme.typography.h4.fontSize,
-    }),
-  };
-};
+const styles = stylex.create({
+  dashboardLoading: {
+    height: '60vh',
+    display: 'flex',
+    opacity: '0%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Amount of time we want to pass before we start showing loading spinner
+    animationName: { default: null, [motion.noPreferenceOrReduce]: invisibleToVisible },
+    animationDuration: { default: null, [motion.noPreferenceOrReduce]: '0s' },
+    animationTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'step-end' },
+    animationDelay: { default: null, [motion.noPreferenceOrReduce]: '0.5s' },
+    animationIterationCount: { default: null, [motion.noPreferenceOrReduce]: 1 },
+    animationDirection: { default: null, [motion.noPreferenceOrReduce]: 'normal' },
+    animationFillMode: { default: null, [motion.noPreferenceOrReduce]: 'forwards' },
+  },
+  dashboardLoadingText: {
+    fontSize: typography['--gf-typography-h4-font-size'],
+  },
+});
