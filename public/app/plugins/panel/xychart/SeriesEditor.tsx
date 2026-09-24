@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, useId, useState } from 'react';
 import { usePrevious } from 'react-use';
 
@@ -10,22 +10,21 @@ import {
   FieldMatcherID,
   FieldNamePickerBaseNameMode,
   FieldType,
-  type GrafanaTheme2,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Field, IconButton, Select, useStyles2 } from '@grafana/ui';
+import { Button, Field, IconButton, Select } from '@grafana/ui';
 import { FieldNamePicker } from '@grafana/ui/internal';
+import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { LayerName } from 'app/core/components/Layers/LayerName';
 
 import { type Options, SeriesMapping, type XYSeriesConfig } from './panelcfg.gen';
+import './SeriesEditor.css';
 
 export const SeriesEditor = ({
   value: seriesCfg,
   onChange,
   context,
 }: StandardEditorProps<XYSeriesConfig[], unknown, Options>) => {
-  const style = useStyles2(getStyles);
-
   // reset opts when mapping changes (no way to do this in panel opts builder?)
   const mapping = context.options?.mapping;
   const prevMapping = usePrevious(mapping);
@@ -87,16 +86,22 @@ export const SeriesEditor = ({
     <>
       {mapping === SeriesMapping.Manual && (
         <>
-          <Button icon="plus" size="sm" variant="secondary" onClick={addSeries} className={style.marginBot}>
+          <Button
+            icon="plus"
+            size="sm"
+            variant="secondary"
+            onClick={addSeries}
+            className={stylex.props(styles.marginBot).className}
+          >
             <Trans i18nKey="xychart.series-editor.add-series">Add series</Trans>
           </Button>
 
-          <div className={style.marginBot}>
+          <div {...stylex.props(styles.marginBot)}>
             {seriesCfg.map((series, index) => {
               return (
                 <div
                   key={`series/${index}`}
-                  className={index === selectedIdx ? `${style.row} ${style.sel}` : style.row}
+                  {...stylex.props(styles.row, index === selectedIdx && styles.sel)}
                   onClick={() => setSelectedIdx(index)}
                   role="button"
                   aria-label={t('xychart.series-editor.aria-label-select-series', 'Select series {{seriesNum}}', {
@@ -120,7 +125,7 @@ export const SeriesEditor = ({
                   />
                   <IconButton
                     name="trash-alt"
-                    className={cx(style.actionIcon)}
+                    className="gf-xychart-series-action-icon"
                     onClick={() => deleteSeries(index)}
                     tooltip={t('xychart.series-editor.tooltip-delete-series', 'Delete series')}
                   />
@@ -318,36 +323,31 @@ export const SeriesEditor = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  marginBot: css({
+const styles = stylex.create({
+  marginBot: {
     marginBottom: '20px',
-  }),
-  row: css({
-    padding: `${theme.spacing(0.5, 1)}`,
-    borderRadius: `${theme.shape.radius.default}`,
-    background: `${theme.colors.background.secondary}`,
-    minHeight: `${theme.spacing(4)}`,
+  },
+  row: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    minHeight: spacing['--gf-spacing-x4'],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: '3px',
     cursor: 'pointer',
-
-    border: `1px solid ${theme.components.input.borderColor}`,
-    '&:hover': {
-      border: `1px solid ${theme.components.input.borderHover}`,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: {
+      default: components['--gf-components-input-border-color'],
+      ':hover': components['--gf-components-input-border-hover'],
     },
-  }),
-  sel: css({
-    border: `1px solid ${theme.colors.primary.border}`,
-    '&:hover': {
-      border: `1px solid ${theme.colors.primary.border}`,
-    },
-  }),
-  actionIcon: css({
-    color: `${theme.colors.text.secondary}`,
-    '&:hover': {
-      color: `${theme.colors.text}`,
-    },
-  }),
+  },
+  sel: {
+    borderColor: colors['--gf-colors-primary-border'],
+  },
 });

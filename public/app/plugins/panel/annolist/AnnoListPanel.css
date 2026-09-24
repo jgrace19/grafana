@@ -1,0 +1,12 @@
+/*
+ * TagList is still styled with Emotion, whose runtime rules come after this sheet. The doubled class
+ * outranks its own class like the Emotion className merge did; unlayered, it keeps winning once TagList
+ * is StyleX. The tag buttons are rendered by TagList.
+ */
+.gf-annolist-tag-list.gf-annolist-tag-list {
+  justify-content: flex-start;
+}
+
+.gf-annolist-tag-list li > button {
+  padding-left: 3px;
+}

@@ -1,13 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useId, useMemo } from 'react';
 
 import { createFieldConfigRegistry, type SetFieldConfigOptionsArgs } from '@grafana/data';
 import { type GraphFieldConfig, type TableSparklineCellOptions } from '@grafana/schema';
-import { Field, useStyles2 } from '@grafana/ui';
-import { defaultSparklineCellConfig } from '@grafana/ui/internal';
+import { Field } from '@grafana/ui';
+import { defaultSparklineCellConfig, mergeStylexProps } from '@grafana/ui/internal';
 
 import { getGraphFieldConfig } from '../../timeseries/config';
 import { type TableCellEditorProps } from '../TableCellOptionEditor';
+
+import './SparklineCellOptionsEditor.css';
 
 type OptionKey = keyof TableSparklineCellOptions;
 
@@ -47,8 +49,6 @@ export const SparklineCellOptionsEditor = (props: TableCellEditorProps<TableSpar
     return createFieldConfigRegistry(config, 'ChartCell');
   }, []);
 
-  const style = useStyles2(getStyles);
-
   const values = { ...defaultSparklineCellConfig, ...cellOptions };
 
   const htmlIdBase = useId();
@@ -63,7 +63,12 @@ export const SparklineCellOptionsEditor = (props: TableCellEditorProps<TableSpar
         const path = item.path;
 
         return (
-          <Field key={item.id} noMargin label={item.name} className={style.field}>
+          <Field
+            key={item.id}
+            noMargin
+            label={item.name}
+            className={mergeStylexProps(stylex.props(styles.field), { className: 'gf-sparkline-cell-field' }).className}
+          >
             <Editor
               onChange={(val) => onChange({ ...cellOptions, [path]: val })}
               value={(isOptionKey(path, values) ? values[path] : undefined) ?? item.defaultValue}
@@ -83,15 +88,8 @@ function isOptionKey(key: string, options: TableSparklineCellOptions): key is Op
   return key in options;
 }
 
-const getStyles = () => ({
-  field: css({
+const styles = stylex.create({
+  field: {
     width: '100%',
-
-    // @TODO don't show "scheme" option for custom gradient mode.
-    // it needs thresholds to work, which are not supported
-    // for area chart cell right now
-    "[title='Use color scheme to define gradient']": {
-      display: 'none',
-    },
-  }),
+  },
 });

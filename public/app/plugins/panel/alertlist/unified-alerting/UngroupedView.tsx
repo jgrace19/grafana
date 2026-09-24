@@ -1,9 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useLocation } from 'react-use';
 
-import { type GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
+import { intervalToAbbreviatedDurationString } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, Stack, useStyles2 } from '@grafana/ui';
+import { Icon, Stack } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import alertDef from 'app/features/alerting/state/alertDef';
 import { Spacer } from 'app/features/alerting/unified/components/Spacer';
 import { fromCombinedRule, stringifyIdentifier } from 'app/features/alerting/unified/utils/rule-id';
@@ -19,7 +20,7 @@ import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 import { GRAFANA_RULES_SOURCE_NAME } from '../../../../features/alerting/unified/utils/datasource';
 import { type AlertInstanceTotalState, type CombinedRuleWithLocation } from '../../../../types/unified-alerting';
 import { AlertInstances } from '../AlertInstances';
-import { getStyles } from '../UnifiedAlertList';
+import { styles } from '../UnifiedAlertList';
 import { type UnifiedAlertListOptions } from '../types';
 
 type Props = {
@@ -37,15 +38,13 @@ function getGrafanaInstancesTotal(totals: Partial<Record<AlertInstanceTotalState
 }
 
 const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstances, hideViewRuleLinkText }: Props) => {
-  const styles = useStyles2(getStyles);
-  const stateStyle = useStyles2(getStateTagStyles);
   const { href: returnTo } = useLocation();
 
   const rulesToDisplay = rules.length <= options.maxItems ? rules : rules.slice(0, options.maxItems);
 
   return (
     <>
-      <ol className={styles.alertRuleList}>
+      <ol {...stylex.props(styles.alertRuleList)}>
         {rulesToDisplay.map((ruleWithLocation, index) => {
           const { namespaceName, groupName, dataSourceName } = ruleWithLocation;
           const alertingRule = prometheusRuleType.alertingRule(ruleWithLocation.promRule)
@@ -71,20 +70,20 @@ const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstance
           if (alertingRule) {
             return (
               <li
-                className={styles.alertRuleItem}
+                {...stylex.props(styles.alertRuleItem)}
                 key={`alert-${namespaceName}-${groupName}-${ruleWithLocation.name}-${index}`}
               >
-                <div className={stateStyle.icon}>
+                <div {...stylex.props(stateTagStyles.icon)}>
                   <Icon
                     name={alertDef.getStateDisplayModel(alertingRule.state).iconClass}
-                    className={stateStyle[alertStateToState(alertingRule.state)]}
+                    xstyle={stateTagStyles[alertStateToState(alertingRule.state)]}
                     size={'lg'}
                   />
                 </div>
-                <div className={styles.alertNameWrapper}>
-                  <div className={styles.instanceDetails}>
+                <div {...stylex.props(styles.alertNameWrapper)}>
+                  <div {...stylex.props(styles.instanceDetails)}>
                     <Stack direction="row" gap={1}>
-                      <div className={styles.alertName} title={ruleWithLocation.name}>
+                      <div {...stylex.props(styles.alertName)} title={ruleWithLocation.name}>
                         {ruleWithLocation.name}
                       </div>
                       <Spacer />
@@ -92,19 +91,19 @@ const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstance
                         <a
                           href={href}
                           target="__blank"
-                          className={styles.link}
+                          {...stylex.props(styles.link)}
                           rel="noopener"
                           aria-label={t('alertlist.ungrouped-mode-view.aria-label-view-alert-rule', 'View alert rule')}
                         >
-                          <span className={cx({ [styles.hidden]: hideViewRuleLinkText })}>
+                          <span {...stylex.props(hideViewRuleLinkText && styles.hidden)}>
                             <Trans i18nKey="alertlist.ungrouped-mode-view.view-alert-rule">View alert rule</Trans>
                           </span>
                           <Icon name={'external-link-alt'} size="sm" />
                         </a>
                       )}
                     </Stack>
-                    <div className={styles.alertDuration}>
-                      <span className={stateStyle[alertStateToState(alertingRule.state)]}>
+                    <div {...stylex.props(styles.alertDuration)}>
+                      <span {...stylex.props(stateTagStyles[alertStateToState(alertingRule.state)])}>
                         {alertStateToReadable(alertingRule.state)}
                       </span>{' '}
                       {firstActiveAt && alertingRule.state !== PromAlertingRuleState.Inactive && (
@@ -140,26 +139,26 @@ const UngroupedModeView = ({ rules, options, handleInstancesLimit, limitInstance
   );
 };
 
-const getStateTagStyles = (theme: GrafanaTheme2) => ({
-  icon: css({
-    marginTop: theme.spacing(2.5),
+const stateTagStyles = stylex.create({
+  icon: {
+    marginTop: spacing['--gf-spacing-x2-5'],
     alignSelf: 'flex-start',
-  }),
-  good: css({
-    color: theme.colors.success.main,
-  }),
-  bad: css({
-    color: theme.colors.error.main,
-  }),
-  warning: css({
-    color: theme.colors.warning.main,
-  }),
-  neutral: css({
-    color: theme.colors.secondary.main,
-  }),
-  info: css({
-    color: theme.colors.primary.main,
-  }),
+  },
+  good: {
+    color: colors['--gf-colors-success-main'],
+  },
+  bad: {
+    color: colors['--gf-colors-error-main'],
+  },
+  warning: {
+    color: colors['--gf-colors-warning-main'],
+  },
+  neutral: {
+    color: colors['--gf-colors-secondary-main'],
+  },
+  info: {
+    color: colors['--gf-colors-primary-main'],
+  },
 });
 
 export default UngroupedModeView;

@@ -1,0 +1,22 @@
+/*
+ * Card is still styled with Emotion, whose runtime rules come after this sheet. The doubled class outranks
+ * Card's own class like the Emotion className merge did; unlayered, it keeps winning once Card is StyleX.
+ * The hover gradient is theme colour math, set on the card as a custom property.
+ */
+.gf-dashlist-card-container.gf-dashlist-card-container {
+  display: block;
+  height: 100%;
+  padding-top: calc(var(--gf-spacing-grid-size) * 1.25);
+  padding-bottom: calc(var(--gf-spacing-grid-size) * 1.25);
+}
+
+.gf-dashlist-card-container:has(a:hover) {
+  background-image: var(--dashlist-card-hover-gradient);
+  color: var(--gf-colors-text-primary);
+}
+
+/* The dashboard name, a Text rendered inside the Link. */
+.gf-dashlist-link a:hover > p:first-child {
+  color: var(--gf-colors-text-link);
+  text-decoration: underline;
+}

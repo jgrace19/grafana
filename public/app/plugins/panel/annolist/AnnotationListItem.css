@@ -1,0 +1,34 @@
+/*
+ * Card and its parts are still styled with Emotion, whose runtime rules come after this sheet. The doubled
+ * classes outrank their own class like the Emotion className merge did; unlayered, they keep winning once
+ * Card is StyleX.
+ */
+.gf-annolist-card.gf-annolist-card {
+  grid-template-areas: 'Heading Description Meta Tags';
+  grid-template-columns: auto 1fr auto auto;
+  padding: var(--gf-spacing-x1);
+  margin: var(--gf-spacing-x0-5);
+  width: inherit;
+}
+
+.gf-annolist-timestamp.gf-annolist-timestamp {
+  margin: 0;
+  align-self: center;
+}
+
+.gf-annolist-meta.gf-annolist-meta {
+  margin: 0;
+  position: relative;
+  justify-content: end;
+}
+
+/* Links in the annotation text, which is user content. */
+.gf-annolist-heading a {
+  z-index: 1;
+  position: relative;
+  color: var(--gf-colors-text-link);
+}
+
+.gf-annolist-heading a:hover {
+  text-decoration: underline;
+}
