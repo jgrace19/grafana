@@ -526,7 +526,7 @@ export const SuggestedDashboardsList = ({
   );
 };
 
-// Pagination's own Emotion only floats its container, so this doesn't race it.
+// Pagination's own styles only float its container, so this doesn't race them.
 const styles = stylex.create({
   resultsContainer: {
     width: '100%',

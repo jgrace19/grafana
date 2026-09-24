@@ -4,7 +4,7 @@ import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import './TransformationCard.css';
 
-/** Classes for the Card itself, whose own Emotion styles a StyleX override can't beat (see TransformationCard.css). */
+/** Classes for the Card itself, which has no xstyle (see TransformationCard.css). */
 export const cardClassNames = {
   baseCard: 'gf-transformation-card',
   baseCardFullWidth: 'gf-transformation-card gf-transformation-card--full-width',

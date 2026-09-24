@@ -1,8 +1,8 @@
 /*
- * Card sets these properties in its own Emotion styles, which a StyleX override can't beat
- * (conventions §3.9). The doubled class outranks that rule whatever order the stylesheets load in.
+ * Card has no xstyle, and a StyleX class string would race its own styles for these properties (conventions §3.9).
+ * Unlayered, this beats its layered StyleX.
  */
-.gf-transformation-card.gf-transformation-card {
+.gf-transformation-card {
   max-width: 200px;
   width: auto;
   margin-bottom: 0;
