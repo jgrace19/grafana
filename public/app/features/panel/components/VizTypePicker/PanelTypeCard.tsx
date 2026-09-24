@@ -51,11 +51,7 @@ const PanelTypeCardComponent = ({
 
   return (
     <div
-      {...stylex.props(
-        styles.item,
-        styles.background(background, hoverBackground),
-        isCurrent && styles.current
-      )}
+      {...stylex.props(styles.item, styles.background(background, hoverBackground), isCurrent && styles.current)}
       data-testid={selectors.components.PluginVisualization.item(plugin.name)}
       onClick={isDisabled ? undefined : (ev) => onSelect(ev.metaKey || ev.ctrlKey || ev.altKey)}
       role="button"
