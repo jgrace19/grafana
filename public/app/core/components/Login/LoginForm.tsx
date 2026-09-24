@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { loginFormStyles } from './LoginForm.stylex';
 import { type ReactElement, useId } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Button, Input, Field, useStyles2 } from '@grafana/ui';
+import { Button, Input, Field } from '@grafana/ui';
 
 import { PasswordField } from '../PasswordField/PasswordField';
 
@@ -20,7 +21,6 @@ interface Props {
 }
 
 export const LoginForm = ({ children, onSubmit, isLoggingIn, passwordHint, loginHint }: Props) => {
-  const styles = useStyles2(getStyles);
   const usernameId = useId();
   const passwordId = useId();
   const {
@@ -30,7 +30,7 @@ export const LoginForm = ({ children, onSubmit, isLoggingIn, passwordHint, login
   } = useForm<FormModel>({ mode: 'onChange' });
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(loginFormStyles.wrapper)}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Field
           label={t('login.form.username-label', 'Email or username')}
@@ -61,7 +61,7 @@ export const LoginForm = ({ children, onSubmit, isLoggingIn, passwordHint, login
         <Button
           type="submit"
           data-testid={selectors.pages.Login.submit}
-          className={styles.submitButton}
+          {...stylex.props(loginFormStyles.submitButton)}
           disabled={isLoggingIn}
         >
           {isLoggingIn ? t('login.form.submit-loading-label', 'Logging in...') : t('login.form.submit-label', 'Log in')}
@@ -72,20 +72,4 @@ export const LoginForm = ({ children, onSubmit, isLoggingIn, passwordHint, login
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      width: '100%',
-      paddingBottom: theme.spacing(2),
-    }),
-
-    submitButton: css({
-      justifyContent: 'center',
-      width: '100%',
-    }),
-
-    skipButton: css({
-      alignSelf: 'flex-start',
-    }),
-  };
-};
+export 

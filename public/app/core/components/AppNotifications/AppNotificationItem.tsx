@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { appNotificationItemStyles } from './AppNotificationItem.stylex';
 import { useEffectOnce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
 import { type AppNotification, timeoutMap } from 'app/types/appNotifications';
 
 interface Props {
@@ -12,7 +13,6 @@ interface Props {
 }
 
 export default function AppNotificationItem({ appNotification, onClearNotification }: Props) {
-  const styles = useStyles2(getStyles);
 
   useEffectOnce(() => {
     setTimeout(() => {
@@ -31,10 +31,10 @@ export default function AppNotificationItem({ appNotification, onClearNotificati
       elevated
     >
       {hasBody && (
-        <div className={styles.wrapper}>
+        <div {...stylex.props(appNotificationItemStyles.wrapper)}>
           <span>{appNotification.component || appNotification.text}</span>
           {traceId && (
-            <span className={styles.trace}>
+            <span {...stylex.props(appNotificationItemStyles.trace)}>
               <Trans i18nKey="app-notification.item.trace-id">Trace ID: {{ traceId }}</Trans>
             </span>
           )}
@@ -44,14 +44,3 @@ export default function AppNotificationItem({ appNotification, onClearNotificati
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    trace: css({
-      fontSize: theme.typography.pxToRem(10),
-    }),
-  };
-}

@@ -1,15 +1,18 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import type { JSX } from 'react';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, ScrollContainer, Stack, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, ScrollContainer, Stack, useTheme2 } from '@grafana/ui';
 import { getSelectStyles } from '@grafana/ui/internal';
 import { isNotDelegatable } from 'app/core/utils/roles';
 import { type Role } from 'app/types/accessControl';
 
 import { RoleMenuOption } from './RoleMenuOption';
 import { MENU_MAX_HEIGHT } from './constants';
-import { getStyles } from './styles';
 
 interface RolePickerSubMenuProps {
   options: Role[];
@@ -30,7 +33,6 @@ export const RolePickerSubMenu = ({
 }: RolePickerSubMenuProps): JSX.Element => {
   const theme = useTheme2();
   const styles = getSelectStyles(theme);
-  const customStyles = useStyles2(getStyles);
 
   const onClearInternal = async () => {
     if (onClear) {
@@ -40,11 +42,14 @@ export const RolePickerSubMenu = ({
 
   return (
     <div
-      className={cx(customStyles.subMenu, { [customStyles.subMenuLeft]: showOnLeft })}
+      {...mergeStylexClassName(
+        stylex.props(rolePickerStyles.subMenu, showOnLeft && rolePickerStyles.subMenuLeft),
+        undefined
+      )}
       aria-label={t('role-picker.sub-menu-aria-label', 'Role picker submenu')}
     >
       <ScrollContainer maxHeight={`${MENU_MAX_HEIGHT}px`}>
-        <div className={styles.optionBody}>
+        <div className={stylesStyles.optionBody}>
           {options.map((option, i) => (
             <RoleMenuOption
               data={option}
@@ -67,7 +72,7 @@ export const RolePickerSubMenu = ({
           ))}
         </div>
       </ScrollContainer>
-      <div className={customStyles.subMenuButtonRow}>
+      <div {...stylex.props(rolePickerStyles.subMenuButtonRow)}>
         <Stack justifyContent="flex-end">
           <Button size="sm" fill="text" onClick={onClearInternal}>
             <Trans i18nKey="role-picker.sub-menu.clear-button">Clear</Trans>

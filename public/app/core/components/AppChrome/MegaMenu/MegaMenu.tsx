@@ -1,14 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { megaMenuStyles } from './MegaMenu.stylex';
 import { type DOMAttributes } from '@react-types/shared';
 import { memo, forwardRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
 import { usePatchUserPreferencesMutation } from '@grafana/api-clients/internal/rtkq/legacy/preferences';
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { ScrollContainer, useStyles2 } from '@grafana/ui';
+import { ScrollContainer } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { setBookmark } from 'app/core/reducers/navBarTree';
 import { useDispatch, useSelector } from 'app/types/store';
@@ -28,7 +29,6 @@ export interface Props extends DOMAttributes {
 export const MegaMenu = memo(
   forwardRef<HTMLDivElement, Props>(({ onClose, ...restProps }, ref) => {
     const navTree = useSelector((state) => state.navBarTree);
-    const styles = useStyles2(getStyles);
     const location = useLocation();
     const { chrome } = useGrafana();
     const dispatch = useDispatch();
@@ -105,10 +105,10 @@ export const MegaMenu = memo(
     return (
       <div data-testid={selectors.components.NavMenu.Menu} ref={ref} {...restProps}>
         <MegaMenuHeader handleDockedMenu={handleDockedMenu} onClose={onClose} />
-        <nav className={styles.content}>
+        <nav {...stylex.props(megaMenuStyles.content)}>
           <ScrollContainer height="100%" overflowX="hidden" showScrollIndicators>
             <>
-              <ul className={styles.itemList} aria-label={t('navigation.megamenu.list-label', 'Navigation')}>
+              <ul {...stylex.props(megaMenuStyles.itemList)} aria-label={t('navigation.megamenu.list-label', 'Navigation')}>
                 {navItems.map((link, index) => (
                   <MegaMenuItem
                     key={link.text}
@@ -131,43 +131,3 @@ export const MegaMenu = memo(
 
 MegaMenu.displayName = 'MegaMenu';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    content: css({
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
-      flexGrow: 1,
-      position: 'relative',
-    }),
-    mobileHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1, 1, 1, 2),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
-      },
-    }),
-    itemList: css({
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      listStyleType: 'none',
-      padding: theme.spacing(1, 1, 2, 0.5),
-      [theme.breakpoints.up('md')]: {
-        width: MENU_WIDTH,
-      },
-    }),
-    dockMenuButton: css({
-      display: 'none',
-      position: 'relative',
-      top: theme.spacing(1),
-
-      [theme.breakpoints.up('xl')]: {
-        display: 'inline-flex',
-      },
-    }),
-  };
-};

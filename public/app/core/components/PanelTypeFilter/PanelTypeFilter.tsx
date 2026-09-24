@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { panelTypeFilterStyles } from './PanelTypeFilter.stylex';
 import { useCallback, useMemo, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2, type PanelPluginMeta, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { useListedPanelPluginMetas } from '@grafana/runtime/internal';
-import { Icon, Button, MultiSelect, useStyles2 } from '@grafana/ui';
+import { Icon, Button, MultiSelect } from '@grafana/ui';
 
 export interface Props {
   onChange: (plugins: PanelPluginMeta[]) => void;
@@ -29,7 +30,6 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
     },
     [propsOnChange]
   );
-  const styles = useStyles2(getStyles);
 
   const selectOptions = {
     defaultOptions: true,
@@ -44,9 +44,9 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
   };
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(panelTypeFilterStyles.container)}>
       {value.length > 0 && (
-        <Button size="xs" icon="trash-alt" fill="text" className={styles.clear} onClick={() => onChange([])}>
+        <Button size="xs" icon="trash-alt" fill="text" {...stylex.props(panelTypeFilterStyles.clear)} onClick={() => onChange([])}>
           <Trans i18nKey="panel-type-filter.clear-button">Clear types</Trans>
         </Button>
       )}
@@ -59,20 +59,3 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    container: css({
-      label: 'container',
-      position: 'relative',
-      minWidth: '180px',
-      flexGrow: 1,
-    }),
-    clear: css({
-      label: 'clear',
-      fontSize: theme.spacing(1.5),
-      position: 'absolute',
-      top: theme.spacing(-4.5),
-      right: 0,
-    }),
-  };
-}

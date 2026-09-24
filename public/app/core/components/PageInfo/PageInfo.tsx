@@ -1,8 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pageInfoStyles } from './PageInfo.stylex';
 import { Fragment } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 
 import { type PageInfoItem } from '../Page/types';
 
@@ -11,42 +11,19 @@ export interface Props {
 }
 
 export function PageInfo({ info }: Props) {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(pageInfoStyles.container)}>
       {info.map((infoItem, index) => (
         <Fragment key={index}>
-          <div className={styles.infoItem}>
-            <div className={styles.label}>{infoItem.label}</div>
+          <div {...stylex.props(pageInfoStyles.infoItem)}>
+            <div {...stylex.props(pageInfoStyles.label)}>{infoItem.label}</div>
             {infoItem.value}
           </div>
-          {index + 1 < info.length && <div data-testid="page-info-separator" className={styles.separator} />}
+          {index + 1 < info.length && <div data-testid="page-info-separator" {...stylex.props(pageInfoStyles.separator)} />}
         </Fragment>
       ))}
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(1.5),
-      overflow: 'auto',
-    }),
-    infoItem: css({
-      ...theme.typography.bodySmall,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    label: css({
-      color: theme.colors.text.secondary,
-    }),
-    separator: css({
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-    }),
-  };
-};

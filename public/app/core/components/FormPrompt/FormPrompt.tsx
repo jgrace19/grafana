@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import type history from 'history';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom-v5-compat';
@@ -6,6 +6,7 @@ import { Navigate } from 'react-router-dom-v5-compat';
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';
 
+import { formPromptStyles } from './FormPrompt.stylex';
 import { Prompt } from './Prompt';
 
 export interface Props {
@@ -101,7 +102,7 @@ const UnsavedChangesModal = ({ onDiscard, onBackToForm, isOpen }: UnsavedChanges
       isOpen={isOpen}
       title={t('form-prompt.title', 'Leave page?')}
       onDismiss={onBackToForm}
-      className={css({ width: '500px' })}
+      {...stylex.props(formPromptStyles.modal)}
     >
       <h5>
         <Trans i18nKey="form-prompt.description">Changes that you made may not be saved.</Trans>

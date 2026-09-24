@@ -1,53 +1,39 @@
-import { css, cx } from '@emotion/css';
-import { type FC, type JSX } from 'react';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties, type FC, type JSX } from 'react';
 
-import { colorManipulator, type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { colorManipulator, type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { reportInteraction } from '@grafana/runtime';
-import { Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Tooltip, useTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import g8LoginDarkSvg from 'img/g8_login_dark.svg';
 import g8LoginLightSvg from 'img/g8_login_light.svg';
 import grafanaIconSvg from 'img/grafana_icon.svg';
+
+import { brandingStyles } from './Branding.stylex';
 
 export interface BrandComponentProps {
   className?: string;
   children?: JSX.Element | JSX.Element[];
 }
 
-export const LoginLogo: FC<BrandComponentProps & { logo?: string }> = ({ className, logo }) => {
-  return <img className={className} src={`${logo ? logo : grafanaIconSvg}`} alt="Grafana" />;
+export const LoginLogo: FC<BrandComponentProps & { logo?: string }> = ({ className, logo, ...rest }) => {
+  return <img className={className} src={`${logo ? logo : grafanaIconSvg}`} alt="Grafana" {...rest} />;
 };
 
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
   const theme = useTheme2();
+  const bgImage = theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg;
 
-  const background = css({
-    '&:before': {
-      content: '""',
-      position: 'fixed',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      top: 0,
-      background: `url(${theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg})`,
-      backgroundPosition: 'top center',
-      backgroundSize: 'auto',
-      backgroundRepeat: 'no-repeat',
-
-      opacity: 0,
-
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'opacity 3s ease-in-out',
-      },
-
-      [theme.breakpoints.up('md')]: {
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-      },
-    },
-  });
-
-  return <div className={cx(background, className)}>{children}</div>;
+  return (
+    <div
+      {...mergeStylexClassName(stylex.props(brandingStyles.loginBackground), className)}
+      style={{ '--grafana-login-bg-image': `url(${bgImage})` } as CSSProperties}
+    >
+      {children}
+    </div>
+  );
 };
 
 const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
@@ -58,16 +44,16 @@ const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
  * inMegaMenuOverlay = true we just render the logo without link (used in mega menu)
  */
 export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelItem; inMegaMenuOverlay?: boolean }) {
-  const styles = useStyles2(homeLinkStyles);
-
   const onHomeClicked = () => {
     reportInteraction('grafana_home_clicked');
   };
 
+  const linkProps = stylex.props(brandingStyles.homeLink);
+
   if (inMegaMenuOverlay) {
     return (
-      <div className={styles.homeLink}>
-        <Branding.MenuLogo />
+      <div {...linkProps}>
+        <Branding.MenuLogo {...stylex.props(brandingStyles.homeLinkImage)} />
       </div>
     );
   }
@@ -77,39 +63,19 @@ export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelIte
       <a
         onClick={onHomeClicked}
         data-testid={selectors.components.Breadcrumbs.breadcrumb('Home')}
-        className={styles.homeLink}
+        {...linkProps}
         title={homeNav?.text || 'Home'}
         href={homeNav?.url}
       >
-        <Branding.MenuLogo />
+        <Branding.MenuLogo {...stylex.props(brandingStyles.homeLinkImage)} />
       </a>
     </Tooltip>
   );
 }
 
-function homeLinkStyles(theme: GrafanaTheme2) {
-  return {
-    homeLink: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: theme.spacing(3),
-      width: theme.spacing(3),
-      margin: theme.spacing(0, 0.5),
-      img: {
-        maxHeight: '100%',
-        maxWidth: '100%',
-      },
-    }),
-  };
-}
-
 const LoginBoxBackground = () => {
   const theme = useTheme2();
-  return css({
-    background: colorManipulator.alpha(theme.colors.background.primary, 0.7),
-    backgroundSize: 'cover',
-  });
+  return colorManipulator.alpha(theme.colors.background.primary, 0.7);
 };
 
 export class Branding {

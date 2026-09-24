@@ -1,4 +1,7 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { appChromeMenuStyles } from './AppChromeMenu.stylex';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { OverlayContainer, useOverlay } from '@react-aria/overlays';
@@ -8,7 +11,7 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import { MegaMenu, MENU_WIDTH } from './MegaMenu/MegaMenu';
@@ -23,7 +26,7 @@ export function AppChromeMenu({}: Props) {
   const ref = useRef(null);
   const backdropRef = useRef(null);
   const animationSpeed = theme.transitions.duration.shortest;
-  const animationStyles = useStyles2(getAnimStyles, animationSpeed);
+  const animationStyles = getAnimStyles(theme, animationSpeed);
 
   const isOpen = state.megaMenuOpen && !state.megaMenuDocked;
   const onClose = () => chrome.setMegaMenuOpen(false);
@@ -45,10 +48,9 @@ export function AppChromeMenu({}: Props) {
     ref
   );
   const { dialogProps } = useDialog({ 'aria-label': t('navigation.megamenu.dialog-label', 'Navigation') }, ref);
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(appChromeMenuStyles.wrapper)}>
       <OverlayContainer>
         <CSSTransition
           nodeRef={ref}
@@ -60,7 +62,7 @@ export function AppChromeMenu({}: Props) {
           <>
             {isOpen && (
               <FocusScope contain autoFocus restoreFocus>
-                <MegaMenu className={styles.menu} onClose={onClose} ref={ref} {...overlayProps} {...dialogProps} />
+                <MegaMenu {...stylex.props(appChromeMenuStyles.menu)} onClose={onClose} ref={ref} {...overlayProps} {...dialogProps} />
               </FocusScope>
             )}
           </>
@@ -72,50 +74,13 @@ export function AppChromeMenu({}: Props) {
           classNames={animationStyles.backdrop}
           timeout={{ enter: animationSpeed, exit: 0 }}
         >
-          <div ref={backdropRef} className={styles.backdrop} {...underlayProps} />
+          <div ref={backdropRef} {...stylex.props(appChromeMenuStyles.backdrop)} {...underlayProps} />
         </CSSTransition>
       </OverlayContainer>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    backdrop: css({
-      backgroundColor: theme.components.overlay.background,
-      bottom: 0,
-      left: 0,
-      position: 'fixed',
-      right: 0,
-      top: 0,
-      zIndex: theme.zIndex.modalBackdrop,
-    }),
-    menu: css({
-      display: 'flex',
-      bottom: 0,
-      flexDirection: 'column',
-      left: 0,
-      right: 0,
-      // Needs to below navbar should we change the navbarFixed? add add a new level?
-      zIndex: theme.zIndex.modal,
-      position: 'fixed',
-      top: 0,
-      backgroundColor: theme.colors.background.primary,
-      flex: '1 1 0',
-
-      [theme.breakpoints.up('md')]: {
-        right: 'unset',
-      },
-    }),
-    wrapper: css({
-      position: 'fixed',
-      display: 'grid',
-      gridAutoFlow: 'column',
-      height: '100%',
-      zIndex: theme.zIndex.sidemenu,
-    }),
-  };
-};
 
 const getAnimStyles = (theme: GrafanaTheme2, animationDuration: number) => {
   const commonTransition = {

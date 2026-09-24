@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { rolePickerBadgesStyles } from './RolePickerBadges.stylex';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Badge, Stack } from '@grafana/ui';
+import { Badge, Stack } from '@grafana/ui';
 import { type OrgUser } from 'app/types/user';
 
 import { RolePickerDrawer } from './RolePickerDrawer';
@@ -17,8 +18,7 @@ export interface Props {
 export const RolePickerBadges = ({ disabled, user }: Props) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const { badge, badgeDisabled } = useStyles2(getStyles);
-  const badgeStyle = disabled ? badgeDisabled : badge;
+  const badgeProps = stylex.props(disabled ? rolePickerBadgesStyles.badgeDisabled : rolePickerBadgesStyles.badge);
 
   const methods = useForm({
     defaultValues: {
@@ -39,10 +39,10 @@ export const RolePickerBadges = ({ disabled, user }: Props) => {
   return (
     <>
       <Stack gap={1}>
-        <Badge className={badgeStyle} color="blue" onClick={drawerControl} text={watch('role')} />
+        <Badge {...badgeProps} color="blue" onClick={drawerControl} text={watch('role')} />
         {user.roles && user.roles.length > 0 && (
           <Badge
-            className={badgeStyle}
+            {...badgeProps}
             color="blue"
             onClick={drawerControl}
             text={t('role-picker-drawer.user-count', '+{{numUsers}}', { numUsers: user.roles.length })}
@@ -58,13 +58,3 @@ export const RolePickerBadges = ({ disabled, user }: Props) => {
   );
 };
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    badge: css({
-      cursor: 'pointer',
-    }),
-    badgeDisabled: css({
-      cursor: 'not-allowed',
-    }),
-  };
-}

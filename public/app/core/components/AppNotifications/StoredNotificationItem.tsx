@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { storedNotificationItemStyles } from './StoredNotificationItem.stylex';
 import { formatDistanceToNow } from 'date-fns';
 import { type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Card, Checkbox, useTheme2 } from '@grafana/ui';
 
@@ -43,7 +44,7 @@ export const StoredNotificationItem = ({
           aria-label={t('notifications.select-notification', 'Select {{title}}', { title })}
         />
       </Card.Figure>
-      <Card.Tags className={styles.trace}>
+      <Card.Tags {...stylex.props(storedNotificationItemStyles.trace)}>
         {traceId && <span>{`Trace ID: ${traceId}`}</span>}
         {timestamp && formatDistanceToNow(timestamp, { addSuffix: true })}
       </Card.Tags>
@@ -51,16 +52,3 @@ export const StoredNotificationItem = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    trace: css({
-      alignItems: 'flex-end',
-      alignSelf: 'flex-end',
-      color: theme.colors.text.secondary,
-      display: 'flex',
-      flexDirection: 'column',
-      fontSize: theme.typography.pxToRem(10),
-      justifySelf: 'flex-end',
-    }),
-  };
-};

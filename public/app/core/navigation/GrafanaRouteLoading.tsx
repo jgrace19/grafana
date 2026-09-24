@@ -1,27 +1,15 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import * as stylex from '@stylexjs/stylex';
 
 import { BouncingLoader } from '../components/BouncingLoader/BouncingLoader';
 
+import { grafanaRouteLoadingStyles } from './GrafanaRouteLoading.stylex';
+
 export function GrafanaRouteLoading() {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.loadingPage}>
+    <div {...stylex.props(grafanaRouteLoadingStyles.loadingPage)}>
       <BouncingLoader />
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  loadingPage: css({
-    backgroundColor: theme.colors.background.primary,
-    flex: 1,
-    flexDrection: 'column',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }),
-});

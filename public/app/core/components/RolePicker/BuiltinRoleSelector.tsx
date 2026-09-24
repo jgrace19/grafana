@@ -1,9 +1,12 @@
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import { OrgRole, type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, RadioButtonList, Tooltip, useStyles2, useTheme2, type PopoverContent } from '@grafana/ui';
+import { Icon, RadioButtonList, Tooltip, useTheme2, type PopoverContent } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
-import { getStyles } from './styles';
 
 interface Props {
   value?: OrgRole;
@@ -14,7 +17,6 @@ interface Props {
 }
 
 export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssage, tooltipMessage }: Props) => {
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   // Create options dynamically to filter out OrgRole.None when access control is not licensed
@@ -33,7 +35,7 @@ export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssag
 
   return (
     <>
-      <div className={styles.groupHeader}>
+      <div className={stylesStyles.groupHeader}>
         <span style={{ marginRight: theme.spacing(1) }}>
           <Trans i18nKey="role-picker.built-in.basic-roles">Basic roles</Trans>
         </span>
@@ -50,7 +52,7 @@ export const BuiltinRoleSelector = ({ value, onChange, disabled, disabledMesssag
       </div>
       <RadioButtonList
         name="Basic Role Selector"
-        className={styles.basicRoleSelector}
+        className={stylesStyles.basicRoleSelector}
         options={basicRoleOptions}
         value={value}
         onChange={onChange}

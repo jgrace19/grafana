@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { layerNameStyles } from './LayerName.stylex';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Input, FieldValidationMessage, useStyles2 } from '@grafana/ui';
+import { Icon, Input, FieldValidationMessage } from '@grafana/ui';
 
 export interface LayerNameProps {
   name: string;
@@ -14,7 +15,6 @@ export interface LayerNameProps {
 }
 
 export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideStyles }: LayerNameProps) => {
-  const styles = useStyles2(getStyles);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -70,16 +70,16 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
 
   return (
     <>
-      <div className={styles.wrapper}>
+      <div {...stylex.props(layerNameStyles.wrapper)}>
         {!isEditing && (
           <button
-            className={styles.layerNameWrapper}
+            {...stylex.props(layerNameStyles.layerNameWrapper)}
             title={t('layers.layer-name.edit-layer-title', 'Edit layer name')}
             onClick={onEditLayer}
             data-testid="layer-name-div"
           >
-            <span className={overrideStyles ? '' : styles.layerName}>{name}</span>
-            <Icon name="pen" className={styles.layerEditIcon} size="sm" />
+            <span className={overrideStyles ? '' : layerNameStyles.layerName}>{name}</span>
+            <Icon name="pen" className={layerNameStyles.layerEditIcon} size="sm" />
           </button>
         )}
 
@@ -94,7 +94,7 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
               onFocus={onFocus}
               invalid={validationError !== null}
               onChange={onInputChange}
-              className={styles.layerNameInput}
+              {...stylex.props(layerNameStyles.layerNameInput)}
               data-testid="layer-name-input"
             />
             {validationError && <FieldValidationMessage horizontal>{validationError}</FieldValidationMessage>}
@@ -105,56 +105,3 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      label: 'Wrapper',
-      display: 'flex',
-      alignItems: 'center',
-      marginLeft: theme.spacing(0.5),
-    }),
-    layerNameWrapper: css({
-      display: 'flex',
-      cursor: 'pointer',
-      border: '1px solid transparent',
-      borderRadius: theme.shape.radius.default,
-      alignItems: 'center',
-      padding: `0 0 0 ${theme.spacing(0.5)}`,
-      margin: 0,
-      background: 'transparent',
-
-      '&:hover': {
-        background: theme.colors.action.hover,
-        border: `1px dashed ${theme.colors.border.strong}`,
-      },
-
-      '&:focus': {
-        border: `2px solid ${theme.colors.primary.border}`,
-      },
-
-      '&:hover, &:focus': {
-        '.query-name-edit-icon': {
-          visibility: 'visible',
-        },
-      },
-    }),
-    layerName: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.primary.text,
-      cursor: 'pointer',
-      overflow: 'hidden',
-      marginLeft: theme.spacing(0.5),
-    }),
-    layerEditIcon: cx(
-      css({
-        marginLeft: theme.spacing(2),
-        visibility: 'hidden',
-      }),
-      'query-name-edit-icon'
-    ),
-    layerNameInput: css({
-      maxWidth: '300px',
-      margin: '-4px 0',
-    }),
-  };
-};

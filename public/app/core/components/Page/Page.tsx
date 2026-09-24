@@ -1,8 +1,9 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { pageStyles } from './Page.stylex';
 import { useLayoutEffect } from 'react';
 
-import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import NativeScrollbar from '../NativeScrollbar';
@@ -30,7 +31,6 @@ export const Page: PageType = ({
   background,
   ...otherProps
 }) => {
-  const styles = useStyles2(getStyles);
   const navModel = usePageNav(navId, oldNavProp);
   const { chrome } = useGrafana();
 
@@ -53,14 +53,14 @@ export const Page: PageType = ({
   const isPrimaryBg = (background ?? getDefaultBackgroundForLayout(layout)) === 'primary';
 
   return (
-    <div className={cx(styles.wrapper, isPrimaryBg && styles.wrapperPrimary, className)} {...otherProps}>
+    <div {...mergeStylexClassName(stylex.props(pageStyles.wrapper, isPrimaryBg && pageStyles.wrapperPrimary, className), undefined)} {...otherProps}>
       {layout === PageLayoutType.Standard && (
         <NativeScrollbar
           // This id is used by the image renderer to scroll through the dashboard
           divId="page-scrollbar"
           onSetScrollRef={onSetScrollRef}
         >
-          <div className={styles.pageInner}>
+          <div {...stylex.props(pageStyles.pageInner)}>
             {pageHeaderNav && (
               <PageHeader
                 actions={actions}
@@ -72,7 +72,7 @@ export const Page: PageType = ({
               />
             )}
             {pageNav && pageNav.children && <PageTabs navItem={pageNav} />}
-            <div className={styles.pageContent}>{children}</div>
+            <div {...stylex.props(pageStyles.pageContent)}>{children}</div>
           </div>
         </NativeScrollbar>
       )}
@@ -83,7 +83,7 @@ export const Page: PageType = ({
           divId="page-scrollbar"
           onSetScrollRef={onSetScrollRef}
         >
-          <div className={styles.canvasContent}>{children}</div>
+          <div {...stylex.props(pageStyles.canvasContent)}>{children}</div>
         </NativeScrollbar>
       )}
 
@@ -94,47 +94,6 @@ export const Page: PageType = ({
 
 Page.Contents = PageContents;
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      label: 'page-wrapper',
-      display: 'flex',
-      flex: '1 1 0',
-      flexDirection: 'column',
-      position: 'relative',
-      container: 'page / inline-size',
-    }),
-    wrapperPrimary: css({
-      label: 'page-wrapper-primary',
-      background: theme.colors.background.primary,
-    }),
-    pageContent: css({
-      label: 'page-content',
-      flexGrow: 1,
-    }),
-    pageInner: css({
-      label: 'page-inner',
-      padding: theme.spacing(2),
-      borderBottom: 'none',
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      margin: theme.spacing(0, 0, 0, 0),
-
-      [theme.breakpoints.up('md')]: {
-        padding: theme.spacing(4),
-      },
-    }),
-    canvasContent: css({
-      label: 'canvas-content',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(2),
-      flexBasis: '100%',
-      flexGrow: 1,
-    }),
-  };
-};
 
 function getDefaultBackgroundForLayout(layout: PageLayoutType) {
   return layout === PageLayoutType.Standard ? 'primary' : 'canvas';

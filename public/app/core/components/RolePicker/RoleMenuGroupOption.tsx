@@ -1,12 +1,15 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import { type FormEvent, memo } from 'react';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
-import { Checkbox, Portal, useStyles2, useTheme2 } from '@grafana/ui';
+import { Checkbox, Portal, useTheme2 } from '@grafana/ui';
 import { getSelectStyles } from '@grafana/ui/internal';
 
-import { getStyles } from './styles';
 
 interface RoleMenuGroupsOptionProps {
   // display name
@@ -46,12 +49,10 @@ export const RoleMenuGroupOption = memo(
     ) => {
       const theme = useTheme2();
       const styles = getSelectStyles(theme);
-      const customStyles = useStyles2(getStyles);
 
-      const wrapperClassName = cx(
-        styles.option,
-        isFocused && styles.optionFocused,
-        disabled && customStyles.menuOptionDisabled
+      const wrapperProps = mergeStylexClassName(
+        stylex.props(disabled && rolePickerStyles.menuOptionDisabled),
+        clsx(stylesStyles.option, isFocused && stylesStyles.optionFocused)
       );
 
       const onChangeInternal = (event: FormEvent<HTMLElement>) => {
@@ -87,24 +88,28 @@ export const RoleMenuGroupOption = memo(
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div
             ref={ref}
-            className={wrapperClassName}
+            {...wrapperProps}
             aria-label={t('role-picker.menu-group-option-aria-label', 'Role picker option')}
             onClick={onClickInternal}
           >
             <Checkbox
               value={isSelected}
-              className={cx(customStyles.menuOptionCheckbox, {
-                [customStyles.checkboxPartiallyChecked]: partiallySelected,
-              })}
+              {...mergeStylexClassName(
+                stylex.props(
+                  rolePickerStyles.menuOptionCheckbox,
+                  partiallySelected && rolePickerStyles.checkboxPartiallyChecked
+                ),
+                undefined
+              )}
               onChange={onChangeInternal}
               disabled={disabled}
             />
-            <div className={cx(styles.optionBody, customStyles.menuOptionBody)}>
+            <div {...mergeStylexClassName(stylex.props(rolePickerStyles.menuOptionBody), stylesStyles.optionBody)}>
               <span>{name}</span>
-              <span className={customStyles.menuOptionExpand} />
+              <span {...stylex.props(rolePickerStyles.menuOptionExpand)} />
             </div>
             {root && children && (
-              <Portal className={customStyles.subMenuPortal} root={root}>
+              <Portal {...stylex.props(rolePickerStyles.subMenuPortal)} root={root}>
                 {children}
               </Portal>
             )}

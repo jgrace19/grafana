@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo, useMemo, useState, useEffect } from 'react';
 
@@ -19,7 +20,6 @@ import {
   Stack,
   TextLink,
   TimeZonePicker,
-  useStyles2,
   type WeekStart,
   WeekStartPicker,
 } from '@grafana/ui';
@@ -33,7 +33,7 @@ import { languageChanged, regionalFormatChanged, saveButtonClicked, themeChanged
 import {
   getLanguageOptions,
   getRegionalFormatOptions,
-  getStyles,
+  utilsStyles,
   getTranslatedThemeName,
   type Props,
   type State,
@@ -55,7 +55,6 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
   });
 
   const themes = getSelectableThemes();
-  const styles = useStyles2(getStyles);
 
   const service = useMemo(() => new PreferencesService(props.resourceUri), [props.resourceUri]);
 
@@ -207,7 +206,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
   const currentThemeOption = themeOptions.find((x) => x.value === state.theme) ?? themeOptions[0];
 
   return (
-    <form onSubmit={handleSubmitForm} className={styles.form}>
+    <form onSubmit={handleSubmitForm} {...stylex.props(utilsStyles.form)}>
       <FieldSet label={<Trans i18nKey="shared-preferences.title">Preferences</Trans>} disabled={props.disabled}>
         <Stack direction="column" gap={2}>
           <Field
@@ -244,7 +243,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
             disabled={state.isLoading}
             label={
               <Label htmlFor="home-dashboard-select">
-                <span className={styles.labelText}>
+                <span {...stylex.props(utilsStyles.labelText)}>
                   <Trans i18nKey="shared-preferences.fields.home-dashboard-label">Home Dashboard</Trans>
                 </span>
               </Label>
@@ -295,7 +294,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
             disabled={state.isLoading}
             label={
               <Label htmlFor="language-preference-select">
-                <span className={styles.labelText}>
+                <span {...stylex.props(utilsStyles.labelText)}>
                   <Trans i18nKey="shared-preferences.fields.language-preference-label">Language</Trans>
                 </span>
                 <FeatureBadge featureState={FeatureState.preview} />
@@ -318,7 +317,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
               disabled={state.isLoading}
               label={
                 <Label htmlFor="locale-preference">
-                  <span className={styles.labelText}>
+                  <span {...stylex.props(utilsStyles.labelText)}>
                     <Trans i18nKey="shared-preferences.fields.locale-preference-label">Region format</Trans>
                   </span>
                   <FeatureBadge featureState={FeatureState.preview} />

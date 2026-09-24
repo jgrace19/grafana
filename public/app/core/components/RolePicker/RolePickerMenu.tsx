@@ -1,16 +1,19 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import { useEffect, useRef, useState, type JSX } from 'react';
 
 import { type OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, ScrollContainer, Stack, TextLink, useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, ScrollContainer, Stack, TextLink, useTheme2 } from '@grafana/ui';
 import { getSelectStyles } from '@grafana/ui/internal';
 import { type Role } from 'app/types/accessControl';
 
 import { BuiltinRoleSelector } from './BuiltinRoleSelector';
 import { RoleMenuGroupsSection } from './RoleMenuGroupsSection';
 import { MENU_MAX_HEIGHT } from './constants';
-import { getStyles } from './styles';
 
 enum GroupType {
   fixed = 'fixed',
@@ -92,7 +95,6 @@ export const RolePickerMenu = ({
   const subMenuNode = useRef<HTMLDivElement | null>(null);
   const theme = useTheme2();
   const styles = getSelectStyles(theme);
-  const customStyles = useStyles2(getStyles);
 
   // Call onSelect() on every selectedOptions change
   useEffect(() => {
@@ -229,18 +231,18 @@ export const RolePickerMenu = ({
 
   return (
     <div
-      className={cx(
-        styles.menu,
-        customStyles.menuWrapper,
-        { [customStyles.menuLeft]: menuLeft },
-        css({
-          top: `${offset.vertical}px`,
-          left: !menuLeft ? `${offset.horizontal}px` : 'unset',
-          right: menuLeft ? `${offset.horizontal}px` : 'unset',
-        })
+      className={clsx(stylesStyles.menu)}
+      {...mergeStylexClassName(
+        stylex.props(rolePickerStyles.menuWrapper, menuLeft && rolePickerStyles.menuLeft),
+        undefined
       )}
+      style={{
+        top: `${offset.vertical}px`,
+        left: !menuLeft ? `${offset.horizontal}px` : undefined,
+        right: menuLeft ? `${offset.horizontal}px` : undefined,
+      }}
     >
-      <div className={customStyles.menu} aria-label={t('role-picker.menu-aria-label', 'Role picker menu')}>
+      <div {...stylex.props(rolePickerStyles.menu)} aria-label={t('role-picker.menu-aria-label', 'Role picker menu')}>
         <ScrollContainer
           maxHeight={`${MENU_MAX_HEIGHT}px`}
           // NOTE: this is a way to force hiding of the scrollbar
@@ -248,7 +250,7 @@ export const RolePickerMenu = ({
           scrollbarWidth="none"
         >
           {showBasicRole && (
-            <div className={customStyles.menuSection}>
+            <div {...stylex.props(rolePickerStyles.menuSection)}>
               <BuiltinRoleSelector
                 value={selectedBuiltInRole}
                 onChange={onSelectedBuiltinRoleChange}
@@ -277,7 +279,7 @@ export const RolePickerMenu = ({
             />
           ))}
         </ScrollContainer>
-        <div className={customStyles.menuButtonRow}>
+        <div {...stylex.props(rolePickerStyles.menuButtonRow)}>
           <Stack justifyContent="flex-end">
             <Button size="sm" fill="text" onClick={onClearInternal} disabled={updateDisabled}>
               <Trans i18nKey="role-picker.menu.clear-button">Clear all</Trans>

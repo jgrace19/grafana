@@ -1,13 +1,16 @@
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import { forwardRef, useCallback, useState } from 'react';
 
-import { useStyles2, getSelectStyles, useTheme2 } from '@grafana/ui';
+import { getSelectStyles, useTheme2 } from '@grafana/ui';
 import { isNotDelegatable } from 'app/core/utils/roles';
 import { type Role } from 'app/types/accessControl';
 
 import { RoleMenuGroupOption } from './RoleMenuGroupOption';
 import { RoleMenuOption } from './RoleMenuOption';
 import { RolePickerSubMenu } from './RolePickerSubMenu';
-import { getStyles } from './styles';
 
 interface RoleMenuGroupsSectionProps {
   roles: Role[];
@@ -54,7 +57,6 @@ export const RoleMenuGroupsSection = forwardRef<HTMLDivElement, RoleMenuGroupsSe
 
     const theme = useTheme2();
     const selectStyles = getSelectStyles(theme);
-    const styles = useStyles2(getStyles);
 
     const onOpenSubMenu = useCallback((value: string) => {
       setOpenedMenuGroup(value);
@@ -69,8 +71,8 @@ export const RoleMenuGroupsSection = forwardRef<HTMLDivElement, RoleMenuGroupsSe
     return (
       <div>
         {roles.length > 0 && (
-          <div className={styles.menuSection}>
-            <div className={styles.groupHeader}>{renderedName}</div>
+          <div className={stylesStyles.menuSection}>
+            <div className={stylesStyles.groupHeader}>{renderedName}</div>
             <div className={selectStyles.optionBody}></div>
             {showGroups && !!optionGroups?.length
               ? optionGroups.map((groupOption) => (

@@ -1,12 +1,15 @@
-import { cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerStyles } from './stylesStyles.stylex';
 import { forwardRef, type FormEvent } from 'react';
 
 import { t } from '@grafana/i18n';
-import { Checkbox, Icon, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Checkbox, Icon, Tooltip, useTheme2 } from '@grafana/ui';
 import { getSelectStyles } from '@grafana/ui/internal';
 import { type Role } from 'app/types/accessControl';
 
-import { getStyles } from './styles';
 
 interface RoleMenuOptionProps {
   data: Role;
@@ -23,7 +26,6 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
   ({ data, isFocused, isSelected, useFilteredDisplayName, disabled, mapped, onChange, hideDescription }, ref) => {
     const theme = useTheme2();
     const styles = getSelectStyles(theme);
-    const customStyles = useStyles2(getStyles);
 
     disabled = disabled || mapped;
     let disabledMessage = '';
@@ -34,10 +36,9 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
       }
     }
 
-    const wrapperClassName = cx(
-      styles.option,
-      isFocused && styles.optionFocused,
-      disabled && customStyles.menuOptionDisabled
+    const wrapperProps = mergeStylexClassName(
+      stylex.props(disabled && rolePickerStyles.menuOptionDisabled),
+      clsx(stylesStyles.option, isFocused && stylesStyles.optionFocused)
     );
 
     const onChangeInternal = (event: FormEvent<HTMLElement>) => {
@@ -54,19 +55,21 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
       <div
         ref={ref}
-        className={wrapperClassName}
+        {...wrapperProps}
         aria-label={t('role-picker.menu-option-aria-label', 'Role picker option')}
         onClick={onChangeInternal}
       >
         <Checkbox
           value={isSelected}
-          className={customStyles.menuOptionCheckbox}
+          {...stylex.props(rolePickerStyles.menuOptionCheckbox)}
           onChange={onChangeInternal}
           disabled={disabled}
         />
-        <div className={cx(styles.optionBody, customStyles.menuOptionBody)}>
+        <div
+          {...mergeStylexClassName(stylex.props(rolePickerStyles.menuOptionBody), stylesStyles.optionBody)}
+        >
           <span>{(useFilteredDisplayName && data.filteredDisplayName) || data.displayName || data.name}</span>
-          {!hideDescription && data.description && <div className={styles.optionDescription}>{data.description}</div>}
+          {!hideDescription && data.description && <div className={stylesStyles.optionDescription}>{data.description}</div>}
         </div>
         {disabledMessage && (
           <Tooltip content={disabledMessage}>
@@ -75,7 +78,7 @@ export const RoleMenuOption = forwardRef<HTMLDivElement, React.PropsWithChildren
         )}
         {data.description && (
           <Tooltip content={data.description}>
-            <Icon name="info-circle" className={customStyles.menuOptionInfoSign} />
+            <Icon name="info-circle" {...stylex.props(rolePickerStyles.menuOptionInfoSign)} />
           </Tooltip>
         )}
       </div>

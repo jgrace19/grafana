@@ -1,17 +1,26 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type ReactNode } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { getInputStyles, Icon, type IconName, useStyles2, getSelectStyles } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { getInputStyles, Icon, type IconName, getSelectStyles, useTheme2 } from '@grafana/ui';
+
+import { valueContainerStyles } from './ValueContainer.stylex';
 
 export interface Props {
   children: ReactNode;
   iconName?: IconName;
 }
 export const ValueContainer = forwardRef<HTMLDivElement, Props>(({ children, iconName }, ref) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const { prefix } = getInputStyles({ theme });
+  const { multiValueContainer } = getSelectStyles(theme);
+
   return (
-    <div className={styles.container} ref={ref}>
+    <div
+      {...mergeStylexClassName(stylex.props(valueContainerStyles.container), clsx(prefix, multiValueContainer))}
+      ref={ref}
+    >
       {iconName && <Icon name={iconName} size="xs" />}
       {children}
     </div>
@@ -19,22 +28,3 @@ export const ValueContainer = forwardRef<HTMLDivElement, Props>(({ children, ico
 });
 
 ValueContainer.displayName = 'ValueContainer';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const { prefix } = getInputStyles({ theme });
-  const { multiValueContainer } = getSelectStyles(theme);
-  return {
-    container: cx(
-      prefix,
-      multiValueContainer,
-      css({
-        position: 'relative',
-        padding: theme.spacing(0.5, 1, 0.5, 1),
-
-        svg: {
-          marginRight: theme.spacing(0.5),
-        },
-      })
-    ),
-  };
-};

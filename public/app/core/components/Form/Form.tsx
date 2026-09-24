@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { type HTMLProps, useEffect } from 'react';
 import * as React from 'react';
 import {
@@ -50,10 +49,10 @@ export function Form<T extends FieldValues>({
 
   return (
     <form
-      className={css({
-        maxWidth: maxWidth !== 'none' ? maxWidth + 'px' : maxWidth,
+      style={{
+        maxWidth: maxWidth !== 'none' ? `${maxWidth}px` : undefined,
         width: '100%',
-      })}
+      }}
       onSubmit={handleSubmit(onSubmit)}
       {...htmlProps}
     >

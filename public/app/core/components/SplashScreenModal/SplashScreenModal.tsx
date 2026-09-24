@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { splashScreenModalStyles } from './SplashScreenModal.stylex';
 import { useCallback, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, LinkButton, useStyles2 } from '@grafana/ui';
+import { IconButton, LinkButton } from '@grafana/ui';
 import { ModalBase } from '@grafana/ui/internal';
 import { contextSrv } from 'app/core/services/context_srv';
 
@@ -24,7 +25,6 @@ function resolveCtaUrl(cta: SplashFeatureCta): string {
 
 export function SplashScreenModal() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const styles = useStyles2(getStyles);
   const config = getSplashScreenConfig();
   const { shouldShow, dismiss } = useShouldShowSplash(config.version);
 
@@ -81,16 +81,16 @@ export function SplashScreenModal() {
       isOpen
       onDismiss={dismiss}
       aria-label={t('splash-screen.aria-label', "What's new in Grafana")}
-      className={styles.modal}
+      {...stylex.props(splashScreenModalStyles.modal)}
     >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <div className={styles.container} onKeyDown={handleKeyDown}>
+      <div {...stylex.props(splashScreenModalStyles.container)} onKeyDown={handleKeyDown}>
         <IconButton
           name="times"
           size="lg"
           onClick={dismiss}
           aria-label={t('splash-screen.close', 'Close')}
-          className={styles.closeButton}
+          {...stylex.props(splashScreenModalStyles.closeButton)}
         />
         <SplashScreenSlide feature={activeFeature} footer={footer} />
       </div>
@@ -98,24 +98,3 @@ export function SplashScreenModal() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '860px',
-    maxWidth: '95vw',
-    height: '520px',
-    maxHeight: '85vh',
-    padding: 0,
-    overflow: 'hidden',
-  }),
-  container: css({
-    position: 'relative',
-    height: '100%',
-  }),
-  closeButton: css({
-    position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(1),
-    zIndex: 1,
-    color: theme.colors.text.secondary,
-  }),
-});

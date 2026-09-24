@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { profileButtonStyles } from './ProfileButton.stylex';
 import { cloneDeep } from 'lodash';
 import { useToggle } from 'react-use';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Dropdown, Menu, MenuItem, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { Dropdown, Menu, MenuItem, ToolbarButton } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { ThemeSelectorDrawer } from '../../ThemeSelector/ThemeSelectorDrawer';
@@ -20,7 +21,6 @@ export interface Props {
 }
 
 export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
-  const styles = useStyles2(getStyles);
   const node = enrichWithInteractionTracking(cloneDeep(profileNode), false);
   const [showNewsDrawer, onToggleShowNewsDrawer] = useToggle(false);
   const [showThemeDrawer, onToggleThemeDrawer] = useToggle(false);
@@ -64,7 +64,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
     <>
       <Dropdown overlay={renderMenu} placement="bottom-end">
         <ToolbarButton
-          className={styles.profileButton}
+          {...stylex.props(profileButtonStyles.profileButton)}
           imgSrc={contextSrv.user.gravatarUrl}
           imgAlt="User avatar"
           aria-label={t('navigation.profile.aria-label', 'Profile')}
@@ -76,16 +76,3 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    profileButton: css({
-      padding: theme.spacing(0, 0.5),
-      img: {
-        borderRadius: theme.shape.radius.circle,
-        height: '24px',
-        marginRight: 0,
-        width: '24px',
-      },
-    }),
-  };
-};

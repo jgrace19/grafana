@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Box, Button, Icon, Select, Tooltip, useStyles2 } from '@grafana/ui';
+import { Box, Button, Icon, Select, Tooltip } from '@grafana/ui';
 
 import { type ResourcePermission } from './types';
 
@@ -15,7 +14,6 @@ interface Props {
 }
 
 export const PermissionListItem = ({ item, permissionLevels, canSet, onRemove, onChange }: Props) => {
-  const styles = useStyles2(getStyles);
 
   return (
     <tr>
@@ -23,7 +21,7 @@ export const PermissionListItem = ({ item, permissionLevels, canSet, onRemove, o
       <td>{getDescription(item)}</td>
       <td>
         {item.isInherited && (
-          <em className={styles.inherited}>
+          <em {...stylex.props(permissionListItemStyles.inherited)}>
             <Trans i18nKey="access-control.permission-list-item.inherited">Inherited from folder</Trans>
           </em>
         )}
@@ -46,7 +44,7 @@ export const PermissionListItem = ({ item, permissionLevels, canSet, onRemove, o
               </>
             }
           >
-            <Icon name="exclamation-triangle" className={styles.warning} />
+            <Icon name="exclamation-triangle" {...stylex.props(permissionListItemStyles.warning)} />
           </Tooltip>
         ) : (
           <Tooltip content={getPermissionInfo(item)}>
@@ -122,12 +120,3 @@ const getDescription = (item: ResourcePermission) => {
 
 const getPermissionInfo = (p: ResourcePermission) => `Actions: ${[...new Set(p.actions)].sort().join(' ')}`;
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  warning: css({
-    color: theme.colors.warning.main,
-  }),
-  inherited: css({
-    color: theme.colors.text.secondary,
-    flexWrap: 'nowrap',
-  }),
-});

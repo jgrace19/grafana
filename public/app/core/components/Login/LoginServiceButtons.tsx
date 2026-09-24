@@ -1,10 +1,13 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { pickBy } from 'lodash';
 
-import { type GrafanaTheme2, DEFAULT_SAML_NAME } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { Icon, type IconName, LinkButton, Stack, useStyles2, useTheme2 } from '@grafana/ui';
+import { Icon, type IconName, LinkButton, Stack, useTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import config from 'app/core/config';
+
+import { loginServiceButtonsStyles } from './LoginServiceButtons.stylex';
 
 export interface LoginService {
   bgColor: string;
@@ -30,118 +33,66 @@ const loginServices: () => LoginServices = () => {
     },
     google: {
       bgColor: '#e84d3c',
-      enabled: oauthEnabled && Boolean(config.oauth.google),
-      name: config.oauth?.google?.name || 'Google',
-      icon: config.oauth?.google?.icon || ('google' as const),
-    },
-    azuread: {
-      bgColor: '#2f2f2f',
-      enabled: oauthEnabled && Boolean(config.oauth.azuread),
-      name: config.oauth?.azuread?.name || 'Microsoft',
-      icon: config.oauth?.azuread?.icon || ('microsoft' as const),
+      enabled: config.auth.google && oauthEnabled,
+      name: 'Google',
+      icon: 'google',
     },
     github: {
-      bgColor: '#464646',
-      enabled: oauthEnabled && Boolean(config.oauth.github),
-      name: config.oauth?.github?.name || 'GitHub',
-      icon: config.oauth?.github?.icon || ('github' as const),
+      bgColor: '#2c2c2c',
+      enabled: config.auth.github && oauthEnabled,
+      name: 'GitHub',
+      icon: 'github',
     },
     gitlab: {
       bgColor: '#fc6d26',
-      enabled: oauthEnabled && Boolean(config.oauth.gitlab),
-      name: config.oauth?.gitlab?.name || 'GitLab',
-      icon: config.oauth?.gitlab?.icon || ('gitlab' as const),
+      enabled: config.auth.gitlab && oauthEnabled,
+      name: 'GitLab',
+      icon: 'gitlab',
     },
-    grafanacom: {
-      bgColor: '#262628',
-      enabled: oauthEnabled && Boolean(config.oauth.grafana_com),
-      name: config.oauth?.grafana_com?.name || 'Grafana.com',
-      icon: config.oauth?.grafana_com?.icon || ('grafana' as const),
-      hrefName: 'grafana_com',
+    azuread: {
+      bgColor: '#1252b3',
+      enabled: config.auth.azuread && oauthEnabled,
+      name: 'Microsoft',
+      icon: 'microsoft',
     },
     okta: {
-      bgColor: '#2f2f2f',
-      enabled: oauthEnabled && Boolean(config.oauth.okta),
-      name: config.oauth?.okta?.name || 'Okta',
-      icon: config.oauth?.okta?.icon || ('okta' as const),
+      bgColor: '#2eb4ff',
+      enabled: config.auth.okta && oauthEnabled,
+      name: 'Okta',
+      icon: 'okta',
     },
     oauth: {
       bgColor: '#262628',
-      enabled: oauthEnabled && Boolean(config.oauth.generic_oauth),
-      name: config.oauth?.generic_oauth?.name || 'OAuth',
-      icon: config.oauth?.generic_oauth?.icon || ('signin' as const),
+      enabled: config.auth.oauth && oauthEnabled,
+      name: config.oauth.name,
       hrefName: 'generic_oauth',
+      icon: 'signin',
     },
   };
 };
 
-const getServiceStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      color: '#d8d9da',
-      position: 'relative',
-    }),
-    buttonIcon: css({
-      position: 'absolute',
-      left: theme.spacing(1),
-      top: '50%',
-      transform: 'translateY(-50%)',
-    }),
-    divider: {
-      base: css({
-        color: theme.colors.text.primary,
-        display: 'flex',
-        marginBottom: theme.spacing(1),
-        justifyContent: 'space-between',
-        textAlign: 'center',
-        width: '100%',
-      }),
-      line: css({
-        width: 100,
-        height: 10,
-        borderBottom: `1px solid ${theme.colors.text}`,
-      }),
-    },
-  };
-};
+const DEFAULT_SAML_NAME = 'SAML';
 
 const LoginDivider = () => {
-  const styles = useStyles2(getServiceStyles);
   return (
-    <div className={styles.divider.base}>
+    <div {...stylex.props(loginServiceButtonsStyles.divider)}>
       <div>
-        <div className={styles.divider.line} />
+        <div {...stylex.props(loginServiceButtonsStyles.dividerLine)} />
       </div>
       <div>
         <span>{!config.disableLoginForm && <Trans i18nKey="login.divider.connecting-text">or</Trans>}</span>
       </div>
       <div>
-        <div className={styles.divider.line} />
+        <div {...stylex.props(loginServiceButtonsStyles.dividerLine)} />
       </div>
     </div>
   );
 };
 
-function getButtonStyleFor(service: LoginService, styles: ReturnType<typeof getServiceStyles>, theme: GrafanaTheme2) {
-  return cx(
-    styles.button,
-    css({
-      backgroundColor: service.bgColor,
-      color: theme.colors.getContrastText(service.bgColor),
-
-      ['&:hover']: {
-        backgroundColor: theme.colors.emphasize(service.bgColor, 0.15),
-        boxShadow: theme.shadows.z1,
-      },
-    })
-  );
-}
-
 export const LoginServiceButtons = () => {
   const enabledServices = pickBy(loginServices(), (service) => service.enabled);
   const hasServices = Object.keys(enabledServices).length > 0;
   const theme = useTheme2();
-  const styles = useStyles2(getServiceStyles);
 
   if (hasServices) {
     return (
@@ -152,12 +103,16 @@ export const LoginServiceButtons = () => {
           return (
             <LinkButton
               key={key}
-              className={getButtonStyleFor(service, styles, theme)}
+              {...mergeStylexClassName(stylex.props(loginServiceButtonsStyles.button), undefined)}
+              style={{
+                backgroundColor: service.bgColor,
+                color: theme.colors.getContrastText(service.bgColor),
+              }}
               href={`login/${service.hrefName ? service.hrefName : key}`}
               target="_self"
               fullWidth
             >
-              <Icon className={styles.buttonIcon} name={service.icon} />
+              <Icon {...stylex.props(loginServiceButtonsStyles.buttonIcon)} name={service.icon} />
               <Trans i18nKey="login.services.sing-in-with-prefix">Sign in with {{ serviceName }}</Trans>
             </LinkButton>
           );

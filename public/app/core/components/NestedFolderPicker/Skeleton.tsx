@@ -1,36 +1,29 @@
-import { css } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import Skeleton from 'react-loading-skeleton';
 
-import type { GrafanaTheme2 } from '@grafana/data';
-import { getInputStyles, useStyles2 } from '@grafana/ui';
+import { getInputStyles, useTheme2 } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { folderPickerSkeletonStyles } from './Skeleton.stylex';
 
 // This component is used as a fallback for codesplitting, so aim to keep
 // the bundle size of it as small as possible :)
 export function FolderPickerSkeleton() {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const baseStyles = getInputStyles({ theme });
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.inputWrapper}>
-        <button type="button" className={styles.fakeInput} aria-disabled>
+    <div {...mergeStylexClassName(stylex.props(folderPickerSkeletonStyles.wrapper), baseStyles.wrapper)}>
+      <div {...mergeStylexClassName(stylex.props(folderPickerSkeletonStyles.inputWrapper), baseStyles.inputWrapper)}>
+        <button
+          type="button"
+          {...mergeStylexClassName(stylex.props(folderPickerSkeletonStyles.fakeInput), baseStyles.input)}
+          aria-disabled
+        >
           <Skeleton width={100} />
         </button>
       </div>
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const baseStyles = getInputStyles({ theme });
-
-  return {
-    wrapper: baseStyles.wrapper,
-    inputWrapper: baseStyles.inputWrapper,
-    fakeInput: css([
-      baseStyles.input,
-      {
-        textAlign: 'left',
-      },
-    ]),
-  };
-};

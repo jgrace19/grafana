@@ -1,9 +1,11 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { queryOperationActionStyles } from './QueryOperationAction.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { IconButton, type IconName, useStyles2 } from '@grafana/ui';
+import { IconButton, type IconName } from '@grafana/ui';
 
 interface BaseQueryOperationActionProps {
   icon: IconName;
@@ -14,14 +16,13 @@ interface BaseQueryOperationActionProps {
 }
 
 function BaseQueryOperationAction(props: QueryOperationActionProps | QueryOperationToggleActionProps) {
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={cx(styles.icon, 'active' in props && props.active && styles.active)}>
+    <div {...mergeStylexClassName(stylex.props(queryOperationActionStyles.icon, 'active' in props && props.active && queryOperationActionStyles.active), undefined)}>
       <IconButton
         name={props.icon}
         tooltip={props.title}
-        className={styles.icon}
+        {...stylex.props(queryOperationActionStyles.icon)}
         disabled={!!props.disabled}
         onClick={props.onClick}
         type="button"
@@ -44,25 +45,3 @@ export const QueryOperationToggleAction = (props: QueryOperationToggleActionProp
   return <BaseQueryOperationAction {...props} />;
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    icon: css({
-      display: 'flex',
-      position: 'relative',
-      color: theme.colors.text.secondary,
-    }),
-    active: css({
-      '&:before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: -1,
-        right: 2,
-        height: 3,
-        borderRadius: theme.shape.radius.default,
-        bottom: -8,
-        backgroundImage: theme.colors.gradients.brandHorizontal,
-      },
-    }),
-  };
-};

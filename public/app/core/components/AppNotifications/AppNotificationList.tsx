@@ -1,9 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { appNotificationListStyles } from './AppNotificationList.stylex';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { type AlertErrorPayload, type AlertPayload, AppEvents, type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Stack } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { hideAppNotification, notifyApp, selectVisible } from 'app/core/reducers/appNotification';
@@ -21,7 +23,6 @@ import AppNotificationItem from './AppNotificationItem';
 export function AppNotificationList() {
   const appNotifications = useSelector((state) => selectVisible(state.appNotifications));
   const dispatch = useDispatch();
-  const styles = useStyles2(getStyles);
   const { chrome } = useGrafana();
   const location = useLocation();
 
@@ -87,7 +88,7 @@ export function AppNotificationList() {
   const liveRegionMessage = appNotifications.map((n) => [n.title, n.text].filter(Boolean).join('. ')).join('. ');
 
   return (
-    <div className={styles.wrapper}>
+    <div {...stylex.props(appNotificationListStyles.wrapper)}>
       <div className="sr-only" role="log" aria-live="polite" aria-atomic="true" aria-label={liveRegionMessage} />
       <Stack direction="column">
         {appNotifications.map((appNotification, index) => {
@@ -104,16 +105,3 @@ export function AppNotificationList() {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      label: 'app-notifications-list',
-      zIndex: theme.zIndex.portal,
-      minWidth: 400,
-      maxWidth: 600,
-      position: 'fixed',
-      right: 6,
-      top: 88,
-    }),
-  };
-}

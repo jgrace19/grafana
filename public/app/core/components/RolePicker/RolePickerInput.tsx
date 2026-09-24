@@ -1,11 +1,15 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEvent, type HTMLProps, useEffect, useRef, type JSX } from 'react';
 import * as React from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { useStyles2, getInputStyles, sharedInputStyle, Tooltip, Icon, Spinner } from '@grafana/ui';
+import { getInputStyles, sharedInputStyle, Tooltip, Icon, Spinner, useTheme2 } from '@grafana/ui';
 import { getFocusStyles } from '@grafana/ui/internal';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { rolePickerInputStyles } from './RolePickerInput.stylex';
 import { type Role } from 'app/types/accessControl';
 
 import { ValueContainer } from './ValueContainer';
@@ -41,7 +45,8 @@ export const RolePickerInput = ({
   onQueryChange,
   ...rest
 }: InputProps): JSX.Element => {
-  const styles = useStyles2(getRolePickerInputStyles, false, !!isFocused, !!disabled, false, width);
+  const theme = useTheme2();
+  const styles = getRolePickerInputClassNames(theme, !!isFocused, !!disabled, width);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -60,7 +65,7 @@ export const RolePickerInput = ({
   return !isFocused ? (
     // TODO: fix keyboard a11y
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div className={cx(styles.wrapper, styles.selectedRoles)} onMouseDown={onOpen}>
+    <div className={clsx(styles.wrapper, styles.selectedRoles)} style={styles.wrapperStyle} onMouseDown={onOpen}>
       {showBasicRoleOnLabel && <ValueContainer>{basicRole}</ValueContainer>}
       <RolesLabel
         appliedRoles={appliedRoles}
@@ -74,7 +79,7 @@ export const RolePickerInput = ({
       )}
     </div>
   ) : (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} style={styles.wrapperStyle}>
       {showBasicRoleOnLabel && <ValueContainer>{basicRole}</ValueContainer>}
       {appliedRoles.map((role) => (
         <ValueContainer key={role.uid}>{role.group + ':' + (role.displayName || role.name)}</ValueContainer>
@@ -108,14 +113,12 @@ interface RolesLabelProps {
 }
 
 export const RolesLabel = ({ showBuiltInRole, numberOfRoles, appliedRoles }: RolesLabelProps): JSX.Element => {
-  const styles = useStyles2((theme) => getTooltipStyles(theme));
-
   return (
     <>
       {!!numberOfRoles ? (
         <Tooltip
           content={
-            <div className={styles.tooltip}>
+            <div {...stylex.props(rolePickerInputStyles.tooltip)}>
               {appliedRoles?.map((role) => (
                 <p key={role.uid}>{role.group + ':' + (role.displayName || role.name)}</p>
               ))}
@@ -137,81 +140,39 @@ export const RolesLabel = ({ showBuiltInRole, numberOfRoles, appliedRoles }: Rol
   );
 };
 
-const getRolePickerInputStyles = (
+function getRolePickerInputClassNames(
   theme: GrafanaTheme2,
-  invalid: boolean,
   focused: boolean,
   disabled: boolean,
-  withPrefix: boolean,
   width?: string
-) => {
-  const styles = getInputStyles({ theme, invalid });
+) {
+  const inputStyles = getInputStyles({ theme, invalid: false });
 
   return {
-    wrapper: cx(
-      styles.wrapper,
-      sharedInputStyle(theme, invalid),
-      focused && css(getFocusStyles(theme)),
-      disabled && styles.inputDisabled,
-      css({
-        minWidth: width || ROLE_PICKER_WIDTH + 'px',
-        width: width,
-        minHeight: '32px',
-        maxHeight: '200px',
-        overflow: 'scroll',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        height: 'auto',
-        flexDirection: 'row',
-        paddingRight: theme.spacing(1),
-        maxWidth: '100%',
-        alignItems: 'center',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        position: 'relative',
-        boxSizing: 'border-box',
-        cursor: 'default',
-      }),
-      withPrefix &&
-        css({
-          paddingLeft: 0,
-        })
+    wrapper: clsx(
+      inputStyles.wrapper,
+      sharedInputStyle(theme, false),
+      focused && getFocusStyles(theme),
+      disabled && inputStyles.inputDisabled,
+      stylex.props(rolePickerInputStyles.wrapperLayout).className
     ),
-    input: cx(
-      sharedInputStyle(theme, invalid),
-      css({
-        maxWidth: '120px',
-        border: 'none',
-        cursor: focused ? 'default' : 'pointer',
-      })
+    wrapperStyle: {
+      minWidth: width || `${ROLE_PICKER_WIDTH}px`,
+      width: width,
+    } as React.CSSProperties,
+    input: clsx(
+      sharedInputStyle(theme, false),
+      stylex.props(
+        rolePickerInputStyles.input,
+        focused ? rolePickerInputStyles.inputFocused : rolePickerInputStyles.inputBlurred
+      ).className
     ),
-    suffix: styles.suffix,
-    dropdownIndicator: css({
-      cursor: 'pointer',
-    }),
-    selectedRoles: css({
-      display: 'flex',
-      alignItems: 'center',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-    }),
-    tooltip: css({
-      p: {
-        marginBottom: theme.spacing(0.5),
-      },
-    }),
-    spinner: css({
-      display: 'flex',
-      flexGrow: 1,
-      justifyContent: 'flex-end',
-    }),
+    suffix: inputStyles.suffix,
+    dropdownIndicator: stylex.props(rolePickerInputStyles.dropdownIndicator).className,
+    selectedRoles: stylex.props(
+      rolePickerInputStyles.selectedRoles,
+      disabled ? rolePickerInputStyles.selectedRolesDisabled : rolePickerInputStyles.selectedRolesEnabled
+    ).className,
+    spinner: stylex.props(rolePickerInputStyles.spinner).className,
   };
-};
-
-const getTooltipStyles = (theme: GrafanaTheme2) => ({
-  tooltip: css({
-    p: {
-      marginBottom: theme.spacing(0.5),
-    },
-  }),
-});
+}

@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { splitPaneWrapperStyles } from './SplitPaneWrapper.stylex';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import SplitPane, { type Split } from 'react-split-pane';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getDragStyles } from '@grafana/ui';
 
@@ -94,7 +96,7 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
       size={splitVisible ? paneSizePx : 0}
       primary={splitVisible ? primary : 'second'}
       resizerClassName={cx(
-        styles.resizer,
+        splitPaneWrapperStyles.resizer,
         splitOrientation === 'horizontal' ? dragStyles.dragHandleHorizontal : dragStyles.dragHandleVertical
       )}
       onDragStarted={() => handleDragStarted()}
@@ -108,10 +110,3 @@ export const SplitPaneWrapper = memo(function SplitPaneWrapper({
   );
 });
 
-const getStyles = (theme: GrafanaTheme2, hasSplit: boolean) => {
-  return {
-    resizer: css({
-      display: hasSplit ? 'block' : 'none',
-    }),
-  };
-};

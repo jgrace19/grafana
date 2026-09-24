@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { layerDragDropListStyles } from './LayerDragDropList.stylex';
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import type { JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton } from '@grafana/ui';
 
 import { LayerName } from './LayerName';
 import { type LayerElement } from './types';
@@ -38,7 +40,6 @@ export const LayerDragDropList = <T extends LayerElement>({
   onNameChange,
   verifyLayerNameUniqueness,
 }: LayerDragDropListProps<T>) => {
-  const style = useStyles2(getStyles);
 
   const getRowStyle = (isSelected: boolean) => {
     return isSelected ? `${style.row} ${style.sel}` : style.row;
@@ -131,50 +132,3 @@ export const LayerDragDropList = <T extends LayerElement>({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginBottom: theme.spacing(2),
-  }),
-  row: css({
-    padding: theme.spacing(0.5, 1),
-    borderRadius: theme.shape.radius.default,
-    background: theme.colors.background.secondary,
-    minHeight: theme.spacing(4),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '3px',
-    cursor: 'pointer',
-
-    border: `1px solid ${theme.components.input.borderColor}`,
-    '&:hover': {
-      border: `1px solid ${theme.components.input.borderHover}`,
-    },
-  }),
-  sel: css({
-    border: `1px solid ${theme.colors.primary.border}`,
-    '&:hover': {
-      border: `1px solid ${theme.colors.primary.border}`,
-    },
-  }),
-  dragIcon: css({
-    cursor: 'drag',
-  }),
-  actionIcon: css({
-    color: theme.colors.text.secondary,
-    '&:hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-  typeWrapper: css({
-    color: theme.colors.primary.text,
-    marginRight: '5px',
-  }),
-  textWrapper: css({
-    display: 'flex',
-    alignItems: 'center',
-    flexGrow: 1,
-    overflow: 'hidden',
-    marginRight: theme.spacing(1),
-  }),
-});

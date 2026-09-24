@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { singleTopBarStyles } from './SingleTopBar.stylex';
 import React, { memo } from 'react';
 
-import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { Components } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { type ScopesContextValue } from '@grafana/runtime';
-import { Icon, Stack, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { Icon, Stack, ToolbarButton } from '@grafana/ui';
 import { MEGA_MENU_TOGGLE_ID } from 'app/core/constants';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
@@ -54,7 +55,6 @@ export const SingleTopBar = memo(function SingleTopBar({
   const { chrome } = useGrafana();
   const state = chrome.useState();
   const menuDockedAndOpen = !state.chromeless && state.megaMenuDocked && state.megaMenuOpen;
-  const styles = useStyles2(getStyles, menuDockedAndOpen);
   const profileNode = useSelector((state) => state.navIndex['profile']);
   const homeNav = useSelector((state) => state.navIndex)[HOME_NAV_ID];
   const breadcrumbs = buildBreadcrumbs(sectionNav, pageNav, homeNav);
@@ -64,7 +64,7 @@ export const SingleTopBar = memo(function SingleTopBar({
 
   return (
     <>
-      <div className={styles.layout}>
+      <div {...stylex.props(singleTopBarStyles.layout)}>
         <Stack minWidth={0} gap={0.5} alignItems="center" flex={{ xs: 2, lg: 1 }}>
           {!menuDockedAndOpen && (
             <ToolbarButton
@@ -81,7 +81,7 @@ export const SingleTopBar = memo(function SingleTopBar({
           )}
           {!menuDockedAndOpen && <HomeLink homeNav={homeNav} />}
           {topLevelScopes ? <ScopesSelector /> : undefined}
-          <Breadcrumbs breadcrumbs={breadcrumbs} className={styles.breadcrumbsWrapper} />
+          <Breadcrumbs breadcrumbs={breadcrumbs} {...stylex.props(singleTopBarStyles.breadcrumbsWrapper)} />
           {!showToolbarLevel && breadcrumbActions}
         </Stack>
 
@@ -111,32 +111,3 @@ export const SingleTopBar = memo(function SingleTopBar({
   );
 });
 
-const getStyles = (theme: GrafanaTheme2, menuDockedAndOpen: boolean) => ({
-  layout: css({
-    height: getChromeHeaderLevelHeight(),
-    display: 'flex',
-    gap: theme.spacing(2),
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    paddingLeft: menuDockedAndOpen ? theme.spacing(3.5) : theme.spacing(0.75),
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    justifyContent: 'space-between',
-  }),
-  breadcrumbsWrapper: css({
-    display: 'flex',
-    overflow: 'hidden',
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '40%',
-    },
-  }),
-  img: css({
-    alignSelf: 'center',
-    height: theme.spacing(3),
-    width: theme.spacing(3),
-  }),
-  kioskToggle: css({
-    [theme.breakpoints.down('lg')]: {
-      display: 'none',
-    },
-  }),
-});

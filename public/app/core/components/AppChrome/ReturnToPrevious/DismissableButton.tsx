@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { Button, ButtonGroup, useStyles2 } from '@grafana/ui';
+import { Button, ButtonGroup } from '@grafana/ui';
 
 export interface DismissableButtonProps {
   label: string;
@@ -12,10 +11,9 @@ export interface DismissableButtonProps {
 }
 
 export const DismissableButton = ({ label, onClick, onDismiss }: DismissableButtonProps) => {
-  const styles = useStyles2(getStyles);
 
   return (
-    <ButtonGroup className={styles.buttonGroup}>
+    <ButtonGroup {...stylex.props(dismissableButtonStyles.buttonGroup)}>
       <Button
         icon="angle-left"
         size="sm"
@@ -23,7 +21,7 @@ export const DismissableButton = ({ label, onClick, onDismiss }: DismissableButt
         fill="outline"
         onClick={onClick}
         title={label}
-        className={styles.mainDismissableButton}
+        {...stylex.props(dismissableButtonStyles.mainDismissableButton)}
         data-testid={selectors.components.ReturnToPrevious.backButton}
       >
         {label}
@@ -40,21 +38,5 @@ export const DismissableButton = ({ label, onClick, onDismiss }: DismissableButt
     </ButtonGroup>
   );
 };
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainDismissableButton: css({
-    width: '100%',
-    ['> span']: {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      maxWidth: '270px',
-      display: 'inline-block',
-    },
-  }),
-  buttonGroup: css({
-    width: 'fit-content',
-    backgroundColor: theme.colors.background.secondary,
-  }),
-});
 
 DismissableButton.displayName = 'DismissableButton';

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { colorScaleStyles } from './ColorScale.stylex';
 import { useState, useEffect } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
 type Props = {
@@ -54,22 +55,22 @@ export const ColorScale = ({ colorPalette, min, max, display, hoverValue, useSto
   }, [hoverValue, min, max]);
 
   return (
-    <div className={styles.scaleWrapper} onMouseMove={onScaleMouseMove} onMouseLeave={onScaleMouseLeave}>
-      <div className={styles.scaleGradient}>
+    <div {...stylex.props(colorScaleStyles.scaleWrapper)} onMouseMove={onScaleMouseMove} onMouseLeave={onScaleMouseLeave}>
+      <div {...stylex.props(colorScaleStyles.scaleGradient)}>
         {display && (scaleHover.isShown || hoverValue !== undefined) && (
-          <div className={styles.followerContainer}>
-            <div className={styles.follower} style={{ left: `${percent}%` }} />
+          <div {...stylex.props(colorScaleStyles.followerContainer)}>
+            <div {...stylex.props(colorScaleStyles.follower)} style={{ left: `${percent}%` }} />
           </div>
         )}
       </div>
       {display && (
-        <div className={styles.followerContainer}>
-          <div className={styles.legendValues}>
-            <span className={styles.disabled}>{display(min)}</span>
-            <span className={styles.disabled}>{display(max)}</span>
+        <div {...stylex.props(colorScaleStyles.followerContainer)}>
+          <div {...stylex.props(colorScaleStyles.legendValues)}>
+            <span {...stylex.props(colorScaleStyles.disabled)}>{display(min)}</span>
+            <span {...stylex.props(colorScaleStyles.disabled)}>{display(max)}</span>
           </div>
           {percent != null && (scaleHover.isShown || hoverValue !== undefined) && (
-            <span className={styles.hoverValue} style={{ left: `${percent}%` }}>
+            <span {...stylex.props(colorScaleStyles.hoverValue)} style={{ left: `${percent}%` }}>
               {display(hoverValue ?? scaleHover.value)}
             </span>
           )}
@@ -128,44 +129,3 @@ function clampPercent100(v: number) {
   return v * 100;
 }
 
-const getStyles = (theme: GrafanaTheme2, colors: string[]) => ({
-  scaleWrapper: css({
-    width: '100%',
-    fontSize: '11px',
-    opacity: 1,
-  }),
-  scaleGradient: css({
-    background: `linear-gradient(90deg, ${colors.join()})`,
-    height: '9px',
-    pointerEvents: 'none',
-    borderRadius: theme.shape.radius.default,
-  }),
-  legendValues: css({
-    display: 'flex',
-    justifyContent: 'space-between',
-    pointerEvents: 'none',
-  }),
-  hoverValue: css({
-    position: 'absolute',
-    marginTop: '-14px',
-    padding: '3px 15px',
-    transform: 'translateX(-50%)',
-  }),
-  followerContainer: css({
-    position: 'relative',
-    pointerEvents: 'none',
-    whiteSpace: 'nowrap',
-  }),
-  follower: css({
-    position: 'absolute',
-    height: '13px',
-    width: '13px',
-    borderRadius: theme.shape.radius.default,
-    transform: 'translateX(-50%) translateY(-50%)',
-    border: `2px solid ${theme.colors.text.primary}`,
-    top: '5px',
-  }),
-  disabled: css({
-    color: theme.colors.text.disabled,
-  }),
-});

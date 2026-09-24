@@ -1,13 +1,14 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { nestedFolderPickerStyles } from './NestedFolderPicker.stylex';
 import { autoUpdate, flip, useClick, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import debounce from 'debounce-promise';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, floatingUtils, Icon, Input, LoadingBar, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, floatingUtils, Icon, Input, LoadingBar, Stack, Text } from '@grafana/ui';
 import { useGetFolderQueryFacade } from 'app/api/clients/folder/v1beta1/hooks';
 import { getStatusFromError } from 'app/core/utils/errors';
 import { type DashboardViewItemWithUIItems, type DashboardsTreeItem } from 'app/features/browse-dashboards/types';
@@ -84,7 +85,6 @@ export function NestedFolderPicker({
   onChange,
   id,
 }: NestedFolderPickerProps) {
-  const styles = useStyles2(getStyles);
   const getSelectedFolderResult = useGetFolderQueryFacade(value);
 
   // user might not have access to the folder, but they have access to the dashboard
@@ -317,7 +317,7 @@ export function NestedFolderPicker({
         placeholder={label ?? t('browse-dashboards.folder-picker.search-placeholder', 'Search folders')}
         value={search}
         invalid={invalid}
-        className={styles.search}
+        {...stylex.props(nestedFolderPickerStyles.search)}
         onChange={(e) => setSearch(e.currentTarget.value)}
         aria-autocomplete="list"
         aria-expanded
@@ -332,7 +332,7 @@ export function NestedFolderPicker({
       <fieldset
         ref={refs.setFloating}
         id={overlayId}
-        className={styles.tableWrapper}
+        {...stylex.props(nestedFolderPickerStyles.tableWrapper)}
         style={{
           ...floatingStyles,
           width: elements.domReference?.clientWidth,
@@ -341,7 +341,7 @@ export function NestedFolderPicker({
       >
         {error ? (
           <Alert
-            className={styles.error}
+            {...stylex.props(nestedFolderPickerStyles.error)}
             severity="warning"
             title={t('browse-dashboards.folder-picker.error-title', 'Error loading folders')}
           >
@@ -350,7 +350,7 @@ export function NestedFolderPicker({
         ) : (
           <div>
             {isLoading && (
-              <div className={styles.loader}>
+              <div {...stylex.props(nestedFolderPickerStyles.loader)}>
                 <LoadingBar width={600} />
               </div>
             )}
@@ -488,31 +488,3 @@ function filterExcludedItems(items: DashboardsTreeItem[], excludeUIDs: string[] 
   return items;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      maxWidth: '100%',
-    }),
-    error: css({
-      marginBottom: 0,
-    }),
-    tableWrapper: css({
-      boxShadow: theme.shadows.z3,
-      position: 'relative',
-      zIndex: theme.zIndex.portal,
-    }),
-    loader: css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: theme.zIndex.portal + 1,
-      overflow: 'hidden', // loading bar overflows its container, so we need to clip it
-    }),
-    search: css({
-      input: {
-        cursor: 'default',
-      },
-    }),
-  };
-};

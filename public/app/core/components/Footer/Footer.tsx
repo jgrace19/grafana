@@ -1,10 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { footerStyles } from './Footer.stylex';
 import { memo } from 'react';
 
-import { type GrafanaTheme2, type LinkTarget } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Icon, type IconName, useStyles2 } from '@grafana/ui';
+import { Icon, type IconName } from '@grafana/ui';
 
 export interface FooterLink {
   target: LinkTarget;
@@ -101,14 +102,13 @@ export interface Props {
 
 export const Footer = memo(({ customLinks, hideEdition }: Props) => {
   const links = (customLinks || getFooterLinks()).concat(getVersionLinks(hideEdition));
-  const styles = useStyles2(getStyles);
 
   return (
-    <footer className={styles.footer}>
+    <footer {...stylex.props(footerStyles.footer)}>
       <div className="text-center">
-        <ul className={styles.list}>
+        <ul {...stylex.props(footerStyles.list)}>
           {links.map((link, index) => (
-            <li className={styles.listItem} key={index}>
+            <li {...stylex.props(footerStyles.listItem)} key={index}>
               <FooterItem item={link} />
             </li>
           ))}
@@ -136,36 +136,3 @@ function FooterItem({ item }: { item: FooterLink }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  footer: css({
-    ...theme.typography.bodySmall,
-    color: theme.colors.text.primary,
-    display: 'block',
-    padding: theme.spacing(2, 0),
-    position: 'relative',
-    width: '98%',
-
-    'a:hover': {
-      color: theme.colors.text.maxContrast,
-      textDecoration: 'underline',
-    },
-
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  }),
-  list: css({
-    listStyle: 'none',
-  }),
-  listItem: css({
-    display: 'inline-block',
-    '&:after': {
-      content: "' | '",
-      padding: theme.spacing(0, 1),
-    },
-    '&:last-child:after': {
-      content: "''",
-      paddingLeft: 0,
-    },
-  }),
-});

@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { tagBadgeStyles } from './TagBadge.stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { getTagColorsFromName, Icon, useStyles2 } from '@grafana/ui';
+import { getTagColorsFromName, Icon } from '@grafana/ui';
 
 export interface Props {
   label: string;
@@ -13,13 +14,12 @@ export interface Props {
 
 export const TagBadge = ({ count, label, onClick, removeIcon }: Props) => {
   const { color } = getTagColorsFromName(label);
-  const styles = useStyles2(getStyles);
 
   const countLabel = count !== 0 && <span style={{ marginLeft: '3px' }}>{`(${count})`}</span>;
 
   return (
     <span
-      className={styles.badge}
+      {...stylex.props(tagBadgeStyles.badge)}
       style={{
         backgroundColor: color,
       }}
@@ -30,20 +30,4 @@ export const TagBadge = ({ count, label, onClick, removeIcon }: Props) => {
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  badge: css({
-    ...theme.typography.bodySmall,
-    backgroundColor: theme.v1.palette.gray1,
-    borderRadius: theme.shape.radius.sm,
-    color: theme.v1.palette.white,
-    display: 'inline-block',
-    height: '20px',
-    lineHeight: '20px',
-    padding: theme.spacing(0, 0.75),
-    verticalAlign: 'baseline',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      opacity: 0.85,
-    },
-  }),
-});
+export 

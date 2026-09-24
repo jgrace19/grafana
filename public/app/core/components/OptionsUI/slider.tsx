@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { Global } from '@emotion/react';
 import Slider from '@rc-component/slider';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -8,6 +9,7 @@ import { useTheme2 } from '@grafana/ui';
 import { getSliderStyles } from '@grafana/ui/internal';
 
 import { NumberInput } from './NumberInput';
+import { sliderEditorStyles } from './slider.stylex';
 
 type Props = StandardEditorProps<number, SliderFieldConfigSettings>;
 
@@ -87,14 +89,13 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
 
   // Styles
   const styles = getSliderStyles(theme, isHorizontal, Boolean(marks));
-  const stylesSlider = getStylesSlider(theme, inputWidth);
   const sliderInputClassNames = !isHorizontal ? [styles.sliderInputVertical] : [];
 
   return (
-    <div className={cx(styles.container, styles.slider)}>
+    <div className={clsx(styles.container, styles.slider)}>
       {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
       <Global styles={styles.slider} />
-      <div className={cx(styles.sliderInput, ...sliderInputClassNames)}>
+      <div className={clsx(styles.sliderInput, ...sliderInputClassNames)}>
         <Slider
           min={min}
           max={max}
@@ -108,7 +109,11 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
           marks={marks}
           included={included}
         />
-        <span className={stylesSlider.numberInputWrapper} ref={inputRef}>
+        <span
+          {...stylex.props(sliderEditorStyles.numberInputWrapper)}
+          style={{ maxWidth: inputWidth, minWidth: inputWidth }}
+          ref={inputRef}
+        >
           <NumberInput id={id} value={sliderValue} onChange={onSliderInputChange} max={max} min={min} step={step} />
         </span>
       </div>
@@ -128,15 +133,3 @@ function getTextWidth(text: string, font: string): number | null {
   return null;
 }
 
-const getStylesSlider = (theme: GrafanaTheme2, width: number) => {
-  return {
-    numberInputWrapper: css({
-      marginLeft: theme.spacing(3),
-      maxHeight: '32px',
-      maxWidth: width,
-      minWidth: width,
-      overflow: 'visible',
-      width: '100%',
-    }),
-  };
-};

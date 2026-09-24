@@ -1,7 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { type SelectableValue, type GrafanaTheme2 } from '@grafana/data';
-import { LinkButton, FilterInput, InlineField, Checkbox, useStyles2 } from '@grafana/ui';
+import { LinkButton, FilterInput, InlineField, Checkbox } from '@grafana/ui';
 
 import { SortPicker } from '../Select/SortPicker';
 
@@ -34,7 +34,6 @@ export default function PageActionBar({
   sortPicker,
   filterCheckbox,
 }: Props) {
-  const styles = useStyles2(getStyles);
   const linkProps: Omit<Parameters<typeof LinkButton>[0], 'children'> = {
     href: linkButton?.href,
     disabled: linkButton?.disabled,
@@ -45,7 +44,7 @@ export default function PageActionBar({
   }
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(pageActionBarStyles.container)}>
       <InlineField grow>
         <FilterInput value={searchQuery} onChange={setSearchQuery} placeholder={placeholder} />
       </InlineField>
@@ -68,13 +67,3 @@ export default function PageActionBar({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    }),
-  };
-};

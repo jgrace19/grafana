@@ -1,23 +1,22 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
 import { Trans } from '@grafana/i18n';
 import { LinkButton, Stack } from '@grafana/ui';
+
 import { getConfig } from 'app/core/config';
+
+import { userSignupStyles } from './UserSignup.stylex';
 
 export const UserSignup = () => {
   const href = getConfig().verifyEmailEnabled ? `${getConfig().appSubUrl}/verify` : `${getConfig().appSubUrl}/signup`;
-  const paddingTop = css({ paddingTop: '16px' });
 
   return (
     <Stack direction="column">
-      <div className={paddingTop}>
+      <div {...stylex.props(userSignupStyles.paddingTop)}>
         <Trans i18nKey="login.signup.new-to-question">New to Grafana?</Trans>
       </div>
       <LinkButton
-        className={css({
-          width: '100%',
-          justifyContent: 'center',
-        })}
+        {...stylex.props(userSignupStyles.signupButton)}
         href={href}
         variant="secondary"
         fill="outline"

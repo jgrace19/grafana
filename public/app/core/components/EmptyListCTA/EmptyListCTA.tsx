@@ -1,9 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type MouseEvent } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
 import { Alert, Button, CallToActionCard, Icon, type IconName, LinkButton } from '@grafana/ui';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+
+import { emptyListCTAStyles } from './EmptyListCTA.stylex';
 
 export interface Props {
   title: string;
@@ -19,15 +22,6 @@ export interface Props {
   infoBox?: { __html: string };
   infoBoxTitle?: string;
 }
-
-const ctaStyle = css({
-  textAlign: 'center',
-});
-
-const infoBoxStyles = css({
-  maxWidth: '700px',
-  margin: '0 auto',
-});
 
 const EmptyListCTA = ({
   title,
@@ -60,7 +54,11 @@ const EmptyListCTA = ({
           ''
         )}
         {infoBox ? (
-          <Alert severity="info" title={infoBoxTitle ?? ''} className={infoBoxStyles}>
+          <Alert
+            severity="info"
+            title={infoBoxTitle ?? ''}
+            {...mergeStylexClassName(stylex.props(emptyListCTAStyles.infoBox), undefined)}
+          >
             <div dangerouslySetInnerHTML={infoBox} />
           </Alert>
         ) : (
@@ -70,11 +68,7 @@ const EmptyListCTA = ({
     );
   };
 
-  const ctaElementClassName = !footer()
-    ? css({
-        marginBottom: '20px',
-      })
-    : '';
+  const hasFooter = Boolean(footer());
 
   const ButtonEl = buttonLink ? LinkButton : Button;
   const ctaElement = (
@@ -83,7 +77,9 @@ const EmptyListCTA = ({
       onClick={onClick}
       href={buttonLink}
       icon={buttonIcon}
-      className={ctaElementClassName}
+      {...(hasFooter
+        ? {}
+        : mergeStylexClassName(stylex.props(emptyListCTAStyles.ctaElement), undefined))}
       data-testid={selectors.components.CallToActionCard.buttonV2(buttonTitle)}
       disabled={buttonDisabled}
     >
@@ -91,7 +87,14 @@ const EmptyListCTA = ({
     </ButtonEl>
   );
 
-  return <CallToActionCard className={ctaStyle} message={title} footer={footer()} callToActionElement={ctaElement} />;
+  return (
+    <CallToActionCard
+      {...mergeStylexClassName(stylex.props(emptyListCTAStyles.cta), undefined)}
+      message={title}
+      footer={footer()}
+      callToActionElement={ctaElement}
+    />
+  );
 };
 
 export default EmptyListCTA;

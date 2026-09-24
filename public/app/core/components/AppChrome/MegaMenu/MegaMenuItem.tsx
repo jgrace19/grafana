@@ -1,4 +1,7 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { megaMenuItemStyles } from './MegaMenuItem.stylex';
 import { useEffect, useRef } from 'react';
 import * as React from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
@@ -6,7 +9,7 @@ import { useLocalStorage } from 'react-use';
 
 import { FeatureState, type GrafanaTheme2, type NavModelItem, toIconName } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Text, IconButton, Icon, Stack, FeatureBadge } from '@grafana/ui';
+import { Text, IconButton, Icon, Stack, FeatureBadge } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import { Indent } from '../../Indent/Indent';
@@ -39,8 +42,6 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
   const showExpandButton = level < MAX_DEPTH && Boolean(linkHasChildren(link) || link.emptyMessage);
   const item = useRef<HTMLLIElement>(null);
 
-  const styles = useStyles2(getStyles);
-
   // expand parent sections if child is active
   useEffect(() => {
     if (hasActiveChild) {
@@ -64,11 +65,11 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
   let iconElement: React.JSX.Element | null = null;
 
   if (link.icon) {
-    iconElement = <Icon className={styles.icon} name={toIconName(link.icon) ?? 'link'} size="lg" />;
+    iconElement = <Icon {...stylex.props(megaMenuItemStyles.icon)} name={toIconName(link.icon) ?? 'link'} size="lg" />;
   } else if (link.img) {
     iconElement = (
       <Stack width={3} justifyContent="center">
-        <img className={styles.img} src={link.img} alt="" />
+        <img {...stylex.props(megaMenuItemStyles.img)} src={link.img} alt="" />
       </Stack>
     );
   }
@@ -78,11 +79,11 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
   }
 
   return (
-    <li ref={item} className={styles.listItem}>
-      <div className={styles.menuItem}>
+    <li ref={item} {...stylex.props(megaMenuItemStyles.listItem)}>
+      <div {...stylex.props(megaMenuItemStyles.menuItem)}>
         {level !== 0 && <Indent level={level === MAX_DEPTH ? level - 1 : level} spacing={3} />}
-        {level === MAX_DEPTH && <div className={styles.itemConnector} />}
-        <div className={styles.collapsibleSectionWrapper}>
+        {level === MAX_DEPTH && <div {...stylex.props(megaMenuItemStyles.itemConnector)} />}
+        <div {...stylex.props(megaMenuItemStyles.collapsibleSectionWrapper)}>
           <MegaMenuItemText
             isActive={isActive}
             onClick={() => {
@@ -96,9 +97,9 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
             itemName={link.text}
           >
             <div
-              className={cx(styles.labelWrapper, {
-                [styles.hasActiveChild]: hasActiveChild,
-                [styles.labelWrapperWithIcon]: Boolean(level === 0 && iconElement),
+              className={cx(megaMenuItemStyles.labelWrapper, {
+                [megaMenuItemStyles.hasActiveChild]: hasActiveChild,
+                [megaMenuItemStyles.labelWrapperWithIcon]: Boolean(level === 0 && iconElement),
               })}
             >
               {level === 0 && iconElement}
@@ -109,7 +110,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
             </div>
           </MegaMenuItemText>
         </div>
-        <div className={styles.collapseButtonWrapper}>
+        <div {...stylex.props(megaMenuItemStyles.collapseButtonWrapper)}>
           {showExpandButton && (
             <IconButton
               aria-label={
@@ -122,7 +123,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
                     })
               }
               aria-expanded={Boolean(sectionExpanded)}
-              className={styles.collapseButton}
+              {...stylex.props(megaMenuItemStyles.collapseButton)}
               onClick={() => setSectionExpanded(!sectionExpanded)}
               name={getIconName(Boolean(sectionExpanded))}
               size="md"
@@ -132,7 +133,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
         </div>
       </div>
       {showExpandButton && sectionExpanded && (
-        <ul className={styles.children}>
+        <ul {...stylex.props(megaMenuItemStyles.children)}>
           {linkHasChildren(link) ? (
             link.children
               .filter((childLink) => !childLink.isCreateAction)
@@ -148,7 +149,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
                 />
               ))
           ) : (
-            <div className={styles.emptyMessage} aria-live="polite">
+            <div {...stylex.props(megaMenuItemStyles.emptyMessage)} aria-live="polite">
               {link.emptyMessage}
             </div>
           )}
@@ -158,79 +159,6 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  icon: css({
-    width: theme.spacing(3),
-  }),
-  img: css({
-    height: theme.spacing(2),
-    width: theme.spacing(2),
-  }),
-  listItem: css({
-    flex: 1,
-    maxWidth: '100%',
-  }),
-  menuItem: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1.5),
-    height: theme.spacing(4),
-    position: 'relative',
-  }),
-  collapseButtonWrapper: css({
-    display: 'flex',
-    justifyContent: 'center',
-    width: theme.spacing(3),
-    flexShrink: 0,
-  }),
-  itemConnector: css({
-    position: 'relative',
-    height: '100%',
-    width: theme.spacing(1.5),
-    '&::before': {
-      borderLeft: `1px solid ${theme.colors.border.medium}`,
-      content: '""',
-      height: '100%',
-      right: 0,
-      position: 'absolute',
-      transform: 'translateX(50%)',
-    },
-  }),
-  collapseButton: css({
-    margin: 0,
-  }),
-  collapsibleSectionWrapper: css({
-    alignItems: 'center',
-    display: 'flex',
-    flex: 1,
-    height: '100%',
-    minWidth: 0,
-  }),
-  labelWrapper: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    minWidth: 0,
-  }),
-  hasActiveChild: css({
-    color: theme.colors.text.primary,
-  }),
-  labelWrapperWithIcon: css({
-    minWidth: theme.spacing(7),
-    paddingLeft: theme.spacing(0.5),
-  }),
-  children: css({
-    display: 'flex',
-    listStyleType: 'none',
-    flexDirection: 'column',
-  }),
-  emptyMessage: css({
-    color: theme.colors.text.secondary,
-    fontStyle: 'italic',
-    padding: theme.spacing(1, 1.5, 1, 7),
-  }),
-});
 
 function linkHasChildren(link: NavModelItem): link is NavModelItem & { children: NavModelItem[] } {
   return Boolean(link.children && link.children.length > 0);

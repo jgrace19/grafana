@@ -1,10 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { tagFilterStyles } from './TagFilter.stylex';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { components, type MultiValueRemoveProps } from 'react-select';
 
 import { escapeStringForRegex, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
+import { Icon, MultiSelect } from '@grafana/ui';
 
 import { TagBadge, getStyles as getTagBadgeStyles } from './TagBadge';
 import { TagOption, type TagSelectOption } from './TagOption';
@@ -47,7 +49,6 @@ export const TagFilter = ({
   width,
   disabled,
 }: Props) => {
-  const styles = useStyles2(getStyles);
 
   const currentlySelectedTags = tags.map((tag) => ({ value: tag, label: tag, count: 0 }));
   const [options, setOptions] = useState<TagSelectOption[]>(currentlySelectedTags);
@@ -155,9 +156,9 @@ export const TagFilter = ({
   };
 
   return (
-    <div className={styles.tagFilter}>
+    <div {...stylex.props(tagFilterStyles.tagFilter)}>
       {isClearable && tags.length > 0 && (
-        <button className={styles.clear} onClick={() => onTagChange([])} disabled={disabled}>
+        <button {...stylex.props(tagFilterStyles.clear)} onClick={() => onTagChange([])} disabled={disabled}>
           <Trans i18nKey="tag-filter.clear-button">Clear tags</Trans>
         </button>
       )}
@@ -174,35 +175,3 @@ export const TagFilter = ({
 
 TagFilter.displayName = 'TagFilter';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const tagBadgeStyles = getTagBadgeStyles(theme);
-
-  return {
-    tagFilter: css({
-      position: 'relative',
-      minWidth: '180px',
-      flexGrow: 1,
-
-      [`.${tagBadgeStyles.badge}`]: {
-        marginLeft: '6px',
-        cursor: 'pointer',
-      },
-    }),
-    clear: css({
-      background: 'none',
-      border: 'none',
-      textDecoration: 'underline',
-      fontSize: '12px',
-      padding: 'none',
-      position: 'absolute',
-      top: '-17px',
-      right: 0,
-      cursor: 'pointer',
-      color: theme.colors.text.secondary,
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-};

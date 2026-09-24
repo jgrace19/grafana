@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { returnToPreviousStyles } from './ReturnToPrevious.stylex';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import { DismissableButton } from './DismissableButton';
@@ -16,7 +16,6 @@ export interface ReturnToPreviousProps {
 }
 
 export const ReturnToPrevious = ({ href, title }: ReturnToPreviousProps) => {
-  const styles = useStyles2(getStyles);
   const { chrome } = useGrafana();
 
   const handleOnClick = useCallback(() => {
@@ -29,7 +28,7 @@ export const ReturnToPrevious = ({ href, title }: ReturnToPreviousProps) => {
   }, [chrome]);
 
   return (
-    <div className={styles.returnToPrevious} data-testid={selectors.components.ReturnToPrevious.buttonGroup}>
+    <div {...stylex.props(returnToPreviousStyles.returnToPrevious)} data-testid={selectors.components.ReturnToPrevious.buttonGroup}>
       <DismissableButton
         label={t('return-to-previous.button.label', 'Back to {{title}}', { title })}
         onClick={handleOnClick}
@@ -38,18 +37,5 @@ export const ReturnToPrevious = ({ href, title }: ReturnToPreviousProps) => {
     </div>
   );
 };
-const getStyles = (theme: GrafanaTheme2) => ({
-  returnToPrevious: css({
-    label: 'return-to-previous',
-    display: 'flex',
-    justifyContent: 'center',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: theme.zIndex.tooltip,
-    position: 'fixed',
-    bottom: theme.spacing.x4,
-    boxShadow: theme.shadows.z3,
-  }),
-});
 
 ReturnToPrevious.displayName = 'ReturnToPrevious';

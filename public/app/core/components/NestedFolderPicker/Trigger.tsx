@@ -1,8 +1,10 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { triggerStyles } from './Trigger.stylex';
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Icon, getInputStyles, useTheme2, Text } from '@grafana/ui';
 import { getFocusStyles, getMouseFocusStyles } from '@grafana/ui/internal';
@@ -35,17 +37,17 @@ function Trigger(
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.inputWrapper}>
+    <div className={triggerStyles.wrapper}>
+      <div className={triggerStyles.inputWrapper}>
         {label ? (
-          <div className={styles.prefix}>
+          <div className={triggerStyles.prefix}>
             <Icon name="folder" />
           </div>
         ) : undefined}
 
         <button
           type="button"
-          className={cx(styles.fakeInput, label ? styles.hasPrefix : undefined)}
+          {...mergeStylexClassName(stylex.props(triggerStyles.hasPrefix, triggerStyles.fakeInput, label ?  : undefined), undefined)}
           {...rest}
           ref={ref}
         >
@@ -62,7 +64,7 @@ function Trigger(
               role="button"
               tabIndex={0}
               aria-label={t('browse-dashboards.folder-picker.clear-selection', 'Clear selection')}
-              className={styles.clearIcon}
+              {...stylex.props(triggerStyles.clearIcon)}
               name="times"
               onClick={handleClearSelection}
               onKeyDown={handleKeyDown}
@@ -70,7 +72,7 @@ function Trigger(
           )}
         </button>
 
-        <div className={styles.suffix}>
+        <div className={triggerStyles.suffix}>
           <Icon name="angle-down" />
         </div>
       </div>
@@ -80,63 +82,3 @@ function Trigger(
 
 export default forwardRef(Trigger);
 
-const getStyles = (theme: GrafanaTheme2, invalid = false) => {
-  const baseStyles = getInputStyles({ theme, invalid });
-
-  return {
-    wrapper: baseStyles.wrapper,
-    inputWrapper: baseStyles.inputWrapper,
-
-    prefix: css([
-      baseStyles.prefix,
-      {
-        pointerEvents: 'none',
-        color: theme.colors.text.primary,
-      },
-    ]),
-
-    suffix: css([
-      baseStyles.suffix,
-      {
-        pointerEvents: 'none',
-      },
-    ]),
-
-    fakeInput: css([
-      baseStyles.input,
-      {
-        textAlign: 'left',
-
-        letterSpacing: 'normal',
-
-        // We want the focus styles to appear only when tabbing through, not when clicking the button
-        // (and when focus is restored after command palette closes)
-        '&:focus': {
-          outline: 'unset',
-          boxShadow: 'unset',
-        },
-
-        '&:focus-visible': getFocusStyles(theme),
-        alignItems: 'center',
-        display: 'flex',
-        flexWrap: 'nowrap',
-        justifyContent: 'space-between',
-        paddingRight: 28,
-      },
-    ]),
-
-    hasPrefix: css({
-      paddingLeft: 28,
-    }),
-
-    clearIcon: css({
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-      '&:focus-visible': getFocusStyles(theme),
-    }),
-  };
-};

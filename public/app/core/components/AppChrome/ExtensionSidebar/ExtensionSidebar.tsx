@@ -1,7 +1,5 @@
-import { css } from '@emotion/css';
-import { css as cssReact, Global } from '@emotion/react';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, PluginExtensionPoints } from '@grafana/data';
 import { usePluginComponents } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
 
@@ -40,8 +38,8 @@ export function ExtensionSidebar() {
   }
 
   return (
-    <div className={styles.sidebarWrapper}>
-      <div className={styles.content}>
+    <div {...stylex.props(extensionSidebarStyles.sidebarWrapper)}>
+      <div {...stylex.props(extensionSidebarStyles.content)}>
         {/* When the sidebar is open, we don't want the body to scroll */}
         {/* Need type assertion here due to the use of !important */}
         {/* see https://github.com/frenic/csstype/issues/114#issuecomment-697201978 */}
@@ -53,25 +51,3 @@ export function ExtensionSidebar() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    sidebarWrapper: css({
-      backgroundColor: theme.colors.background.primary,
-      borderLeft: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      width: '100%',
-      height: '100%',
-      overflow: 'auto',
-      // Temp fix for AI assistant, remove in a 1-2 months
-      ' > div > div': {
-        margin: 0,
-      },
-    }),
-    content: css({
-      flex: 1,
-      minHeight: 0,
-    }),
-  };
-};

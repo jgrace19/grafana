@@ -1,16 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { organizationSelectStyles } from './OrganizationSelect.stylex';
 import { useMemo, useState } from 'react';
 
 import { type SelectableValue, type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Select, useStyles2 } from '@grafana/ui';
+import { Icon, Select } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type UserOrg } from 'app/types/user';
 
 import { type OrganizationBaseProps } from './types';
 
 export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBaseProps) {
-  const styles = useStyles2(getStyles);
 
   const { orgId } = contextSrv.user;
 
@@ -38,24 +39,10 @@ export function OrganizationSelect({ orgs, onSelectChange }: OrganizationBasePro
       width={'auto'}
       value={value}
       prefix={<Icon className="prefix-icon" name="building" />}
-      className={styles.select}
+      {...stylex.props(organizationSelectStyles.select)}
       options={options}
       onChange={onChange}
     />
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  select: css({
-    border: 'none',
-    background: 'none',
-    color: theme.colors.text.secondary,
-    '&:hover': {
-      color: theme.colors.text.primary,
-
-      '& .prefix-icon': css({
-        color: theme.colors.text.primary,
-      }),
-    },
-  }),
-});

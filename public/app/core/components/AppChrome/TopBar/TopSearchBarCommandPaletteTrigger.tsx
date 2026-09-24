@@ -1,16 +1,19 @@
-import { css, cx } from '@emotion/css';
+import clsx from 'clsx';
+import * as stylex from '@stylexjs/stylex';
 import { useKBar, VisualState } from 'kbar';
 import React, { useMemo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { getInputStyles, Icon, Text, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { getInputStyles, Icon, Text, ToolbarButton, useTheme2 } from '@grafana/ui';
 import { getFocusStyles } from '@grafana/ui/internal';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
 import { getModKey } from 'app/core/utils/browser';
 
 import { NavToolbarSeparator } from '../NavToolbar/NavToolbarSeparator';
+
+import { topSearchBarCommandPaletteTriggerStyles } from './TopSearchBarCommandPaletteTrigger.stylex';
 
 export const TopSearchBarCommandPaletteTrigger = React.memo(() => {
   const { query: kbar } = useKBar((kbarState) => ({
@@ -47,70 +50,44 @@ interface PretendTextInputProps {
 }
 
 function PretendTextInput({ onClick }: PretendTextInputProps) {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
+  const baseStyles = getInputStyles({ theme });
   const modKey = useMemo(() => getModKey(), []);
 
-  // We want the desktop command palette trigger to look like a search box,
-  // but it actually behaves like a button - you active it and it performs an
-  // action. You don't actually type into it.
+  const focusVisibleClass = getFocusStyles(theme);
 
   return (
-    <div className={styles.wrapper} data-testid={selectors.components.NavToolbar.commandPaletteTrigger}>
-      <div className={styles.inputWrapper}>
-        <div className={styles.prefix}>
+    <div
+      {...mergeStylexClassName(
+        stylex.props(topSearchBarCommandPaletteTriggerStyles.inputExtras),
+        clsx(baseStyles.wrapper)
+      )}
+      data-testid={selectors.components.NavToolbar.commandPaletteTrigger}
+    >
+      <div className={baseStyles.inputWrapper}>
+        <div className={baseStyles.prefix}>
           <Icon name="search" />
         </div>
 
-        <button className={styles.fakeInput} onClick={onClick}>
+        <button
+          {...mergeStylexClassName(
+            stylex.props(topSearchBarCommandPaletteTriggerStyles.fakeInput),
+            clsx(baseStyles.input, focusVisibleClass)
+          )}
+          onClick={onClick}
+        >
           {t('nav.search.placeholderCommandPalette', 'Search...')}
         </button>
 
-        <div className={styles.suffix}>
+        <div
+          {...mergeStylexClassName(
+            stylex.props(topSearchBarCommandPaletteTriggerStyles.suffix),
+            baseStyles.suffix
+          )}
+        >
           <Text variant="bodySmall">{`${modKey}+k`}</Text>
         </div>
       </div>
     </div>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  const baseStyles = getInputStyles({ theme });
-
-  return {
-    wrapper: cx(
-      baseStyles.wrapper,
-      css({
-        width: 'auto',
-        minWidth: 140,
-        maxWidth: 350,
-        flexGrow: 1,
-      })
-    ),
-    inputWrapper: baseStyles.inputWrapper,
-    prefix: baseStyles.prefix,
-    suffix: css([
-      baseStyles.suffix,
-      {
-        display: 'flex',
-        gap: theme.spacing(0.5),
-      },
-    ]),
-    fakeInput: css([
-      baseStyles.input,
-      {
-        textAlign: 'left',
-        paddingLeft: 28,
-        color: theme.colors.text.disabled,
-
-        // We want the focus styles to appear only when tabbing through, not when clicking the button
-        // (and when focus is restored after command palette closes)
-        '&:focus': {
-          outline: 'unset',
-          boxShadow: 'unset',
-        },
-
-        '&:focus-visible': getFocusStyles(theme),
-      },
-    ]),
-  };
-};

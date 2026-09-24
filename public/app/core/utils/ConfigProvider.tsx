@@ -4,6 +4,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 
 import { type GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { ThemeChangedEvent, config } from '@grafana/runtime';
+import { StyleXThemeScope } from '@grafana/ui/unstable';
 
 import { appEvents } from '../app_events';
 
@@ -27,13 +28,15 @@ export const ThemeProvider = ({ children, value }: { children: React.ReactNode; 
 
   return (
     <ThemeContext.Provider value={theme}>
-      <SkeletonTheme
-        baseColor={theme.colors.emphasize(theme.colors.background.secondary)}
-        highlightColor={theme.colors.emphasize(theme.colors.background.secondary, 0.1)}
-        borderRadius={theme.shape.radius.default}
-      >
-        {children}
-      </SkeletonTheme>
+      <StyleXThemeScope theme={theme}>
+        <SkeletonTheme
+          baseColor={theme.colors.emphasize(theme.colors.background.secondary)}
+          highlightColor={theme.colors.emphasize(theme.colors.background.secondary, 0.1)}
+          borderRadius={theme.shape.radius.default}
+        >
+          {children}
+        </SkeletonTheme>
+      </StyleXThemeScope>
     </ThemeContext.Provider>
   );
 };

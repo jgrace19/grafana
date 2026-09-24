@@ -1,15 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { mergeStylexClassName } from '@grafana/ui/unstable';
+import { stringsStyles } from './strings.stylex';
 import { memo, useState, useCallback } from 'react';
 import * as React from 'react';
 
 import { type StandardEditorProps, type StringFieldConfigSettings, type GrafanaTheme2 } from '@grafana/data';
-import { Button, Icon, Input, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Input } from '@grafana/ui';
 
 type Props = StandardEditorProps<string[], StringFieldConfigSettings>;
 
 export const StringArrayEditor = memo(({ value, onChange, item }: Props) => {
   const [showAdd, setShowAdd] = useState(false);
-  const styles = useStyles2(getStyles);
 
   const onRemoveString = useCallback(
     (index: number) => {
@@ -57,12 +58,12 @@ export const StringArrayEditor = memo(({ value, onChange, item }: Props) => {
       {value.map((v, index) => {
         return (
           <Input
-            className={styles.textInput}
+            {...stylex.props(stringsStyles.textInput)}
             key={`${index}/${v}`}
             defaultValue={v || ''}
             onBlur={(e) => onValueChange(e, index)}
             onKeyDown={(e) => onValueChange(e, index)}
-            suffix={<Icon className={styles.trashIcon} name="trash-alt" onClick={() => onRemoveString(index)} />}
+            suffix={<Icon {...stylex.props(stringsStyles.trashIcon)} name="trash-alt" onClick={() => onRemoveString(index)} />}
           />
         );
       })}
@@ -70,7 +71,7 @@ export const StringArrayEditor = memo(({ value, onChange, item }: Props) => {
       {showAdd ? (
         <Input
           autoFocus
-          className={styles.textInput}
+          {...stylex.props(stringsStyles.textInput)}
           placeholder={placeholder}
           defaultValue={''}
           onBlur={(e) => onValueChange(e, -1)}
@@ -88,21 +89,3 @@ export const StringArrayEditor = memo(({ value, onChange, item }: Props) => {
 
 StringArrayEditor.displayName = 'StringArrayEditor';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    textInput: css({
-      marginBottom: '5px',
-      '&:hover': {
-        border: `1px solid ${theme.components.input.borderHover}`,
-      },
-    }),
-    trashIcon: css({
-      color: theme.colors.text.secondary,
-      cursor: 'pointer',
-
-      '&:hover': {
-        color: theme.colors.text.primary,
-      },
-    }),
-  };
-};

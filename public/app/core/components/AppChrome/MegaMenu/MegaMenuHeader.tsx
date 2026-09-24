@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { IconButton, Stack, useTheme2 } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
@@ -27,15 +26,15 @@ export function MegaMenuHeader({ handleDockedMenu, onClose }: Props) {
   const styles = getStyles(theme);
 
   return (
-    <div className={styles.header}>
+    <div {...stylex.props(megaMenuHeaderStyles.header)}>
       <Stack alignItems="center" minWidth={0} gap={1}>
         <HomeLink homeNav={homeNav} inMegaMenuOverlay={!state.megaMenuDocked} />
         <OrganizationSwitcher />
       </Stack>
-      <div className={styles.flexGrow} />
+      <div {...stylex.props(megaMenuHeaderStyles.flexGrow)} />
       <IconButton
         id={DOCK_MENU_BUTTON_ID}
-        className={styles.dockMenuButton}
+        {...stylex.props(megaMenuHeaderStyles.dockMenuButton)}
         tooltip={
           state.megaMenuDocked
             ? t('navigation.megamenu.undock', 'Undock menu')
@@ -59,23 +58,3 @@ export function MegaMenuHeader({ handleDockedMenu, onClose }: Props) {
 
 MegaMenuHeader.displayName = 'MegaMenuHeader';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  dockMenuButton: css({
-    display: 'none',
-
-    [theme.breakpoints.up('xl')]: {
-      display: 'inline-flex',
-    },
-  }),
-  header: css({
-    alignItems: 'center',
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    display: 'flex',
-    gap: theme.spacing(1),
-    justifyContent: 'space-between',
-    padding: theme.spacing(0, 1, 0, 1),
-    height: getChromeHeaderLevelHeight(),
-    flexShrink: 0,
-  }),
-  flexGrow: css({ flexGrow: 1 }),
-});
