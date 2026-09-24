@@ -198,6 +198,9 @@ const stylexMigratedAppFiles = [
   'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
+  // D3 dashboard (part 2)
+  'public/app/features/dashboard/components/{PublicDashboard,PublicDashboardNotAvailable,SaveDashboard,ShareModal,SubMenu,TransformationsEditor,VersionHistory}/**/*.{ts,tsx}',
+  'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {

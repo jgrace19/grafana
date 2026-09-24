@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom-v5-compat';
 import { usePrevious } from 'react-use';
 
-import { type GrafanaTheme2, PageLayoutType, type TimeZone } from '@grafana/data';
+import { PageLayoutType, type TimeZone } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
-import { PageToolbar, useStyles2 } from '@grafana/ui';
+import { PageToolbar } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { type GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -63,7 +64,6 @@ const PublicDashboardPage = (props: Props) => {
   const dispatch = useDispatch();
   const context = useGrafana();
   const prevProps = usePrevious({ ...props, location });
-  const styles = useStyles2(getStyles);
   const dashboardState = useSelector((store) => store.dashboard);
   const loadError = dashboardState.initError;
   const dashboard = dashboardState.getModel();
@@ -110,25 +110,28 @@ const PublicDashboardPage = (props: Props) => {
     <Page pageNav={{ text: dashboard.title }} layout={PageLayoutType.Custom} data-testid={selectors.page}>
       <Toolbar dashboard={dashboard} />
       {dashboardState.initError && <DashboardFailed initError={dashboardState.initError} />}
-      <div className={styles.gridContainer}>
+      <div {...stylex.props(styles.gridContainer)}>
         <DashboardGrid dashboard={dashboard} isEditable={false} viewPanel={null} editPanel={null} hidePanelMenus />
       </div>
-      <div className={styles.footer}>
+      <div {...stylex.props(styles.footer)}>
         <DashboardBrandingFooter />
       </div>
     </Page>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  gridContainer: css({
-    flex: 1,
-    padding: theme.spacing(2, 2, 2, 2),
+const styles = stylex.create({
+  gridContainer: {
+    flex: '1',
+    padding: spacing['--gf-spacing-x2'],
     overflow: 'auto',
-  }),
-  footer: css({
-    padding: theme.spacing(0, 2),
-  }),
+  },
+  footer: {
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x2'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
 });
 
 export default PublicDashboardPage;

@@ -1,0 +1,26 @@
+/*
+ * Viewing one panel (?viewPanel) hides the rest of the react-grid-layout grid, which StyleX can't target. Every
+ * !important here must beat react-grid-layout: the inline position/size it writes on each item, or its own
+ * unlayered stylesheet (the `.react-grid-layout` transition), which a layered rule can't otherwise override.
+ */
+@layer grafana-global {
+  .gf-dashboard-page--view-panel .react-grid-layout {
+    height: auto !important;
+    transition-property: none !important;
+  }
+
+  .gf-dashboard-page--view-panel .react-grid-item {
+    display: none !important;
+    transition-property: none !important;
+  }
+
+  .gf-dashboard-page--view-panel .react-grid-item--fullscreen {
+    display: block !important;
+    position: unset !important;
+    transform: translate(0px, 0px) !important;
+  }
+
+  .gf-dashboard-page--view-panel .react-resizable-handle {
+    display: none;
+  }
+}
