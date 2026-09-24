@@ -1,10 +1,7 @@
-import { css } from '@emotion/css';
-
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { useAsyncDependency } from '../../utils/useAsyncDependency';
 import { ErrorWithStack } from '../ErrorBoundary/ErrorWithStack';
 import { LoadingPlaceholder } from '../LoadingPlaceholder/LoadingPlaceholder';
@@ -17,17 +14,13 @@ import type { ReactMonacoEditorProps } from './types';
  * Experimental export
  **/
 export const ReactMonacoEditorLazy = (props: ReactMonacoEditorProps) => {
-  const styles = useStyles2(getStyles);
   const { loading, error, dependency } = useAsyncDependency(
     import(/* webpackChunkName: "react-monaco-editor" */ './ReactMonacoEditor')
   );
 
   if (loading) {
     return (
-      <LoadingPlaceholder
-        text={t('grafana-ui.monaco.loading-placeholder', 'Loading editor')}
-        className={styles.container}
-      />
+      <LoadingPlaceholder text={t('grafana-ui.monaco.loading-placeholder', 'Loading editor')} style={loadingStyle} />
     );
   }
 
@@ -53,11 +46,8 @@ export const ReactMonacoEditorLazy = (props: ReactMonacoEditorProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    container: css({
-      marginBottom: 'unset',
-      marginLeft: theme.spacing(1),
-    }),
-  };
+// Inline, so it deterministically overrides LoadingPlaceholder's own StyleX margin.
+const loadingStyle = {
+  marginBottom: 'unset',
+  marginLeft: spacing['--gf-spacing-grid-size'],
 };

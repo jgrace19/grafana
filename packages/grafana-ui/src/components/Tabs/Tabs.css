@@ -1,0 +1,8 @@
+/*
+ * Spaces every icon inside a tab, including icons in consumer-supplied suffix components, which StyleX
+ * can't target. Deliberately not in a cascade layer, like the Emotion rule it replaces.
+ */
+.gf-tab-link svg,
+.gf-vertical-tab svg {
+  margin-right: var(--gf-spacing-grid-size);
+}

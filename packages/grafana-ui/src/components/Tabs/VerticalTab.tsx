@@ -1,28 +1,28 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { forwardRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Icon } from '../Icon/Icon';
 
 import { Counter } from './Counter';
 import { type TabProps } from './Tab';
+import './Tabs.css';
 
 export const VerticalTab = forwardRef<HTMLAnchorElement, TabProps>(
   ({ label, active, icon, counter, className, suffix: Suffix, onChangeTab, href, ...otherProps }, ref) => {
-    const tabsStyles = useStyles2(getTabStyles);
     const content = () => (
       <>
         {icon && <Icon name={icon} />}
         {label}
         {typeof counter === 'number' && <Counter value={counter} />}
-        {Suffix && <Suffix className={tabsStyles.suffix} />}
+        {Suffix && <Suffix className={stylex.props(styles.suffix).className} />}
       </>
     );
 
-    const linkClass = cx(tabsStyles.link, active && tabsStyles.activeStyle);
+    const linkClass = clsx('gf-vertical-tab', stylex.props(styles.link, active && styles.activeStyle).className);
 
     return (
       <a
@@ -43,44 +43,35 @@ export const VerticalTab = forwardRef<HTMLAnchorElement, TabProps>(
 
 VerticalTab.displayName = 'Tab';
 
-const getTabStyles = (theme: GrafanaTheme2) => {
-  return {
-    link: css({
-      padding: '6px 12px',
+const styles = stylex.create({
+  link: {
+    paddingTop: '6px',
+    paddingRight: '12px',
+    paddingBottom: '6px',
+    paddingLeft: '12px',
+    display: 'block',
+    height: '100%',
+    cursor: 'pointer',
+    position: 'relative',
+    color: colors['--gf-colors-text-primary'],
+    textDecoration: { default: null, ':hover': 'underline', ':focus': 'underline' },
+  },
+  activeStyle: {
+    color: colors['--gf-colors-text-max-contrast'],
+    overflow: 'hidden',
+    '::before': {
       display: 'block',
-      height: '100%',
-      cursor: 'pointer',
-      position: 'relative',
-
-      color: theme.colors.text.primary,
-
-      svg: {
-        marginRight: theme.spacing(1),
-      },
-
-      '&:hover, &:focus': {
-        textDecoration: 'underline',
-      },
-    }),
-    activeStyle: css({
-      label: 'activeTabStyle',
-      color: theme.colors.text.maxContrast,
-      overflow: 'hidden',
-
-      '&::before': {
-        display: 'block',
-        content: '" "',
-        position: 'absolute',
-        left: 0,
-        width: '4px',
-        bottom: '2px',
-        top: '2px',
-        borderRadius: theme.shape.radius.default,
-        backgroundImage: 'linear-gradient(0deg, #f05a28 30%, #fbca0a 99%)',
-      },
-    }),
-    suffix: css({
-      marginLeft: theme.spacing(1),
-    }),
-  };
-};
+      content: '" "',
+      position: 'absolute',
+      left: 0,
+      width: '4px',
+      bottom: '2px',
+      top: '2px',
+      borderRadius: shape['--gf-shape-radius-default'],
+      backgroundImage: 'linear-gradient(0deg, #f05a28 30%, #fbca0a 99%)',
+    },
+  },
+  suffix: {
+    marginLeft: spacing['--gf-spacing-grid-size'],
+  },
+});

@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
+import { colors, spacing, typography, v1 } from '../../themes/stylex/tokens.stylex';
 import { type CompletionItem, CompletionItemKind } from '../../types/completion';
 
 import { PartialHighlighter } from './PartialHighlighter';
@@ -20,62 +19,14 @@ interface Props {
   onMouseLeave?: () => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  typeaheadItem: css({
-    border: 'none',
-    background: 'none',
-    textAlign: 'left',
-    label: 'type-ahead-item',
-    height: 'auto',
-    fontFamily: theme.typography.fontFamilyMonospace,
-    padding: theme.spacing(1, 1, 1, 2),
-    fontSize: theme.typography.bodySmall.fontSize,
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    zIndex: 11,
-    display: 'block',
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-      transition:
-        'color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), border-color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), padding 0.15s cubic-bezier(0.645, 0.045, 0.355, 1)',
-    },
-  }),
-
-  typeaheadItemSelected: css({
-    label: 'type-ahead-item-selected',
-    backgroundColor: theme.colors.background.secondary,
-  }),
-
-  typeaheadItemMatch: css({
-    label: 'type-ahead-item-match',
-    color: theme.v1.palette.yellow,
-    borderBottom: `1px solid ${theme.v1.palette.yellow}`,
-    padding: 'inherit',
-    background: 'inherit',
-  }),
-
-  typeaheadItemGroupTitle: css({
-    label: 'type-ahead-item-group-title',
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    lineHeight: theme.typography.body.lineHeight,
-    padding: theme.spacing(1),
-  }),
-});
-
 export const TypeaheadItem = (props: Props) => {
-  const styles = useStyles2(getStyles);
-
   const { isSelected, item, prefix, style, onMouseEnter, onMouseLeave, onClickItem } = props;
-  const className = isSelected ? cx([styles.typeaheadItem, styles.typeaheadItemSelected]) : cx([styles.typeaheadItem]);
-  const highlightClassName = cx([styles.typeaheadItemMatch]);
-  const itemGroupTitleClassName = cx([styles.typeaheadItemGroupTitle]);
+  const highlightClassName = stylex.props(styles.typeaheadItemMatch).className;
   const label = item.label || '';
 
   if (item.kind === CompletionItemKind.GroupTitle) {
     return (
-      <li className={itemGroupTitleClassName} style={style}>
+      <li {...stylex.props(styles.typeaheadItemGroupTitle)} style={style}>
         <span>{label}</span>
       </li>
     );
@@ -85,7 +36,7 @@ export const TypeaheadItem = (props: Props) => {
     <li role="none">
       <button
         role="menuitem"
-        className={className}
+        {...stylex.props(styles.typeaheadItem, isSelected && styles.typeaheadItemSelected)}
         style={style}
         onMouseDown={onClickItem}
         onMouseEnter={onMouseEnter}
@@ -110,3 +61,52 @@ export const TypeaheadItem = (props: Props) => {
     </li>
   );
 };
+
+const grid = spacing['--gf-spacing-grid-size'];
+
+const styles = stylex.create({
+  typeaheadItem: {
+    borderStyle: 'none',
+    backgroundColor: 'transparent',
+    textAlign: 'left',
+    height: 'auto',
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    paddingTop: grid,
+    paddingRight: grid,
+    paddingBottom: grid,
+    paddingLeft: `calc(${grid} * 2)`,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    zIndex: 11,
+    display: 'block',
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'color, border-color, background, padding' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.3s, 0.3s, 0.3s, 0.15s' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'cubic-bezier(0.645, 0.045, 0.355, 1)' },
+  },
+  typeaheadItemSelected: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+  },
+  typeaheadItemMatch: {
+    color: v1['--gf-v1-palette-yellow'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: v1['--gf-v1-palette-yellow'],
+    paddingTop: 'inherit',
+    paddingRight: 'inherit',
+    paddingBottom: 'inherit',
+    paddingLeft: 'inherit',
+    backgroundColor: 'inherit',
+  },
+  typeaheadItemGroupTitle: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    lineHeight: typography['--gf-typography-body-line-height'],
+    paddingTop: grid,
+    paddingRight: grid,
+    paddingBottom: grid,
+    paddingLeft: grid,
+  },
+});
