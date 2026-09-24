@@ -2,6 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from 'react';
 
+import { getThemeById } from '@grafana/data';
+
+import {
+  appendConsumerStyles,
+  getCascadedStyle,
+  getResolvedStyle,
+  ThemeCssVariables,
+} from '../../themes/stylex/testUtils';
+
 import { TagList } from './TagList';
 
 const setup = (jsx: JSX.Element) => {
@@ -52,5 +61,63 @@ describe('TagList', () => {
 
     const firstTag = screen.getByLabelText('Custom label for tag1 at 0');
     expect(firstTag).toBeInTheDocument();
+  });
+
+  describe('styles', () => {
+    it('lays out tags as a wrapping flex list', () => {
+      render(<TagList tags={mockTags} />);
+
+      const list = screen.getByRole('list');
+      expect(getCascadedStyle(list, 'display')).toBe('flex');
+      expect(getCascadedStyle(list, 'flex-wrap')).toBe('wrap');
+      expect(getCascadedStyle(list, 'justify-content')).toBe('flex-end');
+      expect(getCascadedStyle(list, 'gap')).toBe('6px');
+      expect(getCascadedStyle(list, 'align-items')).toBe('unset');
+      expect(getCascadedStyle(list, 'flex-shrink')).toBe('1');
+      screen.getAllByRole('listitem').forEach((item) => {
+        expect(getCascadedStyle(item, 'list-style')).toBe('none');
+      });
+    });
+
+    it.each(['dark', 'light'])('centers and styles the truncation label in the %s theme', (themeId) => {
+      const theme = getThemeById(themeId);
+      render(
+        <>
+          <ThemeCssVariables theme={theme} />
+          <TagList tags={mockTags} displayMax={2} />
+        </>
+      );
+
+      const list = screen.getByRole('list');
+      expect(getCascadedStyle(list, 'align-items')).toBe('center');
+      expect(getCascadedStyle(list, 'flex-shrink')).toBe('0');
+
+      const moreLabel = screen.getByText('+ 3');
+      expect(getResolvedStyle(moreLabel, 'color')).toBe(theme.colors.text.secondary);
+      expect(getResolvedStyle(moreLabel, 'font-size')).toBe(theme.typography.size.sm);
+    });
+
+    it('applies a consumer className to the list', () => {
+      appendConsumerStyles('.consumer-list { justify-content: flex-start; }');
+      render(<TagList tags={mockTags} className="consumer-list" />);
+
+      const list = screen.getByRole('list');
+      expect(list).toHaveClass('consumer-list');
+      expect(getCascadedStyle(list, 'justify-content')).toBe('flex-start');
+    });
+
+    it('spaces skeleton tags using the theme spacing', () => {
+      const theme = getThemeById('dark');
+      const { container } = render(
+        <>
+          <ThemeCssVariables theme={theme} />
+          <TagList.Skeleton />
+        </>
+      );
+
+      const skeleton = container.firstElementChild as HTMLElement;
+      expect(getCascadedStyle(skeleton, 'display')).toBe('flex');
+      expect(getResolvedStyle(skeleton, 'gap')).toBe(theme.spacing(1));
+    });
   });
 });

@@ -1,18 +1,12 @@
 import { css } from '@emotion/css';
 import { render, screen } from '@testing-library/react';
 
-import { getThemeById, type GrafanaTheme2 } from '@grafana/data';
+import { getThemeById } from '@grafana/data';
 
 import { StyleXThemeFixture } from '../../utils/storybook/fixtures/StyleXThemeFixture';
 
 import { STYLEX_STYLE_ELEMENT_ATTRIBUTE } from './inject';
-import { getCascadedStyle, getResolvedStyle } from './testUtils';
-import { useThemeCssVariables } from './useThemeCssVariables';
-
-const Bridge = ({ theme }: { theme: GrafanaTheme2 }) => {
-  useThemeCssVariables(theme);
-  return null;
-};
+import { getCascadedStyle, getResolvedStyle, ThemeCssVariables } from './testUtils';
 
 describe('StyleX foundation smoke test', () => {
   it('compiles StyleX and injects atomic rules into the StyleX sheet', () => {
@@ -32,7 +26,7 @@ describe('StyleX foundation smoke test', () => {
     const theme = getThemeById(themeId);
     render(
       <>
-        <Bridge theme={theme} />
+        <ThemeCssVariables theme={theme} />
         <StyleXThemeFixture />
       </>
     );

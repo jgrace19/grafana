@@ -1,10 +1,10 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, memo } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 import { type IconName } from '../../types/icon';
 import { type SkeletonComponent, attachSkeleton } from '../../utils/skeleton';
 
@@ -30,14 +30,17 @@ export interface Props {
 const TagListComponent = memo(
   forwardRef<HTMLUListElement, Props>(
     ({ displayMax, tags, icon, onClick, className, getAriaLabel, getColorIndex }, ref) => {
-      const theme = useTheme2();
-      const styles = getStyles(theme, Boolean(displayMax && displayMax > 0));
+      const isTruncated = Boolean(displayMax && displayMax > 0);
       const numTags = tags.length;
       const tagsToDisplay = displayMax ? tags.slice(0, displayMax) : tags;
       return (
-        <ul className={cx(styles.wrapper, className)} aria-label={t('grafana-ui.tags.list-label', 'Tags')} ref={ref}>
+        <ul
+          {...mergeStylexProps(stylex.props(styles.wrapper, isTruncated && styles.wrapperTruncated), className)}
+          aria-label={t('grafana-ui.tags.list-label', 'Tags')}
+          ref={ref}
+        >
           {tagsToDisplay.map((tag, i) => (
-            <li className={styles.li} key={tag}>
+            <li {...stylex.props(styles.li)} key={tag}>
               <Tag
                 name={tag}
                 icon={icon}
@@ -49,8 +52,8 @@ const TagListComponent = memo(
             </li>
           ))}
           {displayMax && displayMax > 0 && numTags - displayMax > 0 && (
-            <li className={styles.li}>
-              <span className={styles.moreTagsLabel}>
+            <li {...stylex.props(styles.li)}>
+              <span {...stylex.props(styles.moreTagsLabel)}>
                 {'+ '}
                 {numTags - displayMax}
               </span>
@@ -64,9 +67,8 @@ const TagListComponent = memo(
 TagListComponent.displayName = 'TagList';
 
 const TagListSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
   return (
-    <div className={styles.container} {...rootProps}>
+    <div {...stylex.props(styles.skeletonContainer)} {...rootProps}>
       <Tag.Skeleton />
       <Tag.Skeleton />
     </div>
@@ -80,31 +82,31 @@ const TagListSkeleton: SkeletonComponent = ({ rootProps }) => {
  */
 export const TagList = attachSkeleton(TagListComponent, TagListSkeleton);
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+const styles = stylex.create({
+  skeletonContainer: {
     display: 'flex',
-    gap: theme.spacing(1),
-  }),
+    gap: spacing['--grafana-spacing-1'],
+  },
+  wrapper: {
+    position: 'relative',
+    alignItems: 'unset',
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: '6px',
+  },
+  wrapperTruncated: {
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  moreTagsLabel: {
+    color: colors['--grafana-colors-text-secondary'],
+    fontSize: typography['--grafana-typography-size-sm'],
+  },
+  li: {
+    listStyle: 'none',
+  },
 });
-
-const getStyles = (theme: GrafanaTheme2, isTruncated: boolean) => {
-  return {
-    wrapper: css({
-      position: 'relative',
-      alignItems: isTruncated ? 'center' : 'unset',
-      display: 'flex',
-      flex: '1 1 auto',
-      flexWrap: 'wrap',
-      flexShrink: isTruncated ? 0 : 1,
-      justifyContent: 'flex-end',
-      gap: '6px',
-    }),
-    moreTagsLabel: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.size.sm,
-    }),
-    li: css({
-      listStyle: 'none',
-    }),
-  };
-};

@@ -10,7 +10,15 @@ import { type GrafanaTheme2, type ThemeSpacingTokens } from '@grafana/data';
 export type ThemeCssVariables = Record<`--grafana-${string}`, string>;
 
 const RICH_COLORS = ['primary', 'secondary', 'info', 'error', 'success', 'warning'] as const;
-const RICH_COLOR_FIELDS = ['main', 'shade', 'text', 'border', 'transparent', 'borderTransparent', 'contrastText'] as const;
+const RICH_COLOR_FIELDS = [
+  'main',
+  'shade',
+  'text',
+  'border',
+  'transparent',
+  'borderTransparent',
+  'contrastText',
+] as const;
 const TYPOGRAPHY_VARIANTS = ['body', 'bodySmall', 'code'] as const;
 const TEXT_COLORS = ['primary', 'secondary', 'disabled', 'link', 'maxContrast'] as const;
 const BACKGROUND_COLORS = ['canvas', 'primary', 'secondary', 'elevated'] as const;
