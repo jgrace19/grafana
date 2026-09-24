@@ -1,9 +1,8 @@
 /*
- * VizTooltipContainer is still styled with Emotion, whose runtime rules come after this sheet and set their own
- * background, padding and shadow. The doubled class outranks them like the Emotion className merge did;
- * unlayered, it keeps winning once VizTooltipContainer is StyleX.
+ * VizTooltipContainer sets its own background, padding and shadow and takes no StyleX override. Not in a cascade
+ * layer, so this wins over its (layered) StyleX styles like the Emotion className merge did.
  */
-.gf-canvas-tooltip.gf-canvas-tooltip {
+.gf-canvas-tooltip {
   top: 0;
   left: 0;
   white-space: pre;
