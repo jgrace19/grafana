@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: Pagination has no xstyle or style prop
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useToggle } from 'react-use';
 
@@ -24,6 +22,7 @@ import { GrafanaRulesExporter } from '../export/GrafanaRulesExporter';
 
 import { RulesGroup } from './RulesGroup';
 import { useCombinedGroupNamespace } from './useCombinedGroupNamespace';
+import '../alertingPagination.css';
 
 interface Props {
   namespaces: CombinedRuleNamespace[];
@@ -130,7 +129,7 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
       )}
       {!hasResult && loading && <Spinner size="xl" className={stylex.props(styles.spinner).className} />}
       <Pagination
-        className={pendingEmotionStyles.pagination}
+        className="gf-alerting-pagination"
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -139,16 +138,6 @@ export const GrafanaRules = ({ namespaces, expandAll }: Props) => {
       {canExportRules && showExportDrawer && <GrafanaRulesExporter onClose={toggleShowExportDrawer} />}
     </section>
   );
-};
-
-// stylex: Pagination has no xstyle or style prop, and only an unlayered class beats its float.
-const pendingEmotionStyles = {
-  pagination: css({
-    float: 'none',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    margin: `${spacing['--gf-spacing-x2']} 0`,
-  }),
 };
 
 const styles = stylex.create({

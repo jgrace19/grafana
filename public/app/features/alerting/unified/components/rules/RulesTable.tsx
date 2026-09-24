@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: Pagination has no xstyle or style prop
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useEffect, useMemo } from 'react';
@@ -37,6 +35,7 @@ import { RuleConfigStatus } from './RuleConfigStatus';
 import { RuleDetails } from './RuleDetails';
 import { RuleHealth } from './RuleHealth';
 import { RuleState } from './RuleState';
+import '../alertingPagination.css';
 
 type RuleTableColumnProps = DynamicTableColumnProps<CombinedRule>;
 type RuleTableItemProps = DynamicTableItemProps<CombinedRule>;
@@ -108,7 +107,7 @@ export const RulesTable = ({
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
         hideWhenSinglePage
-        className={pendingEmotionStyles.pagination}
+        className="gf-alerting-rules-table-pagination"
       />
     </div>
   );
@@ -166,21 +165,6 @@ function useLazyLoadRulerRules(rules: CombinedRule[]) {
 
   return state;
 }
-
-// stylex: Pagination has no xstyle or style prop, and only an unlayered class beats its float.
-const pendingEmotionStyles = {
-  pagination: css({
-    display: 'flex',
-    margin: 0,
-    paddingTop: spacing['--gf-spacing-x1'],
-    paddingBottom: spacing['--gf-spacing-x0-25'],
-    justifyContent: 'center',
-    borderLeft: `1px solid ${colors['--gf-colors-border-medium']}`,
-    borderRight: `1px solid ${colors['--gf-colors-border-medium']}`,
-    borderBottom: `1px solid ${colors['--gf-colors-border-medium']}`,
-    float: 'none',
-  }),
-};
 
 const styles = stylex.create({
   wrapperMargin: {

@@ -1,6 +1,5 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: Pagination has no xstyle or style prop
-import { css, cx } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { type ReactNode, useState } from 'react';
 import * as React from 'react';
 
@@ -12,6 +11,7 @@ import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { usePagination } from '../hooks/usePagination';
+import './alertingPagination.css';
 
 interface DynamicTablePagination {
   itemsPerPage: number;
@@ -176,7 +176,7 @@ export const DynamicTable = <T extends object>({
       </div>
       {pagination && (
         <Pagination
-          className={cx(pendingEmotionStyles.pagination, paginationStyles)}
+          className={clsx('gf-alerting-pagination', paginationStyles)}
           currentPage={page}
           numberOfPages={numberOfPages}
           onNavigate={onPageChange}
@@ -210,16 +210,6 @@ function getColumnSizes<T>(cols: Array<DynamicTableColumnProps<T>>, isExpandable
 
   return sizes;
 }
-
-// stylex: Pagination has no xstyle or style prop, and only an unlayered class beats its float.
-const pendingEmotionStyles = {
-  pagination: css({
-    float: 'none',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    margin: `${spacing['--gf-spacing-x2']} 0`,
-  }),
-};
 
 const styles = stylex.create({
   container: {

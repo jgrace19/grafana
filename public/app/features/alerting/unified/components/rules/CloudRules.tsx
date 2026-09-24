@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: Pagination has no xstyle or style prop
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
@@ -23,6 +21,7 @@ import { createRelativeUrl } from '../../utils/url';
 
 import { RulesGroup } from './RulesGroup';
 import { useCombinedGroupNamespace } from './useCombinedGroupNamespace';
+import '../alertingPagination.css';
 
 interface Props {
   namespaces: CombinedRuleNamespace[];
@@ -109,7 +108,7 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
       )}
 
       <Pagination
-        className={pendingEmotionStyles.pagination}
+        className="gf-alerting-pagination"
         currentPage={page}
         numberOfPages={numberOfPages}
         onNavigate={onPageChange}
@@ -117,16 +116,6 @@ export const CloudRules = ({ namespaces, expandAll }: Props) => {
       />
     </section>
   );
-};
-
-// stylex: Pagination has no xstyle or style prop, and only an unlayered class beats its float.
-const pendingEmotionStyles = {
-  pagination: css({
-    float: 'none',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    margin: `${spacing['--gf-spacing-x2']} 0`,
-  }),
 };
 
 const styles = stylex.create({
