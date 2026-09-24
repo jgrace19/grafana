@@ -1,10 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
 import { type Property } from 'csstype';
-import { type ElementType, forwardRef, type PropsWithChildren } from 'react';
+import { type CSSProperties, type ElementType, forwardRef, type PropsWithChildren } from 'react';
 import * as React from 'react';
 
 import { type GrafanaTheme2, type ThemeSpacingTokens, type ThemeShape, type ThemeShadows } from '@grafana/data';
 
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { type AlignItems, type Direction, type FlexProps, type JustifyContent } from '../types';
 import { getSizeStyles, responsive, responsiveStyles, type SizeProps } from '../utils/responsiveStyles';
 import { spacingValue } from '../utils/responsiveStylex';
@@ -116,49 +117,54 @@ export const Box = forwardRef<HTMLElement, PropsWithChildren<BoxProps>>((props, 
     position,
     ...rest
   } = props;
+  // BoxProps omits `style`, but callers (Menu) forward one at runtime; it must not replace the dynamic styles.
+  const { style, ...domProps }: typeof rest & { style?: CSSProperties } = rest;
   const Element = element ?? 'div';
 
   return (
     <Element
       ref={ref}
-      {...stylex.props(
-        responsive(responsiveStyles.margin, margin, spacingValue),
-        responsive(responsiveStyles.marginLeft, marginX, spacingValue),
-        responsive(responsiveStyles.marginRight, marginX, spacingValue),
-        responsive(responsiveStyles.marginTop, marginY, spacingValue),
-        responsive(responsiveStyles.marginBottom, marginY, spacingValue),
-        responsive(responsiveStyles.marginTop, marginTop, spacingValue),
-        responsive(responsiveStyles.marginBottom, marginBottom, spacingValue),
-        responsive(responsiveStyles.marginLeft, marginLeft, spacingValue),
-        responsive(responsiveStyles.marginRight, marginRight, spacingValue),
-        responsive(responsiveStyles.padding, padding, spacingValue),
-        responsive(responsiveStyles.paddingLeft, paddingX, spacingValue),
-        responsive(responsiveStyles.paddingRight, paddingX, spacingValue),
-        responsive(responsiveStyles.paddingTop, paddingY, spacingValue),
-        responsive(responsiveStyles.paddingBottom, paddingY, spacingValue),
-        responsive(responsiveStyles.paddingTop, paddingTop, spacingValue),
-        responsive(responsiveStyles.paddingBottom, paddingBottom, spacingValue),
-        responsive(responsiveStyles.paddingLeft, paddingLeft, spacingValue),
-        responsive(responsiveStyles.paddingRight, paddingRight, spacingValue),
-        responsive(responsiveStyles.display, display),
-        responsive(responsiveStyles.backgroundColor, backgroundColor, backgroundColorValue),
-        responsive(responsiveStyles.flexDirection, direction),
-        responsive(responsiveStyles.flexGrow, grow),
-        responsive(responsiveStyles.flexShrink, shrink),
-        responsive(responsiveStyles.flexBasis, basis),
-        responsive(responsiveStyles.flex, flex),
-        responsive(responsiveStyles.borderStyle, borderStyle),
-        responsive(responsiveStyles.borderColor, borderColor, borderColorValue),
-        (borderStyle || borderColor) && styles.borderWidth,
-        responsive(responsiveStyles.justifyContent, justifyContent),
-        responsive(responsiveStyles.alignItems, alignItems),
-        responsive(responsiveStyles.borderRadius, borderRadius, (radius) => `var(--gf-shape-radius-${radius})`),
-        responsive(responsiveStyles.boxShadow, boxShadow, (shadow) => `var(--gf-shadows-${shadow})`),
-        responsive(responsiveStyles.gap, gap, spacingValue),
-        responsive(responsiveStyles.position, position),
-        getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+      {...mergeStylexProps(
+        stylex.props(
+          responsive(responsiveStyles.margin, margin, spacingValue),
+          responsive(responsiveStyles.marginLeft, marginX, spacingValue),
+          responsive(responsiveStyles.marginRight, marginX, spacingValue),
+          responsive(responsiveStyles.marginTop, marginY, spacingValue),
+          responsive(responsiveStyles.marginBottom, marginY, spacingValue),
+          responsive(responsiveStyles.marginTop, marginTop, spacingValue),
+          responsive(responsiveStyles.marginBottom, marginBottom, spacingValue),
+          responsive(responsiveStyles.marginLeft, marginLeft, spacingValue),
+          responsive(responsiveStyles.marginRight, marginRight, spacingValue),
+          responsive(responsiveStyles.padding, padding, spacingValue),
+          responsive(responsiveStyles.paddingLeft, paddingX, spacingValue),
+          responsive(responsiveStyles.paddingRight, paddingX, spacingValue),
+          responsive(responsiveStyles.paddingTop, paddingY, spacingValue),
+          responsive(responsiveStyles.paddingBottom, paddingY, spacingValue),
+          responsive(responsiveStyles.paddingTop, paddingTop, spacingValue),
+          responsive(responsiveStyles.paddingBottom, paddingBottom, spacingValue),
+          responsive(responsiveStyles.paddingLeft, paddingLeft, spacingValue),
+          responsive(responsiveStyles.paddingRight, paddingRight, spacingValue),
+          responsive(responsiveStyles.display, display),
+          responsive(responsiveStyles.backgroundColor, backgroundColor, backgroundColorValue),
+          responsive(responsiveStyles.flexDirection, direction),
+          responsive(responsiveStyles.flexGrow, grow),
+          responsive(responsiveStyles.flexShrink, shrink),
+          responsive(responsiveStyles.flexBasis, basis),
+          responsive(responsiveStyles.flex, flex),
+          responsive(responsiveStyles.borderStyle, borderStyle),
+          responsive(responsiveStyles.borderColor, borderColor, borderColorValue),
+          (borderStyle || borderColor) && styles.borderWidth,
+          responsive(responsiveStyles.justifyContent, justifyContent),
+          responsive(responsiveStyles.alignItems, alignItems),
+          responsive(responsiveStyles.borderRadius, borderRadius, (radius) => `var(--gf-shape-radius-${radius})`),
+          responsive(responsiveStyles.boxShadow, boxShadow, (shadow) => `var(--gf-shadows-${shadow})`),
+          responsive(responsiveStyles.gap, gap, spacingValue),
+          responsive(responsiveStyles.position, position),
+          getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+        ),
+        { style }
       )}
-      {...rest}
+      {...domProps}
     >
       {children}
     </Element>

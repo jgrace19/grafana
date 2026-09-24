@@ -33,4 +33,10 @@ describe('Stack', () => {
     expect(style).toContain('calc(var(--gf-spacing-grid-size) * 1)');
     expect(style).toContain('calc(var(--gf-spacing-grid-size) * 4)');
   });
+
+  it('does not pass CSS-wide keywords through a custom property', () => {
+    // `--x: inherit` would make the custom property inherit instead of the height.
+    render(<Stack data-testid="stack" height="inherit" />);
+    expect(screen.getByTestId('stack').getAttribute('style') ?? '').not.toContain('inherit');
+  });
 });

@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { type ThemeSpacingTokens } from '@grafana/data';
 
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { type AlignItems } from '../types';
 import { responsive, responsiveStyles } from '../utils/responsiveStyles';
 import { spacingValue } from '../utils/responsiveStylex';
@@ -42,25 +43,32 @@ type GridProps = PropsWithColumns | PropsWithMinColumnWidth;
  */
 export const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const { alignItems, children, gap, rowGap, columnGap, columns, minColumnWidth, ...rest } = props;
+  // GridProps omits `style`, but callers may forward one at runtime; it must not replace the dynamic styles.
+  const { style, ...domProps }: typeof rest & { style?: React.CSSProperties } = rest;
 
   return (
     <div
       ref={ref}
-      {...rest}
-      {...stylex.props(
-        styles.grid,
-        responsive(responsiveStyles.gap, gap, spacingValue),
-        responsive(responsiveStyles.rowGap, rowGap, spacingValue),
-        responsive(responsiveStyles.columnGap, columnGap, spacingValue),
-        minColumnWidth
-          ? responsive(
-              responsiveStyles.gridTemplateColumns,
-              minColumnWidth,
-              (width) => `repeat(auto-fill, minmax(${spacingValue(width)}, 1fr))`
-            )
-          : null,
-        columns ? responsive(responsiveStyles.gridTemplateColumns, columns, (count) => `repeat(${count}, 1fr)`) : null,
-        responsive(responsiveStyles.alignItems, alignItems)
+      {...domProps}
+      {...mergeStylexProps(
+        stylex.props(
+          styles.grid,
+          responsive(responsiveStyles.gap, gap, spacingValue),
+          responsive(responsiveStyles.rowGap, rowGap, spacingValue),
+          responsive(responsiveStyles.columnGap, columnGap, spacingValue),
+          minColumnWidth
+            ? responsive(
+                responsiveStyles.gridTemplateColumns,
+                minColumnWidth,
+                (width) => `repeat(auto-fill, minmax(${spacingValue(width)}, 1fr))`
+              )
+            : null,
+          columns
+            ? responsive(responsiveStyles.gridTemplateColumns, columns, (count) => `repeat(${count}, 1fr)`)
+            : null,
+          responsive(responsiveStyles.alignItems, alignItems)
+        ),
+        { style }
       )}
     >
       {children}

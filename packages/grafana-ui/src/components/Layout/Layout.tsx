@@ -43,6 +43,7 @@ export const Layout = ({
   wrap = false,
   width = '100%',
   height = '100%',
+  style,
   ...rest
 }: LayoutProps) => {
   const isVertical = orientation === Orientation.Vertical;
@@ -57,7 +58,8 @@ export const Layout = ({
   );
 
   return (
-    <div className={layoutProps.className} style={{ ...layoutProps.style, width, height }} {...rest}>
+    // A style prop replaces the width/height defaults, as it always did, but keeps the dynamic styles.
+    <div className={layoutProps.className} style={{ ...layoutProps.style, ...(style ?? { width, height }) }} {...rest}>
       {React.Children.toArray(children)
         .filter(Boolean)
         .map((child, index) => {

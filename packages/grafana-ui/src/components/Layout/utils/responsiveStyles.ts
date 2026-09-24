@@ -26,24 +26,89 @@ type V = string | number | undefined;
 export function responsive<T, R>(
   style: (...args: ResponsiveArgs<V>) => R,
   prop: ResponsiveProp<T> | undefined
-): R | null;
+): R | stylex.StyleXStyles | null;
 export function responsive<T, U extends V, R>(
   style: (...args: ResponsiveArgs<V>) => R,
   prop: ResponsiveProp<T> | undefined,
   map: (value: T) => U
-): R | null;
+): R | stylex.StyleXStyles | null;
 export function responsive<T, U extends V, R>(
   style: (...args: ResponsiveArgs<V>) => R,
   prop: ResponsiveProp<T> | undefined,
   map?: (value: T) => U
-): R | null {
+): R | stylex.StyleXStyles | null {
   if (prop === undefined || prop === null) {
     return null;
+  }
+  const keywordStyle = typeof prop === 'string' ? getKeywordStyle(style, prop) : undefined;
+  if (keywordStyle) {
+    return keywordStyle;
   }
   const args: ResponsiveArgs<V> = map
     ? responsiveArgs(prop, map)
     : responsiveArgs(prop, (value) => (typeof value === 'number' || typeof value === 'string' ? value : undefined));
   return style(...args);
+}
+
+/**
+ * A CSS-wide keyword can't travel through a dynamic style's custom property (`--x: inherit` makes the custom
+ * property itself inherit, so `max-height: var(--x)` becomes invalid), so plain keyword values of the size
+ * properties use these static styles. Callers pass e.g. `maxHeight="inherit"` (SelectMenu, ComboboxList).
+ * A keyword inside a responsive object isn't supported.
+ */
+function getKeywordStyle(style: unknown, keyword: string) {
+  switch (style) {
+    case responsiveStyles.width:
+      return keyword === 'inherit'
+        ? keywordStyles.widthInherit
+        : keyword === 'initial'
+          ? keywordStyles.widthInitial
+          : keyword === 'unset'
+            ? keywordStyles.widthUnset
+            : undefined;
+    case responsiveStyles.minWidth:
+      return keyword === 'inherit'
+        ? keywordStyles.minWidthInherit
+        : keyword === 'initial'
+          ? keywordStyles.minWidthInitial
+          : keyword === 'unset'
+            ? keywordStyles.minWidthUnset
+            : undefined;
+    case responsiveStyles.maxWidth:
+      return keyword === 'inherit'
+        ? keywordStyles.maxWidthInherit
+        : keyword === 'initial'
+          ? keywordStyles.maxWidthInitial
+          : keyword === 'unset'
+            ? keywordStyles.maxWidthUnset
+            : undefined;
+    case responsiveStyles.height:
+      return keyword === 'inherit'
+        ? keywordStyles.heightInherit
+        : keyword === 'initial'
+          ? keywordStyles.heightInitial
+          : keyword === 'unset'
+            ? keywordStyles.heightUnset
+            : undefined;
+    case responsiveStyles.minHeight:
+      return keyword === 'inherit'
+        ? keywordStyles.minHeightInherit
+        : keyword === 'initial'
+          ? keywordStyles.minHeightInitial
+          : keyword === 'unset'
+            ? keywordStyles.minHeightUnset
+            : undefined;
+    case responsiveStyles.maxHeight:
+      return keyword === 'inherit'
+        ? keywordStyles.maxHeightInherit
+        : keyword === 'initial'
+          ? keywordStyles.maxHeightInitial
+          : keyword === 'unset'
+            ? keywordStyles.maxHeightUnset
+            : undefined;
+    default:
+      return undefined;
+  }
 }
 
 /** StyleX equivalent of getSizeStyles: every size prop goes through `theme.spacing()`. */
@@ -432,4 +497,25 @@ export const responsiveStyles = stylex.create({
       [bp.xxlUp]: xxl,
     },
   }),
+});
+
+const keywordStyles = stylex.create({
+  widthInherit: { width: 'inherit' },
+  widthInitial: { width: 'initial' },
+  widthUnset: { width: 'unset' },
+  minWidthInherit: { minWidth: 'inherit' },
+  minWidthInitial: { minWidth: 'initial' },
+  minWidthUnset: { minWidth: 'unset' },
+  maxWidthInherit: { maxWidth: 'inherit' },
+  maxWidthInitial: { maxWidth: 'initial' },
+  maxWidthUnset: { maxWidth: 'unset' },
+  heightInherit: { height: 'inherit' },
+  heightInitial: { height: 'initial' },
+  heightUnset: { height: 'unset' },
+  minHeightInherit: { minHeight: 'inherit' },
+  minHeightInitial: { minHeight: 'initial' },
+  minHeightUnset: { minHeight: 'unset' },
+  maxHeightInherit: { maxHeight: 'inherit' },
+  maxHeightInitial: { maxHeight: 'initial' },
+  maxHeightUnset: { maxHeight: 'unset' },
 });

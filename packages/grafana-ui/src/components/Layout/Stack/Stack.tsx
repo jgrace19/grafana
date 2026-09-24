@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { type ThemeSpacingTokens } from '@grafana/data';
 
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
 import { type AlignItems, type Direction, type FlexProps, type JustifyContent, type Wrap } from '../types';
 import { getSizeStyles, responsive, responsiveStyles, type SizeProps } from '../utils/responsiveStyles';
 import { spacingValue } from '../utils/responsiveStylex';
@@ -46,26 +47,31 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>((props, ref) =
     maxHeight,
     ...rest
   } = props;
+  // StackProps omits `style`, but callers may forward one at runtime; it must not replace the dynamic styles.
+  const { style, ...domProps }: typeof rest & { style?: React.CSSProperties } = rest;
 
   return (
     <div
       ref={ref}
-      {...stylex.props(
-        styles.flex,
-        responsive(responsiveStyles.flexDirection, direction),
-        responsive(responsiveStyles.flexWrap, wrap, toFlexWrap),
-        responsive(responsiveStyles.alignItems, alignItems),
-        responsive(responsiveStyles.justifyContent, justifyContent),
-        responsive(responsiveStyles.gap, gap, spacingValue),
-        responsive(responsiveStyles.rowGap, rowGap, spacingValue),
-        responsive(responsiveStyles.columnGap, columnGap, spacingValue),
-        responsive(responsiveStyles.flexGrow, grow),
-        responsive(responsiveStyles.flexShrink, shrink),
-        responsive(responsiveStyles.flexBasis, basis),
-        responsive(responsiveStyles.flex, flex),
-        getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+      {...mergeStylexProps(
+        stylex.props(
+          styles.flex,
+          responsive(responsiveStyles.flexDirection, direction),
+          responsive(responsiveStyles.flexWrap, wrap, toFlexWrap),
+          responsive(responsiveStyles.alignItems, alignItems),
+          responsive(responsiveStyles.justifyContent, justifyContent),
+          responsive(responsiveStyles.gap, gap, spacingValue),
+          responsive(responsiveStyles.rowGap, rowGap, spacingValue),
+          responsive(responsiveStyles.columnGap, columnGap, spacingValue),
+          responsive(responsiveStyles.flexGrow, grow),
+          responsive(responsiveStyles.flexShrink, shrink),
+          responsive(responsiveStyles.flexBasis, basis),
+          responsive(responsiveStyles.flex, flex),
+          getSizeStyles({ width, minWidth, maxWidth, height, minHeight, maxHeight })
+        ),
+        { style }
       )}
-      {...rest}
+      {...domProps}
     >
       {children}
     </div>
