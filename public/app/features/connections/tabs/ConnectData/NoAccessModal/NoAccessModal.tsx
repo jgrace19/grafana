@@ -1,55 +1,12 @@
+// eslint-disable-next-line no-restricted-imports -- stylex: pending Modal migration
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, Modal, Icon, Button, TextLink } from '@grafana/ui';
+import { Modal, Icon, Button, TextLink } from '@grafana/ui';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CardGridItem } from '../CardGrid/CardGrid';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  modal: css({
-    width: '500px',
-  }),
-  modalContent: css({
-    overflow: 'visible',
-    color: theme.colors.text.secondary,
-
-    a: {
-      color: theme.colors.text.link,
-    },
-  }),
-  description: css({
-    marginBottom: theme.spacing(2),
-  }),
-  bottomSection: css({
-    display: 'flex',
-    borderTop: `1px solid ${theme.colors.border.weak}`,
-    paddingTop: theme.spacing(3),
-    marginTop: theme.spacing(3),
-  }),
-  actionsSection: css({
-    display: 'flex',
-    justifyContent: 'end',
-    marginTop: theme.spacing(3),
-  }),
-  warningIcon: css({
-    color: theme.colors.warning.main,
-    paddingRight: theme.spacing(),
-    marginTop: theme.spacing(0.25),
-  }),
-  header: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  headerTitle: css({
-    margin: 0,
-  }),
-  headerLogo: css({
-    marginRight: theme.spacing(2),
-    width: '32px',
-    height: '32px',
-  }),
-});
 
 export type NoAccessModalProps = {
   item: CardGridItem;
@@ -58,12 +15,10 @@ export type NoAccessModalProps = {
 };
 
 export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
-  const styles = useStyles2(getStyles);
-
   return (
     <Modal
-      className={styles.modal}
-      contentClassName={styles.modalContent}
+      className={modalStyles.modal}
+      contentClassName={modalStyles.modalContent}
       title={<NoAccessModalHeader item={item} />}
       ariaLabel={item.name}
       isOpen={isOpen}
@@ -71,7 +26,7 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
     >
       <div>
         <div>
-          {item.description && <div className={styles.description}>{item.description}</div>}
+          {item.description && <div {...stylex.props(styles.description)}>{item.description}</div>}
           <div>
             <Trans i18nKey="connections.no-access-modal.links">Links</Trans>
             <br />
@@ -80,8 +35,8 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
             </TextLink>
           </div>
         </div>
-        <div className={styles.bottomSection}>
-          <div className={styles.warningIcon}>
+        <div {...stylex.props(styles.bottomSection)}>
+          <div {...stylex.props(styles.warningIcon)}>
             <Icon name="exclamation-triangle" />
           </div>
           <div>
@@ -98,7 +53,7 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
             </p>
           </div>
         </div>
-        <div className={styles.actionsSection}>
+        <div {...stylex.props(styles.actionsSection)}>
           <Button onClick={onDismiss}>
             <Trans i18nKey="connections.no-access-modal.okay">Okay</Trans>
           </Button>
@@ -109,13 +64,66 @@ export function NoAccessModal({ item, isOpen, onDismiss }: NoAccessModalProps) {
 }
 
 export function NoAccessModalHeader({ item }: { item: CardGridItem }) {
-  const styles = useStyles2(getStyles);
   return (
     <div>
-      <div className={styles.header}>
-        {item.logo && <img className={styles.headerLogo} src={item.logo} alt={`logo of ${item.name}`} />}
-        <h4 className={styles.headerTitle}>{item.name}</h4>
+      <div {...stylex.props(styles.header)}>
+        {item.logo && <img {...stylex.props(styles.headerLogo)} src={item.logo} alt={`logo of ${item.name}`} />}
+        <h4 {...stylex.props(styles.headerTitle)}>{item.name}</h4>
       </div>
     </div>
   );
 }
+
+// stylex: pending Modal migration. Modal's own Emotion width and content overflow would beat layered StyleX classes.
+const modalStyles = {
+  modal: css({
+    width: '500px',
+  }),
+  modalContent: css({
+    overflow: 'visible',
+    color: colors['--gf-colors-text-secondary'],
+
+    a: {
+      color: colors['--gf-colors-text-link'],
+    },
+  }),
+};
+
+const styles = stylex.create({
+  description: {
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  bottomSection: {
+    display: 'flex',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    paddingTop: spacing['--gf-spacing-x3'],
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  actionsSection: {
+    display: 'flex',
+    justifyContent: 'end',
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  warningIcon: {
+    color: colors['--gf-colors-warning-main'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    marginTop: spacing['--gf-spacing-x0-25'],
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+  },
+  headerLogo: {
+    marginRight: spacing['--gf-spacing-x2'],
+    width: '32px',
+    height: '32px',
+  },
+});

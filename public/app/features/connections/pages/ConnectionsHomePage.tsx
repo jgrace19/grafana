@@ -1,9 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type IconName, isIconName } from '@grafana/data';
+import { type IconName, isIconName } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
 import { useSelector } from 'app/types/store';
 
@@ -23,8 +24,6 @@ function resolveIcon(metaIcon: IconName | undefined, navIcon: string | undefined
 }
 
 export default function ConnectionsHomePage() {
-  const styles = useStyles2(getStyles);
-
   const isOnPrem = !config.pluginAdminExternalManageEnabled;
   const cardMetadata = getConnectionsCardMetadata(isOnPrem);
   const navIndex = useSelector((state) => state.navIndex);
@@ -49,11 +48,11 @@ export default function ConnectionsHomePage() {
       }}
     >
       <Page.Contents>
-        <div className={styles.centeredContainer}>
-          <h1 className={styles.mainTitle}>
+        <div {...stylex.props(styles.centeredContainer)}>
+          <h1 {...stylex.props(styles.mainTitle)}>
             <Trans i18nKey="connections.connections-home-page.welcome-to-connections">Welcome to Connections</Trans>
           </h1>
-          <p className={styles.subTitle}>
+          <p {...stylex.props(styles.subTitle)}>
             {isOnPrem ? (
               <Trans i18nKey="connections.oss.connections-home-page.subtitle">
                 Manage your data source connections in one place. Use this page to add a new data source or manage your
@@ -67,7 +66,7 @@ export default function ConnectionsHomePage() {
             )}
           </p>
           {cardsData.length > 0 && (
-            <section className={styles.cardsSection}>
+            <section {...stylex.props(styles.cardsSection)}>
               {cardsData.map((child, index) => (
                 <PageCard
                   key={child.id ?? index}
@@ -86,41 +85,27 @@ export default function ConnectionsHomePage() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  mainTitle: css({
-    textAlign: 'left',
-    [theme.breakpoints.up('sm')]: {
-      textAlign: 'center',
-    },
-  }),
-  subTitle: css({
-    color: theme.colors.text.secondary,
-    textAlign: 'left',
-    [theme.breakpoints.up('sm')]: {
-      textAlign: 'center',
-      maxWidth: theme.spacing(119),
-    },
-  }),
-  cardsSection: css({
+const styles = stylex.create({
+  mainTitle: {
+    textAlign: { default: 'left', [bp.smUp]: 'center' },
+  },
+  subTitle: {
+    color: colors['--gf-colors-text-secondary'],
+    textAlign: { default: 'left', [bp.smUp]: 'center' },
+    maxWidth: { default: null, [bp.smUp]: `calc(${spacing['--gf-spacing-grid-size']} * 119)` },
+  },
+  cardsSection: {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+    justifyContent: { default: 'flex-start', [bp.smUp]: 'center' },
+    gap: spacing['--gf-spacing-x4'],
+    paddingTop: { default: spacing['--gf-spacing-x2'], [bp.smUp]: spacing['--gf-spacing-x6'] },
+    paddingBottom: { default: spacing['--gf-spacing-x2'], [bp.smUp]: spacing['--gf-spacing-x6'] },
     width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      justifyContent: 'center',
-      paddingTop: theme.spacing(6),
-      paddingBottom: theme.spacing(6),
-    },
-  }),
-  centeredContainer: css({
+  },
+  centeredContainer: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    [theme.breakpoints.up('sm')]: {
-      alignItems: 'center',
-    },
-  }),
+    alignItems: { default: 'flex-start', [bp.smUp]: 'center' },
+  },
 });
