@@ -71,4 +71,27 @@ describe('check-dropped-props', () => {
     );
     expect(checkFile(file)).toEqual([]);
   });
+
+  it('does not read one-line namespaces named like CSS properties as properties', () => {
+    const { checkFile } = loadChecker();
+    const file = writeFixture(
+      component(`{
+  box: { display: 'flex' },
+  left: { alignItems: 'center' },
+  dark: { backgroundColor: 'red' },
+  top: (offset: string) => ({ marginTop: offset }),
+}`)
+    );
+    expect(checkFile(file)).toEqual([]);
+  });
+
+  it('accepts logical sizes the compiler emits as physical properties', () => {
+    const { checkFile } = loadChecker();
+    const file = writeFixture(
+      component(`{
+  box: { blockSize: 10, inlineSize: 20, minBlockSize: 4, maxInlineSize: '100%' },
+}`)
+    );
+    expect(checkFile(file)).toEqual([]);
+  });
 });
