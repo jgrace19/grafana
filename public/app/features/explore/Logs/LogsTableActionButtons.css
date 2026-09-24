@@ -1,0 +1,48 @@
+/*
+ * Restyles the row's IconButton and ClipboardButton. Their own styles are StyleX and apply in every state (hover
+ * included), so this stays unlayered, like the Emotion class it replaces, to beat them in every state too.
+ */
+.gf-explore-logs-table-action {
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gf-shape-radius-default);
+  width: 28px;
+  height: 32px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.gf-explore-logs-table-action::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: var(--gf-shape-radius-default);
+  background-color: var(--gf-colors-background-primary);
+  z-index: -1;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference), (prefers-reduced-motion: reduce) {
+  .gf-explore-logs-table-action::before {
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: opacity;
+  }
+}
+
+.gf-explore-logs-table-action:hover {
+  color: var(--gf-colors-text-link);
+  cursor: pointer;
+  background: none;
+}
+
+.gf-explore-logs-table-action:hover::before {
+  opacity: 1;
+}

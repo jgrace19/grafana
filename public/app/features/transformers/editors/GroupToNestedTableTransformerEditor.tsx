@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useId } from 'react';
 
 import {
@@ -9,7 +9,6 @@ import {
   type TransformerRegistryItem,
   type TransformerUIProps,
   TransformerCategory,
-  type GrafanaTheme2,
   PluginState,
 } from '@grafana/data';
 import {
@@ -20,7 +19,8 @@ import {
   SHOW_NESTED_HEADERS_DEFAULT,
 } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { useTheme2, Select, StatsPicker, InlineField, Field, Switch, Alert, Stack } from '@grafana/ui';
+import { Select, StatsPicker, InlineField, Field, Switch, Alert, Stack } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import darkImage from '../images/dark/groupToNestedTable.svg';
 import lightImage from '../images/light/groupToNestedTable.svg';
@@ -127,8 +127,6 @@ export const GroupToNestedTableTransformerEditor = ({
 };
 
 export const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }: FieldProps) => {
-  const theme = useTheme2();
-  const styles = getStyles(theme);
   const id = useId();
   const onChange = useCallback(
     (value: SelectableValue<GroupByOperationID | null>) => {
@@ -152,9 +150,9 @@ export const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }:
   ];
 
   return (
-    <InlineField className={styles.label} label={fieldName} grow shrink htmlFor={id}>
+    <InlineField className={stylex.props(styles.label).className} label={fieldName} grow shrink htmlFor={id}>
       <Stack gap={0.5} direction="row" wrap={false}>
-        <div className={styles.operation}>
+        <div {...stylex.props(styles.operation)}>
           <Select
             inputId={id}
             options={options}
@@ -181,18 +179,17 @@ export const GroupByFieldConfiguration = ({ fieldName, config, onConfigChange }:
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    label: css({
-      minWidth: theme.spacing(32),
-    }),
-    operation: css({
-      flexShrink: 0,
-      height: '100%',
-      width: theme.spacing(24),
-    }),
-  };
-};
+const styles = stylex.create({
+  label: {
+    minWidth: `calc(${spacing['--gf-spacing-grid-size']} * 32)`,
+  },
+
+  operation: {
+    flexShrink: 0,
+    height: '100%',
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 24)`,
+  },
+});
 
 export const getGroupToNestedTableTransformRegistryItem: () => TransformerRegistryItem<GroupByTransformerOptions> =
   () => ({

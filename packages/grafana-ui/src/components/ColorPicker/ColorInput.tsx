@@ -1,12 +1,10 @@
-import { cx, css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { debounce } from 'lodash';
 import { forwardRef, useState, useEffect, useMemo } from 'react';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { Input, type Props as InputProps } from '../Input/Input';
 
 import { type ColorPickerProps } from './ColorPickerPopover';
@@ -83,28 +81,31 @@ interface ColorPreviewProps {
 }
 
 const ColorPreview = ({ color, onClick, disabled, ariaLabel }: ColorPreviewProps) => {
-  const styles = useStyles2(getColorPreviewStyles);
-
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
       disabled={disabled || !onClick}
-      className={cx(
-        styles,
-        css({
-          backgroundColor: color,
-        })
-      )}
+      {...stylex.props(styles.preview, color !== '' && styles.background(color))}
     />
   );
 };
 
-const getColorPreviewStyles = (theme: GrafanaTheme2) =>
-  css({
+const styles = stylex.create({
+  preview: {
     height: '100%',
-    width: `${theme.spacing.gridSize * 4}px`,
-    borderRadius: `${theme.shape.radius.default} 0 0 ${theme.shape.radius.default}`,
-    border: `1px solid ${theme.colors.border.medium}`,
-  });
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 4)`,
+    borderTopLeftRadius: shape['--gf-shape-radius-default'],
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: 'unset',
+    borderBottomLeftRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+  },
+  // Not applied for an empty colour: Emotion emitted an invalid declaration there, leaving the UA background.
+  background: (color: string) => ({
+    backgroundColor: color,
+  }),
+});

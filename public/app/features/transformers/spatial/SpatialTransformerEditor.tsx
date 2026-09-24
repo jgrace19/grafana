@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 
 import {
   DataTransformerID,
-  type GrafanaTheme2,
   type PanelOptionsEditorBuilder,
   PluginState,
   type StandardEditorContext,
@@ -13,7 +12,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
-import { useTheme2 } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 import { addLocationFields } from 'app/features/geo/editor/locationEditor';
 
 import darkImage from '../images/dark/spatial.svg';
@@ -142,8 +141,6 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const styles = getStyles(useTheme2());
-
   const pane = getTransformerOptionPane<SpatialTransformOptions>(props, supplier);
   return (
     <div>
@@ -151,9 +148,9 @@ export const SetGeometryTransformerEditor = (props: Props) => {
       <div>
         {pane.categories.map((c) => {
           return (
-            <div key={c.props.id} className={styles.wrap}>
+            <div key={c.props.id} {...stylex.props(styles.wrap)}>
               <h5>{c.props.title}</h5>
-              <div className={styles.item}>{c.items.map((s) => s.renderElement())}</div>
+              <div {...stylex.props(styles.item)}>{c.items.map((s) => s.renderElement())}</div>
             </div>
           );
         })}
@@ -162,17 +159,17 @@ export const SetGeometryTransformerEditor = (props: Props) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrap: css({
-      marginBottom: '20px',
-    }),
-    item: css({
-      borderLeft: `4px solid ${theme.colors.border.strong}`,
-      paddingLeft: '10px',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrap: {
+    marginBottom: '20px',
+  },
+  item: {
+    borderLeftWidth: '4px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: colors['--gf-colors-border-strong'],
+    paddingLeft: '10px',
+  },
+});
 
 export const getSpatialTransformRegistryItem: () => TransformerRegistryItem<SpatialTransformOptions> = () => {
   const spatialTransformer = getSpatialTransformer();

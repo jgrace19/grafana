@@ -58,11 +58,3 @@ export function VariableTextAreaField({
 
 /** Sizes a variable editor TextArea; styled in VariableTextAreaField.css. */
 export const VARIABLE_TEXTAREA_CLASS = 'gf-variable-textarea';
-
-/**
- * @deprecated Kept for LegacyVariableQueryEditor, which still reads `.textarea` from these styles through the Emotion-era hook. Use
- * `VARIABLE_TEXTAREA_CLASS` instead.
- */
-export function getStyles() {
-  return { textarea: VARIABLE_TEXTAREA_CLASS };
-}

@@ -1,16 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState, forwardRef, type FocusEvent } from 'react';
 import { RgbaStringColorPicker } from 'react-colorful';
 import { useThrottleFn } from 'react-use';
 
-import { colorManipulator, type GrafanaTheme2 } from '@grafana/data';
+import { colorManipulator } from '@grafana/data';
 
-import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { useTheme2 } from '../../themes/ThemeContext';
 import { ClickOutsideWrapper } from '../ClickOutsideWrapper/ClickOutsideWrapper';
 import { type Props as InputProps } from '../Input/Input';
 
 import ColorInput from './ColorInput';
-import { getStyles as getPaletteStyles } from './SpectrumPalette';
+
+import './SpectrumPalette.css';
 
 export interface ColorPickerInputProps extends Omit<InputProps, 'value' | 'onChange'> {
   value?: string;
@@ -27,8 +28,6 @@ export const ColorPickerInput = forwardRef<HTMLInputElement, ColorPickerInputPro
     const [currentColor, setColor] = useState(value);
     const [isOpen, setIsOpen] = useState(false);
     const theme = useTheme2();
-    const styles = useStyles2(getStyles);
-    const paletteStyles = useStyles2(getPaletteStyles);
 
     useThrottleFn(
       (c) => {
@@ -61,13 +60,13 @@ export const ColorPickerInput = forwardRef<HTMLInputElement, ColorPickerInputPro
 
     return (
       <ClickOutsideWrapper onClick={() => setIsOpen(false)}>
-        <div className={styles.wrapper}>
+        <div {...stylex.props(styles.wrapper)}>
           {isOpen && !inputProps.disabled && (
             <RgbaStringColorPicker
               data-testid={'color-popover'}
               color={currentColor}
               onChange={setColor}
-              className={cx(paletteStyles.root, styles.picker)}
+              className="gf-spectrum-palette gf-color-picker-input-popover"
             />
           )}
           <ColorInput
@@ -88,21 +87,8 @@ export const ColorPickerInput = forwardRef<HTMLInputElement, ColorPickerInputPro
 
 ColorPickerInput.displayName = 'ColorPickerInput';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      position: 'relative',
-    }),
-    picker: css({
-      '&.react-colorful': {
-        position: 'absolute',
-        width: '100%',
-        zIndex: 11,
-        bottom: '36px',
-      },
-    }),
-    inner: css({
-      position: 'absolute',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    position: 'relative',
+  },
+});

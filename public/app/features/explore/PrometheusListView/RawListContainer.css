@@ -1,0 +1,9 @@
+/*
+ * Lays the "Expand results" Field out in a row. Field is still Emotion and sets flex-direction: column; the
+ * element-qualified selector (0,1,1) outranks its single class, as the merged Emotion override did.
+ */
+div.gf-explore-raw-list-switch {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0;
+}

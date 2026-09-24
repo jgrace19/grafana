@@ -1,5 +1,5 @@
 // Library
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type CSSProperties, memo, type JSX } from 'react';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
@@ -28,7 +28,8 @@ import {
   type VizTextDisplayOptions,
 } from '@grafana/schema';
 
-import { clearButtonStyles } from '../../compat/emotion/buttonStyles';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { colors } from '../../themes/stylex/tokens.stylex';
 import { type Themeable2 } from '../../types/theme';
 import { calculateFontSize, measureText } from '../../utils/measureText';
 import { FormattedValueDisplay } from '../FormattedValueDisplay/FormattedValueDisplay';
@@ -68,7 +69,6 @@ export const BarGauge = memo(function BarGauge(props: Props) {
   const {
     onClick,
     className,
-    theme,
     value,
     displayMode = BarGaugeDisplayMode.Gradient,
     orientation = VizOrientation.Horizontal,
@@ -217,25 +217,25 @@ export const BarGauge = memo(function BarGauge(props: Props) {
   };
 
   const { title } = value;
-  const styles = getTitleStyles(allProps);
+  const titleStyles = getTitleStyles(allProps);
 
   if (onClick) {
     return (
       <button
         type="button"
-        style={styles.wrapper}
+        style={titleStyles.wrapper}
         onClick={onClick}
-        className={cx(clearButtonStyles(theme), className)}
+        className={mergeStylexProps(stylex.props(styles.clearButton), { className }).className}
       >
-        <div style={styles.title}>{title}</div>
+        <div style={titleStyles.title}>{title}</div>
         {renderBarAndValue()}
       </button>
     );
   }
 
   return (
-    <div style={styles.wrapper} className={className}>
-      {title && <div style={styles.title}>{title}</div>}
+    <div style={titleStyles.wrapper} className={className}>
+      {title && <div style={titleStyles.title}>{title}</div>}
       {renderBarAndValue()}
     </div>
   );
@@ -724,3 +724,12 @@ function getValueStyles(
 
   return styles;
 }
+
+const styles = stylex.create({
+  clearButton: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    padding: 0,
+  },
+});

@@ -1,12 +1,17 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Spinner, TimeRangeLabel, useStyles2 } from '@grafana/ui';
+import { Spinner, TimeRangeLabel } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface Props {
   timeRange: TimeRange;
   className?: string;
+  /** StyleX overrides for the wrapper, applied after its own styles */
+  xstyle?: StyleXStyles;
   isDataLoading?: boolean;
   timeSelectionEnabled?: boolean;
   annotationsEnabled?: boolean;
@@ -14,12 +19,14 @@ export interface Props {
 
 export function SettingsSummary({
   className,
+  xstyle,
   isDataLoading = false,
   timeRange,
   timeSelectionEnabled,
   annotationsEnabled,
 }: Props) {
-  const styles = useStyles2(getStyles);
+  const wrapperProps = mergeStylexProps(stylex.props(styles.summaryWrapper, xstyle), { className });
+  const summaryProps = stylex.props(styles.summary);
 
   const translatedTimeRangePickerEnabledStatus = t(
     'public-dashboard.settings-summary.time-range-picker-enabled-text',
@@ -39,19 +46,19 @@ export function SettingsSummary({
   );
 
   return isDataLoading ? (
-    <div className={cx(styles.summaryWrapper, className)}>
-      <Spinner className={styles.summary} inline={true} size="sm" />
+    <div {...wrapperProps}>
+      <Spinner className={summaryProps.className} inline={true} size="sm" />
     </div>
   ) : (
-    <div className={cx(styles.summaryWrapper, className)}>
-      <span className={styles.summary}>
+    <div {...wrapperProps}>
+      <span {...summaryProps}>
         <Trans i18nKey="public-dashboard.settings-summary.time-range-text">Time range = </Trans>
-        <TimeRangeLabel className={styles.timeRange} value={timeRange} />
+        <TimeRangeLabel className={stylex.props(styles.timeRange).className} value={timeRange} />
       </span>
-      <span className={styles.summary}>
+      <span {...summaryProps}>
         {timeSelectionEnabled ? translatedTimeRangePickerEnabledStatus : translatedTimeRangePickerDisabledStatus}
       </span>
-      <span className={styles.summary}>
+      <span {...summaryProps}>
         {annotationsEnabled ? translatedAnnotationShownStatus : translatedAnnotationHiddenStatus}
       </span>
     </div>
@@ -60,19 +67,16 @@ export function SettingsSummary({
 
 SettingsSummary.displayName = 'SettingsSummary';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    summaryWrapper: css({
-      display: 'flex',
-    }),
-    summary: css({
-      label: 'collapsedText',
-      marginLeft: `${theme.spacing.gridSize * 2}px`,
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-    }),
-    timeRange: css({
-      display: 'inline-block',
-    }),
-  };
-};
+const styles = stylex.create({
+  summaryWrapper: {
+    display: 'flex',
+  },
+  summary: {
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 2)`,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  timeRange: {
+    display: 'inline-block',
+  },
+});

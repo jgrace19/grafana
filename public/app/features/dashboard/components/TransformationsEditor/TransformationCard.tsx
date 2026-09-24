@@ -1,4 +1,5 @@
-import { cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import cx from 'classnames';
 
 import {
   type DataFrame,
@@ -7,10 +8,10 @@ import {
   standardTransformersRegistry,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { Badge, Card, IconButton, Stack, Text, useStyles2, useTheme2 } from '@grafana/ui';
+import { Badge, Card, IconButton, Stack, Text, useTheme2 } from '@grafana/ui';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
-import { getCardStyles } from './getCardStyles';
+import { cardClassNames, cardStyles } from './cardStyles';
 
 export interface TransformationCardProps {
   data?: DataFrame[];
@@ -32,7 +33,6 @@ export function TransformationCard({
   transform,
 }: TransformationCardProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getCardStyles, fullWidth);
 
   // Check to see if the transform is applicable to the given data
   let applicabilityScore = TransformationApplicabilityLevels.Applicable;
@@ -50,7 +50,10 @@ export function TransformationCard({
     }
   }
 
-  const cardClasses = cx(styles.baseCard, { [styles.cardDisabled]: !isApplicable });
+  const cardClasses = cx(
+    fullWidth ? cardClassNames.baseCardFullWidth : cardClassNames.baseCard,
+    !isApplicable && cardClassNames.cardDisabled
+  );
   const imageUrl = theme.isDark ? transform.imageDark : transform.imageLight;
   const description = standardTransformersRegistry.getIfExists(transform.id)?.description;
 
@@ -67,7 +70,7 @@ export function TransformationCard({
           {showPluginState && <PluginStateInfo state={transform.state} />}
         </Stack>
         {showTags && transform.tags && transform.tags.size > 0 && (
-          <div className={styles.tagsWrapper}>
+          <div {...stylex.props(cardStyles.tagsWrapper)}>
             {Array.from(transform.tags).map((tag) => (
               <Badge color="darkgrey" icon="tag-alt" key={tag} text={tag} />
             ))}
@@ -76,9 +79,19 @@ export function TransformationCard({
       </Card.Heading>
       <Card.Description>
         <Text variant="bodySmall">{description || ''}</Text>
-        {showIllustrations && imageUrl && <img className={styles.image} src={imageUrl} alt={transform.name} />}
+        {showIllustrations && imageUrl && (
+          <img
+            {...stylex.props(cardStyles.image, !isApplicable && cardStyles.imageDisabled)}
+            src={imageUrl}
+            alt={transform.name}
+          />
+        )}
         {!isApplicable && applicabilityDescription !== null && (
-          <IconButton className={styles.applicableInfoButton} name="info-circle" tooltip={applicabilityDescription} />
+          <IconButton
+            className="gf-transformation-card-info-button"
+            name="info-circle"
+            tooltip={applicabilityDescription}
+          />
         )}
       </Card.Description>
     </Card>

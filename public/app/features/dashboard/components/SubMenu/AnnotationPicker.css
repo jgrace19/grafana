@@ -1,0 +1,12 @@
+/*
+ * AnnotationPicker styles legacy classes inside the inline field children, which StyleX can't target. Unlayered
+ * and at the Emotion rules' specificity, so it still beats the children's own styles.
+ */
+.gf-annotation-picker .fa-caret-down {
+  font-size: 75%;
+  padding-left: var(--gf-spacing-x1);
+}
+
+.gf-annotation-picker .gf-form-inline .gf-form {
+  margin-bottom: 0;
+}

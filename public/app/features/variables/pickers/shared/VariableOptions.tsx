@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type MouseEvent, type HTMLProps } from 'react';
 
-import { type GrafanaTheme2, type VariableOption } from '@grafana/data';
+import { type VariableOption } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { Tooltip, clearButtonStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { Tooltip, useTheme2 } from '@grafana/ui';
+import { zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, components, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import checkboxPng from 'img/checkbox.png';
 import checkboxWhitePng from 'img/checkbox_white.png';
 
@@ -26,8 +28,7 @@ export interface Props extends Omit<HTMLProps<HTMLUListElement>, 'onToggle'> {
 export const VariableOptions = memo(
   ({ multi, values, highlightIndex, selectedValues, onToggle, onToggleAll, ...restProps }: Props) => {
     const theme = useTheme2();
-    const styles = useStyles2(getStyles);
-    const buttonReset = clearButtonStyles(theme);
+    const checkboxImage = `url(${theme.isDark ? checkboxPng : checkboxWhitePng})`;
 
     const handleEvent = (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -56,12 +57,12 @@ export const VariableOptions = memo(
       return (
         <Tooltip content={tooltipContent} placement={'top'}>
           <button
-            className={cx(
-              buttonReset,
+            {...stylex.props(
+              styles.buttonReset,
               styles.variableOption,
               styles.variableOptionColumnHeader,
               styles.noStyledButton,
-              { [styles.noPaddingBotton]: isAllOptionConfigured }
+              isAllOptionConfigured && styles.noPaddingBotton
             )}
             role="checkbox"
             aria-checked={selectedValues.length > 1 ? 'mixed' : 'false'}
@@ -70,9 +71,11 @@ export const VariableOptions = memo(
             data-placement="top"
           >
             <span
-              className={cx(styles.variableOptionIcon, {
-                [styles.variableOptionIconManySelected]: selectedValues.length > 1,
-              })}
+              {...stylex.props(
+                styles.variableOptionIcon,
+                styles.checkboxImage(checkboxImage),
+                selectedValues.length > 1 && styles.variableOptionIconManySelected
+              )}
             ></span>
             <Trans i18nKey="variable.picker.option-selected-values" values={{ numSelected: selectedValues.length }}>
               Selected ({'{{numSelected}}'})
@@ -83,10 +86,10 @@ export const VariableOptions = memo(
     };
 
     return (
-      <div className={styles.variableValueDropdown}>
-        <div className={styles.variableOptionsWrapper}>
+      <div {...stylex.props(styles.variableValueDropdown)}>
+        <div {...stylex.props(styles.variableOptionsWrapper)}>
           <ul
-            className={styles.variableOptionsColumn}
+            {...stylex.props(styles.variableOptionsColumn)}
             data-testid={selectors.pages.Dashboard.SubMenu.submenuItemValueDropDownDropDown}
             {...restProps}
           >
@@ -101,22 +104,22 @@ export const VariableOptions = memo(
                     role="checkbox"
                     type="button"
                     aria-checked={option.selected}
-                    className={cx(
-                      buttonReset,
+                    {...stylex.props(
+                      styles.buttonReset,
                       styles.variableOption,
-                      {
-                        [styles.highlighted]: index === highlightIndex,
-                        [styles.variableAllOption]: isAllOption,
-                      },
+                      index === highlightIndex && styles.highlighted,
+                      isAllOption && styles.variableAllOption,
                       styles.noStyledButton
                     )}
                     onClick={handleToggle(option)}
                   >
                     <span
-                      className={cx(styles.variableOptionIcon, {
-                        [styles.variableOptionIconSelected]: option.selected,
-                        [styles.hideVariableOptionIcon]: !multi,
-                      })}
+                      {...stylex.props(
+                        styles.variableOptionIcon,
+                        styles.checkboxImage(checkboxImage),
+                        option.selected && styles.variableOptionIconSelected,
+                        !multi && styles.hideVariableOptionIcon
+                      )}
                     ></span>
                     <span
                       data-testid={selectors.pages.Dashboard.SubMenu.submenuItemValueDropDownOptionTexts(
@@ -137,80 +140,94 @@ export const VariableOptions = memo(
 );
 VariableOptions.displayName = 'VariableOptions';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const checkboxImageUrl = theme.isDark ? checkboxPng : checkboxWhitePng;
-
-  return {
-    hideVariableOptionIcon: css({
-      display: 'none',
-    }),
-    highlighted: css({
-      backgroundColor: theme.colors.action.hover,
-    }),
-    noStyledButton: css({
-      width: '100%',
-      textAlign: 'left',
-    }),
-    variableOption: css({
-      display: 'block',
-      padding: '2px 27px 0 8px',
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      minWidth: '115px',
-      ['&:hover']: {
-        backgroundColor: theme.colors.action.hover,
-      },
-    }),
-    variableOptionColumnHeader: css({
-      paddingTop: '5px',
-      paddingBottom: '5px',
-      marginBottom: '5px',
-    }),
-    variableOptionIcon: css({
-      display: 'inline-block',
-      width: '24px',
-      height: '18px',
-      position: 'relative',
-      top: '4px',
-      background: `url(${checkboxImageUrl}) left top no-repeat`,
-    }),
-    variableOptionIconManySelected: css({
-      background: `url(${checkboxImageUrl}) 0px -36px no-repeat`,
-    }),
-    variableOptionIconSelected: css({
-      background: `url(${checkboxImageUrl}) 0px -18px no-repeat`,
-    }),
-    variableValueDropdown: css({
-      backgroundColor: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.borderRadius(2),
-      boxShadow: theme.shadows.z2,
-      position: 'absolute',
-      top: theme.spacing(theme.components.height.md),
-      maxHeight: '400px',
-      minHeight: '150px',
-      minWidth: '150px',
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      zIndex: theme.zIndex.typeahead,
-    }),
-    variableOptionsColumn: css({
-      maxHeight: '350px',
-      display: 'table-cell',
-      lineHeight: '26px',
-      listStyleType: 'none',
-    }),
-    variableOptionsWrapper: css({
-      display: 'table',
-      width: '100%',
-    }),
-    variableAllOption: css({
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      paddingBottom: theme.spacing(1),
-    }),
-
-    noPaddingBotton: css({
-      paddingBottom: 0,
-    }),
-  };
-};
+const styles = stylex.create({
+  buttonReset: {
+    backgroundColor: 'transparent',
+    color: colors['--gf-colors-text-primary'],
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  hideVariableOptionIcon: {
+    display: 'none',
+  },
+  highlighted: {
+    backgroundColor: { default: colors['--gf-colors-action-hover'], ':hover': colors['--gf-colors-action-hover'] },
+  },
+  noStyledButton: {
+    width: '100%',
+    textAlign: 'left',
+  },
+  variableOption: {
+    display: 'block',
+    paddingTop: '2px',
+    paddingRight: '27px',
+    paddingBottom: 0,
+    paddingLeft: '8px',
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    minWidth: '115px',
+    backgroundColor: { default: 'transparent', ':hover': colors['--gf-colors-action-hover'] },
+  },
+  variableOptionColumnHeader: {
+    paddingTop: '5px',
+    paddingBottom: '5px',
+    marginBottom: '5px',
+  },
+  variableOptionIcon: {
+    display: 'inline-block',
+    width: '24px',
+    height: '18px',
+    position: 'relative',
+    top: '4px',
+    backgroundPosition: 'left top',
+    backgroundRepeat: 'no-repeat',
+  },
+  // The sprite differs between dark and light themes.
+  checkboxImage: (backgroundImage: string) => ({
+    backgroundImage,
+  }),
+  variableOptionIconManySelected: {
+    backgroundPosition: '0px -36px',
+  },
+  variableOptionIconSelected: {
+    backgroundPosition: '0px -18px',
+  },
+  variableValueDropdown: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    borderRadius: `calc(${shape['--gf-shape-radius-default']} * 2)`,
+    boxShadow: shadows['--gf-shadows-z2'],
+    position: 'absolute',
+    top: `calc(${spacing['--gf-spacing-grid-size']} * ${components['--gf-components-height-md']})`,
+    maxHeight: '400px',
+    minHeight: '150px',
+    minWidth: '150px',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    zIndex: zIndex.typeahead,
+  },
+  variableOptionsColumn: {
+    maxHeight: '350px',
+    display: 'table-cell',
+    lineHeight: '26px',
+    listStyleType: 'none',
+  },
+  variableOptionsWrapper: {
+    display: 'table',
+    width: '100%',
+  },
+  variableAllOption: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+  },
+  noPaddingBotton: {
+    paddingBottom: 0,
+  },
+});

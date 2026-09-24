@@ -1,16 +1,19 @@
-import { cx } from '@emotion/css';
-import { Global } from '@emotion/react';
 import SliderComponent from '@rc-component/slider';
+import * as stylex from '@stylexjs/stylex';
+import { clsx } from 'clsx';
 import { useState, useCallback, type ChangeEvent, type FocusEvent, useEffect } from 'react';
 import { usePrevious } from 'react-use';
 
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { mergeStylexProps } from '../../themes/stylex/mergeStylexProps';
+import { spacing } from '../../themes/stylex/tokens.stylex';
 import { Input } from '../Input/Input';
 
-import { getStyles } from './styles';
 import { type SliderProps } from './types';
+
+import '@rc-component/slider/assets/index.css';
+import './Slider.css';
 
 function stripAndParseNumber(raw: string): number {
   const str = raw.replace(/^0+/, '');
@@ -90,7 +93,6 @@ export const Slider = ({
   showInput = true,
 }: SliderProps) => {
   const isHorizontal = orientation === 'horizontal';
-  const styles = useStyles2(getStyles, isHorizontal, Boolean(marks));
   const SliderWithTooltip = SliderComponent;
 
   const [inputValue, setInputValue] = useState<string>((value ?? min).toString());
@@ -157,13 +159,22 @@ export const Slider = ({
     [min, max, step, onChange, onAfterChange]
   );
 
-  const sliderInputClassNames = !isHorizontal ? [styles.sliderInputVertical] : [];
-  const sliderInputFieldClassNames = !isHorizontal ? [styles.sliderInputFieldVertical] : [];
-
   return (
-    <div className={cx(styles.container, styles.slider)}>
-      <Global styles={styles.tooltip} />
-      <div className={cx(styles.sliderInput, ...sliderInputClassNames)}>
+    <div
+      {...mergeStylexProps(
+        stylex.props(
+          styles.container,
+          isHorizontal ? styles.containerHorizontal : styles.containerVertical,
+          isHorizontal && Boolean(marks) && styles.containerHorizontalWithMarks
+        ),
+        { className: 'gf-slider' }
+      )}
+    >
+      <div
+        {...mergeStylexProps(stylex.props(styles.sliderInput, !isHorizontal && styles.sliderInputVertical), {
+          className: clsx(!isHorizontal && 'gf-slider-input-vertical'),
+        })}
+      >
         <SliderWithTooltip
           min={min}
           max={max}
@@ -182,7 +193,7 @@ export const Slider = ({
           <Input
             type="text"
             width={7.5}
-            className={cx(styles.sliderInputField, ...sliderInputFieldClassNames)}
+            className={clsx('gf-slider-input-field', !isHorizontal && 'gf-slider-input-field-vertical')}
             value={inputValue}
             onChange={onTextInputChange}
             onBlur={onTextInputBlur}
@@ -197,3 +208,35 @@ export const Slider = ({
 };
 
 Slider.displayName = 'Slider';
+
+const styles = stylex.create({
+  container: {
+    width: '100%',
+  },
+  containerHorizontal: {
+    margin: 'inherit',
+    paddingBottom: 'inherit',
+    height: 'auto',
+  },
+  containerHorizontalWithMarks: {
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  containerVertical: {
+    marginTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginRight: `calc(${spacing['--gf-spacing-grid-size']} * 3)`,
+    marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+    paddingBottom: 'inherit',
+    height: '100%',
+  },
+  sliderInput: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  sliderInputVertical: {
+    flexDirection: 'column',
+    height: '100%',
+  },
+});

@@ -180,6 +180,7 @@ function constantsFile(theme: GrafanaTheme2) {
     noPreferenceOrReduce: transitions.handleMotion('no-preference', 'reduce'),
   };
   const durations = Object.fromEntries(Object.entries(transitions.duration).map(([k, v]) => [k, `${v}ms`]));
+  const breakpointWidths = Object.fromEntries(breakpoints.keys.map((key) => [key, `${breakpoints.values[key]}px`]));
 
   const block = (name: string, doc: string, values: Record<string, string | number>) =>
     `\n/** ${doc} */\nexport const ${name} = stylex.defineConsts({\n${Object.entries(values)
@@ -195,6 +196,7 @@ function constantsFile(theme: GrafanaTheme2) {
   out += block('durations', '`theme.transitions.duration.<key>` as a CSS time.', durations);
   out += block('easings', '`theme.transitions.easing.<key>`.', { ...transitions.easing });
   out += block('zIndex', '`theme.zIndex.<key>`.', { ...zIndex });
+  out += block('breakpointWidths', '`theme.breakpoints.values.<key>` in px.', breakpointWidths);
   return out;
 }
 

@@ -1,12 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { useToggle, useWindowSize } from 'react-use';
 
-import { applyFieldOverrides, type DataFrame, type GrafanaTheme2, type SplitOpen } from '@grafana/data';
+import { applyFieldOverrides, type DataFrame, type SplitOpen } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
-import { useStyles2, useTheme2, PanelChrome } from '@grafana/ui';
+import { useTheme2, PanelChrome } from '@grafana/ui';
+import { colors, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { layeredLayoutThreshold } from 'app/plugins/panel/nodeGraph/NodeGraph';
 import { type StoreState } from 'app/types/store';
 
@@ -14,16 +15,6 @@ import { NodeGraph } from '../../../plugins/panel/nodeGraph/NodeGraph';
 import { LayoutAlgorithm } from '../../../plugins/panel/nodeGraph/panelcfg.gen';
 import { useCategorizeFrames } from '../../../plugins/panel/nodeGraph/useCategorizeFrames';
 import { useLinks } from '../utils/links';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  warningText: css({
-    label: 'warningText',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-});
 
 interface OwnProps {
   // Edges and Nodes are separate frames
@@ -41,7 +32,6 @@ export function UnconnectedNodeGraphContainer(props: Props) {
   const { dataFrames, range, splitOpenFn, withTraceView, datasourceType } = props;
   const getLinks = useLinks(range, splitOpenFn);
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
 
   // This is implicit dependency that is needed for links to work. At some point when replacing variables in the link
   // it requires field to have a display property which is added by the overrides even though we don't add any field
@@ -88,7 +78,7 @@ export function UnconnectedNodeGraphContainer(props: Props) {
 
   const countWarning =
     withTraceView && nodes[0]?.length > 1000 ? (
-      <span className={styles.warningText}>
+      <span {...stylex.props(styles.warningText)}>
         {' '}
         <Trans i18nKey="explore.unconnected-node-graph-container.count-warning" values={{ numNodes: nodes[0].length }}>
           ({'{{numNodes}}'} nodes, can be slow to load)
@@ -130,3 +120,12 @@ function mapStateToProps(state: StoreState, { exploreId }: OwnProps) {
 
 const connector = connect(mapStateToProps, {});
 export const NodeGraphContainer = connector(UnconnectedNodeGraphContainer);
+
+const styles = stylex.create({
+  warningText: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

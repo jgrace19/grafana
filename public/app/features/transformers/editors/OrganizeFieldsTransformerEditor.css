@@ -1,0 +1,18 @@
+/* Overrides IconButton's own StyleX margin and color, so it stays unlayered like the Emotion class it replaces. */
+.gf-organize-fields-toggle {
+  margin: 0 var(--gf-spacing-x1);
+  color: var(--gf-colors-text-secondary);
+}
+
+/* InlineLabel (rendered as a div) and Input's wrapper set their own width and flex; div.gf-* (0,1,1) beats their single
+ * class in either stylesheet order. */
+div.gf-organize-fields-label {
+  flex: 1 1 0;
+  width: auto;
+  overflow: hidden;
+}
+
+div.gf-organize-fields-input {
+  flex: 1 1 0;
+  width: auto;
+}

@@ -4,15 +4,14 @@ import * as React from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { TextArea, useStyles2 } from '@grafana/ui';
+import { TextArea } from '@grafana/ui';
 
-import { getStyles } from '../../dashboard-scene/settings/variables/components/VariableTextAreaField';
+import { VARIABLE_TEXTAREA_CLASS } from '../../dashboard-scene/settings/variables/components/VariableTextAreaField';
 import { type VariableQueryEditorProps } from '../types';
 
 export const LEGACY_VARIABLE_QUERY_EDITOR_NAME = 'Grafana-LegacyVariableQueryEditor';
 
 export const LegacyVariableQueryEditor = ({ onChange, query }: VariableQueryEditorProps) => {
-  const styles = useStyles2(getStyles);
   const [value, setValue] = useState(query);
 
   const onValueChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
@@ -42,7 +41,7 @@ export const LegacyVariableQueryEditor = ({ onChange, query }: VariableQueryEdit
       required
       data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsQueryInput}
       cols={52}
-      className={styles.textarea}
+      className={VARIABLE_TEXTAREA_CLASS}
     />
   );
 };

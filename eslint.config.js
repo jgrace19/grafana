@@ -117,12 +117,15 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/utils/skeleton.tsx',
   // U8 chrome
   'packages/grafana-ui/src/components/{CustomScrollbar,DragHandle,Monaco,PageLayout,QueryField,ScrollContainer,Sidebar,Splitter,TabbedContainer,Tabs,Typeahead}/**/*.{ts,tsx}',
+  // U7 viz (part 2)
+  'packages/grafana-ui/src/components/{BarGauge,BigValue,ColorPicker,DataLinks,Slider}/**/*.{ts,tsx}',
 ];
 
 // public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
 const stylexMigratedAppFiles = [
   // E1 explore
   'public/app/features/explore/TraceView/**/*.{ts,tsx}',
+  'public/app/features/explore/**/*.{ts,tsx}',
   // C1 core: app chrome and page frame
   'public/app/core/components/AppChrome/{AppChrome,AppChromeMenu}.tsx',
   'public/app/core/components/AppChrome/ExtensionSidebar/ExtensionSidebar.tsx',
@@ -197,6 +200,16 @@ const stylexMigratedAppFiles = [
   'public/app/features/logs/components/panel/!(LogLineContext).{ts,tsx}',
   'public/app/features/logs/components/panel/{__mocks__,panelState}/**/*.{ts,tsx}',
   'public/app/features/dashboard-scene/{edit-pane,panel-edit}/**/*.{ts,tsx}',
+  // D3 dashboard (part 2)
+  'public/app/features/dashboard/components/{PublicDashboard,PublicDashboardNotAvailable,SaveDashboard,ShareModal,SubMenu,TransformationsEditor,VersionHistory}/**/*.{ts,tsx}',
+  'public/app/features/dashboard/{containers,dashgrid}/**/*.{ts,tsx}',
+  'public/app/features/{expressions,scopes,transformers,variables}/**/*.{ts,tsx}',
+];
+
+// Files inside a migrated directory that are still Emotion, each with a reason. Remove an entry once migrated.
+const stylexNotMigratedAppFiles = [
+  // Composes Input's Emotion getInputStyles; migrate once Input (U2) is StyleX.
+  'public/app/features/scopes/selector/ScopesInput.tsx',
 ];
 
 const stylexRestrictedImports = {
@@ -822,6 +835,7 @@ module.exports = [
     // Must come after grafana/no-extensions-imports, whose restriction it repeats.
     name: 'grafana/stylex-migrated-app',
     files: stylexMigratedAppFiles,
+    ignores: stylexNotMigratedAppFiles,
     rules: {
       'no-restricted-imports': [
         'error',

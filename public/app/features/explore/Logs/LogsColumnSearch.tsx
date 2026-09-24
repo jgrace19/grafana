@@ -1,24 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Field, Input, useTheme2 } from '@grafana/ui';
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    searchWrap: css({
-      padding: `${theme.spacing(0.4)} 0 ${theme.spacing(0.4)} ${theme.spacing(0.4)}`,
-    }),
-  };
-}
+import { Field, Input } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export function LogsColumnSearch(props: { onChange: (e: React.FormEvent<HTMLInputElement>) => void; value: string }) {
-  const theme = useTheme2();
-
-  const styles = getStyles(theme);
   return (
-    <Field className={styles.searchWrap}>
+    <Field className={stylex.props(styles.searchWrap).className}>
       <Input
         value={props.value}
         type={'text'}
@@ -28,3 +17,12 @@ export function LogsColumnSearch(props: { onChange: (e: React.FormEvent<HTMLInpu
     </Field>
   );
 }
+
+const styles = stylex.create({
+  searchWrap: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
+    paddingRight: 0,
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
+    paddingLeft: `calc(${spacing['--gf-spacing-grid-size']} * 0.4)`,
+  },
+});

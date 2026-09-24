@@ -1,0 +1,19 @@
+/* Spaces the card's IconButtons, which set their own margin. Unlayered, like the Emotion rule it replaces. */
+.gf-explore-rich-history-actions button {
+  margin-left: var(--gf-spacing-x1);
+}
+
+/*
+ * Sizes the run-query Button(s) that ExploreRunQueryButton renders, which StyleX can't target from here.
+ * Unlayered, like the Emotion rules it replaces, so it beats the Buttons' own StyleX styles (including the
+ * content span's nowrap, which no longer needs !important).
+ */
+.gf-explore-rich-history-run button {
+  height: auto;
+  padding: calc(var(--gf-spacing-grid-size) * 0.5) var(--gf-spacing-x2);
+  line-height: 1.4;
+}
+
+.gf-explore-rich-history-run button span {
+  white-space: normal;
+}

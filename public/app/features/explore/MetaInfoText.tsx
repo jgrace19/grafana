@@ -1,38 +1,7 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  metaContainer: css({
-    flex: 1,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(2),
-    minWidth: '30%',
-    display: 'flex',
-    flexWrap: 'wrap',
-  }),
-  metaItem: css({
-    marginRight: theme.spacing(2),
-    marginTop: theme.spacing(0.5),
-    display: 'flex',
-    alignItems: 'center',
-    ['.logs-meta-item__error']: {
-      color: theme.colors.error.text,
-    },
-  }),
-  metaLabel: css({
-    marginRight: `calc(${theme.spacing(2)} / 2)`,
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
-    whiteSpace: 'nowrap',
-  }),
-  metaValue: css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-});
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface MetaItemProps {
   label?: string;
@@ -40,13 +9,12 @@ export interface MetaItemProps {
 }
 
 const MetaInfoItem = memo(function MetaInfoItem(props: MetaItemProps) {
-  const style = useStyles2(getStyles);
   const { label, value } = props;
 
   return (
-    <div data-testid="meta-info-text-item" className={style.metaItem}>
-      {label && <span className={style.metaLabel}>{label}:</span>}
-      <span className={style.metaValue}>{value}</span>
+    <div data-testid="meta-info-text-item" {...stylex.props(styles.metaItem)}>
+      {label && <span {...stylex.props(styles.metaLabel)}>{label}:</span>}
+      <span {...stylex.props(styles.metaValue)}>{value}</span>
     </div>
   );
 });
@@ -56,14 +24,40 @@ interface MetaInfoTextProps {
 }
 
 export const MetaInfoText = memo(function MetaInfoText(props: MetaInfoTextProps) {
-  const style = useStyles2(getStyles);
   const { metaItems } = props;
 
   return (
-    <div className={style.metaContainer} data-testid="meta-info-text">
+    <div {...stylex.props(styles.metaContainer)} data-testid="meta-info-text">
       {metaItems.map((item, index) => (
         <MetaInfoItem key={`${index}-${item.label}`} label={item.label} value={item.value} />
       ))}
     </div>
   );
+});
+
+const styles = stylex.create({
+  metaContainer: {
+    flex: '1',
+    color: colors['--gf-colors-text-secondary'],
+    marginBottom: spacing['--gf-spacing-x2'],
+    minWidth: '30%',
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  metaItem: {
+    marginRight: spacing['--gf-spacing-x2'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+    display: 'flex',
+    alignItems: 'center',
+  },
+  metaLabel: {
+    marginRight: `calc(${spacing['--gf-spacing-x2']} / 2)`,
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    whiteSpace: 'nowrap',
+  },
+  metaValue: {
+    fontFamily: typography['--gf-typography-font-family-monospace'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
 });

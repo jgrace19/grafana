@@ -1,0 +1,13 @@
+/*
+ * Sizes the scroll-to-top Button, which has no xstyle. Unlayered, like the Emotion class it replaces, so it beats
+ * Button's own display and height.
+ */
+.gf-explore-logs-scroll-to-top {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--gf-spacing-x1);
+}

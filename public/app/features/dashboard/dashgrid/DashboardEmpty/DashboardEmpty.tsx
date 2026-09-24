@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { Button, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { bp } from '@grafana/ui/stylex/constants.stylex';
+import { spacing, v1 } from '@grafana/ui/stylex/tokens.stylex';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { AutoGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager';
@@ -32,14 +33,12 @@ const InternalDashboardEmpty = ({
   onAddLibraryPanel,
   onImportDashboard,
 }: InternalProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <>
       <Stack alignItems="center" justifyContent="center">
-        <div className={`${styles.wrapper} ${styles.wrapperMaxWidth}`}>
+        <div {...stylex.props(styles.wrapper, styles.wrapperMaxWidth)}>
           {config.featureToggles.dashboardNewLayouts && dashboard instanceof DashboardScene ? (
-            <NewLayoutEmpty dashboard={dashboard} styles={styles} />
+            <NewLayoutEmpty dashboard={dashboard} />
           ) : (
             <OldLayoutEmpty
               onAddVisualization={onAddVisualization}
@@ -55,14 +54,9 @@ const InternalDashboardEmpty = ({
 
 interface NewLayoutEmptyProps {
   dashboard: DashboardScene;
-  styles: {
-    wrapper: string;
-    wrapperMaxWidth: string;
-    appsIcon: string;
-  };
 }
 
-const NewLayoutEmpty = ({ dashboard, styles }: NewLayoutEmptyProps) => {
+const NewLayoutEmpty = ({ dashboard }: NewLayoutEmptyProps) => {
   const { uid, isEditing, editPane, body } = dashboard.useState();
   const isEditingNewDashboard = isEditing && !uid;
   const isAutoGrid = body instanceof AutoGridLayoutManager;
@@ -93,7 +87,7 @@ const NewLayoutEmpty = ({ dashboard, styles }: NewLayoutEmptyProps) => {
     <Stack alignItems="stretch" justifyContent="center" gap={4} direction="column" width="100%">
       <Box padding={4}>
         <Box marginBottom={2} paddingX={4} display="flex" justifyContent="center">
-          <Icon name="apps" size="xxl" className={styles.appsIcon} />
+          <Icon name="apps" size="xxl" xstyle={styles.appsIcon} />
         </Box>
         <Text element="h1" textAlignment="center" weight="medium">
           <Trans i18nKey="dashboard.empty.title">New dashboard</Trans>
@@ -272,24 +266,17 @@ const DashboardEmpty = (props: Props) => {
 
 export default DashboardEmpty;
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrapper: css({
-      label: 'dashboard-empty-wrapper',
-      flexDirection: 'column',
-      gap: theme.spacing.gridSize * 4,
-      paddingTop: theme.spacing(2),
-      width: '100%',
-
-      [theme.breakpoints.up('sm')]: {
-        paddingTop: theme.spacing(12),
-      },
-    }),
-    wrapperMaxWidth: css({
-      maxWidth: '890px',
-    }),
-    appsIcon: css({
-      fill: theme.v1.palette.orange,
-    }),
-  };
-}
+const styles = stylex.create({
+  wrapper: {
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x4'],
+    paddingTop: { default: spacing['--gf-spacing-x2'], [bp.smUp]: `calc(${spacing['--gf-spacing-grid-size']} * 12)` },
+    width: '100%',
+  },
+  wrapperMaxWidth: {
+    maxWidth: '890px',
+  },
+  appsIcon: {
+    fill: v1['--gf-v1-palette-orange'],
+  },
+});
