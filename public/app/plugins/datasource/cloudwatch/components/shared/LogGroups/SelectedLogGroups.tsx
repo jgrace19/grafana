@@ -1,9 +1,10 @@
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
+import { Button, ConfirmModal } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type LogGroup } from '../../../dataquery.gen';
-import getStyles from '../../styles';
 
 type CrossAccountLogsQueryProps = {
   selectedLogGroups?: LogGroup[];
@@ -18,7 +19,6 @@ export const SelectedLogGroups = ({
   onChange,
   maxNoOfVisibleLogGroups = MAX_NO_OF_VISIBLE_LOG_GROUPS,
 }: CrossAccountLogsQueryProps) => {
-  const styles = useStyles2(getStyles);
   const [showConfirm, setShowConfirm] = useState(false);
   const [visibleSelectecLogGroups, setVisibleSelectecLogGroups] = useState(
     selectedLogGroups.slice(0, MAX_NO_OF_VISIBLE_LOG_GROUPS)
@@ -34,14 +34,14 @@ export const SelectedLogGroups = ({
 
   return (
     <>
-      <div className={styles.selectedLogGroupsContainer}>
+      <div {...stylex.props(styles.selectedLogGroupsContainer)}>
         {visibleSelectecLogGroups.map((lg) => (
           <Button
             key={lg.arn}
             size="sm"
             variant="secondary"
             icon="times"
-            className={styles.removeButton}
+            className={stylex.props(styles.removeButton).className}
             onClick={() => {
               onChange(selectedLogGroups.filter((slg) => slg.arn !== lg.arn));
             }}
@@ -55,7 +55,7 @@ export const SelectedLogGroups = ({
             variant="secondary"
             icon="plus"
             fill="outline"
-            className={styles.removeButton}
+            className={stylex.props(styles.removeButton).className}
             onClick={() => setVisibleSelectecLogGroups(selectedLogGroups)}
           >
             Show all
@@ -66,7 +66,7 @@ export const SelectedLogGroups = ({
           variant="secondary"
           icon="times"
           fill="outline"
-          className={styles.removeButton}
+          className={stylex.props(styles.removeButton).className}
           onClick={() => setShowConfirm(true)}
         >
           Clear selection
@@ -87,3 +87,18 @@ export const SelectedLogGroups = ({
     </>
   );
 };
+
+const styles = stylex.create({
+  selectedLogGroupsContainer: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+    display: 'flex',
+    flexFlow: 'wrap',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  removeButton: {
+    marginTop: 'unset',
+    marginRight: 'unset',
+    marginBottom: 'unset',
+    marginLeft: 'unset',
+  },
+});

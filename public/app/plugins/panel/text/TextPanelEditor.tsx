@@ -1,19 +1,14 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { type GrafanaTheme2, type StandardEditorProps } from '@grafana/data';
-import {
-  CodeEditor,
-  useStyles2,
-  type CodeEditorSuggestionItem,
-  variableSuggestionToCodeEditorSuggestion,
-} from '@grafana/ui';
+import { type StandardEditorProps } from '@grafana/data';
+import { CodeEditor, type CodeEditorSuggestionItem, variableSuggestionToCodeEditorSuggestion } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type Options, TextMode } from './panelcfg.gen';
 
 export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProps<string, {}, Options>) => {
   const language = useMemo(() => context.options?.mode ?? TextMode.Markdown, [context]);
-  const styles = useStyles2(getStyles);
 
   const getSuggestions = (): CodeEditorSuggestionItem[] => {
     if (!context.getSuggestions) {
@@ -23,7 +18,7 @@ export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProp
   };
 
   return (
-    <div className={cx(styles.editorBox)}>
+    <div {...stylex.props(styles.editorBox)}>
       <CodeEditor
         value={value}
         onBlur={onChange}
@@ -39,10 +34,12 @@ export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorBox: css({
-    label: 'editorBox',
-    margin: theme.spacing(0.5, 0),
+const styles = stylex.create({
+  editorBox: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginRight: spacing['--gf-spacing-x0'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0'],
     width: '100%',
-  }),
+  },
 });

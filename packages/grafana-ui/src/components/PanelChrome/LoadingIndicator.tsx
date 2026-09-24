@@ -1,10 +1,9 @@
-import { css, cx, keyframes } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useStyles2 } from '../../themes/ThemeContext';
+import { motion } from '../../themes/stylex/constants.stylex';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 
@@ -21,7 +20,6 @@ export type LoadingIndicatorProps = {
  */
 export const LoadingIndicator = ({ onCancel, loading }: LoadingIndicatorProps) => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const styles = useStyles2(getStyles);
 
   if (!loading) {
     return null;
@@ -30,7 +28,7 @@ export const LoadingIndicator = ({ onCancel, loading }: LoadingIndicatorProps) =
   return (
     <Tooltip content={t('grafana-ui.panel-chrome.tooltip-cancel-loading', 'Cancel query')}>
       <Icon
-        className={cx(styles.spin, { [styles.clickable]: !!onCancel })}
+        xstyle={[styles.spin, !!onCancel && styles.clickable]}
         name={prefersReducedMotion ? 'hourglass' : 'sync'}
         size="sm"
         onClick={onCancel}
@@ -40,7 +38,7 @@ export const LoadingIndicator = ({ onCancel, loading }: LoadingIndicatorProps) =
   );
 };
 
-const spin = keyframes({
+const spin = stylex.keyframes({
   '0%': {
     transform: 'rotate(0deg) scaleX(-1)', // scaleX flips the `sync` icon so arrows point the correct way
   },
@@ -49,15 +47,14 @@ const spin = keyframes({
   },
 });
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    clickable: css({
-      cursor: 'pointer',
-    }),
-    spin: css({
-      [theme.transitions.handleMotion('no-preference')]: {
-        animation: `${spin} 3s linear infinite`,
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  clickable: {
+    cursor: 'pointer',
+  },
+  spin: {
+    animationName: { default: null, [motion.noPreference]: spin },
+    animationDuration: { default: null, [motion.noPreference]: '3s' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'linear' },
+    animationIterationCount: { default: null, [motion.noPreference]: 'infinite' },
+  },
+});

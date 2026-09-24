@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Checkbox, EmptyState, Icon, Spinner, Tooltip, useStyles2 } from '@grafana/ui';
+import { Checkbox, EmptyState, Icon, Spinner, Tooltip } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { type CatalogPlugin } from '../types';
 
@@ -11,63 +11,6 @@ type UpdateError = {
   id: string;
   message: string;
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  table: css({
-    marginTop: theme.spacing(2),
-    width: '100%',
-    borderCollapse: 'collapse',
-  }),
-  tableRow: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    td: {
-      paddingRight: theme.spacing(1),
-    },
-  }),
-  icon: css({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }),
-  header: css({
-    textAlign: 'left',
-    padding: theme.spacing(1),
-    borderBottom: `2px solid ${theme.colors.border.strong}`,
-    th: {
-      paddingRight: theme.spacing(1),
-    },
-  }),
-  data: css({
-    padding: '10px',
-  }),
-  footer: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    marginTop: theme.spacing(3),
-  }),
-  noPluginsMessage: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-  }),
-  tableContainer: css({
-    overflowY: 'auto',
-    overflowX: 'hidden',
-    maxHeight: theme.spacing(41),
-    marginBottom: theme.spacing(2),
-  }),
-  errorIcon: css({
-    color: theme.colors.error.main,
-  }),
-  successIcon: css({
-    color: theme.colors.success.main,
-  }),
-  pluginsInstalled: css({
-    svg: {
-      marginRight: theme.spacing(1),
-    },
-  }),
-});
 
 const StatusIcon = ({
   id,
@@ -82,8 +25,6 @@ const StatusIcon = ({
   isInstalled: boolean;
   errorMap: Map<string, UpdateError>;
 }) => {
-  const styles = useStyles2(getStyles);
-
   if (errorMap && errorMap.has(id)) {
     return (
       <Tooltip
@@ -91,12 +32,12 @@ const StatusIcon = ({
           errorMessage: errorMap.get(id)?.message,
         })}
       >
-        <Icon className={styles.errorIcon} size="xl" name="exclamation-triangle" />
+        <Icon xstyle={styles.errorIcon} size="xl" name="exclamation-triangle" />
       </Tooltip>
     );
   }
   if (isInstalled) {
-    return <Icon className={styles.successIcon} size="xl" name="check" />;
+    return <Icon xstyle={styles.successIcon} size="xl" name="check" />;
   }
   if (inProgress && isSelected) {
     return <Spinner />;
@@ -121,8 +62,6 @@ export const UpdateModalBody = ({
   onCheckboxChange,
   errorMap,
 }: Props) => {
-  const styles = useStyles2(getStyles);
-
   const numberInstalled = plugins.length - pluginsNotInstalled.size;
   const installationFinished = plugins.length !== pluginsNotInstalled.size && !inProgress;
 
@@ -138,39 +77,39 @@ export const UpdateModalBody = ({
           <div>
             <Trans i18nKey="plugins.catalog.update-all.header">The following plugins have update available</Trans>
           </div>
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead className={styles.header}>
+          <div {...stylex.props(styles.tableContainer)}>
+            <table {...stylex.props(styles.table)}>
+              <thead {...stylex.props(styles.header)}>
                 <tr>
-                  <th>
+                  <th {...stylex.props(styles.headerCell)}>
                     <Trans i18nKey="plugins.catalog.update-all.update-header">Update</Trans>
                   </th>
-                  <th>
+                  <th {...stylex.props(styles.headerCell)}>
                     <Trans i18nKey="plugins.catalog.update-all.name-header">Name</Trans>
                   </th>
-                  <th>
+                  <th {...stylex.props(styles.headerCell)}>
                     <Trans i18nKey="plugins.catalog.update-all.installed-header">Installed</Trans>
                   </th>
-                  <th>
+                  <th {...stylex.props(styles.headerCell)}>
                     <Trans i18nKey="plugins.catalog.update-all.available-header">Available</Trans>
                   </th>
-                  <th></th>
+                  <th {...stylex.props(styles.headerCell)}></th>
                 </tr>
               </thead>
               <tbody>
                 {plugins.map(({ id, name, installedVersion, latestVersion }: CatalogPlugin) => (
-                  <tr key={id} className={styles.tableRow}>
-                    <td>
+                  <tr key={id} {...stylex.props(styles.tableRow)}>
+                    <td {...stylex.props(styles.rowCell)}>
                       <Checkbox
                         onChange={() => onCheckboxChange(id)}
                         value={selectedPlugins?.has(id)}
                         disabled={!pluginsNotInstalled.has(id)}
                       />
                     </td>
-                    <td>{name}</td>
-                    <td>{installedVersion}</td>
-                    <td>{latestVersion}</td>
-                    <td className={styles.icon}>
+                    <td {...stylex.props(styles.rowCell)}>{name}</td>
+                    <td {...stylex.props(styles.rowCell)}>{installedVersion}</td>
+                    <td {...stylex.props(styles.rowCell)}>{latestVersion}</td>
+                    <td {...stylex.props(styles.rowCell, styles.icon)}>
                       <StatusIcon
                         id={id}
                         inProgress={inProgress}
@@ -185,19 +124,19 @@ export const UpdateModalBody = ({
             </table>
           </div>
           {numberInstalled > 0 && installationFinished && (
-            <div className={styles.pluginsInstalled}>
-              <Icon className={styles.successIcon} size="lg" name="check" />
+            <div>
+              <Icon xstyle={[styles.successIcon, styles.pluginsInstalledIcon]} size="lg" name="check" />
               {`${numberInstalled} ${t('plugins.catalog.update-all.update-status-text', 'plugins updated')}`}
             </div>
           )}
           {errorMap.size > 0 && installationFinished && (
-            <div className={styles.pluginsInstalled}>
-              <Icon className={styles.errorIcon} size="lg" name="exclamation-triangle" />
+            <div>
+              <Icon xstyle={[styles.errorIcon, styles.pluginsInstalledIcon]} size="lg" name="exclamation-triangle" />
               {`${errorMap.size} ${t('plugins.catalog.update-all.error-status-text', 'failed - see error messages')}`}
             </div>
           )}
           {config.pluginAdminExternalManageEnabled && (
-            <footer className={styles.footer}>
+            <footer {...stylex.props(styles.footer)}>
               <Trans i18nKey="plugins.catalog.update-all.cloud-update-message">
                 * It may take a few minutes for the plugins to be available for usage.
               </Trans>
@@ -208,3 +147,56 @@ export const UpdateModalBody = ({
     </div>
   );
 };
+
+const styles = stylex.create({
+  table: {
+    marginTop: spacing['--gf-spacing-x2'],
+    width: '100%',
+    borderCollapse: 'collapse',
+  },
+  tableRow: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  rowCell: {
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+  icon: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    textAlign: 'left',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-strong'],
+  },
+  headerCell: {
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+  footer: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    marginTop: spacing['--gf-spacing-x3'],
+  },
+  tableContainer: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    maxHeight: `calc(${spacing['--gf-spacing-grid-size']} * 41)`,
+    marginBottom: spacing['--gf-spacing-x2'],
+  },
+  errorIcon: {
+    color: colors['--gf-colors-error-main'],
+  },
+  successIcon: {
+    color: colors['--gf-colors-success-main'],
+  },
+  pluginsInstalledIcon: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+});

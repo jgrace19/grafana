@@ -1,22 +1,15 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type DataFrame, type GrafanaTheme2, type Labels, LoadingState, type TimeRange } from '@grafana/data';
+import { type DataFrame, type Labels, LoadingState, type TimeRange } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { SceneDataNode, VizConfigBuilders } from '@grafana/scenes';
 import { SceneContextProvider, VizPanel } from '@grafana/scenes-react';
 import { GraphDrawStyle, VisibilityMode } from '@grafana/schema';
-import {
-  AxisPlacement,
-  BarAlignment,
-  LegendDisplayMode,
-  StackingMode,
-  Text,
-  TooltipDisplayMode,
-  useStyles2,
-} from '@grafana/ui';
+import { AxisPlacement, BarAlignment, LegendDisplayMode, StackingMode, Text, TooltipDisplayMode } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { overrideToFixedColor } from '../../home/Insights';
 import { InstanceDetailsDrawer } from '../instance-details/InstanceDetailsDrawer';
@@ -72,7 +65,6 @@ export function InstanceRow({
   ruleUID,
   depth = 0,
 }: InstanceRowProps) {
-  const styles = useStyles2(getStyles);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleDrawerOpen = useCallback(() => {
@@ -101,7 +93,7 @@ export function InstanceRow({
         width={leftColumnWidth}
         title={
           isEmpty(instance.labels) ? (
-            <div className={styles.wrapper}>
+            <div {...stylex.props(styles.wrapper)}>
               <Text color="secondary" variant="bodySmall">
                 <Trans i18nKey="alerting.triage.no-labels">No labels</Trans>
               </Text>
@@ -155,12 +147,10 @@ export function InstanceRow({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      minHeight: theme.spacing(2.5),
-      display: 'flex',
-      alignItems: 'center',
-    }),
-  };
-};
+const styles = stylex.create({
+  wrapper: {
+    minHeight: spacing['--gf-spacing-x2-5'],
+    display: 'flex',
+    alignItems: 'center',
+  },
+});

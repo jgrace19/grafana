@@ -1,0 +1,9 @@
+/*
+ * The heading is rendered by Text, which takes no class or style overrides. Same specificity as the Emotion
+ * rule this replaces; unlayered, so it beats Text's layered styles as that rule did.
+ */
+.gf-welcome-cta h2 {
+  margin-bottom: 0;
+  grid-column: 2 / span 3;
+  grid-row: 1;
+}

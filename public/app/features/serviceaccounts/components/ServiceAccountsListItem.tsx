@@ -1,10 +1,12 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2, type OrgRole } from '@grafana/data';
+import { type OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Icon, IconButton, Stack } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type SkeletonComponent, attachSkeleton } from '@grafana/ui/unstable';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -37,7 +39,6 @@ const ServiceAccountListItemComponent = memo(
     onAddTokenClick,
   }: ServiceAccountListItemProps) => {
     const editUrl = `org/serviceaccounts/${serviceAccount.id}`;
-    const styles = useStyles2(getStyles);
 
     const canUpdateRole = contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsWrite, serviceAccount);
     const displayRolePicker =
@@ -45,9 +46,13 @@ const ServiceAccountListItemComponent = memo(
       contextSrv.hasPermission(AccessControlAction.ActionUserRolesList);
 
     return (
-      <tr key={serviceAccount.id} className={cx({ [styles.disabled]: serviceAccount.isDisabled })}>
+      <tr key={serviceAccount.id}>
         <td className="width-4 text-center link-td">
-          <a href={editUrl} aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}>
+          <a
+            href={editUrl}
+            aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
+            {...stylex.props(serviceAccount.isDisabled && styles.disabled)}
+          >
             <img
               className="filter-table__avatar"
               src={serviceAccount.avatarUrl}
@@ -57,7 +62,7 @@ const ServiceAccountListItemComponent = memo(
         </td>
         <td className="link-td max-width-10">
           <a
-            className="ellipsis"
+            {...mergeStylexProps(stylex.props(serviceAccount.isDisabled && styles.disabled), { className: 'ellipsis' })}
             href={editUrl}
             title={serviceAccount.name}
             aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
@@ -67,7 +72,9 @@ const ServiceAccountListItemComponent = memo(
         </td>
         <td className="link-td max-width-10">
           <a
-            className={styles.accountId}
+            {...mergeStylexProps(stylex.props(styles.accountId, serviceAccount.isDisabled && styles.disabled), {
+              className: 'ellipsis',
+            })}
             href={editUrl}
             title={serviceAccount.login}
             aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
@@ -103,13 +110,13 @@ const ServiceAccountListItemComponent = memo(
         )}
         <td className="link-td max-width-10">
           <a
-            className="ellipsis"
+            {...mergeStylexProps(stylex.props(serviceAccount.isDisabled && styles.disabled), { className: 'ellipsis' })}
             href={editUrl}
             title={t('serviceaccounts.service-account-list-item.title-tokens', 'Tokens')}
             aria-label={getServiceAccountsAriaLabel(serviceAccount.name)}
           >
-            <div className={cx(styles.tokensInfo, { [styles.tokensInfoSecondary]: !serviceAccount.tokens })}>
-              <span>
+            <div {...stylex.props(!serviceAccount.tokens && styles.tokensInfoSecondary)}>
+              <span {...stylex.props(styles.tokensInfo)}>
                 <Icon name="key-skeleton-alt"></Icon>
               </span>
               {serviceAccount.tokens || 'No tokens'}
@@ -123,24 +130,32 @@ const ServiceAccountListItemComponent = memo(
                 <Button
                   onClick={() => onAddTokenClick(serviceAccount)}
                   disabled={serviceAccount.isDisabled}
-                  className={styles.actionButton}
+                  className={stylex.props(styles.actionButton).className}
                 >
                   <Trans i18nKey="serviceaccounts.service-account-list-item.add-token">Add token</Trans>
                 </Button>
               )}
               {contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsWrite, serviceAccount) &&
                 (serviceAccount.isDisabled ? (
-                  <Button variant="primary" onClick={() => onEnable(serviceAccount)} className={styles.actionButton}>
+                  <Button
+                    variant="primary"
+                    onClick={() => onEnable(serviceAccount)}
+                    className={stylex.props(styles.actionButton).className}
+                  >
                     <Trans i18nKey="serviceaccounts.service-account-list-item.enable">Enable</Trans>
                   </Button>
                 ) : (
-                  <Button variant="secondary" onClick={() => onDisable(serviceAccount)} className={styles.actionButton}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => onDisable(serviceAccount)}
+                    className={stylex.props(styles.actionButton).className}
+                  >
                     <Trans i18nKey="serviceaccounts.service-account-list-item.disable">Disable</Trans>
                   </Button>
                 ))}
               {contextSrv.hasPermissionInMetadata(AccessControlAction.ServiceAccountsDelete, serviceAccount) && (
                 <IconButton
-                  className={styles.deleteButton}
+                  style={deleteButtonStyle}
                   name="trash-alt"
                   size="md"
                   onClick={() => onRemoveButtonClick(serviceAccount)}
@@ -174,12 +189,15 @@ const ServiceAccountListItemComponent = memo(
 ServiceAccountListItemComponent.displayName = 'ServiceAccountListItem';
 
 const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
-  const styles = useStyles2(getSkeletonStyles);
-
   return (
     <tr {...rootProps}>
       <td className="width-4 text-center">
-        <Skeleton containerClassName={styles.blockSkeleton} circle width={25} height={25} />
+        <Skeleton
+          containerClassName={stylex.props(skeletonStyles.blockSkeleton).className}
+          circle
+          width={25}
+          height={25}
+        />
       </td>
       <td className="max-width-10">
         <Skeleton width={100} />
@@ -188,16 +206,20 @@ const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
         <Skeleton width={100} />
       </td>
       <td>
-        <Skeleton containerClassName={styles.blockSkeleton} width="100%" height={32} />
+        <Skeleton containerClassName={stylex.props(skeletonStyles.blockSkeleton).className} width="100%" height={32} />
       </td>
       <td className="max-width-10">
         <Skeleton width={40} />
       </td>
       <td>
         <Stack alignItems="center" justifyContent="flex-end">
-          <Skeleton containerClassName={styles.blockSkeleton} width={102} height={32} />
-          <Skeleton containerClassName={styles.blockSkeleton} width={85} height={32} />
-          <Skeleton containerClassName={cx(styles.blockSkeleton, styles.deleteButton)} width={16} height={16} />
+          <Skeleton containerClassName={stylex.props(skeletonStyles.blockSkeleton).className} width={102} height={32} />
+          <Skeleton containerClassName={stylex.props(skeletonStyles.blockSkeleton).className} width={85} height={32} />
+          <Skeleton
+            containerClassName={stylex.props(skeletonStyles.blockSkeleton, skeletonStyles.deleteButton).className}
+            width={16}
+            height={16}
+          />
         </Stack>
       </td>
     </tr>
@@ -206,49 +228,35 @@ const ServiceAccountsListItemSkeleton: SkeletonComponent = ({ rootProps }) => {
 
 const ServiceAccountListItem = attachSkeleton(ServiceAccountListItemComponent, ServiceAccountsListItemSkeleton);
 
-const getSkeletonStyles = (theme: GrafanaTheme2) => ({
-  blockSkeleton: css({
+const skeletonStyles = stylex.create({
+  blockSkeleton: {
     display: 'block',
     lineHeight: 1,
-  }),
-  deleteButton: css({
-    marginRight: theme.spacing(0.5),
-  }),
+  },
+  deleteButton: {
+    marginRight: spacing['--gf-spacing-x0-5'],
+  },
 });
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    iconRow: css({
-      svg: {
-        marginLeft: theme.spacing(0.5),
-      },
-    }),
-    accountId: cx(
-      'ellipsis',
-      css({
-        color: theme.colors.text.secondary,
-      })
-    ),
-    deleteButton: css({
-      color: theme.colors.text.secondary,
-    }),
-    tokensInfo: css({
-      span: {
-        marginRight: theme.spacing(1),
-      },
-    }),
-    tokensInfoSecondary: css({
-      color: theme.colors.text.secondary,
-    }),
-    disabled: css({
-      'td a': {
-        color: theme.colors.text.secondary,
-      },
-    }),
-    actionButton: css({
-      minWidth: 85,
-    }),
-  };
-};
+// IconButton has no xstyle; an inline style wins over its variant color in every state, like the old className did.
+const deleteButtonStyle = { color: 'var(--gf-colors-text-secondary)' };
+
+const styles = stylex.create({
+  accountId: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  tokensInfo: {
+    marginRight: spacing['--gf-spacing-x1'],
+  },
+  tokensInfoSecondary: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  disabled: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+  actionButton: {
+    minWidth: 85,
+  },
+});
 
 export default ServiceAccountListItem;

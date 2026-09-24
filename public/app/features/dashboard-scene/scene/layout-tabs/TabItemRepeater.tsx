@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import { useEffect } from 'react';
 
@@ -10,7 +10,7 @@ import {
   sceneGraph,
   type VariableValueSingle,
 } from '@grafana/scenes';
-import { Spinner, Tooltip, useStyles2 } from '@grafana/ui';
+import { Spinner, Tooltip } from '@grafana/ui';
 
 import { DashboardStateChangedEvent } from '../../edit-pane/shared';
 import { getCloneKey, getLocalVariableValueSet, getRepeatVariableValueSet } from '../../utils/clone';
@@ -36,7 +36,6 @@ export function TabItemRepeater({
   variable: MultiValueVariable;
 }) {
   const { repeatedTabs } = tab.useState();
-  const styles = useStyles2(getStyles);
 
   // Subscribe to variable state changes and perform repeats when the variable changes
   useEffect(() => {
@@ -61,7 +60,7 @@ export function TabItemRepeater({
     dashboardLog.logger('TabItemRepeater', false, 'Variable is loading, showing spinner');
     return (
       <Tooltip content={t('dashboard.tabs-layout.tab.repeat.loading', 'Loading tab repeats')}>
-        <div className={styles.spinnerWrapper}>
+        <div {...stylex.props(styles.spinnerWrapper)}>
           <Spinner />
         </div>
       </Tooltip>
@@ -204,8 +203,8 @@ export function createTabRepeats({
   return repeats;
 }
 
-const getStyles = () => ({
-  spinnerWrapper: css({
+const styles = stylex.create({
+  spinnerWrapper: {
     alignSelf: 'center',
-  }),
+  },
 });

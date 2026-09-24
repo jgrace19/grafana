@@ -1,4 +1,4 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FormEventHandler, useState } from 'react';
 
 import {
@@ -8,7 +8,7 @@ import {
   useRemoveTeamGroupApiQueryMutation,
 } from '@grafana/api-clients/internal/rtkq/legacy';
 import { Trans, t } from '@grafana/i18n';
-import { Input, Tooltip, Icon, Button, useTheme2, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { Input, Tooltip, Icon, Button, useTheme2, InlineField, InlineFieldRow } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
 import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
@@ -25,7 +25,6 @@ const headerTooltip = `Sync LDAP, OAuth or SAML groups with your Grafana teams.`
 export const TeamGroupSync = ({ isReadOnly, teamUid }: Props) => {
   const [isAddBoxVisible, setIsAddBoxVisible] = useState(false);
   const [newGroupId, setNewGroupId] = useState('');
-  const styles = useStyles2(getStyles);
 
   const { data: groups = [] } = useGetTeamGroupsApiQuery({ teamId: teamUid });
   const [addTeamGroup] = useAddTeamGroupApiMutation();
@@ -98,7 +97,7 @@ export const TeamGroupSync = ({ isReadOnly, teamUid }: Props) => {
               <Trans i18nKey="teams.team-group-sync.external-group-sync">External group sync</Trans>
             </h3>
             <Tooltip placement="auto" content={headerTooltip}>
-              <Icon className={cx(styles.icon, 'page-sub-heading-icon')} name="question-circle" />
+              <Icon className="page-sub-heading-icon" xstyle={styles.icon} name="question-circle" />
             </Tooltip>
           </>
         )}
@@ -198,12 +197,8 @@ export const TeamSyncUpgradeContent = ({ action }: { action?: UpgradeContentProp
 };
 export default TeamGroupSync;
 
-const getStyles = () => ({
-  icon: css({
-    opacity: 0.7,
-
-    '&:hover': {
-      opacity: 1,
-    },
-  }),
+const styles = stylex.create({
+  icon: {
+    opacity: { default: 0.7, ':hover': 1 },
+  },
 });

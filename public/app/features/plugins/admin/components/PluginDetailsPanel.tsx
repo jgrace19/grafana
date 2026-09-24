@@ -1,23 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { type PageInfoItem } from '@grafana/runtime/internal';
-import {
-  Stack,
-  Text,
-  LinkButton,
-  Box,
-  TextLink,
-  CollapsableSection,
-  Tooltip,
-  Icon,
-  Modal,
-  Button,
-  useStyles2,
-} from '@grafana/ui';
+import { Stack, Text, LinkButton, Box, TextLink, CollapsableSection, Tooltip, Icon, Modal, Button } from '@grafana/ui';
 import { formatDate } from 'app/core/internationalization/dates';
 
 import { type CatalogPlugin } from '../types';
@@ -51,8 +38,6 @@ export function PluginDetailsPanel(props: Props): React.ReactElement | null {
     plugin.details?.raiseAnIssueUrl ||
     plugin.details?.sponsorshipUrl;
 
-  const styles = useStyles2(getStyles);
-
   const onClickReportConcern = (pluginId: string) => {
     setReportAbuseModalOpen(true);
     reportInteraction('plugin_detail_report_concern', { plugin_id: pluginId });
@@ -84,7 +69,10 @@ export function PluginDetailsPanel(props: Props): React.ReactElement | null {
                   <Text color="secondary" data-testid={`${createTestId(infoItem.label)}-label`}>
                     {infoItem.label + ':'}
                   </Text>
-                  <div data-testid={`${createTestId(infoItem.label)}-value`} className={styles.pluginVersionDetails}>
+                  <div
+                    data-testid={`${createTestId(infoItem.label)}-value`}
+                    {...stylex.props(styles.pluginVersionDetails)}
+                  >
                     {infoItem.value}
                   </div>
                 </Stack>
@@ -283,6 +271,6 @@ export function PluginDetailsPanel(props: Props): React.ReactElement | null {
   );
 }
 
-export const getStyles = (theme: GrafanaTheme2) => {
-  return { pluginVersionDetails: css({ wordBreak: 'break-word' }) };
-};
+const styles = stylex.create({
+  pluginVersionDetails: { wordBreak: 'break-word' },
+});

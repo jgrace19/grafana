@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
 import { type Placement } from '@popperjs/core';
+import * as stylex from '@stylexjs/stylex';
 import classnames from 'classnames';
 import { type ReactElement, type ReactNode, cloneElement, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Popover as GrafanaPopover, PopoverController, Stack, useStyles2 } from '@grafana/ui';
+import { Popover as GrafanaPopover, PopoverController, Stack } from '@grafana/ui';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 export interface PopupCardProps {
   children: ReactElement<Record<string, unknown>>;
@@ -40,7 +40,6 @@ export const PopupCard = ({
   ...rest
 }: PopupCardProps) => {
   const popoverRef = useRef<HTMLElement>(null);
-  const styles = useStyles2(getStyles);
 
   if (disabled) {
     return children;
@@ -51,9 +50,9 @@ export const PopupCard = ({
 
   const body = (
     <Stack direction="column" gap={0} role="tooltip">
-      {header && <div className={styles.card.header}>{header}</div>}
-      <div className={styles.card.body}>{content}</div>
-      {footer && <div className={styles.card.footer}>{footer}</div>}
+      {header && <div {...stylex.props(styles.cardHeader)}>{header}</div>}
+      <div {...stylex.props(styles.cardBody)}>{content}</div>
+      {footer && <div {...stylex.props(styles.cardFooter)}>{footer}</div>}
     </Stack>
   );
 
@@ -100,7 +99,7 @@ export const PopupCard = ({
                 {...popperProps}
                 show={shouldShow}
                 {...rest}
-                wrapperClassName={classnames(styles.popover, wrapperClassName)}
+                wrapperClassName={classnames(stylex.props(styles.popover).className, wrapperClassName)}
                 referenceElement={popoverRef.current}
                 renderArrow={arrow}
                 // @TODO
@@ -129,26 +128,33 @@ export const PopupCard = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  popover: css({
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  card: {
-    body: css({
-      padding: theme.spacing(1),
-    }),
-    header: css({
-      padding: theme.spacing(1),
-      background: theme.colors.background.secondary,
-      borderBottom: `solid 1px ${theme.colors.border.medium}`,
-    }),
-    footer: css({
-      padding: theme.spacing(0.5, 1),
-      background: theme.colors.background.secondary,
-      borderTop: `solid 1px ${theme.colors.border.medium}`,
-    }),
+const styles = stylex.create({
+  popover: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+  },
+  cardBody: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  cardHeader: {
+    padding: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-medium'],
+  },
+  cardFooter: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-medium'],
   },
 });

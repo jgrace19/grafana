@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 export type State = 'good' | 'bad' | 'warning' | 'neutral' | 'info';
 
@@ -14,10 +13,8 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const StateTag = forwardRef<HTMLElement, Props>(({ children, state, size = 'md', muted = false }, ref) => {
-  const styles = useStyles2(getStyles);
-
   return (
-    <span className={cx(styles.common, styles[state], styles[size], { [styles.muted]: muted })} ref={ref}>
+    <span {...stylex.props(styles.common, stateStyles[state], sizeStyles[size], muted && styles.muted)} ref={ref}>
       {children || state}
     </span>
   );
@@ -25,51 +22,65 @@ export const StateTag = forwardRef<HTMLElement, Props>(({ children, state, size 
 
 StateTag.displayName = 'StateTag';
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  common: css({
+const styles = stylex.create({
+  common: {
     display: 'inline-block',
     color: 'white',
-    borderRadius: theme.shape.radius.default,
-    fontSize: theme.typography.size.sm,
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    fontSize: typography['--gf-typography-size-sm'],
     textTransform: 'capitalize',
-    lineHeight: '1.2',
+    lineHeight: 1.2,
     textAlign: 'center',
-    fontWeight: theme.typography.fontWeightBold,
-  }),
-  good: css({
-    backgroundColor: theme.colors.success.main,
-    border: `solid 1px ${theme.colors.success.main}`,
-    color: theme.colors.success.contrastText,
-  }),
-  warning: css({
-    backgroundColor: theme.colors.warning.main,
-    border: `solid 1px ${theme.colors.warning.main}`,
-    color: theme.colors.warning.contrastText,
-  }),
-  bad: css({
-    backgroundColor: theme.colors.error.main,
-    border: `solid 1px ${theme.colors.error.main}`,
-    color: theme.colors.error.contrastText,
-  }),
-  neutral: css({
-    backgroundColor: theme.colors.secondary.main,
-    border: `solid 1px ${theme.colors.secondary.main}`,
-    color: theme.colors.secondary.contrastText,
-  }),
-  info: css({
-    backgroundColor: theme.colors.primary.main,
-    border: `solid 1px ${theme.colors.primary.main}`,
-    color: theme.colors.primary.contrastText,
-  }),
-  md: css({
-    padding: theme.spacing(0.5, 1),
-    minWidth: theme.spacing(8),
-  }),
-  sm: css({
-    padding: theme.spacing(0.3, 0.5),
-    minWidth: '52px',
-  }),
-  muted: css({
+    fontWeight: typography['--gf-typography-font-weight-bold'],
+  },
+  muted: {
     opacity: '0.5',
-  }),
+  },
+});
+
+const stateStyles = stylex.create({
+  good: {
+    backgroundColor: colors['--gf-colors-success-main'],
+    borderColor: colors['--gf-colors-success-main'],
+    color: colors['--gf-colors-success-contrast-text'],
+  },
+  warning: {
+    backgroundColor: colors['--gf-colors-warning-main'],
+    borderColor: colors['--gf-colors-warning-main'],
+    color: colors['--gf-colors-warning-contrast-text'],
+  },
+  bad: {
+    backgroundColor: colors['--gf-colors-error-main'],
+    borderColor: colors['--gf-colors-error-main'],
+    color: colors['--gf-colors-error-contrast-text'],
+  },
+  neutral: {
+    backgroundColor: colors['--gf-colors-secondary-main'],
+    borderColor: colors['--gf-colors-secondary-main'],
+    color: colors['--gf-colors-secondary-contrast-text'],
+  },
+  info: {
+    backgroundColor: colors['--gf-colors-primary-main'],
+    borderColor: colors['--gf-colors-primary-main'],
+    color: colors['--gf-colors-primary-contrast-text'],
+  },
+});
+
+const sizeStyles = stylex.create({
+  md: {
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    minWidth: spacing['--gf-spacing-x8'],
+  },
+  sm: {
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 0.3)`,
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    paddingBottom: `calc(${spacing['--gf-spacing-grid-size']} * 0.3)`,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    minWidth: '52px',
+  },
 });

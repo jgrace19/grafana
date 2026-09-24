@@ -1,14 +1,16 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useLayoutEffect, useRef, useReducer, type CSSProperties } from 'react';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import type uPlot from 'uplot';
 
-import { type GrafanaTheme2, type LinkModel } from '@grafana/data';
+import { type LinkModel } from '@grafana/data';
 import { DashboardCursorSync } from '@grafana/schema';
 
 import { type AdHocFilterModel } from '../../../internal';
-import { useStyles2 } from '../../../themes/ThemeContext';
+import { zIndex } from '../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, shadows, shape } from '../../../themes/stylex/tokens.stylex';
 import { type RangeSelection1D, type RangeSelection2D, type OnSelectRangeCallback } from '../../PanelChrome';
 import { getPortalContainer } from '../../Portal/Portal';
 import { type UPlotConfigBuilder } from '../config/UPlotConfigBuilder';
@@ -137,7 +139,6 @@ export const TooltipPlugin2 = ({
   const [{ isHovering, isPinned, contents, style, dismiss }, setState] = useReducer(mergeState, null, initState);
 
   const sizeRef = useRef<TooltipContainerSize | undefined>(undefined);
-  const styles = useStyles2(getStyles, maxWidth);
 
   const renderRef = useRef(render);
   renderRef.current = render;
@@ -759,8 +760,10 @@ export const TooltipPlugin2 = ({
   if (plotRef.current && isHovering) {
     return createPortal(
       <div
-        className={cx(styles.tooltipWrapper, isPinned && styles.pinned)}
-        style={style}
+        {...mergeStylexProps(
+          stylex.props(styles.tooltipWrapper, styles.maxWidth(maxWidth ?? 'none'), isPinned && styles.pinned),
+          { style }
+        )}
         aria-live="polite"
         aria-atomic="true"
         ref={domRef}
@@ -775,21 +778,25 @@ export const TooltipPlugin2 = ({
   return null;
 };
 
-const getStyles = (theme: GrafanaTheme2, maxWidth?: number) => ({
-  tooltipWrapper: css({
+const styles = stylex.create({
+  tooltipWrapper: {
     top: 0,
     left: 0,
-    zIndex: theme.zIndex.tooltip,
+    zIndex: zIndex.tooltip,
     whiteSpace: 'pre',
-    borderRadius: theme.shape.radius.default,
+    borderRadius: shape['--gf-shape-radius-default'],
     position: 'fixed',
-    background: theme.colors.background.elevated,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z2,
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    boxShadow: shadows['--gf-shadows-z2'],
     userSelect: 'text',
-    maxWidth: maxWidth ?? 'none',
+  },
+  maxWidth: (maxWidth: number | string) => ({
+    maxWidth,
   }),
-  pinned: css({
-    boxShadow: theme.shadows.z3,
-  }),
+  pinned: {
+    boxShadow: shadows['--gf-shadows-z3'],
+  },
 });

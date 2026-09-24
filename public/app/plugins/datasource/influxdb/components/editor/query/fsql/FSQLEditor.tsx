@@ -1,20 +1,20 @@
 import { PureComponent } from 'react';
 
 import { type SQLQuery, SqlQueryEditorLazy, applyQueryDefaults } from '@grafana/sql';
-import { InlineFormLabel, LinkButton, type Themeable2, withTheme2, Stack, Space } from '@grafana/ui';
+import { InlineFormLabel, LinkButton, Stack, Space } from '@grafana/ui';
 
 import type InfluxDatasource from '../../../../datasource';
 import { FlightSQLDatasource } from '../../../../fsql/datasource.flightsql';
 import { type InfluxQuery } from '../../../../types';
 
-interface Props extends Themeable2 {
+interface Props {
   onChange: (query: InfluxQuery) => void;
   onRunQuery: () => void;
   query: InfluxQuery;
   datasource: InfluxDatasource;
 }
 
-class UnthemedSQLQueryEditor extends PureComponent<Props> {
+export class FSQLEditor extends PureComponent<Props> {
   datasource: FlightSQLDatasource;
 
   constructor(props: Props) {
@@ -111,5 +111,3 @@ class UnthemedSQLQueryEditor extends PureComponent<Props> {
     );
   }
 }
-
-export const FSQLEditor = withTheme2(UnthemedSQLQueryEditor);

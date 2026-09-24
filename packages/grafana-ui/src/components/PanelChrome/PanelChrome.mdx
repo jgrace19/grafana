@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { Meta, Canvas } from '@storybook/blocks';
 import { PanelChrome } from './PanelChrome';
 
@@ -223,14 +222,7 @@ Component used for rendering content wrapped in the same style as grafana panels
   title="My awesome panel title"
   titleItems={
     <>
-      <IconButton
-        className={css`
-          margin-right: 10px;
-        `}
-        name="github"
-        variant="secondary"
-        tooltip="extra content to render"
-      />
+      <IconButton style={{ marginRight: 10 }} name="github" variant="secondary" tooltip="extra content to render" />
       <IconButton name="sliders-v-alt" variant="secondary" tooltip="extra content2 to render" />
     </>
   }
@@ -266,14 +258,7 @@ Component used for rendering content wrapped in the same style as grafana panels
     title="My awesome panel title"
     titleItems={
       <>
-        <IconButton
-          className={css`
-            margin-right: 10px;
-          `}
-          name="github"
-          variant="secondary"
-          tooltip="extra content to render"
-        />
+        <IconButton style={{ marginRight: 10 }} name="github" variant="secondary" tooltip="extra content to render" />
         <IconButton name="sliders-v-alt" variant="secondary" tooltip="extra content to render" />
       </>
     }

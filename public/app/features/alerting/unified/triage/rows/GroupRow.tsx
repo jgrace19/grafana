@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import React from 'react';
 
 import { AlertLabel } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Text, useStyles2 } from '@grafana/ui';
+import { Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { EmptyLabelValue, type GenericGroupedRow } from '../types';
 
@@ -21,7 +21,6 @@ interface GroupRowProps {
 }
 
 export const GroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, children }: GroupRowProps) => {
-  const styles = useStyles2(getStyles);
   const isEmptyValue = row.metadata.value === EmptyLabelValue;
 
   return (
@@ -44,8 +43,7 @@ export const GroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, children }: 
       }
       actions={<RowActions counts={row.instanceCounts} />}
       isOpenByDefault={!isEmptyValue}
-      leftColumnClassName={styles.groupRow}
-      rightColumnClassName={styles.empty}
+      leftColumnXstyle={styles.groupRow}
       depth={depth}
     >
       {children}
@@ -53,13 +51,14 @@ export const GroupRow = ({ row, leftColumnWidth, rowKey, depth = 0, children }: 
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  groupRow: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-    marginTop: theme.spacing(0.5),
-    marginBottom: theme.spacing(0.5),
-  }),
-  empty: css({}),
+const styles = stylex.create({
+  groupRow: {
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
+    marginTop: spacing['--gf-spacing-x0-5'],
+    marginBottom: spacing['--gf-spacing-x0-5'],
+  },
 });

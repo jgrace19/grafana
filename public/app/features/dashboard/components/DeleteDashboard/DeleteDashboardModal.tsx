@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import { connect, type ConnectedProps } from 'react-redux';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
@@ -10,6 +9,8 @@ import { cleanUpDashboardAndVariables } from 'app/features/dashboard/state/actio
 
 import { useDeleteDashboardsMutation } from '../../../browse-dashboards/api/browseDashboardsAPI';
 import { DeleteDashboardModal as DeleteModal } from '../../../dashboard-scene/settings/DeleteDashboardButton';
+
+import './DeleteDashboardModal.css';
 
 type DeleteDashboardModalProps = {
   hideModal(): void;
@@ -55,9 +56,7 @@ const ProvisionedDeleteModal = ({ hideModal, provisionedId }: { hideModal(): voi
       isOpen={true}
       title={t('dashboard-settings.provisioned-delete-modal.title', 'Cannot delete provisioned dashboard')}
       onDismiss={hideModal}
-      className={css({
-        width: '500px',
-      })}
+      className="gf-provisioned-delete-modal"
     >
       <Text element="p">
         <Trans i18nKey="dashboard-settings.provisioned-delete-modal.text-1">

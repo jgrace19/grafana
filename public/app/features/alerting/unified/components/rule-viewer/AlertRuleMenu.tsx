@@ -1,4 +1,4 @@
-import { type PropsOf } from '@emotion/react';
+import { type ComponentProps } from 'react';
 
 import { useAssistant } from '@grafana/assistant';
 import { AppEvents } from '@grafana/data';
@@ -49,7 +49,7 @@ interface Props {
   handleDuplicateRule: (identifier: RuleIdentifier) => void;
   onPauseChange?: () => void;
   buttonSize?: ComponentSize;
-  fill?: PropsOf<typeof Button>['fill'];
+  fill?: ComponentProps<typeof Button>['fill'];
 }
 
 /**

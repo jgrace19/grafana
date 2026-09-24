@@ -1,0 +1,9 @@
+/*
+ * Label is still styled with Emotion, whose rules are injected after this sheet. Repeating the class beats
+ * Label's own margin, color and font size, as the Emotion override merged into Label's class did.
+ */
+.gf-rules-filter-field-label.gf-rules-filter-field-label {
+  margin-bottom: 0;
+  color: var(--gf-colors-text-secondary);
+  font-size: var(--gf-typography-body-small-font-size);
+}

@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -15,6 +15,7 @@ import {
   RadioButtonGroup,
   useStyles2,
 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 const NO_EXPIRATION_OPTION = 'no-expiration';
 const CUSTOM_EXPIRATION_OPTION = 'custom-expiration';
@@ -53,7 +54,7 @@ export const CreateTokenModal = ({ isOpen, token, serviceAccountLogin, onCreateT
   const [expirationOption, setExpirationOption] = useState(defaultExpirationOption);
   const [newTokenExpirationDate, setNewTokenExpirationDate] = useState<Date | string>(tomorrow);
   const [isExpirationDateValid, setIsExpirationDateValid] = useState(newTokenExpirationDate !== '');
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
 
   useEffect(() => {
     // Generate new token name every time we open modal
@@ -106,7 +107,7 @@ export const CreateTokenModal = ({ isOpen, token, serviceAccountLogin, onCreateT
   };
 
   return (
-    <Modal isOpen={isOpen} title={modalTitle} onDismiss={onCloseInternal} className={styles.modal}>
+    <Modal isOpen={isOpen} title={modalTitle} onDismiss={onCloseInternal} className={pendingStyles.modal}>
       {!token ? (
         <div>
           <Field
@@ -166,10 +167,10 @@ export const CreateTokenModal = ({ isOpen, token, serviceAccountLogin, onCreateT
               'Copy the token now as you will not be able to see it again. Losing a token requires creating a new one.'
             )}
           >
-            <div className={styles.modalTokenRow}>
+            <div {...stylex.props(styles.modalTokenRow)}>
               <Input name="tokenValue" value={token} readOnly />
               <ClipboardButton
-                className={styles.modalCopyToClipboardButton}
+                className={stylex.props(styles.modalCopyToClipboardButton).className}
                 variant="primary"
                 size="md"
                 icon="copy"
@@ -202,16 +203,19 @@ const getSecondsToLive = (date: Date | string) => {
   return Math.ceil((dateAsDate.getTime() - now.getTime()) / 1000);
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    modal: css({
-      width: '550px',
-    }),
-    modalTokenRow: css({
-      display: 'flex',
-    }),
-    modalCopyToClipboardButton: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-};
+// stylex: pending Modal migration
+const getPendingStyles = () => ({
+  modal: css({
+    width: '550px',
+  }),
+});
+
+const styles = stylex.create({
+  modalTokenRow: {
+    display: 'flex',
+  },
+
+  modalCopyToClipboardButton: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

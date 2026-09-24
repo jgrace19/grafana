@@ -1,0 +1,7 @@
+/*
+ * Hides the MultiSelect dropdown chevron, which is rendered by Select and react-select, so StyleX can't target it.
+ * Deliberately not in a cascade layer: like the Emotion rule it replaces, it must win over the icon's own styles.
+ */
+.gf-ldap-multi-select div:last-of-type > svg {
+  display: none;
+}

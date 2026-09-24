@@ -1,12 +1,12 @@
-import { css } from '@emotion/css';
-
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge } from '@grafana/ui';
 import { useGetPublicDashboardQuery } from 'app/features/dashboard/api/publicDashboardApi';
 
 import { type ToolbarActionProps } from '../types';
+
+import './PublicDashboardBadge.css';
 
 export const PublicDashboardBadge = ({ dashboard }: ToolbarActionProps) => {
   if (!dashboard.state.uid || !config.publicDashboardsEnabled) {
@@ -28,7 +28,6 @@ function PublicDashboardBadgeInternal({ uid, hasPublicDashboard }: { uid: string
   const { data: publicDashboard } = useGetPublicDashboardQuery(uid, {
     skip: hasPublicDashboard !== undefined && !hasPublicDashboard,
   });
-  const styles = useStyles2(getStyles);
 
   const showBadge = hasPublicDashboard !== undefined ? hasPublicDashboard : !!publicDashboard;
 
@@ -40,16 +39,8 @@ function PublicDashboardBadgeInternal({ uid, hasPublicDashboard }: { uid: string
     <Badge
       color="blue"
       text={t('dashboard.toolbar.new.public-dashboard', 'Public')}
-      className={styles.badge}
+      className="gf-public-dashboard-badge"
       data-testid={selectors.pages.Dashboard.DashNav.publicDashboardTag}
     />
   );
 }
-
-const getStyles = () => ({
-  badge: css({
-    color: 'grey',
-    backgroundColor: 'transparent',
-    border: '1px solid',
-  }),
-});
