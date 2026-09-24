@@ -14,7 +14,7 @@
 
 import { render, screen } from '@testing-library/react';
 
-import { createTheme, dateTime } from '@grafana/data';
+import { dateTime } from '@grafana/data';
 import { setPluginLinksHook } from '@grafana/runtime';
 
 import DetailState from './SpanDetail/DetailState';
@@ -45,7 +45,6 @@ const setup = (propOverrides?: SpanDetailRowProps) => {
     span: testSpan,
     tagsToggle: jest.fn(),
     traceStartTime: 1000,
-    theme: createTheme(),
     traceFlameGraphs: {},
     timeRange: {
       from: dateTime(0),

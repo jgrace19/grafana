@@ -1,0 +1,8 @@
+/*
+ * Styles InlineSwitch's labels, which StyleX can't target. InlineSwitch is still Emotion; like the Emotion
+ * rule it replaces (0,1,1), this beats the label's own class.
+ */
+.gf-trace-search-bar-switch label {
+  padding: 0;
+  font-size: var(--gf-typography-body-small-font-size);
+}

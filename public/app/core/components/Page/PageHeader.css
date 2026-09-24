@@ -1,0 +1,7 @@
+/*
+ * Applies to headings passed through `renderTitle` too, so it can't live on an element PageHeader renders.
+ * Deliberately not in a cascade layer: like the Emotion rule it replaces, it must win over the callers' styles.
+ */
+.gf-page-header-title h1 {
+  margin-bottom: 0;
+}

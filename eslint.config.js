@@ -105,8 +105,29 @@ const stylexMigratedUiFiles = [
   'packages/grafana-ui/src/components/{Badge,Button,Divider,Icon,IconButton,Layout,Link,LoadingPlaceholder,Spinner,Text}/**/*.{ts,tsx}',
   // U6 data
   'packages/grafana-ui/src/components/{CallToActionCard,Card,EmptyState,InteractiveTable,JSONFormatter,List,Pagination}/**/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/*.{ts,tsx}',
+  'packages/grafana-ui/src/components/Table/{Cells,TableRT}/**/*.{ts,tsx}',
+  // U3 pickers
+  'packages/grafana-ui/src/components/{Cascader,Combobox,MatchersUI,Segment,Select,StatsPicker,Tags,TagsInput,UnitPicker,ValuePicker}/**/*.{ts,tsx}',
   // U2 inputs
   'packages/grafana-ui/src/components/{FileUpload,FilterInput,FormField,FormLabel,Forms,Input,SecretFormField,SecretInput,SecretTextArea,Switch,TextArea}/**/*.{ts,tsx}',
+];
+
+// public/app files migrated to StyleX: same bans as stylexMigratedUiFiles. Each app slice appends its directories.
+const stylexMigratedAppFiles = [
+  // E1 explore
+  'public/app/features/explore/TraceView/**/*.{ts,tsx}',
+  // C1 core: app chrome and page frame
+  'public/app/core/components/AppChrome/{AppChrome,AppChromeMenu}.tsx',
+  'public/app/core/components/AppChrome/ExtensionSidebar/ExtensionSidebar.tsx',
+  'public/app/core/components/AppChrome/MegaMenu/*.{ts,tsx}',
+  'public/app/core/components/AppChrome/OrganizationSwitcher/OrganizationSelect.tsx',
+  'public/app/core/components/AppChrome/{NavToolbar,News,ReturnToPrevious}/*.{ts,tsx}',
+  'public/app/core/components/AppChrome/TopBar/{SignInLink,SingleTopBar,SingleTopBarActions,TopNavBarMenu}.tsx',
+  'public/app/core/components/{Breadcrumbs,Footer,Indent,PageInfo,PageNotFound}/*.{ts,tsx}',
+  'public/app/core/components/NavLandingPage/NavLandingPage.tsx',
+  'public/app/core/components/Page/{Page,PageHeader,PageTabs}.tsx',
+  'public/app/core/navigation/*.{ts,tsx}',
 ];
 
 const stylexRestrictedImports = {
@@ -719,6 +740,27 @@ module.exports = [
             {
               group: ['@grafana/runtime'],
               message: "'@grafana/runtime' should not be imported from library packages",
+            },
+            ...stylexRestrictedImports.patterns,
+          ],
+          paths: stylexRestrictedImports.paths,
+        }),
+      ],
+    },
+  },
+
+  {
+    // Must come after grafana/no-extensions-imports, whose restriction it repeats.
+    name: 'grafana/stylex-migrated-app',
+    files: stylexMigratedAppFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        withBaseRestrictedImportsConfig({
+          patterns: [
+            {
+              group: ['app/extensions', 'app/extensions/*'],
+              message: 'Importing from app/extensions is not allowed',
             },
             ...stylexRestrictedImports.patterns,
           ],

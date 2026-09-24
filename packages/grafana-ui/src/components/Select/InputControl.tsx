@@ -1,11 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { forwardRef, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-
-import { inputPadding } from '../../compat/emotion/commonStyles';
-import { getInputStyles } from '../../compat/emotion/inputStyles';
-import { useStyles2 } from '../../themes/ThemeContext';
+import { colors, spacing, typography } from '../../themes/stylex/tokens.stylex';
 
 interface InputControlProps {
   /** Show an icon as a prefix in the input */
@@ -18,45 +14,52 @@ interface InputControlProps {
 
 export const InputControl = forwardRef<HTMLDivElement, React.PropsWithChildren<InputControlProps>>(
   function InputControl({ focused, invalid, disabled, children, innerProps, prefix, ...otherProps }, ref) {
-    const styles = useStyles2(getInputControlStyles, invalid, !!prefix);
-
     return (
-      <div className={styles.input} {...innerProps} ref={ref}>
-        {prefix && <div className={cx(styles.prefix)}>{prefix}</div>}
+      <div {...stylex.props(styles.input, !!prefix && styles.withPrefix)} {...innerProps} ref={ref}>
+        {prefix && <div {...stylex.props(styles.prefix)}>{prefix}</div>}
         {children}
       </div>
     );
   }
 );
 
-const getInputControlStyles = (theme: GrafanaTheme2, invalid: boolean, withPrefix: boolean) => {
-  const styles = getInputStyles({ theme, invalid });
-
-  return {
-    input: cx(
-      inputPadding(theme),
-      css({
-        width: '100%',
-        maxWidth: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        paddingRight: 0,
-        position: 'relative',
-        boxSizing: 'border-box',
-      }),
-      withPrefix &&
-        css({
-          paddingLeft: 0,
-        })
-    ),
-    prefix: cx(
-      styles.prefix,
-      css({
-        position: 'relative',
-      })
-    ),
-  };
-};
+const styles = stylex.create({
+  input: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x1'],
+    width: '100%',
+    maxWidth: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    position: 'relative',
+    boxSizing: 'border-box',
+  },
+  withPrefix: {
+    paddingLeft: 0,
+  },
+  // getInputStyles().prefix, made relative instead of absolute.
+  prefix: {
+    position: 'relative',
+    top: 0,
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: typography['--gf-typography-size-md'],
+    height: '100%',
+    minWidth: '28px',
+    color: colors['--gf-colors-text-secondary'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x0-5'],
+    borderRightStyle: 'none',
+    borderTopRightRadius: 'unset',
+    borderBottomRightRadius: 'unset',
+  },
+});

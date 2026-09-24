@@ -18,10 +18,9 @@ import transformTraceData from '../model/transform-trace-data';
 import { type Trace } from '../types/trace';
 import { formatDuration } from '../utils/date';
 
-import SpanTreeOffset from './SpanTreeOffset';
 import VirtualizedTraceView, { type VirtualizedTraceViewProps } from './VirtualizedTraceView';
 
-jest.mock('./SpanTreeOffset');
+jest.mock('./SpanTreeOffset', () => ({ __esModule: true, default: () => <div /> }));
 
 const trace = transformTraceData(traceGenerator.trace({ numberOfSpans: 2 }))!;
 
@@ -45,7 +44,6 @@ let props = {
 
 describe('<VirtualizedTraceViewImpl>', () => {
   beforeEach(() => {
-    jest.mocked(SpanTreeOffset).mockReturnValue(<div />);
     let key: keyof VirtualizedTraceViewProps;
     for (key in props) {
       if (typeof props[key] === 'function') {

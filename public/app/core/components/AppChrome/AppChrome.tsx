@@ -1,13 +1,15 @@
-import { css, cx } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import * as stylex from '@stylexjs/stylex';
 import classNames from 'classnames';
 import { Resizable } from 're-resizable';
-import { type PropsWithChildren, useEffect } from 'react';
+import { type PropsWithChildren, useEffect, useMemo } from 'react';
 
-import { type GrafanaTheme2, store } from '@grafana/data';
+import { store } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { locationSearchToObject, locationService, useScopes } from '@grafana/runtime';
-import { ErrorBoundaryAlert, floatingUtils, getDragStyles, LinkButton, useStyles2 } from '@grafana/ui';
+import { ErrorBoundaryAlert, floatingUtils, getDragStyles, LinkButton, useTheme2 } from '@grafana/ui';
+import { bp, zIndex } from '@grafana/ui/stylex/constants.stylex';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { SplashScreenModal } from 'app/core/components/SplashScreenModal/SplashScreenModal';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
@@ -22,7 +24,8 @@ import {
   MIN_EXTENSION_SIDEBAR_WIDTH,
 } from './ExtensionSidebar/ExtensionSidebar';
 import { useExtensionSidebarContext } from './ExtensionSidebar/ExtensionSidebarProvider';
-import { MegaMenu, MENU_WIDTH } from './MegaMenu/MegaMenu';
+import { MegaMenu } from './MegaMenu/MegaMenu';
+import { megaMenu } from './MegaMenu/megaMenu.stylex';
 import { useMegaMenuFocusHelper } from './MegaMenu/utils';
 import { ReturnToPrevious } from './ReturnToPrevious/ReturnToPrevious';
 import { SingleTopBar } from './TopBar/SingleTopBar';
@@ -47,22 +50,19 @@ export function AppChrome({ children }: Props) {
   );
 
   const headerLevels = useChromeHeaderLevels();
-  const styles = useStyles2(getStyles, headerLevels, getChromeHeaderLevelHeight());
-  const contentSizeStyles = useStyles2(getContentSizeStyles, extensionSidebarWidth);
-  const dragStyles = useStyles2(getDragStyles);
+  const headerHeight = getChromeHeaderLevelHeight();
+  const theme = useTheme2();
+  // getDragStyles is a @grafana/ui Emotion helper; the resize handle it styles belongs to that package.
+  const dragStyles = useMemo(() => getDragStyles(theme), [theme]);
 
   useResponsiveDockedMegaMenu(chrome);
   useMegaMenuFocusHelper(state.megaMenuOpen, state.megaMenuDocked);
 
-  const contentClass = cx({
-    [styles.content]: true,
-    [styles.contentChromeless]: state.chromeless,
-    [styles.contentWithSidebar]: isExtensionSidebarOpen && !state.chromeless,
-  });
-
   const handleMegaMenu = () => {
     chrome.setMegaMenuOpen(!state.megaMenuOpen);
   };
+
+  const sidebarProps = stylex.props(styles.sidebarContainer, styles.sidebarTop(headerHeight));
 
   const { pathname, search } = locationService.getLocation();
   const url = pathname + search;
@@ -96,7 +96,7 @@ export function AppChrome({ children }: Props) {
       {!state.chromeless && (
         <>
           <LinkButton
-            className={styles.skipLink}
+            className={stylex.props(styles.skipLink).className}
             href="#pageContent"
             onClick={(e) => {
               e.preventDefault();
@@ -106,9 +106,12 @@ export function AppChrome({ children }: Props) {
             <Trans i18nKey="app-chrome.skip-content-button">Skip to main content</Trans>
           </LinkButton>
           {menuDockedAndOpen && (
-            <MegaMenu className={styles.dockedMegaMenu} onClose={() => chrome.setMegaMenuOpen(false)} />
+            <MegaMenu
+              className={stylex.props(styles.dockedMegaMenu).className}
+              onClose={() => chrome.setMegaMenuOpen(false)}
+            />
           )}
-          <header className={cx(styles.topNav, menuDockedAndOpen && styles.topNavMenuDocked)}>
+          <header {...stylex.props(styles.topNav, menuDockedAndOpen && styles.topNavMenuDocked)}>
             <SingleTopBar
               sectionNav={state.sectionNav.node}
               pageNav={state.pageNav}
@@ -122,13 +125,22 @@ export function AppChrome({ children }: Props) {
           </header>
         </>
       )}
-      <div className={contentClass}>
-        <div className={cx(styles.panes, { [styles.panesWithSidebar]: isExtensionSidebarOpen })}>
+      <div
+        {...stylex.props(
+          styles.content,
+          styles.contentPaddingTop(headerLevels * headerHeight),
+          state.chromeless && styles.contentChromeless,
+          isExtensionSidebarOpen && !state.chromeless && styles.contentWithSidebar
+        )}
+      >
+        <div {...stylex.props(styles.panes, isExtensionSidebarOpen && styles.panesWithSidebar)}>
           {!state.chromeless && (
             <div
-              className={cx(styles.scopesDashboardsContainer, {
-                [styles.scopesDashboardsContainerDocked]: menuDockedAndOpen,
-              })}
+              {...stylex.props(
+                styles.scopesDashboardsContainer,
+                styles.scopesDashboardsContainerHeight(`calc(100% - ${headerHeight}px)`),
+                menuDockedAndOpen && styles.scopesDashboardsContainerDocked
+              )}
             >
               <ErrorBoundaryAlert boundaryName="scopes-dashboards">
                 <ScopesDashboards />
@@ -136,12 +148,15 @@ export function AppChrome({ children }: Props) {
             </div>
           )}
           <main
-            className={cx(styles.pageContainer, {
-              [styles.pageContainerMenuDocked]: menuDockedAndOpen || isScopesDashboardsOpen,
-              [styles.pageContainerMenuDockedScopes]: menuDockedAndOpen && isScopesDashboardsOpen,
-              [styles.pageContainerWithSidebar]: !state.chromeless && isExtensionSidebarOpen,
-              [contentSizeStyles.contentWidth]: !state.chromeless && isExtensionSidebarOpen,
-            })}
+            {...stylex.props(
+              styles.pageContainer,
+              (menuDockedAndOpen || isScopesDashboardsOpen) && styles.pageContainerMenuDocked,
+              menuDockedAndOpen && isScopesDashboardsOpen && styles.pageContainerMenuDockedScopes,
+              !state.chromeless && isExtensionSidebarOpen && styles.pageContainerWithSidebar,
+              !state.chromeless &&
+                isExtensionSidebarOpen &&
+                styles.contentWidth(`calc(100% - ${extensionSidebarWidth}px)`)
+            )}
             id="pageContent"
             tabIndex={-1}
           >
@@ -149,7 +164,9 @@ export function AppChrome({ children }: Props) {
           </main>
           {!state.chromeless && isExtensionSidebarOpen && (
             <Resizable
-              className={styles.sidebarContainer}
+              className={sidebarProps.className}
+              // Resizable's own inline `position: relative` is only replaced by an inline value.
+              style={{ ...sidebarProps.style, position: 'fixed' }}
               defaultSize={{ width: extensionSidebarWidth }}
               enable={{ left: true }}
               onResize={(_evt, _direction, ref) => setExtensionSidebarWidth(ref.getBoundingClientRect().width)}
@@ -196,112 +213,91 @@ function useResponsiveDockedMegaMenu(chrome: AppChromeService) {
   }, [isLargeScreen, chrome, dockedMenuLocalStorageState]);
 }
 
-const getStyles = (theme: GrafanaTheme2, headerLevels: number, headerHeight: number) => {
-  return {
-    content: css({
-      label: 'page-content',
-      display: 'flex',
-      flexDirection: 'column',
-      paddingTop: headerLevels * headerHeight,
-      flexGrow: 1,
-      height: 'auto',
-    }),
-    contentWithSidebar: css({
-      height: '100vh',
-      overflow: 'hidden',
-    }),
-    contentChromeless: css({
-      paddingTop: 0,
-    }),
-    dockedMegaMenu: css({
-      background: theme.colors.background.primary,
-      borderRight: `1px solid ${theme.colors.border.weak}`,
-      display: 'none',
-      height: '100%',
-      position: 'fixed',
-      top: 0,
-      width: MENU_WIDTH,
-      zIndex: 2,
-
-      [theme.breakpoints.up('xl')]: {
-        display: 'flex',
-        flexDirection: 'column',
-      },
-    }),
-    scopesDashboardsContainer: css({
-      position: 'fixed',
-      height: `calc(100% - ${headerHeight}px)`,
-      zIndex: 1,
-    }),
-    scopesDashboardsContainerDocked: css({
-      left: MENU_WIDTH,
-    }),
-    topNav: css({
-      display: 'flex',
-      position: 'fixed',
-      zIndex: theme.zIndex.navbarFixed,
-      left: 0,
-      right: 0,
-      background: theme.colors.background.primary,
-      flexDirection: 'column',
-    }),
-    topNavMenuDocked: css({
-      left: MENU_WIDTH,
-    }),
-    panes: css({
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-      label: 'page-panes',
-    }),
-    panesWithSidebar: css({
-      height: '100%',
-      overflow: 'hidden',
-      position: 'relative',
-    }),
-    pageContainerMenuDocked: css({
-      paddingLeft: MENU_WIDTH,
-    }),
-    pageContainerMenuDockedScopes: css({
-      paddingLeft: `calc(${MENU_WIDTH} * 2)`,
-    }),
-    pageContainer: css({
-      label: 'page-container',
-      display: 'flex',
-      flexDirection: 'column',
-      flexGrow: 1,
-    }),
-    pageContainerWithSidebar: css({
-      overflow: 'auto',
-      height: '100%',
-      minHeight: 0,
-    }),
-    skipLink: css({
-      position: 'fixed',
-      top: -1000,
-
-      ':focus': {
-        left: theme.spacing(1),
-        top: theme.spacing(1),
-        zIndex: theme.zIndex.portal,
-      },
-    }),
-    sidebarContainer: css({
-      // the `Resizeable` component overrides the needed `position` and `height`
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      position: 'fixed !important' as 'fixed',
-      top: headerHeight,
-      bottom: 0,
-      zIndex: theme.zIndex.navbarFixed + 1,
-      right: 0,
-    }),
-  };
-};
-
-const getContentSizeStyles = (_: GrafanaTheme2, extensionSidebarWidth = 0) => {
-  return {
-    contentWidth: css({
-      maxWidth: `calc(100% - ${extensionSidebarWidth}px) !important`,
-    }),
-  };
-};
+const styles = stylex.create({
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    height: 'auto',
+  },
+  contentPaddingTop: (paddingTop: number) => ({ paddingTop }),
+  contentWithSidebar: {
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  contentChromeless: {
+    paddingTop: 0,
+  },
+  dockedMegaMenu: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    display: { default: 'none', [bp.xlUp]: 'flex' },
+    flexDirection: { default: null, [bp.xlUp]: 'column' },
+    height: '100%',
+    position: 'fixed',
+    top: 0,
+    width: megaMenu.width,
+    zIndex: 2,
+  },
+  scopesDashboardsContainer: {
+    position: 'fixed',
+    zIndex: 1,
+  },
+  scopesDashboardsContainerHeight: (height: string) => ({ height }),
+  scopesDashboardsContainerDocked: {
+    left: megaMenu.width,
+  },
+  topNav: {
+    display: 'flex',
+    position: 'fixed',
+    zIndex: zIndex.navbarFixed,
+    left: 0,
+    right: 0,
+    backgroundColor: colors['--gf-colors-background-primary'],
+    flexDirection: 'column',
+  },
+  topNavMenuDocked: {
+    left: megaMenu.width,
+  },
+  panes: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  panesWithSidebar: {
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  pageContainerMenuDocked: {
+    paddingLeft: megaMenu.width,
+  },
+  pageContainerMenuDockedScopes: {
+    paddingLeft: `calc(${megaMenu.width} * 2)`,
+  },
+  pageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  pageContainerWithSidebar: {
+    overflow: 'auto',
+    height: '100%',
+    minHeight: 0,
+  },
+  contentWidth: (maxWidth: string) => ({ maxWidth }),
+  skipLink: {
+    position: 'fixed',
+    top: { default: -1000, ':focus': spacing['--gf-spacing-x1'] },
+    left: { default: null, ':focus': spacing['--gf-spacing-x1'] },
+    zIndex: { default: null, ':focus': zIndex.portal },
+  },
+  sidebarContainer: {
+    bottom: 0,
+    zIndex: `calc(${zIndex.navbarFixed} + 1)`,
+    right: 0,
+  },
+  sidebarTop: (top: number) => ({ top }),
+});

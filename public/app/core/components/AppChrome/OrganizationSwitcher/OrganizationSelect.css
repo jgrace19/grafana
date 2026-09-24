@@ -1,0 +1,14 @@
+/*
+ * Restyles Select's root container, which has no `xstyle`. Deliberately not in a cascade layer: like the Emotion
+ * rule it replaces, it must win over Select's own styles.
+ */
+.gf-org-select {
+  border: none;
+  background: none;
+  color: var(--gf-colors-text-secondary);
+}
+
+.gf-org-select:hover,
+.gf-org-select:hover .prefix-icon {
+  color: var(--gf-colors-text-primary);
+}

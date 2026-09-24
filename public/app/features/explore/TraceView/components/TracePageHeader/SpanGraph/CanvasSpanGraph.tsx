@@ -12,29 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 import { autoColor } from '../../Theme';
+import { traceColors } from '../../traceColors.stylex';
 import { getRgbColorByKey } from '../../utils/color-generator';
 
 import renderIntoCanvas from './render-into-canvas';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    CanvasSpanGraph: css({
-      label: 'CanvasSpanGraph',
-      background: autoColor(theme, '#fafafa'),
-      height: '60px',
-      position: 'absolute',
-      width: '100%',
-      imageRendering: 'crisp-edges',
-    }),
-  };
-};
 
 type CanvasSpanGraphProps = {
   items: Array<{ valueWidth: number; valueOffset: number; serviceName: string }>;
@@ -46,7 +33,6 @@ export const CanvasSpanGraph = memo(function CanvasSpanGraph({
   valueWidth: totalValueWidth,
 }: CanvasSpanGraphProps) {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const draw = useCallback(() => {
@@ -60,7 +46,17 @@ export const CanvasSpanGraph = memo(function CanvasSpanGraph({
     draw();
   });
 
-  return <canvas className={styles.CanvasSpanGraph} ref={canvasRef} data-testid="CanvasSpanGraph" />;
+  return <canvas {...stylex.props(styles.CanvasSpanGraph)} ref={canvasRef} data-testid="CanvasSpanGraph" />;
 });
 
 export default CanvasSpanGraph;
+
+const styles = stylex.create({
+  CanvasSpanGraph: {
+    backgroundColor: traceColors['--gf-trace-fafafa'],
+    height: '60px',
+    position: 'absolute',
+    width: '100%',
+    imageRendering: 'crisp-edges',
+  },
+});
