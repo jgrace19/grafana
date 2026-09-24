@@ -76,6 +76,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   );
 }
 
+// stylex: pending ToolbarButton migration. These override ToolbarButton's own Emotion padding and avatar styles.
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     profileButton: css({

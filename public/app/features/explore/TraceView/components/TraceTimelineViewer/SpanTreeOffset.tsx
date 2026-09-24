@@ -12,64 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import { get as _get } from 'lodash';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
-import { Icon, stylesFactory, withTheme2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
 
-import { autoColor } from '../Theme';
+import { traceColors } from '../traceColors.stylex';
 import { type TraceSpan } from '../types/trace';
 import spanAncestorIds from '../utils/span-ancestor-ids';
-
-export const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
-  SpanTreeOffset: css({
-    label: 'SpanTreeOffset',
-    color: autoColor(theme, '#000'),
-    position: 'relative',
-  }),
-  SpanTreeOffsetParent: css({
-    label: 'SpanTreeOffsetParent',
-    '&:hover': {
-      cursor: 'pointer',
-    },
-  }),
-  indentGuide: css({
-    label: 'indentGuide',
-    /* The size of the indentGuide is based off of the iconWrapper */
-    paddingRight: '1rem',
-    height: '100%',
-    display: 'inline-flex',
-    [theme.transitions.handleMotion('no-preference')]: {
-      transition: 'padding 300ms ease-out',
-    },
-    '&::before': {
-      content: '""',
-      paddingLeft: '1px',
-      backgroundColor: autoColor(theme, 'lightgrey'),
-    },
-  }),
-  indentGuideActive: css({
-    label: 'indentGuideActive',
-    '&::before': {
-      backgroundColor: autoColor(theme, '#777'),
-    },
-  }),
-  indentGuideThin: css({
-    paddingRight: '0.3rem',
-  }),
-  iconWrapper: css({
-    label: 'iconWrapper',
-    position: 'absolute',
-    right: 0,
-    height: '100%',
-    paddingTop: '1px',
-    width: '1rem',
-    textAlign: 'center',
-  }),
-}));
 
 export type TProps = {
   childrenVisible?: boolean;
@@ -80,23 +32,27 @@ export type TProps = {
   hoverIndentGuideIds: Set<string>;
   addHoverIndentGuideId: (spanID: string) => void;
   removeHoverIndentGuideId: (spanID: string) => void;
-  theme: GrafanaTheme2;
   visibleSpanIds: string[];
   removeLastIndentGuide?: boolean;
+  /** @internal first-party StyleX overrides for the root */
+  xstyle?: stylex.StyleXStyles;
+  /** @internal first-party StyleX overrides for the expand/collapse icon wrapper */
+  iconWrapperXstyle?: stylex.StyleXStyles;
 };
 
-const UnthemedSpanTreeOffset = React.memo<TProps>((props) => {
+const SpanTreeOffset = React.memo<TProps>((props) => {
   const {
     childrenVisible = false,
     showChildrenIcon = true,
     onClick,
     span,
-    theme,
     visibleSpanIds,
     hoverIndentGuideIds,
     addHoverIndentGuideId,
     removeHoverIndentGuideId,
     removeLastIndentGuide = false,
+    xstyle,
+    iconWrapperXstyle,
   } = props;
 
   const ancestorIds = React.useMemo(() => {
@@ -162,26 +118,32 @@ const UnthemedSpanTreeOffset = React.memo<TProps>((props) => {
     ) : (
       <Icon name={'angle-right'} data-testid="icon-arrow-right" size={'sm'} />
     ));
-  const styles = getStyles(theme);
 
   return (
-    <span className={cx(styles.SpanTreeOffset, { [styles.SpanTreeOffsetParent]: hasChildren })} {...wrapperProps}>
+    <span
+      {...stylex.props(styles.SpanTreeOffset, hasChildren && styles.SpanTreeOffsetParent, xstyle)}
+      {...wrapperProps}
+    >
       {ancestorIds.map((ancestorId, index) => (
         <span
           key={ancestorId}
-          className={cx(styles.indentGuide, {
-            [styles.indentGuideActive]: hoverIndentGuideIds.has(ancestorId),
-            [styles.indentGuideThin]:
-              index !== ancestorIds.length - 1 && ancestorId !== 'root' && !visibleSpanIds.includes(ancestorId),
-          })}
+          {...stylex.props(
+            styles.indentGuide,
+            hoverIndentGuideIds.has(ancestorId) && styles.indentGuideActive,
+            index !== ancestorIds.length - 1 &&
+              ancestorId !== 'root' &&
+              !visibleSpanIds.includes(ancestorId) &&
+              styles.indentGuideThin
+          )}
           data-ancestor-id={ancestorId}
+          data-active={hoverIndentGuideIds.has(ancestorId) || undefined}
           data-testid="SpanTreeOffset--indentGuide"
           onMouseEnter={(event) => handleMouseEnter(event, ancestorId)}
           onMouseLeave={(event) => handleMouseLeave(event, ancestorId)}
         />
       ))}
       <span
-        className={cx(styles.iconWrapper, 'icon-wrapper')}
+        {...stylex.props(styles.iconWrapper, iconWrapperXstyle)}
         onMouseEnter={(event) => icon && handleMouseEnter(event, spanID)}
         onMouseLeave={(event) => icon && handleMouseLeave(event, spanID)}
         data-testid="icon-wrapper"
@@ -192,6 +154,46 @@ const UnthemedSpanTreeOffset = React.memo<TProps>((props) => {
   );
 });
 
-UnthemedSpanTreeOffset.displayName = 'UnthemedSpanTreeOffset';
+SpanTreeOffset.displayName = 'SpanTreeOffset';
 
-export default withTheme2(UnthemedSpanTreeOffset);
+export default SpanTreeOffset;
+
+const styles = stylex.create({
+  SpanTreeOffset: {
+    color: traceColors['--gf-trace-000'],
+    position: 'relative',
+  },
+  SpanTreeOffsetParent: {
+    cursor: { default: null, ':hover': 'pointer' },
+  },
+  indentGuide: {
+    /* The size of the indentGuide is based off of the iconWrapper */
+    paddingRight: '1rem',
+    height: '100%',
+    display: 'inline-flex',
+    transitionProperty: { default: null, [motion.noPreference]: 'padding' },
+    transitionDuration: { default: null, [motion.noPreference]: '300ms' },
+    transitionTimingFunction: { default: null, [motion.noPreference]: 'ease-out' },
+    '::before': {
+      content: '""',
+      paddingLeft: '1px',
+      backgroundColor: traceColors['--gf-trace-lightgrey'],
+    },
+  },
+  indentGuideActive: {
+    '::before': {
+      backgroundColor: traceColors['--gf-trace-777'],
+    },
+  },
+  indentGuideThin: {
+    paddingRight: '0.3rem',
+  },
+  iconWrapper: {
+    position: 'absolute',
+    right: 0,
+    height: '100%',
+    paddingTop: '1px',
+    width: '1rem',
+    textAlign: 'center',
+  },
+});

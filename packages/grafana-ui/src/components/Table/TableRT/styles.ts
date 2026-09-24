@@ -1,16 +1,30 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
+import { type CSSProperties } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { type TableCellHeight } from '@grafana/schema';
 
+import { motion } from '../../../themes/stylex/constants.stylex';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { colors, components, shape, spacing, typography } from '../../../themes/stylex/tokens.stylex';
+import { cellContainerMarker } from '../markers.stylex';
+
+import './TableRT.css';
+
+/** Anything `stylex.props()` accepts: styles, dynamic styles and markers. */
+export type TableStyleProps = stylex.StyleXArray<
+  null | undefined | boolean | stylex.CompiledStyles | Readonly<[stylex.CompiledStyles, stylex.InlineStyles]>
+>;
+
 export function useTableStyles(theme: GrafanaTheme2, cellHeightOption: TableCellHeight) {
-  const borderColor = theme.colors.border.weak;
-  const resizerColor = theme.colors.primary.border;
   const cellPadding = 6;
   const cellHeight = getCellHeight(theme, cellHeightOption, cellPadding);
   const rowHeight = cellHeight + 2;
-  const headerHeight = 28;
 
+  /**
+   * Every property that has both a default and a `:hover` value is set by exactly one of the namespaces picked
+   * here, because a later StyleX namespace replaces a property's `:hover` value along with its default.
+   */
   const buildCellContainerStyle = (
     color?: string,
     background?: string,
@@ -21,82 +35,51 @@ export function useTableStyles(theme: GrafanaTheme2, cellHeightOption: TableCell
     textWrapped?: boolean,
     rowStyled?: boolean,
     rowExpanded?: boolean
-  ) => {
-    return css({
-      label: overflowOnHover ? 'cellContainerOverflow' : 'cellContainerNoOverflow',
-      padding: `${cellPadding}px`,
-      width: '100%',
-      // Cell height need to account for row border
-      height: rowExpanded ? 'auto !important' : `${rowHeight - 1}px`,
-      wordBreak: textWrapped ? 'break-all' : 'inherit',
+  ): TableStyleProps => {
+    const overflowVisibleOnHover = overflowOnHover && !textWrapped;
+    const heightAutoOnHover = (textShouldWrap || overflowOnHover) && !textWrapped;
+    const innerHeight = rowHeight - 1;
 
-      display: 'flex',
-
-      ...(asCellText
-        ? {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            userSelect: 'text',
-            whiteSpace: 'nowrap',
-          }
-        : {}),
-
-      alignItems: 'center',
-      borderRight: `1px solid ${borderColor}`,
-
-      color: rowStyled ? 'inherit' : (color ?? undefined),
-      background: rowStyled ? undefined : (background ?? undefined),
-      backgroundClip: 'padding-box',
-
-      '&:last-child:not(:only-child)': {
-        borderRight: 'none',
-      },
-
-      '&:hover': {
-        overflow: overflowOnHover && !textWrapped ? 'visible' : undefined,
-        width: textShouldWrap || !overflowOnHover ? 'auto' : 'auto !important',
-        height: (textShouldWrap || overflowOnHover) && !textWrapped ? 'auto !important' : `${rowHeight - 1}px`,
-        minHeight: `${rowHeight - 1}px`,
-        wordBreak: textShouldWrap ? 'break-word' : undefined,
-        whiteSpace: textShouldWrap && overflowOnHover ? 'normal' : 'nowrap',
-        boxShadow: overflowOnHover ? `0 0 2px ${theme.colors.primary.main}` : undefined,
-        background: rowStyled ? 'inherit' : (backgroundHover ?? theme.colors.background.primary),
-        zIndex: 1,
-        '.cellActions': {
-          background: theme.components.tooltip.background,
-          color: theme.components.tooltip.text,
-          visibility: 'visible',
-          opacity: 1,
-          width: 'auto',
-          borderRadius: theme.shape.radius.default,
-        },
-      },
-
-      a: {
-        color: 'inherit',
-      },
-
-      '.cellActions': {
-        display: 'flex',
-        position: overflowOnHover ? undefined : 'absolute',
-        top: overflowOnHover ? undefined : '1px',
-        right: overflowOnHover ? undefined : 0,
-        margin: overflowOnHover ? theme.spacing(0, 0, 0, 1) : 'auto',
-        visibility: 'hidden',
-        opacity: 0,
-        width: 0,
-        alignItems: 'center',
-        height: '100%',
-        padding: theme.spacing(0.5, 0, 0.5, 0.5),
-        background: theme.components.tooltip.background,
-        color: theme.components.tooltip.text,
-      },
-
-      '.cellActionsLeft': {
-        right: 'auto !important',
-        left: 0,
-      },
-    });
+    return [
+      cellStyles.cellContainer,
+      cellContainerMarker,
+      textShouldWrap || !overflowOnHover ? cellStyles.widthHoverAuto : cellStyles.widthHoverAutoImportant,
+      asCellText && cellStyles.asCellText,
+      asCellText
+        ? overflowVisibleOnHover
+          ? cellStyles.overflowHiddenHoverVisible
+          : cellStyles.overflowHidden
+        : overflowVisibleOnHover && cellStyles.overflowHoverVisible,
+      textShouldWrap && overflowOnHover
+        ? asCellText
+          ? cellStyles.whiteSpaceNowrapHoverNormal
+          : cellStyles.whiteSpaceHoverNormal
+        : asCellText
+          ? cellStyles.whiteSpaceNowrap
+          : cellStyles.whiteSpaceHoverNowrap,
+      textWrapped
+        ? textShouldWrap
+          ? cellStyles.wordBreakAllHoverWord
+          : cellStyles.wordBreakAll
+        : textShouldWrap
+          ? cellStyles.wordBreakInheritHoverWord
+          : cellStyles.wordBreakInherit,
+      rowExpanded
+        ? cellStyles.heightAuto
+        : heightAutoOnHover
+          ? cellStyles.heightHoverAuto(innerHeight)
+          : cellStyles.height(innerHeight),
+      cellStyles.minHeightHover(innerHeight),
+      overflowOnHover && cellStyles.hoverShadow,
+      rowStyled && cellStyles.colorInherit,
+      !rowStyled && color !== undefined && cellStyles.color(color),
+      rowStyled
+        ? cellStyles.backgroundHoverInherit
+        : cellStyles.background(
+            ...toBackground(background),
+            ...toBackground(backgroundHover ?? theme.colors.background.primary)
+          ),
+    ];
   };
 
   return {
@@ -106,206 +89,50 @@ export function useTableStyles(theme: GrafanaTheme2, cellHeightOption: TableCell
     cellPadding,
     cellHeightInner: cellHeight - cellPadding * 2,
     rowHeight,
-    table: css({
-      height: '100%',
-      width: '100%',
-      overflow: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    thead: css({
-      label: 'thead',
-      height: `${headerHeight}px`,
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      position: 'relative',
-    }),
-    tfoot: css({
-      label: 'tfoot',
-      height: `${headerHeight}px`,
-      borderTop: `1px solid ${borderColor}`,
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      position: 'relative',
-    }),
-    headerRow: css({
-      label: 'row',
-      borderBottom: `1px solid ${borderColor}`,
-    }),
-    headerCell: css({
-      height: '100%',
-      padding: `0 ${cellPadding}px`,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      alignItems: 'center',
-      fontWeight: theme.typography.fontWeightMedium,
-
-      '&:last-child': {
-        borderRight: 'none',
-      },
-    }),
-    headerCellLabel: css({
-      border: 'none',
-      padding: 0,
-      background: 'inherit',
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      fontWeight: theme.typography.fontWeightMedium,
-      display: 'flex',
-      alignItems: 'center',
-      marginRight: theme.spacing(0.5),
-
-      '&:hover': {
-        textDecoration: 'underline',
-        color: theme.colors.text.link,
-      },
-    }),
+    table: styles.table,
+    thead: styles.thead,
+    tfoot: styles.tfoot,
+    headerRow: styles.headerRow,
+    headerCell: styles.headerCell,
+    headerCellLabel: styles.headerCellLabel,
     cellContainerText: buildCellContainerStyle(undefined, undefined, undefined, true, true),
     cellContainerTextNoOverflow: buildCellContainerStyle(undefined, undefined, undefined, false, true),
 
     cellContainer: buildCellContainerStyle(undefined, undefined, undefined, true, false),
     cellContainerNoOverflow: buildCellContainerStyle(undefined, undefined, undefined, false, false),
-    cellText: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-      cursor: 'text',
-    }),
-    sortIcon: css({
-      marginLeft: theme.spacing(0.5),
-    }),
-    cellLink: css({
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-      color: `${theme.colors.text.link} !important`,
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingRight: theme.spacing(1.5),
-      '&:hover': {
-        textDecoration: 'underline',
-        color: theme.colors.text.link,
-      },
-    }),
-    cellLinkEmpty: css({
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-      fontWeight: theme.typography.fontWeightMedium,
-      paddingRight: theme.spacing(1.5),
-    }),
-    cellLinkForColoredCell: css({
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      userSelect: 'text',
-      whiteSpace: 'nowrap',
-      fontWeight: theme.typography.fontWeightMedium,
-      textDecoration: 'underline',
-    }),
-    imageCellLink: css({
-      cursor: 'pointer',
-      overflow: 'hidden',
-      height: '100%',
-    }),
-    headerFilter: css({
-      background: 'transparent',
-      border: 'none',
-      label: 'headerFilter',
-      padding: 0,
-    }),
-    paginationWrapper: css({
-      display: 'flex',
-      height: `${cellHeight}px`,
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '100%',
-      li: {
-        marginBottom: 0,
-      },
-    }),
-    paginationSummary: css({
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
-      display: 'flex',
-      justifyContent: 'flex-end',
-      padding: theme.spacing(0, 1, 0, 2),
-    }),
-
-    tableContentWrapper: (totalColumnsWidth: number) => {
-      const width = totalColumnsWidth !== undefined ? `${totalColumnsWidth}px` : '100%';
-
-      return css({
-        label: 'tableContentWrapper',
-        width,
-        display: 'flex',
-        flexDirection: 'column',
-      });
-    },
-    row: css({
-      label: 'row',
-      borderBottom: `1px solid ${borderColor}`,
-
-      '&:hover': {
-        backgroundColor: theme.components.table.rowHoverBackground,
-      },
-
-      '&:last-child': {
-        borderBottom: 0,
-      },
-    }),
-    imageCell: css({
-      height: '100%',
-    }),
-    resizeHandle: css({
-      label: 'resizeHandle',
-      cursor: 'col-resize !important',
-      display: 'inline-block',
-      background: resizerColor,
-      opacity: 0,
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'opacity 0.2s ease-in-out',
-      },
-      width: '8px',
-      height: '100%',
-      position: 'absolute',
-      right: '-4px',
-      borderRadius: theme.shape.radius.default,
-      top: 0,
-      touchAction: 'none',
-
-      '&:hover': {
-        opacity: 1,
-      },
-    }),
-    typeIcon: css({
-      marginRight: theme.spacing(1),
-      color: theme.colors.text.secondary,
-    }),
-    noData: css({
-      alignItems: 'center',
-      display: 'flex',
-      height: '100%',
-      justifyContent: 'center',
-      width: '100%',
-    }),
-    expanderCell: css({
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      height: `${rowHeight}px`,
-      cursor: 'pointer',
-    }),
+    cellText: styles.cellText,
+    sortIcon: styles.sortIcon,
+    cellLink: styles.cellLink,
+    cellLinkEmpty: styles.cellLinkEmpty,
+    cellLinkForColoredCell: styles.cellLinkForColoredCell,
+    imageCellLink: styles.imageCellLink,
+    headerFilter: styles.headerFilter,
+    paginationWrapper: [styles.paginationWrapper, styles.height(cellHeight)],
+    paginationSummary: styles.paginationSummary,
+    tableContentWrapper: (totalColumnsWidth: number) =>
+      [
+        styles.tableContentWrapper,
+        styles.width(totalColumnsWidth !== undefined ? `${totalColumnsWidth}px` : '100%'),
+      ] satisfies TableStyleProps,
+    row: styles.row,
+    expandedRow: styles.expandedRow,
+    imageCell: styles.imageCell,
+    resizeHandle: styles.resizeHandle,
+    typeIcon: styles.typeIcon,
+    noData: styles.noData,
+    expanderCell: [styles.expanderCell, styles.height(rowHeight)],
   };
 }
 
 export type TableStyles = ReturnType<typeof useTableStyles>;
+
+/** className/style for a cell container: its StyleX styles merged with react-table's inline cell style. */
+export function getCellContainerProps(
+  xstyle: TableStyleProps,
+  style?: CSSProperties
+): { className?: string; style?: CSSProperties } {
+  return mergeStylexProps(stylex.props(xstyle), { className: 'gf-table-rt-cell', style });
+}
 
 function getCellHeight(theme: GrafanaTheme2, cellHeightOption: TableCellHeight, cellPadding: number) {
   const bodyFontSize = theme.typography.fontSize;
@@ -321,3 +148,288 @@ function getCellHeight(theme: GrafanaTheme2, cellHeightOption: TableCellHeight, 
       return cellPadding * 2 + bodyFontSize * lineHeight;
   }
 }
+
+/** `background: value` as [background-color, background-image]; cell colours can be gradients. */
+function toBackground(value: string | undefined): [string | null, string | null] {
+  if (value === undefined) {
+    return [null, null];
+  }
+  return value.includes('gradient(') ? ['transparent', value] : [value, 'none'];
+}
+
+const headerHeight = '28px';
+
+const styles = stylex.create({
+  table: {
+    height: '100%',
+    width: '100%',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  thead: {
+    height: headerHeight,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    position: 'relative',
+  },
+  tfoot: {
+    height: headerHeight,
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors['--gf-colors-border-weak'],
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    position: 'relative',
+  },
+  headerRow: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  headerCell: {
+    height: '100%',
+    paddingTop: 0,
+    paddingRight: '6px',
+    paddingBottom: 0,
+    paddingLeft: '6px',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    borderRightStyle: { default: null, ':last-child': 'none' },
+  },
+  headerCellLabel: {
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    backgroundColor: 'inherit',
+    backgroundImage: 'inherit',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: spacing['--gf-spacing-x0-5'],
+    textDecoration: { default: null, ':hover': 'underline' },
+    color: { default: null, ':hover': colors['--gf-colors-text-link'] },
+  },
+  cellText: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+    whiteSpace: 'nowrap',
+    cursor: 'text',
+  },
+  sortIcon: {
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  // `!important` beats the cell container's `a { color: inherit }` rule (TableRT.css).
+  cellLink: {
+    cursor: 'pointer',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+    whiteSpace: 'nowrap',
+    color: {
+      default: `${colors['--gf-colors-text-link']} !important`,
+      ':hover': colors['--gf-colors-text-link'],
+    },
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+    textDecoration: { default: null, ':hover': 'underline' },
+  },
+  cellLinkEmpty: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+    whiteSpace: 'nowrap',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    paddingRight: spacing['--gf-spacing-x1-5'],
+  },
+  cellLinkForColoredCell: {
+    cursor: 'pointer',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+    whiteSpace: 'nowrap',
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    textDecoration: 'underline',
+  },
+  imageCellLink: {
+    cursor: 'pointer',
+    overflow: 'hidden',
+    height: '100%',
+  },
+  headerFilter: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  // Pagination's `li` margin is reset in TableRT.css.
+  paginationWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  paginationSummary: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingTop: 0,
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x2'],
+  },
+  tableContentWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  row: {
+    borderBottomWidth: { default: '1px', ':last-child': 0 },
+    borderBottomStyle: { default: 'solid', ':last-child': 'none' },
+    borderBottomColor: { default: colors['--gf-colors-border-weak'], ':last-child': 'currentcolor' },
+    backgroundColor: { default: null, ':hover': components['--gf-components-table-row-hover-background'] },
+  },
+  // `'&:hover': { background: 'inherit' }` merged onto `row`.
+  expandedRow: {
+    backgroundColor: { default: null, ':hover': 'inherit' },
+    backgroundImage: { default: null, ':hover': 'inherit' },
+  },
+  imageCell: {
+    height: '100%',
+  },
+  resizeHandle: {
+    cursor: 'col-resize',
+    display: 'inline-block',
+    backgroundColor: colors['--gf-colors-primary-border'],
+    opacity: { default: 0, ':hover': 1 },
+    transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+    transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '0.2s' },
+    transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-in-out' },
+    width: '8px',
+    height: '100%',
+    position: 'absolute',
+    right: '-4px',
+    borderRadius: shape['--gf-shape-radius-default'],
+    top: 0,
+    touchAction: 'none',
+  },
+  typeIcon: {
+    marginRight: spacing['--gf-spacing-x1'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  noData: {
+    alignItems: 'center',
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  expanderCell: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  height: (height: number) => ({ height }),
+  width: (width: string) => ({ width }),
+});
+
+// The container's `a { color: inherit }` rule is in TableRT.css; `.cellActions` is styled by CellActions.
+const cellStyles = stylex.create({
+  cellContainer: {
+    paddingTop: '6px',
+    paddingRight: '6px',
+    paddingBottom: '6px',
+    paddingLeft: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    borderRightWidth: '1px',
+    borderRightStyle: { default: 'solid', ':last-child': { default: null, ':not(:only-child)': 'none' } },
+    borderRightColor: colors['--gf-colors-border-weak'],
+    zIndex: { default: null, ':hover': 1 },
+  },
+  widthHoverAuto: {
+    width: { default: '100%', ':hover': 'auto' },
+  },
+  widthHoverAutoImportant: {
+    width: { default: '100%', ':hover': 'auto !important' },
+  },
+  asCellText: {
+    textOverflow: 'ellipsis',
+    userSelect: 'text',
+  },
+  overflowHidden: {
+    overflow: 'hidden',
+  },
+  overflowHiddenHoverVisible: {
+    overflow: { default: 'hidden', ':hover': 'visible' },
+  },
+  overflowHoverVisible: {
+    overflow: { default: null, ':hover': 'visible' },
+  },
+  whiteSpaceNowrap: {
+    whiteSpace: 'nowrap',
+  },
+  whiteSpaceNowrapHoverNormal: {
+    whiteSpace: { default: 'nowrap', ':hover': 'normal' },
+  },
+  whiteSpaceHoverNormal: {
+    whiteSpace: { default: null, ':hover': 'normal' },
+  },
+  whiteSpaceHoverNowrap: {
+    whiteSpace: { default: null, ':hover': 'nowrap' },
+  },
+  wordBreakAll: {
+    wordBreak: 'break-all',
+  },
+  wordBreakAllHoverWord: {
+    wordBreak: { default: 'break-all', ':hover': 'break-word' },
+  },
+  wordBreakInherit: {
+    wordBreak: 'inherit',
+  },
+  wordBreakInheritHoverWord: {
+    wordBreak: { default: 'inherit', ':hover': 'break-word' },
+  },
+  heightAuto: {
+    height: 'auto !important',
+  },
+  height: (height: number) => ({ height }),
+  heightHoverAuto: (height: number) => ({
+    height: { default: height, ':hover': 'auto !important' },
+  }),
+  minHeightHover: (minHeight: number) => ({
+    minHeight: { default: null, ':hover': minHeight },
+  }),
+  hoverShadow: {
+    boxShadow: { default: null, ':hover': `0 0 2px ${colors['--gf-colors-primary-main']}` },
+  },
+  colorInherit: {
+    color: 'inherit',
+  },
+  color: (color: string) => ({ color }),
+  // The hover `background` shorthand also reset `background-clip` to `border-box`.
+  background: (color: string | null, image: string | null, hoverColor: string | null, hoverImage: string | null) => ({
+    backgroundColor: { default: color, ':hover': hoverColor },
+    backgroundImage: { default: image, ':hover': hoverImage },
+    backgroundClip: { default: 'padding-box', ':hover': 'border-box' },
+  }),
+  backgroundHoverInherit: {
+    backgroundColor: { default: null, ':hover': 'inherit' },
+    backgroundImage: { default: null, ':hover': 'inherit' },
+    backgroundClip: { default: 'padding-box', ':hover': 'inherit' },
+  },
+});

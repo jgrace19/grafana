@@ -25,6 +25,7 @@ import { useTheme2 } from '../../../themes/ThemeContext';
 import { measureText } from '../../../utils/measureText';
 import { FormattedValueDisplay } from '../../FormattedValueDisplay/FormattedValueDisplay';
 import { Sparkline } from '../../Sparkline/Sparkline';
+import { getCellContainerProps } from '../TableRT/styles';
 import { type TableCellProps } from '../types';
 import { getAlignmentFactor, getCellOptions } from '../utils';
 
@@ -48,7 +49,7 @@ export const SparklineCell = (props: TableCellProps) => {
 
   if (!sparkline) {
     return (
-      <div {...cellProps} className={tableStyles.cellContainer}>
+      <div {...cellProps} {...getCellContainerProps(tableStyles.cellContainer, cellProps.style)}>
         {field.config.noValue || 'no data'}
       </div>
     );
@@ -107,7 +108,7 @@ export const SparklineCell = (props: TableCellProps) => {
   }
 
   return (
-    <div {...cellProps} className={tableStyles.cellContainer}>
+    <div {...cellProps} {...getCellContainerProps(tableStyles.cellContainer, cellProps.style)}>
       {valueElement}
       <div>
         <Sparkline

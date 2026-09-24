@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css, cx } from '@emotion/css';
-import { memo, useEffect, useMemo, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
 
 import {
@@ -22,7 +22,6 @@ import {
   type DataFrame,
   dateTimeFormat,
   dateTimeFormatTimeAgo,
-  type GrafanaTheme2,
   PluginExtensionPoints,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -47,9 +46,9 @@ import {
   LinkButton,
   Menu,
   Tooltip,
-  useStyles2,
   useTheme2,
 } from '@grafana/ui';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { useAppNotification } from 'app/core/copy/appNotification';
 
 import { downloadTraceAsJson } from '../../../../inspector/utils/download';
@@ -67,6 +66,8 @@ import TracePageSearchBar from './SearchBar/TracePageSearchBar';
 import SpanGraph from './SpanGraph';
 import { TraceFilterPills } from './TraceFilterPills';
 import { useTraceAdHocFiltersController } from './useTraceAdHocFiltersController';
+
+import './TracePageHeader.css';
 
 export type TracePageHeaderProps = {
   trace: Trace | null;
@@ -110,8 +111,8 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
     hideHeaderDetails = false,
   } = props;
 
-  const styles = useStyles2(getStyles);
   const theme = useTheme2();
+  const headerRef = useRef<HTMLElement>(null);
   const notifyApp = useAppNotification();
   const [copyTraceIdClicked, setCopyTraceIdClicked] = useState(false);
   const [isOverviewOpen, setIsOverviewOpen] = useState(true);
@@ -121,8 +122,8 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
   const controller = useTraceAdHocFiltersController(trace, search, setSearch);
 
   useEffect(() => {
-    setHeaderHeight(document.querySelector('.' + styles.header)?.scrollHeight ?? 0);
-  }, [setHeaderHeight, showSpanFilters, styles.header]);
+    setHeaderHeight(headerRef.current?.scrollHeight ?? 0);
+  }, [setHeaderHeight, showSpanFilters]);
 
   // Build context for plugin extensions if trace is available
   const traceContext: TraceViewPluginExtensionContext | undefined = trace
@@ -211,12 +212,12 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
   );
 
   return (
-    <header className={styles.header}>
+    <header ref={headerRef} {...stylex.props(styles.header)}>
       {/* Main title row */}
-      <div className={styles.titleRow}>
-        <div className={styles.titleSection}>
-          <h1 className={styles.title}>{traceName}</h1>
-          <div className={styles.badges}>
+      <div {...stylex.props(styles.titleRow)}>
+        <div {...stylex.props(styles.titleSection)}>
+          <h1 {...stylex.props(styles.title)}>{traceName}</h1>
+          <div {...stylex.props(styles.badges)}>
             {method && method.length > 0 && <Badge text={method[0].value} color="blue" />}
             {status && status.length > 0 && <Badge text={status[0].value} color={statusColor} />}
           </div>
@@ -224,10 +225,10 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
 
         {/* Action buttons */}
         {!hideHeaderDetails && (
-          <div className={styles.actions}>
+          <div {...stylex.props(styles.actions)}>
             {/* Plugin extension actions */}
             {extensionLinks.length > 0 && (
-              <div className={styles.actions}>
+              <div {...stylex.props(styles.actions)}>
                 {extensionLinks.map((link) => (
                   <Tooltip key={link.id} content={link.description || link.title}>
                     <Button
@@ -249,7 +250,7 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
               </div>
             )}
 
-            <div className={styles.actions}>
+            <div {...stylex.props(styles.actions)}>
               {traceContext
                 ? renderLimitedComponents<TraceViewPluginExtensionContext>({
                     props: traceContext,
@@ -312,51 +313,52 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
       {/* Metadata row */}
       {!hideHeaderDetails && (
         <>
-          <div className={styles.metadataRow}>
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>{t('explore.trace-page-header.trace-id', 'Trace ID')}</span>
-              <span className={styles.metadataValue}>
-                <button className={styles.traceIdButton} onClick={copyTraceId}>
+          <div {...stylex.props(styles.metadataRow)}>
+            <div {...stylex.props(styles.metadataItem)}>
+              <span {...stylex.props(styles.metadataLabel)}>{t('explore.trace-page-header.trace-id', 'Trace ID')}</span>
+              <span {...stylex.props(styles.metadataValue)}>
+                <button
+                  {...stylex.props(
+                    styles.traceIdButton,
+                    styles.traceIdButtonColor(theme.colors.emphasize(theme.colors.text.primary, 0.15))
+                  )}
+                  onClick={copyTraceId}
+                >
                   {trace.traceID}
-                  <Icon name={copyTraceIdClicked ? 'check' : 'copy'} size="sm" className={styles.copyIcon} />
+                  <Icon name={copyTraceIdClicked ? 'check' : 'copy'} size="sm" xstyle={styles.copyIcon} />
                 </button>
               </span>
             </div>
 
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>{t('explore.trace-page-header.start-time', 'Start time')}</span>
-              <span
-                className={cx(
-                  styles.metadataValue,
-                  css({
-                    gap: theme.spacing(0.5),
-                  })
-                )}
-              >
+            <div {...stylex.props(styles.metadataItem)}>
+              <span {...stylex.props(styles.metadataLabel)}>
+                {t('explore.trace-page-header.start-time', 'Start time')}
+              </span>
+              <span {...stylex.props(styles.metadataValue, styles.metadataValueCompact)}>
                 <span>{formattedTimestamp}</span>
-                <span className={styles.timestampDetail}>({dateTimeFormatTimeAgo(trace.startTime / 1000)})</span>
+                <span {...stylex.props(styles.timestampDetail)}>({dateTimeFormatTimeAgo(trace.startTime / 1000)})</span>
               </span>
             </div>
 
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>{t('explore.trace-page-header.duration', 'Duration')}</span>
-              <span className={styles.metadataValue}>{formatDuration(trace.duration)}</span>
+            <div {...stylex.props(styles.metadataItem)}>
+              <span {...stylex.props(styles.metadataLabel)}>{t('explore.trace-page-header.duration', 'Duration')}</span>
+              <span {...stylex.props(styles.metadataValue)}>{formatDuration(trace.duration)}</span>
             </div>
 
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>{t('explore.trace-page-header.services', 'Services')}</span>
-              <span className={styles.metadataValue}>{serviceCount}</span>
+            <div {...stylex.props(styles.metadataItem)}>
+              <span {...stylex.props(styles.metadataLabel)}>{t('explore.trace-page-header.services', 'Services')}</span>
+              <span {...stylex.props(styles.metadataValue)}>{serviceCount}</span>
             </div>
 
             {url && url.length > 0 && (
-              <div className={styles.metadataItem}>
-                <span className={styles.metadataLabel}>
+              <div {...stylex.props(styles.metadataItem)}>
+                <span {...stylex.props(styles.metadataLabel)}>
                   {url[0].key === 'http.route' && t('explore.trace-page-header.route', 'Route')}
                   {url[0].key === 'http.url' && t('explore.trace-page-header.url', 'URL')}
                   {url[0].key === 'http.target' && t('explore.trace-page-header.target', 'Target')}
                   {url[0].key === 'http.path' && t('explore.trace-page-header.path', 'Path')}
                 </span>
-                <span className={styles.metadataValue}>
+                <span {...stylex.props(styles.metadataValue)}>
                   <Tooltip
                     content={
                       <div>
@@ -378,7 +380,7 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
                     }
                     interactive={true}
                   >
-                    <span className={styles.url}>{url[0].value}</span>
+                    <span {...stylex.props(styles.url)}>{url[0].value}</span>
                   </Tooltip>
                 </span>
               </div>
@@ -386,11 +388,13 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
           </div>
 
           <CollapsableSection
-            label={<span className={styles.overviewLabel}>{t('explore.trace-page-header.overview', 'Overview')}</span>}
+            label={
+              <span {...stylex.props(styles.overviewLabel)}>{t('explore.trace-page-header.overview', 'Overview')}</span>
+            }
             isOpen={isOverviewOpen}
             onToggle={setIsOverviewOpen}
-            className={styles.overviewCollapsableSection}
-            contentClassName={styles.overviewCollapsableSectionContent}
+            className={stylex.props(styles.overviewCollapsableSection).className}
+            contentClassName="gf-trace-overview-content"
           >
             <SpanGraph
               trace={trace}
@@ -403,13 +407,13 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
       )}
 
       {!hideHeaderDetails && (
-        <div className={styles.filtersContainer}>
+        <div {...stylex.props(styles.filtersContainer)}>
           <Label>{t('explore.trace-page-header.filters', 'Filters')}</Label>
-          <div className={styles.adhocFiltersRow}>
+          <div {...stylex.props(styles.adhocFiltersRow)}>
             {controller && <AdHocFiltersComboboxRenderer controller={controller} />}
           </div>
           {trace && (
-            <div className={styles.searchAndPillsRow}>
+            <div {...stylex.props(styles.searchAndPillsRow)}>
               <TraceFilterPills trace={trace} search={search} setSearch={setSearch} />
               <TracePageSearchBar
                 trace={trace}
@@ -434,158 +438,135 @@ export const TracePageHeader = memo((props: TracePageHeaderProps) => {
 
 TracePageHeader.displayName = 'TracePageHeader';
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    header: css({
-      label: 'TracePageHeader',
-      backgroundColor: theme.colors.background.primary,
-      padding: '0.5em',
-      position: 'sticky',
-      top: 0,
-      zIndex: 5,
-      textAlign: 'left',
-    }),
-
-    titleRow: css({
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      marginBottom: theme.spacing(1),
-      gap: theme.spacing(2),
-    }),
-
-    titleSection: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(2),
-      flex: 1,
-      minWidth: 0, // Allow text truncation
-    }),
-
-    title: css({
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.h3.fontSize,
-      fontWeight: theme.typography.h3.fontWeight,
-      lineHeight: theme.typography.h3.lineHeight,
-      margin: 0,
-      minWidth: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }),
-
-    badges: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      alignItems: 'center',
-      flexShrink: 0,
-    }),
-
-    actions: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      flexShrink: 0,
-    }),
-
-    metadataRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      columnGap: theme.spacing(3),
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.secondary,
-      flexWrap: 'wrap',
-    }),
-
-    metadataItem: css({
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-    }),
-
-    metadataLabel: css({
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.secondary,
-    }),
-
-    metadataValue: css({
-      color: theme.colors.text.primary,
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-    }),
-
-    traceIdButton: css({
-      background: 'none',
-      border: 'none',
-      color: theme.colors.text.primary,
-      cursor: 'pointer',
-      textDecoration: 'underline',
-      display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(0.5),
-      padding: 0,
-      font: 'inherit',
-
-      '&:hover': {
-        color: theme.colors.emphasize(theme.colors.text.primary, 0.15),
-      },
-    }),
-
-    copyIcon: css({
-      opacity: 0.7,
-    }),
-
-    copiedText: css({
-      color: theme.colors.success.text,
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-    }),
-
-    timestampDetail: css({
-      color: theme.colors.text.disabled,
-    }),
-
-    url: css({
-      maxWidth: '700px',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      display: 'inline-block',
-      color: theme.colors.text.primary,
-    }),
-    overviewLabel: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      color: theme.colors.text.primary,
-
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    overviewCollapsableSection: css({
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      gap: theme.spacing(0.5),
-    }),
-    overviewCollapsableSectionContent: css({
-      padding: theme.spacing(0, 1, 2, 1),
-    }),
-    filtersContainer: css({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(0.5),
-    }),
-    adhocFiltersRow: css({
-      display: 'flex',
-      width: '100%',
-    }),
-    searchAndPillsRow: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing(2),
-      width: '100%',
-      marginTop: theme.spacing(0.5),
-    }),
-  };
-};
+const styles = stylex.create({
+  header: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+    padding: '0.5em',
+    position: 'sticky',
+    top: 0,
+    zIndex: 5,
+    textAlign: 'left',
+  },
+  titleRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: spacing['--gf-spacing-x1'],
+    gap: spacing['--gf-spacing-x2'],
+  },
+  titleSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x2'],
+    flex: '1',
+    minWidth: 0, // Allow text truncation
+  },
+  title: {
+    color: colors['--gf-colors-text-primary'],
+    fontSize: typography['--gf-typography-h3-font-size'],
+    fontWeight: typography['--gf-typography-h3-font-weight'],
+    lineHeight: typography['--gf-typography-h3-line-height'],
+    margin: 0,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  badges: {
+    display: 'flex',
+    gap: spacing['--gf-spacing-x1'],
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  actions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+    flexShrink: 0,
+  },
+  metadataRow: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: spacing['--gf-spacing-x3'],
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+    flexWrap: 'wrap',
+  },
+  metadataItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  metadataLabel: {
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  metadataValue: {
+    color: colors['--gf-colors-text-primary'],
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  metadataValueCompact: {
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  traceIdButton: {
+    backgroundColor: 'transparent',
+    backgroundImage: 'none',
+    borderStyle: 'none',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing['--gf-spacing-x0-5'],
+    padding: 0,
+    font: 'inherit',
+  },
+  // theme.colors.emphasize(text.primary) is JS colour math.
+  traceIdButtonColor: (hover: string) => ({
+    color: { default: colors['--gf-colors-text-primary'], ':hover': hover },
+  }),
+  copyIcon: {
+    opacity: 0.7,
+  },
+  timestampDetail: {
+    color: colors['--gf-colors-text-disabled'],
+  },
+  url: {
+    maxWidth: '700px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    color: colors['--gf-colors-text-primary'],
+  },
+  overviewLabel: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-primary'],
+    display: 'flex',
+    alignItems: 'center',
+  },
+  overviewCollapsableSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  filtersContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing['--gf-spacing-x0-5'],
+  },
+  adhocFiltersRow: {
+    display: 'flex',
+    width: '100%',
+  },
+  searchAndPillsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing['--gf-spacing-x2'],
+    width: '100%',
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
+});

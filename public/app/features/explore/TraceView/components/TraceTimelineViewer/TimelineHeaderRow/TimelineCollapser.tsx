@@ -12,31 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Button, useStyles2 } from '@grafana/ui';
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  TimelineCollapser: css({
-    alignItems: 'center',
-    display: 'flex',
-    flex: 'none',
-    justifyContent: 'center',
-    marginRight: '0.5rem',
-  }),
-  buttonsContainer: css({
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '0.5rem',
-    paddingRight: theme.spacing(1),
-  }),
-  buttonContainer: css({
-    display: 'flex',
-    alignItems: 'center',
-  }),
-});
+import { Button } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 type CollapserProps = {
   onCollapseAll: () => void;
@@ -47,12 +27,11 @@ type CollapserProps = {
 
 export function TimelineCollapser(props: CollapserProps) {
   const { onExpandAll, onExpandOne, onCollapseAll, onCollapseOne } = props;
-  const styles = useStyles2(getStyles);
 
   return (
-    <div className={styles.TimelineCollapser} data-testid="TimelineCollapser">
-      <div className={styles.buttonsContainer}>
-        <div className={styles.buttonContainer}>
+    <div {...stylex.props(styles.TimelineCollapser)} data-testid="TimelineCollapser">
+      <div {...stylex.props(styles.buttonsContainer)}>
+        <div {...stylex.props(styles.buttonContainer)}>
           <Button
             aria-label={t('explore.timeline-collapser.tooltip-expand', 'Expand +1')}
             tooltip={t('explore.timeline-collapser.tooltip-expand', 'Expand +1')}
@@ -74,7 +53,7 @@ export function TimelineCollapser(props: CollapserProps) {
             variant="secondary"
           />
         </div>
-        <div className={styles.buttonContainer}>
+        <div {...stylex.props(styles.buttonContainer)}>
           <Button
             aria-label={t('explore.timeline-collapser.tooltip-expand-all', 'Expand all')}
             tooltip={t('explore.timeline-collapser.tooltip-expand-all', 'Expand all')}
@@ -100,3 +79,23 @@ export function TimelineCollapser(props: CollapserProps) {
     </div>
   );
 }
+
+const styles = stylex.create({
+  TimelineCollapser: {
+    alignItems: 'center',
+    display: 'flex',
+    flex: 'none',
+    justifyContent: 'center',
+    marginRight: '0.5rem',
+  },
+  buttonsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '0.5rem',
+    paddingRight: spacing['--gf-spacing-x1'],
+  },
+  buttonContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});

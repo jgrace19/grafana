@@ -12,97 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import { groupBy as _groupBy } from 'lodash';
 import { useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans } from '@grafana/i18n';
-import { Tooltip, useStyles2 } from '@grafana/ui';
+import { Tooltip } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { shape } from '@grafana/ui/stylex/tokens.stylex';
 
-import { autoColor } from '../Theme';
 import { Popover } from '../common/Popover';
+import { spanBarRowMarker } from '../markers.stylex';
+import { traceColors } from '../traceColors.stylex';
 import type TNil from '../types/TNil';
 import { type TraceSpan, type CriticalPathSection } from '../types/trace';
 
 import AccordianLogs from './SpanDetail/AccordianLogs';
 import { type ViewedBoundsFunctionType } from './utils';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    wrapper: css({
-      label: 'wrapper',
-      bottom: 0,
-      left: 0,
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      overflow: 'hidden',
-      zIndex: 0,
-    }),
-    bar: css({
-      label: 'bar',
-      borderRadius: theme.shape.radius.sm,
-      minWidth: '2px',
-      position: 'absolute',
-      height: '40%',
-      top: '30%',
-    }),
-    rpc: css({
-      label: 'rpc',
-      position: 'absolute',
-      top: '35%',
-      bottom: '35%',
-      zIndex: 1,
-    }),
-    label: css({
-      label: 'label',
-      color: '#aaa',
-      fontSize: '12px',
-      fontFamily: "'Helvetica Neue', Helvetica, Arial, sans - serif",
-      lineHeight: '1em',
-      whiteSpace: 'nowrap',
-      padding: '0 0.5em',
-      position: 'absolute',
-    }),
-    logMarker: css({
-      label: 'logMarker',
-      backgroundColor: autoColor(theme, '#2c3235'),
-      cursor: 'pointer',
-      height: '60%',
-      minWidth: '1px',
-      position: 'absolute',
-      top: '20%',
-      '&:hover': {
-        backgroundColor: autoColor(theme, '#464c54'),
-      },
-      '&::before, &::after': {
-        content: "''",
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        border: '1px solid transparent',
-      },
-      '&::after': {
-        left: 0,
-      },
-    }),
-    criticalPath: css({
-      position: 'absolute',
-      top: '44%',
-      height: '11%',
-      zIndex: 2,
-      overflow: 'hidden',
-      background: autoColor(theme, '#f1f1f1'),
-      borderLeft: `1px solid ${autoColor(theme, '#2c3235')}`,
-      borderRight: `1px solid ${autoColor(theme, '#2c3235')}`,
-    }),
-  };
-};
 
 export type Props = {
   color: string;
@@ -121,6 +49,10 @@ export type Props = {
   span: TraceSpan;
   className?: string;
   labelClassName?: string;
+  /** Which side of the bar the label sits on. */
+  labelPosition?: 'left' | 'right';
+  /** Darkens the label, as a hovered, expanded or focused row does. */
+  isLabelHighlighted?: boolean;
   longLabel: string;
   shortLabel: string;
   criticalPath: CriticalPathSection[];
@@ -148,6 +80,8 @@ function SpanBar({
   span,
   className,
   labelClassName,
+  labelPosition,
+  isLabelHighlighted = false,
 }: Props) {
   const [label, setLabel] = useState(shortLabel);
   const setShortLabel = () => setLabel(shortLabel);
@@ -159,11 +93,10 @@ function SpanBar({
     // round to the nearest 0.2%
     return toPercent(Math.round(posPercent * 500) / 500);
   });
-  const styles = useStyles2(getStyles);
 
   return (
     <div
-      className={cx(styles.wrapper, className)}
+      {...mergeStylexProps(stylex.props(styles.wrapper), { className })}
       onBlur={setShortLabel}
       onClick={onClick}
       onFocus={setLongLabel}
@@ -174,14 +107,26 @@ function SpanBar({
     >
       <div
         aria-label={label}
-        className={cx(styles.bar)}
-        style={{
-          background: color,
-          left: toPercent(viewStart),
-          width: toPercent(viewEnd - viewStart),
-        }}
+        {...mergeStylexProps(stylex.props(styles.bar), {
+          style: {
+            background: color,
+            left: toPercent(viewStart),
+            width: toPercent(viewEnd - viewStart),
+          },
+        })}
       >
-        <div className={cx(styles.label, labelClassName)} data-testid="SpanBar--label">
+        <div
+          {...mergeStylexProps(
+            stylex.props(
+              styles.label,
+              isLabelHighlighted && styles.labelHighlighted,
+              labelPosition === 'left' && styles.labelLeft,
+              labelPosition === 'right' && styles.labelRight
+            ),
+            { className: labelClassName }
+          )}
+          data-testid="SpanBar--label"
+        >
           {label}
         </div>
       </div>
@@ -193,18 +138,22 @@ function SpanBar({
               <AccordianLogs interactive={false} isOpen logs={logGroups[positionKey]} timestamp={traceStartTime} />
             }
           >
-            <div data-testid="SpanBar--logMarker" className={cx(styles.logMarker)} style={{ left: positionKey }} />
+            <div
+              data-testid="SpanBar--logMarker"
+              {...mergeStylexProps(stylex.props(styles.logMarker), { style: { left: positionKey } })}
+            />
           </Popover>
         ))}
       </div>
       {rpc && (
         <div
-          className={cx(styles.rpc)}
-          style={{
-            background: rpc.color,
-            left: toPercent(rpc.viewStart),
-            width: toPercent(rpc.viewEnd - rpc.viewStart),
-          }}
+          {...mergeStylexProps(stylex.props(styles.rpc), {
+            style: {
+              background: rpc.color,
+              left: toPercent(rpc.viewStart),
+              width: toPercent(rpc.viewEnd - rpc.viewStart),
+            },
+          })}
         />
       )}
       {criticalPath?.map((each, index) => {
@@ -226,11 +175,12 @@ function SpanBar({
           >
             <div
               data-testid="SpanBar--criticalPath"
-              className={styles.criticalPath}
-              style={{
-                left: toPercentInDecimal(criticalPathViewStart),
-                width: toPercentInDecimal(criticalPathViewEnd - criticalPathViewStart),
-              }}
+              {...mergeStylexProps(stylex.props(styles.criticalPath), {
+                style: {
+                  left: toPercentInDecimal(criticalPathViewStart),
+                  width: toPercentInDecimal(criticalPathViewEnd - criticalPathViewStart),
+                },
+              })}
             />
           </Tooltip>
         );
@@ -240,3 +190,92 @@ function SpanBar({
 }
 
 export default React.memo(SpanBar);
+
+const styles = stylex.create({
+  wrapper: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    overflow: 'hidden',
+    zIndex: 0,
+  },
+  bar: {
+    borderRadius: shape['--gf-shape-radius-sm'],
+    minWidth: '2px',
+    position: 'absolute',
+    height: '40%',
+    top: '30%',
+  },
+  rpc: {
+    position: 'absolute',
+    top: '35%',
+    bottom: '35%',
+    zIndex: 1,
+  },
+  label: {
+    color: { default: '#aaa', [stylex.when.ancestor(':hover', spanBarRowMarker)]: traceColors['--gf-trace-000'] },
+    fontSize: '12px',
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans - serif",
+    lineHeight: '1em',
+    whiteSpace: 'nowrap',
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: '0.5em',
+    paddingRight: '0.5em',
+    position: 'absolute',
+  },
+  labelHighlighted: {
+    color: traceColors['--gf-trace-000'],
+  },
+  labelRight: {
+    left: '100%',
+  },
+  labelLeft: {
+    right: '100%',
+  },
+  logMarker: {
+    backgroundColor: { default: traceColors['--gf-trace-2c3235'], ':hover': traceColors['--gf-trace-464c54'] },
+    cursor: 'pointer',
+    height: '60%',
+    minWidth: '1px',
+    position: 'absolute',
+    top: '20%',
+    '::before': {
+      content: "''",
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      right: 0,
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'transparent',
+    },
+    '::after': {
+      content: "''",
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      right: 0,
+      left: 0,
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'transparent',
+    },
+  },
+  criticalPath: {
+    position: 'absolute',
+    top: '44%',
+    height: '11%',
+    zIndex: 2,
+    overflow: 'hidden',
+    backgroundColor: traceColors['--gf-trace-f1f1f1'],
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: traceColors['--gf-trace-2c3235'],
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: traceColors['--gf-trace-2c3235'],
+  },
+});

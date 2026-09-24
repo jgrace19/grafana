@@ -1,14 +1,17 @@
+import * as stylex from '@stylexjs/stylex';
 import { useCallback } from 'react';
 import * as React from 'react';
 
 import { t } from '@grafana/i18n';
 
+import { components, shape, spacing } from '../../themes/stylex/tokens.stylex';
 import { type IconSize } from '../../types/icon';
 import { IconButton } from '../IconButton/IconButton';
 import { Stack } from '../Layout/Stack/Stack';
 import { type TooltipPlacement } from '../Tooltip/types';
 
 import { TableCellInspectorMode } from './TableCellInspector';
+import { cellContainerMarker } from './markers.stylex';
 import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR, type TableCellProps } from './types';
 import { getTextAlign } from './utils';
 
@@ -55,7 +58,14 @@ export function CellActions({
   );
 
   return (
-    <div className={`cellActions${isRightAligned ? ' cellActionsLeft' : ''}`}>
+    // Inspect-enabled cells don't overflow on hover, so their actions overlay the cell instead of sitting inline.
+    <div
+      {...stylex.props(
+        styles.cellActions,
+        inspectEnabled ? styles.cellActionsAbsolute : styles.cellActionsInline,
+        isRightAligned && styles.cellActionsLeft
+      )}
+    >
       <Stack gap={0.5}>
         {inspectEnabled && (
           <IconButton
@@ -105,3 +115,43 @@ export function CellActions({
     </div>
   );
 }
+
+const styles = stylex.create({
+  cellActions: {
+    display: 'flex',
+    visibility: { default: 'hidden', [stylex.when.ancestor(':hover', cellContainerMarker)]: 'visible' },
+    opacity: { default: 0, [stylex.when.ancestor(':hover', cellContainerMarker)]: 1 },
+    width: { default: 0, [stylex.when.ancestor(':hover', cellContainerMarker)]: 'auto' },
+    alignItems: 'center',
+    height: '100%',
+    paddingTop: spacing['--gf-spacing-x0-5'],
+    paddingRight: 0,
+    paddingBottom: spacing['--gf-spacing-x0-5'],
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    backgroundColor: components['--gf-components-tooltip-background'],
+    color: components['--gf-components-tooltip-text'],
+    borderRadius: {
+      default: null,
+      [stylex.when.ancestor(':hover', cellContainerMarker)]: shape['--gf-shape-radius-default'],
+    },
+  },
+  cellActionsInline: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x1'],
+  },
+  cellActionsAbsolute: {
+    position: 'absolute',
+    top: '1px',
+    right: 0,
+    marginTop: 'auto',
+    marginRight: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 'auto',
+  },
+  cellActionsLeft: {
+    right: 'auto',
+    left: 0,
+  },
+});

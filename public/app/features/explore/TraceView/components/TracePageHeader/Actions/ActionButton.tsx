@@ -1,35 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2, type IconName } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
-
-export const getStyles = (theme: GrafanaTheme2) => ({
-  ActionButton: css({
-    label: 'ActionButton',
-    overflow: 'hidden',
-    position: 'relative',
-    '&:after': {
-      content: '""',
-      background: theme.colors.primary.main,
-      display: 'block',
-      position: 'absolute',
-      right: 0,
-      width: '100%',
-      height: '100%',
-      opacity: 0,
-      [theme.transitions.handleMotion('no-preference')]: {
-        transition: 'all 0.8s',
-      },
-    },
-    '&:active:after': {
-      margin: 0,
-      opacity: 0.3,
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: '0s',
-      },
-    },
-  }),
-});
+import { type IconName } from '@grafana/data';
+import { Button } from '@grafana/ui';
+import { motion } from '@grafana/ui/stylex/constants.stylex';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 export type ActionButtonProps = {
   onClick: () => void;
@@ -40,11 +14,10 @@ export type ActionButtonProps = {
 
 export default function ActionButton(props: ActionButtonProps) {
   const { onClick, ariaLabel, label, icon } = props;
-  const styles = useStyles2(getStyles);
 
   return (
     <Button
-      className={styles.ActionButton}
+      className={stylex.props(styles.ActionButton).className}
       size="sm"
       variant="secondary"
       fill={'outline'}
@@ -57,3 +30,31 @@ export default function ActionButton(props: ActionButtonProps) {
     </Button>
   );
 }
+
+const styles = stylex.create({
+  ActionButton: {
+    overflow: 'hidden',
+    position: 'relative',
+    '::after': {
+      content: '""',
+      backgroundColor: colors['--gf-colors-primary-main'],
+      display: 'block',
+      position: 'absolute',
+      right: 0,
+      width: '100%',
+      height: '100%',
+      opacity: { default: 0, ':active': 0.3 },
+      margin: { default: null, ':active': 0 },
+      transitionProperty: {
+        default: null,
+        [motion.noPreference]: 'all',
+        ':active': { default: null, [motion.noPreferenceOrReduce]: 'all' },
+      },
+      transitionDuration: {
+        default: null,
+        [motion.noPreference]: '0.8s',
+        ':active': { default: null, [motion.noPreferenceOrReduce]: '0s' },
+      },
+    },
+  },
+});

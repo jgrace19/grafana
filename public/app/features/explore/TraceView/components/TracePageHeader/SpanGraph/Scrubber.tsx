@@ -12,63 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { css } from '@emotion/css';
-import cx from 'classnames';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 
-import { useStyles2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
 
-export const getStyles = () => ({
-  ScrubberHandleExpansion: cx(
-    css({
-      label: 'ScrubberHandleExpansion',
-      cursor: 'col-resize',
-      fillOpacity: 0,
-      fill: '#44f',
-    }),
-    'scrubber-handle-expansion'
-  ),
-  ScrubberHandle: cx(
-    css({
-      label: 'ScrubberHandle',
-      cursor: 'col-resize',
-      fill: '#555',
-    }),
-    'scrubber-handle'
-  ),
-  ScrubberLine: cx(
-    css({
-      label: 'ScrubberLine',
-      pointerEvents: 'none',
-      stroke: '#555',
-    }),
-    'scrubber-line'
-  ),
-  ScrubberDragging: css({
-    label: 'ScrubberDragging',
-    '& .scrubber-handle-expansion': {
-      fillOpacity: 1,
-    },
-    '& .scrubber-handle': {
-      fill: '#44f',
-    },
-    '& > .scrubber-line': {
-      stroke: '#44f',
-    },
-  }),
-  ScrubberHandles: css({
-    label: 'ScrubberHandles',
-    '&:hover > .scrubber-handle-expansion': {
-      fillOpacity: 1,
-    },
-    '&:hover > .scrubber-handle': {
-      fill: '#44f',
-    },
-    '&:hover + .scrubber.line': {
-      stroke: '#44f',
-    },
-  }),
-});
+import { scrubberHandlesMarker } from '../../markers.stylex';
 
 export type ScrubberProps = {
   isDragging: boolean;
@@ -80,13 +29,11 @@ export type ScrubberProps = {
 
 export default function Scrubber({ isDragging, onMouseDown, onMouseEnter, onMouseLeave, position }: ScrubberProps) {
   const xPercent = `${position * 100}%`;
-  const styles = useStyles2(getStyles);
-  const className = cx({ [styles.ScrubberDragging]: isDragging });
   return (
-    <g className={className} data-testid="scrubber-component">
+    <g data-testid="scrubber-component">
       <g
         data-testid="scrubber-component-g"
-        className={styles.ScrubberHandles}
+        {...stylex.props(scrubberHandlesMarker)}
         onMouseDown={onMouseDown}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -95,22 +42,25 @@ export default function Scrubber({ isDragging, onMouseDown, onMouseEnter, onMous
         <rect
           data-testid="scrubber-component-rect-1"
           x={xPercent}
-          className={styles.ScrubberHandleExpansion}
-          style={{ transform: `translate(-4.5px)` }}
+          {...mergeStylexProps(
+            stylex.props(styles.ScrubberHandleExpansion, isDragging && styles.ScrubberHandleExpansionDragging),
+            { style: { transform: `translate(-4.5px)` } }
+          )}
           width="9"
           height="20"
         />
         <rect
           data-testid="scrubber-component-rect-2"
           x={xPercent}
-          className={styles.ScrubberHandle}
-          style={{ transform: `translate(-1.5px)` }}
+          {...mergeStylexProps(stylex.props(styles.ScrubberHandle, isDragging && styles.ScrubberHandleDragging), {
+            style: { transform: `translate(-1.5px)` },
+          })}
           width="3"
           height="20"
         />
       </g>
       <line
-        className={styles.ScrubberLine}
+        {...stylex.props(styles.ScrubberLine, isDragging && styles.ScrubberLineDragging)}
         y2="100%"
         x1={xPercent}
         x2={xPercent}
@@ -119,3 +69,28 @@ export default function Scrubber({ isDragging, onMouseDown, onMouseEnter, onMous
     </g>
   );
 }
+
+const styles = stylex.create({
+  ScrubberHandleExpansion: {
+    cursor: 'col-resize',
+    fillOpacity: { default: 0, [stylex.when.ancestor(':hover', scrubberHandlesMarker)]: 1 },
+    fill: '#44f',
+  },
+  ScrubberHandleExpansionDragging: {
+    fillOpacity: 1,
+  },
+  ScrubberHandle: {
+    cursor: 'col-resize',
+    fill: { default: '#555', [stylex.when.ancestor(':hover', scrubberHandlesMarker)]: '#44f' },
+  },
+  ScrubberHandleDragging: {
+    fill: '#44f',
+  },
+  ScrubberLine: {
+    pointerEvents: 'none',
+    stroke: '#555',
+  },
+  ScrubberLineDragging: {
+    stroke: '#44f',
+  },
+});
