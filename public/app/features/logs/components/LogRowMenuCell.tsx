@@ -16,10 +16,12 @@ import { t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
 import { ClipboardButton, IconButton, type PopoverContent } from '@grafana/ui';
 import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { handleOpenLogsContextClick } from '../utils';
 
-import { LOGS_COPY_BUTTON_CLASS, LOGS_ROW_MENU_CLASS, logRowStyles } from './getLogRowStyles';
+import { LOGS_ROW_MENU_CLASS, logRowStyles } from './getLogRowStyles';
+import { logRowVars } from './logRows.stylex';
 
 interface Props {
   logText: string;
@@ -136,7 +138,7 @@ export const LogRowMenuCell = memo(
               />
             )}
             <ClipboardButton
-              className={LOGS_COPY_BUTTON_CLASS}
+              xstyle={styles.copyButton}
               icon="copy"
               variant="secondary"
               fill="text"
@@ -212,3 +214,26 @@ function addClickListenersToNode(nodes: ReactNode[], row: LogRowModel) {
 LogRowMenuCell.displayName = 'LogRowMenuCell';
 
 const unPinButtonClassName = stylex.props(logRowStyles.unPinButton).className;
+
+// Over Button's secondary text look: the :hover background came after its focus and active rules.
+const styles = stylex.create({
+  copyButton: {
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing['--gf-spacing-x0-5'],
+    height: spacing['--gf-spacing-x3'],
+    width: `calc(${spacing['--gf-spacing-grid-size']} * 3.25)`,
+    lineHeight: `calc(${spacing['--gf-spacing-grid-size']} * 2.5)`,
+    overflow: 'hidden',
+    backgroundColor: {
+      default: 'transparent',
+      ':hover': logRowVars['--gf-logs-copy-button-hover-background'],
+      ':focus': {
+        default: colors['--gf-colors-secondary-transparent'],
+        ':hover': logRowVars['--gf-logs-copy-button-hover-background'],
+      },
+      ':active': { default: 'transparent', ':hover': logRowVars['--gf-logs-copy-button-hover-background'] },
+    },
+  },
+});

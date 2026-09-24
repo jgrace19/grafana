@@ -9,12 +9,10 @@ import {
   TableCellInspector,
   TableCellInspectorMode,
 } from '@grafana/ui';
-import { colors, shadows, spacing } from '@grafana/ui/stylex/tokens.stylex';
+import { colors, shadows, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { type BuildLinkToLogLine } from '../types';
-
-import './LogsTableRowActionButtons.css';
 
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
@@ -41,7 +39,7 @@ export function LogsTableRowActionButtons(props: Props) {
         {showInspectLogLine && (
           <div {...stylex.props(styles.buttonWrapper)}>
             <IconButton
-              className="gf-logstable-inspect-button"
+              xstyle={styles.inspectButton}
               tooltip={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
               variant="secondary"
               aria-label={t('explore.logs-table.action-buttons.view-log-line', 'View log line')}
@@ -56,7 +54,7 @@ export function LogsTableRowActionButtons(props: Props) {
         {buildLinkToLog && (
           <div {...stylex.props(styles.buttonWrapper)}>
             <ClipboardButton
-              className="gf-logstable-clipboard-button"
+              xstyle={styles.clipboardButton}
               icon="share-alt"
               variant="secondary"
               fill="text"
@@ -97,6 +95,29 @@ const getLineValue = (logsFrame: LogsFrame, rowIndex: number) => {
 };
 
 const styles = stylex.create({
+  inspectButton: {
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'inline-flex',
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    overflow: 'hidden',
+    verticalAlign: 'middle',
+    cursor: 'pointer',
+    height: '24px',
+    width: '20px',
+  },
+  clipboardButton: {
+    lineHeight: 1,
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    width: '20px',
+    cursor: 'pointer',
+    height: '24px',
+  },
   container: {
     backgroundColor: colors['--gf-colors-background-secondary'],
     boxShadow: shadows['--gf-shadows-z2'],

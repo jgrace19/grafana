@@ -1,18 +1,7 @@
 /*
- * Restyles the row's IconButton and ClipboardButton. Their own styles are StyleX and apply in every state (hover
- * included), so this stays unlayered, like the Emotion class it replaces, to beat them in every state too.
+ * The hover backdrop of the row's IconButton and ClipboardButton: a pseudo-element with a :hover condition, which
+ * `xstyle` can't carry. Unlayered, like the Emotion class it replaces, to beat IconButton's own ::before.
  */
-.gf-explore-logs-table-action {
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  border-radius: var(--gf-shape-radius-default);
-  width: 28px;
-  height: 32px;
-  display: inline-flex;
-  justify-content: center;
-}
-
 .gf-explore-logs-table-action::before {
   content: '';
   position: absolute;
@@ -35,12 +24,6 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-property: opacity;
   }
-}
-
-.gf-explore-logs-table-action:hover {
-  color: var(--gf-colors-text-link);
-  cursor: pointer;
-  background: none;
 }
 
 .gf-explore-logs-table-action:hover::before {

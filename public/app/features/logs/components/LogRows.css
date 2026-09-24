@@ -28,30 +28,8 @@
   margin: 0;
 }
 
-.gf-logs-copy-button {
-  padding: 0 0 0 var(--gf-spacing-x0-5);
-  height: var(--gf-spacing-x3);
-  width: calc(var(--gf-spacing-grid-size) * 3.25);
-  line-height: calc(var(--gf-spacing-grid-size) * 2.5);
-  overflow: hidden;
-}
-
-.gf-logs-copy-button:hover {
-  background-color: var(--gf-logs-copy-button-hover-background);
-}
-
 .gf-logs-details-table td:last-child {
   width: 100%;
-}
-
-.gf-logs-details-copy > button {
-  gap: 0;
-  color: var(--gf-colors-text-secondary);
-  padding: 0;
-  justify-content: center;
-  border-radius: var(--gf-shape-radius-circle);
-  height: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-sm));
-  width: calc(var(--gf-spacing-grid-size) * var(--gf-components-height-sm));
 }
 
 .gf-logs-details-copy > button svg {

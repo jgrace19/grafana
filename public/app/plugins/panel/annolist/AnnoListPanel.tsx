@@ -299,6 +299,7 @@ export class AnnoListPanel extends PureComponent<Props, State> {
                 onClick={(tag) => this.onTagClick(tag, true)}
                 getAriaLabel={(name) => `Remove ${name} tag`}
                 className="gf-annolist-tag-list"
+                xstyle={styles.tagList}
                 ref={this.tagListRef}
               />
             )}
@@ -318,6 +319,9 @@ export class AnnoListPanel extends PureComponent<Props, State> {
 }
 
 const styles = stylex.create({
+  tagList: {
+    justifyContent: 'flex-start',
+  },
   noneFound: {
     display: 'flex',
     alignItems: 'center',

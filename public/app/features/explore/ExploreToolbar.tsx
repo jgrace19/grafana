@@ -1,6 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
 import { pick } from 'lodash';
-import { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 
 import { type DataSourceInstanceSettings, type RawTimeRange } from '@grafana/data';
@@ -35,8 +34,6 @@ import { isLeftPaneSelector, isSplit, selectCorrelationDetails, selectPanesEntri
 import { syncTimes, changeRefreshInterval } from './state/time';
 import { LiveTailControls } from './useLiveTailControls';
 
-import './ExploreToolbar.css';
-
 interface Props {
   exploreId: string;
   onChangeTime: (range: RawTimeRange, changedByScanner?: boolean) => void;
@@ -68,11 +65,6 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
   const correlationDetails = useSelector(selectCorrelationDetails);
   const isCorrelationsEditorMode = correlationDetails?.editorMode || false;
   const isLeftPane = useSelector(isLeftPaneSelector(exploreId));
-
-  const shouldRotateSplitIcon = useMemo(
-    () => (isLeftPane && isLargerPane) || (!isLeftPane && !isLargerPane),
-    [isLeftPane, isLargerPane]
-  );
 
   const refreshPickerLabel = loading
     ? t('explore.toolbar.refresh-picker-cancel', 'Cancel')
@@ -243,7 +235,6 @@ export function ExploreToolbar({ exploreId, onChangeTime, onContentOutlineToogle
                 onClick={onClickResize}
                 icon={isLargerPane ? 'gf-movepane-left' : 'gf-movepane-right'}
                 iconOnly={true}
-                className={shouldRotateSplitIcon ? 'gf-explore-rotate-split-icon' : undefined}
               />
               <ToolbarButton
                 tooltip={t('explore.toolbar.split-close-tooltip', 'Close split pane')}

@@ -18,8 +18,6 @@ import { colors, components, shape, spacing } from '@grafana/ui/stylex/tokens.st
 import { LayerName } from 'app/core/components/Layers/LayerName';
 
 import { type Options, SeriesMapping, type XYSeriesConfig } from './panelcfg.gen';
-import './SeriesEditor.css';
-
 export const SeriesEditor = ({
   value: seriesCfg,
   onChange,
@@ -125,7 +123,7 @@ export const SeriesEditor = ({
                   />
                   <IconButton
                     name="trash-alt"
-                    className="gf-xychart-series-action-icon"
+                    xstyle={styles.actionIcon}
                     onClick={() => deleteSeries(index)}
                     tooltip={t('xychart.series-editor.tooltip-delete-series', 'Delete series')}
                   />
@@ -324,6 +322,9 @@ export const SeriesEditor = ({
 };
 
 const styles = stylex.create({
+  actionIcon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
   marginBot: {
     marginBottom: '20px',
   },

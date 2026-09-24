@@ -1,7 +1,0 @@
-/*
- * IconButton sets its own colour and takes no StyleX override. Not in a cascade layer, so this wins over it
- * like the Emotion className it replaces.
- */
-.gf-xychart-series-action-icon {
-  color: var(--gf-colors-text-secondary);
-}

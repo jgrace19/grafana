@@ -1,11 +1,4 @@
-/*
- * Overrides TagList and the Tag buttons it renders, which take no StyleX override for these properties. Not in
- * a cascade layer, so it wins over their (layered) StyleX styles like the Emotion className merge did.
- */
-.gf-annolist-tag-list {
-  justify-content: flex-start;
-}
-
+/* The Tag buttons TagList renders, which no StyleX override prop reaches. Unlayered, like the Emotion rule it replaces. */
 .gf-annolist-tag-list li > button {
   padding-left: 3px;
 }

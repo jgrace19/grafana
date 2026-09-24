@@ -18,7 +18,6 @@ import { LogLineDetailsLinks } from './LogLineDetailsLinks';
 import { LogLineDetailsLog } from './LogLineDetailsLog';
 import { LogLineDetailsTrace } from './LogLineDetailsTrace';
 import { useLogListContext } from './LogListContext';
-import './LogLineDetailsComponent.css';
 import { reportInteractionOnce } from './analytics';
 import { getTempoTraceFromLinks } from './links';
 import { type LogListModel } from './processing';
@@ -163,7 +162,7 @@ export const LogLineDetailsComponent = memo(
     return (
       <div {...stylex.props(styles.componentWrapper)}>
         <ControlledCollapse
-          className={COLLAPSABLE_CLASS}
+          xstyle={styles.collapsable}
           label={t('logs.log-line-details.log-line-section', 'Log line')}
           isOpen={logLineOpen}
           onToggle={(isOpen: boolean) => handleToggle('logLineOpen', isOpen)}
@@ -181,7 +180,7 @@ export const LogLineDetailsComponent = memo(
         )}
         {allLinks.length > 0 && (
           <ControlledCollapse
-            className={COLLAPSABLE_CLASS}
+            xstyle={styles.collapsable}
             label={t('logs.log-line-details.links-section', 'Links')}
             isOpen={linksOpen}
             onToggle={(isOpen: boolean) => handleToggle('linksOpen', isOpen)}
@@ -201,7 +200,7 @@ export const LogLineDetailsComponent = memo(
         {labelGroups.map((group) =>
           group === '' ? (
             <ControlledCollapse
-              className={COLLAPSABLE_CLASS}
+              xstyle={styles.collapsable}
               key={'fields'}
               label={t('logs.log-line-details.fields-section', 'Fields')}
               isOpen={fieldsOpen}
@@ -212,7 +211,7 @@ export const LogLineDetailsComponent = memo(
             </ControlledCollapse>
           ) : (
             <ControlledCollapse
-              className={COLLAPSABLE_CLASS}
+              xstyle={styles.collapsable}
               key={group}
               label={group}
               isOpen={store.getBool(`${logOptionsStorageKey}.log-details.${groupOptionName(group)}`, true)}
@@ -224,7 +223,7 @@ export const LogLineDetailsComponent = memo(
         )}
         {!labelGroups.length && fieldsWithoutLinks.length > 0 && (
           <ControlledCollapse
-            className={COLLAPSABLE_CLASS}
+            xstyle={styles.collapsable}
             key={'fields'}
             label={t('logs.log-line-details.fields-section', 'Fields')}
             isOpen={fieldsOpen}
@@ -248,10 +247,10 @@ function groupOptionName(group: string) {
   return `${camelCase(group)}Open`;
 }
 
-// Styled in LogLineDetailsComponent.css: it has to beat ControlledCollapse's own bottom margin.
-const COLLAPSABLE_CLASS = 'gf-log-line-details-collapsable';
-
 const styles = stylex.create({
+  collapsable: {
+    marginBottom: { default: spacing['--gf-spacing-grid-size'], ':last-of-type': 0 },
+  },
   componentWrapper: {
     paddingTop: 0,
     paddingRight: spacing['--gf-spacing-x1'],

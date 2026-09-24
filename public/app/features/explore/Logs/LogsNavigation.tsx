@@ -9,8 +9,6 @@ import { Button, Icon } from '@grafana/ui';
 import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { getChromeHeaderLevelHeight } from 'app/core/components/AppChrome/TopBar/useChromeHeaderHeight';
 
-import './LogsNavigation.css';
-
 type Props = {
   logsSortOrder?: LogsSortOrder | null;
   scrollToTopLogs: () => void;
@@ -36,7 +34,7 @@ function LogsNavigation({ logsSortOrder, scrollToTopLogs }: Props) {
     >
       <Button
         data-testid="scrollToTop"
-        className="gf-explore-logs-scroll-to-top"
+        xstyle={styles.scrollToTop}
         variant="secondary"
         onClick={onScrollToTopClick}
         title={t('logs.logs-navigation.scroll-top', 'Scroll to top')}
@@ -50,6 +48,15 @@ function LogsNavigation({ logsSortOrder, scrollToTopLogs }: Props) {
 export default memo(LogsNavigation);
 
 const styles = stylex.create({
+  scrollToTop: {
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing['--gf-spacing-x1'],
+  },
   navContainer: {
     width: 'auto',
     display: 'flex',
