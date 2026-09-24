@@ -330,14 +330,18 @@ export function RuleNotificationSection() {
 }
 
 const styles = stylex.create({
-  section: { width: '100%' },
+  section: {
+    width: '100%',
+  },
   sectionHeaderRow: {
     display: 'flex',
     alignItems: 'center',
     gap: spacing['--gf-spacing-x1'],
     marginBottom: spacing['--gf-spacing-x1'],
   },
-  contentTopSpacer: { marginTop: spacing['--gf-spacing-x0-5'] },
+  contentTopSpacer: {
+    marginTop: spacing['--gf-spacing-x0-5'],
+  },
   manualRoutingInline: {
     display: 'inline-flex',
     alignItems: 'center',

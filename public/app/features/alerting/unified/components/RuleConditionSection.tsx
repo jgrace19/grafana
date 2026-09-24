@@ -19,7 +19,9 @@ import { EvaluationGroupFieldRow } from './rule-editor/EvaluationGroupFieldRow';
 
 const DEFAULT_SIMPLE_CONDITION: SimpleCondition = {
   whenField: ReducerID.last,
-  evaluator: { params: [0], type: EvalFunction.IsAbove },
+  evaluator: {
+    params: [0], type: EvalFunction.IsAbove,
+  },
 };
 
 export function RuleConditionSection() {
@@ -70,7 +72,9 @@ export function RuleConditionSection() {
     (v: SelectableValue<EvalFunction>) => {
       const newCondition: SimpleCondition = {
         ...simpleCondition,
-        evaluator: { ...simpleCondition.evaluator, type: v.value ?? EvalFunction.IsAbove },
+        evaluator: {
+          ...simpleCondition.evaluator, type: v.value ?? EvalFunction.IsAbove,
+        },
       };
       setSimpleCondition(newCondition);
       updateFormQueries(newCondition);
@@ -85,7 +89,9 @@ export function RuleConditionSection() {
         index === 0 ? [value, simpleCondition.evaluator.params[1]] : [simpleCondition.evaluator.params[0], value];
       const newCondition: SimpleCondition = {
         ...simpleCondition,
-        evaluator: { ...simpleCondition.evaluator, params: newParams },
+        evaluator: {
+          ...simpleCondition.evaluator, params: newParams,
+        },
       };
       setSimpleCondition(newCondition);
       updateFormQueries(newCondition);
@@ -181,7 +187,9 @@ export function RuleConditionSection() {
 }
 
 const styles = stylex.create({
-  section: { width: '100%' },
+  section: {
+    width: '100%',
+  },
   sectionHeaderRow: {
     display: 'flex',
     alignItems: 'center',

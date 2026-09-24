@@ -50,7 +50,9 @@ export const UpdatedByUser = ({ user }: { user: UpdatedBy | null | undefined }) 
 };
 
 const styles = stylex.create({
-  badge: { cursor: 'help' },
+  badge: {
+    cursor: 'help',
+  },
   underline: {
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
