@@ -1,0 +1,7 @@
+/*
+ * Pads the OptionsPaneCategory body that holds the list, which StyleX can't target. This file is deliberately
+ * not in a cascade layer: like the Emotion rule it replaces, it must win over the category body's own padding.
+ */
+.gf-droppable-category :has(> ul) {
+  padding: var(--gf-spacing-x0) var(--gf-spacing-x2) var(--gf-spacing-x1) var(--gf-spacing-x2);
+}

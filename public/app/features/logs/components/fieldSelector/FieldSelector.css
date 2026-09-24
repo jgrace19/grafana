@@ -1,0 +1,17 @@
+/*
+ * Styles DOM rendered by Checkbox and IconButton, so StyleX can't target it. Deliberately not in a cascade layer:
+ * like the Emotion rules they replace, they must win over the components' own styles.
+ */
+
+/* Hide text that overflows, had to select elements within the Checkbox component, so this is a bit fragile */
+.gf-logs-field-checkbox > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 100%;
+}
+
+.gf-logs-field-search-collapse svg {
+  transform: rotate(-180deg);
+}

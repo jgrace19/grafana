@@ -1,0 +1,38 @@
+/*
+ * Animated gradient border on the panel <section>s selected for the assistant popover. The class is added to
+ * PanelChrome's element imperatively, so this is plain CSS: unlayered, with a doubled class that outranks PanelChrome's
+ * own border and background rules like the Emotion class it replaces (which was inserted after them).
+ * `--border-angle` is registered as an <angle> in DashboardAssistantViewMode.tsx so it can be interpolated.
+ */
+@keyframes gf-assistant-border-angle {
+  0% {
+    --border-angle: 0deg;
+  }
+  100% {
+    --border-angle: 360deg;
+  }
+}
+
+.gf-assistant-animated-border.gf-assistant-animated-border {
+  outline: none;
+  border: 1px solid transparent;
+  /* stylelint-disable @stylistic/function-parentheses-space-inside -- prettier breaks the long gradient */
+  background-image:
+    linear-gradient(var(--gf-colors-background-canvas), var(--gf-colors-background-canvas)),
+    conic-gradient(
+      from var(--border-angle),
+      transparent 60%,
+      rgb(168, 85, 247) 80%,
+      rgb(249, 115, 22) 100%,
+      transparent 15%
+    );
+  /* stylelint-enable @stylistic/function-parentheses-space-inside */
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gf-assistant-animated-border.gf-assistant-animated-border {
+    animation: gf-assistant-border-angle 2s linear infinite;
+  }
+}

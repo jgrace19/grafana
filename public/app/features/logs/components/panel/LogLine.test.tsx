@@ -10,7 +10,7 @@ import { createLogLine } from '../mocks/logRow';
 import { getDisplayedFieldsForLogs, OTEL_PROBE_FIELD } from '../otel/formats';
 
 import { emptyContextData, LogDetailsContext } from './LogDetailsContext';
-import { getGridTemplateColumns, getStyles, LogLine, type Props } from './LogLine';
+import { getGridTemplateColumns, LogLine, type Props } from './LogLine';
 import { type LogListFontSize } from './LogList';
 import { LogListContextProvider, LogListContext } from './LogListContext';
 import { LogListSearchContext } from './LogListSearchContext';
@@ -54,7 +54,6 @@ jest.mock('../LogDetails');
 
 const theme = createTheme();
 const virtualization = new LogLineVirtualization(theme, 'default');
-const styles = getStyles(theme, virtualization);
 const contextProps = {
   ...defaultProps,
   app: CoreApp.Unknown,
@@ -85,7 +84,6 @@ describe.each(fontSizes)('LogLine', (fontSize: LogListFontSize) => {
       onClick: jest.fn(),
       showTime: true,
       style: {},
-      styles: styles,
       timeRange: getDefaultTimeRange(),
       timeZone: 'browser',
       wrapLogMessage: true,

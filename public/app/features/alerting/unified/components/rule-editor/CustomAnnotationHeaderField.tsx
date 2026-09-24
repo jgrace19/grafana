@@ -1,19 +1,17 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Input, useStyles2 } from '@grafana/ui';
+import { Input } from '@grafana/ui';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 interface CustomAnnotationHeaderFieldProps {
   field: { onChange: () => void; onBlur: () => void; value: string; name: string };
 }
 
 const CustomAnnotationHeaderField = ({ field }: CustomAnnotationHeaderFieldProps) => {
-  const styles = useStyles2(getStyles);
-
   return (
     <div>
-      <span className={styles.annotationTitle}>
+      <span {...stylex.props(styles.annotationTitle)}>
         <Trans i18nKey="alerting.custom-annotation-header-field.custom-annotation-name-and-content">
           Custom annotation name and content
         </Trans>
@@ -25,22 +23,21 @@ const CustomAnnotationHeaderField = ({ field }: CustomAnnotationHeaderFieldProps
         )}
         width={18}
         {...field}
-        className={styles.customAnnotationInput}
+        className={stylex.props(styles.customAnnotationInput).className}
       />
     </div>
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  annotationTitle: css({
-    color: theme.colors.text.primary,
+const styles = stylex.create({
+  annotationTitle: {
+    color: colors['--gf-colors-text-primary'],
     marginBottom: '3px',
-  }),
-
-  customAnnotationInput: css({
+  },
+  customAnnotationInput: {
     marginTop: '5px',
     width: '100%',
-  }),
+  },
 });
 
 export default CustomAnnotationHeaderField;

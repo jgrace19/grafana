@@ -1,13 +1,20 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { type FC, type JSX } from 'react';
 
-import { colorManipulator, type GrafanaTheme2, type NavModelItem } from '@grafana/data';
+import { type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { reportInteraction } from '@grafana/runtime';
-import { Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
+import { Tooltip, useTheme2 } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { bp, motion } from '@grafana/ui/stylex/constants.stylex';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import g8LoginDarkSvg from 'img/g8_login_dark.svg';
 import g8LoginLightSvg from 'img/g8_login_light.svg';
 import grafanaIconSvg from 'img/grafana_icon.svg';
+
+import { LoginBoxBackground } from './LoginBoxBackground.compat';
+
+import './Branding.css';
 
 export interface BrandComponentProps {
   className?: string;
@@ -18,36 +25,18 @@ export const LoginLogo: FC<BrandComponentProps & { logo?: string }> = ({ classNa
   return <img className={className} src={`${logo ? logo : grafanaIconSvg}`} alt="Grafana" />;
 };
 
+/** Adding the `gf-login-anim` class fades the background image in. */
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
   const theme = useTheme2();
+  // A url() inside a custom property resolves against the stylesheet that uses it, not the document, so the
+  // relative asset path has to be made absolute first.
+  const backgroundImage = `url(${new URL(theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg, document.baseURI).href})`;
 
-  const background = css({
-    '&:before': {
-      content: '""',
-      position: 'fixed',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      top: 0,
-      background: `url(${theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg})`,
-      backgroundPosition: 'top center',
-      backgroundSize: 'auto',
-      backgroundRepeat: 'no-repeat',
-
-      opacity: 0,
-
-      [theme.transitions.handleMotion('no-preference', 'reduce')]: {
-        transition: 'opacity 3s ease-in-out',
-      },
-
-      [theme.breakpoints.up('md')]: {
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-      },
-    },
-  });
-
-  return <div className={cx(background, className)}>{children}</div>;
+  return (
+    <div {...mergeStylexProps(stylex.props(styles.background, styles.backgroundImage(backgroundImage)), { className })}>
+      {children}
+    </div>
+  );
 };
 
 const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
@@ -58,7 +47,7 @@ const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
  * inMegaMenuOverlay = true we just render the logo without link (used in mega menu)
  */
 export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelItem; inMegaMenuOverlay?: boolean }) {
-  const styles = useStyles2(homeLinkStyles);
+  const homeLinkClassName = `gf-home-link ${stylex.props(styles.homeLink).className}`;
 
   const onHomeClicked = () => {
     reportInteraction('grafana_home_clicked');
@@ -66,7 +55,7 @@ export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelIte
 
   if (inMegaMenuOverlay) {
     return (
-      <div className={styles.homeLink}>
+      <div className={homeLinkClassName}>
         <Branding.MenuLogo />
       </div>
     );
@@ -77,7 +66,7 @@ export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelIte
       <a
         onClick={onHomeClicked}
         data-testid={selectors.components.Breadcrumbs.breadcrumb('Home')}
-        className={styles.homeLink}
+        className={homeLinkClassName}
         title={homeNav?.text || 'Home'}
         href={homeNav?.url}
       >
@@ -86,31 +75,6 @@ export function HomeLink({ homeNav, inMegaMenuOverlay }: { homeNav?: NavModelIte
     </Tooltip>
   );
 }
-
-function homeLinkStyles(theme: GrafanaTheme2) {
-  return {
-    homeLink: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: theme.spacing(3),
-      width: theme.spacing(3),
-      margin: theme.spacing(0, 0.5),
-      img: {
-        maxHeight: '100%',
-        maxWidth: '100%',
-      },
-    }),
-  };
-}
-
-const LoginBoxBackground = () => {
-  const theme = useTheme2();
-  return css({
-    background: colorManipulator.alpha(theme.colors.background.primary, 0.7),
-    backgroundSize: 'cover',
-  });
-};
 
 export class Branding {
   static LoginLogo = LoginLogo;
@@ -124,3 +88,39 @@ export class Branding {
     return null;
   };
 }
+
+const styles = stylex.create({
+  homeLink: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: spacing['--gf-spacing-x3'],
+    width: spacing['--gf-spacing-x3'],
+    marginTop: 0,
+    marginRight: spacing['--gf-spacing-x0-5'],
+    marginBottom: 0,
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+  background: {
+    '::before': {
+      content: '""',
+      position: 'fixed',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      top: 0,
+      backgroundPosition: { default: 'top center', [bp.mdUp]: 'center' },
+      backgroundSize: { default: 'auto', [bp.mdUp]: 'cover' },
+      backgroundRepeat: 'no-repeat',
+      opacity: { default: 0, ':is(.gf-login-anim)': 1 },
+      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'opacity' },
+      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '3s' },
+      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: 'ease-in-out' },
+    },
+  },
+  backgroundImage: (backgroundImage: string) => ({
+    '::before': {
+      backgroundImage,
+    },
+  }),
+});

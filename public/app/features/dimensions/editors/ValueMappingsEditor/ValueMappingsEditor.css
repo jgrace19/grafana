@@ -1,0 +1,4 @@
+/* Modal sets its own width; div.gf-* (0,1,1) beats its single class in either stylesheet order. */
+div.gf-value-mappings-modal {
+  width: 980px;
+}

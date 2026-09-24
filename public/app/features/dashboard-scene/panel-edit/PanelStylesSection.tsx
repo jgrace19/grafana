@@ -1,15 +1,11 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useState } from 'react';
 
-import {
-  FeatureState,
-  type FieldConfigSource,
-  type GrafanaTheme2,
-  type PanelPluginVisualizationSuggestion,
-} from '@grafana/data';
+import { FeatureState, type FieldConfigSource, type PanelPluginVisualizationSuggestion } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { sceneGraph, type VizPanel } from '@grafana/scenes';
-import { FeatureBadge, Icon, Stack, Tooltip, useStyles2 } from '@grafana/ui';
+import { FeatureBadge, Icon, Stack, Tooltip } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { OptionsPaneCategory } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategory';
 import { VisualizationCardGrid } from 'app/features/panel/components/VizTypePicker/VisualizationCardGrid';
 import { VizSuggestionsInteractions } from 'app/features/panel/components/VizTypePicker/interactions';
@@ -27,7 +23,6 @@ function presetModifiesThresholds(preset: PanelPluginVisualizationSuggestion): b
 }
 
 export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionProps) {
-  const styles = useStyles2(getStyles);
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
   const { data } = sceneGraph.getData(panel).useState();
 
@@ -58,7 +53,7 @@ export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionP
         content={t('dashboard-scene.panel-styles.threshold-badge-tooltip', 'This preset will modify thresholds')}
       >
         <div
-          className={styles.thresholdBadge}
+          {...stylex.props(styles.thresholdBadge)}
           aria-label={t('dashboard-scene.panel-styles.threshold-badge-tooltip', 'This preset will modify thresholds')}
         >
           <Icon name="sliders-v-alt" size="xs" />
@@ -97,21 +92,23 @@ export function PanelStylesSection({ panel, onApplyPreset }: PanelStylesSectionP
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  thresholdBadge: css({
+const styles = stylex.create({
+  thresholdBadge: {
     position: 'absolute',
-    top: theme.spacing(1),
-    right: theme.spacing(0.5),
+    top: spacing['--gf-spacing-x1'],
+    right: spacing['--gf-spacing-x0-5'],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: theme.spacing(2.5),
-    height: theme.spacing(2.5),
-    borderRadius: theme.shape.radius.circle,
-    background: theme.colors.background.canvas,
-    border: `1px solid ${theme.colors.border.medium}`,
-    color: theme.colors.text.secondary,
+    width: spacing['--gf-spacing-x2-5'],
+    height: spacing['--gf-spacing-x2-5'],
+    borderRadius: shape['--gf-shape-radius-circle'],
+    backgroundColor: colors['--gf-colors-background-canvas'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-medium'],
+    color: colors['--gf-colors-text-secondary'],
     cursor: 'default',
     zIndex: 1,
-  }),
+  },
 });

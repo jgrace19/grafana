@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { useOverlay } from '@react-aria/overlays';
 import { createRef, useMemo } from 'react';
@@ -7,14 +6,13 @@ import {
   type Field,
   type LinkModel,
   FieldType,
-  type GrafanaTheme2,
   formattedValueToString,
   getFieldDisplayName,
   type ScopedVars,
   type ValueLinkConfig,
   type ActionModel,
 } from '@grafana/data';
-import { Portal, useStyles2, useTheme2, VizTooltipContainer, usePanelContext } from '@grafana/ui';
+import { Portal, useTheme2, VizTooltipContainer, usePanelContext } from '@grafana/ui';
 import {
   VizTooltipContent,
   VizTooltipFooter,
@@ -28,13 +26,14 @@ import { type Scene } from 'app/features/canvas/runtime/scene';
 import { getDataLinks } from '../../status-history/utils';
 import { getElementFields, getRowIndex } from '../utils';
 
+import './CanvasTooltip.css';
+
 interface Props {
   scene: Scene;
 }
 
 export const CanvasTooltip = ({ scene }: Props) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const { canExecuteActions } = usePanelContext();
   const userCanExecuteActions = useMemo(() => canExecuteActions?.() ?? false, [canExecuteActions]);
 
@@ -145,7 +144,7 @@ export const CanvasTooltip = ({ scene }: Props) => {
       {scene.tooltipPayload?.element && scene.tooltipPayload.anchorPoint && (
         <Portal zIndex={theme.zIndex.tooltip}>
           <VizTooltipContainer
-            className={cx(styles.tooltipWrapper, scene.tooltipPayload.isOpen && styles.pinned)}
+            className={scene.tooltipPayload.isOpen ? 'gf-canvas-tooltip gf-canvas-tooltip-pinned' : 'gf-canvas-tooltip'}
             position={{ x: scene.tooltipPayload.anchorPoint.x, y: scene.tooltipPayload.anchorPoint.y }}
             offset={{ x: 5, y: 0 }}
             allowPointerEvents={scene.tooltipPayload.isOpen}
@@ -162,26 +161,3 @@ export const CanvasTooltip = ({ scene }: Props) => {
     </>
   );
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
-    marginTop: '20px',
-    background: theme.colors.background.primary,
-  }),
-  tooltipWrapper: css({
-    top: 0,
-    left: 0,
-    whiteSpace: 'pre',
-    borderRadius: theme.shape.radius.default,
-    position: 'fixed',
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    boxShadow: theme.shadows.z2,
-    userSelect: 'text',
-    padding: 0,
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  pinned: css({
-    boxShadow: theme.shadows.z3,
-  }),
-});

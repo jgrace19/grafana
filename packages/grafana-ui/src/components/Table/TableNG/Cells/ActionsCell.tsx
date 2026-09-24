@@ -1,6 +1,6 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 
+import { spacing } from '../../../../themes/stylex/tokens.stylex';
 import { ActionButton } from '../../../Actions/ActionButton';
 import { type ActionCellProps, type TableCellStyles } from '../types';
 
@@ -14,4 +14,10 @@ export const ActionsCell = ({ field, rowIdx, getActions }: ActionCellProps) => {
   return actions.map((action, i) => <ActionButton key={i} action={action} variant="secondary" />);
 };
 
-export const getStyles: TableCellStyles = memoize((theme) => css({ gap: theme.spacing(0.75) }));
+export const getStyles: TableCellStyles = () => ({ xstyle: styles.actions });
+
+const styles = stylex.create({
+  actions: {
+    gap: `calc(${spacing['--gf-spacing-grid-size']} * 0.75)`,
+  },
+});

@@ -1,11 +1,11 @@
-import { css } from '@emotion/css';
-import memoize from 'micro-memoize';
+import * as stylex from '@stylexjs/stylex';
 import React, { useEffect, useRef } from 'react';
 import { type Column, type SortDirection } from 'react-data-grid';
 
-import { type Field, type GrafanaTheme2 } from '@grafana/data';
+import { type Field } from '@grafana/data';
 
-import { useStyles2 } from '../../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../../themes/stylex/mergeStylexProps';
+import { colors, spacing, typography } from '../../../../themes/stylex/tokens.stylex';
 import { getFieldTypeIcon } from '../../../../types/icon';
 import { Icon } from '../../../Icon/Icon';
 import { Stack } from '../../../Layout/Stack/Stack';
@@ -44,7 +44,6 @@ export const HeaderCell: React.FC<HeaderCellProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const headerCellWrap = field.config.custom?.wrapHeaderText ?? false;
-  const styles = useStyles2(getStyles, headerCellWrap);
   const displayName = getDisplayName(field);
   const filterable = field.config.custom?.filterable ?? false;
 
@@ -98,12 +97,19 @@ export const HeaderCell: React.FC<HeaderCellProps> = ({
     >
       {/* eslint-enable jsx-a11y/no-static-element-interactions */}
       {showTypeIcons && (
-        <Icon className={styles.headerCellIcon} name={getFieldTypeIcon(field)} title={field?.type} size="sm" />
+        <Icon xstyle={styles.headerCellIcon} name={getFieldTypeIcon(field)} title={field?.type} size="sm" />
       )}
-      <button tabIndex={0} className={styles.headerCellLabel} title={displayName}>
+      <button
+        tabIndex={0}
+        {...mergeStylexProps(
+          stylex.props(styles.headerCellLabel, headerCellWrap ? styles.labelWrap : styles.labelNoWrap),
+          { className: 'gf-table-ng-header-label' }
+        )}
+        title={displayName}
+      >
         {displayName}
         {direction && (
-          <Icon className={styles.headerCellIcon} size="lg" name={direction === 'ASC' ? 'arrow-up' : 'arrow-down'} />
+          <Icon xstyle={styles.headerCellIcon} size="lg" name={direction === 'ASC' ? 'arrow-up' : 'arrow-down'} />
         )}
       </button>
 
@@ -114,7 +120,7 @@ export const HeaderCell: React.FC<HeaderCellProps> = ({
           filter={filter}
           setFilter={setFilter}
           field={field}
-          iconClassName={styles.headerCellIcon}
+          iconXstyle={styles.headerCellIcon}
           parentIndex={parentIndex}
           crossFilterRows={crossFilterRows}
           crossFilterTailRows={crossFilterTailRows}
@@ -124,26 +130,29 @@ export const HeaderCell: React.FC<HeaderCellProps> = ({
   );
 };
 
-const getStyles = memoize((theme: GrafanaTheme2, headerTextWrap?: boolean) => ({
-  headerCellLabel: css({
-    all: 'unset',
+// `all: unset` for the label is in TableNG.css.
+const styles = stylex.create({
+  headerCellLabel: {
     cursor: 'pointer',
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.colors.text.secondary,
+    fontWeight: typography['--gf-typography-font-weight-medium'],
+    color: colors['--gf-colors-text-secondary'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: headerTextWrap ? 'pre-line' : 'nowrap',
-    borderRadius: theme.spacing(0.25),
+    borderRadius: spacing['--gf-spacing-x0-25'],
     lineHeight: '20px',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-    '&::selection': {
+    textDecoration: { default: null, ':hover': 'underline' },
+    '::selection': {
       backgroundColor: 'var(--rdg-background-color)',
-      color: theme.colors.text.secondary,
+      color: colors['--gf-colors-text-secondary'],
     },
-  }),
-  headerCellIcon: css({
-    color: theme.colors.text.secondary,
-  }),
-}));
+  },
+  labelWrap: {
+    whiteSpace: 'pre-line',
+  },
+  labelNoWrap: {
+    whiteSpace: 'nowrap',
+  },
+  headerCellIcon: {
+    color: colors['--gf-colors-text-secondary'],
+  },
+});

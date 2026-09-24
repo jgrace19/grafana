@@ -1,0 +1,4 @@
+/* The paths belong to the sanitized SVG document, which this element doesn't render itself. */
+.gf-canvas-icon-stroke path {
+  vector-effect: non-scaling-stroke;
+}

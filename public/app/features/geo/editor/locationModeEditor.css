@@ -1,0 +1,10 @@
+/* Alert sets its own margins and padding, and renders the inner divs. */
+div.gf-location-mode-alert {
+  margin-bottom: 0px;
+  margin-top: 5px;
+  padding: calc(var(--gf-spacing-grid-size) * 0.25);
+}
+
+.gf-location-mode-alert div {
+  padding: var(--gf-spacing-x0-5);
+}

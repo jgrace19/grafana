@@ -1,22 +1,16 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import yaml from 'js-yaml';
 import type * as MonacoEditorModule from 'monaco-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import {
-  CodeEditor,
-  RadioButtonGroup,
-  Spinner,
-  Stack,
-  Tooltip,
-  useStyles2,
-  type Monaco,
-  type MonacoEditor,
-} from '@grafana/ui';
+import { CodeEditor, RadioButtonGroup, Spinner, Stack, Tooltip, type Monaco, type MonacoEditor } from '@grafana/ui';
+import { mergeStylexProps } from '@grafana/ui/internal';
+import { colors, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 
 import { fetchDashboardSchema } from './dashboardSchemaFetcher';
+
+import './DashboardSchemaEditor.css';
 
 export type SchemaEditorFormat = 'json' | 'yaml';
 
@@ -50,8 +44,6 @@ export function DashboardSchemaEditor({
   initialFormat = 'json',
   onFormatChange,
 }: DashboardSchemaEditorProps) {
-  const styles = useStyles2(getStyles);
-
   const [schema, setSchema] = useState<JSONSchema | null>(null);
   const [isSchemaLoading, setIsSchemaLoading] = useState(true);
   const [format, setFormat] = useState<SchemaEditorFormat>(initialFormat);
@@ -216,12 +208,12 @@ export function DashboardSchemaEditor({
     [format, onChange, onValidationChange]
   );
 
-  const wrapperClassName = containerStyles ? `${styles.wrapper} ${containerStyles}` : styles.wrapper;
+  const wrapperProps = mergeStylexProps(stylex.props(styles.wrapper), { className: containerStyles });
 
   if (isSchemaLoading) {
     return (
-      <div className={wrapperClassName}>
-        <div className={styles.loadingContainer}>
+      <div {...wrapperProps}>
+        <div {...stylex.props(styles.loadingContainer)}>
           <Spinner size="lg" />
         </div>
       </div>
@@ -229,11 +221,11 @@ export function DashboardSchemaEditor({
   }
 
   return (
-    <div className={wrapperClassName}>
+    <div {...wrapperProps}>
       {showFormatToggle && (
-        <div className={styles.formatToggleContainer}>
+        <div {...stylex.props(styles.formatToggleContainer)}>
           <Stack direction="row" gap={1} alignItems="center">
-            <span className={styles.formatLabel}>{t('dashboard-schema-editor.format-label', 'Format:')}</span>
+            <span {...stylex.props(styles.formatLabel)}>{t('dashboard-schema-editor.format-label', 'Format:')}</span>
             <Tooltip
               content={
                 yamlParseError
@@ -256,7 +248,7 @@ export function DashboardSchemaEditor({
           </Stack>
         </div>
       )}
-      <div className={styles.editorContainer}>
+      <div {...stylex.props(styles.editorContainer)}>
         <CodeEditor
           key={format}
           width="100%"
@@ -266,7 +258,7 @@ export function DashboardSchemaEditor({
           showLineNumbers={true}
           showMiniMap={true}
           readOnly={readOnly}
-          containerStyles={styles.codeEditorContainer}
+          containerStyles="gf-dashboard-schema-code-editor"
           onBeforeEditorMount={(monaco) => {
             monacoRef.current = monaco;
           }}
@@ -297,37 +289,37 @@ function configureSchemaDiagnostics(monaco: typeof MonacoEditorModule, schema: J
   });
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  wrapper: css({
+// CodeEditor's container overrides live in DashboardSchemaEditor.css.
+const styles = stylex.create({
+  wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
+    flex: '1',
     minHeight: 0,
-    gap: theme.spacing(1),
-  }),
-  formatToggleContainer: css({
-    flex: '0 0 auto',
-  }),
-  formatLabel: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  }),
-  editorContainer: css({
-    flex: '1 1 0',
+    gap: spacing['--gf-spacing-x1'],
+  },
+  formatToggleContainer: {
+    flexGrow: '0',
+    flexShrink: '0',
+    flexBasis: 'auto',
+  },
+  formatLabel: {
+    fontSize: typography['--gf-typography-body-small-font-size'],
+    color: colors['--gf-colors-text-secondary'],
+  },
+  editorContainer: {
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-  }),
-  codeEditorContainer: css({
-    flex: '1 1 0',
-    minHeight: 0,
-    overflow: 'visible',
-  }),
-  loadingContainer: css({
+  },
+  loadingContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    color: theme.colors.text.secondary,
-  }),
+    flex: '1',
+    color: colors['--gf-colors-text-secondary'],
+  },
 });

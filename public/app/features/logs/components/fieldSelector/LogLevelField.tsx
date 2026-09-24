@@ -1,11 +1,12 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import * as React from 'react';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { Checkbox, useStyles2 } from '@grafana/ui';
+import { Checkbox } from '@grafana/ui';
+
+import './FieldSelector.css';
 
 interface Props {
   active: boolean;
@@ -13,8 +14,6 @@ interface Props {
 }
 
 export function LogLevelField({ active, toggle }: Props): React.JSX.Element | undefined {
-  const styles = useStyles2(getStyles);
-
   const handleChange = useCallback(() => {
     reportInteraction('logs_field_selector_toggle_log_level_clicked', {
       active,
@@ -23,9 +22,9 @@ export function LogLevelField({ active, toggle }: Props): React.JSX.Element | un
   }, [active, toggle]);
 
   return (
-    <div className={styles.contentWrap}>
+    <div {...stylex.props(styles.contentWrap)}>
       <Checkbox
-        className={styles.checkboxLabel}
+        className="gf-logs-field-checkbox"
         label={t('logs.field-selector.log-level', 'Show log level')}
         onChange={handleChange}
         checked={active}
@@ -34,23 +33,11 @@ export function LogLevelField({ active, toggle }: Props): React.JSX.Element | un
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    contentWrap: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-    }),
-    // Hide text that overflows, had to select elements within the Checkbox component, so this is a bit fragile
-    checkboxLabel: css({
-      '> span': {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        display: 'block',
-        maxWidth: '100%',
-      },
-    }),
-  };
-}
+const styles = stylex.create({
+  contentWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+});

@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useMemo, useEffect } from 'react';
 import { useMeasure } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Alert, LoadingBar, Text, useStyles2 } from '@grafana/ui';
+import { Alert, LoadingBar, Text } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 type ErrorState = {
   message: string;
@@ -19,7 +19,6 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePreviewProps) {
-  const styles = useStyles2(getStyles);
   const [ref, { width: measuredWidth }] = useMeasure<HTMLDivElement>();
 
   // Memoize and clean up the object URL for the image
@@ -41,20 +40,20 @@ export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePrevie
 
   return (
     <div
-      className={styles.previewContainer}
+      {...stylex.props(styles.previewContainer)}
       ref={ref}
       aria-label={t('share-modal.image.preview-region', 'Image preview')}
       role="region"
     >
       {isLoading && (
         <div
-          className={styles.loadingBarContainer}
+          {...stylex.props(styles.loadingBarContainer)}
           role="status"
           aria-label={t('share-modal.image.generating', 'Generating image...')}
         >
           <LoadingBar width={measuredWidth} />
           {title && (
-            <div className={styles.titleContainer}>
+            <div {...stylex.props(styles.titleContainer)}>
               <Text variant="body">{title}</Text>
             </div>
           )}
@@ -66,7 +65,7 @@ export function ImagePreview({ imageBlob, isLoading, error, title }: ImagePrevie
         <img
           src={imageUrl}
           alt={t('share-modal.image.preview', 'Preview')}
-          className={styles.image}
+          {...stylex.props(styles.image)}
           aria-label={t('share-modal.image.preview-aria', 'Generated image preview')}
         />
       )}
@@ -89,27 +88,27 @@ function ErrorAlert({ error }: { error: ErrorState }) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  previewContainer: css({
+const styles = stylex.create({
+  previewContainer: {
     position: 'relative',
     width: '100%',
     minHeight: '200px',
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.shape.radius.default,
+    backgroundColor: colors['--gf-colors-background-secondary'],
+    borderRadius: shape['--gf-shape-radius-default'],
     overflow: 'hidden',
-  }),
-  loadingBarContainer: css({
+  },
+  loadingBarContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-  }),
-  titleContainer: css({
-    padding: theme.spacing(1),
-  }),
-  image: css({
+  },
+  titleContainer: {
+    padding: spacing['--gf-spacing-x1'],
+  },
+  image: {
     maxWidth: '100%',
     maxHeight: '100%',
     objectFit: 'contain',
-  }),
+  },
 });

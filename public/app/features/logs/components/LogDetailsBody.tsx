@@ -1,34 +1,22 @@
-import { css } from '@emotion/css';
-import memoizeOne from 'memoize-one';
+import * as stylex from '@stylexjs/stylex';
 
-import { type CoreApp, type GrafanaTheme2, type LogRowModel } from '@grafana/data';
+import { type CoreApp, type LogRowModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { IconButton, type Themeable2 } from '@grafana/ui';
+import { IconButton } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { LOG_LINE_BODY_FIELD_NAME } from './fieldSelector/logFields';
-import { getLogRowStyles } from './getLogRowStyles';
+import { logRowStyles } from './getLogRowStyles';
 
-export interface Props extends Themeable2 {
+export interface Props {
   app?: CoreApp;
   disableActions: boolean;
   displayedFields?: string[];
   onClickShowField?: (key: string) => void;
   onClickHideField?: (key: string) => void;
   row: LogRowModel;
-  theme: GrafanaTheme2;
 }
-
-const getStyles = memoizeOne((theme: GrafanaTheme2) => {
-  return {
-    buttonRow: css({
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
-      marginLeft: theme.spacing(0.5),
-    }),
-  };
-});
 
 export const LogDetailsBody = (props: Props) => {
   const showField = () => {
@@ -59,9 +47,7 @@ export const LogDetailsBody = (props: Props) => {
     });
   };
 
-  const { theme, displayedFields, disableActions, row } = props;
-  const styles = getStyles(theme);
-  const rowStyles = getLogRowStyles(theme);
+  const { displayedFields, disableActions, row } = props;
 
   const toggleFieldButton =
     displayedFields != null && displayedFields.includes(LOG_LINE_BODY_FIELD_NAME) ? (
@@ -80,14 +66,23 @@ export const LogDetailsBody = (props: Props) => {
     );
 
   return (
-    <tr className={rowStyles.logDetailsValue}>
-      <td className={rowStyles.logsDetailsIcon}>
-        <div className={styles.buttonRow}>{!disableActions && displayedFields && toggleFieldButton}</div>
+    <tr {...stylex.props(logRowStyles.logDetailsValue)}>
+      <td {...stylex.props(logRowStyles.logsDetailsIcon)}>
+        <div {...stylex.props(styles.buttonRow)}>{!disableActions && displayedFields && toggleFieldButton}</div>
       </td>
 
-      <td className={rowStyles.logDetailsLabel} colSpan={100}>
+      <td {...stylex.props(logRowStyles.logDetailsLabel)} colSpan={100}>
         {row.entry}
       </td>
     </tr>
   );
 };
+
+const styles = stylex.create({
+  buttonRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: spacing['--gf-spacing-x0-5'],
+    marginLeft: spacing['--gf-spacing-x0-5'],
+  },
+});

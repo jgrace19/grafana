@@ -1,16 +1,15 @@
-import { css, keyframes } from '@emotion/css';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AssistantPromptCard, createAssistantContextItem } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { motion, zIndex } from '@grafana/ui/stylex/constants.stylex';
 
 import { type PopoverTarget } from './AssistantPopoverContext';
-import { getAnimatedBorderClass } from './DashboardAssistantViewMode';
+import { ANIMATED_BORDER_CLASS } from './DashboardAssistantViewMode';
 
 interface ViewModePanelPromptCardProps {
   targets: PopoverTarget[];
@@ -23,9 +22,6 @@ interface ViewModePanelPromptCardProps {
  * and all selected panels get an animated gradient border.
  */
 export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromptCardProps) {
-  const styles = useStyles2(getStyles);
-  const theme = useTheme2();
-
   // Anchor to the last selected panel
   const lastTarget = targets[targets.length - 1];
   const hintEl = lastTarget.anchorEl;
@@ -47,17 +43,16 @@ export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromp
   );
 
   // Apply animated border to ALL selected panels
-  const borderClass = useMemo(() => getAnimatedBorderClass(theme), [theme]);
   useEffect(() => {
     for (const el of allAnchorEls) {
-      el.classList.add(borderClass);
+      el.classList.add(ANIMATED_BORDER_CLASS);
     }
     return () => {
       for (const el of allAnchorEls) {
-        el.classList.remove(borderClass);
+        el.classList.remove(ANIMATED_BORDER_CLASS);
       }
     };
-  }, [allAnchorEls, borderClass]);
+  }, [allAnchorEls]);
 
   // Close the popover when any anchor element is removed from the DOM
   // (e.g. when a row is collapsed).
@@ -174,8 +169,8 @@ export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromp
   return createPortal(
     <div
       ref={refs.setFloating}
+      className={isVisible ? stylex.props(styles.floatingContainer).className : undefined}
       style={isVisible ? floatingStyles : hiddenStyle}
-      className={isVisible ? styles.floatingContainer : undefined}
       data-testid="view-mode-panel-prompt-card"
     >
       <AssistantPromptCard
@@ -185,31 +180,27 @@ export function ViewModePanelPromptCard({ targets, onClose }: ViewModePanelPromp
         animated={false}
         onClose={handleClose}
         onSubmit={handleSubmit}
-        className={styles.card}
+        className={stylex.props(styles.card).className}
       />
     </div>,
     document.body
   );
 }
 
-const popIn = keyframes({
+const popIn = stylex.keyframes({
   from: { opacity: 0 },
   to: { opacity: 1 },
 });
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    floatingContainer: css({
-      label: 'view-mode-prompt-floating',
-      zIndex: theme.zIndex.tooltip,
-      width: 380,
-      [theme.transitions.handleMotion('no-preference')]: {
-        animation: `${popIn} 150ms ease-out`,
-      },
-    }),
-    card: css({
-      label: 'view-mode-prompt-card',
-      width: '100%',
-    }),
-  };
-}
+const styles = stylex.create({
+  floatingContainer: {
+    zIndex: zIndex.tooltip,
+    width: 380,
+    animationName: { default: null, [motion.noPreference]: popIn },
+    animationDuration: { default: null, [motion.noPreference]: '150ms' },
+    animationTimingFunction: { default: null, [motion.noPreference]: 'ease-out' },
+  },
+  card: {
+    width: '100%',
+  },
+});

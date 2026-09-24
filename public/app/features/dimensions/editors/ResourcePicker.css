@@ -1,0 +1,4 @@
+/* The read-only input belongs to Input, which sets its own cursor. */
+.gf-resource-picker input[readonly] {
+  cursor: pointer;
+}

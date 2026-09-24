@@ -1,10 +1,13 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { FeatureState, type GrafanaTheme2, type ThemeRegistryItem } from '@grafana/data';
+import { FeatureState, type ThemeRegistryItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FeatureBadge, RadioButtonDot, useStyles2 } from '@grafana/ui';
+import { FeatureBadge, RadioButtonDot } from '@grafana/ui';
+import { colors, shape, spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 import { ThemePreview } from '../Theme/ThemePreview';
+
+import './ThemeCard.css';
 
 interface ThemeCardProps {
   themeOption: ThemeRegistryItem;
@@ -16,13 +19,12 @@ interface ThemeCardProps {
 export function ThemeCard({ themeOption, isExperimental, isSelected, onSelect }: ThemeCardProps) {
   const theme = themeOption.build();
   const label = getTranslatedThemeName(themeOption);
-  const styles = useStyles2(getStyles);
 
   return (
     // this is a convenience for mouse users. keyboard/screen reader users will use the radio button
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
-    <div className={styles.card} onClick={onSelect}>
-      <div className={styles.header}>
+    <div {...stylex.props(styles.card)} onClick={onSelect}>
+      <div className={`gf-theme-card-header ${stylex.props(styles.header).className}`}>
         <RadioButtonDot
           id={`theme-${theme.name}`}
           name={'theme'}
@@ -41,32 +43,30 @@ export function ThemeCard({ themeOption, isExperimental, isSelected, onSelect }:
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    card: css({
-      border: `1px solid ${theme.colors.border.weak}`,
-      borderRadius: theme.shape.radius.default,
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      cursor: 'pointer',
-      '&:hover': {
-        border: `1px solid ${theme.colors.border.medium}`,
-      },
-    }),
-    header: css({
-      alignItems: 'center',
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: theme.spacing(1),
-      // The RadioButtonDot is not correctly implemented at the moment, missing cursor (And click ability for the label and input)
-      '> label': {
-        cursor: 'pointer',
-      },
-    }),
-  };
-};
+const styles = stylex.create({
+  card: {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: { default: colors['--gf-colors-border-weak'], ':hover': colors['--gf-colors-border-medium'] },
+    borderRadius: shape['--gf-shape-radius-default'],
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    cursor: 'pointer',
+  },
+  header: {
+    alignItems: 'center',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingTop: spacing['--gf-spacing-x1'],
+    paddingRight: spacing['--gf-spacing-x1'],
+    paddingBottom: spacing['--gf-spacing-x1'],
+    paddingLeft: spacing['--gf-spacing-x1'],
+  },
+});
 
 function getTranslatedThemeName(theme: ThemeRegistryItem) {
   switch (theme.id) {

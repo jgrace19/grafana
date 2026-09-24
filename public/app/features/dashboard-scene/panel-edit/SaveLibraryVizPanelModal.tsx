@@ -1,10 +1,11 @@
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useState } from 'react';
 import { useAsync, useDebounce } from 'react-use';
 
 import { Trans, t } from '@grafana/i18n';
-import { Button, Icon, Input, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Input, Modal } from '@grafana/ui';
+import { colors, shape, spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { getConnectedDashboards } from 'app/features/library-panels/state/api';
-import { getModalStyles } from 'app/features/library-panels/styles';
 
 import { type LibraryPanelBehavior } from '../scene/LibraryPanelBehavior';
 
@@ -42,7 +43,6 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
     [dashState.value, searchString]
   );
 
-  const styles = useStyles2(getModalStyles);
   const discardAndClose = useCallback(() => {
     onDiscard();
   }, [onDiscard]);
@@ -52,7 +52,7 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
   return (
     <Modal title={title} onDismiss={onDismiss} isOpen={true}>
       <div>
-        <p className={styles.textInfo}>
+        <p {...stylex.props(styles.textInfo)}>
           <Trans
             i18nKey="dashboard-scene.save-library-viz-panel-modal.affected-dashboards"
             count={libraryPanel.state._loadedPanel?.meta?.connectedDashboards}
@@ -62,7 +62,7 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
           </Trans>
         </p>
         <Input
-          className={styles.dashboardSearch}
+          className={stylex.props(styles.dashboardSearch).className}
           prefix={<Icon name="search" />}
           placeholder={t(
             'dashboard-scene.save-library-viz-panel-modal.placeholder-search-affected-dashboards',
@@ -78,18 +78,18 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
             </Trans>
           </p>
         ) : (
-          <table className={styles.myTable}>
-            <thead>
+          <table {...stylex.props(styles.myTable)}>
+            <thead {...stylex.props(styles.tableHead)}>
               <tr>
-                <th>
+                <th {...stylex.props(styles.tableCell)}>
                   <Trans i18nKey="dashboard-scene.save-library-viz-panel-modal.dashboard-name">Dashboard name</Trans>
                 </th>
               </tr>
             </thead>
             <tbody>
               {filteredDashboards.map((dashName, i) => (
-                <tr key={`dashrow-${i}`}>
-                  <td>{dashName}</td>
+                <tr key={`dashrow-${i}`} {...stylex.props(styles.tableRow)}>
+                  <td {...stylex.props(styles.tableCell)}>{dashName}</td>
                 </tr>
               ))}
             </tbody>
@@ -116,3 +116,42 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
     </Modal>
   );
 };
+
+// Keep in sync with getModalStyles in app/features/library-panels/styles.ts, used by the other library panel modals.
+const styles = stylex.create({
+  myTable: {
+    maxHeight: '204px',
+    overflowY: 'auto',
+    marginTop: '11px',
+    marginBottom: '28px',
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-action-hover'],
+    backgroundColor: colors['--gf-colors-background-primary'],
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-h6-font-size'],
+    width: '100%',
+  },
+  tableHead: {
+    color: '#538ade',
+    fontSize: typography['--gf-typography-body-small-font-size'],
+  },
+  tableCell: {
+    paddingTop: '6px',
+    paddingRight: '13px',
+    paddingBottom: '6px',
+    paddingLeft: '13px',
+    height: spacing['--gf-spacing-x4'],
+  },
+  tableRow: {
+    backgroundColor: { default: null, ':nth-child(odd)': colors['--gf-colors-background-secondary'] },
+  },
+  textInfo: {
+    color: colors['--gf-colors-text-secondary'],
+    fontSize: typography['--gf-typography-size-sm'],
+  },
+  dashboardSearch: {
+    marginTop: spacing['--gf-spacing-x2'],
+  },
+});

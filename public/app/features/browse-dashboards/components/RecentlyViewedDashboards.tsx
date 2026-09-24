@@ -1,4 +1,5 @@
 import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useAsyncRetry } from 'react-use';
 
@@ -6,6 +7,7 @@ import { type GrafanaTheme2, store } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button, CollapsableSection, Grid, Spinner, Stack, Text, useStyles2 } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
 import { contextSrv } from 'app/core/services/context_srv';
 import { useDashboardLocationInfo } from 'app/features/search/hooks/useDashboardLocationInfo';
@@ -18,7 +20,7 @@ const MAX_RECENT = 5;
 const recentDashboardsKey = `dashboard_impressions-${contextSrv.user.orgId}`;
 
 export function RecentlyViewedDashboards() {
-  const styles = useStyles2(getStyles);
+  const pendingStyles = useStyles2(getPendingStyles);
   const isMediumScreen = !useMediaQueryMinWidth('md');
   const [isOpen, setIsOpen] = useState(!isMediumScreen); // Default to closed on small screens
 
@@ -71,8 +73,8 @@ export function RecentlyViewedDashboards() {
       // passing empty function to disable controlled mode, we only want to control isOpen when click on title
       // this avoid entire header section being clickable which can be confusing with the Clear history button
       onToggle={() => {}}
-      className={styles.title}
-      contentClassName={styles.content}
+      className={pendingStyles.title}
+      contentClassName={pendingStyles.content}
     >
       {error && (
         <>
@@ -89,10 +91,10 @@ export function RecentlyViewedDashboards() {
       {loading && <Spinner />}
 
       {!loading && recentDashboards.length > 0 && (
-        <ul className={styles.list}>
+        <ul {...stylex.props(styles.list)}>
           <Grid columns={{ xs: 1, sm: 2, md: 3, lg: 5 }} gap={2}>
             {recentDashboards.map((dash, idx) => (
-              <li key={dash.uid} className={styles.listItem}>
+              <li key={dash.uid} {...stylex.props(styles.listItem)}>
                 <DashListItem
                   order={idx + 1}
                   key={dash.uid}
@@ -112,7 +114,8 @@ export function RecentlyViewedDashboards() {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
+// stylex: pending CollapsableSection migration
+const getPendingStyles = (theme: GrafanaTheme2) => {
   return {
     title: css({
       cursor: 'default',
@@ -131,15 +134,18 @@ const getStyles = (theme: GrafanaTheme2) => {
     content: css({
       paddingTop: theme.spacing(0),
     }),
-    list: css({
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      display: 'grid',
-      gap: theme.spacing(2),
-    }),
-    listItem: css({
-      margin: 0,
-    }),
   };
 };
+
+const styles = stylex.create({
+  list: {
+    listStyle: 'none',
+    margin: 0,
+    padding: 0,
+    display: 'grid',
+    gap: spacing['--gf-spacing-x2'],
+  },
+  listItem: {
+    margin: 0,
+  },
+});

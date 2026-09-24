@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { isEqual } from 'lodash';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -18,11 +19,11 @@ import {
   type VizPanel,
 } from '@grafana/scenes';
 import { type LibraryPanel } from '@grafana/schema';
-import { Alert, Button, CodeEditor, Field, Select, useStyles2 } from '@grafana/ui';
+import { Alert, Button, CodeEditor, Field, Select } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { getPanelDataFrames } from 'app/features/dashboard/components/HelpWizard/utils';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
-import { getPanelInspectorStyles2 } from 'app/features/inspector/styles';
 import { InspectTab } from 'app/features/inspector/types';
 import { getPrettyJSON } from 'app/features/inspector/utils/utils';
 import { reportPanelInspectInteraction } from 'app/features/search/page/reporting';
@@ -315,12 +316,11 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
 
 function InspectJsonTabComponent({ model }: SceneComponentProps<InspectJsonTab>) {
   const { source: show, jsonText, error } = model.useState();
-  const styles = useStyles2(getPanelInspectorStyles2);
   const options = model.getOptions();
 
   return (
-    <div className={styles.wrap}>
-      <div className={styles.toolbar} data-testid={selectors.components.PanelInspector.Json.content}>
+    <div {...stylex.props(styles.wrap)}>
+      <div {...stylex.props(styles.toolbar)} data-testid={selectors.components.PanelInspector.Json.content}>
         <Field label={t('dashboard.inspect-json.select-source', 'Select source')} className="flex-grow-1" noMargin>
           <Select
             inputId="select-source-dropdown"
@@ -330,7 +330,7 @@ function InspectJsonTabComponent({ model }: SceneComponentProps<InspectJsonTab>)
           />
         </Field>
         {model.isEditable() && (
-          <Button className={styles.toolbarItem} onClick={model.onApplyChange}>
+          <Button className={stylex.props(styles.toolbarItem).className} onClick={model.onApplyChange}>
             <Trans i18nKey="dashboard-scene.inspect-json-tab.apply">Apply</Trans>
           </Button>
         )}
@@ -342,7 +342,7 @@ function InspectJsonTabComponent({ model }: SceneComponentProps<InspectJsonTab>)
         </Alert>
       )}
 
-      <div className={styles.content}>
+      <div {...stylex.props(styles.content)}>
         <AutoSizer disableWidth>
           {({ height }) => (
             <CodeEditor
@@ -487,3 +487,32 @@ function hasQueriesChanged(a: SceneQueryRunner | undefined, b: SceneQueryRunner 
 
   return !isEqual(a.state.queries, b.state.queries);
 }
+
+// The panel inspector styles (app/features/inspector/styles) this tab uses.
+const styles = stylex.create({
+  wrap: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    width: '100%',
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0',
+    minHeight: 0,
+  },
+  toolbar: {
+    display: 'flex',
+    width: '100%',
+    flexGrow: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    marginBottom: spacing['--gf-spacing-x1'],
+  },
+  toolbarItem: {
+    marginLeft: spacing['--gf-spacing-x2'],
+  },
+  content: {
+    flexGrow: 1,
+    height: '100%',
+  },
+});

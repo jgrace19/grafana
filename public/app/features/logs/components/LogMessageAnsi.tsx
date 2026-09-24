@@ -2,8 +2,8 @@ import ansicolor from 'ansicolor';
 import { PureComponent } from 'react';
 import Highlighter from 'react-highlight-words';
 
-import { findHighlightChunksInText, type GrafanaTheme2 } from '@grafana/data';
-import { withTheme2, type Themeable2 } from '@grafana/ui';
+import { findHighlightChunksInText } from '@grafana/data';
+import { colors } from '@grafana/ui/stylex/tokens.stylex';
 
 interface Style {
   [key: string]: string;
@@ -14,13 +14,13 @@ interface ParsedChunk {
   text: string;
 }
 
-function convertCSSToStyle(theme: GrafanaTheme2, css: string): Style {
+export function convertCSSToStyle(css: string): Style {
   return css.split(/;\s*/).reduce<Style>((accumulated, line) => {
     // The ansicolor package returns this color if the chunk has the ANSI dim
     // style (`\e[2m`), but it is nearly unreadable in the dark theme, so we use
-    // GrafanaTheme2 instead to style it in a way that works across all themes.
+    // the theme's secondary text color instead to style it in a way that works across all themes.
     if (line === 'color:rgba(0,0,0,0.5)') {
-      return { color: theme.colors.text.secondary };
+      return { color: colors['--gf-colors-text-secondary'] };
     }
 
     const match = line.match(/([^:\s]+)\s*:\s*(.+)/);
@@ -34,7 +34,7 @@ function convertCSSToStyle(theme: GrafanaTheme2, css: string): Style {
   }, {});
 }
 
-interface Props extends Themeable2 {
+interface Props {
   value: string;
   highlight?: {
     searchWords: string[];
@@ -47,7 +47,7 @@ interface State {
   prevValue: string;
 }
 
-export class UnThemedLogMessageAnsi extends PureComponent<Props, State> {
+export class LogMessageAnsi extends PureComponent<Props, State> {
   state: State = {
     chunks: [],
     prevValue: '',
@@ -64,7 +64,7 @@ export class UnThemedLogMessageAnsi extends PureComponent<Props, State> {
       chunks: parsed.spans.map((span) => {
         return span.css
           ? {
-              style: convertCSSToStyle(props.theme, span.css),
+              style: convertCSSToStyle(span.css),
               text: span.text,
             }
           : { text: span.text };
@@ -98,6 +98,3 @@ export class UnThemedLogMessageAnsi extends PureComponent<Props, State> {
     });
   }
 }
-
-export const LogMessageAnsi = withTheme2(UnThemedLogMessageAnsi);
-LogMessageAnsi.displayName = 'LogMessageAnsi';

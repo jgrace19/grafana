@@ -1,0 +1,8 @@
+/*
+ * InlineField (no `xstyle`) sets its own margin. Not in a cascade layer, and the class is doubled, so this wins
+ * over InlineField's rule whether it's Emotion (inserted after this stylesheet) or StyleX.
+ */
+.gf-date-time-picker-field.gf-date-time-picker-field {
+  margin-bottom: 0;
+  width: 100%;
+}

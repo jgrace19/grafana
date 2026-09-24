@@ -1,8 +1,7 @@
-import { css, cx } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useMemo, useState } from 'react';
 
 import {
-  type GrafanaTheme2,
   isDateTime,
   isValidGrafanaDuration,
   rangeUtil,
@@ -14,8 +13,10 @@ import {
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
-import { useStyles2, useTheme2 } from '../../../themes/ThemeContext';
-import { getFocusStyles } from '../../../themes/mixins';
+import { useTheme2 } from '../../../themes/ThemeContext';
+import { mergeStylexProps } from '../../../themes/stylex/mergeStylexProps';
+import { mixins } from '../../../themes/stylex/mixins';
+import { colors, shadows, shape, spacing } from '../../../themes/stylex/tokens.stylex';
 import { FilterInput } from '../../FilterInput/FilterInput';
 import { Icon } from '../../Icon/Icon';
 import { TextLink } from '../../Link/TextLink';
@@ -75,7 +76,6 @@ export const TimePickerContentWithScreenSize = (props: PropsWithScreenSize) => {
   const isHistoryEmpty = !history?.length;
   const isContainerTall =
     (isFullscreen && showHistory) || (!isFullscreen && ((showHistory && !isHistoryEmpty) || !hideQuickRanges));
-  const styles = useStyles2(getStyles, isReversed, hideQuickRanges, isContainerTall, isFullscreen);
   const historyOptions = mapToHistoryOptions(history, timeZone);
   const baseTimeOption = useTimeOption(value.raw, quickOptions);
   const [searchTerm, setSearchQuery] = useState('');
@@ -102,11 +102,27 @@ export const TimePickerContentWithScreenSize = (props: PropsWithScreenSize) => {
   };
 
   return (
-    <div id="TimePickerContent" className={cx(styles.container, className)}>
-      <div className={styles.body}>
+    <div
+      id="TimePickerContent"
+      {...mergeStylexProps(
+        stylex.props(
+          styles.container,
+          isFullscreen ? styles.containerFullscreen : styles.containerNarrow,
+          isReversed ? styles.containerReversed : styles.containerDefault
+        ),
+        { className }
+      )}
+    >
+      <div {...stylex.props(styles.body, isContainerTall ? styles.bodyTall : styles.bodyShort)}>
         {(!isFullscreen || !hideQuickRanges) && (
-          <div className={styles.rightSide}>
-            <div className={styles.timeRangeFilter}>
+          <div
+            {...stylex.props(
+              styles.rightSide,
+              isFullscreen ? styles.rightSideFullscreen : styles.rightSideNarrow,
+              isReversed && styles.rightSideReversed
+            )}
+          >
+            <div {...stylex.props(styles.timeRangeFilter)}>
               <FilterInput
                 width={0}
                 value={searchTerm}
@@ -115,7 +131,7 @@ export const TimePickerContentWithScreenSize = (props: PropsWithScreenSize) => {
                 placeholder={t('time-picker.content.filter-placeholder', 'Search quick ranges')}
               />
             </div>
-            <div className={styles.scrollContent}>
+            <div {...stylex.props(styles.scrollContent)}>
               {!isFullscreen && <NarrowScreenForm {...props} historyOptions={historyOptions} />}
               {!hideQuickRanges && (
                 <TimeRangeList options={filteredQuickOptions} onChange={onChangeTimeOption} value={timeOption} />
@@ -124,7 +140,13 @@ export const TimePickerContentWithScreenSize = (props: PropsWithScreenSize) => {
           </div>
         )}
         {isFullscreen && (
-          <div className={styles.leftSide}>
+          <div
+            {...stylex.props(
+              styles.leftSide,
+              isReversed ? styles.leftSideReversed : styles.leftSideDefault,
+              hideQuickRanges ? styles.leftSideFull : styles.leftSidePartial
+            )}
+          >
             <FullScreenForm {...props} historyOptions={historyOptions} />
           </div>
         )}
@@ -150,7 +172,6 @@ export const TimePickerContent = (props: Props) => {
 
 const NarrowScreenForm = (props: FormProps) => {
   const { value, hideQuickRanges, onChange, timeZone, historyOptions = [], showHistory, onError, weekStart } = props;
-  const styles = useStyles2(getNarrowScreenStyles);
   const isAbsolute = isDateTime(value.raw.from) || isDateTime(value.raw.to);
   const [collapsedFlag, setCollapsedFlag] = useState(!isAbsolute);
   const collapsed = hideQuickRanges ? false : collapsedFlag;
@@ -161,10 +182,10 @@ const NarrowScreenForm = (props: FormProps) => {
 
   return (
     <fieldset>
-      <div className={styles.header}>
+      <div {...stylex.props(narrowScreenStyles.header)}>
         <button
           type={'button'}
-          className={styles.expandButton}
+          {...stylex.props(mixins.focusRing, narrowScreenStyles.expandButton)}
           onClick={() => {
             if (!hideQuickRanges) {
               setCollapsedFlag(!collapsed);
@@ -181,8 +202,8 @@ const NarrowScreenForm = (props: FormProps) => {
         </button>
       </div>
       {!collapsed && (
-        <div className={styles.body} id="expanded-timerange">
-          <div className={styles.form}>
+        <div {...stylex.props(narrowScreenStyles.body)} id="expanded-timerange">
+          <div {...stylex.props(narrowScreenStyles.form)}>
             <TimeRangeContent
               value={value}
               onApply={onChange}
@@ -208,15 +229,22 @@ const NarrowScreenForm = (props: FormProps) => {
 
 const FullScreenForm = (props: FormProps) => {
   const { onChange, value, timeZone, fiscalYearStartMonth, isReversed, historyOptions, onError, weekStart } = props;
-  const styles = useStyles2(getFullScreenStyles, props.hideQuickRanges);
   const onChangeTimeOption = (timeOption: TimeOption) => {
     return onChange(mapOptionToTimeRange(timeOption, timeZone));
   };
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.title} data-testid={selectors.components.TimePicker.absoluteTimeRangeTitle}>
+      <div
+        {...stylex.props(
+          fullScreenStyles.container,
+          !props.hideQuickRanges && fullScreenStyles.containerWithQuickRanges
+        )}
+      >
+        <div
+          {...stylex.props(fullScreenStyles.title)}
+          data-testid={selectors.components.TimePicker.absoluteTimeRangeTitle}
+        >
           <TimePickerTitle>
             <Trans i18nKey="time-picker.absolute.title">Absolute time range</Trans>
           </TimePickerTitle>
@@ -233,7 +261,7 @@ const FullScreenForm = (props: FormProps) => {
         />
       </div>
       {props.showHistory && (
-        <div className={styles.recent}>
+        <div {...stylex.props(fullScreenStyles.recent)}>
           <TimeRangeList
             title={t('time-picker.absolute.recent-title', 'Recently used absolute ranges')}
             options={historyOptions || []}
@@ -247,23 +275,26 @@ const FullScreenForm = (props: FormProps) => {
 };
 
 const EmptyRecentList = memo(() => {
-  const styles = useStyles2(getEmptyListStyles);
   const emptyRecentListText = t(
     'time-picker.content.empty-recent-list-info',
     "It looks like you haven't used this time picker before. As soon as you enter some time intervals, recently used intervals will appear here."
   );
 
   return (
-    <div className={styles.container}>
+    <div {...stylex.props(emptyListStyles.container)}>
       <div>
-        <span>{emptyRecentListText}</span>
+        <span {...stylex.props(emptyListStyles.text)}>{emptyRecentListText}</span>
       </div>
       <Trans i18nKey="time-picker.content.empty-recent-list-docs">
         <div>
-          <TextLink href="https://grafana.com/docs/grafana/latest/dashboards/time-range-controls" external>
+          <TextLink
+            href="https://grafana.com/docs/grafana/latest/dashboards/time-range-controls"
+            external
+            style={{ fontSize: '13px' }}
+          >
             Read the documentation
           </TextLink>
-          <span> to find out more about how to enter custom time ranges.</span>
+          <span {...stylex.props(emptyListStyles.text)}> to find out more about how to enter custom time ranges.</span>
         </div>
       </Trans>
     </div>
@@ -291,106 +322,148 @@ const useTimeOption = (raw: RawTimeRange, quickOptions: TimeOption[]): TimeOptio
   }, [raw, quickOptions]);
 };
 
-const getStyles = (
-  theme: GrafanaTheme2,
-  isReversed?: boolean,
-  hideQuickRanges?: boolean,
-  isContainerTall?: boolean,
-  isFullscreen?: boolean
-) => ({
-  container: css({
-    background: theme.colors.background.elevated,
-    boxShadow: theme.shadows.z3,
-    width: `${isFullscreen ? '546px' : '262px'}`,
-    borderRadius: theme.shape.radius.default,
-    border: `1px solid ${theme.colors.border.weak}`,
-    [`${isReversed ? 'left' : 'right'}`]: 0,
+const styles = stylex.create({
+  container: {
+    backgroundColor: colors['--gf-colors-background-elevated'],
+    boxShadow: shadows['--gf-shadows-z3'],
+    borderRadius: shape['--gf-shape-radius-default'],
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: colors['--gf-colors-border-weak'],
     display: 'flex',
     flexDirection: 'column',
-  }),
-  body: css({
+  },
+  containerFullscreen: {
+    width: '546px',
+  },
+  containerNarrow: {
+    width: '262px',
+  },
+  containerDefault: {
+    right: 0,
+  },
+  containerReversed: {
+    left: 0,
+  },
+  body: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    height: `${isContainerTall ? '381px' : '217px'}`,
     maxHeight: '100vh',
-  }),
-  leftSide: css({
+  },
+  bodyTall: {
+    height: '381px',
+  },
+  bodyShort: {
+    height: '217px',
+  },
+  leftSide: {
     display: 'flex',
     flexDirection: 'column',
-    borderRight: `${isReversed ? 'none' : `1px solid ${theme.colors.border.weak}`}`,
-    width: `${!hideQuickRanges ? '60%' : '100%'}`,
     overflow: 'auto',
     scrollbarWidth: 'thin',
-    order: isReversed ? 1 : 0,
-  }),
-  rightSide: css({
-    width: `${isFullscreen ? '40%' : '100%'}; !important`,
-    borderRight: isReversed ? `1px solid ${theme.colors.border.weak}` : 'none',
+  },
+  leftSideDefault: {
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+    order: 0,
+  },
+  leftSideReversed: {
+    borderRightStyle: 'none',
+    order: 1,
+  },
+  leftSidePartial: {
+    width: '60%',
+  },
+  leftSideFull: {
+    width: '100%',
+  },
+  rightSide: {
+    borderRightStyle: 'none',
     display: 'flex',
     flexDirection: 'column',
-  }),
-  timeRangeFilter: css({
-    padding: theme.spacing(1),
-  }),
-  spacing: css({
-    marginTop: '16px',
-  }),
-  scrollContent: css({
+  },
+  rightSideFullscreen: {
+    width: '40%',
+  },
+  rightSideNarrow: {
+    width: '100%',
+  },
+  rightSideReversed: {
+    borderRightWidth: '1px',
+    borderRightStyle: 'solid',
+    borderRightColor: colors['--gf-colors-border-weak'],
+  },
+  timeRangeFilter: {
+    padding: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
+  scrollContent: {
     overflowY: 'auto',
     scrollbarWidth: 'thin',
-  }),
+  },
 });
 
-const getNarrowScreenStyles = (theme: GrafanaTheme2) => ({
-  header: css({
+const narrowScreenStyles = stylex.create({
+  header: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-    padding: '7px 9px 7px 9px',
-  }),
-  expandButton: css({
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+    paddingTop: '7px',
+    paddingRight: '9px',
+    paddingBottom: '7px',
+    paddingLeft: '9px',
+  },
+  expandButton: {
     backgroundColor: 'transparent',
-    border: 'none',
+    borderStyle: 'none',
     display: 'flex',
     width: '100%',
-
-    '&:focus-visible': getFocusStyles(theme),
-  }),
-  body: css({
-    borderBottom: `1px solid ${theme.colors.border.weak}`,
-  }),
-  form: css({
-    padding: '7px 9px 7px 9px',
-  }),
+  },
+  body: {
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors['--gf-colors-border-weak'],
+  },
+  form: {
+    paddingTop: '7px',
+    paddingRight: '9px',
+    paddingBottom: '7px',
+    paddingLeft: '9px',
+  },
 });
 
-const getFullScreenStyles = (theme: GrafanaTheme2, hideQuickRanges?: boolean) => ({
-  container: css({
+const fullScreenStyles = stylex.create({
+  container: {
     paddingTop: '9px',
     paddingLeft: '11px',
-    paddingRight: !hideQuickRanges ? '20%' : '11px',
-  }),
-  title: css({
+    paddingRight: '11px',
+  },
+  containerWithQuickRanges: {
+    paddingRight: '20%',
+  },
+  title: {
     marginBottom: '11px',
-  }),
-  recent: css({
+  },
+  recent: {
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    paddingTop: theme.spacing(1),
-  }),
+    paddingTop: `calc(${spacing['--gf-spacing-grid-size']} * 1)`,
+  },
 });
 
-const getEmptyListStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+// The link's font size goes through its `style`: a StyleX class string doesn't reliably override TextLink.
+const emptyListStyles = stylex.create({
+  container: {
     padding: '12px',
     margin: '12px',
-
-    'a, span': {
-      fontSize: '13px',
-    },
-  }),
+  },
+  text: {
+    fontSize: '13px',
+  },
 });
