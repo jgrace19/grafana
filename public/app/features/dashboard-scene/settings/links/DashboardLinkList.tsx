@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
+import * as stylex from '@stylexjs/stylex';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { type DashboardLink } from '@grafana/schema';
-import { Button, DeleteButton, EmptyState, Icon, IconButton, Stack, TagList, TextLink, useStyles2 } from '@grafana/ui';
+import { Button, DeleteButton, EmptyState, Icon, IconButton, Stack, TagList, TextLink } from '@grafana/ui';
+import { spacing } from '@grafana/ui/stylex/tokens.stylex';
 
 interface DashboardLinkListProps {
   links: DashboardLink[];
@@ -22,7 +22,6 @@ export function DashboardLinkList({
   onDuplicate,
   onDelete,
 }: DashboardLinkListProps) {
-  const styles = useStyles2(getStyles);
   const isEmptyList = links.length === 0;
 
   if (isEmptyList) {
@@ -81,8 +80,8 @@ export function DashboardLinkList({
               </td>
               <td role="gridcell" className="pointer" onClick={() => onEdit(idx)}>
                 <Stack>
-                  {link.title && <span className={styles.titleWrapper}>{link.title}</span>}
-                  {link.type === 'link' && <span className={styles.urlWrapper}>{link.url}</span>}
+                  {link.title && <span {...stylex.props(styles.titleWrapper)}>{link.title}</span>}
+                  {link.type === 'link' && <span {...stylex.props(styles.urlWrapper)}>{link.url}</span>}
                   {link.type === 'dashboards' && <TagList tags={link.tags ?? []} />}
                 </Stack>
               </td>
@@ -126,25 +125,25 @@ export function DashboardLinkList({
           ))}
         </tbody>
       </table>
-      <Button className={styles.newLinkButton} icon="plus" onClick={onNew}>
+      <Button className={stylex.props(styles.newLinkButton).className} icon="plus" onClick={onNew}>
         <Trans i18nKey="dashboard-scene.dashboard-link-list.new-link">New link</Trans>
       </Button>
     </>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  titleWrapper: css({
+const styles = stylex.create({
+  titleWrapper: {
     width: '20vw',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-  }),
-  urlWrapper: css({
+  },
+  urlWrapper: {
     width: '40vw',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-  }),
-  newLinkButton: css({
-    marginTop: theme.spacing(3),
-  }),
+  },
+  newLinkButton: {
+    marginTop: spacing['--gf-spacing-x3'],
+  },
 });

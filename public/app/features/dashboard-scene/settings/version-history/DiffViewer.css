@@ -1,0 +1,7 @@
+/*
+ * Prevents global styles from interfering with react-diff-viewer's <pre>s. Plain CSS so it keeps the specificity of the
+ * Emotion descendant rule it replaces.
+ */
+.gf-diff-viewer pre {
+  all: revert;
+}
