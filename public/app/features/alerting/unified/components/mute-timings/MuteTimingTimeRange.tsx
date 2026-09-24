@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -11,6 +9,7 @@ import { type MuteTimingFields } from '../../types/mute-timing-form';
 import ConditionalWrap from '../ConditionalWrap';
 
 import { isValidStartAndEndTime, isvalidTimeFormat } from './util';
+import './MuteTimingTimeRange.css';
 
 interface Props {
   intervalIndex: number;
@@ -86,7 +85,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className={pendingEmotionStyles.timeRangeInput}
+                      className="gf-alerting-mute-timing-time-input"
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -118,7 +117,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           }
                         },
                       })}
-                      className={pendingEmotionStyles.timeRangeInput}
+                      className="gf-alerting-mute-timing-time-input"
                       maxLength={5}
                       readOnly={isDisabled}
                       suffix={<Icon name="clock-nine" />}
@@ -171,13 +170,6 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
       </ConditionalWrap>
     </div>
   );
-};
-
-// stylex: pending Input migration
-const pendingEmotionStyles = {
-  timeRangeInput: css({
-    width: '90px',
-  }),
 };
 
 const styles = stylex.create({

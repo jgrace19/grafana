@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- stylex: pending Input migration
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -23,6 +21,7 @@ import { ALERTING_PATHS } from '../../utils/navigation';
 import { ImportedTimeIntervalAlert, ProvisionedResource, ProvisioningAlert } from '../Provisioning';
 
 import { MuteTimingTimeInterval } from './MuteTimingTimeInterval';
+import './MuteTimingForm.css';
 
 interface Props {
   muteTiming?: MuteTiming;
@@ -141,7 +140,7 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
                     return validateMuteTiming(value, skipValidation);
                   },
                 })}
-                className={pendingEmotionStyles.input}
+                className="gf-alerting-mute-timing-name-input"
                 data-testid={'mute-timing-name'}
               />
             </Field>
@@ -166,13 +165,6 @@ const MuteTimingForm = ({ muteTiming, showError, loading, provenance, editMode }
       </FormProvider>
     </>
   );
-};
-
-// stylex: pending Input migration
-const pendingEmotionStyles = {
-  input: css({
-    width: '400px',
-  }),
 };
 
 const styles = stylex.create({
