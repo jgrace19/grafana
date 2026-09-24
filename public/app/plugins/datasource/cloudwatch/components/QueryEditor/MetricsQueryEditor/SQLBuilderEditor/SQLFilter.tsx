@@ -202,6 +202,11 @@ const FilterItem = (props: FilterItemProps) => {
 };
 
 const styles = stylex.create({
-  container: { display: 'inline-block' },
-  alert: { minWidth: '100%', width: 'min-content' },
+  container: {
+    display: 'inline-block',
+  },
+  alert: {
+    minWidth: '100%',
+    width: 'min-content',
+  },
 });

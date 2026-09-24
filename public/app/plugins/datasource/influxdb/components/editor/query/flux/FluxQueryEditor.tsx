@@ -232,8 +232,12 @@ const styles = stylex.create({
 });
 
 const backgroundStyles = stylex.create({
-  dark: { backgroundColor: colors['--gf-colors-background-canvas'] },
-  light: { backgroundColor: colors['--gf-colors-background-primary'] },
+  dark: {
+    backgroundColor: colors['--gf-colors-background-canvas'],
+  },
+  light: {
+    backgroundColor: colors['--gf-colors-background-primary'],
+  },
 });
 
 export const FluxQueryEditor = (props: Props) => {
