@@ -7,9 +7,9 @@ import * as React from 'react';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
-import { useTheme2 } from '../../themes/ThemeContext';
-import { bp, motion, zIndex } from '../../themes/stylex/constants.stylex';
-import { colors, components, shadows, shape, spacing } from '../../themes/stylex/tokens.stylex';
+import { bp, zIndex } from '../../themes/stylex/constants.stylex';
+import { colors, components, shadows, spacing } from '../../themes/stylex/tokens.stylex';
+import { dragHandleStyles, verticalOffsetStyles } from '../DragHandle/dragHandleStyles';
 import { IconButton } from '../IconButton/IconButton';
 import { Stack } from '../Layout/Stack/Stack';
 import { getPortalContainer } from '../Portal/Portal';
@@ -79,7 +79,6 @@ export function Drawer({
 }: Props) {
   const [drawerWidth, onMouseDown, onTouchStart] = useResizebleDrawer();
 
-  const theme = useTheme2();
   const titleId = useId();
 
   const { context, refs } = useFloating({
@@ -136,8 +135,11 @@ export function Drawer({
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
           <div
             {...stylex.props(
-              styles.resizer,
-              styles.resizerHandleColor(theme.colors.emphasize(theme.colors.background.secondary, 0.15))
+              dragHandleStyles.base,
+              dragHandleStyles.vertical,
+              dragHandleStyles.verticalGrip,
+              verticalOffsetStyles.middle,
+              styles.resizer
             )}
             onMouseDown={onMouseDown}
             onTouchStart={onTouchStart}
@@ -246,8 +248,6 @@ function useBodyClassWhileOpen() {
   }, []);
 }
 
-const easeInOut = 'cubic-bezier(0.4, 0, 0.2, 1)';
-
 const styles = stylex.create({
   container: {
     display: 'flex',
@@ -347,49 +347,11 @@ const styles = stylex.create({
     marginBottom: `calc(${spacing['--gf-spacing-grid-size']} * -3)`,
     marginLeft: `calc(${spacing['--gf-spacing-grid-size']} * -3)`,
   },
-  // DragHandle's getDragStyles().dragHandleVertical (still Emotion) merged with the resizer position.
   resizer: {
-    cursor: 'col-resize',
-    width: spacing['--gf-spacing-x2'],
     top: 0,
     left: `calc(${spacing['--gf-spacing-grid-size']} * -1)`,
     bottom: 0,
     position: 'absolute',
     zIndex: zIndex.modal,
-    '::before': {
-      content: '""',
-      position: 'absolute',
-      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'border-color' },
-      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '300ms' },
-      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easeInOut },
-      transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
-      zIndex: 1,
-      borderRightWidth: '1px',
-      borderRightStyle: 'solid',
-      borderRightColor: { default: 'transparent', ':hover': colors['--gf-colors-primary-border'] },
-      height: '100%',
-      left: '50%',
-      transform: 'translateX(-50%)',
-    },
-    '::after': {
-      content: '""',
-      position: 'absolute',
-      transitionProperty: { default: null, [motion.noPreferenceOrReduce]: 'background' },
-      transitionDuration: { default: null, [motion.noPreferenceOrReduce]: '300ms' },
-      transitionTimingFunction: { default: null, [motion.noPreferenceOrReduce]: easeInOut },
-      transitionDelay: { default: null, [motion.noPreferenceOrReduce]: '0ms' },
-      transform: 'translate(-50%, -50%)',
-      borderRadius: shape['--gf-shape-radius-pill'],
-      zIndex: 1,
-      left: '50%',
-      top: '50%',
-      height: 200,
-      width: 4,
-    },
   },
-  resizerHandleColor: (color: string) => ({
-    '::after': {
-      backgroundColor: { default: color, ':hover': colors['--gf-colors-primary-border'] },
-    },
-  }),
 });
