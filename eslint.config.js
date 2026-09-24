@@ -162,7 +162,7 @@ const stylexMigratedAppFiles = [
   'public/app/features/browse-dashboards/components/{CheckboxCell,DashboardsTree,NameCell}.tsx',
   'public/app/features/browse-dashboards/components/FolderDetailsActions/FolderDetailsActions.tsx',
   'public/app/features/manage-dashboards/components/SnapshotListTableRow.tsx',
-  'public/app/features/manage-dashboards/components/PublicDashboardListTable/DeletePublicDashboardModal.tsx',
+  'public/app/features/manage-dashboards/components/PublicDashboardListTable/{DeletePublicDashboardModal,PublicDashboardListTable}.tsx',
   'public/app/features/manage-dashboards/import/components/LibraryPanelsList.tsx',
   'public/app/features/search/page/components/{ActionRow,OwnersFilter,SearchResultsTable}.tsx',
 ];

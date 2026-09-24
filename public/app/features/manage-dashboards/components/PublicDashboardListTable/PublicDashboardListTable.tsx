@@ -1,23 +1,11 @@
-import { css } from '@emotion/css';
 import * as stylex from '@stylexjs/stylex';
 import { useMemo, useState } from 'react';
 import { useMedia } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import {
-  Card,
-  EmptyState,
-  LinkButton,
-  Pagination,
-  Spinner,
-  Switch,
-  TextLink,
-  useStyles2,
-  useTheme2,
-} from '@grafana/ui';
+import { Card, EmptyState, LinkButton, Pagination, Spinner, Switch, TextLink, useTheme2 } from '@grafana/ui';
 import { bp } from '@grafana/ui/stylex/constants.stylex';
 import { spacing, typography } from '@grafana/ui/stylex/tokens.stylex';
 import { Page } from 'app/core/components/Page/Page';
@@ -35,9 +23,9 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { type PublicDashboardListResponse } from '../../types';
 
 import { DeletePublicDashboardButton } from './DeletePublicDashboardButton';
+import './PublicDashboardListTable.css';
 
 const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
-  const pendingStyles = useStyles2(getPendingStyles);
   const theme = useTheme2();
   const isMobile = useMedia(`(max-width: ${theme.breakpoints.values.sm}px)`);
 
@@ -62,11 +50,11 @@ const PublicDashboardCard = ({ pd }: { pd: PublicDashboardListResponse }) => {
 
   const translatedPauseSharingText = t('shared-dashboard-list.toggle.pause-sharing-toggle-text', 'Pause access');
   return (
-    <Card noMargin className={pendingStyles.card} href={`/d/${pd.dashboardUid}`}>
-      <Card.Heading className={pendingStyles.heading}>
+    <Card noMargin className="gf-public-dashboard-card" href={`/d/${pd.dashboardUid}`}>
+      <Card.Heading className="gf-public-dashboard-card-heading">
         <span>{pd.title}</span>
       </Card.Heading>
-      <CardActions className={pendingStyles.actions}>
+      <CardActions className="gf-public-dashboard-card-actions">
         <div {...stylex.props(styles.pauseSwitch)}>
           <Switch
             value={!pd.isEnabled}
@@ -170,31 +158,6 @@ export const PublicDashboardListTable = () => {
     </Page>
   );
 };
-
-// stylex: pending Card migration
-const getPendingStyles = (theme: GrafanaTheme2) => ({
-  card: css({
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-    },
-  }),
-  heading: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    flex: 1,
-  }),
-  actions: css({
-    display: 'flex',
-    alignItems: 'center',
-    position: 'relative',
-
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.up('sm')]: {
-      gap: theme.spacing(1),
-    },
-  }),
-});
 
 const styles = stylex.create({
   list: {
